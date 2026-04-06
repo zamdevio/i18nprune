@@ -63,8 +63,14 @@ function initFieldSources(fileLoaded: boolean): FieldSources {
 let cache: Context | null = null;
 
 /**
- * Merge priority per field (last writer wins):
- * **defaults → config file → env (`I18NPRUNE_*`) → discovery (gaps only) → global CLI**.
+ * Resolves the full project context by merging:
+ * - defaults → config file → environment variables → discovery → CLI overrides
+ *
+ * This is the **single source of truth** used by the CLI and all programmatic usage.
+ *
+ * @param cwd - Working directory (defaults to `process.cwd()`)
+ * @returns Fully resolved `Context` with `config`, `paths`, `run`, and `meta`
+ * @see {@link https://github.com/zamdevio/i18nprune/blob/main/docs/exports/core.md | Core API Guide}
  */
 export function resolveContext(cwd = process.cwd()): Context {
   if (cache) return cache;
@@ -114,6 +120,10 @@ export function resolveContext(cwd = process.cwd()): Context {
   return cache;
 }
 
+/**
+ * Clears the internal context cache.
+ * Useful in long-running processes, tests, or when switching projects.
+ */
 export function clearContextCache(): void {
   cache = null;
   resetConfigPathResolution();

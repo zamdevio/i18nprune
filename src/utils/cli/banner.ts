@@ -1,5 +1,5 @@
 import type { Command } from 'commander';
-import { CLI_NAME, CLI_ROOT_TAGLINE } from '@/constants/cli.js';
+import { CLI_NAME, CLI_ROOT_TAGLINE, CONFIG_BASE_NAME } from '@/constants/cli.js';
 import { getRunOptions } from '@/core/runtime/options.js';
 import { header } from '@/utils/ansi/index.js';
 import { canEmit } from '@/utils/logger/policy.js';
@@ -19,7 +19,7 @@ export type CommandBannerSpec = {
  * Keys are invocation paths from {@link getCommandInvocationPath} (e.g. `locales list`).
  */
 export const COMMAND_BANNER_LABELS: Record<string, CommandBannerSpec> = {
-  init: { subtitle: 'i18nprune.config.ts / .mts / .js' },
+  init: { subtitle: `${CONFIG_BASE_NAME}.ts / .mts / .js / .mjs (ESM)` },
   config: { subtitle: 'paths, env, provenance' },
   validate: { subtitle: 'code ↔ source locale JSON' },
   sync: { subtitle: 'merge + prune to source' },

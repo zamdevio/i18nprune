@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { resolveConfigFilePath } from '@/config/resolve/scan.js';
+import { CONFIG_BASE_NAME } from '@/constants/cli.js';
 import { getRunOptions } from '@/core/runtime/options.js';
 import { shouldSkipInteractivePrompts } from '@/utils/interactive/index.js';
 import { logger } from '@/utils/logger/index.js';
@@ -23,10 +24,10 @@ export default defineConfig({
 `;
 
 const FILE_FOR_FORMAT: Record<ConfigFormat, string> = {
-  ts: 'i18nprune.config.ts',
-  mts: 'i18nprune.config.mts',
-  js: 'i18nprune.config.js',
-  mjs: 'i18nprune.config.mjs',
+  ts: `${CONFIG_BASE_NAME}.ts`,
+  mts: `${CONFIG_BASE_NAME}.mts`,
+  js: `${CONFIG_BASE_NAME}.js`,
+  mjs: `${CONFIG_BASE_NAME}.mjs`,
 };
 
 export type { EnsureConfigOptions };

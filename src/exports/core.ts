@@ -1,7 +1,14 @@
 /**
- * Public programmatic surface for automation and extensions.
- * Prefer importing subpaths: `@zamdevio/i18nprune/core`.
+ * @module @zamdevio/i18nprune/core
+ * @see {@link https://github.com/zamdevio/i18nprune/blob/main/docs/exports/core.md | Core API Guide}
+ *
+ * Production-ready programmatic API for i18n automation, CI scripts,
+ * custom tooling, and extensions.
+ *
+ * This is the **same battle-tested logic** used by the CLI — no drift,
+ * no subprocesses, full type safety.
  */
+
 export { defineConfig } from '@/config/define.js';
 export { resolveContext, clearContextCache } from '@/core/context/index.js';
 export { exactLiteralKeys } from '@/core/extractor/index.js';

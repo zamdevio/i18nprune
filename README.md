@@ -11,7 +11,9 @@
 
 </div>
 
-**i18nprune** is a production-oriented **TypeScript CLI** for **i18n workflows**: it connects **your source code**, a **source-of-truth locale JSON**, and **target locale files** so teams can ship translations with confidence. It is **MIT licensed** and designed for **extension**—clear layers, published **`@zamdevio/i18nprune/config`** and **`@zamdevio/i18nprune/core`** entrypoints for scripts and tooling, and a roadmap open to **community and automation** alike.
+**i18nprune** is a **production-grade i18n toolkit** that combines a powerful CLI with stable programmatic APIs (`@zamdevio/i18nprune/config` + `@zamdevio/i18nprune/core`).
+
+It connects your **source code**, a **source-of-truth locale JSON**, and **target locale files** so teams can validate, sync, generate, clean up, and review translations with confidence — in CI or custom scripts. Clear architecture, excellent docs, and built for both humans and agents.
 
 ---
 

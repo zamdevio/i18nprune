@@ -2,16 +2,17 @@ import { confirm, select } from '@inquirer/prompts';
 import type { RunOptions } from '@/types/core/runtime/index.js';
 import type { ConfigFormat } from '@/types/config/init/index.js';
 import { logger } from '@/utils/logger/index.js';
+import { CLI_NAME, CONFIG_BASE_NAME } from '@/constants/cli.js';
 
 export async function promptConfigFormat(run?: RunOptions): Promise<ConfigFormat> {
-  logger.decorative.dim('  No i18nprune config found. Choose a starter file (TypeScript or JavaScript).', run);
+  logger.decorative.dim(`  No ${CLI_NAME} config found. Choose a starter file (TypeScript or JavaScript).`, run);
   return select({
     message: 'Config file',
     choices: [
-      { value: 'ts' as const, name: 'i18nprune.config.ts' },
-      { value: 'mts' as const, name: 'i18nprune.config.mts' },
-      { value: 'js' as const, name: 'i18nprune.config.js (ESM)' },
-      { value: 'mjs' as const, name: 'i18nprune.config.mjs' },
+      { value: 'ts' as const, name: `${CONFIG_BASE_NAME}.ts` },
+      { value: 'mts' as const, name: `${CONFIG_BASE_NAME}.mts` },
+      { value: 'js' as const, name: `${CONFIG_BASE_NAME}.js (ESM)` },
+      { value: 'mjs' as const, name: `${CONFIG_BASE_NAME}.mjs` },
     ],
   });
 }

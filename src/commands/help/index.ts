@@ -2,7 +2,7 @@ import { Help } from 'commander';
 import type { Command } from 'commander';
 import { CLI_NAME } from '@/constants/cli.js';
 import { getTopicBannerSubtitle, toolDisplayTitle } from '@/utils/cli/banner.js';
-import { DOCS_SITE_BASE, docsCommandUrl, docsSlugForCommand } from '@/constants/docs.js';
+import { docsCommandUrl, docsSlugForCommand, getDocsUrl } from '@/constants/docs.js';
 import { header } from '@/utils/ansi/index.js';
 import { styleCommandHelpTerm } from '@/utils/help/term.js';
 import { style } from '@/utils/style/index.js';
@@ -67,7 +67,7 @@ function styleDescription(desc: string): string {
 function appendDocsFooter(text: string, cmd: Command): string {
   const name = cmd.name();
   if (name === CLI_NAME) {
-    return `${text}\n${style.dim('Documentation:')} ${style.accent(DOCS_SITE_BASE)}\n`;
+    return `${text}\n${style.dim('Documentation:')} ${style.accent(getDocsUrl())}\n`;
   }
   const slug = docsSlugForCommand(cmd);
   return `${text}\n${style.dim('Documentation:')} ${style.accent(docsCommandUrl(slug))}\n`;

@@ -1,5 +1,8 @@
-/** Program name (binary + root command). */
+/** Program name (binary + root command). Used for config filenames, help, banners, etc. */
 export const CLI_NAME = 'i18nprune';
+
+/** Config filename base (without extension). Change this to rename the config file across the entire tool. */
+export const CONFIG_BASE_NAME = `${CLI_NAME}.config`;
 
 /**
  * Default **source locale** language segment for baked-in config defaults and examples (`locales/<code>.json`).
@@ -25,4 +28,4 @@ export const CLI_ROOT_DESCRIPTION =
   'Validate literal keys in code against the source locale JSON; sync locale file shapes; generate and fill ' +
   'translations; review and measure quality; list and edit locale files under your locales directory; list ' +
   'supported target languages; remove unused keys with optional ripgrep safety; diagnose Node, rg, and paths. ' +
-  'Use `--json` on supported commands for CI; `--report-file` is planned for long runs.';
+  'Use `--json` on supported commands for CI; `--report-file` for structured output. Supports direct GitHub docs fallback.';

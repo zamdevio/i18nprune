@@ -1,19 +1,29 @@
 # Programmatic exports (`@zamdevio/i18nprune`)
 
-The npm package exposes **two subpath entrypoints** besides the default CLI binary. Use them to **reuse the same logic as the CLI** in scripts, CI, custom tools, or IDE extensions—without spawning a subprocess.
+The package provides **first-class programmatic APIs** in addition to the powerful CLI.
+
+Use these stable subpath exports to build **custom scripts, CI pipelines, devtools, and extensions** while reusing the exact same battle-tested logic as the CLI — with zero drift.
 
 | Subpath | Purpose |
 |---------|---------|
 | **`@zamdevio/i18nprune/config`** | Type-safe config authoring — `defineConfig` + types only. |
 | **`@zamdevio/i18nprune/core`** | Resolve project context, scan sources, extract keys, inspect JSON leaves, dynamic-key heuristics. |
 
-The CLI (`i18nprune`) is the default export **`"."`** → `./dist/cli.js` (not imported as a library).
+The default export (`.`) is the **CLI only** and should not be imported as a library.
 
 ---
 
-## `@zamdevio/i18nprune/config`
+**See the dedicated guides:**
 
-**Use when:** writing or validating `i18nprune.config.ts` / `.mts` / `.js` with full TypeScript assistance.
+- [Configuration API](./config.md)
+- [Core API](./core.md)
+- [Usage Examples & Recipes](./examples.md)
+
+---
+
+## Configuration Guide
+
+See the dedicated page: **[Configuration API](./config.md)**
 
 ```ts
 import { defineConfig } from '@zamdevio/i18nprune/config';
@@ -34,9 +44,9 @@ export default defineConfig({
 
 ---
 
-## `@zamdevio/i18nprune/core`
+## Core API Guide
 
-**Use when:** building automation that needs **resolved paths**, **literal keys**, **dynamic-key sites**, or **JSON leaf enumeration** aligned with **`validate`**.
+See the dedicated page: **[Core API](./core.md)**
 
 ### `resolveContext` / `clearContextCache`
 

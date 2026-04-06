@@ -1,18 +1,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { CONFIG_BASE_NAME } from '@/constants/cli.js';
 
 /**
  * Supported config files (TypeScript / JavaScript only — no JSON).
  * **Priority order** (first wins when multiple exist): `.ts` primary, `.js` fallback, then `.mts` / `.mjs`, then `.cts` / `.cjs`.
  * Discovery walks this list so ambiguous multi-file resolution is deterministic.
  */
+
 export const CONFIG_FILE_NAMES = [
-  'i18nprune.config.ts',
-  'i18nprune.config.js',
-  'i18nprune.config.mts',
-  'i18nprune.config.mjs',
-  'i18nprune.config.cts',
-  'i18nprune.config.cjs',
+  `${CONFIG_BASE_NAME}.ts`,
+  `${CONFIG_BASE_NAME}.js`,
+  `${CONFIG_BASE_NAME}.mts`,
+  `${CONFIG_BASE_NAME}.mjs`,
+  `${CONFIG_BASE_NAME}.cts`,
+  `${CONFIG_BASE_NAME}.cjs`,
 ] as const;
 
 let explicitConfigPath: string | undefined;

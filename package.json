@@ -1,7 +1,7 @@
 {
   "name": "@zamdevio/i18nprune",
   "version": "0.1.0",
-  "description": "i18n correctness, safety, and generation CLI — validate keys vs code, sync locale shape, cleanup with rg safety",
+  "description": "Production-grade i18n toolkit. CLI + stable programmatic API for validation, sync, pruning, generation and quality control of translation files.",
   "type": "module",
   "bin": {
     "i18nprune": "./dist/cli.js"
