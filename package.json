@@ -1,0 +1,68 @@
+{
+  "name": "@zamdevio/i18nprune",
+  "version": "0.1.0",
+  "description": "i18n correctness, safety, and generation CLI — validate keys vs code, sync locale shape, cleanup with rg safety",
+  "type": "module",
+  "bin": {
+    "i18nprune": "./dist/cli.js"
+  },
+  "exports": {
+    ".": "./dist/cli.js",
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js",
+      "default": "./dist/config.js"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js",
+      "default": "./dist/core.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "docs"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx --tsconfig tsconfig.json bin/cli.ts",
+    "generate:languages": "tsx --tsconfig tsconfig.json scripts/languages/generate.ts",
+    "docs:sync": "node nextra/scripts/sync-content.js --once --no-git",
+    "docs:dev": "cd nextra && npm install && npm run dev",
+    "docs:build": "cd nextra && npm install && npm run build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "i18n",
+    "internationalization",
+    "locale",
+    "translation",
+    "cli",
+    "cleanup",
+    "ripgrep",
+    "localization",
+    "developer-tools",
+    "i18nprune"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.3.2",
+    "chalk": "^5.4.1",
+    "commander": "^12.1.0",
+    "jiti": "^2.6.1",
+    "string-width": "^7.2.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

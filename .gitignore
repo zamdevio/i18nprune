@@ -1,0 +1,22 @@
+node_modules/
+dist/
+*.log
+.env
+.env.*
+.DS_Store
+porting-map.md
+coverage/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+i18nprune-chat.md
+
+# Dev-only planning (not published with the package / public docs)
+CURRENT_PHASE.md
+docs/phases/
+
+# Nextra site (install inside nextra/)
+nextra/node_modules/
+nextra/.next/
+nextra/out/
+nextra/package-lock.json
