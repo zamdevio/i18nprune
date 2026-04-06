@@ -9,7 +9,6 @@ coverage/
 .idea/
 .vscode/*
 !.vscode/extensions.json
-i18nprune-chat.md
 
 # Dev-only planning (not published with the package / public docs)
 CURRENT_PHASE.md
