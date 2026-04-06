@@ -1,0 +1,59 @@
+# Contributing to i18nprune
+
+Thanks for helping improve **i18nprune**. This page describes **how we work in the repository**—structure, expectations, and where to read next. The project is **MIT licensed** and open to contributions from individuals, teams, and **automation** (CI, internal scripts, **AI-assisted coding agents**).
+
+---
+
+## Repository pattern
+
+| Layer | Location | Responsibility |
+|----------|----------|----------------|
+| **CLI entry** | `bin/cli.ts` | Commander, global flags, `preAction`, command registration. |
+| **Commands** | `src/commands/<name>/` | Orchestration only—call `core/`, `config/`, `utils/`. |
+| **Core** | `src/core/` | Domain logic: context, JSON, extractor, scanner, languages, translator, errors. |
+| **Config** | `src/config/` | Load, validate, resolve paths, `defineConfig`. |
+| **Types** | `src/types/` | Shared TypeScript contracts. |
+| **Utils** | `src/utils/` | Logger, fs, rg, CLI helpers, report writer. |
+| **Exports** | `src/exports/` | Published **`@zamdevio/i18nprune/config`** and **`/core`**. |
+| **Docs** | `docs/` | Nextra-ready markdown; run **`pnpm docs:sync`** after substantive edits. |
+
+**Conventions:** ESM with **`.js`** suffix in TypeScript import paths (see `tsconfig`), **`I18nPruneError`** for user-facing failures, **`logger`** gates via **`canEmit`**—never bypass policy for “just this once.”
+
+---
+
+## Human contributors
+
+1. **Open an issue** (or discuss in an existing one) for significant behavior changes.
+2. **Branch** from the default branch; keep commits **focused** (see below).
+3. **Run** `pnpm typecheck` and `pnpm test` before opening a PR.
+4. **Document** user-visible behavior: update **`docs/commands/<name>/README.md`** when you change a command.
+
+---
+
+## AI agents & pair-programming
+
+Many contributors use **IDE assistants** or **batch agents** for refactors and docs. The same rules apply: **small commits**, **tests**, and **docs with code**.
+
+**👉 Read the agent guide:** **[Agents README](../agents/README.md)** — full **[project analysis](../agents/analysis.md)** (architecture map), **[Git commit plan](../agents/git.md)** (how to slice commits: command + matching docs), **[rules](../agents/rules.md)**, logging, and extraction notes.
+
+Whether you type every line yourself or use an agent, **the merge bar is the same**: correct types, tests green, docs aligned.
+
+---
+
+## Git history
+
+We prefer **Conventional Commits** and **coherent slices** (e.g. one command + its `docs/commands/...` page). See **[docs/agents/git.md](../agents/git.md)** for a full ordered plan useful after `git init` or when restructuring history.
+
+---
+
+## Code of conduct
+
+Be respectful in issues and reviews. Technical disagreement is expected; harassment is not.
+
+---
+
+## See also
+
+- [Workflow](../workflow/README.md) — local commands
+- [Roadmap](../roadmap/README.md) — product direction
+- [Exports](../exports/README.md) — programmatic API
