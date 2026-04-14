@@ -1,0 +1,46 @@
+{
+  "app": {
+    "title": "",
+    "description": "Eine beispielhafte internationalisierte Anwendung",
+    "greeting": "",
+    "footer": {
+      "copyright": "Urheberrecht © 2024",
+      "privacy": "Datenschutzrichtlinie",
+      "terms": "Nutzungsbedingungen"
+    },
+    "nav": {
+      "home": "Heim",
+      "about": "Um",
+      "contact": "Kontakt",
+      "profile": "Profil",
+      "logout": "Abmelden"
+    }
+  },
+  "user": {
+    "login": {
+      "title": "Einloggen",
+      "email": "E-Mail-Adresse",
+      "password": "Passwort",
+      "submit": "Anmelden",
+      "forgot": "Passwort vergessen?"
+    },
+    "register": {
+      "title": "Registrieren",
+      "username": "Benutzername",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "submit": "Benutzerkonto erstellen"
+    },
+    "profile": {
+      "edit": "Profil bearbeiten",
+      "save": "Änderungen speichern",
+      "cancel": "Stornieren",
+      "delete": "Konto löschen"
+    }
+  },
+  "notifications": {
+    "success": "Aktion war erfolgreich.",
+    "error": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+    "logout": "Sie wurden abgemeldet."
+  }
+}

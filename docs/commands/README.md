@@ -1,12 +1,25 @@
 # Commands
 
-Each subcommand has a dedicated page. The CLI prints a **Documentation** link at the bottom of `help` output (see `src/constants/docs.ts`).
+Each subcommand has a dedicated page. The CLI prints a **Documentation** link at the bottom of `help` output (see `packages/cli/src/constants/docs.ts`).
+
+Architecture rule: command files are orchestrators; reusable logic belongs in `core/` (or shared `utils/`). See [command orchestration boundary](./orchestration/README.md).
+
+### Command source layout (`packages/cli/src/commands/`)
+
+- **`commands/<name>/index.ts`** — re-exports only (e.g. `export { sync } from './run.js'`).
+- **`commands/<name>/run.ts`** — **primary exported handler first** (right after imports), private helpers below. Handler named after the **CLI subcommand** (e.g. `sync()`, `generate()`, `missing()`). The `locales` command uses **`localesList`**, **`localesEdit`**, **`localesDynamic`**, **`localesDelete`** for its sub-actions.
+- **Other files in the folder** — optional splits (`summary.ts`, `targets.ts`, …) for orchestration and CLI output, not domain engines.
+
+**`help` (locked):** no `help()` runner — **`configureCliHelp`** and **`colorizeHelpText`** only (`help/run.ts`). See [help](./help/README.md).
+
+Domain behavior stays in `packages/cli/src/core/**`. Table and rationale: [Command orchestration boundary — file layout](./orchestration/README.md#file-layout-inside-a-command-package).
 
 | Command | Docs |
 |---------|------|
 | `init` | [init](./init/README.md) |
 | `config` | [config](./config/README.md) |
 | `validate` | [validate](./validate/README.md) |
+| `missing` | [missing](./missing/README.md) |
 | `sync` | [sync](./sync/README.md) |
 | `generate` | [generate](./generate/README.md) |
 | `fill` | [fill](./fill/README.md) |

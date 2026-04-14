@@ -4,11 +4,15 @@ Per-locale summary: string path counts and **English-identical** counts vs the s
 
 ```bash
 i18nprune review
-i18nprune review --lang ja
+i18nprune review --target ja
 i18nprune --json review
 ```
 
 **`--json`** emits a structured **`localeReview`** object on stdout.
+
+## Human mode (today)
+
+Human **`review`** uses **CepatEdge-compatible ANSI** (same tokens as `~/Projects/CepatEdge/apps/web/scripts/locales/shared/ansi.ts`): dim **bold orange** **`[i18nprune]`**, dim **bold** **`[review]`**, **green** **`[info]`**, **yellow** **`[warn]`** for dynamic-call counts, **cyan** section and locale headings, and dim secondary “tip” lines. Implementation: `packages/cli/src/core/review/humanLog.ts` + `commands/review/run.ts`.
 
 ## Planned behaviour (machine + human)
 
@@ -16,7 +20,7 @@ The **`review`** command will grow toward a full **locale metadata** report: str
 
 ### Human mode
 
-- Print an **applied options** line block: effective **`--lang`**, filters, **`localesDir`**, scope — respect **`-q` / `-s`** (no duplicate noise).
+- Print an **applied options** line block: effective **`--target`**, filters, **`localesDir`**, scope — respect **`-q` / `-s`** (no duplicate noise).
 
 ### Output routing (planned)
 
@@ -36,8 +40,8 @@ The **`review`** command will grow toward a full **locale metadata** report: str
 
 ### List caps (planned)
 
-- **`--top N`** or **`--top=N`** — explicit cap (**wins** over **`--full`** if both are set).
-- **`--full`** — unbounded path lists when **`--top`** is not set.
+- **`--top N`** — parsed today as a **positive integer** (same error rules as **`missing --top`**). Until per-path human lists ship, this flag is **reserved** but validated so scripts fail fast on typos (`review: --top must be a positive integer`).
+- **`--full`** — reserved alongside **`--top`** for unbounded path lists when that output exists.
 - Default sample when neither: a small fixed cap (e.g. **10** rows) for human lists, flat JSON, and CSV slices — unless **`--full`** or **`--top`** overrides.
 
 ### Filters and flags (planned)
@@ -48,7 +52,7 @@ The **`review`** command will grow toward a full **locale metadata** report: str
 | **`--json`** | Machine JSON on stdout (variant depends on **`--format`**). |
 | **`--csv`** (optional alias for typos) | Machine CSV on stdout. |
 | **`--all`** | All non-source locales (default scope where applicable). |
-| **`--lang`**, multi-lang argv | Restrict which locale files. |
+| **`--target`**, multi-lang argv (planned) | Restrict which locale files. |
 | **`--full`** | Unbounded lists (subject to **`--top`**). |
 | **`--top N`** | Cap paths per section or flat rows. |
 | **`--needs-review`** | Filter rows that need review. |
@@ -58,7 +62,7 @@ The **`review`** command will grow toward a full **locale metadata** report: str
 
 ### Current vs planned
 
-- **Today:** paths + English-identical counts vs source.
+- **Today:** per-locale string path counts + English-identical counts vs source; **`review --top`** / **`review --full`** are accepted and validated but do not change output until path lists are implemented.
 - **Next:** format switches, filters, CSV, applied-options banner, and richer stats when locale JSON includes review metadata.
 
 ## Related

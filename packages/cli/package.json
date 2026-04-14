@@ -1,0 +1,7 @@
+{
+  "name": "@zamdevio/i18nprune-cli",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "CLI binary and programmatic API source for i18nprune. Private workspace package; the installable npm release is built from the repository root."
+}

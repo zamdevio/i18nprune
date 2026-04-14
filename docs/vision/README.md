@@ -33,3 +33,4 @@ Teams ship i18n bugs when **keys in code drift from locale JSON**, when **locale
 - [Roadmap](../roadmap/README.md) — direction and planned work at a high level.
 - [Architecture](../architecture/README.md) — how layers fit together.
 - [Commands](../commands/README.md) — one page per subcommand.
+- [npm scope & org (future)](../org/README.md) — reserved **`@i18nprune`** org and possible scope migration (**not** active; **`@zamdevio`** remains current on npm).

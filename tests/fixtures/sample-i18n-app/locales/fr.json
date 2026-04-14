@@ -1,0 +1,46 @@
+{
+  "app": {
+    "title": "",
+    "description": "Un exemple d'application internationalisée",
+    "greeting": "",
+    "footer": {
+      "copyright": "Droits d'auteur © 2024",
+      "privacy": "politique de confidentialité",
+      "terms": "Conditions d'utilisation"
+    },
+    "nav": {
+      "home": "Maison",
+      "about": "À propos",
+      "contact": "Contact",
+      "profile": "Profil",
+      "logout": "Déconnexion"
+    }
+  },
+  "user": {
+    "login": {
+      "title": "Se connecter",
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "forgot": "Mot de passe oublié ?"
+    },
+    "register": {
+      "title": "Registre",
+      "username": "Nom d'utilisateur",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "submit": "Créer un compte"
+    },
+    "profile": {
+      "edit": "Modifier le profil",
+      "save": "Enregistrer les modifications",
+      "cancel": "Annuler",
+      "delete": "Supprimer le compte"
+    }
+  },
+  "notifications": {
+    "success": "L'action a été couronnée de succès.",
+    "error": "Quelque chose s'est mal passé. Veuillez réessayer.",
+    "logout": "Vous avez été déconnecté."
+  }
+}

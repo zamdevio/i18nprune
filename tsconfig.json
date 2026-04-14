@@ -15,12 +15,14 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["packages/cli/src/*"],
+      "@zamdevio/i18nprune/report": ["packages/report/src/index.ts"]
     }
   },
   "include": [
-    "bin/**/*.ts",
-    "src/**/*.ts",
+    "packages/cli/bin/**/*.ts",
+    "packages/cli/src/**/*.ts",
+    "packages/report/**/*.ts",
     "scripts/**/*.ts",
     "tests/integration/**/*.ts",
     "vitest.config.ts"

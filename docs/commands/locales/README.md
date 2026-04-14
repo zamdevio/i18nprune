@@ -1,11 +1,22 @@
 # `locales`
 
-Work with **existing locale JSON** under your configured **`localesDir`**.
+Work with **existing locale JSON** under your configured **`localesDir`**. Subcommands support global **`--json`** (structured **`CliJsonEnvelope`** on stdout) when the root program passes **`--json`** — same contract as **`validate`**, **`generate`**, **`fill`**, etc. See [JSON output](../../json/README.md).
 
-- **[`locales list`](./list/README.md)** — list files and key/path summaries (in progress).
-- **[`locales edit`](./edit/README.md)** — pick a locale and (later) guided edits to locale JSON and app loader wiring.
+| Subcommand | Role |
+|------------|------|
+| **[`locales list`](./list/README.md)** | Enumerate `*.json` under **`localesDir`**, leaf counts, English-identical hints vs source. |
+| **[`locales edit`](./edit/README.md)** | Update **`<lang>.meta.json`** (`englishName`, `nativeName`, `direction`) for an existing target locale. |
+| **[`locales dynamic`](./dynamic/README.md)** | Read-only scan for non-literal translation call sites (same dynamic model as **`validate`**). |
+| **[`locales delete`](./delete/README.md)** | Remove target **`*.json`** / **`*.meta.json`** (multi-target supported). |
 
-Use **`i18nprune locales --help`** or **`i18nprune help locales`** for the same topic as running **`i18nprune locales`** with no subcommand (shows help and exits **0**).
+```bash
+i18nprune locales --help
+i18nprune help locales list
+```
+
+## Global flags
+
+Use root **`--json`** for machine output on supported subcommands; **`--yes`** skips interactive confirmations where documented (e.g. destructive **`delete`** in non-interactive mode). See [Prompts & CLI boundaries](../../prompts/README.md).
 
 ## Nested help
 
@@ -13,3 +24,8 @@ Use **`i18nprune locales --help`** or **`i18nprune help locales`** for the same 
 i18nprune help locales list
 i18nprune locales list --help
 ```
+
+## See also
+
+- [CLI overview](../../cli/README.md)
+- [Issue codes](../../json/issue-codes.md) — `i18nprune.locales.usage`, `i18nprune.locale.target_not_found`

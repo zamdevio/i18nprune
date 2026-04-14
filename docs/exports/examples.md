@@ -21,14 +21,21 @@ if (dynamicSites.length > 0) {
 ## 2. Custom Report Generator
 
 ```ts
-import { resolveContext, collectStringLeaves, scanSources } from '@zamdevio/i18nprune/core';
+import {
+  resolveContext,
+  collectStringLeaves,
+  scanSources,
+  readJsonFile,
+  exactLiteralKeys,
+} from '@zamdevio/i18nprune/core';
 
 const ctx = resolveContext();
 const sourceData = readJsonFile(ctx.paths.sourceLocale);
 const usedKeys = new Set(exactLiteralKeys(scanSources(ctx.paths.srcRoot), ctx.config.functions));
 
-const unused = Object.keys(collectStringLeaves(sourceData))
-  .filter(k => !usedKeys.has(k));
+const unused = collectStringLeaves(sourceData)
+  .map((l) => l.path)
+  .filter((k) => !usedKeys.has(k));
 
 console.log('Unused keys:', unused);
 ```
@@ -56,6 +63,18 @@ test('resolves context correctly', () => {
   const ctx = resolveContext(fixturePath);
   expect(ctx.meta.fieldSources.source).toBe('file');
 });
+```
+
+## 5. Namespaced imports (same API, grouped)
+
+```ts
+import { context, extractor, dynamic, validate, files } from '@zamdevio/i18nprune/core';
+
+const ctx = context.resolveContext();
+const usage = extractor.scanProjectLiteralKeyUsage(ctx);
+const sites = dynamic.scanProjectDynamicKeySites(ctx);
+const raw = files.readJsonFile(ctx.paths.sourceLocale);
+const missing = validate.computeMissingLiteralKeys(ctx, raw);
 ```
 
 ---

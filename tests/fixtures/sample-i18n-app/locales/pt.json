@@ -1,349 +1,46 @@
 {
-  "app": {},
-  "seo": {
-    "routes": {
-      "login": {},
-      "dashboard": {},
-      "profile": {},
-      "settings": {},
-      "security": {},
-      "sessions": {},
-      "notifications": {},
-      "privacy": {},
-      "terms": {},
-      "docs": {},
-      "users": {},
-      "usersNew": {},
-      "userDetail": {},
-      "departments": {},
-      "departmentDetail": {},
-      "maintenance": {},
-      "maintenanceNew": {},
-      "maintenanceDetail": {},
-      "analytics": {},
-      "system": {},
-      "systemMonitor": {},
-      "systemMonitorRequests": {},
-      "systemMonitorRequestDetail": {},
-      "systemLogs": {},
-      "systemLogsDetail": {},
-      "systemAudit": {},
-      "systemAuditDetail": {},
-      "systemCache": {},
-      "systemCacheList": {},
-      "systemCacheDetail": {},
-      "systemSettings": {},
-      "department": {},
-      "team": {},
-      "reports": {},
-      "requests": {},
-      "requestsNew": {},
-      "requestDetail": {},
-      "notFound": {}
+  "app": {
+    "title": "Exemplo de aplicativo i18n",
+    "description": "Um exemplo de aplicação internacionalizada",
+    "greeting": "Bem-vindo!",
+    "footer": {
+      "copyright": "Direitos autorais © 2024",
+      "privacy": "política de Privacidade",
+      "terms": "Termos de Serviço"
+    },
+    "nav": {
+      "home": "Lar",
+      "about": "Sobre",
+      "contact": "Contato",
+      "profile": "Perfil",
+      "logout": "Sair"
     }
   },
-  "common": {
-    "actions": {},
-    "labels": {},
-    "dash": "—",
-    "time": {}
-  },
-  "roles": {
-    "display": {}
-  },
-  "auth": {
-    "accessDenied": {},
-    "login": {},
-    "permissionsError": {},
-    "profileLoadError": {}
-  },
-  "navigation": {
-    "sections": {},
-    "search": {},
-    "sidebar": {},
-    "items": {}
-  },
-  "layouts": {
-    "auth": {},
-    "main": {},
-    "footer": {},
-    "language": {
-      "prompt": {},
-      "dialog": {}
+  "user": {
+    "login": {
+      "title": "Conecte-se",
+      "email": "Endereço de email",
+      "password": "Senha",
+      "submit": "Entrar",
+      "forgot": "Esqueceu sua senha?"
     },
-    "preferences": {
-      "toasts": {
-        "languageSuccess": {},
-        "languageError": {},
-        "themeSuccess": {},
-        "themeError": {}
-      }
-    },
-    "cookies": {
-      "banner": {},
-      "manage": {},
-      "categories": {
-        "essential": {},
-        "analytics": {},
-        "performance": {},
-        "personalization": {}
-      },
-      "status": {}
-    },
-    "header": {
-      "notifications": {},
-      "profile": {}
-    }
-  },
-  "errors": {
-    "codes": {}
-  },
-  "pages": {
-    "domain": {
-      "shared": {
-        "settings": {
-          "actions": {},
-          "toasts": {},
-          "status": {},
-          "appearance": {
-            "translationHelp": {
-              "dialog": {
-                "developer": {},
-                "admin": {},
-                "standard": {}
-              }
-            }
-          },
-          "notifications": {}
-        },
-        "legal": {
-          "privacy": {},
-          "terms": {}
-        }
-      }
-    },
-    "dashboard": {
-      "common": {},
-      "shortcuts": {},
-      "admin": {
-        "kpi": {},
-        "stats": {},
-        "quickActions": {},
-        "oidc": {},
-        "directory": {},
-        "pipeline": {},
-        "risk": {},
-        "priorityLoad": {},
-        "departments": {},
-        "recentActivity": {}
-      },
-      "developer": {
-        "platform": {},
-        "recentApi": {},
-        "statusCards": {},
-        "metrics": {},
-        "monitoringTools": {},
-        "alerts": {},
-        "statusLabels": {}
-      },
-      "hod": {
-        "kpi": {},
-        "stats": {},
-        "deptManagement": {},
-        "pendingApprovals": {}
-      },
-      "employee": {
-        "kpi": {},
-        "timeline": {},
-        "cta": {},
-        "stats": {},
-        "quickActions": {},
-        "recentRequests": {},
-        "announcements": {}
-      },
-      "technician": {
-        "sla": {},
-        "kpi": {},
-        "recent": {}
-      }
+    "register": {
+      "title": "Cadastre-se",
+      "username": "Nome de usuário",
+      "email": "E-mail",
+      "password": "Senha",
+      "submit": "Criar uma conta"
     },
     "profile": {
-      "cardProfile": {},
-      "cardPersonal": {},
-      "labels": {},
-      "placeholders": {},
-      "hints": {},
-      "badges": {},
-      "securitySummary": {},
-      "toasts": {}
-    },
-    "security": {
-      "passwordCard": {},
-      "twoFactorCard": {},
-      "sessionCard": {},
-      "activityCard": {},
-      "dialog": {
-        "rules": {}
-      },
-      "toasts": {}
-    },
-    "sessions": {
-      "current": {},
-      "other": {},
-      "securityTips": {},
-      "dialogRevokeAll": {},
-      "toasts": {}
-    },
-    "notifications": {
-      "stats": {},
-      "list": {},
-      "toasts": {}
-    },
-    "system": {
-      "common": {},
-      "monitor": {
-        "statuses": {},
-        "cards": {},
-        "environment": {},
-        "trafficCountry": {},
-        "byMethod": {},
-        "byStatus": {},
-        "topPaths": {},
-        "recentRequests": {},
-        "requests": {
-          "error": {},
-          "list": {},
-          "table": {},
-          "pagination": {},
-          "detail": {
-            "breadcrumb": {},
-            "requestIdRequired": {},
-            "error": {},
-            "summary": {
-              "labels": {}
-            },
-            "related": {},
-            "meta": {}
-          }
-        }
-      },
-      "logs": {
-        "notFound": {},
-        "filters": {},
-        "levels": {},
-        "categories": {},
-        "error": {},
-        "entries": {},
-        "table": {},
-        "pagination": {},
-        "detail": {
-          "breadcrumb": {},
-          "notAvailable": {},
-          "overview": {},
-          "messageBlock": {},
-          "context": {},
-          "summary": {
-            "labels": {}
-          },
-          "related": {},
-          "message": {},
-          "meta": {}
-        }
-      },
-      "settings": {
-        "settingsCard": {}
-      },
-      "audit": {
-        "filters": {},
-        "exportDialog": {
-          "fields": {},
-          "placeholders": {},
-          "hints": {},
-          "summary": {}
-        },
-        "entries": {},
-        "pagination": {},
-        "detail": {
-          "breadcrumb": {},
-          "notAvailable": {},
-          "overview": {},
-          "messageBlock": {},
-          "context": {},
-          "summary": {
-            "labels": {}
-          },
-          "related": {},
-          "message": {},
-          "meta": {}
-        }
-      },
-      "cache": {
-        "targetsCard": {},
-        "table": {},
-        "pagination": {},
-        "telemetry": {},
-        "toasts": {},
-        "detail": {
-          "toasts": {},
-          "cards": {
-            "lookup": {},
-            "metadata": {},
-            "data": {}
-          }
-        },
-        "listDetail": {
-          "cards": {
-            "readOptions": {},
-            "metadata": {},
-            "data": {}
-          }
-        },
-        "perItem": {},
-        "listRead": {}
-      }
-    },
-    "departments": {
-      "detail": {
-        "breadcrumb": {}
-      }
-    },
-    "maintenance": {
-      "list": {},
-      "create": {},
-      "attachments": {
-        "errors": {
-          "client": {}
-        }
-      },
-      "detail": {
-        "breadcrumb": {},
-        "na": "—",
-        "deptApproval": {},
-        "context": {},
-        "status": {},
-        "priority": {}
-      }
-    },
-    "users": {
-      "list": {
-        "labels": {},
-        "departments": {}
-      },
-      "create": {
-        "placeholders": {}
-      },
-      "status": {},
-      "twoFA": {},
-      "detail": {
-        "notFound": {},
-        "toasts": {},
-        "avatarUploadDialog": {},
-        "actions": {},
-        "permissions": {},
-        "alerts": {},
-        "skeleton": {},
-        "profileLabels": {}
-      }
+      "edit": "Editar perfil",
+      "save": "Salvar alterações",
+      "cancel": "Cancelar",
+      "delete": "Excluir conta"
     }
+  },
+  "notifications": {
+    "success": "A ação foi bem-sucedida.",
+    "error": "Algo deu errado. Por favor, tente novamente.",
+    "logout": "Você foi desconectado."
   }
 }

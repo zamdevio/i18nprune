@@ -17,6 +17,11 @@
       "types": "./dist/core.d.ts",
       "import": "./dist/core.js",
       "default": "./dist/core.js"
+    },
+    "./report": {
+      "types": "./dist/report.d.ts",
+      "import": "./dist/report.js",
+      "default": "./dist/report.js"
     }
   },
   "files": [
@@ -25,12 +30,23 @@
     "docs"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsx --tsconfig tsconfig.json bin/cli.ts",
+    "build": "tsup && node scripts/flatten-cli-dts.mjs && node scripts/report/flatten-report-dts.mjs && npm run report:build && node scripts/report/copy-template.mjs",
+    "dev": "tsx --tsconfig tsconfig.json packages/cli/bin/cli.ts",
     "generate:languages": "tsx --tsconfig tsconfig.json scripts/languages/generate.ts",
-    "docs:sync": "node nextra/scripts/sync-content.js --once --no-git",
-    "docs:dev": "cd nextra && npm install && npm run dev",
-    "docs:build": "cd nextra && npm install && npm run build",
+    "docs:sync": "node apps/docs/scripts/sync-content.js --once --no-git",
+    "docs:dev": "pnpm --filter @zamdevio/i18nprune-docs dev",
+    "docs:build": "pnpm --filter @zamdevio/i18nprune-docs build",
+    "docs:deploy": "pnpm docs:build && wrangler pages deploy apps/docs/out --project-name=docs-i18nprune",
+    "web:dev": "pnpm --filter i18nprune-web dev",
+    "web:build": "pnpm --filter i18nprune-web build",
+    "web:preview": "pnpm --filter i18nprune-web preview",
+    "web:deploy": "pnpm web:build && wrangler pages deploy apps/web/dist --project-name=i18nprune",
+    "github:dev": "pnpm --filter @zamdevio/i18nprune-github dev",
+    "github:build": "pnpm --filter @zamdevio/i18nprune-github typecheck",
+    "github:deploy": "pnpm github:build && pnpm --filter @zamdevio/i18nprune-github run deploy",
+    "report:dev": "vite --config apps/report/vite.config.ts",
+    "report:build": "vite build --config apps/report/vite.config.ts",
+    "report:deploy": "pnpm report:build && wrangler pages deploy apps/report/dist --project-name=report-i18nprune",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
@@ -60,9 +76,18 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
     "tsup": "^8.5.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0",
-    "vitest": "^3.2.0"
+    "vite": "^6.0.3",
+    "vite-plugin-singlefile": "^2.0.1",
+    "vitest": "^3.2.0",
+    "wrangler": "^4.54.0"
   }
 }

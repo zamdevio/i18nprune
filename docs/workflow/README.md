@@ -10,8 +10,10 @@ From the **repository root**:
 | `pnpm build` | `tsup` → `dist/` (run before **`pnpm test`** if you use integration tests that execute **`dist/cli.js`**) |
 | `pnpm dev -- --help` | Run CLI via `tsx` |
 | `pnpm generate:languages` | Regenerate `languages.json` |
-| `pnpm docs:sync` | Copy `docs/` → `nextra/content/` |
+| `pnpm docs:sync` | Copy `docs/` → `apps/docs/content/` |
 | `pnpm docs:dev` | Nextra dev server |
+| `pnpm web:dev` | Landing site (`apps/web`, port 5174) |
+| `pnpm web:build` | Production build of landing (`apps/web/dist`) |
 | `pnpm docs:build` | Static export |
 
 Authoritative docs live under **`docs/`**; sync before previewing the site.

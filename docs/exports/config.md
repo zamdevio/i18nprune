@@ -28,7 +28,7 @@ export default defineConfig({
 ## Exports
 
 - `defineConfig(config: Partial<I18nPruneConfig>): I18nPruneConfig`
-- Types: `I18nPruneConfig`, `Policies`, and all nested types
+- Types: `I18nPruneConfig`, `Policies`, `MissingCommandConfig`, `ValidateCommandConfig`, and nested policy types
 
 ## See also
 

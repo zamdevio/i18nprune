@@ -8,16 +8,18 @@ Thanks for helping improve **i18nprune**. This page describes **how we work in t
 
 | Layer | Location | Responsibility |
 |----------|----------|----------------|
-| **CLI entry** | `bin/cli.ts` | Commander, global flags, `preAction`, command registration. |
-| **Commands** | `src/commands/<name>/` | Orchestration only—call `core/`, `config/`, `utils/`. |
-| **Core** | `src/core/` | Domain logic: context, JSON, extractor, scanner, languages, translator, errors. |
-| **Config** | `src/config/` | Load, validate, resolve paths, `defineConfig`. |
-| **Types** | `src/types/` | Shared TypeScript contracts. |
-| **Utils** | `src/utils/` | Logger, fs, rg, CLI helpers, report writer. |
-| **Exports** | `src/exports/` | Published **`@zamdevio/i18nprune/config`** and **`/core`**. |
+| **CLI entry** | `packages/cli/bin/cli.ts` | Commander, global flags, `preAction`, command registration. |
+| **Commands** | `packages/cli/src/commands/<name>/` | Orchestration only—call `core/`, `config/`, `utils/`. |
+| **Core** | `packages/cli/src/core/` | Domain logic: context, JSON, extractor, scanner, languages, translator, errors. |
+| **Config** | `packages/cli/src/config/` | Load, validate, resolve paths, `defineConfig`. |
+| **Types** | `packages/cli/src/types/` | Shared TypeScript contracts. |
+| **Utils** | `packages/cli/src/utils/` | Logger, fs, rg, CLI helpers, report writer. |
+| **Exports** | `packages/cli/src/exports/` | Published **`@zamdevio/i18nprune/config`** and **`/core`**. |
 | **Docs** | `docs/` | Nextra-ready markdown; run **`pnpm docs:sync`** after substantive edits. |
 
 **Conventions:** ESM with **`.js`** suffix in TypeScript import paths (see `tsconfig`), **`I18nPruneError`** for user-facing failures, **`logger`** gates via **`canEmit`**—never bypass policy for “just this once.”
+
+**Type placement rule:** exported/shared type contracts belong in **`packages/cli/src/types/**`** (with barrel re-exports) and runtime modules should import them with `import type` rather than owning exported type declarations.
 
 ---
 

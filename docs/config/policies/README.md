@@ -8,7 +8,7 @@ The config schema includes optional **`policies`** so sync / quality / fill can 
 
 ## `policies.preserve`
 
-Used by **`sync`** (and related) so certain keys or prefixes **stay** in target locales even when absent from the source template (e.g. legacy keys you still ship).
+Used by **`sync`** (and related) so certain keys or prefixes **stay** in target locales even when absent from the source template (e.g. extra keys you still ship outside the template).
 
 - **`copyKeys`** — exact paths to keep
 - **`copyPrefixes`** — path prefixes to keep

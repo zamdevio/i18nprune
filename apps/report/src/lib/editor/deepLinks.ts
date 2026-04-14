@@ -1,0 +1,35 @@
+import type { ProjectReportEnvironment } from '../../types/index.js';
+
+/**
+ * Where the scan ran (from the embedded report). Distinguishes WSL Linux from native Linux for editor URLs.
+ */
+export type RuntimeFamily = 'windows' | 'darwin' | 'linux' | 'linux-wsl';
+
+/**
+ * Whether vscode:// / cursor:// links can be built safely from embedded path data.
+ * Uses **payload only** (no browser sniffing): if the environment omits fields needed for WSL↔Windows bridging, editor deep links are disabled.
+ */
+export function canUseEditorDeepLinks(env: ProjectReportEnvironment | undefined): boolean {
+  if (!env?.platform) return false;
+  const p = env.platform;
+  if (p === 'win32' || p === 'darwin') return true;
+  if (p === 'linux') {
+    const family = env.runtimeFamily;
+    const inWsl = family === 'linux-wsl' || Boolean(env.wslDistroName);
+    if (inWsl) return Boolean(env.wslDistroName);
+    if (family === 'linux' || family === undefined) return true;
+    return true;
+  }
+  return true;
+}
+
+export function inferRuntimeFamily(env: ProjectReportEnvironment | undefined): RuntimeFamily | undefined {
+  if (!env?.platform) return undefined;
+  if (env.runtimeFamily) return env.runtimeFamily;
+  if (env.platform === 'win32') return 'windows';
+  if (env.platform === 'darwin') return 'darwin';
+  if (env.platform === 'linux') {
+    return env.wslDistroName ? 'linux-wsl' : 'linux';
+  }
+  return undefined;
+}

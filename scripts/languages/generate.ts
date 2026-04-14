@@ -1,5 +1,5 @@
 /**
- * Builds `src/core/languages/languages.json` from BCP47-style codes and `Intl.DisplayNames`
+ * Builds `packages/cli/src/core/languages/languages.json` from BCP47-style codes and `Intl.DisplayNames`
  * (English + native endonyms). Edit `codes.json` when Google adds languages, then re-run.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -11,7 +11,7 @@ import { style } from '@/utils/style/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '../..');
-const outFile = join(repoRoot, 'src/core/languages/languages.json');
+const outFile = join(repoRoot, 'packages/cli/src/core/languages/languages.json');
 
 export type LanguageRow = {
   code: string;

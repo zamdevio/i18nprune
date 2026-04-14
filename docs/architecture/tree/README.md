@@ -1,39 +1,32 @@
 # Repository tree
 
-This describes the **source and tooling layout** of the i18nprune repository. **Excluded** from the tree (generated, vendored, or docs-site only): **`node_modules/`**, **`dist/`**, **`docs/`**, **`nextra/`**, **`coverage/`**, and typical editor folders.
+This describes the **source and tooling layout** of the i18nprune repository. **Excluded** from the listing below: **`node_modules/`**, **`dist/`**, build output under **`apps/docs/.next/`**, **`apps/docs/out/`**, **`apps/web/dist/`**, **`coverage/`**, and typical editor folders.
+
+**Authoritative markdown** for the product lives in root **`docs/`** (synced into **`apps/docs/content/`** for the Nextra site). Maintainer phase notes live in **`docs/phases/`** (same sync; tracked in git).
 
 ```
 .
-├── bin/
-│   └── cli.ts                 # Commander entry, preprocessArgv, global flags, subcommands
-├── scripts/
-│   └── languages/
-│       ├── codes.json         # Input codes for catalog generation
-│       └── generate.ts        # Builds src/core/languages/languages.json
-├── src/
-│   ├── argv/                  # argv preprocessing (`--langs` → `languages`)
-│   ├── commands/              # One folder per CLI command (generate, doctor, …)
-│   ├── config/                # schema, load (TS/JS via jiti), resolve, init prompts
-│   ├── constants/
-│   │   └── docs.ts            # Public docs base URL for help footers
-│   ├── core/                  # context, json, extractor, scanner, translator, progress, …
-│   ├── exports/
-│   │   └── config.ts          # defineConfig entry for npm subpath
-│   ├── providers/             # translation providers (e.g. google)
-│   ├── types/                 # shared TypeScript types
-│   └── utils/                 # ansi, logger, fs, paths, rg, help, style, …
+├── apps/
+│   ├── docs/                  # Next.js + Nextra docs app
+│   ├── extension/             # VS Code extension scaffold (see docs/phases/extension/README.md)
+│   ├── report/                # Vite SPA for embedded HTML report UI
+│   └── web/                   # Vite + React landing (i18nprune.dev)
+├── docs/                      # Public markdown source of truth
+│   └── phases/                # Maintainer phase index + notes (tracked in git)
+├── packages/
+│   ├── cli/                   # CLI entry (bin/) and src/ — core product code
+│   └── report/                # Shared report DTO / Zod schema
+├── scripts/                   # Repo scripts (languages catalog, report dts flatten, …)
 ├── tests/
-│   ├── fixtures/
-│   │   └── sample-i18n-app/   # Mini app for integration / manual checks
+│   ├── fixtures/sample-i18n-app/
 │   └── integration/
-│       └── cli.fixture.test.ts
-├── i18nprune.config.ts.example
-├── package.json
+├── package.json               # Published npm package + workspace root
+├── pnpm-workspace.yaml
 ├── tsconfig.json
 ├── tsup.config.ts
 └── vitest.config.ts
 ```
 
-**Data flow:** **argv** → **`RunOptions`** + CLI overrides → **`resolveContext()`** (config + paths) → command handler → **stdout/stderr** via **`logger`**.
+**Data flow (CLI):** **argv** → **`RunOptions`** + overrides → **`resolveContext()`** → command → **stdout/stderr** via **`logger`**.
 
-**Build output:** `pnpm build` writes **`dist/`** (`cli.js`, `config.js`, `core.js`, typings) — not listed above.
+**Build output:** `pnpm build` writes root **`dist/`** (`cli.js`, `config.js`, `core.js`, `report.js`, typings). **`pnpm web:build`** writes **`apps/web/dist/`** for the landing site.

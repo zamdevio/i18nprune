@@ -2,9 +2,7 @@
 
 > Replace **`NNN`** with the next number (zero-padded: `005`, …). Keep titles stable once published.
 
-## Status
-
-Draft | Proposed | Accepted | Superseded by [ADR …](./NNN-slug.md) (optional).
+## Status: Draft | Proposed | Accepted | Superseded by [ADR …](./NNN-slug.md) (optional).
 
 ## Context
 

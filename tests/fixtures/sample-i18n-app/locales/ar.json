@@ -1,349 +1,46 @@
 {
-  "app": {},
-  "seo": {
-    "routes": {
-      "login": {},
-      "dashboard": {},
-      "profile": {},
-      "settings": {},
-      "security": {},
-      "sessions": {},
-      "notifications": {},
-      "privacy": {},
-      "terms": {},
-      "docs": {},
-      "users": {},
-      "usersNew": {},
-      "userDetail": {},
-      "departments": {},
-      "departmentDetail": {},
-      "maintenance": {},
-      "maintenanceNew": {},
-      "maintenanceDetail": {},
-      "analytics": {},
-      "system": {},
-      "systemMonitor": {},
-      "systemMonitorRequests": {},
-      "systemMonitorRequestDetail": {},
-      "systemLogs": {},
-      "systemLogsDetail": {},
-      "systemAudit": {},
-      "systemAuditDetail": {},
-      "systemCache": {},
-      "systemCacheList": {},
-      "systemCacheDetail": {},
-      "systemSettings": {},
-      "department": {},
-      "team": {},
-      "reports": {},
-      "requests": {},
-      "requestsNew": {},
-      "requestDetail": {},
-      "notFound": {}
+  "app": {
+    "title": "",
+    "description": "مثال على التطبيق الدولي",
+    "greeting": "",
+    "footer": {
+      "copyright": "حقوق النشر © 2024",
+      "privacy": "سياسة الخصوصية",
+      "terms": "شروط الخدمة"
+    },
+    "nav": {
+      "home": "بيت",
+      "about": "عن",
+      "contact": "اتصال",
+      "profile": "حساب تعريفي",
+      "logout": "تسجيل الخروج"
     }
   },
-  "common": {
-    "actions": {},
-    "labels": {},
-    "dash": "—",
-    "time": {}
-  },
-  "roles": {
-    "display": {}
-  },
-  "auth": {
-    "accessDenied": {},
-    "login": {},
-    "permissionsError": {},
-    "profileLoadError": {}
-  },
-  "navigation": {
-    "sections": {},
-    "search": {},
-    "sidebar": {},
-    "items": {}
-  },
-  "layouts": {
-    "auth": {},
-    "main": {},
-    "footer": {},
-    "language": {
-      "prompt": {},
-      "dialog": {}
+  "user": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "email": "عنوان البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "submit": "تسجيل الدخول",
+      "forgot": "هل نسيت كلمة السر؟"
     },
-    "preferences": {
-      "toasts": {
-        "languageSuccess": {},
-        "languageError": {},
-        "themeSuccess": {},
-        "themeError": {}
-      }
-    },
-    "cookies": {
-      "banner": {},
-      "manage": {},
-      "categories": {
-        "essential": {},
-        "analytics": {},
-        "performance": {},
-        "personalization": {}
-      },
-      "status": {}
-    },
-    "header": {
-      "notifications": {},
-      "profile": {}
-    }
-  },
-  "errors": {
-    "codes": {}
-  },
-  "pages": {
-    "domain": {
-      "shared": {
-        "settings": {
-          "actions": {},
-          "toasts": {},
-          "status": {},
-          "appearance": {
-            "translationHelp": {
-              "dialog": {
-                "developer": {},
-                "admin": {},
-                "standard": {}
-              }
-            }
-          },
-          "notifications": {}
-        },
-        "legal": {
-          "privacy": {},
-          "terms": {}
-        }
-      }
-    },
-    "dashboard": {
-      "common": {},
-      "shortcuts": {},
-      "admin": {
-        "kpi": {},
-        "stats": {},
-        "quickActions": {},
-        "oidc": {},
-        "directory": {},
-        "pipeline": {},
-        "risk": {},
-        "priorityLoad": {},
-        "departments": {},
-        "recentActivity": {}
-      },
-      "developer": {
-        "platform": {},
-        "recentApi": {},
-        "statusCards": {},
-        "metrics": {},
-        "monitoringTools": {},
-        "alerts": {},
-        "statusLabels": {}
-      },
-      "hod": {
-        "kpi": {},
-        "stats": {},
-        "deptManagement": {},
-        "pendingApprovals": {}
-      },
-      "employee": {
-        "kpi": {},
-        "timeline": {},
-        "cta": {},
-        "stats": {},
-        "quickActions": {},
-        "recentRequests": {},
-        "announcements": {}
-      },
-      "technician": {
-        "sla": {},
-        "kpi": {},
-        "recent": {}
-      }
+    "register": {
+      "title": "يسجل",
+      "username": "اسم المستخدم",
+      "email": "بريد إلكتروني",
+      "password": "كلمة المرور",
+      "submit": "إنشاء حساب"
     },
     "profile": {
-      "cardProfile": {},
-      "cardPersonal": {},
-      "labels": {},
-      "placeholders": {},
-      "hints": {},
-      "badges": {},
-      "securitySummary": {},
-      "toasts": {}
-    },
-    "security": {
-      "passwordCard": {},
-      "twoFactorCard": {},
-      "sessionCard": {},
-      "activityCard": {},
-      "dialog": {
-        "rules": {}
-      },
-      "toasts": {}
-    },
-    "sessions": {
-      "current": {},
-      "other": {},
-      "securityTips": {},
-      "dialogRevokeAll": {},
-      "toasts": {}
-    },
-    "notifications": {
-      "stats": {},
-      "list": {},
-      "toasts": {}
-    },
-    "system": {
-      "common": {},
-      "monitor": {
-        "statuses": {},
-        "cards": {},
-        "environment": {},
-        "trafficCountry": {},
-        "byMethod": {},
-        "byStatus": {},
-        "topPaths": {},
-        "recentRequests": {},
-        "requests": {
-          "error": {},
-          "list": {},
-          "table": {},
-          "pagination": {},
-          "detail": {
-            "breadcrumb": {},
-            "requestIdRequired": {},
-            "error": {},
-            "summary": {
-              "labels": {}
-            },
-            "related": {},
-            "meta": {}
-          }
-        }
-      },
-      "logs": {
-        "notFound": {},
-        "filters": {},
-        "levels": {},
-        "categories": {},
-        "error": {},
-        "entries": {},
-        "table": {},
-        "pagination": {},
-        "detail": {
-          "breadcrumb": {},
-          "notAvailable": {},
-          "overview": {},
-          "messageBlock": {},
-          "context": {},
-          "summary": {
-            "labels": {}
-          },
-          "related": {},
-          "message": {},
-          "meta": {}
-        }
-      },
-      "settings": {
-        "settingsCard": {}
-      },
-      "audit": {
-        "filters": {},
-        "exportDialog": {
-          "fields": {},
-          "placeholders": {},
-          "hints": {},
-          "summary": {}
-        },
-        "entries": {},
-        "pagination": {},
-        "detail": {
-          "breadcrumb": {},
-          "notAvailable": {},
-          "overview": {},
-          "messageBlock": {},
-          "context": {},
-          "summary": {
-            "labels": {}
-          },
-          "related": {},
-          "message": {},
-          "meta": {}
-        }
-      },
-      "cache": {
-        "targetsCard": {},
-        "table": {},
-        "pagination": {},
-        "telemetry": {},
-        "toasts": {},
-        "detail": {
-          "toasts": {},
-          "cards": {
-            "lookup": {},
-            "metadata": {},
-            "data": {}
-          }
-        },
-        "listDetail": {
-          "cards": {
-            "readOptions": {},
-            "metadata": {},
-            "data": {}
-          }
-        },
-        "perItem": {},
-        "listRead": {}
-      }
-    },
-    "departments": {
-      "detail": {
-        "breadcrumb": {}
-      }
-    },
-    "maintenance": {
-      "list": {},
-      "create": {},
-      "attachments": {
-        "errors": {
-          "client": {}
-        }
-      },
-      "detail": {
-        "breadcrumb": {},
-        "na": "—",
-        "deptApproval": {},
-        "context": {},
-        "status": {},
-        "priority": {}
-      }
-    },
-    "users": {
-      "list": {
-        "labels": {},
-        "departments": {}
-      },
-      "create": {
-        "placeholders": {}
-      },
-      "status": {},
-      "twoFA": {},
-      "detail": {
-        "notFound": {},
-        "toasts": {},
-        "avatarUploadDialog": {},
-        "actions": {},
-        "permissions": {},
-        "alerts": {},
-        "skeleton": {},
-        "profileLabels": {}
-      }
+      "edit": "تحرير الملف الشخصي",
+      "save": "حفظ التغييرات",
+      "cancel": "يلغي",
+      "delete": "حذف الحساب"
     }
+  },
+  "notifications": {
+    "success": "كان العمل ناجحا.",
+    "error": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "logout": "لقد تم تسجيل خروجك."
   }
 }

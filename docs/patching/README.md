@@ -26,9 +26,11 @@ The CLI ships **documentation per recipe** so you can align naming, imports, and
 
 ## Code entry point
 
-Implementation lives under **`src/core/patching/`** (`index.ts` and helpers). Until recipes ship, **`isPatchingEnabled()`** is always false.
+Implementation lives under **`packages/cli/src/core/patching/`** (`index.ts` and helpers). Until recipes ship, **`isPatchingEnabled()`** is always false.
 
 ## See also
 
+- [User-project loader & config](./loader.md) — discovery, patterns, phased rollout ([ADR 003](../architecture/decisions/003-user-i18n-loader-integration.md))
+- [Phase notes (maintainers)](../phases/patching/README.md)
 - [Exit codes & behaviour](../behavior/README.md) — how warnings and failures surface
 - [Roadmap](../roadmap/README.md) — patching / sequencing

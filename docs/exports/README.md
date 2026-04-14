@@ -18,6 +18,8 @@ The default export (`.`) is the **CLI only** and should not be imported as a lib
 - [Configuration API](./config.md)
 - [Core API](./core.md)
 - [Usage Examples & Recipes](./examples.md)
+- [JSON output (`--json`)](../json/README.md) — CLI envelope, flags, programmatic types
+- [Programmatic API & CLI JSON](../json/programmatic.md) — library `Result` roadmap vs `--json` contract
 
 ---
 
@@ -53,11 +55,15 @@ See the dedicated page: **[Core API](./core.md)**
 - **`resolveContext(cwd?)`** — Builds **`Context`**: merged `config`, absolute **`paths`** (`sourceLocale`, `localesDir`, `srcRoot`), default **`run`** flags, and **`meta`** (field provenance, warnings). Merge order matches the CLI: defaults → config file → env → discovery → global CLI overrides (when set through the same mechanisms the CLI uses).
 - **`clearContextCache()`** — Clears cached resolution between tests or long-lived processes.
 
+### Grouped namespaces (optional)
+
+On **`@zamdevio/i18nprune/core`**, the same functions are also available under **`context`**, **`extractor`**, **`dynamic`**, **`json`**, **`ask`**, **`preserve`**, **`reference`**, **`validate`**, **`scanner`**, **`files`**, and **`result`**. **Flat and namespaced imports are both supported** — see [Core API](./core.md#flat-vs-namespaced-imports-both-supported).
+
 ### Extraction & scanning
 
 - **`scanSources(srcRoot)`** — Concatenates scanned project source text (same pipeline as the CLI scanner).
 - **`exactLiteralKeys(text, functions, constMap)`** — Literal translation keys from merged source text.
-- **`findDynamicKeySites`**, **`analyzeDynamicKeysFromSourceText`**, **`scanProjectDynamicKeySites`** — Non-literal translation call heuristics (same as **`validate`** / **`locales dynamic`**).
+- **`findDynamicKeySites`**, **`analyzeDynamicKeysFromSourceText`**, **`scanProjectDynamicKeySites`** — Non-literal translation call heuristics (same as **`validate`** / **`locales dynamic`**). Templates that fully rebuild from the const map are omitted; partial paths may set **`resolvedPrefix`** (see **`tryRebuildTemplateKeyFromConsts`**, **`tryResolveTemplatePrefixBeforeUnknown`**).
 
 ### JSON
 

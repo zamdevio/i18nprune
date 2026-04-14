@@ -8,7 +8,7 @@
 
 ## Decision rationale
 
-Expose a **`functions`** field on the i18nprune config: a **list of base callee names** the extractor treats as translation functions for **string literal** first arguments (with optional chaining and simple wrappers as implemented in `src/core/extractor/`).
+Expose a **`functions`** field on the i18nprune config: a **list of base callee names** the extractor treats as translation functions for **string literal** first arguments (with optional chaining and simple wrappers as implemented in `packages/cli/src/core/extractor/`).
 
 Example:
 
@@ -34,5 +34,5 @@ A **single global name** (`t` only) breaks most real codebases. **Auto-detect fr
 
 ## See also
 
-- `src/core/extractor/` — literal and template handling
+- `packages/cli/src/core/extractor/` — literal and template handling
 - [Validate command](../../commands/validate/README.md)

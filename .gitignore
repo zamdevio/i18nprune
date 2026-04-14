@@ -1,3 +1,6 @@
+# Monorepo: `apps/*` and `packages/*` are tracked except generated paths below
+# (e.g. `apps/docs/content/` mirrors `docs/`). Other entries are build/dev/cache artifacts.
+
 node_modules/
 dist/
 *.log
@@ -5,17 +8,32 @@ dist/
 .env.*
 .DS_Store
 porting-map.md
+i18nprune.zip
 coverage/
+.cursor/
 .idea/
 .vscode/*
 !.vscode/extensions.json
 
-# Dev-only planning (not published with the package / public docs)
-CURRENT_PHASE.md
-docs/phases/
+# Docs site (Next.js + Nextra — install deps inside apps/docs/)
+apps/docs/node_modules/
+apps/docs/.next/
+apps/docs/out/
+apps/docs/package-lock.json
+apps/docs/tsconfig.tsbuildinfo
+# Mirrored from repo root `docs/` — run `pnpm docs:sync` or `pnpm run sync` in apps/docs
+apps/docs/content/
 
-# Nextra site (install inside nextra/)
-nextra/node_modules/
-nextra/.next/
-nextra/out/
-nextra/package-lock.json
+# Landing site (Vite + React — install deps inside apps/web/)
+apps/web/node_modules/
+apps/web/dist/
+apps/web/package-lock.json
+
+# Report site (Vite — install deps inside apps/report/)
+apps/report/node_modules/
+apps/report/dist/
+apps/report/package-lock.json
+
+# Session-only phase scratch (see docs/agents/temp-notes.md)
+docs/phases/temp/
+!docs/phases/temp/comments.md

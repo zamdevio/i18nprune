@@ -25,6 +25,6 @@ Until integration ships, **`doctor` / `validate`** may report **aligned** vs **u
 
 ## See also
 
-- [i18n loader & config plan](../i18n-loader-and-config-plan.md)
+- [User-project loader & config](../../patching/loader.md)
 - [ADR 002](./002-configurable-translation-calls.md)
 - [ADR 004](./004-auto-patch.md)

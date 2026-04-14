@@ -12,9 +12,9 @@ If we **pretended** those were static, we would **delete real keys**, **mark fal
 
 ## What we automated
 
-- **Heuristic detection** (`src/core/extractor/dynamic.ts`, orchestrated via `src/core/dynamic/`): scan for calls to configured **`functions`** and flag when the first argument is **not** a simple `'…'` / `"…"` string.
+- **Heuristic detection** (`packages/cli/src/core/extractor/dynamic/`, orchestrated via `packages/cli/src/core/extractor/dynamic/orchestrate.ts`): per-file scan (extension-only: TS/JS-like sources); flag when the first argument is **not** a simple `'…'` / `"…"` string. Comment regions (`//`, block comments) are detected so sites inside comments can be labeled **`commented`**.
 - **Skip false positives** such as **`function t(`** declarations (wrapper definitions), so we do not warn on your helper’s signature.
-- **Single pipeline for commands**: **`validate`** and **`sync`** use the same **`analyzeDynamicKeysFromSourceText`** / **`scanProjectDynamicKeySites`** helpers so behaviour stays aligned.
+- **Single pipeline for commands**: **`validate`** uses **`scanProjectDynamicKeySites`** (rich paths/lines); **`sync`** uses the same helper for warnings. **`analyzeDynamicKeysFromSourceText`** remains for merged-text / programmatic use without per-file paths.
 - **`validate --json`**: includes a **`dynamic`** block (count + capped site list) for scripts and CI.
 
 ## What we report to the user (human mode)

@@ -15,4 +15,4 @@ This page is a **high-level** view of where the project is headed. Priorities sh
 
 ## How we track work
 
-**Near-term execution order** for maintainers: repo-root **`CURRENT_PHASE.md`** (gitignored — recreate from team notes if your clone has no file). Optional **`docs/phases/`** is gitignored for scratch phase notes. This **Roadmap** page stays the public product direction; GitHub issues/milestones apply for shared execution.
+**Near-term execution order** for maintainers: **[`docs/phases/README.md`](../phases/README.md)** (phase index and status). This **Roadmap** page stays the public product direction; GitHub issues/milestones apply for shared execution.

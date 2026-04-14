@@ -4,5 +4,5 @@ Reports **English-identical** and parity-style metrics using config **policies**
 
 ```bash
 i18nprune quality
-i18nprune quality --lang ja
+i18nprune quality --target ja
 ```

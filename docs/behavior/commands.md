@@ -2,6 +2,8 @@
 
 High-level **inputs**, **outputs**, **failure modes**, and **where to read more**. For details, follow the link in each row.
 
+When **JSON** is **Yes**, structured stdout uses the envelope documented in **[JSON output (`--json`)](../json/README.md)** (`ok`, `kind`, `data`, …).
+
 | Command | Inputs (flags / env) | Stdout / stderr | JSON | Notes |
 |---------|-------------------|-----------------|------|--------|
 | `init` | `--yes`, prompts | Human | No | Creates config when missing. |
@@ -9,12 +11,13 @@ High-level **inputs**, **outputs**, **failure modes**, and **where to read more*
 | `validate` | `--source`, `--locales-dir`, global overrides | Human or JSON | **Yes** | Keys vs source. |
 | `sync` | `--dry-run`, `--lang` | Human or JSON | **Yes** | Merge/prune to source shape. |
 | `generate` | `--lang`, `--source`, `--force`, `--dry-run`, meta flags | Human; stderr progress when allowed | **Yes** | **Requires `--lang`** when non-interactive; catalog validation; **no** Inquirer prompts with **`--json`**. See [generate](../commands/generate/README.md). |
-| `fill` | `--lang`, `--dry-run` | Human; stderr progress when allowed | **Yes** | **Requires `--lang`**; re-translates leaves still matching source. |
+| `missing` | `--locale`, `--dry-run`, `--from-report`, `--top`, `--full-list`, global `--report-file`, global `--yes` | Human or JSON | **Yes** | Scaffold keys into **source** locale JSON or `locales/<code>.json`. See [missing](../commands/missing/README.md). |
+| `fill` | `--target`, `--all`, `--dry-run`, `--ask`, `--no-meta` | Human or JSON; stderr progress when allowed (human) | **Yes** | **Requires `--target` or `--all`** when non-interactive; same translation pipeline as **`generate`**. See [fill](../commands/fill/README.md). |
 | `quality` | `--lang` | Human or JSON | **Yes** | Parity / drift. |
 | `review` | `--lang` | Human or JSON | **Yes** | Locale vs source. |
 | `cleanup` | `--check-only`, `--skip-rg` | Human or JSON | **Yes** | Unused keys. |
 | `languages` | `--filter`, `--table` | Human or JSON | **Yes** | Catalog list. |
-| `locales` / `locales list` / `locales edit` | varies | Human | Varies | See command help. |
+| `locales` (`list`, `edit`, `dynamic`, `delete`) | `--target` where applicable, global `--yes` for destructive JSON | Human or JSON | **Yes** (per subcommand) | **`list`**: inventory + counts; **`edit`**: meta sidecar; **`dynamic`**: validate-style dynamic scan; **`delete`**: remove locale files. See [locales](../commands/locales/README.md). |
 | `doctor` | `--only`, `--strict` | Human or JSON | **Yes** | Read-only diagnostics. |
 | `help` | — | Help text | No | Styled `formatHelp`. |
 
@@ -22,7 +25,7 @@ High-level **inputs**, **outputs**, **failure modes**, and **where to read more*
 
 **Non-interactive** (`CI`, no TTY, `I18NPRUNE_NO_INIT`, or command-specific **`run.json`**): no prompts; **fail fast** on missing required flags — see [Exit codes & behavior](./README.md) and [JSON & long](./json-long.md).
 
-**Translator** (generate / fill): shared **`translateLeaf`** + provider; see [Translator & progress architecture](../architecture/translator-and-progress.md).
+**Translator** (generate / fill): shared **`translateLeaf`** + provider; see [Translator & progress](../translator/README.md).
 
 **Dry-run** (`--dry-run`): implemented for **`generate`**, **`fill`**, and **`sync`** — no writes under **`localesDir`**; human mode prints **`[info]`** lines that state nothing was written. Other commands do not expose **`--dry-run`** until there is a clear “would do X” contract.
 

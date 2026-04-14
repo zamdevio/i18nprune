@@ -1,18 +1,61 @@
 import { describe, it, expect } from 'vitest';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
 const fixture = path.join(root, 'tests/fixtures/sample-i18n-app');
+/** Empty source locale vs one literal key in code — stable `missing` CLI coverage. */
+const missingCliFixture = path.join(root, 'tests/fixtures/missing-cli');
 
-function runCli(args: string[]): string {
+function runCli(args: string[], cwd: string = fixture): string {
   return execFileSync(process.execPath, [cliJs, ...args], {
-    cwd: fixture,
+    cwd,
     encoding: 'utf8',
     env: { ...process.env, FORCE_COLOR: '0' },
   });
+}
+
+/** First JSON document on stdout (pretty-printed multi-line or compact single-line). */
+function parseFirstEnvelope(out: string): {
+  ok: boolean;
+  kind: string;
+  data: Record<string, unknown>;
+  issues: { code?: string; severity?: string; message?: string }[];
+  meta: { apiVersion?: string };
+} {
+  const t = out.trim();
+  try {
+    return JSON.parse(t) as {
+      ok: boolean;
+      kind: string;
+      data: Record<string, unknown>;
+      issues: { code?: string; severity?: string; message?: string }[];
+      meta: { apiVersion?: string };
+    };
+  } catch {
+    /* Multiple compact lines: first self-contained `{…}` line */
+    for (const line of t.split('\n')) {
+      const s = line.trim();
+      if (s.startsWith('{') && s.endsWith('}')) {
+        try {
+          return JSON.parse(s) as {
+            ok: boolean;
+            kind: string;
+            data: Record<string, unknown>;
+            issues: { code?: string; severity?: string; message?: string }[];
+            meta: { apiVersion?: string };
+          };
+        } catch {
+          /* continue */
+        }
+      }
+    }
+    throw new Error('No JSON object in output');
+  }
 }
 
 describe('CLI against sample-i18n-app fixture', () => {
@@ -22,42 +65,158 @@ describe('CLI against sample-i18n-app fixture', () => {
     expect(out).toMatch(/missing( from source JSON)?:/i);
   });
 
-  it('validate --json includes dynamic block', () => {
-    const out = runCli(['validate', '--json']);
-    const j = JSON.parse(out.trim()) as {
+  it('missing without --yes exits non-zero in non-interactive mode when paths would be added', () => {
+    expect(() => runCli(['missing'], missingCliFixture)).toThrow();
+  });
+
+  it('missing --json --dry-run returns envelope with missing payload in data', () => {
+    const out = runCli(['missing', '--dry-run', '--json'], missingCliFixture);
+    const j = parseFirstEnvelope(out);
+    expect(j.kind).toBe('missing');
+    expect(j.meta.apiVersion).toBe('1');
+    const d = j.data as {
+      kind?: string;
+      paths?: string[];
+      dryRun?: boolean;
+    };
+    expect(d.kind).toBe('missing');
+    expect(d.dryRun).toBe(true);
+    expect(Array.isArray(d.paths)).toBe(true);
+    expect(d.paths).toContain('fixture.missing.alpha');
+  });
+
+  it('fill --json --dry-run --all returns fill envelope', () => {
+    const out = runCli(['fill', '--json', '--dry-run', '--all']);
+    const j = parseFirstEnvelope(out);
+    expect(j.kind).toBe('fill');
+    expect(j.meta.apiVersion).toBe('1');
+    const d = j.data as {
+      kind?: string;
+      dryRun?: boolean;
+      targets?: string[];
+      updated?: number;
+      targetResults?: { target: string; progress?: { updatedLeafCount?: number; durationMs?: number } }[];
+    };
+    expect(d.kind).toBe('fill');
+    expect(d.dryRun).toBe(true);
+    expect(Array.isArray(d.targets)).toBe(true);
+    expect(typeof d.updated).toBe('number');
+    const rows = d.targetResults as
+      | { target: string; progress?: { updatedLeafCount?: number; durationMs?: number } }[]
+      | undefined;
+    expect(Array.isArray(rows)).toBe(true);
+    expect(rows && rows.length > 0).toBe(true);
+    expect(typeof rows?.[0]?.progress?.durationMs).toBe('number');
+  });
+
+  it('generate --json --dry-run multi-target includes per-target progress', () => {
+    const out = runCli(['generate', '--json', '--dry-run', '--target', 'so,de']);
+    const j = parseFirstEnvelope(out);
+    expect(j.kind).toBe('generate');
+    expect(j.meta.apiVersion).toBe('1');
+    const d = j.data as {
+      kind?: string;
+      dryRun?: boolean;
+      targets?: string[];
+      targetResults?: { target: string; progress?: { sourceLeafCount?: number; durationMs?: number } }[];
+    };
+    expect(d.kind).toBe('generate');
+    expect(d.dryRun).toBe(true);
+    expect(d.targets).toContain('so');
+    expect(d.targets).toContain('de');
+    expect(Array.isArray(d.targetResults)).toBe(true);
+    expect(d.targetResults?.some((r) => r.target === 'so')).toBe(true);
+    expect(typeof d.targetResults?.[0]?.progress?.sourceLeafCount).toBe('number');
+  });
+
+  it('validate --json uses envelope; data has dynamic and missing', () => {
+    const r = spawnSync(process.execPath, [cliJs, 'validate', '--json'], {
+      cwd: fixture,
+      encoding: 'utf8',
+      env: { ...process.env, FORCE_COLOR: '0' },
+    });
+    expect([0, 1]).toContain(r.status ?? 0);
+    const out = r.stdout ?? '';
+    const j = parseFirstEnvelope(out);
+    expect(j.kind).toBe('validate');
+    expect(j.meta.apiVersion).toBe('1');
+    const d = j.data as {
+      count?: number;
+      keyObservations?: { count: number };
       dynamic?: { count: number; sites: unknown[] };
       missing?: string[];
     };
-    expect(j.dynamic).toBeDefined();
-    expect(typeof j.dynamic?.count).toBe('number');
-    expect(Array.isArray(j.dynamic?.sites)).toBe(true);
-    expect(Array.isArray(j.missing)).toBe(true);
+    expect(d.dynamic).toBeDefined();
+    expect(d.count).toBe(d.keyObservations?.count);
+    expect(typeof d.dynamic?.count).toBe('number');
+    expect(Array.isArray(d.dynamic?.sites)).toBe(true);
+    expect(Array.isArray(d.missing)).toBe(true);
+    expect(Array.isArray(j.issues)).toBe(true);
+    if (d.missing !== undefined && d.missing.length > 0) {
+      expect(j.issues.some((i) => i.code === 'i18nprune.validate.missing_literal_keys')).toBe(true);
+    }
+    if ((d.dynamic as { count: number }).count > 0) {
+      expect(j.issues.some((i) => i.code === 'i18nprune.validate.dynamic_key_sites')).toBe(true);
+    }
   });
 
-  it('config --json returns kind i18nprune.config and path kinds', () => {
+  it('validate --json on unreadable source locale prints one JSON envelope (issues[], not logger-only)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-validate-missing-locale-'));
+    const cfg = `export default {
+  source: 'locales/en.json',
+  localesDir: 'locales',
+  src: 'src',
+  functions: ['t'],
+  policies: { preserve: {}, parity: {} },
+};
+`;
+    fs.writeFileSync(path.join(dir, 'i18nprune.config.mjs'), cfg, 'utf8');
+    fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+    const r = spawnSync(process.execPath, [cliJs, 'validate', '--json'], {
+      cwd: dir,
+      encoding: 'utf8',
+      env: { ...process.env, FORCE_COLOR: '0' },
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr ?? '').not.toMatch(/\[i18nprune\].*\[error\]/);
+    const j = parseFirstEnvelope(r.stdout ?? '');
+    expect(j.ok).toBe(false);
+    expect(j.kind).toBe('validate');
+    expect(Array.isArray(j.issues)).toBe(true);
+    expect(j.issues.some((i) => i.code === 'i18nprune.validate.source_locale_unreadable')).toBe(true);
+  });
+
+  it('config --json returns envelope; data has i18nprune.config snapshot', () => {
     const out = runCli(['--json', 'config']);
-    const j = JSON.parse(out.trim()) as {
+    const j = parseFirstEnvelope(out);
+    expect(j.kind).toBe('config');
+    expect(j.meta.apiVersion).toBe('1');
+    const d = j.data as {
       kind?: string;
       resolvedPathKinds?: { sourceLocale?: string; localesDir?: string; srcRoot?: string };
     };
-    expect(j.kind).toBe('i18nprune.config');
-    expect(j.resolvedPathKinds?.sourceLocale).toBe('file');
-    expect(j.resolvedPathKinds?.localesDir).toBe('directory');
-    expect(j.resolvedPathKinds?.srcRoot).toBe('directory');
+    expect(d.kind).toBe('i18nprune.config');
+    expect(d.resolvedPathKinds?.sourceLocale).toBe('file');
+    expect(d.resolvedPathKinds?.localesDir).toBe('directory');
+    expect(d.resolvedPathKinds?.srcRoot).toBe('directory');
   });
 
-  it('review --json returns localeReview', () => {
+  it('review --json returns envelope; data has localeReview', () => {
     const out = runCli(['--json', 'review']);
-    const j = JSON.parse(out.trim()) as { kind?: string; locales?: Record<string, unknown> };
-    expect(j.kind).toBe('localeReview');
-    expect(j.locales).toBeDefined();
+    const j = parseFirstEnvelope(out);
+    expect(j.kind).toBe('review');
+    const d = j.data as { kind?: string; locales?: Record<string, unknown> };
+    expect(d.kind).toBe('localeReview');
+    expect(d.locales).toBeDefined();
   });
 
-  it('doctor --json returns kind doctor', () => {
+  it('doctor --json returns envelope; data has doctor block', () => {
     const out = runCli(['--json', 'doctor']);
-    const j = JSON.parse(out.trim()) as { kind?: string; findings?: unknown[] };
+    const j = parseFirstEnvelope(out);
     expect(j.kind).toBe('doctor');
-    expect(Array.isArray(j.findings)).toBe(true);
+    const d = j.data as { kind?: string; findings?: unknown[] };
+    expect(d.kind).toBe('doctor');
+    expect(Array.isArray(d.findings)).toBe(true);
   });
 
   it('sync --dry-run prints a human Sync summary footer', () => {

@@ -90,13 +90,16 @@ Copy **`i18nprune.config.ts.example`** to **`i18nprune.config.ts`** (or `.mts` /
 
 | Resource | Link |
 |----------|------|
-| **Docs site** | [i18nprune.zamdev.dev](https://i18nprune.zamdev.dev) |
+| **Docs site** | [docs.i18nprune.dev](https://docs.i18nprune.dev) |
 | **Repository** | [github.com/zamdevio/i18nprune](https://github.com/zamdevio/i18nprune) |
 | **npm** | [npmjs.com/package/@zamdevio/i18nprune](https://www.npmjs.com/package/@zamdevio/i18nprune) |
 | **Repo docs (source of truth)** | [`docs/README.md`](./docs/README.md) |
 | **Exports (config + core)** | [`docs/exports/README.md`](./docs/exports/README.md) |
+| **Why it exists** (backstory) | [`docs/origin/README.md`](./docs/origin/README.md) |
+| **How it was built** (Cursor, agents, limits) | [`docs/cursor/README.md`](./docs/cursor/README.md) |
+| **Launch & adoption** (positioning, public checklist) | [`docs/launch/README.md`](./docs/launch/README.md) |
 
-Local preview: **`pnpm docs:dev`** — run **`pnpm docs:sync`** so `docs/` mirrors into `nextra/content/`.
+Local preview: **`pnpm docs:dev`** — run **`pnpm docs:sync`** so `docs/` mirrors into `apps/docs/content/`.
 
 ---
 
@@ -108,29 +111,40 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm dev -- --help
-pnpm docs:sync       # docs/ → nextra/content/
+pnpm docs:sync       # docs/ → apps/docs/content/
+pnpm docs:build      # static site in apps/docs/out/
 pnpm docs:dev        # Nextra dev server (port 8181)
-pnpm docs:build      # static site in nextra/out/
+pnpm web:dev         # i18nprune.dev landing (port 5174)
+pnpm web:build       # static landing bundle in apps/web/dist
 ```
 
 ## Project layout
 
 | Path | Role |
 |------|------|
-| `bin/cli.ts` | Commander entry, `preprocessArgv`, global flags |
-| `src/argv/` | Argv preprocessing (`--langs` → `languages`) |
-| `src/types/` | Shared TypeScript types |
-| `src/commands/` | One folder per command |
-| `src/exports/` | Published entrypoints: `config`, `core` |
-| `src/utils/logger/` | `canPrint*` policy + `logger` / `loggerFor` |
-| `docs/` | Nextra-ready markdown |
+| `packages/cli/bin/cli.ts` | Commander entry, `preprocessArgv`, global flags |
+| `packages/cli/src/argv/` | Argv preprocessing (`--langs` → `languages`) |
+| `packages/cli/src/types/` | Shared TypeScript types |
+| `packages/cli/src/commands/` | One folder per command |
+| `packages/cli/src/exports/` | Published entrypoints: `config`, `core` |
+| `packages/cli/src/utils/logger/` | `canPrint*` policy + `logger` / `loggerFor` |
+| `docs/` | Authoritative markdown; **`pnpm docs:sync`** → `apps/docs/content/` |
+| `apps/docs/` | Next.js + Nextra docs app |
 | `tests/fixtures/sample-i18n-app/` | Sample app for integration tests |
 
 ---
 
 ## Roadmap
 
-See [docs/roadmap/README.md](./docs/roadmap/README.md). Near-term maintainer tasks may live in repo-root **`CURRENT_PHASE.md`** (gitignored).
+See [docs/roadmap/README.md](./docs/roadmap/README.md). Maintainer phase ordering lives in **[`docs/phases/README.md`](./docs/phases/README.md)**.
+
+### Phase docs retention policy
+
+Do **not** delete completed files under `docs/phases/` by default. Keep them as implementation history unless their decisions are already preserved in at least one of:
+
+- `docs/architecture/decisions/` (ADR),
+- `docs/architecture/`,
+- or the canonical phase-folder `README.md` that supersedes them (for example `docs/phases/exports/README.md`).
 
 ---
 
@@ -145,6 +159,12 @@ See [docs/roadmap/README.md](./docs/roadmap/README.md). Near-term maintainer tas
 **Repo patterns, PR expectations, and human + agent workflows:** [docs/contributors/README.md](./docs/contributors/README.md)
 
 **Coding agents & deep onboarding** (architecture map, Git commit discipline): [docs/agents/README.md](./docs/agents/README.md) · [analysis](./docs/agents/analysis.md) · [git](./docs/agents/git.md)
+
+### Story & tooling
+
+**Why i18nprune exists** — real-world context (pressure from a larger system, standalone toolkit decision): [docs/origin/README.md](./docs/origin/README.md).
+
+**How this repository was shipped** — Cursor, agent-assisted iteration, plan limits, and what stayed human-owned: [docs/cursor/README.md](./docs/cursor/README.md).
 
 ---
 

@@ -5,7 +5,7 @@ Read-only **diagnostics** for local setup and CI.
 ## Data flow
 
 1. **`preAction`** sets **`RunOptions`** (including **`--json`**) and skips **`ensureConfig`** so `doctor` runs without writing a config.
-2. **`runDoctorCommand`** (`src/commands/doctor/index.ts`) runs checks in order: **`runtime`** → **`tools`** → **`config`** → **`paths`**.
+2. **`doctor()`** (`packages/cli/src/commands/doctor/run.ts`) runs checks in order: **`runtime`** → **`tools`** → **`config`** → **`paths`**.
 3. Each check returns a **`DoctorFinding`**: **`id`**, **`severity`** (`ok` | `warn` | `error`), **`title`**, optional **`detail`**.
 4. **Human mode:** lines go through **`logger`**; **`printCommandSummary`** ends the session.
 5. **`--json`:** one JSON object: `{ kind: 'doctor', findings, strict }` on stdout.
@@ -31,6 +31,10 @@ Read-only **diagnostics** for local setup and CI.
 | `tools` | **`rg --version`** on PATH (warn if missing) |
 | `config` | Config file present vs defaults (warn if missing) |
 | `paths` | Resolved **source locale**, **locales dir**, **src root** exist (`paths` **error** if source JSON missing) |
+
+## Updates vs npm
+
+Update discovery is **global** (banner + cache + **`version --check`**), not a separate `doctor` post-step. See [`docs/versioning/README.md`](../../versioning/README.md).
 
 ```bash
 i18nprune doctor

@@ -4,8 +4,8 @@
 
 The translation-target catalog is JSON **`{ code, english, native }`** shipped with the CLI:
 
-- **File:** `src/core/languages/languages.json`
-- **Loader:** `src/core/languages/index.ts`
+- **File:** `packages/cli/src/core/languages/languages.json`
+- **Loader:** `packages/cli/src/core/languages/index.ts`
 
 ## Generator
 

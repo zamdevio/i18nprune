@@ -1,0 +1,27 @@
+{
+  "name": "i18nprune-github",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-04-14",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "GITHUB_CACHE",
+        "class_name": "GitHubCacheDO"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "GitHubCacheDO"
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "github.i18nprune.dev",
+      "custom_domain": true
+    }
+  ]
+}

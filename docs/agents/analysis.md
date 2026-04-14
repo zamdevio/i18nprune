@@ -1,6 +1,6 @@
 # i18nprune — project analysis (agent onboarding)
 
-This document gives coding agents a **single map** of the repository: what the product does, how code is layered, where to change behavior, and how work is sequenced. It is written as a **stable onboarding guide**; implementation details may evolve—verify with `src/` and `docs/commands/`.
+This document gives coding agents a **single map** of the repository: what the product does, how code is layered, where to change behavior, and how work is sequenced. It is written as a **stable onboarding guide**; implementation details may evolve—verify with `packages/cli/src/` and `docs/commands/`.
 
 ---
 
@@ -23,20 +23,20 @@ The CLI is published as **`@zamdevio/i18nprune`**; local development uses **`pnp
 
 | Path | Role |
 |------|------|
-| `bin/cli.ts` | **Entry point** — Commander program, global flags, `preAction` (config resolution, `RunOptions`, banners), subcommand registration. |
-| `src/commands/<name>/` | **Per-command orchestration** — Thin layers calling `core/` and `utils/`. |
-| `src/core/` | **Domain logic** — Context, JSON operations, extraction, languages, translator, progress, errors, dynamic keys. |
-| `src/config/` | **Config loading** — Resolve path, parse schema, `defineConfig`, `init` prompts. |
-| `src/types/` | **TypeScript contracts** — Config, context, commands, runtime, logger, etc. |
-| `src/utils/` | **Shared utilities** — Logger, ANSI/style, fs, rg, CLI helpers, report writer. |
-| `src/constants/` | **CLI strings** — Docs URLs, JSON-output allowlist, etc. |
-| `src/exports/` | **Library entrypoints** — `config`, `core` for programmatic use. |
-| `docs/` | **Nextra-source markdown** — One `README.md` per topic; **`pnpm docs:sync`** copies to `nextra/content/`. |
+| `packages/cli/bin/cli.ts` | **Entry point** — Commander program, global flags, `preAction` (config resolution, `RunOptions`, banners), subcommand registration. |
+| `packages/cli/src/commands/<name>/` | **Per-command orchestration** — Thin layers calling `core/` and `utils/`. |
+| `packages/cli/src/core/` | **Domain logic** — Context, JSON operations, extraction, languages, translator, progress, errors, dynamic keys. |
+| `packages/cli/src/config/` | **Config loading** — Resolve path, parse schema, `defineConfig`, `init` prompts. |
+| `packages/cli/src/types/` | **TypeScript contracts** — Config, context, commands, runtime, logger, etc. |
+| `packages/cli/src/utils/` | **Shared utilities** — Logger, ANSI/style, fs, rg, CLI helpers, report writer. |
+| `packages/cli/src/constants/` | **CLI strings** — Docs URLs, JSON-output allowlist, etc. |
+| `packages/cli/src/exports/` | **Library entrypoints** — `config`, `core` for programmatic use. |
+| `docs/` | **Nextra-source markdown** — One `README.md` per topic; **`pnpm docs:sync`** copies to `apps/docs/content/`. |
 | `tests/` | **Integration tests** (e.g. CLI against fixture app). |
 | `tests/fixtures/sample-i18n-app/` | **Sample project** for manual and automated CLI checks. |
-| `nextra/` | **Documentation site** app (install deps inside `nextra/` for dev). |
+| `apps/docs/` | **Documentation site** app — Next.js + Nextra (install deps inside `apps/docs/` for dev). |
 
-**Git hygiene:** Maintainer task ordering may live in repo-root **`CURRENT_PHASE.md`** (gitignored). **`docs/phases/`** is gitignored; **`nextra/scripts/sync-content.js`** skips copying `docs/phases` to the public site. Public direction stays in **`docs/roadmap/README.md`**.
+**Git hygiene:** Maintainer phase ordering lives in **`docs/phases/README.md`**. **`docs/phases/`** is tracked in git; **`apps/docs/scripts/sync-content.js`** skips copying it to the public Nextra site. Public direction stays in **`docs/roadmap/README.md`**.
 
 ---
 
@@ -44,26 +44,26 @@ The CLI is published as **`@zamdevio/i18nprune`**; local development uses **`pnp
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  bin/cli.ts  (Commander, global flags, preAction)        │
+│  packages/cli/bin/cli.ts  (Commander, global flags, preAction)        │
 └───────────────────────────┬───────────────────────────────┘
                             │
         ┌───────────────────┼───────────────────┐
         ▼                   ▼                   ▼
-  src/commands/*     src/config/*        src/argv/*
+  packages/cli/src/commands/*     packages/cli/src/config/*        packages/cli/src/argv/*
         │                   │                   │
         └───────────┬───────┴───────────────────┘
                     ▼
-            src/core/context/
+            packages/cli/src/core/context/
          (resolveContext, paths, run, meta)
                     │
     ┌───────────────┼───────────────┐
     ▼               ▼               ▼
- src/core/json   src/core/     src/core/
+ packages/cli/src/core/json   packages/cli/src/core/     packages/cli/src/core/
   merge/prune    extractor      translator
     path          scanner         + progress
                     │
                     ▼
-              src/utils/logger
+              packages/cli/src/utils/logger
            (policy: info / detail / primary / …)
 ```
 
@@ -91,16 +91,16 @@ The CLI is published as **`@zamdevio/i18nprune`**; local development uses **`pnp
 | `doctor` | Environment diagnostics. |
 | `help` | Styled help for any command. |
 
-**Global flags** (see `bin/cli.ts`): `--config`, `--yes`, `--json`, `-q`/`-s`, path overrides, `--functions`, `--no-discovery`, `--report-file`, `--report-format`.
+**Global flags** (see `packages/cli/bin/cli.ts`): `--config`, `--yes`, `--json`, `-q`/`-s`, path overrides, `--functions`, `--no-discovery`, `--report-file`, `--report-format`.
 
 ---
 
 ## 5. Configuration
 
 - **Format:** `i18nprune.config.ts` / `.mts` / `.js` — **not** raw JSON on disk for the main config (JSON example files may exist as stubs only).
-- **Schema:** Zod-validated (`src/config/schema.ts`) — `source`, `localesDir`, `src`, `functions`, optional `sourceLocaleCode`, `policies`, `reportFormat`.
-- **Merging:** `defineConfig()` in `src/config/define.ts` merges user partial with defaults.
-- **Resolution:** `src/config/resolve/` discovers config path, handles duplicates, `ensureConfig` for init flows.
+- **Schema:** Zod-validated (`packages/cli/src/config/schema.ts`) — `source`, `localesDir`, `src`, `functions`, optional `sourceLocaleCode`, `policies`, `reportFormat`.
+- **Merging:** `defineConfig()` in `packages/cli/src/config/define.ts` merges user partial with defaults.
+- **Resolution:** `packages/cli/src/config/resolve/` discovers config path, handles duplicates, `ensureConfig` for init flows.
 
 ---
 
@@ -108,17 +108,17 @@ The CLI is published as **`@zamdevio/i18nprune`**; local development uses **`pnp
 
 ### Validate
 
-- Scan **`srcRoot`** for translation calls (`src/core/scanner`), extract literal keys (`src/core/extractor`), compare to string leaves in source JSON (`src/core/json/leaves`).
-- **Dynamic keys:** `src/core/extractor/dynamic.ts` + `src/core/dynamic/index.ts` — non-literal first arguments; reported separately from missing literals.
+- Scan **`srcRoot`** for translation calls (`packages/cli/src/core/scanner`), extract literal keys (`packages/cli/src/core/extractor`), compare to string leaves in source JSON (`packages/cli/src/core/json/leaves`).
+- **Dynamic keys:** `packages/cli/src/core/extractor/dynamic/` (TS/JS provider, comment heuristics) + `packages/cli/src/core/extractor/dynamic/orchestrate.ts` — project scan, non-literal first arguments; reported separately from missing literals. See **`docs/dynamic/README.md`**.
 
 ### Sync
 
-- `mergeToTemplateShape` / `pruneToTemplateShape` (`src/core/json/`) driven by source JSON as template.
-- **`parseSyncLangSelection`** (`src/utils/cli/args.ts`) — default all non-source locales, or explicit list / `all`.
+- `mergeToTemplateShape` / `pruneToTemplateShape` (`packages/cli/src/core/json/`) driven by source JSON as template.
+- **`parseSyncLangSelection`** (`packages/cli/src/utils/cli/args.ts`) — default all non-source locales, or explicit list / `all`.
 
 ### Generate / fill
 
-- **Translator** from `src/core/translator/init.ts`; **progress** via `src/core/progress/session.ts`.
+- **Translator** from `packages/cli/src/core/translator/init.ts`; **progress** via `packages/cli/src/core/progress/session.ts`.
 - **Fill** loops locales when `--lang` is `all` or comma-separated; prompts use **`promptFillLanguageSelection`** for TTY.
 
 ### Cleanup
@@ -127,13 +127,13 @@ The CLI is published as **`@zamdevio/i18nprune`**; local development uses **`pnp
 
 ### Reports
 
-- **`src/utils/report/index.ts`** — `pushReportEntry`, `finalizeReportFile`; formats **json** / **text** / **csv**; independent styling from interactive **`logger`** for file output.
+- **`packages/cli/src/utils/report/index.ts`** — `pushReportEntry`, `finalizeReportFile`; formats **json** / **text** / **csv**; independent styling from interactive **`logger`** for file output.
 
 ---
 
 ## 7. Testing
 
-- **Unit:** Vitest beside modules (e.g. `src/utils/cli/__tests__/args.test.ts`, `src/config/__tests__/`).
+- **Unit:** Vitest beside modules (e.g. `packages/cli/src/utils/cli/__tests__/args.test.ts`, `packages/cli/src/config/__tests__/`).
 - **Integration:** `tests/integration/cli.fixture.test.ts` runs **`dist/cli.js`** against **`tests/fixtures/sample-i18n-app`** — requires **`pnpm run build`** first.
 - **Policy:** Run **`pnpm typecheck`** and **`pnpm test`** before large merges; agents should do the same (see `docs/agents/rules.md`).
 
@@ -141,8 +141,8 @@ The CLI is published as **`@zamdevio/i18nprune`**; local development uses **`pnp
 
 ## 8. Documentation & site
 
-- **Authoritative prose** lives under **`docs/`**; **`pnpm docs:sync`** mirrors into **`nextra/content/`**.
-- **Per-command docs:** `docs/commands/<command>/README.md` — should stay in lockstep with `bin/cli.ts` and `src/commands/` (see **`docs/agents/git.md`**).
+- **Authoritative prose** lives under **`docs/`**; **`pnpm docs:sync`** mirrors into **`apps/docs/content/`**.
+- **Per-command docs:** `docs/commands/<command>/README.md` — should stay in lockstep with `packages/cli/bin/cli.ts` and `packages/cli/src/commands/` (see **`docs/agents/git.md`**).
 - **Behavior:** `docs/behavior/` — exit codes, JSON/long-run interaction.
 - **Architecture:** `docs/architecture/` — ADRs, translator/progress, tree.
 
@@ -167,7 +167,7 @@ Treat these as **roadmap-aligned** work; confirm current code before implementin
 - **ESM** — Imports use **`.js`** suffix in TypeScript paths aligned with `tsconfig` / `tsup`.
 - **Errors** — `I18nPruneError` with codes; `reportCliError` sets exit code.
 - **Logging** — Never bypass **`canEmit`** gates; use **`logger`** with explicit **`RunOptions`** / **`ctx.run`**.
-- **CLI** — Non-interactive and **`--json`** must not prompt where commands declare machine output (`src/constants/jsonoutput.ts`).
+- **CLI** — Non-interactive and **`--json`** must not prompt where commands declare machine output (`packages/cli/src/constants/jsonoutput.ts`).
 
 ---
 
@@ -175,7 +175,7 @@ Treat these as **roadmap-aligned** work; confirm current code before implementin
 
 1. Read **`docs/agents/rules.md`** and **`docs/agents/git.md`**.  
 2. Run **`pnpm install`**, **`pnpm typecheck`**, **`pnpm test`**, **`pnpm run build`**.  
-3. Skim **`bin/cli.ts`** and one command (e.g. **`src/commands/validate/index.ts`**) end-to-end.  
+3. Skim **`packages/cli/bin/cli.ts`** and one command (e.g. **`packages/cli/src/commands/validate/index.ts`**) end-to-end.  
 4. Open **`docs/commands/README.md`** and the matching command doc.  
 5. For feature work, follow the **commit plan** in **`docs/agents/git.md`** so history stays reviewable.
 

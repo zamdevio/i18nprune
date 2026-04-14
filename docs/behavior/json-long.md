@@ -1,11 +1,11 @@
 # `--json` and long-running commands (`generate`, `fill`, `sync`, …)
 
-This page describes **how machine-readable mode and long-running work interact** with **prompts**, **progress**, and **stdout**. Release sequencing and **`--report-file`** are tracked in the **[Roadmap](../roadmap/README.md)** and maintainer **`CURRENT_PHASE.md`** (gitignored).
+This page describes **how machine-readable mode and long-running work interact** with **prompts**, **progress**, and **stdout**. Release sequencing and **`--report-file`** are tracked in the **[Roadmap](../roadmap/README.md)** and maintainer **[phases index](../phases/README.md)**.
 
 ## Two different meanings of “JSON mode”
 
 1. **Global argv `--json`** — recorded for duplicate-config / non-interactive behaviour (see [CLI overview](../cli/README.md)).
-2. **`run.json` (structured stdout)** — only turned on for commands listed in **`src/constants/jsonoutput.ts`** (`COMMANDS_WITH_JSON_OUTPUT`).
+2. **`run.json` (structured stdout)** — only turned on for commands listed in **`packages/cli/src/constants/jsonoutput.ts`** (`COMMANDS_WITH_JSON_OUTPUT`).
 
 A command can be “JSON-capable” but still need **all inputs from flags** in CI.
 

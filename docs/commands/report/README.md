@@ -1,26 +1,89 @@
 # `report`
 
-Top-level **help topic** only: it does **not** write files or change your project. It loads the same config and context as other commands so paths stay consistent.
+Project-level report: **live scan** (missing literal keys, dynamic key sites, key observations) or **reuse** of a prior validated JSON (`--from`). This command is separate from global **`--report-file`** / **`--report-format`** on other commands (those write per-run artifacts only).
 
-## Purpose
+## Payload (JSON / embedded HTML)
 
-Documents **global** **`--report-file <path>`** and **`--report-format <json|text|csv>`** (see **`bin/cli.ts`** root options). Supported commands push entries through **`utils/report`** and write **one artifact** at end of run (counts, command-specific data). Default format: **`config.reportFormat`**, else **`json`**.
+The **`i18nprune.projectReport`** document includes:
 
-**`help`** shows usage as **`i18nprune <command> [options] [--report-file …]`** — not **`i18nprune report [options]`** — because **`report`** is a guide, not the flag host.
+- **`summary`** — counts (`missingKeysCount`, `dynamicSitesCount`, `keyObservationsCount`, `ok`), plus optional **`sourceFilesScannedCount`** (files under `project.srcRoot` included in key-site and dynamic scans).
+- **`details`** — full arrays: **`missingKeys`**, **`dynamicSites`**, **`keyObservations`** (scanner objects as produced by the core extractors; no row cap in the CLI writer).
+- **`project`** — paths (`cwd`, `sourceLocalePath`, `localesDir`, `srcRoot`, …) and optional **`environment`** for stable editor links in the HTML UI.
+
+Path semantics (casing, duplicate paths in arrays): see [Report UI — Filesystem paths](../report/README.md#filesystem-paths-casing-and-duplicate-files).
+
+## Formats
+
+| Format | Description |
+|--------|-------------|
+| **`html`** (default) | Single **offline** file embedding the [Report UI](../report/README.md) (React SPA). |
+| **`json`** | Machine-readable `i18nprune.projectReport` document (pretty-printed with trailing newline). |
+| **`csv`** | Row-per-section export (`meta`, `project`, `summary`, `missingKeys`, `dynamicSites`, `keyObservations`). |
+| **`text`** | Short human summary (paths + counts + optional source-files line). |
+
+## Options
+
+| Option | Description |
+| ------ | ----------- |
+| `--format <fmt>` | `html` (default), `json`, `csv`, or `text` |
+| `--out <path>` | Output file (default: `report-<local-timestamp>.<ext>` in cwd) |
+| `--from <file>` | Load a prior **`i18nprune.projectReport`** JSON (schema-validated) and re-export in the chosen format **without scanning** |
 
 ## Usage
 
 ```bash
+# Default: timestamped HTML in cwd
 i18nprune report
-i18nprune report --help
-i18nprune help report
-i18nprune sync --report-file ./out/report.json
-i18nprune fill --lang all --report-file ./out/fill.txt --report-format text
+
+i18nprune report --format json --out ./out/project-report.json
+i18nprune report --format html --out ./out/report.html
+i18nprune report --from ./out/project-report.json --format text --out ./summary.txt
 ```
 
-Respects global **`--json`**, **`-q` / `--quiet`**, **`-s` / `--silent`** like other commands (human body is suppressed when decorative output is off).
+## Quick demo (portable HTML audit report)
+
+```bash
+i18nprune report --format html --out ./out/report.html
+# open ./out/report.html in any browser (fully offline)
+```
+
+## Global `--json`
+
+With **`i18nprune --json report …`**, the CLI still writes the **file** chosen by **`--format`** and **`--out`** (same as without **`--json`**), and also prints **one `CliJsonEnvelope`** on stdout (`kind`: **`report`**). Payload: **`types/command/report/json.ts`** — **`format`**, **`outputPath`** (resolved path or **`null`** if the write was skipped), and **`document`** (the full **`i18nprune.projectReport`** object, same as **`report --format json`** file contents).
+
+Use **`--format json`** when you want a **JSON file** on disk; use global **`--json`** when you want the **stdout envelope** for CI (you can combine both).
+
+Headless: **`runReport(opts)`** from **`@zamdevio/i18nprune/core`** (async).
+
+## HTML output requirements
+
+The npm package ships **`dist/report/index.html`** next to **`dist/cli.js`**. **`pnpm build`** (or `pnpm build:report`) must run so that path exists before `report --format html` can bundle the UI.
+
+Embedded payload development details, routing, and SPA patterns: **[Report UI documentation](../report/README.md)**.
+
+## Global `--report-file` (other commands)
+
+Global report artifacts are supported across the main runtime commands (for example: `sync`, `fill`, `validate`, `cleanup`, `generate`, `missing`, `doctor`, `quality`, `review`, `config`, `languages`, and `locales` subcommands).
+
+Example:
+
+```bash
+i18nprune validate --report-file ./out/run.json --report-format json
+i18nprune sync --report-file ./out/sync.txt --report-format text
+```
+
+Default format comes from **`config.reportFormat`** when **`--report-format`** is omitted, else **`json`**.
+
+### Existing output paths (`report --out` and global `--report-file`)
+
+If the resolved target file **already exists**:
+
+- **Interactive TTY** (not CI, not headless): i18nprune **prompts** — **Overwrite**, **Keep both** (new sibling path with a random **8-char hex** suffix before the extension), or **Skip** (no write).
+- **Automation** — no prompt; behavior matches **Keep both** when any of these hold: **`CI`**, non-TTY / **`shouldSkipInteractivePrompts()`**, global **`--yes`**, or global **`--json`**. That keeps **`i18nprune report … --json`** and piped CI from blocking on Inquirer or closing stdin (which previously surfaced as **`i18nprune.io.read_failed`**).
+
+The same **`resolveReportOutputPath`** logic applies to **`report --out …`** and to global **`--report-file`**.
 
 ## See also
 
-- [Roadmap](../../roadmap/README.md)
-- [CLI overview](../../cli/README.md)
+- [CLI overview](../cli/README.md)
+- [Report UI (embedded SPA)](../report/README.md)

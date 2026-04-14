@@ -21,7 +21,7 @@ Implicit or heuristic-only patching optimises for a short-term “it worked once
 ## Consequences
 
 - **Config** gains optional patching fields as the feature ships; see [patching](../../patching/README.md).
-- **Implementation** is centralised under **`src/core/patching/`** with small, testable units per recipe.
+- **Implementation** is centralised under **`packages/cli/src/core/patching/`** with small, testable units per recipe.
 - **Documentation** is part of the contract: each recipe ships with **required** shapes and **failure** semantics.
 
 ## See also

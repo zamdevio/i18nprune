@@ -1,0 +1,46 @@
+{
+  "app": {
+    "title": "",
+    "description": "Un esempio di applicazione internazionalizzata",
+    "greeting": "",
+    "footer": {
+      "copyright": "Diritto d'autore © 2024",
+      "privacy": "politica sulla riservatezza",
+      "terms": "Termini di servizio"
+    },
+    "nav": {
+      "home": "Casa",
+      "about": "Di",
+      "contact": "Contatto",
+      "profile": "Profilo",
+      "logout": "Esci"
+    }
+  },
+  "user": {
+    "login": {
+      "title": "Login",
+      "email": "Indirizzo e-mail",
+      "password": "Password",
+      "submit": "Registrazione",
+      "forgot": "Ha dimenticato la password?"
+    },
+    "register": {
+      "title": "Registro",
+      "username": "Nome utente",
+      "email": "E-mail",
+      "password": "Password",
+      "submit": "Creare un account"
+    },
+    "profile": {
+      "edit": "Modifica profilo",
+      "save": "Salva modifiche",
+      "cancel": "Cancellare",
+      "delete": "Elimina account"
+    }
+  },
+  "notifications": {
+    "success": "L'azione ha avuto successo.",
+    "error": "Qualcosa è andato storto. Per favore riprova.",
+    "logout": "Sei stato disconnesso."
+  }
+}

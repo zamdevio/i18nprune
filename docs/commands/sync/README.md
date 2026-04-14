@@ -5,15 +5,15 @@ Merges and prunes locale JSON files to match the **source** shape (honours **`po
 ```bash
 i18nprune sync
 i18nprune sync --dry-run
-i18nprune sync --lang all
-i18nprune sync --lang ja,pt-br
+i18nprune sync --target all
+i18nprune sync --target ja,pt-br
 ```
 
-## `--lang` (default: all non-source locales)
+## `--target` (default: all non-source locales)
 
-- **Omit** **`--lang`** — Syncs **every** locale JSON under **`localesDir`** except the **source** file (same as **`all`**).
-- **`--lang all`** — Explicit “all targets” (same as omit).
-- **`--lang ja,pt-br`** — Only those basenames (comma-separated, normalized like **`pt-br`**).
+- **Omit** **`--target`** — Syncs **every** locale JSON under **`localesDir`** except the **source** file (same as **`all`**).
+- **`--target all`** — Explicit “all targets” (same as omit).
+- **`--target ja,pt-br`** — Only those basenames (comma-separated, normalized like **`pt-br`**).
 
 The **source locale** file (basename of the configured `source` path) is **never** modified — **`sync`** only updates **other** `*.json` files under **`localesDir`**. Target codes must not be the source locale.
 

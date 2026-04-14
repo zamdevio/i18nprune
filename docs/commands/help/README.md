@@ -8,7 +8,7 @@ i18nprune help generate
 i18nprune validate --help
 ```
 
-Help output is styled in **`src/commands/help/index.ts`** (colors + docs footer via `src/constants/docs.ts`). Every **`--help`** / **`help <topic>`** prepends the same box style: title from **`toolDisplayTitle`** (e.g. **`I18nprune`**, **`Languages`**, **`Locales List`**), subtitle from **`getTopicBannerSubtitle`** in **`src/utils/cli/banner.ts`**. Suppressed when global **`--json`** or **silent**.
+Implementation: **`packages/cli/src/commands/help/run.ts`** ( **`configureCliHelp`**, **`colorizeHelpText`** ); **`index.ts`** re-exports only. There is intentionally no **`help()`** function — this stays stable for exports and Commander wiring. Colors + docs footer use **`packages/cli/src/constants/docs.ts`**. Every **`--help`** / **`help <topic>`** prepends the same box style: title from **`toolDisplayTitle`**, subtitle from **`getTopicBannerSubtitle`** in **`packages/cli/src/utils/cli/banner.js`**. Suppressed when global **`--json`** or **silent**.
 
 ## Nested help
 
