@@ -1,5 +1,7 @@
 # `missing`
 
+**Full examples:** [missing examples](../../examples/commands/missing/README.md)
+
 Adds **dotted key paths** that appear in **translation calls** in your source tree but are **absent** from the JSON file you choose (by default the **source locale** file — the same one **`validate`** checks against).
 
 ## Write target: `--locale` or source locale
@@ -27,20 +29,18 @@ i18nprune missing --yes
 i18nprune missing --dry-run
 i18nprune missing --dry-run --top 5
 i18nprune missing --locale ja --yes
-i18nprune missing --from-report report.json --yes
-i18nprune validate --json > report.json && i18nprune missing --from-report report.json --yes
 ```
 
-**Does not** call translation APIs. It only **merges placeholder** string values (default **`""`**) for missing paths.
+**Does not** call translation APIs. It **merges a placeholder string** at each new path. The default is **`__I18NPRUNE_MISSING__`** (`DEFAULT_MISSING_LEAF_PLACEHOLDER` in **`@i18nprune/core`**) so you can **`grep`** / lint for scaffolded keys; set **`missing.placeholder`** in config to use your own sentinel (or **`""`** if you deliberately want empty-string leaves).
 
 ## End-to-end flow
 
-1. **Load config** — `source`, `localesDir`, `src`, `functions`, optional `missing` / `validate` namespaces (see [Command namespaces in config](../../config/commands.md)).
+1. **Load config** — `source`, `localesDir`, `src`, `functions`, optional `missing` namespace (see [Command namespaces in config](../../config/commands.md)).
 2. **Resolve write target** — absolute path to **`config.source`** or **`locales/<code>.json`** (see table above). If the file is missing and the target may be created, start from **`{}`**.
 3. **Read** that JSON and collect existing **string leaf** paths (nested objects that are not string leaves do not count as “present” for a dotted key).
 4. **Scan** `src` for translation calls and extract **literal** key strings (same pipeline as **`validate`**).
-5. **Compute `toAdd`** — literals in code that are not yet string leaves in the target file (or intersect **`--from-report`** with the current scan when that flag is set).
-6. **Human mode, real write:** print preview (respecting **`--top`** / **`--full-list`** / env / config defaults), then **confirm** unless **`--yes`** or non-interactive rules apply; on success, merge **`""`** at each path and **write** the file.
+5. **Compute `toAdd`** — literals in code that are not yet string leaves in the target file.
+6. **Human mode, real write:** print preview (respecting **`--top`** / **`--full-list`** defaults), then **confirm** unless **`--yes`** or non-interactive rules apply; on success, merge the resolved placeholder at each path and **write** the file.
 7. **`--dry-run` / `--json`** — no write; **`--json`** prints the full **`paths`** array.
 
 ## Config and environment
@@ -48,11 +48,8 @@ i18nprune validate --json > report.json && i18nprune missing --from-report repor
 | Mechanism | Role |
 |-----------|------|
 | **`config.source`**, **`localesDir`**, **`src`**, **`functions`** | Required; define which file is updated and what counts as a translation call. |
-| **`config.missing.displayDefaultTop`** | Default human listing cap when **`--top`** is omitted (see [Command namespaces](../../config/commands.md)). |
-| **`MISSING_DISPLAY_DEFAULT_TOP`** | Env override for that same default cap (valid positive integer). |
+| **`config.missing.placeholder`** | String merged at each new path; omit → **`__I18NPRUNE_MISSING__`** (see [Command namespaces](../../config/commands.md)). |
 | **`CI`** | With other rules, suppresses interactive **confirmation** in automation; use **`--yes`** to write. |
-
-Invalid env values for **`MISSING_DISPLAY_DEFAULT_TOP`** are ignored (fallback to config, then **10**).
 
 ## How it works
 
@@ -63,8 +60,8 @@ Invalid env values for **`MISSING_DISPLAY_DEFAULT_TOP`** are ignored (fallback t
 
 **Default vs `--locale`**
 
-- **Default (source locale file):** The paths match what **`validate`** calls “missing” (code vs **source locale** JSON). **`--from-report`** from **`validate --json`** applies cleanly.
-- **`--locale <code>`:** The paths are “in code but not in **this** file” — they can **differ** from **`validate`’s** list whenever the **source locale** and that locale are out of sync (e.g. after **`missing`** on source but before **`sync`**). Prefer **`--from-report`** with the default target when you want a 1:1 with **`validate`**.
+- **Default (source locale file):** The paths match what **`validate`** calls “missing” (code vs **source locale** JSON).
+- **`--locale <code>`:** The paths are “in code but not in **this** file” — they can **differ** from **`validate`’s** list whenever the **source locale** and that locale are out of sync (e.g. after **`missing`** on source but before **`sync`**).
 
 ## Recommended pipeline (source locale default)
 
@@ -72,7 +69,7 @@ When you use the **default** (update **source locale** only):
 
 1. **`missing`** — **source locale** JSON gains keys the code references.
 2. **`sync`** — other locale files under **`localesDir`** match the **source locale** shape.
-3. **`fill`** — **re-translate** leaves in target locales that still **match the source locale** string (stale English-identical copies). **`fill`** does not invent keys; it **re-translates** existing paths.
+3. **`fill`** — **re-translate** leaves in target locales that still **match the source locale** string (stale source-identical copies). **`fill`** does not invent keys; it **re-translates** existing paths.
 4. **`validate`** — confirm code vs **source locale** JSON.
 5. **`quality`** / **`review`** — parity and per-locale review.
 
@@ -86,15 +83,14 @@ When you used **`--locale <code>`** instead, **`sync`** / **`fill`** / **`valida
 |------|------|
 | **`--locale <code>`** | Write into **`locales/<code>.json`** instead of the **source locale** file. Optional. Normalized like other commands (e.g. **`pt-br`**). |
 | **`--dry-run`** | List paths that **would** be added; **no** file write. Preview uses **`--top`** / **`--full-list`**. |
-| **`--from-report <file>`** | Read the **`missing`** array from a **`validate --json`** document (or compatible shape). |
-| **`--top <n>`** | Human listings show at most **`n`** paths. Default cap if omitted: **`MISSING_DISPLAY_DEFAULT_TOP`** env → **`config.missing.displayDefaultTop`** → **10**. Ignored with **`--full-list`**. Must be a **positive integer** (same validation as **`review --top`**). |
+| **`--top <n>`** | Human listings show at most **`n`** paths. Default cap if omitted: **10**. Ignored with **`--full-list`**. Must be a **positive integer** (validated like **`locales dynamic --top`**). |
 | **`--full-list`** | Human listings print **every** path (overrides **`--top`**). |
 
 **Global (same as other commands)**
 
 | Flag | Role |
 |------|------|
-| **`--report-file`**, **`--report-format`** | Structured run report at end (when this command is wired into the report session). See [Examples](../../examples/README.md). |
+| **`--json`** with shell redirection** | Structured run report at end (when this command is wired into the report session). See [Examples](../../examples/README.md). |
 | **`-q` / `-s`**, **`--json`** | Verbosity and machine-readable mode; see [JSON & long runs](../../behavior/json-long.md). |
 | **`--yes`** (global) | Skip the write **confirmation** and proceed (required for non-interactive writes). |
 

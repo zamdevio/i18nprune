@@ -1,13 +1,13 @@
 # Programmatic Usage Examples
 
-Real-world recipes using `@zamdevio/i18nprune/config` and `@zamdevio/i18nprune/core`.
+Real-world recipes using `i18nprune/core` and `i18nprune/core`.
 
 ## 1. Pre-commit Validation Hook
 
 ```ts
 // scripts/validate-i18n.ts
-import { resolveContext, scanProjectDynamicKeySites } from '@zamdevio/i18nprune/core';
-import { exactLiteralKeys } from '@zamdevio/i18nprune/core';
+import { resolveContext, scanProjectDynamicKeySites } from 'i18nprune/core';
+import { exactLiteralKeys } from 'i18nprune/core';
 
 const ctx = resolveContext();
 const dynamicSites = scanProjectDynamicKeySites(ctx);
@@ -27,7 +27,7 @@ import {
   scanSources,
   readJsonFile,
   exactLiteralKeys,
-} from '@zamdevio/i18nprune/core';
+} from 'i18nprune/core';
 
 const ctx = resolveContext();
 const sourceData = readJsonFile(ctx.paths.sourceLocale);
@@ -43,20 +43,20 @@ console.log('Unused keys:', unused);
 ## 3. Config in Library / Monorepo
 
 ```ts
-import { defineConfig } from '@zamdevio/i18nprune/config';
+import { defineConfig, type I18nPruneConfig } from 'i18nprune/core/config';
 
 export default defineConfig({
   source: 'packages/design-system/locales/en.json',
   localesDir: 'packages/design-system/locales',
   src: 'packages/**/*.{ts,tsx}',
   functions: ['t'],
-});
+} satisfies Partial<I18nPruneConfig>);
 ```
 
 ## 4. Testing Context Resolution
 
 ```ts
-import { resolveContext, clearContextCache } from '@zamdevio/i18nprune/core';
+import { resolveContext, clearContextCache } from 'i18nprune/core';
 
 test('resolves context correctly', () => {
   clearContextCache();
@@ -68,7 +68,7 @@ test('resolves context correctly', () => {
 ## 5. Namespaced imports (same API, grouped)
 
 ```ts
-import { context, extractor, dynamic, validate, files } from '@zamdevio/i18nprune/core';
+import { context, extractor, dynamic, validate, files } from 'i18nprune/core';
 
 const ctx = context.resolveContext();
 const usage = extractor.scanProjectLiteralKeyUsage(ctx);

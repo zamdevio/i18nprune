@@ -6,7 +6,7 @@ i18nprune reads a single project config file that defines **source locale JSON**
 
 | Priority | File | Notes |
 |----------|------|--------|
-| 1 | `i18nprune.config.ts` | **Recommended** — type-safe with `defineConfig` from `@zamdevio/i18nprune/config`. |
+| 1 | `i18nprune.config.ts` | **Recommended** — type-safe with **`defineConfig`** + **`I18nPruneConfig`** from **`i18nprune/core/config`** (see **`satisfies Partial<I18nPruneConfig>`** in **`i18nprune init`** output). |
 | 2 | `i18nprune.config.js` | **Fallback** — plain ESM `export default` works; no TypeScript required. |
 | 3+ | `.mts`, `.mjs`, `.cts`, `.cjs` | Supported; same merged shape after load. |
 
@@ -16,33 +16,35 @@ If **multiple** config files exist in the project root, the CLI resolves them in
 
 ## Public helpers (npm)
 
-- **`defineConfig(partial)`** — `@zamdevio/i18nprune/config` merges your partial with **defaults** (including empty `policies: {}`).
+- **`defineConfig(partial)`** — **`i18nprune/core/config`** merges your partial with **defaults** (including **`policies`**, **`reference`**, **`missing`**). Pair with **`satisfies Partial<I18nPruneConfig>`** for editor checks.
 - Types: **`I18nPruneConfig`**, **`Policies`**, etc., exported from the same subpath.
 
 ## Merge order
 
-Resolved values follow: **defaults → config file → command-specific env (e.g. `MISSING_DISPLAY_DEFAULT_TOP`) → `I18NPRUNE_*` env → discovery (gaps only) → global CLI flags**. See [CLI runtime](../cli/runtime/README.md) and `config` command.
+Resolved values follow: **defaults → config file → `I18NPRUNE_*` env → discovery (gaps only) → global CLI flags**. See [CLI runtime](../cli/runtime/README.md) and `config` command.
 
 Canonical env var **names** are defined in **`packages/cli/src/constants/env.ts`**; human-readable tables live in [Environment variables](./env.md).
 
 ## Topics
 
-- [Environment variables](./env.md) — full list (`I18NPRUNE_*`, `CI`, `MISSING_DISPLAY_DEFAULT_TOP`, …) and **`constants/env.ts`**.
-- [Command namespaces](./commands.md) — `validate`, `missing`, and config-shaped guidance.
+- [Translation (`translate`)](./translate.md) — **`translate.{ primary, providers, policy }`** for **`generate`** / **`fill`**, precedence with CLI + env.
+- [Environment variables](./env.md) — full list (`I18NPRUNE_*`, `CI`, …) and **`constants/env.ts`**.
+- [Command namespaces](./commands.md) — **`missing`** defaults and config-shaped guidance (**`validate`** has no config namespace today).
 - [Policies](./policies/README.md) — `preserve` and `parity` (sync, quality, fill).
+- [Exclude](./exclude.md) — scan scope control (`preset`, `dirs/files/extensions/patterns`, CLI merge).
 
 ## Troubleshooting
 
-### `Cannot find module '@zamdevio/i18nprune/config'`
+### `Cannot find module 'i18nprune/core'`
 
 The CLI loads your config file with **jiti** in the **project directory** (where the config lives). Any `import` inside that file is resolved like normal Node resolution from that project’s **`node_modules`**.
 
-So if `i18nprune.config.ts` contains `import { defineConfig } from '@zamdevio/i18nprune/config'`, the project must **depend on** the same package that provides the CLI (e.g. **`@zamdevio/i18nprune`** in `devDependencies`). A globally installed `i18nprune` binary does **not** automatically satisfy imports inside your config file.
+So if `i18nprune.config.ts` contains `import { defineConfig, type I18nPruneConfig } from 'i18nprune/core/config'`, the project must **depend on** the **`i18nprune`** npm package (or a workspace link) in **`devDependencies`** so Node can resolve that subpath. A globally installed `i18nprune` binary does **not** automatically satisfy imports inside your config file. For engine-only consumers, **`@i18nprune/core`** is available as a separate package (runtime APIs); config typing lives on **`i18nprune/core/config`** from the same **`i18nprune`** package.
 
 **Fix:** add the package to the app and install:
 
 ```bash
-npm add -D @zamdevio/i18nprune
+npm add -D i18nprune
 ```
 
 **Alternative:** use plain `i18nprune.config.ts` without importing `defineConfig` — export a plain object that matches the merged shape (still validated with **Zod** after load). See the `.js` config style in the table above.

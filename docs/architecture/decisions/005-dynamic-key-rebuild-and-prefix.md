@@ -35,7 +35,7 @@ Without special handling, every such call is classified as non-literal, which **
 ## Consequences
 
 - **`DynamicKeySite`** may include **`resolvedPrefix`** for **`template_interpolation`**.
-- **`@zamdevio/i18nprune/core`** exports **`tryRebuildTemplateKeyFromConsts`** and **`tryResolveTemplatePrefixBeforeUnknown`** for scripts that mirror CLI rules.
+- **`i18nprune/core`** exports **`tryRebuildTemplateKeyFromConsts`** and **`tryResolveTemplatePrefixBeforeUnknown`** for scripts that mirror CLI rules.
 - Large projects that rely on namespace `const`s should see **fewer** reported dynamic sites when those templates become statically rebuildable.
 
 ### Follow-up (not in this ADR)

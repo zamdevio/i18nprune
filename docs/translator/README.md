@@ -65,4 +65,4 @@ The codebase already has a **single** `translateLeaf` entry point. The **next** 
 - [Command behaviors index](../behavior/commands.md)
 - [Exit codes & behavior](../behavior/README.md)
 - [JSON mode & long commands](../behavior/json-long.md)
-- [Roadmap](../roadmap/README.md) — reporting (`--report-file`).
+- [Roadmap](../roadmap/README.md) — reporting (`stdout redirection`).

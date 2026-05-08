@@ -22,13 +22,13 @@ The **`report`** command can emit a **single self-contained HTML file** (`--form
 
 | Area | Role |
 |------|------|
-| **`data/loader`** | Reads `#i18nprune-inline-payload`, `JSON.parse`, validates with Zod (`@zamdevio/i18nprune/report`). **Manual import** (paste / file) uses the same validation (`validatePayloadString`). Dev server without payload uses `data/mock`. |
+| **`data/loader`** | Reads `#i18nprune-inline-payload`, `JSON.parse`, validates with Zod (`@i18nprune/report`). **Manual import** (paste / file) uses the same validation (`validatePayloadString`). Dev server without payload uses `data/mock`. |
 | **`context/report`** | Provides validated `ProjectReportDocument`; wraps editor preference, search, and pagination providers. |
 | **`components/payload-import`** | Collapsible panel (collapsed by default on the main shell; open on the missing-payload screen; auto-expands on validation error): paste or choose `.json`, load with schema + version errors. |
 | **`context/search`** | Global filter string; list routes use `matchesSearch` on row text. |
 | **`context/pagination`** | Per-list page + page size; **rows per page** persisted in `localStorage` (`i18nprune-report-page-size`). |
 | **`context/editor`** | Preferred editor for `file://` / `vscode://` / `cursor://` links (`lib/editor`, `localStorage`). |
-| **`lib/docs`** | Re-exports **`packages/cli/src/constants/docs.js`** URL helpers only (no Commander), so doc links match the CLI. |
+| **Doc links in UI** | Import **`getDocsUrl`**, **`GITHUB_BASE`**, **`GITHUB_REPO`** from **`@i18nprune/core`** (same as CLI; Vite alias in `vite.config.ts`). |
 | **`components/shell`** | Header (brand, **toolbar**: search + editor dropdown, theme dropdown, route badge), nav, footer links. |
 
 **Styling** — `styles/global.css` (single CSS chunk inlined). **Icons** — inline SVGs in `components/icons.tsx` (no icon font CDN).
@@ -38,7 +38,7 @@ The **`report`** command can emit a **single self-contained HTML file** (`--form
 ## Patterns used
 
 - **Folder `index` modules** — e.g. `pages/overview/index.tsx`, `context/report/index.tsx`, so imports stay stable and barrels are real implementations.
-- **Offline-first** — No runtime fetch for data or icons; footer links point at GitHub docs using the same constants as the CLI (`GITHUB_USERNAME`, `GITHUB_REPO`, `docsCommandUrl`, `getDocsUrl` from `packages/cli/src/constants/docs.ts`).
+- **Offline-first** — No runtime fetch for data or icons; footer links use **`getDocsUrl`**, **`GITHUB_BASE`**, **`GITHUB_REPO`** from **`@i18nprune/core`** (same as CLI).
 - **Desktop-gated editor UI** — `useDesktopReportChrome` hides the editor opener on small / coarse-pointer viewports; theme + search stay available.
 - **Custom dropdowns** — Editor, theme, and **rows-per-page** use shared **toolbar dropdown** markup/CSS (`.toolbar-dropdown*`), not native `<select>`, for consistent keyboard and click-outside behavior. **Rows** opens **upward** (above the control). **Theme** on narrow viewports aligns the menu to the **left** of the trigger so options extend to the right and stay in view.
 - **Search empty state** — When data exists but the filter matches nothing, `SearchNoMatches` offers **Clear search**.
@@ -74,7 +74,7 @@ The file at **`apps/report/index.html`** is only the **dev entry**: it loads `/s
 ## Changing the payload shape
 
 1. Update **`packages/report`** (schema + types) and mirror any CLI-only types in **`packages/cli/src/types/command/report`** if needed.
-2. Types + Zod live in **`packages/report`**; the SPA imports **`@zamdevio/i18nprune/report`** (see `apps/report/src/types` for re-exports).
+2. Types + Zod live in **`packages/report`**; the SPA imports **`@i18nprune/report`** (see `apps/report/src/types` for re-exports).
 3. Adjust **`build.ts`** if new fields are produced at scan time.
 
 Keep **optional** fields for older saved JSON when possible so `--from` and old HTML still load.

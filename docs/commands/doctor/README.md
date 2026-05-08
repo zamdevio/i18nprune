@@ -1,5 +1,7 @@
 # `doctor`
 
+**Full examples:** [doctor examples](../../examples/commands/doctor/README.md)
+
 Read-only **diagnostics** for local setup and CI.
 
 ## Data flow

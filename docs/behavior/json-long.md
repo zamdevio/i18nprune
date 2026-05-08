@@ -1,6 +1,6 @@
 # `--json` and long-running commands (`generate`, `fill`, `sync`, …)
 
-This page describes **how machine-readable mode and long-running work interact** with **prompts**, **progress**, and **stdout**. Release sequencing and **`--report-file`** are tracked in the **[Roadmap](../roadmap/README.md)** and maintainer **[phases index](../phases/README.md)**.
+This page describes **how machine-readable mode and long-running work interact** with **prompts**, **progress**, and **stdout**. Release sequencing and **`stdout redirection`** are tracked in the **[Roadmap](../roadmap/README.md)** and maintainer **`maintainer/phases/README.md`**.
 
 ## Two different meanings of “JSON mode”
 
@@ -38,6 +38,6 @@ Long work has **three** audiences:
 
 ## Related
 
-- [Roadmap](../roadmap/README.md) — **`--report-file`**, ordering of long-command work.
+- [Roadmap](../roadmap/README.md) — **`stdout redirection`**, ordering of long-command work.
 - [Exit codes & behavior](./README.md) — non-interactive rules, **`generate`** catalog behaviour.
 - [Verbosity & JSON](../cli/verbosity/README.md) — `--quiet`, `--silent`, `--json`

@@ -1,4 +1,4 @@
-# `@zamdevio/i18nprune/core`
+# `i18nprune/core`
 
 The **programmatic heart** of i18nprune — battle-tested primitives used by the CLI itself.
 
@@ -9,20 +9,20 @@ The **programmatic heart** of i18nprune — battle-tested primitives used by the
 | **Stable** | Documented for integrations; breaking changes ship on a **major** bump. |
 | **Advanced** | Supported and typed, but sharper edges (heuristics, ordering, or TTY-only helpers) — read the section notes before upgrading blindly. |
 
-**Stable (initial classification):** `resolveContext`, `clearContextCache`, `scanProjectLiteralKeyUsage`, `computeMissingLiteralKeys`, `computeMissingLiteralKeysFromResolvedKeys`, `resolvedLiteralKeysInProject`, `readJsonFile`, `collectStringLeaves`, `scanSources`, `isPreservePath`, `buildKeyReferenceContext`, `resolveReferenceConfig`, `scanProjectDynamicKeySites`, CLI JSON output types (`ValidateJsonOutput`, `CleanupJsonOutput`, `MissingJsonOutput`, `SyncJsonOutput`), config types (`I18nPruneConfig`, `Policies`), `Context`, `ResolvedPaths`, `ProjectLiteralKeyUsage`.
+**Stable (initial classification):** `resolveContext`, `clearContextCache`, `scanProjectLiteralKeyUsage`, `computeMissingLiteralKeys`, `computeMissingLiteralKeysFromResolvedKeys`, `resolvedLiteralKeysInProject`, `readJsonFile`, `collectStringLeaves`, `scanSources`, `isPreservePath`, `buildKeyReferenceContext`, `resolveReferenceConfig`, `scanProjectDynamicKeySites`, CLI JSON output types (`ValidateJsonOutput`, `CleanupJsonOutput`, `MissingJsonOutput`, `SyncJsonOutput`), `Context`, `ResolvedPaths`, `ProjectLiteralKeyUsage`. For **`I18nPruneConfig`** / **`defineConfig`** authoring, use **`i18nprune/core/config`**.
 
 **Advanced:** lower-level observation pipeline (`scanProjectKeyObservations`, `literalKeyUsageFromObservations`, `resolvedKeysFromObservations`, `scanKeyObservations`, `exactLiteralKeys`), per-file dynamic analysis helpers (`findDynamicKeySites`, `analyzeDynamicKeysFromSourceText`), template rebuild utilities (`tryRebuildTemplateKeyFromConsts`, `tryResolveTemplatePrefixBeforeUnknown`), and interactive helpers (`canAsk`, `promptApprovedRemovalKeys`, `groupKeysByTopSegment`) — use only when you need the same hooks as the CLI.
 
-`defineConfig` is also re-exported from **`core`** for convenience; prefer **`@zamdevio/i18nprune/config`** when authoring config files.
+For **`i18nprune.config.*`**, import **`defineConfig`** and **`I18nPruneConfig`** from **`i18nprune/core/config`** (typed merge + **`satisfies Partial<I18nPruneConfig>`**). **`i18nprune/core`**’s **`defineConfig`** is a generic identity helper for non-CLI embeds; it does not merge CLI defaults.
 
 ## Flat vs namespaced imports (both supported)
 
 We **fully support** both styles **for the same symbols**:
 
-- **Flat** — `import { resolveContext, scanProjectLiteralKeyUsage } from '@zamdevio/i18nprune/core'`  
+- **Flat** — `import { resolveContext, scanProjectLiteralKeyUsage } from 'i18nprune/core'`  
   Fine for small scripts, snippets, and existing code. **Not deprecated.**
 
-- **Namespaced** — `import { context, extractor } from '@zamdevio/i18nprune/core'`  
+- **Namespaced** — `import { context, extractor } from 'i18nprune/core'`  
   **Recommended for new integrations and larger tools:** clearer grouping, easier discovery in the IDE, and a stable mental model that mirrors `core/` domains.
 
 **Recommendation:** prefer **namespaces** for new code; keep **flat** where it already works or reads shorter. There is **no** plan to remove flat exports before an explicit **major** version with a migration story. For CLI machine-readable output, see [JSON output (`--json`)](../json/README.md).
@@ -30,7 +30,7 @@ We **fully support** both styles **for the same symbols**:
 ### Namespaced imports
 
 ```ts
-import { context, extractor, validate, files } from '@zamdevio/i18nprune/core';
+import { context, extractor, validate, files } from 'i18nprune/core';
 
 const ctx = context.resolveContext();
 const usage = extractor.scanProjectLiteralKeyUsage(ctx);
@@ -56,7 +56,7 @@ Use this when building:
 ### Context
 
 ```ts
-import { resolveContext, clearContextCache } from '@zamdevio/i18nprune/core';
+import { resolveContext, clearContextCache } from 'i18nprune/core';
 
 const ctx = resolveContext();           // uses process.cwd()
 const ctx2 = resolveContext('/path/to/project');
@@ -75,7 +75,7 @@ import {
   runConfig,
   stringifyEnvelope,
   ISSUE_VALIDATE_MISSING_LITERAL_KEYS,
-} from '@zamdevio/i18nprune/core';
+} from 'i18nprune/core';
 
 const res = tryResolveContext('/path/to/project');
 if (!res.ok) {
@@ -93,12 +93,12 @@ if (!res.ok) {
 
 **`run*`** vs **`commands/<name>/run.ts`:** the command file owns **argv, `resolveContext`, human tables, logger, report file, exit code**. **`run*`** in `core/*/jsonEnvelope.ts` builds the **same domain outcome** the JSON branch needs: gather data, attach **`issues[]`**, wrap **`buildCliJsonEnvelope`**. The human branch often **recomputes** similar work (e.g. **`quality`**) because presentation (tables, colors, truncation) is separate; refactoring to one shared “compute then render” core is possible but not required for correctness.
 
-See [JSON: programmatic](../json/programmatic.md) and [issue codes](../json/issue-codes.md).
+See [JSON: programmatic](../json/programmatic.md) and [issue codes](../issues/README.md).
 
 ### Key Extraction & Scanning
 
 ```ts
-import { scanProjectLiteralKeyUsage, scanProjectDynamicKeySites } from '@zamdevio/i18nprune/core';
+import { scanProjectLiteralKeyUsage, scanProjectDynamicKeySites } from 'i18nprune/core';
 
 const usage = scanProjectLiteralKeyUsage(ctx);
 const literalKeys = usage.resolvedKeys;
@@ -110,7 +110,7 @@ const dynamicSites = scanProjectDynamicKeySites(ctx);
 
 Uses **per-file** template + const resolution (same as keySites), not a single merged-source const map.
 
-Typed CLI JSON payloads (import from `@zamdevio/i18nprune/core`): **`ValidateJsonOutput`**, **`CleanupJsonOutput`**, **`MissingJsonOutput`** — for **`validate`**, **`cleanup --json`**, and **`missing --json`** respectively.
+Typed CLI JSON payloads (import from `i18nprune/core`): **`ValidateJsonOutput`**, **`CleanupJsonOutput`**, **`MissingJsonOutput`** — for **`validate`**, **`cleanup --json`**, and **`missing --json`** respectively.
 
 ```ts
 import {
@@ -118,7 +118,7 @@ import {
   resolvedLiteralKeysInProject,
   readJsonFile,
   resolveContext,
-} from '@zamdevio/i18nprune/core';
+} from 'i18nprune/core';
 
 const ctx = resolveContext();
 const raw = readJsonFile(ctx.paths.sourceLocale);
@@ -135,7 +135,7 @@ import {
   readJsonFile,
   resolveContext,
   scanProjectKeyObservations,
-} from '@zamdevio/i18nprune/core';
+} from 'i18nprune/core';
 
 const ctx = resolveContext();
 const observations = scanProjectKeyObservations(ctx);
@@ -150,7 +150,7 @@ const missing = computeMissingLiteralKeysFromResolvedKeys(raw, usage.resolvedKey
 import {
   tryRebuildTemplateKeyFromConsts,
   tryResolveTemplatePrefixBeforeUnknown,
-} from '@zamdevio/i18nprune/core';
+} from 'i18nprune/core';
 
 tryRebuildTemplateKeyFromConsts('a.${NS}.b', { NS: 'section' }); // => 'a.section.b' or null
 tryResolveTemplatePrefixBeforeUnknown('a.b.${id}.x', {}); // => 'a.b' when id is unknown
@@ -165,8 +165,8 @@ import {
   canAsk,
   promptApprovedRemovalKeys,
   groupKeysByTopSegment,
-} from '@zamdevio/i18nprune/core';
-import type { PromptRemovalKeysMode } from '@zamdevio/i18nprune/core';
+} from 'i18nprune/core';
+import type { PromptRemovalKeysMode } from 'i18nprune/core';
 
 // Same primitives the `cleanup --ask` command uses; call only when canAsk() is true.
 ```
@@ -174,7 +174,7 @@ import type { PromptRemovalKeysMode } from '@zamdevio/i18nprune/core';
 ### JSON Utilities
 
 ```ts
-import { collectStringLeaves, readJsonFile } from '@zamdevio/i18nprune/core';
+import { collectStringLeaves, readJsonFile } from 'i18nprune/core';
 
 const sourceData = readJsonFile(ctx.paths.sourceLocale);
 const allLeaves = collectStringLeaves(sourceData);

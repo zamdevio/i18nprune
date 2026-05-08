@@ -95,7 +95,7 @@ So i18nprune became its own repository.
 
 ---
 
-## Open source plan for CepatEdge 🚀
+## Open source plan for CepatEdge
 
 CepatEdge is planned to be open-sourced.
 
@@ -144,5 +144,5 @@ These pages sit **beside** the technical manuals — they explain **why** and **
 | **Vision** — where the product is headed | [Vision](../vision/README.md) |
 | **Roadmap** | [Roadmap](../roadmap/README.md) |
 | **Contributing** | [Contributing](../contributors/README.md) |
-| **Agents & repo onboarding** | [Agents](../agents/README.md) |
+| **Agent notes (repo-only)** | See `maintainer/agents/README.md` (not published on the docs site) |
 | **Docs index** (commands, JSON, exports, …) | [Documentation home](../README.md) |

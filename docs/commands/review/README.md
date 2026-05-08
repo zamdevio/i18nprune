@@ -1,71 +1,57 @@
 # `review`
 
-Per-locale summary: string path counts and **English-identical** counts vs the source locale.
+**Full examples:** [review examples](../../examples/commands/review/README.md)
+
+**Summary-only** locale audit vs the **source** JSON: how many string paths exist, how many still **match the source** (source-identical / parity hint), and—when leaves use **structured objects**—aggregates for **`needsReview`**, **confidence**, **status**, and **source**.
+
+Deep key enumeration, code scans, and big reports stay on **`validate`**, **`quality`**, and **`report`**. **`review`** stays fast and stable for day-to-day “how are my locale files shaped?” checks.
 
 ```bash
 i18nprune review
-i18nprune review --target ja
+i18nprune review --target all
+i18nprune review --target ja,ar
+i18nprune review --target zh-cn
 i18nprune --json review
 ```
 
-**`--json`** emits a structured **`localeReview`** object on stdout.
+## `--target` (scope)
 
-## Human mode (today)
+| Value | Meaning |
+|-------|---------|
+| *(omit)* | Same as **`all`**: every **`*.json`** under **`localesDir`** except the source file. |
+| **`all`** | Explicit “all non-source locales”. |
+| **One code** | e.g. **`ja`** or **`ja.json`** — only that file. |
+| **Comma list** | e.g. **`ja,ar,zh-cn`** — only those files. |
 
-Human **`review`** uses **CepatEdge-compatible ANSI** (same tokens as `~/Projects/CepatEdge/apps/web/scripts/locales/shared/ansi.ts`): dim **bold orange** **`[i18nprune]`**, dim **bold** **`[review]`**, **green** **`[info]`**, **yellow** **`[warn]`** for dynamic-call counts, **cyan** section and locale headings, and dim secondary “tip” lines. Implementation: `packages/cli/src/core/review/humanLog.ts` + `commands/review/run.ts`.
+Unknown codes simply match nothing (empty result for that code).
 
-## Planned behaviour (machine + human)
+## Human mode
 
-The **`review`** command will grow toward a full **locale metadata** report: structured leaves (value, status, confidence, **`needsReview`**, source, updated-at style fields) when your locale JSON carries that metadata. It does **not** replace **`quality`** / **`validate`** for **`en.json` parity** — those stay separate concerns.
+Structured log lines: orange **`[i18nprune]`**, dim **`[review]`**, green **`[info]`** / yellow **`[warn]`**, **bold cyan** section titles, **gold** locale filenames, **gold** numeric tokens inside lines, dim tip text. Implemented in `packages/cli/src/core/review/humanLog.ts` and `commands/review/run.ts`.
 
-### Human mode
+Sections: **Context** (resolved paths, scope) and **Review** (per locale aggregates).
 
-- Print an **applied options** line block: effective **`--target`**, filters, **`localesDir`**, scope — respect **`-q` / `-s`** (no duplicate noise).
+## `--json`
 
-### Output routing (planned)
+One **`CliJsonEnvelope`** with **`kind`: `review`** and **`data.kind`: `localeReview`**. Each locale entry includes **`stringPaths`**, **`englishIdentical`**, **`legacyLeaves`**, **`structuredLeaves`**, **`needsReviewTrue` / `needsReviewFalse` / `needsReviewUnset`**, **`byStatus`**, **`bySource`**, and **`confidenceBuckets`**.
 
-- **`--csv`** → CSV on stdout (exclusive with JSON).
-- **`--json`**:
-  - With **`--format by-source`** → grouped JSON by source.
-  - With **`--format by-status`** → grouped JSON by status.
-  - Otherwise → **flat** JSON.
-- **`--format summary|by-status|by-source`** without **`--json`** / **`--csv`** → **human** layout.
+## Structured leaves
 
-**`--json` and `--csv` are mutually exclusive** (error if both).
+Non-source files can mix **plain strings** (legacy) and objects shaped like:
 
-### Human format variants (planned)
+`{ "value": "…", "status"?: "…", "confidence"?: number | null, "needsReview"?: boolean, "source"?: "…" }`
 
-- **`summary`** — compact stats per locale (default).
-- **`by-status`** / **`by-source`** — path lists with caps.
+at terminal paths. Nested objects without a string **`value`** are traversed as usual.
 
-### List caps (planned)
+### Why everything is still “legacy” after `sync` / `generate` / `fill`
 
-- **`--top N`** — parsed today as a **positive integer** (same error rules as **`missing --top`**). Until per-path human lists ship, this flag is **reserved** but validated so scripts fail fast on typos (`review: --top must be a positive integer`).
-- **`--full`** — reserved alongside **`--top`** for unbounded path lists when that output exists.
-- Default sample when neither: a small fixed cap (e.g. **10** rows) for human lists, flat JSON, and CSV slices — unless **`--full`** or **`--top`** overrides.
+Those commands follow the **source locale JSON shape**: leaves are **strings**, matching `mergeToTemplateShape` / `setAtPath` behavior in **`sync`** and the generate/fill pipelines. **`sync`** only merges and prunes to that shape — it does **not** upgrade plain strings into structured objects, so **`written: 0`** means the file already matched the template.
 
-### Filters and flags (planned)
+**`review`** still computes real **`needsReview` / confidence / by-status`** histograms, but only from **structured** leaves. For all-string files, **`byStatus: legacy`** is the honest aggregate (every string is counted as legacy for those dimensions). Human output skips the redundant confidence/status/source lines until **`structuredLeaves > 0`**.
 
-| Flag | Role |
-|------|------|
-| **`--format`** (`summary` / `by-status` / `by-source`) | Human layout; use **`--json`** / **`--csv`** for machine sinks (not `format=json` on the CLI). |
-| **`--json`** | Machine JSON on stdout (variant depends on **`--format`**). |
-| **`--csv`** (optional alias for typos) | Machine CSV on stdout. |
-| **`--all`** | All non-source locales (default scope where applicable). |
-| **`--target`**, multi-lang argv (planned) | Restrict which locale files. |
-| **`--full`** | Unbounded lists (subject to **`--top`**). |
-| **`--top N`** | Cap paths per section or flat rows. |
-| **`--needs-review`** | Filter rows that need review. |
-| **`--status`** (`pending` / `translated`) | Filter by status. |
-| **`--source <name>`** | e.g. provider or provenance label. |
-| **`--min-confidence` / `--max-confidence`** | Numeric filters. |
-
-### Current vs planned
-
-- **Today:** per-locale string path counts + English-identical counts vs source; **`review --top`** / **`review --full`** are accepted and validated but do not change output until path lists are implemented.
-- **Next:** format switches, filters, CSV, applied-options banner, and richer stats when locale JSON includes review metadata.
+A future **opt-in migration** (or generate/fill mode) to emit structured locale JSON would be a separate, explicitly versioned feature—watch **[Roadmap](../../roadmap/README.md)** / **[Patching](../../patching/README.md)** if it lands, not something `sync` does silently today.
 
 ## Related
 
-- [JSON mode and long commands](../../behavior/json-long.md) — **`--json`**, prompts, progress
-- [Roadmap](../../roadmap/README.md) — **`--report-file`** and review sequencing
+- [JSON mode and long commands](../../behavior/json-long.md)
+- [Validate](../validate/README.md) · [Quality](../quality/README.md) · [Report](../report/README.md)

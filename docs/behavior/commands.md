@@ -9,10 +9,10 @@ When **JSON** is **Yes**, structured stdout uses the envelope documented in **[J
 | `init` | `--yes`, prompts | Human | No | Creates config when missing. |
 | `config` | global `--config` | Resolved config | **Yes** | `fieldSources`, paths. |
 | `validate` | `--source`, `--locales-dir`, global overrides | Human or JSON | **Yes** | Keys vs source. |
-| `sync` | `--dry-run`, `--lang` | Human or JSON | **Yes** | Merge/prune to source shape. |
-| `generate` | `--lang`, `--source`, `--force`, `--dry-run`, meta flags | Human; stderr progress when allowed | **Yes** | **Requires `--lang`** when non-interactive; catalog validation; **no** Inquirer prompts with **`--json`**. See [generate](../commands/generate/README.md). |
-| `missing` | `--locale`, `--dry-run`, `--from-report`, `--top`, `--full-list`, global `--report-file`, global `--yes` | Human or JSON | **Yes** | Scaffold keys into **source** locale JSON or `locales/<code>.json`. See [missing](../commands/missing/README.md). |
-| `fill` | `--target`, `--all`, `--dry-run`, `--ask`, `--no-meta` | Human or JSON; stderr progress when allowed (human) | **Yes** | **Requires `--target` or `--all`** when non-interactive; same translation pipeline as **`generate`**. See [fill](../commands/fill/README.md). |
+| `sync` | `--dry-run`, `--lang`, `--metadata`, `--strip-metadata` | Human or JSON | **Yes** | Merge/prune to source shape; shared locale metadata writer mode. |
+| `generate` | `--lang`, `--source`, `--force`, `--dry-run`, meta flags, `--metadata` | Human; stderr progress when allowed | **Yes** | **Requires `--lang`** when non-interactive; catalog validation; **no** Inquirer prompts with **`--json`**. See [generate](../commands/generate/README.md). |
+| `missing` | `--locale`, `--dry-run`, `--top`, `--full-list`, global `stdout redirection`, global `--yes` | Human or JSON | **Yes** | Scaffold keys into **source** locale JSON or `locales/<code>.json`. See [missing](../commands/missing/README.md). |
+| `fill` | `--target`, `--all`, `--dry-run`, `--ask`, `--metadata` | Human or JSON; stderr progress when allowed (human) | **Yes** | **Requires `--target` or `--all`** when non-interactive; same translation pipeline as **`generate`**. See [fill](../commands/fill/README.md). |
 | `quality` | `--lang` | Human or JSON | **Yes** | Parity / drift. |
 | `review` | `--lang` | Human or JSON | **Yes** | Locale vs source. |
 | `cleanup` | `--check-only`, `--skip-rg` | Human or JSON | **Yes** | Unused keys. |
@@ -21,7 +21,7 @@ When **JSON** is **Yes**, structured stdout uses the envelope documented in **[J
 | `doctor` | `--only`, `--strict` | Human or JSON | **Yes** | Read-only diagnostics. |
 | `help` | — | Help text | No | Styled `formatHelp`. |
 
-**Global flags** (see [CLI overview](../cli/README.md)): `--config`, `--yes`, `--json`, `-q` / `-s`, `--source`, `--locales-dir`, `--src`, `--functions`, `--no-discovery`.
+**Global flags** (see [CLI overview](../cli/README.md)): `--config`, `--yes`, `--json`, `-q` / `-s`, `--source`, `--locales-dir`, `--src`, `--functions`, `--exclude`.
 
 **Non-interactive** (`CI`, no TTY, `I18NPRUNE_NO_INIT`, or command-specific **`run.json`**): no prompts; **fail fast** on missing required flags — see [Exit codes & behavior](./README.md) and [JSON & long](./json-long.md).
 

@@ -27,7 +27,7 @@ Helpers: **`collectDoctorFindings`**, **`doctorExitCode`**, **`DOCTOR_CHECK_IDS`
 
 Serialize any envelope: **`stringifyEnvelope(envelope, pretty?)`** (also on **`result`** namespace).
 
-Issue **`code`** strings: [issue codes](./issue-codes.md). Constants **`ISSUE_*`** are exported from **`core`**.
+Issue **`code`** strings: [issue codes](../issues/README.md). Constants **`ISSUE_*`** are exported from **`core`**.
 
 ## Types and builders
 
@@ -37,4 +37,4 @@ Issue **`code`** strings: [issue codes](./issue-codes.md). Constants **`ISSUE_*`
 
 ## Phase record
 
-Maintainer checklist (completed): [phases/exports/README.md](../phases/exports/README.md).
+Surface parity references: [`docs/exports/README.md`](../exports/README.md).

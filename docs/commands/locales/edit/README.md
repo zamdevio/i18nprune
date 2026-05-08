@@ -1,5 +1,7 @@
 # `locales edit`
 
+**Full examples:** [locales examples](../../../examples/commands/locales/README.md)
+
 Updates **`<lang>.meta.json`** for an **existing** target locale (not the source locale): **`englishName`**, **`nativeName`**, and **`direction`** (`ltr` / `rtl`). It does **not** edit translation strings inside **`*.json`** locale bodies; loader auto-patching is tracked separately (see [ADR 004](../../../architecture/decisions/004-auto-patch.md)).
 
 **Precedence for defaults:** if **`<lang>.meta.json`** already exists and contains valid fields, those values are the baseline; otherwise values fall back to the bundled language **catalog**. User-project loader config is not read when a usable **`.meta.json`** exists for that code.

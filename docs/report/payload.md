@@ -6,14 +6,14 @@ The HTML report UI and `i18nprune report --format json` share one **JSON documen
 
 | Field | Value |
 |-------|--------|
-| `kind` | Must be exactly `i18nprune.projectReport` (`PROJECT_REPORT_KIND` in `@zamdevio/i18nprune/report`). |
+| `kind` | Must be exactly `i18nprune.projectReport` (`PROJECT_REPORT_KIND` in `@i18nprune/report`). |
 | `schemaVersion` | Integer; must match `PROJECT_REPORT_SCHEMA_VERSION` baked into the report UI build (see `packages/report`). |
 
 If `schemaVersion` does not match, the viewer shows a **version mismatch** error with upgrade/downgrade hints — regenerate with a CLI that matches the UI, or use `i18nprune report --from report.json --format html` to align JSON and HTML.
 
 ## Top-level shape (summary)
 
-The authoritative schema is **`projectReportDocumentSchema`** (Zod) in **`packages/report`** — re-exported as `@zamdevio/i18nprune/report`.
+The authoritative schema is **`projectReportDocumentSchema`** (Zod) in **`packages/report`** — re-exported as `@i18nprune/report`.
 
 Rough structure:
 

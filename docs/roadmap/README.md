@@ -15,4 +15,4 @@ This page is a **high-level** view of where the project is headed. Priorities sh
 
 ## How we track work
 
-**Near-term execution order** for maintainers: **[`docs/phases/README.md`](../phases/README.md)** (phase index and status). This **Roadmap** page stays the public product direction; GitHub issues/milestones apply for shared execution.
+This **Roadmap** stays **public product** direction — not sprint-by-sprint checklists. Issues + milestones are tracked alongside code contributions when scopes crystallize.

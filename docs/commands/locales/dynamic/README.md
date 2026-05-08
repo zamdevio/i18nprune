@@ -1,5 +1,7 @@
 # `locales dynamic`
 
+**Full examples:** [locales examples](../../../examples/commands/locales/README.md)
+
 Read-only: scans **`srcRoot`** for **non-literal** translation call sites (heuristic), using the same pipeline as **`validate`**. It does **not** read or write locale JSON files. The scan is **project-wide**; it is keyed off the configured **source locale** in context (not a per-locale `--target` list).
 
 ```bash

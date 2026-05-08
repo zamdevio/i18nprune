@@ -1,5 +1,7 @@
 # `config`
 
+**Full examples:** [config examples](../../examples/commands/config/README.md)
+
 Prints resolved **config**, **paths**, and **`I18NPRUNE_*`** env snapshot.
 
 ```bash

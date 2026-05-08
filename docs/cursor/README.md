@@ -107,7 +107,7 @@ This tool came from a real blocking problem in another system.
 - CLI + JSON behavior → [docs/json/README.md](../json/README.md)  
 - Programmatic API → [docs/exports/README.md](../exports/README.md)  
 - Command reference → [docs/commands/README.md](../commands/README.md)  
-- Contributor / agent workflows → [docs/agents/README.md](../agents/README.md)
+- Contributor / agent workflows → see `maintainer/agents/README.md` (repo-only; not published on the docs site)
 
 ---
 

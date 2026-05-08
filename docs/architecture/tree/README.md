@@ -1,32 +1,47 @@
 # Repository tree
 
-This describes the **source and tooling layout** of the i18nprune repository. **Excluded** from the listing below: **`node_modules/`**, **`dist/`**, build output under **`apps/docs/.next/`**, **`apps/docs/out/`**, **`apps/web/dist/`**, **`coverage/`**, and typical editor folders.
+This page only documents the repository structure and component relationships.
 
-**Authoritative markdown** for the product lives in root **`docs/`** (synced into **`apps/docs/content/`** for the Nextra site). Maintainer phase notes live in **`docs/phases/`** (same sync; tracked in git).
+## Layout (apps + packages)
 
 ```
 .
 ├── apps/
-│   ├── docs/                  # Next.js + Nextra docs app
-│   ├── extension/             # VS Code extension scaffold (see docs/phases/extension/README.md)
-│   ├── report/                # Vite SPA for embedded HTML report UI
-│   └── web/                   # Vite + React landing (i18nprune.dev)
-├── docs/                      # Public markdown source of truth
-│   └── phases/                # Maintainer phase index + notes (tracked in git)
+│   ├── docs/                  # VitePress docs app
+│   ├── extension/             # VS Code extension scaffold
+│   ├── landing/               # Vite + React landing site
+│   ├── report/                # Vite SPA for report visualization
+│   ├── web/                   # Vite + React runtime web console
+│   └── workers/
+│       ├── github/            # Cloudflare Worker: GitHub integration/cache
+│       └── i18nprune/         # Cloudflare Worker: main i18nprune API
+├── docs/                      # Authoritative markdown source
 ├── packages/
-│   ├── cli/                   # CLI entry (bin/) and src/ — core product code
-│   └── report/                # Shared report DTO / Zod schema
-├── scripts/                   # Repo scripts (languages catalog, report dts flatten, …)
+│   ├── cli/                   # CLI package
+│   ├── core/                  # Runtime-agnostic engines and adapters
+│   └── report/                # Shared report schema/types
+├── scripts/                   # Repository scripts
 ├── tests/
-│   ├── fixtures/sample-i18n-app/
+│   ├── fixtures/
 │   └── integration/
-├── package.json               # Published npm package + workspace root
+├── package.json
 ├── pnpm-workspace.yaml
 ├── tsconfig.json
 ├── tsup.config.ts
 └── vitest.config.ts
 ```
 
-**Data flow (CLI):** **argv** → **`RunOptions`** + overrides → **`resolveContext()`** → command → **stdout/stderr** via **`logger`**.
+## Component relationships
 
-**Build output:** `pnpm build` writes root **`dist/`** (`cli.js`, `config.js`, `core.js`, `report.js`, typings). **`pnpm web:build`** writes **`apps/web/dist/`** for the landing site.
+| Surface | Role | Depends on |
+|---|---|---|
+| `packages/core` | Shared operation engines and runtime adapters | — |
+| `packages/report` | Report schema/types shared across apps | used by `apps/report`, `apps/web`, `packages/core` |
+| `packages/cli` | Node CLI orchestration and host I/O | `i18nprune/core` |
+| `apps/web` | Browser runtime console (local + remote worker) | `@i18nprune/core`, `@i18nprune/report` |
+| `apps/report` | Report UI viewer | `@i18nprune/report` |
+| `apps/landing` | Product landing app | app-local UI modules |
+| `apps/docs` | Primary docs site | root `docs/` content sync |
+| `apps/workers/i18nprune` | Main HTTP API worker | worker runtime + core contracts |
+| `apps/workers/github` | GitHub-focused worker | worker runtime |
+

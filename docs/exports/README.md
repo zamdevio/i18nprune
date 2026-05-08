@@ -1,15 +1,15 @@
-# Programmatic exports (`@zamdevio/i18nprune`)
+# Programmatic exports (`i18nprune` · `@i18nprune/core`)
 
-The package provides **first-class programmatic APIs** in addition to the powerful CLI.
+The **npm `i18nprune`** package ships the **CLI** plus stable **subpath** APIs. The **`@i18nprune/core`** package is the **standalone engine** the CLI depends on — use it when you want library code without pulling the full CLI surface.
 
-Use these stable subpath exports to build **custom scripts, CI pipelines, devtools, and extensions** while reusing the exact same battle-tested logic as the CLI — with zero drift.
+| Import / package | Purpose |
+|------------------|---------|
+| **`i18nprune`** (bin + `package.json` `exports`) | Install for **`i18nprune`** command and bundled subpaths. |
+| **`i18nprune/core/config`** | From the **`i18nprune`** package: typed **`defineConfig`** + **`I18nPruneConfig`** for **`i18nprune.config.*`**. |
+| **`i18nprune/core`** | From the **`i18nprune`** package: engine re-exports (extractor, translator, …). Prefer **`i18nprune/core/config`** for config files. |
+| **`@i18nprune/core`** | Direct dependency on the engine package for scripts, Workers, or custom hosts. |
 
-| Subpath | Purpose |
-|---------|---------|
-| **`@zamdevio/i18nprune/config`** | Type-safe config authoring — `defineConfig` + types only. |
-| **`@zamdevio/i18nprune/core`** | Resolve project context, scan sources, extract keys, inspect JSON leaves, dynamic-key heuristics. |
-
-The default export (`.`) is the **CLI only** and should not be imported as a library.
+The default export (`.`) of **`i18nprune`** is the **CLI entry** and should not be imported as a library.
 
 ---
 
@@ -18,6 +18,7 @@ The default export (`.`) is the **CLI only** and should not be imported as a lib
 - [Configuration API](./config.md)
 - [Core API](./core.md)
 - [Usage Examples & Recipes](./examples.md)
+- [Examples Index (per export)](./examples/README.md)
 - [JSON output (`--json`)](../json/README.md) — CLI envelope, flags, programmatic types
 - [Programmatic API & CLI JSON](../json/programmatic.md) — library `Result` roadmap vs `--json` contract
 
@@ -28,8 +29,7 @@ The default export (`.`) is the **CLI only** and should not be imported as a lib
 See the dedicated page: **[Configuration API](./config.md)**
 
 ```ts
-import { defineConfig } from '@zamdevio/i18nprune/config';
-import type { I18nPruneConfig, Policies } from '@zamdevio/i18nprune/config';
+import { defineConfig, type I18nPruneConfig } from 'i18nprune/core/config';
 
 export default defineConfig({
   source: 'locales/en.json',
@@ -37,10 +37,10 @@ export default defineConfig({
   src: 'src',
   functions: ['t'],
   policies: { preserve: {}, parity: {} },
-});
+} satisfies Partial<I18nPruneConfig>);
 ```
 
-**Exports:** `defineConfig`, types `I18nPruneConfig`, `Policies`.
+**Exports:** **`defineConfig`**, **`I18nPruneConfig`** (see [Configuration API](./config.md)).
 
 **Does not:** load the filesystem, run scans, or resolve discovery—those happen at runtime when the CLI (or **`core`**) runs with a working directory and optional overrides.
 
@@ -57,7 +57,7 @@ See the dedicated page: **[Core API](./core.md)**
 
 ### Grouped namespaces (optional)
 
-On **`@zamdevio/i18nprune/core`**, the same functions are also available under **`context`**, **`extractor`**, **`dynamic`**, **`json`**, **`ask`**, **`preserve`**, **`reference`**, **`validate`**, **`scanner`**, **`files`**, and **`result`**. **Flat and namespaced imports are both supported** — see [Core API](./core.md#flat-vs-namespaced-imports-both-supported).
+On **`i18nprune/core`**, the same functions are also available under **`context`**, **`extractor`**, **`dynamic`**, **`json`**, **`ask`**, **`preserve`**, **`reference`**, **`validate`**, **`scanner`**, **`files`**, and **`result`**. **Flat and namespaced imports are both supported** — see [Core API](./core.md#flat-vs-namespaced-imports-both-supported).
 
 ### Extraction & scanning
 

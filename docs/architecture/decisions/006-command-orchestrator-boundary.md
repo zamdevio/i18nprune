@@ -4,7 +4,7 @@
 
 ## Context
 
-The CLI has grown across multiple commands. To keep the codebase maintainable and make `@zamdevio/i18nprune/core` easy to integrate, we need a strict boundary between command wiring and reusable logic.
+The CLI has grown across multiple commands. To keep the codebase maintainable and make `i18nprune/core` easy to integrate, we need a strict boundary between command wiring and reusable logic.
 
 ## Decision
 
@@ -14,7 +14,7 @@ The CLI has grown across multiple commands. To keep the codebase maintainable an
 
 Command modules may keep user-flow concerns (prompts, confirmations, summaries), but not reusable domain behavior.
 
-**Physical layout:** within `packages/cli/src/commands/<name>/`, prefer **`index.ts`** for re-exports and **`run.ts`** for the primary handler, with optional co-located orchestration-only helpers — see [Command orchestration boundary — file layout](../../commands/orchestration/README.md#file-layout-inside-a-command-package) and [Phase: commands](../../phases/commands.md) (checklist).
+**Physical layout:** within `packages/cli/src/commands/<name>/`, prefer **`index.ts`** for re-exports and **`run.ts`** for the primary handler, with optional co-located orchestration-only helpers — see [Command orchestration boundary — file layout](../../commands/orchestration/README.md#file-layout-inside-a-command-package).
 
 ## Consequences
 
@@ -33,5 +33,5 @@ Command modules may keep user-flow concerns (prompts, confirmations, summaries),
 ## References
 
 - [Command orchestration boundary](../../commands/orchestration/README.md)
-- [Phase: commands](../../phases/commands.md)
-- [Phase: exports](../../phases/exports/README.md)
+- [Command orchestration README](../../commands/orchestration/README.md)
+- [`docs/exports/` hub](../../exports/README.md)

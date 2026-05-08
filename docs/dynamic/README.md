@@ -105,4 +105,4 @@ export default defineConfig({
 - [Core API](../exports/core.md) — `scanProjectDynamicKeySites()`
 - [Commands](../commands/locales/dynamic/README.md) — `i18nprune locales dynamic`
 
-See `docs/agents/analysis.md` for architecture details.
+For deeper architecture notes used during development, see `maintainer/agents/analysis.md` (repo-only; not published on the docs site).

@@ -1,5 +1,7 @@
 # `cleanup`
 
+**Full examples:** [cleanup examples](../../examples/commands/cleanup/README.md)
+
 Removes **unused** key paths from **all** locale JSON files under **`localesDir`**, using the **source** locale JSON as the key catalog, **`reference`** policy (uncertain prefixes, string presence), optional **ripgrep** checks on locale **string values** in **`src`**, and **`policies.preserve`**.
 
 ## Detection limits
@@ -28,11 +30,11 @@ Logs: scan summary, per-key **detail** when rg finds string presence, confirmati
 
 ## Global report file
 
-With **global** **`--report-file`** / **`--report-format`**, supported runs append a structured artifact (see [report](../report/README.md)).
+With **global** **`stdout redirection`** / **`--format`**, supported runs append a structured artifact (see [report](../report/README.md)).
 
 ## See also
 
 - [Policies](../../config/policies/README.md)
-- [Key reference phase](../../phases/key-reference-unification.md)
+- [Regex / key sites & dynamic](../../regex/key-sites-and-dynamic.md)
 - [Ripgrep in cleanup](../../regex/ripgrep.md)
-- [Roadmap](../../roadmap/README.md) — reporting / `--report-file` sequencing
+- [Roadmap](../../roadmap/README.md) — reporting / `stdout redirection` sequencing

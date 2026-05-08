@@ -1,6 +1,8 @@
 # `locales list`
 
-Lists **`*.json`** locale files under **`localesDir`** (excluding **`*.meta.json`**), with per-file **string leaf counts** and, for non-source locales, a count of leaves whose value still **matches the source** at the same path (“English-identical” / parity hint). Fails fast if **`localesDir`** is missing or not a directory.
+**Full examples:** [locales examples](../../../examples/commands/locales/README.md)
+
+Lists **`*.json`** locale files under **`localesDir`** (excluding **`*.meta.json`**), with per-file **string leaf counts** and, for non-source locales, a count of leaves whose value still **matches the source** at the same path (source-identical / parity hint). Fails fast if **`localesDir`** is missing or not a directory.
 
 ```bash
 i18nprune locales list

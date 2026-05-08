@@ -1,6 +1,8 @@
 # `report`
 
-Project-level report: **live scan** (missing literal keys, dynamic key sites, key observations) or **reuse** of a prior validated JSON (`--from`). This command is separate from global **`--report-file`** / **`--report-format`** on other commands (those write per-run artifacts only).
+**Full examples:** [report examples](../../examples/commands/report/README.md)
+
+Project-level report: **live scan** (missing literal keys, dynamic key sites, key observations) or **reuse** of a prior validated JSON (`--from`).
 
 ## Payload (JSON / embedded HTML)
 
@@ -53,7 +55,7 @@ With **`i18nprune --json report …`**, the CLI still writes the **file** chosen
 
 Use **`--format json`** when you want a **JSON file** on disk; use global **`--json`** when you want the **stdout envelope** for CI (you can combine both).
 
-Headless: **`runReport(opts)`** from **`@zamdevio/i18nprune/core`** (async).
+Headless: **`runReport(opts)`** from **`i18nprune/core`** (async).
 
 ## HTML output requirements
 
@@ -61,27 +63,14 @@ The npm package ships **`dist/report/index.html`** next to **`dist/cli.js`**. **
 
 Embedded payload development details, routing, and SPA patterns: **[Report UI documentation](../report/README.md)**.
 
-## Global `--report-file` (other commands)
-
-Global report artifacts are supported across the main runtime commands (for example: `sync`, `fill`, `validate`, `cleanup`, `generate`, `missing`, `doctor`, `quality`, `review`, `config`, `languages`, and `locales` subcommands).
-
-Example:
-
-```bash
-i18nprune validate --report-file ./out/run.json --report-format json
-i18nprune sync --report-file ./out/sync.txt --report-format text
-```
-
-Default format comes from **`config.reportFormat`** when **`--report-format`** is omitted, else **`json`**.
-
-### Existing output paths (`report --out` and global `--report-file`)
+### Existing output paths (`report --out`)
 
 If the resolved target file **already exists**:
 
 - **Interactive TTY** (not CI, not headless): i18nprune **prompts** — **Overwrite**, **Keep both** (new sibling path with a random **8-char hex** suffix before the extension), or **Skip** (no write).
 - **Automation** — no prompt; behavior matches **Keep both** when any of these hold: **`CI`**, non-TTY / **`shouldSkipInteractivePrompts()`**, global **`--yes`**, or global **`--json`**. That keeps **`i18nprune report … --json`** and piped CI from blocking on Inquirer or closing stdin (which previously surfaced as **`i18nprune.io.read_failed`**).
 
-The same **`resolveReportOutputPath`** logic applies to **`report --out …`** and to global **`--report-file`**.
+For non-`report` commands, use global **`--json`** and shell redirection when you want a file artifact (for example `i18nprune validate --json > ./out/validate.json`).
 
 ## See also
 

@@ -35,7 +35,7 @@ There is **no** global SIGINT handler on the root **`packages/cli/bin/cli.ts`**;
 
 ### `generate` (non-interactive & catalog)
 
-When prompts are skipped, **`generate`** requires **`--lang`**. The code must exist in the bundled **`languages.json`** catalog; otherwise the command **fails with a non-zero exit** and an error that suggests **`i18nprune languages`**. For valid codes, **English** and **native** labels default from the catalog unless overridden by flags. **Direction** defaults to **`ltr`**; the catalog does not store direction yet — use **`--direction rtl`** for RTL. See [commands/generate](../commands/generate/README.md). Sequencing: [Roadmap](../roadmap/README.md); maintainer **[phases/generate.md](../phases/generate.md)**.
+When prompts are skipped, **`generate`** requires **`--lang`**. The code must exist in the bundled **`languages.json`** catalog; otherwise the command **fails with a non-zero exit** and an error that suggests **`i18nprune languages`**. For valid codes, **English** and **native** labels default from the catalog unless overridden by flags. **Direction** defaults to **`ltr`**; the catalog does not store direction yet — use **`--direction rtl`** for RTL. See [commands/generate](../commands/generate/README.md). Maintainer sequencing is named only in [Roadmap](../roadmap/README.md) (hub path **`maintainer/V1-RELEASE.md`** in repo — not linked from **`docs/`** bodies).
 
 ## Warnings vs errors
 
@@ -47,7 +47,7 @@ When prompts are skipped, **`generate`** requires **`--lang`**. The code must ex
 
 - [Command behaviors](./commands.md) — snapshot of every command (flags, JSON, notes)
 - [Auto-patching](../patching/README.md) — opt-in loader/config edits (when enabled)
-- [Roadmap](../roadmap/README.md) — product direction (`--report-file`, `review`, `locales`, …)
+- [Roadmap](../roadmap/README.md) — product direction (`stdout redirection`, `review`, `locales`, …)
 - [JSON mode and long commands](./json-long.md) — `--json` with prompts, progress, and `generate` / `fill` / `sync`
 - [Verbosity & JSON](../cli/verbosity/README.md) — `--quiet`, `--silent`, `--json`
 - [Config](../config/README.md) — config file discovery order

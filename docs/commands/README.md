@@ -1,6 +1,8 @@
 # Commands
 
-Each subcommand has a dedicated page. The CLI prints a **Documentation** link at the bottom of `help` output (see `packages/cli/src/constants/docs.ts`).
+Each subcommand has a dedicated page. The CLI prints a **Documentation** link at the bottom of `help` output (see **`getDocsUrl` / `docsCommandUrl`** in **`@i18nprune/core`**).
+
+**Full examples index:** [docs/examples/commands](../examples/commands/README.md)
 
 Architecture rule: command files are orchestrators; reusable logic belongs in `core/` (or shared `utils/`). See [command orchestration boundary](./orchestration/README.md).
 
@@ -27,6 +29,7 @@ Domain behavior stays in `packages/cli/src/core/**`. Table and rationale: [Comma
 | `review` | [review](./review/README.md) |
 | `cleanup` | [cleanup](./cleanup/README.md) |
 | `languages` | [languages](./languages/README.md) |
+| `providers` | [providers](./providers/README.md) |
 | `doctor` | [doctor](./doctor/README.md) |
 | `help` | [help](./help/README.md) |
 | `report` | [report](./report/README.md) |

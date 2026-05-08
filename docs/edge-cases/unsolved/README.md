@@ -5,6 +5,7 @@ This folder holds **long-horizon** edge-case analysis and policy ideas — not s
 | Doc | Purpose |
 |-----|---------|
 | [policy-framework.md](./policy-framework.md) | Framework for evaluating dynamic keys and related patterns (FP/FN risk, perf, future config ideas, risk matrix). |
+| [inventory.md](./inventory.md) | Canonical list of known unsolved edge cases with status, impact, and owner/phase. |
 
 ## When to add a page here
 

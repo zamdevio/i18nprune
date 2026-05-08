@@ -1,5 +1,7 @@
 # `languages` (`langs`)
 
+**Full examples:** [languages examples](../../examples/commands/languages/README.md)
+
 Lists supported **translation target** languages (code, English, native name) for **`generate --lang`**.
 
 ```bash

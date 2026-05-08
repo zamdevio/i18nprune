@@ -14,8 +14,8 @@ Thanks for helping improve **i18nprune**. This page describes **how we work in t
 | **Config** | `packages/cli/src/config/` | Load, validate, resolve paths, `defineConfig`. |
 | **Types** | `packages/cli/src/types/` | Shared TypeScript contracts. |
 | **Utils** | `packages/cli/src/utils/` | Logger, fs, rg, CLI helpers, report writer. |
-| **Exports** | `packages/cli/src/exports/` | Published **`@zamdevio/i18nprune/config`** and **`/core`**. |
-| **Docs** | `docs/` | Nextra-ready markdown; run **`pnpm docs:sync`** after substantive edits. |
+| **Exports** | `packages/cli/src/exports/` | Published **`i18nprune/core`** and **`/core`**. |
+| **Docs** | `docs/` | VitePress-ready markdown; run **`pnpm docs:sync`** after substantive edits. |
 
 **Conventions:** ESM with **`.js`** suffix in TypeScript import paths (see `tsconfig`), **`I18nPruneError`** for user-facing failures, **`logger`** gates via **`canEmit`**—never bypass policy for “just this once.”
 
@@ -36,7 +36,7 @@ Thanks for helping improve **i18nprune**. This page describes **how we work in t
 
 Many contributors use **IDE assistants** or **batch agents** for refactors and docs. The same rules apply: **small commits**, **tests**, and **docs with code**.
 
-**👉 Read the agent guide:** **[Agents README](../agents/README.md)** — full **[project analysis](../agents/analysis.md)** (architecture map), **[Git commit plan](../agents/git.md)** (how to slice commits: command + matching docs), **[rules](../agents/rules.md)**, logging, and extraction notes.
+**👉 Agent guide (repo-only):** see `maintainer/agents/README.md` — project analysis, Git slicing/commit discipline, rules, logging, and extraction notes. (The docs site only hosts `docs/**`, so these maintainer notes are not linked here.)
 
 Whether you type every line yourself or use an agent, **the merge bar is the same**: correct types, tests green, docs aligned.
 
@@ -44,7 +44,7 @@ Whether you type every line yourself or use an agent, **the merge bar is the sam
 
 ## Git history
 
-We prefer **Conventional Commits** and **coherent slices** (e.g. one command + its `docs/commands/...` page). See **[docs/agents/git.md](../agents/git.md)** for a full ordered plan useful after `git init` or when restructuring history.
+We prefer **Conventional Commits** and **coherent slices** (e.g. one command + its `docs/commands/...` page). See `maintainer/agents/git.md` for the ordered commit plan (repo-only).
 
 ---
 

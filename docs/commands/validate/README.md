@@ -1,5 +1,7 @@
 # `validate`
 
+**Full examples:** [validate examples](../../examples/commands/validate/README.md)
+
 Ensures **string literal keys** used in translation calls exist in the **source locale JSON**. Calls whose first argument is **not** a static string are reported as **dynamic** (heuristic scan via `packages/cli/src/core/extractor/dynamic/` — same rules as **`sync`** warnings).
 
 **Literal key set:** built from **per-file** key-site scanning so `` `${NS}.segment` `` uses each file’s own `const` map (duplicate `NS` in different files does not collide). See [Duplicate const identifiers](../../regex/extraction.md#duplicate-const-identifiers-across-files).

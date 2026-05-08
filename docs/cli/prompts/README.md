@@ -17,7 +17,7 @@ Destructive or high-impact commands that confirm **per key** or **per batch** us
 - **`canAsk`** (`gate.ts`) — TTY / JSON / CI gating.
 - **`promptApprovedRemovalKeys`** / **`groupKeysByTopSegment`** (`removal.ts`) — shared cleanup-style confirmations.
 
-**Shipped:** `cleanup --ask` / `--ask-per-key` (see [interactive key confirmation](../../phases/interactive-key-confirmation.md)).
+**Shipped:** `cleanup --ask` / `--ask-per-key` — see [`docs/commands/cleanup/README.md`](../../commands/cleanup/README.md) for behavior.
 
 Conventions:
 

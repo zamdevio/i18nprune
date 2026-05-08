@@ -1,5 +1,7 @@
 # `locales delete`
 
+**Full examples:** [locales examples](../../../examples/commands/locales/README.md)
+
 Deletes target locale files **`<code>.json`** under **`localesDir`**, and **`<code>.meta.json`** when present. The **source** locale cannot be deleted (same rule as **`fill`** / **`generate`**).
 
 ```bash
@@ -24,4 +26,4 @@ Global **`--json`** prints **`kind`: `locales-delete`** with **`targets[]`**, **
 ## See also
 
 - [`locales`](../README.md)
-- [Issue codes](../../../json/issue-codes.md)
+- [Issue codes](../../../issues/README.md)

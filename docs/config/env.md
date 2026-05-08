@@ -26,18 +26,36 @@ Read when running **`i18nprune generate`**; merged into options before CLI flags
 | **`I18NPRUNE_GENERATE_ENGLISH_NAME`** | Default English label for `.meta.json`. |
 | **`I18NPRUNE_GENERATE_NATIVE_NAME`** | Default native endonym. |
 | **`I18NPRUNE_GENERATE_DIRECTION`** | `ltr` or `rtl` only. |
-| **`I18NPRUNE_GENERATE_NO_META`** | Truthy → skip meta sidecar. |
 | **`I18NPRUNE_GENERATE_FORCE`** | Truthy → force re-translate. |
 | **`I18NPRUNE_GENERATE_DRY_RUN`** | Truthy → dry-run. |
+
+## Translation backends (`generate` / `fill`)
+
+Full rules (**`translate.primary`**, **`translate.providers`** rows, credentials, precedence) are in **[Translation config](./translate.md)**.
+
+Which backend runs (**precedence**): **`--provider`** → **`I18NPRUNE_TRANSLATE_PROVIDER`** → **`translate.primary`** → core default.
+
+For **secrets and endpoints**, each env var listed below — when set — **supersedes** the matching field on the active **`translate.providers`** row (**`id`** must match — see **[translate](./translate.md)**):
+
+| Variable | When used |
+|----------|-----------|
+| **`I18NPRUNE_TRANSLATE_PROVIDER`** | Backend id when flag omitted (`google`, `deepl`, `llm`, …). Case-insensitive. |
+| **`I18NPRUNE_TRANSLATE_MAX_WORKERS`** | Positive integer: default cap on parallel **`translateLeaf`** calls for **`generate`** / **`fill`** when **`--workers`** is omitted. Lower precedence than **`--workers`**; higher than **`translate.workers`** in the file. |
+| **`I18NPRUNE_TRANSLATE_DEEPL_API_KEY`** | Supersedes **`apiKey`** for **`deepl`**. |
+| **`I18NPRUNE_TRANSLATE_LIBRE_URL`** | Supersedes **`baseUrl`** for **`libre`**. |
+| **`I18NPRUNE_TRANSLATE_LLM_API_KEY`** | Supersedes **`apiKey`** for **`llm`**. |
+| **`I18NPRUNE_TRANSLATE_LLM_BASE_URL`** | Supersedes **`baseUrl`** for **`llm`**. |
+| **`I18NPRUNE_TRANSLATE_LLM_MODEL`** | Supersedes **`model`** for **`llm`**. |
+
+These **`I18NPRUNE_TRANSLATE_*`** vars (especially keys) are intentionally **not** listed in **`i18nprune config --json`** `env` snapshot (avoid accidental leak of secrets in CI logs).
 
 ## Other variables
 
 | Variable | Effect |
 |----------|--------|
 | **`CI`** | When `1` or `true`, contributes to skipping interactive prompts (with **`I18NPRUNE_NO_INIT`** and non-TTY stdin). |
-| **`MISSING_DISPLAY_DEFAULT_TOP`** | Positive integer **1…100000**: default cap for **`missing`** human path listings when **`--top`** is omitted. Overrides **`config.missing.displayDefaultTop`**; invalid values are ignored. See [Command namespaces](./commands.md). |
 
 ## Source of truth
 
 - **Names:** `packages/cli/src/constants/env.ts`
-- **Config namespaces:** [Command namespaces](./commands.md) (`config.validate`, `config.missing`, …)
+- **Config namespaces:** [Command namespaces](./commands.md) (**`config.missing`**, …)

@@ -1,37 +1,23 @@
 # Command namespaces in config
 
-The root config object includes **optional namespaces** for individual commands so settings stay grouped and safe to extend (`config.validate`, `config.missing`, …).
+The root config object includes optional namespaces for commands that read file-backed defaults today.
 
-**Related:** [Environment variables](./env.md) (all supported env names; source of truth: `packages/cli/src/constants/env.ts`). When **`@zamdevio/i18nprune/config`** export surface is tightened in the [exports phase](../phases/exports/README.md), this page should stay aligned with **`I18nPruneConfig`** and the published **`defineConfig`** types.
+**Related:** [Environment variables](./env.md) (canonical names in `packages/cli/src/constants/env.ts`). When **`i18nprune/core`** export surface changes, keep **`I18nPruneConfig`** / **`defineConfig`** aligned (`docs/exports/`, `packages/core/package.json` exports).
 
-## `validate`
+## `noLocaleMeta` (root)
 
-- **Purpose:** reserved for **`i18nprune validate`**-specific options.
-- **Shape today:** empty object `{}` or omitted. Unknown keys are **allowed** (forward compatibility).
-- **Example:**
-
-```ts
-export default {
-  source: 'locales/en.json',
-  localesDir: 'locales',
-  src: 'src',
-  functions: ['t'],
-  validate: {},
-};
-```
+- **Purpose:** when **`true`**, **`i18nprune generate`** and **`i18nprune fill`** skip creating/updating **`<lang>.meta.json`** (the locale sidecar). Independent of **`--metadata`** (structured leaves inside **`<lang>.json`**).
+- **Precedence with CLI:** root **`noLocaleMeta`** is merged with **`--no-locale-meta`** using **OR** — if **either** is true, sidecar writes are skipped for that run.
+- **Docs:** [generate](../commands/generate/README.md) and [fill](../commands/fill/README.md) (“Locale sidecar”), [Locales metadata mode](../locales/metadata/README.md).
 
 ## `missing`
 
-- **Purpose:** defaults for **`i18nprune missing`** human output.
+- **Purpose:** defaults for **`i18nprune missing`** scaffold string.
 - **Fields:**
 
 | Field | Type | Effect |
 |-------|------|--------|
-| **`displayDefaultTop`** | positive integer | Default cap for **human** path listings when you omit **`--top`** and do not pass **`--full-list`**. |
-
-**Precedence for that default cap:** environment variable **`MISSING_DISPLAY_DEFAULT_TOP`** (if set to a valid positive integer) → **`config.missing.displayDefaultTop`** → built-in **10**.
-
-CLI **`--top N`** always overrides the default cap for that run. **`--full-list`** ignores the cap.
+| **`placeholder`** | string (optional) | Value written at each new key path. Omit → core **`DEFAULT_MISSING_LEAF_PLACEHOLDER`** (`__I18NPRUNE_MISSING__`). |
 
 **Example:**
 
@@ -41,12 +27,14 @@ export default {
   localesDir: 'locales',
   src: 'src',
   functions: ['t'],
-  missing: { displayDefaultTop: 15 },
+  missing: { placeholder: '__I18NPRUNE_MISSING__' },
 };
 ```
 
-`defineConfig()` from **`@zamdevio/i18nprune/config`** deep-merges **`missing`** (and **`validate`**) with defaults the same way it merges **`policies`**.
+Use **`import { defineConfig, type I18nPruneConfig } from 'i18nprune/core/config'`** so **`defineConfig(...)`** merges **`missing`**, **`reference`**, etc. the same way as **`policies`**, and add **`satisfies Partial<I18nPruneConfig>`** for editor-time checks. The CLI loader still merges **`DEFAULT_CONFIG`** then **Zod**-parses the exported object.
+
+**`i18nprune validate`** is controlled by **CLI flags and scanning rules** only — there is **no** separate **`config.validate`** namespace until a future release defines one and the command reads it.
 
 ## Environment variables (command-related)
 
-Full reference: [Environment variables](./env.md) (includes **`CI`**, **`MISSING_DISPLAY_DEFAULT_TOP`**, **`I18NPRUNE_*`**, **`I18NPRUNE_GENERATE_*`**). Global CLI flags (e.g. **`--yes`**, **`--json`**) are documented per command.
+Full reference: [Environment variables](./env.md) (includes **`CI`**, **`I18NPRUNE_*`**, **`I18NPRUNE_GENERATE_*`**). Global CLI flags (e.g. **`--yes`**, **`--json`**) are documented per command.

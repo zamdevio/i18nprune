@@ -1,6 +1,6 @@
 # Versioning and npm update discovery
 
-This document describes how the CLI learns whether a **newer `@zamdevio/i18nprune`** exists on the **public npm registry**, without a separate API. Behavior is **registry-only**, **best-effort**, and **never fatal** if the network fails.
+This document describes how the CLI learns whether a newer **`i18nprune`** package exists on the **public npm registry**, without a separate API. Behavior is **registry-only**, **best-effort**, and **never fatal** if the network fails.
 
 ---
 
@@ -42,13 +42,15 @@ This document describes how the CLI learns whether a **newer `@zamdevio/i18nprun
 
 ## Registry-only
 
-- **Endpoint:** `GET https://registry.npmjs.org/@zamdevio/i18nprune/latest` (canonical URL in `packages/cli/src/constants/update.ts` as **`NPM_REGISTRY_LATEST_URL`**).
+- **Endpoint:** `GET https://registry.npmjs.org/i18nprune/latest` (canonical URL in `packages/cli/src/constants/update.ts` as **`NPM_REGISTRY_LATEST_URL`**).
 - **Parsed field:** `version` (semver string).
 - **Failures:** Offline, timeout, non-OK HTTP, or bad JSON → no thrown errors; the CLI may keep showing the **last successful** cached value.
 
 ---
 
 ## Cache directory (24h throttle)
+
+This is **not** the [**CLI project cache**](../cli/cache.md) under **`~/.i18nprune/cache/`**. That folder stores fingerprinted report inputs; **`updatestate.json`** only records npm **`latest`** check timing.
 
 | Platform | Path |
 |----------|------|
@@ -80,14 +82,14 @@ Documented with other env vars in [Environment variables](../config/env.md).
 ## Constants layout (update vs report)
 
 - **Update discovery** knobs that are not environment variable **names** live in **`packages/cli/src/constants/update.ts`** (registry URL, `updatestate.json` schema version, throttle duration). That keeps **`packages/cli/src/constants/env.ts`** focused on **env var identifiers** and re-exports used by **`config --json`**.
-- **Project report** JSON (`i18nprune.projectReport`, inline HTML placeholder, report schema version) stay defined in the **`@zamdevio/i18nprune/report`** package (`packages/report`) and are re-exported from **`packages/cli/src/constants/env.ts`** for consumers that already import report DTOs from one place. Moving those into the CLI tree would duplicate sources or create awkward package→CLI dependencies; revisit only if you want a single **`packages/cli/src/constants/report.ts`** that **both** the CLI and the report package import (would require a shared small package or careful re-exports).
+- **Project report** JSON (`i18nprune.projectReport`, inline HTML placeholder, report schema version) stay defined in the **`@i18nprune/report`** package (`packages/report`) and are re-exported from **`packages/cli/src/constants/env.ts`** for consumers that already import report DTOs from one place. Moving those into the CLI tree would duplicate sources or create awkward package→CLI dependencies; revisit only if you want a single **`packages/cli/src/constants/report.ts`** that **both** the CLI and the report package import (would require a shared small package or careful re-exports).
 
 ---
 
 ## Commands
 
 - **`i18nprune version`** — prints the running semver.
-- **`i18nprune version --check`** — **always** attempts a registry fetch (unless opted out), prints current vs latest, suggests **`npm i -g @zamdevio/i18nprune`** when newer. Persists result in the on-disk cache (see [Cache](#cache-directory-24h-throttle)).
+- **`i18nprune version --check`** — **always** attempts a registry fetch (unless opted out), prints current vs latest, suggests **`npm i -g i18nprune`** when newer. Persists result in **`updatestate.json`** (see [Cache directory (24h throttle)](#cache-directory-24h-throttle)).
 - **`i18nprune version --reset`** — clears that cache; combine with **`--check`** to clear then query npm immediately.
 - **`-v` / `--version`** on the root program are rewritten to **`version`** when you did not pass another command, so **`-q` / `-s`** and the banner behave the same as **`i18nprune version`** (see [CLI verbosity](../cli/verbosity/README.md)).
 
@@ -97,4 +99,3 @@ Documented with other env vars in [Environment variables](../config/env.md).
 
 - [Environment variables](../config/env.md)
 - [Doctor command](../commands/doctor/README.md) (diagnostics; update hints are global, not doctor-only)
-- Maintainer phase notes: [`docs/phases/versioning.md`](../phases/versioning.md)

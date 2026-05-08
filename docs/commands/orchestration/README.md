@@ -25,7 +25,7 @@ Prefer **`commands/<name>/index.ts`** as a **re-export barrel** and **`run.ts`**
 | **`run.ts`** | **Exported handler first** (after imports), private helpers after. Primary function: **same name as the CLI subcommand** (`sync()`, `generate()`, `doctor()`, …). Exception: **`help/run.ts`** exports **`configureCliHelp`** / **`colorizeHelpText`** (no `help()` runner). Not `fooCmd()` (redundant inside `commands/foo/`). |
 | **Other `*.ts`** | Optional splits (`targets.ts`, `summary.ts`, …) — orchestration and CLI presentation only. |
 
-Rollout is incremental (when touching a command or a dedicated pass). Tracking checklist: [Phase: commands](../../phases/commands.md).
+Rollout is incremental (when touching a command or a dedicated pass).
 
 ## Core layer responsibilities
 
@@ -40,6 +40,6 @@ When logic lives in `core/`, namespace-based API exports become clean and predic
 ## See also
 
 - [ADR 006 — Command orchestrator boundary](../../architecture/decisions/006-command-orchestrator-boundary.md)
-- [Phase: commands](../../phases/commands.md)
-- [Phase: exports](../../phases/exports/README.md)
+- [Commands hub](../README.md)
+- [`docs/exports/`](../../exports/README.md)
 - [CLI prompt modules](../../cli/prompts/README.md)

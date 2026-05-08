@@ -2,6 +2,10 @@
 
 These recipes combine **global flags**, **policies**, and **multiple commands** the way teams use **i18nprune** in real projects: CI, batch translation, and safe cleanup. Adjust paths to your repo.
 
+Structured per-command examples live under [examples/commands](./commands/README.md).  
+Template for new command pages: [examples/template](./template/README.md).
+JSON shaping snippets: [jq cookbook](./jq-cookbook/README.md).
+
 ---
 
 ## CI: validate + machine-readable output
@@ -17,20 +21,20 @@ Pipe **`--json`** into jq or your own gates; exit codes are non-zero on failure 
 
 ---
 
-## Structured run reports (`--report-file`)
+## Structured run reports (`stdout redirection`)
 
 Write a **single artifact** after supported commands (sync, fill, cleanup, …):
 
 ```bash
-i18nprune sync --dry-run --report-file ./artifacts/sync-report.json
-i18nprune fill --lang all --dry-run --report-file ./artifacts/fill.txt --report-format text
+i18nprune sync --dry-run stdout redirection ./artifacts/sync-report.json
+i18nprune fill --lang all --dry-run stdout redirection ./artifacts/fill.txt --format text
 ```
 
-Default format is **`json`**; override with **`--report-format`** or **`reportFormat`** in config. Use for **audits** and **dashboards** without parsing stdout.
+Default format is **`json`**; override with **`--format`** or **``** in config. Use for **audits** and **dashboards** without parsing stdout.
 
 ---
 
-## Sync all locales, then fill stale English-identical strings
+## Sync all locales, then fill stale source-identical strings
 
 ```bash
 i18nprune sync --lang all
@@ -67,7 +71,7 @@ Use before **`generate`** or **`fill`** in CI to catch missing **`rg`** or bad p
 
 ```bash
 i18nprune languages --filter pt
-i18nprune generate --lang pt-br --no-meta --dry-run
+i18nprune generate --target pt-br --dry-run
 ```
 
 Ensures **`--lang`** matches the bundled catalog **before** calling translation APIs.
@@ -79,7 +83,7 @@ Ensures **`--lang`** matches the bundled catalog **before** calling translation 
 From a Node script:
 
 ```ts
-import { resolveContext, scanProjectDynamicKeySites } from '@zamdevio/i18nprune/core';
+import { resolveContext, scanProjectDynamicKeySites } from 'i18nprune/core';
 
 const ctx = resolveContext();
 const sites = scanProjectDynamicKeySites(ctx);
