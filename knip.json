@@ -1,0 +1,10 @@
+{
+  "ignore": [
+    "tests/fixtures/**",
+    "**/vite-env.d.ts"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "entry": [
+    "packages/*/src/index.ts"
+  ]
+}

@@ -11,7 +11,7 @@
 
 </div>
 
-**i18nprune** is a **production-grade i18n toolkit** that combines a powerful CLI with stable programmatic APIs (`@zamdevio/i18nprune/config` + `@zamdevio/i18nprune/core`).
+**i18nprune** is a **production-grade i18n toolkit** that combines a powerful CLI with stable programmatic APIs (**`i18nprune/core`** from the published tarball where applicable, **`@i18nprune/core`** for the workspace engine package).
 
 It connects your **source code**, a **source-of-truth locale JSON**, and **target locale files** so teams can validate, sync, generate, clean up, and review translations with confidence — in CI or custom scripts. Clear architecture, excellent docs, and built for both humans and agents.
 
@@ -29,8 +29,8 @@ It connects your **source code**, a **source-of-truth locale JSON**, and **targe
 | **Locales** | **`list`**, **`edit`**, **`dynamic`** (heuristic non-literal sites), **`delete`** (with safety prompts). |
 | **Languages** | Browse bundled **BCP47-style** codes for **generate** / **fill**. |
 | **Doctor** | Read-only checks: Node, `rg`, config, paths (**`--json`**, **`--strict`**). |
-| **Report topic** | Help for global **`--report-file`** / **`--report-format`** (structured run artifacts). |
-| **Automation** | Global **`--json`**, **`-q` / `-s`**, path overrides, **`--report-file`**, **`I18NPRUNE_*`** env; **`--yes`** for non-interactive flows. |
+| **Report topic** | Project report export (`html` / `json` / `csv` / `text`) with optional `--json` stdout envelope. |
+| **Automation** | Global **`--json`**, **`-q` / `-s`**, path overrides, **`I18NPRUNE_*`** env; **`--yes`** for non-interactive flows. |
 
 ---
 
@@ -38,8 +38,8 @@ It connects your **source code**, a **source-of-truth locale JSON**, and **targe
 
 Reuse the same primitives as the CLI **without subprocesses**:
 
-- **`@zamdevio/i18nprune/config`** — `defineConfig` + types for your config file.
-- **`@zamdevio/i18nprune/core`** — `resolveContext`, scanning, literal extraction, dynamic-key heuristics, JSON leaf walks.
+- **`i18nprune/core`** — `defineConfig` + types (bundled with the **`i18nprune`** package).
+- **`@i18nprune/core`** — `resolveContext`, scanning, literal extraction, dynamic-key heuristics, JSON leaf walks (same engine the CLI uses).
 
 📚 **Full reference:** [docs/exports/README.md](./docs/exports/README.md)
 
@@ -52,11 +52,11 @@ Reuse the same primitives as the CLI **without subprocesses**:
 
 ## Install
 
-**Published package** (npm **`@zamdevio/i18nprune`**):
+**npm CLI name:** **`i18nprune`** (first publish pending — until then use **From source** or **`pnpm link`**):
 
 ```bash
-npm install -g @zamdevio/i18nprune
-# or: pnpm add -D @zamdevio/i18nprune
+npm install -g i18nprune
+# or: pnpm add -D i18nprune
 ```
 
 **From source:**
@@ -92,14 +92,14 @@ Copy **`i18nprune.config.ts.example`** to **`i18nprune.config.ts`** (or `.mts` /
 |----------|------|
 | **Docs site** | [docs.i18nprune.dev](https://docs.i18nprune.dev) |
 | **Repository** | [github.com/zamdevio/i18nprune](https://github.com/zamdevio/i18nprune) |
-| **npm** | [npmjs.com/package/@zamdevio/i18nprune](https://www.npmjs.com/package/@zamdevio/i18nprune) |
+| **npm** | [npmjs.com/package/i18nprune](https://www.npmjs.com/package/i18nprune) *(live after first publish)* |
 | **Repo docs (source of truth)** | [`docs/README.md`](./docs/README.md) |
 | **Exports (config + core)** | [`docs/exports/README.md`](./docs/exports/README.md) |
 | **Why it exists** (backstory) | [`docs/origin/README.md`](./docs/origin/README.md) |
 | **How it was built** (Cursor, agents, limits) | [`docs/cursor/README.md`](./docs/cursor/README.md) |
 | **Launch & adoption** (positioning, public checklist) | [`docs/launch/README.md`](./docs/launch/README.md) |
 
-Local preview: **`pnpm docs:dev`** — run **`pnpm docs:sync`** so `docs/` mirrors into `apps/docs/content/`.
+Local docs preview: **`pnpm docs:dev`** — VitePress dev server (**`8282`** by default) plus **live sync** from **`docs/`** → **`apps/docs/content/`**.
 
 ---
 
@@ -111,9 +111,9 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm dev -- --help
-pnpm docs:sync       # docs/ → apps/docs/content/
-pnpm docs:build      # static site in apps/docs/out/
-pnpm docs:dev        # Nextra dev server (port 8181)
+pnpm docs:sync       # one-shot docs/ → apps/docs/content/
+pnpm docs:build      # static site → apps/docs/.vitepress/dist
+pnpm docs:dev        # VitePress dev + watcher sync (port 8282 or next free)
 pnpm web:dev         # i18nprune.dev landing (port 5174)
 pnpm web:build       # static landing bundle in apps/web/dist
 ```
@@ -129,28 +129,26 @@ pnpm web:build       # static landing bundle in apps/web/dist
 | `packages/cli/src/exports/` | Published entrypoints: `config`, `core` |
 | `packages/cli/src/utils/logger/` | `canPrint*` policy + `logger` / `loggerFor` |
 | `docs/` | Authoritative markdown; **`pnpm docs:sync`** → `apps/docs/content/` |
-| `apps/docs/` | Next.js + Nextra docs app |
-| `tests/fixtures/sample-i18n-app/` | Sample app for integration tests |
+| `apps/docs/` | VitePress docs site; **`pnpm docs:dev`** mirrors `docs/` into `content/` |
+| `tests/fixtures/sample-i18n/` | Sample app for integration tests |
 
 ---
 
 ## Roadmap
 
-See [docs/roadmap/README.md](./docs/roadmap/README.md). Maintainer phase ordering lives in **[`docs/phases/README.md`](./docs/phases/README.md)**.
+See **[docs/roadmap/README.md](./docs/roadmap/README.md)** for product direction.
 
-### Phase docs retention policy
+### Same core on Node, Web, and Workers
 
-Do **not** delete completed files under `docs/phases/` by default. Keep them as implementation history unless their decisions are already preserved in at least one of:
+How **`@i18nprune/core`** runs per environment is covered on **[docs.i18nprune.dev](https://docs.i18nprune.dev/runtime/)**: **[docs/runtime/README.md](./docs/runtime/README.md)** — **[Node / CLI](./docs/runtime/node.md)**, **[Browser (Web)](./docs/runtime/web.md)** (**`web.i18nprune.dev`**), **[Worker / edge](./docs/runtime/worker.md)** (**`workers.i18nprune.dev`**).
 
-- `docs/architecture/decisions/` (ADR),
-- `docs/architecture/`,
-- or the canonical phase-folder `README.md` that supersedes them (for example `docs/phases/exports/README.md`).
+**Contributors:** internal sequencing lives under **`maintainer/`** — starts from **`maintainer/README.md`** (not published via **`pnpm docs:sync`**).
 
 ---
 
 ## Examples
 
-📎 **Workflow recipes** (CI, `--report-file`, `fill --lang all`, safe cleanup): [docs/examples/README.md](./docs/examples/README.md)
+📎 **Workflow recipes** (CI, `--json` artifacts, `fill --lang all`, safe cleanup): [docs/examples/README.md](./docs/examples/README.md)
 
 ---
 

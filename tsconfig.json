@@ -5,6 +5,8 @@
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
     "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "skipLibCheck": true,
     "noEmit": true,
     "resolveJsonModule": true,
@@ -16,10 +18,35 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["packages/cli/src/*"],
-      "@zamdevio/i18nprune/report": ["packages/report/src/index.ts"]
+      "@i18nprune/core": ["packages/core/src/index.ts"],
+      "i18nprune/core": ["packages/core/src/index.ts"],
+      "@i18nprune/core/types": ["packages/core/src/types/index.ts"],
+      "@i18nprune/core/shared": ["packages/core/src/shared/index.ts"],
+      "@i18nprune/core/config": ["packages/core/src/config/index.ts"],
+      "i18nprune/core/config": ["packages/core/src/config/index.ts"],
+      "@i18nprune/core/generate": ["packages/core/src/generate/index.ts"],
+      "@i18nprune/core/fill": ["packages/core/src/fill/index.ts"],
+      "@i18nprune/core/init": ["packages/core/src/init/index.ts"],
+      "@i18nprune/core/sync": ["packages/core/src/sync/index.ts"],
+      "@i18nprune/core/validate": ["packages/core/src/validate/index.ts"],
+      "@i18nprune/core/missing": ["packages/core/src/missing/index.ts"],
+      "@i18nprune/core/cleanup": ["packages/core/src/cleanup/index.ts"],
+      "@i18nprune/core/quality": ["packages/core/src/quality/index.ts"],
+      "@i18nprune/core/runtime/node": ["packages/core/src/runtime/exports/node.ts"],
+      "@i18nprune/core/runtime/web": ["packages/core/src/runtime/exports/web.ts"],
+      "@i18nprune/core/runtime/edge": ["packages/core/src/runtime/exports/edge.ts"],
+      "@i18nprune/core/runtime/helpers/sync": ["packages/core/src/runtime/exports/helpers/sync.ts"],
+      "@i18nprune/core/*": [
+        "packages/core/src/*",
+        "packages/core/src/*/index.ts"
+      ],
+      "@i18nprune/report": ["packages/report/src/index.ts"]
     }
   },
   "include": [
+    "i18nprune.config.ts",
+    "i18nprune.config.ts.example",
+    "packages/core/src/**/*.ts",
     "packages/cli/bin/**/*.ts",
     "packages/cli/src/**/*.ts",
     "packages/report/**/*.ts",

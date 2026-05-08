@@ -1,4 +1,4 @@
-import { defineConfig } from '@zamdevio/i18nprune/config';
+import { defineConfig } from '@i18nprune/core/config';
 
 export default defineConfig({
   source: 'locales/en.json',

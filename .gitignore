@@ -10,19 +10,23 @@ dist/
 porting-map.md
 i18nprune.zip
 coverage/
-.cursor/
+# Cursor — keep shared `.cursor/rules/*.mdc` in git; ignore other local/workspace-only entries
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
+.agents/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+!.vscode/mcp.json
 
-# Docs site (Next.js + Nextra — install deps inside apps/docs/)
+# Docs site (VitePress)
 apps/docs/node_modules/
-apps/docs/.next/
-apps/docs/out/
+apps/docs/.vitepress/.temp/
+apps/docs/.vitepress/cache/
+apps/docs/.vitepress/dist/
 apps/docs/package-lock.json
 apps/docs/tsconfig.tsbuildinfo
-# Mirrored from repo root `docs/` — run `pnpm docs:sync` or `pnpm run sync` in apps/docs
-apps/docs/content/
 
 # Landing site (Vite + React — install deps inside apps/web/)
 apps/web/node_modules/
@@ -34,6 +38,6 @@ apps/report/node_modules/
 apps/report/dist/
 apps/report/package-lock.json
 
-# Session-only phase scratch (see docs/agents/temp-notes.md)
-docs/phases/temp/
-!docs/phases/temp/comments.md
+# Maintainer scratch (never commit). Rest of `maintainer/` stays tracked for collaborators.
+# Do not gitignore all of `maintainer/` — see `maintainer/README.md`.
+maintainer/temp/

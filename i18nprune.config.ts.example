@@ -1,17 +1,13 @@
-import { defineConfig } from '@zamdevio/i18nprune/config';
+import { defineConfig, type I18nPruneConfig } from 'i18nprune/core/config';
 
 export default defineConfig({
-  /** Source locale JSON (basename is the source-of-truth code unless `sourceLocaleCode` is set for messages). */
+  /** Source locale JSON (normalized basename is the source-of-truth locale code). */
   source: 'locales/en.json',
-  /** Optional: override the source locale **label** in CLI messages (defaults to basename of `source`). */
-  // sourceLocaleCode: 'en',
   localesDir: 'locales',
   src: 'src',
   functions: ['t'],
-  /** Default for global `--report-format` when the CLI flag is omitted. */
-  // reportFormat: 'json',
   policies: {
     preserve: {},
     parity: {},
   },
-});
+} satisfies Partial<I18nPruneConfig>);

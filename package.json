@@ -1,5 +1,5 @@
 {
-  "name": "@zamdevio/i18nprune",
+  "name": "i18nprune",
   "version": "0.1.0",
   "description": "Production-grade i18n toolkit. CLI + stable programmatic API for validation, sync, pruning, generation and quality control of translation files.",
   "type": "module",
@@ -8,18 +8,33 @@
   },
   "exports": {
     ".": "./dist/cli.js",
-    "./config": {
-      "types": "./dist/config.d.ts",
-      "import": "./dist/config.js",
-      "default": "./dist/config.js"
-    },
     "./core": {
       "types": "./dist/core.d.ts",
       "import": "./dist/core.js",
       "default": "./dist/core.js"
     },
+    "./core/config": {
+      "types": "./dist/core/src/config/index.d.ts",
+      "import": "./dist/core/config.js",
+      "default": "./dist/core/config.js"
+    },
+    "./core/runtime/node": {
+      "types": "./dist/core/src/runtime/exports/node.d.ts",
+      "import": "./dist/core/runtime/node.js",
+      "default": "./dist/core/runtime/node.js"
+    },
+    "./core/runtime/web": {
+      "types": "./dist/core/src/runtime/exports/web.d.ts",
+      "import": "./dist/core/runtime/web.js",
+      "default": "./dist/core/runtime/web.js"
+    },
+    "./core/runtime/edge": {
+      "types": "./dist/core/src/runtime/exports/edge.d.ts",
+      "import": "./dist/core/runtime/edge.js",
+      "default": "./dist/core/runtime/edge.js"
+    },
     "./report": {
-      "types": "./dist/report.d.ts",
+      "types": "./dist/report/src/index.d.ts",
       "import": "./dist/report.js",
       "default": "./dist/report.js"
     }
@@ -30,20 +45,28 @@
     "docs"
   ],
   "scripts": {
-    "build": "tsup && node scripts/flatten-cli-dts.mjs && node scripts/report/flatten-report-dts.mjs && npm run report:build && node scripts/report/copy-template.mjs",
-    "dev": "tsx --tsconfig tsconfig.json packages/cli/bin/cli.ts",
-    "generate:languages": "tsx --tsconfig tsconfig.json scripts/languages/generate.ts",
-    "docs:sync": "node apps/docs/scripts/sync-content.js --once --no-git",
-    "docs:dev": "pnpm --filter @zamdevio/i18nprune-docs dev",
-    "docs:build": "pnpm --filter @zamdevio/i18nprune-docs build",
-    "docs:deploy": "pnpm docs:build && wrangler pages deploy apps/docs/out --project-name=docs-i18nprune",
-    "web:dev": "pnpm --filter i18nprune-web dev",
-    "web:build": "pnpm --filter i18nprune-web build",
-    "web:preview": "pnpm --filter i18nprune-web preview",
-    "web:deploy": "pnpm web:build && wrangler pages deploy apps/web/dist --project-name=i18nprune",
-    "github:dev": "pnpm --filter @zamdevio/i18nprune-github dev",
-    "github:build": "pnpm --filter @zamdevio/i18nprune-github typecheck",
-    "github:deploy": "pnpm github:build && pnpm --filter @zamdevio/i18nprune-github run deploy",
+    "cli:build": "tsup && npm run report:build && node packages/report/scripts/build-assets.mjs",
+    "cli:dev": "tsx --tsconfig tsconfig.json packages/cli/bin/cli.ts",
+    "generate:languages": "tsx --tsconfig tsconfig.json scripts/catalog/run.ts",
+    "docs:sync": "node apps/docs/scripts/sync.js",
+    "docs:dev": "pnpm --filter @i18nprune/docs dev",
+    "docs:build": "pnpm --filter @i18nprune/docs build",
+    "docs:deploy": "pnpm docs:build && wrangler pages deploy apps/docs/.vitepress/dist --project-name=docs-i18nprune",
+    "web:dev": "pnpm --filter @i18nprune/web dev",
+    "web:build": "pnpm --filter @i18nprune/web build",
+    "web:preview": "pnpm --filter @i18nprune/web preview",
+    "web:deploy": "pnpm web:build && wrangler pages deploy apps/web/dist --project-name=web-i18nprune",
+    "landing:dev": "pnpm --filter @i18nprune/landing dev",
+    "landing:build": "pnpm --filter @i18nprune/landing build",
+    "landing:serve": "pnpm --filter @i18nprune/landing serve",
+    "landing:deploy": "pnpm landing:build && wrangler pages deploy apps/landing/dist --project-name=landing-i18nprune",
+    "github:dev": "pnpm --filter @i18nprune/worker-github dev",
+    "github:build": "pnpm --filter @i18nprune/worker-github typecheck",
+    "github:deploy": "pnpm github:build && pnpm --filter @i18nprune/worker-github run deploy",
+    "worker:dev": "pnpm --filter @i18nprune/worker-i18nprune dev",
+    "worker:build": "pnpm --filter @i18nprune/worker-i18nprune typecheck",
+    "worker:deploy": "pnpm worker:build && pnpm --filter @i18nprune/worker-i18nprune run deploy",
+    "knip": "knip",
     "report:dev": "vite --config apps/report/vite.config.ts",
     "report:build": "vite build --config apps/report/vite.config.ts",
     "report:deploy": "pnpm report:build && wrangler pages deploy apps/report/dist --project-name=report-i18nprune",
@@ -67,6 +90,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@inquirer/core": "^10.3.2",
     "@inquirer/prompts": "^8.3.2",
     "chalk": "^5.4.1",
     "commander": "^12.1.0",
@@ -79,6 +103,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "knip": "^6.12.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0",
