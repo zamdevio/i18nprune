@@ -3,7 +3,7 @@ export type {
   ProjectReportEnvironment,
   ProjectReportProjectMeta,
   ProjectReportSummary,
-} from '@zamdevio/i18nprune/report';
+} from '@i18nprune/report';
 
 export type ReportCommandFormat = 'html' | 'json' | 'csv' | 'text';
 

@@ -1,29 +1,49 @@
-/**
- * Stable `Issue.code` strings for CLI `issues[]` and programmatic consumers.
- * @see docs/json/issue-codes.md
- */
-export const ISSUE_CONTEXT_DISCOVERY_WARNING = 'i18nprune.context.discovery_warning' as const;
-export const ISSUE_CONTEXT_RESOLUTION_FAILED = 'i18nprune.context.resolution_failed' as const;
-export const ISSUE_VALIDATE_MISSING_LITERAL_KEYS = 'i18nprune.validate.missing_literal_keys' as const;
-export const ISSUE_VALIDATE_DYNAMIC_KEY_SITES = 'i18nprune.validate.dynamic_key_sites' as const;
-export const ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED = 'i18nprune.validate.source_locale_unreadable' as const;
-export const ISSUE_SCAN_DYNAMIC_KEY_SITES = 'i18nprune.scan.dynamic_key_sites' as const;
-export const ISSUE_MISSING_PATHS_NOT_IN_SCAN = 'i18nprune.missing.paths_not_in_current_scan' as const;
-export const ISSUE_SYNC_LOCALE_FILE_NOT_FOUND = 'i18nprune.sync.locale_file_not_found' as const;
-export const ISSUE_CLEANUP_UNCERTAIN_PATHS_EXCLUDED = 'i18nprune.cleanup.uncertain_paths_excluded' as const;
-export const ISSUE_CLEANUP_RIPGREP_UNAVAILABLE = 'i18nprune.cleanup.ripgrep_unavailable' as const;
-export const ISSUE_QUALITY_ENGLISH_IDENTICAL_LEAVES = 'i18nprune.quality.english_identical_leaves' as const;
-export const ISSUE_LANGUAGES_EMPTY_FILTER = 'i18nprune.languages.empty_filter' as const;
-export const ISSUE_FILL_USAGE = 'i18nprune.fill.usage' as const;
-export const ISSUE_LOCALES_USAGE = 'i18nprune.locales.usage' as const;
-export const ISSUE_LOCALE_TARGET_NOT_FOUND = 'i18nprune.locale.target_not_found' as const;
-export const ISSUE_IO_READ_FAILED = 'i18nprune.io.read_failed' as const;
-export const ISSUE_TRANSLATE_IDENTITY_STREAK_WARNING = 'i18nprune.translate.identity_streak_warning' as const;
-export const ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT = 'i18nprune.translate.identity_streak_abort' as const;
-export const ISSUE_REPORT_INVALID_FORMAT = 'i18nprune.report.invalid_format' as const;
-export const ISSUE_CLI_INVALID_JSON_PRETTY = 'i18nprune.cli.invalid_json_pretty' as const;
-
-/** Build stable doctor issue codes for findings (`i18nprune.doctor.<id>`). */
-export function doctorIssueCode(id: string): string {
-  return `i18nprune.doctor.${id}`;
-}
+export {
+  ISSUE_CLEANUP_RIPGREP_UNAVAILABLE,
+  ISSUE_CLEANUP_UNCERTAIN_PATHS_EXCLUDED,
+  ISSUE_CLI_INVALID_JSON_PRETTY,
+  ISSUE_CONFIG_INVALID,
+  ISSUE_CONFIG_LOAD_FAILED,
+  ISSUE_CONFIG_MISSING,
+  ISSUE_CONTEXT_DISCOVERY_WARNING,
+  ISSUE_CONTEXT_RESOLUTION_FAILED,
+  ISSUE_FILL_USAGE,
+  ISSUE_IO_READ_FAILED,
+  ISSUE_LANGUAGES_EMPTY_FILTER,
+  ISSUE_LANGUAGES_UNSUPPORTED_LANGUAGE_CODE,
+  ISSUE_LOCALES_USAGE,
+  ISSUE_LOCALE_TARGET_NOT_FOUND,
+  ISSUE_MISSING_PATHS_NOT_IN_SCAN,
+  ISSUE_PATCHING_CATALOG_MISMATCH_DIRECTION,
+  ISSUE_PATCHING_CATALOG_MISMATCH_ENGLISH,
+  ISSUE_PATCHING_CATALOG_MISMATCH_NATIVE,
+  ISSUE_PATCHING_CONFIG_INVALID_SCHEMA,
+  ISSUE_PATCHING_CONFIG_LOCALE_MISSING_FILE,
+  ISSUE_PATCHING_CONFIG_PARSE_FAILED,
+  ISSUE_PATCHING_CONFIG_SECTION_INCOMPLETE,
+  ISSUE_PATCHING_CONFIG_SIZE_ANOMALY,
+  ISSUE_PATCHING_CONFIG_TOO_LARGE,
+  ISSUE_PATCHING_FILE_LOCALE_MISSING_CONFIG,
+  ISSUE_QUALITY_ENGLISH_IDENTICAL_LEAVES,
+  ISSUE_REPORT_INVALID_FORMAT,
+  ISSUE_SCAN_DYNAMIC_KEY_SITES,
+  ISSUE_SYNC_LOCALE_FILE_NOT_FOUND,
+  ISSUE_SYNC_METADATA_FLAG_CONFLICT,
+  ISSUE_GENERATE_USAGE,
+  ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES,
+  ISSUE_GENERATE_TRANSLATE_RATE_LIMITED,
+  ISSUE_GENERATE_TRANSLATE_NETWORK_ERROR,
+  ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT,
+  ISSUE_TRANSLATE_IDENTITY_STREAK_WARNING,
+  ISSUE_TRANSLATE_MISSING_CREDENTIALS,
+  ISSUE_TRANSLATE_PROVIDER_NOT_IMPLEMENTED_YET,
+  ISSUE_TRANSLATE_UNKNOWN_TRANSLATION_PROVIDER,
+  ISSUE_VALIDATE_DYNAMIC_KEY_SITES,
+  ISSUE_VALIDATE_MISSING_LITERAL_KEYS,
+  ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED,
+  ISSUE_DOCTOR_CONFIG_MISSING_FILE,
+  ISSUE_DOCTOR_PATHS_DIRECTORIES_MISSING,
+  ISSUE_DOCTOR_PATHS_SOURCE_LOCALE_MISSING,
+  ISSUE_DOCTOR_RUNTIME_UNSUPPORTED_NODE,
+  ISSUE_DOCTOR_TOOLS_RG_NOT_ON_PATH,
+} from '@i18nprune/core';

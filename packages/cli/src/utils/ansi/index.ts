@@ -25,6 +25,13 @@ export function line(level: LogLevel, message: string): string {
   return `${app} ${tag} ${message}`;
 }
 
+/** `[i18nprune] [scan] message` — same prefix family as {@link line}; used for `--debug-scan`. */
+export function scanLine(message: string): string {
+  const app = `${style.dim('[')}${style.bold(style.accent(CLI_NAME))}${style.dim(']')}`;
+  const tag = style.magenta('[scan]');
+  return `${app} ${tag} ${message}`;
+}
+
 /**
  * Box header that **sizes to content** (ANSI-safe) — dim frame, bold title.
  * Uses **`CLI_MARK`** when `mark` is omitted; pass **`mark: ''`** to hide the icon.

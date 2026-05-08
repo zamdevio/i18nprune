@@ -1,8 +1,9 @@
-import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 
 const UPDATE_STATE_BASENAME = 'updatestate.json' as const;
+const nodeFs = createNodeRuntimeAdapters().fs;
 
 function getConfigDir(): string {
   const xdg = process.env.XDG_CONFIG_HOME;
@@ -29,5 +30,5 @@ export function getUpdateCacheFilePath(): string {
 
 export function ensureConfigDirExists(): void {
   const dir = path.dirname(getUpdateStateFilePath());
-  fs.mkdirSync(dir, { recursive: true });
+  nodeFs.mkdirp(dir);
 }

@@ -4,8 +4,8 @@ import { CLI_NAME } from '@/constants/cli.js';
 import { getCommandInvocationPath } from '@/utils/cli/path.js';
 
 /**
- * Doc slug for help footers (`docs/commands/<slug>/README.md` on the site).
- * Lives under **`utils/cli`** (uses Commander) so **`constants/docs.ts`** stays importable from the report SPA without bundling Commander.
+ * Doc slug for help footers (`docs/commands/<slug>` on the site, VitePress clean URLs).
+ * Lives under **`utils/cli`** (uses Commander); help output links use **`getDocsUrl` / `docsCommandUrl`** from **`@i18nprune/core`**.
  */
 export function docsSlugForCommand(cmd: Command): string {
   const path = getCommandInvocationPath(cmd, CLI_NAME);

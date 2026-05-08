@@ -1,7 +1,7 @@
 import { style } from '@/utils/ansi/index.js';
-import { getRunOptions } from '@/core/runtime/options.js';
+import { getRunOptions } from '@i18nprune/core';
 import { displayWidth, padToDisplayWidth } from '@/utils/width/index.js';
-import type { TranslateTargetLanguage } from '@/core/languages/index.js';
+import type { TranslateTargetLanguage } from '@/shared/languages/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintPrimary } from '@/utils/logger/policy.js';
 

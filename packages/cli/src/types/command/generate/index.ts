@@ -1,5 +1,9 @@
 /** Flags for `i18nprune generate` (CLI + programmatic API). */
 export type GenerateOptions = {
+  /** Optional `--provider` override; full precedence is `resolveTranslationProviderOptions` (flag → env → `translate` in config). */
+  provider?: string;
+  /** Max parallel **`translateLeaf`** calls (overrides env and **`translate.workers`**). */
+  workers?: number;
   /** When set, resolved from cwd (programmatic override). */
   source?: string;
   /** Preferred alias for locale targets (single code or comma-separated list). */
@@ -10,10 +14,12 @@ export type GenerateOptions = {
   nativeName?: string;
   /** Layout direction for consumers (`document.dir`); default `ltr`. */
   direction?: 'ltr' | 'rtl';
-  /** Skip `<lang>.meta.json` and meta-related prompts / env (locale JSON only). */
-  noMeta?: boolean;
   /** Skip “already complete” prompt and re-translate (also `I18NPRUNE_GENERATE_FORCE`). */
   force?: boolean;
   /** Skip actual translation and only validate the target locales. */
   dryRun?: boolean;
+  /** Write/repair structured locale leaves (`{ value, status, confidence, needsReview, source }`). */
+  metadata?: boolean;
+  /** Skip writing **`<lang>.meta.json`** (merged with **`config.noLocaleMeta`**; either **`true`** skips). */
+  noLocaleMeta?: boolean;
 };

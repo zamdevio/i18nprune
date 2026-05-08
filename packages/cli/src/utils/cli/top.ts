@@ -1,8 +1,8 @@
-import { I18nPruneError } from '@/core/errors/index.js';
+import { I18nPruneError } from '@i18nprune/core';
 
 /**
  * Parse `--top <n>` from Commander (string | undefined). Returns `undefined` when omitted.
- * @param flagLabel — e.g. `missing: --top` or `review: --top` (prepended to error message)
+ * @param flagLabel — e.g. `missing: --top` (prepended to error message)
  */
 export function parseCliPositiveIntTop(raw: string | undefined, flagLabel: string): number | undefined {
   if (raw === undefined || raw === '') return undefined;

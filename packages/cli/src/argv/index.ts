@@ -60,8 +60,7 @@ const GLOBAL_OPTION_WITH_VALUE = new Set([
   '--locales-dir',
   '--src',
   '--functions',
-  '--report-file',
-  '--report-format',
+  '--exclude',
 ]);
 
 function findFirstCommandToken(args: string[]): string | null {

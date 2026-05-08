@@ -1,6 +1,6 @@
 import type { Command } from 'commander';
 import { CLI_NAME, CLI_ROOT_TAGLINE, CONFIG_BASE_NAME } from '@/constants/cli.js';
-import { getRunOptions } from '@/core/runtime/options.js';
+import { getRunOptions } from '@i18nprune/core';
 import { header, style } from '@/utils/ansi/index.js';
 import { canEmit } from '@/utils/logger/policy.js';
 import { logger } from '@/utils/logger/index.js';
@@ -23,10 +23,12 @@ export const COMMAND_BANNER_LABELS: Record<string, CommandBannerSpec> = {
   generate: { subtitle: 'generate translations from source' },
   fill: { subtitle: 're-translate source-identical strings' },
   quality: { subtitle: 'parity / drift' },
-  review: { subtitle: 'paths + English-identical counts' },
+  review: { subtitle: 'locale summaries vs source (+ structured leaf stats)' },
   cleanup: { subtitle: 'optional rg safety' },
   languages: { subtitle: 'BCP47-style codes for generate' },
+  providers: { subtitle: 'translation backends · env + config' },
   doctor: { subtitle: 'Node, rg, config, paths' },
+  patch: { subtitle: 'analyze patching · --init scaffold' },
   locales: { subtitle: 'list + edit under localesDir' },
   'locales list': { subtitle: 'files and key counts under localesDir' },
   'locales edit': { subtitle: 'existing locale JSON + app i18n loader' },
@@ -91,7 +93,7 @@ export function maybePrintCommandBanner(actionCommand: Command): void {
   if (updateLine) {
     logger.decorative.dim(style.bold(style.warn('▲')) + ' ' + updateLine, run);
     logger.decorative.dim(
-      '  Update when ready: npm i -g @zamdevio/i18nprune',
+      '  Update when ready: npm i -g i18nprune',
       run,
     );
   }

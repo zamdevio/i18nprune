@@ -1,4 +1,5 @@
 import type { SyncFileLine } from '@/types/command/sync/summary.js';
+import type { LocaleMetadataReport } from '@/types/core/localeLeaves/index.js';
 
 /**
  * Payload shape for `i18nprune sync --json`.
@@ -13,4 +14,5 @@ export type SyncJsonOutput = {
   dynamicKeySites: number;
   dryRun: boolean;
   files: SyncFileLine[];
+  localeMetadataReports?: Record<string, LocaleMetadataReport>;
 };

@@ -8,7 +8,8 @@ export type LogGate =
   | 'primary'
   | 'decorative'
   | 'banner'
-  | 'progress';
+  | 'progress'
+  | 'scan';
 
 /** Per-call merge on top of resolved `RunOptions`. */
 export type LoggerMask = Partial<RunOptions>;

@@ -89,7 +89,7 @@ export async function runVersionCheckCommand(run: RunOptions): Promise<void> {
   printLatestVersionLine(latest, run);
   if (isPublishedVersionNewer(latest, CLI_VERSION)) {
     logger.warn(
-      'A newer version is available. Install globally: npm i -g @zamdevio/i18nprune',
+      'A newer version is available. Install globally: npm i -g i18nprune',
       run,
       VERSION_OUTPUT_UNGATED,
     );

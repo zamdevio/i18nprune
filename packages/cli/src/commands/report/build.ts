@@ -1,10 +1,7 @@
-import fs from 'node:fs';
 import os from 'node:os';
-import path from 'node:path';
-import { computeMissingLiteralKeys } from '@/core/validate/index.js';
-import { scanProjectDynamicKeySites } from '@/core/extractor/dynamic/index.js';
-import { scanProjectKeyObservations } from '@/core/extractor/keySites/index.js';
-import { listSourceFiles } from '@/core/scanner/files.js';
+import { computeMissingLiteralKeys } from '@/shared/validate/missingLiterals.js';
+import { listSourceFiles } from '@i18nprune/core';
+import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
 import { CLI_VERSION } from '@/constants/cli.js';
 import { PROJECT_REPORT_KIND } from '@/constants/env.js';
 import { PROJECT_REPORT_SCHEMA_VERSION } from '@/constants/report.js';
@@ -12,7 +9,8 @@ import {
   type ProjectReportDocument,
 } from '@/types/command/report/index.js';
 import type { Context } from '@/types/core/context/index.js';
-import { readJsonFile } from '@/utils/fs/index.js';
+import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
+import { extractor } from '@i18nprune/core';
 
 function runtimeFamily(): 'windows' | 'darwin' | 'linux' | 'linux-wsl' {
   if (process.platform === 'win32') return 'windows';
@@ -21,10 +19,11 @@ function runtimeFamily(): 'windows' | 'darwin' | 'linux' | 'linux-wsl' {
   return 'linux';
 }
 
-function readLinuxDistro(): string | undefined {
+function readLinuxDistro(fsPort: Context['adapters']['fs']): string | undefined {
   if (process.platform !== 'linux') return undefined;
   try {
-    const raw = fs.readFileSync('/etc/os-release', 'utf8');
+    const raw = fsPort.readText('/etc/os-release');
+    if (typeof raw !== 'string') return undefined;
     const line = raw
       .split('\n')
       .find((x) => x.startsWith('PRETTY_NAME=') || x.startsWith('NAME='));
@@ -38,12 +37,14 @@ function readLinuxDistro(): string | undefined {
 
 export function buildProjectReportDocument(ctx: Context): ProjectReportDocument {
   const cwd = process.cwd();
-  const raw = readJsonFile(ctx.paths.sourceLocale);
+  const raw = readHostJsonUnknown(ctx.paths.sourceLocale, ctx.adapters.fs);
   const missing = computeMissingLiteralKeys(ctx, raw);
-  const dynamicSites = scanProjectDynamicKeySites(ctx);
-  const keyObservations = scanProjectKeyObservations(ctx);
-  const sourceFilesScannedCount = listSourceFiles(ctx.paths.srcRoot).length;
-  const sourceLocaleTag = path.basename(ctx.paths.sourceLocale, path.extname(ctx.paths.sourceLocale));
+  const scanInput = toExtractorScanInput(ctx);
+  const dynamicSites = extractor.dynamic.scanProjectDynamicKeySites(scanInput);
+  const keyObservations = extractor.keySites.scanProjectKeyObservations(scanInput);
+  const projectFs = { fs: ctx.adapters.fs, path: ctx.adapters.path };
+  const sourceFilesScannedCount = listSourceFiles(projectFs, ctx.paths.srcRoot, ctx.config.exclude).length;
+  const sourceLocaleTag = ctx.adapters.path.basename(ctx.paths.sourceLocale, '.json');
   return {
     kind: PROJECT_REPORT_KIND,
     schemaVersion: PROJECT_REPORT_SCHEMA_VERSION,
@@ -60,7 +61,7 @@ export function buildProjectReportDocument(ctx: Context): ProjectReportDocument 
         arch: process.arch,
         nodeVersion: process.version,
         osRelease: os.release(),
-        distro: readLinuxDistro(),
+        distro: readLinuxDistro(ctx.adapters.fs),
         runtimeFamily: runtimeFamily(),
         ...(process.env.WSL_DISTRO_NAME
           ? { wslDistroName: process.env.WSL_DISTRO_NAME }

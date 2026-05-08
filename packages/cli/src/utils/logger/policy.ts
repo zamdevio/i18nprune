@@ -12,6 +12,7 @@ import type { LogGate } from '@/types/core/logger/index.js';
  * | `canPrintDecorative` | Dim hints, extra blank lines (stricter than banner — **off** in **quiet**). |
  * | `canPrintInfo` | `[i18nprune] [info]` lines. |
  * | `canPrintWarn` | `[i18nprune] [warn]` (still **on** in quiet; **off** in silent). |
+ * | `canPrintScanDebug` | **`[scan]`** (`--debug-scan` traces) — **off** under **`--quiet`**, **`--silent`**, **`--json`**. |
  * | `canPrintDetail` | Dim / secondary prose. |
  * | `canPrintPrimary` | Main human payload (lists, “Wrote …”). |
  * | `canPrintProgress` | TTY stderr progress. |
@@ -38,6 +39,11 @@ export function canPrintInfo(run: RunOptions): boolean {
 
 export function canPrintWarn(run: RunOptions): boolean {
   return !run.json && !run.silent;
+}
+
+/** **`--debug-scan`** trace lines: only reach here when `--debug-scan` wired a sink; treat like **`info`** visibility (suppress under **`--quiet`**). */
+export function canPrintScanDebug(run: RunOptions): boolean {
+  return !run.json && !run.quiet && !run.silent;
 }
 
 export function canPrintDetail(run: RunOptions): boolean {
@@ -69,6 +75,8 @@ export function canEmit(run: RunOptions, gate: LogGate): boolean {
       return canPrintCommandBanner(run);
     case 'progress':
       return canPrintProgress(run);
+    case 'scan':
+      return canPrintScanDebug(run);
     default:
       return false;
   }

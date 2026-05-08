@@ -1,0 +1,25 @@
+import path from 'node:path';
+import { existsRuntimeFsSync } from '@i18nprune/core/runtime/helpers/sync';
+import type { RuntimeFsPort } from '@i18nprune/core';
+import type { I18nPruneConfig } from '@i18nprune/core/config';
+import type { DiscoveryResult } from '@/types/core/discovery/index.js';
+
+export type { DiscoveryResult };
+
+/** Heuristic: if `locales/en.json` exists and source still default, suggest it. */
+export function runDiscovery(config: I18nPruneConfig, cwd = process.cwd(), fsPort: RuntimeFsPort): DiscoveryResult {
+  const warnings: string[] = [];
+  const patch: Partial<I18nPruneConfig> = {};
+  const en = path.join(cwd, 'locales', 'en.json');
+  if (existsRuntimeFsSync(en, fsPort) && config.source === 'locales/en.json') {
+    /* already aligned */
+  }
+  if (
+    !existsRuntimeFsSync(path.resolve(cwd, config.localesDir), fsPort) &&
+    existsRuntimeFsSync(path.join(cwd, 'locales'), fsPort)
+  ) {
+    patch.localesDir = 'locales';
+    warnings.push(`localesDir "${config.localesDir}" missing; using "locales" if present`);
+  }
+  return { patch, warnings };
+}

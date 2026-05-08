@@ -1,14 +1,1 @@
-export type CliErrorCode =
-  | 'CONFIG_INVALID'
-  | 'CONFIG_MISSING'
-  | 'IO'
-  | 'VALIDATION'
-  | 'TRANSLATE'
-  | 'USAGE'
-  | 'INTERNAL';
-
-export type NormalizedCliError = {
-  code: CliErrorCode;
-  message: string;
-  cause?: unknown;
-};
+export type { CliErrorCode, NormalizedCliError } from '@i18nprune/core';

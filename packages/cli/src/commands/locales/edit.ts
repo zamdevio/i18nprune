@@ -1,40 +1,39 @@
-import fs from 'node:fs';
 import { input, select } from '@inquirer/prompts';
-import { resolveContext } from '@/core/context/index.js';
-import { canAsk } from '@/core/ask/index.js';
-import { I18nPruneError } from '@/core/errors/index.js';
-import { printCommandSummary } from '@/core/output/index.js';
-import { buildCliJsonEnvelope, stringifyEnvelope } from '@/core/result/cliJson.js';
-import { buildIoReadFailureEnvelope } from '@/core/result/ioEnvelope.js';
+import { resolveContext } from '@/shared/context/index.js';
+import { canAsk } from '@/shared/ask/index.js';
+import { I18nPruneError } from '@i18nprune/core';
+import { printCommandSummary } from '@/output/index.js';
+import { buildCliJsonEnvelope, stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
 import {
   isLocaleTargetMissingMessage,
   issuesFromDiscoveryWarnings,
   issuesFromLocaleTargetMissing,
   issuesFromLocalesUsage,
   mergeIssues,
-} from '@/core/result/cliEnvelopeIssues.js';
+} from '@/shared/result/cliEnvelopeIssues.js';
 import {
   formatLocaleSlugHint,
   listLocaleJsonSlugs,
   resolveCanonicalSlug,
 } from '@/commands/locales/localeFiles.js';
-import { resolveLocaleMetaProfile } from '@/core/locales/metaProfile.js';
-import { writeJsonFile } from '@/utils/fs/index.js';
+import { resolveLocaleMetaProfile } from '@i18nprune/core';
+import { assertHostDirectory, writeHostJson } from '@/shared/io/hostJson.js';
 import {
   buildSourceLocaleTruthLabel,
   excludeSourceLocaleSlugs,
   getDisplaySourceLocaleCode,
   isSourceLocaleSlug,
-} from '@/core/locales/source.js';
+} from '@/shared/locales/source.js';
 import { logger } from '@/utils/logger/index.js';
-import { finalizeReportFile, pushReportEntry } from '@/utils/report/index.js';
 import type { LocalesEditJsonPayload } from '@/types/command/locales/json.js';
 import type { LocalesEditOptions } from '@/types/commands/locales/index.js';
+import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 
 /** Edit **existing** locale JSON and (when implemented) the app’s i18n loader wiring. */
 export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> {
-  const started = Date.now();
-  const ctx = resolveContext();
+  const wall = attachWallTimer();
+  const ctx = await resolveContext();
   const emptyPayload: LocalesEditJsonPayload = {
     kind: 'locales-edit',
     target: null,
@@ -47,15 +46,13 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
   };
   try {
     const absDir = ctx.paths.localesDir;
-    if (!fs.existsSync(absDir) || !fs.statSync(absDir).isDirectory()) {
-      throw new I18nPruneError(`localesDir is not a directory: ${absDir}`, 'USAGE');
-    }
-    const slugs = listLocaleJsonSlugs(absDir);
+    assertHostDirectory(absDir, ctx.adapters.fs);
+    const slugs = listLocaleJsonSlugs(absDir, ctx.adapters.fs);
     if (slugs.length === 0) {
       throw new I18nPruneError(`No locale *.json files in ${absDir}`, 'USAGE');
     }
     const sourcePath = ctx.paths.sourceLocale;
-    const slugsTargets = excludeSourceLocaleSlugs(slugs, sourcePath);
+    const slugsTargets = excludeSourceLocaleSlugs(slugs, sourcePath, ctx);
     if (slugsTargets.length === 0) {
       throw new I18nPruneError(
         `No target locale JSON files in ${absDir} (only the source locale is present).`,
@@ -66,7 +63,7 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
     let target = opts.target?.trim();
     if (target) {
       const canon = resolveCanonicalSlug(target, slugs);
-      if (canon && isSourceLocaleSlug(canon, sourcePath)) {
+      if (canon && isSourceLocaleSlug(canon, sourcePath, ctx)) {
         throw new I18nPruneError(
           `locales edit does not apply to the source locale ${buildSourceLocaleTruthLabel(getDisplaySourceLocaleCode(ctx))}.`,
           'USAGE',
@@ -74,24 +71,34 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
       }
       if (!canon) {
         throw new I18nPruneError(
-          `No locale file for "${target}" — expected one of: ${formatLocaleSlugHint(slugs, sourcePath)}`,
+          `No locale file for "${target}" — expected one of: ${formatLocaleSlugHint(slugs, sourcePath, ctx.adapters.path)}`,
           'USAGE',
         );
       }
       target = canon;
     } else if (!canAsk(ctx.run)) {
       throw new I18nPruneError(
-        `Missing --target (non-interactive). Choose one of: ${formatLocaleSlugHint(slugs, sourcePath)}`,
+        `Missing --target (non-interactive). Choose one of: ${formatLocaleSlugHint(slugs, sourcePath, ctx.adapters.path)}`,
         'USAGE',
       );
     } else {
-      target = await select({
-        message: 'Which existing locale file should we work with?',
-        choices: slugsTargets.map((s) => ({ name: `${s}.json`, value: s })),
-      });
+      target = await duringPrompt(() =>
+        select({
+          message: 'Which existing locale file should we work with?',
+          choices: slugsTargets.map((s) => ({ name: `${s}.json`, value: s })),
+        }),
+      );
     }
 
-    const profile = resolveLocaleMetaProfile(absDir, target);
+    if (target == null || target === '') {
+      throw new I18nPruneError('locales edit: missing target locale', 'USAGE');
+    }
+
+    const profile = resolveLocaleMetaProfile(
+      { fs: ctx.adapters.fs, path: ctx.adapters.path },
+      absDir,
+      target,
+    );
     const before = {
       englishName: profile.englishName,
       nativeName: profile.nativeName,
@@ -103,34 +110,48 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
 
     if (canAsk(ctx.run)) {
       if (!opts.englishName) {
-        englishName = (await input({
-          message: `${target}.meta.json englishName`,
-          default: englishName,
-        })).trim();
+        englishName = (
+          await duringPrompt(() =>
+            input({
+              message: `${target}.meta.json englishName`,
+              default: englishName,
+            }),
+          )
+        ).trim();
       }
       if (!opts.nativeName) {
-        nativeName = (await input({
-          message: `${target}.meta.json nativeName`,
-          default: nativeName,
-        })).trim();
+        nativeName = (
+          await duringPrompt(() =>
+            input({
+              message: `${target}.meta.json nativeName`,
+              default: nativeName,
+            }),
+          )
+        ).trim();
       }
       if (!opts.direction) {
-        direction = await select({
-          message: `${target}.meta.json direction`,
-          choices: [
-            { name: 'ltr', value: 'ltr' },
-            { name: 'rtl', value: 'rtl' },
-          ],
-          default: direction,
-        });
+        direction = await duringPrompt(() =>
+          select({
+            message: `${target}.meta.json direction`,
+            choices: [
+              { name: 'ltr', value: 'ltr' },
+              { name: 'rtl', value: 'rtl' },
+            ],
+            default: direction,
+          }),
+        );
       }
     }
-    writeJsonFile(profile.metaPath, {
-      lang: target,
-      englishName,
-      nativeName,
-      direction,
-    });
+    writeHostJson(
+      profile.metaPath,
+      {
+        lang: target,
+        englishName,
+        nativeName,
+        direction,
+      },
+      ctx.adapters.fs,
+    );
 
     const payload: LocalesEditJsonPayload = {
       kind: 'locales-edit',
@@ -154,32 +175,18 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
         ),
       );
     } else {
-      logger.info(
-        `locales edit: updated ${profile.metaPath} (englishName/nativeName/direction).`,
-        ctx.run,
-      );
+      logger.info(`updated ${profile.metaPath} (englishName/nativeName/direction).`, ctx.run);
       printCommandSummary(
         {
           command: 'locales edit',
           ok: true,
-          durationMs: Date.now() - started,
+          durationMs: wall.elapsedMs(),
           counts: { target: 1, metaUpdated: 1 },
           issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
         },
         ctx,
       );
     }
-    pushReportEntry({
-      command: 'locales edit',
-      level: 'info',
-      message: 'locale meta updated',
-      data: { target, metaPath: profile.metaPath, profileSource: profile.source, supportsAutoPatching: false },
-    });
-    await finalizeReportFile(ctx.config, {
-      command: 'locales edit',
-      durationMs: Date.now() - started,
-      counts: { target: 1, metaUpdated: 1 },
-    });
   } catch (err) {
     const errMessage = err instanceof Error ? err.message : String(err);
     const localeMissingIssues = isLocaleTargetMissingMessage(errMessage)
@@ -202,12 +209,6 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
           : buildIoReadFailureEnvelope('locales-edit', emptyPayload, ctx, err);
       console.log(stringifyEnvelope(envelope));
       process.exitCode = 1;
-      await finalizeReportFile(ctx.config, {
-        command: 'locales edit',
-        ok: false,
-        durationMs: Date.now() - started,
-        counts: {},
-      });
       return;
     }
     if (usageIssues.length > 0) {
@@ -215,7 +216,7 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
         {
           command: 'locales edit',
           ok: false,
-          durationMs: Date.now() - started,
+          durationMs: wall.elapsedMs(),
           issues: mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), usageIssues),
         },
         ctx,
@@ -224,5 +225,7 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
       return;
     }
     throw err;
+  } finally {
+    wall.dispose();
   }
 }

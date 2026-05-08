@@ -1,32 +1,31 @@
-import fs from 'node:fs';
 import pathMod from 'node:path';
 import { confirm } from '@inquirer/prompts';
-import { resolveContext } from '@/core/context/index.js';
-import { getCliYesFlag } from '@/core/context/globals.js';
-import { I18nPruneError } from '@/core/errors/index.js';
-import { resolveLocalesTargetCodes } from '@/core/locales/targets.js';
-import { canAsk } from '@/core/ask/index.js';
-import { fileExists } from '@/utils/fs/index.js';
+import { resolveContext } from '@/shared/context/index.js';
+import { getCliYesFlag } from '@/shared/context/globals.js';
+import { I18nPruneError } from '@i18nprune/core';
+import { resolveLocalesTargetCodes } from '@/shared/locales/targets.js';
+import { canAsk } from '@/shared/ask/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintDecorative, canPrintInfo } from '@/utils/logger/policy.js';
-import { printCommandSummary } from '@/core/output/index.js';
-import { buildCliJsonEnvelope, stringifyEnvelope } from '@/core/result/cliJson.js';
-import { buildIoReadFailureEnvelope } from '@/core/result/ioEnvelope.js';
+import { printCommandSummary } from '@/output/index.js';
+import { buildCliJsonEnvelope, stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
 import {
   isLocaleTargetMissingMessage,
   issuesFromDiscoveryWarnings,
   issuesFromLocaleTargetMissing,
   issuesFromLocalesUsage,
   mergeIssues,
-} from '@/core/result/cliEnvelopeIssues.js';
+} from '@/shared/result/cliEnvelopeIssues.js';
 import { formatSectionTitle } from '@/utils/style/section.js';
-import { finalizeReportFile, pushReportEntry } from '@/utils/report/index.js';
 import type { LocalesDeleteJsonPayload } from '@/types/command/locales/json.js';
 import type { LocalesDeleteOptions } from '@/types/commands/locales/index.js';
+import { applyCommandPatching } from '@/shared/patching/apply.js';
+import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 
 export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
-  const started = Date.now();
-  const ctx = resolveContext();
+  const wall = attachWallTimer();
+  const ctx = await resolveContext();
   const emptyPayload: LocalesDeleteJsonPayload = {
     kind: 'locales-delete',
     targets: [],
@@ -47,15 +46,17 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
       hadMeta: false,
     }));
     for (const row of targetPaths) {
-      if (!fileExists(row.jsonPath)) {
+      if (!(await Promise.resolve(ctx.adapters.fs.exists(row.jsonPath)))) {
         throw new I18nPruneError(`locales delete: file not found: ${row.jsonPath}`, 'USAGE');
       }
     }
     if (canAsk(ctx.run) && !getCliYesFlag()) {
-      const ok = await confirm({
-        message: `Delete ${targets.length} locale(s): ${targets.join(', ')}?`,
-        default: false,
-      });
+      const ok = await duringPrompt(() =>
+        confirm({
+          message: `Delete ${targets.length} locale(s): ${targets.join(', ')}?`,
+          default: false,
+        }),
+      );
       if (!ok) {
         const abortedPayload: LocalesDeleteJsonPayload = {
           kind: 'locales-delete',
@@ -76,43 +77,34 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
             ),
           );
         } else {
-          if (canPrintInfo(ctx.run)) logger.info('locales delete: aborted.', ctx.run);
+          if (canPrintInfo(ctx.run)) logger.info('aborted.', ctx.run);
           printCommandSummary(
             {
               command: 'locales delete',
               ok: true,
-              durationMs: Date.now() - started,
+              durationMs: wall.elapsedMs(),
               notes: ['aborted: user declined confirmation'],
               issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
             },
             ctx,
           );
         }
-        pushReportEntry({
-          command: 'locales delete',
-          level: 'info',
-          message: 'locales delete aborted by user',
-          data: { targets },
-        });
-        await finalizeReportFile(ctx.config, {
-          command: 'locales delete',
-          durationMs: Date.now() - started,
-          counts: { deletedJson: 0, deletedMeta: 0 },
-        });
         return;
       }
       if (opts.ask) {
-        const secondOk = await confirm({
-          message: `locales delete: extra confirmation enabled --ask. Delete ${targets.length} locale(s) now?`,
-          default: false,
-        });
+        const secondOk = await duringPrompt(() =>
+          confirm({
+            message: `extra confirmation enabled --ask. Delete ${targets.length} locale(s) now?`,
+            default: false,
+          }),
+        );
         if (!secondOk) {
-          if (canPrintInfo(ctx.run)) logger.info('locales delete: aborted by --ask confirmation.', ctx.run);
+          if (canPrintInfo(ctx.run)) logger.info('aborted by --ask confirmation.', ctx.run);
           printCommandSummary(
             {
               command: 'locales delete',
               ok: true,
-              durationMs: Date.now() - started,
+              durationMs: wall.elapsedMs(),
               notes: ['aborted: user declined --ask confirmation'],
               issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
             },
@@ -127,11 +119,11 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
     let deletedJson = 0;
     let deletedMeta = 0;
     for (const row of targetPaths) {
-      row.hadMeta = fileExists(row.metaPath);
-      fs.unlinkSync(row.jsonPath);
+      row.hadMeta = await Promise.resolve(ctx.adapters.fs.exists(row.metaPath));
+      await Promise.resolve(ctx.adapters.fs.deleteFile(row.jsonPath));
       deletedJson += 1;
       if (row.hadMeta) {
-        fs.unlinkSync(row.metaPath);
+        await Promise.resolve(ctx.adapters.fs.deleteFile(row.metaPath));
         deletedMeta += 1;
       }
     }
@@ -143,6 +135,12 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
       aborted: false,
       supportsAutoPatching: false,
     };
+    await applyCommandPatching({
+      ctx,
+      command: 'locales-delete',
+      action: 'delete_locales',
+      localeCodes: targets,
+    });
     if (ctx.run.json) {
       console.log(
         stringifyEnvelope(
@@ -168,24 +166,13 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
         {
           command: 'locales delete',
           ok: true,
-          durationMs: Date.now() - started,
+          durationMs: wall.elapsedMs(),
           counts: { deletedJson, deletedMeta },
           issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
         },
         ctx,
       );
     }
-    pushReportEntry({
-      command: 'locales delete',
-      level: 'info',
-      message: 'locale file deleted',
-      data: { targets, deletedMeta, supportsAutoPatching: false },
-    });
-    await finalizeReportFile(ctx.config, {
-      command: 'locales delete',
-      durationMs: Date.now() - started,
-      counts: { deletedJson, deletedMeta },
-    });
   } catch (err) {
     const errMessage = err instanceof Error ? err.message : String(err);
     const localeMissingIssues = isLocaleTargetMissingMessage(errMessage)
@@ -208,12 +195,6 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           : buildIoReadFailureEnvelope('locales-delete', emptyPayload, ctx, err);
       console.log(stringifyEnvelope(envelope));
       process.exitCode = 1;
-      await finalizeReportFile(ctx.config, {
-        command: 'locales delete',
-        ok: false,
-        durationMs: Date.now() - started,
-        counts: {},
-      });
       return;
     }
     if (usageIssues.length > 0) {
@@ -221,7 +202,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
         {
           command: 'locales delete',
           ok: false,
-          durationMs: Date.now() - started,
+          durationMs: wall.elapsedMs(),
           issues: mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), usageIssues),
         },
         ctx,
@@ -230,5 +211,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
       return;
     }
     throw err;
+  } finally {
+    wall.dispose();
   }
 }

@@ -14,8 +14,7 @@ export const CONFIG_BASE_NAME = `${CLI_NAME}.config`;
 
 /**
  * Default **source locale** language segment for baked-in config defaults and examples (`locales/<code>.json`).
- * The runtime source-of-truth code is always the basename of the configured `source` path; optional
- * **`sourceLocaleCode`** in config overrides **display** in messages only.
+ * The runtime source-of-truth locale code is always the normalized basename of the configured **`source`** path.
  */
 export const DEFAULT_SOURCE_LOCALE_LANGUAGE_CODE = 'en';
 
@@ -27,13 +26,11 @@ export const CLI_MARK = '⚡';
 
 /** Short line for the root help banner box (below the title). */
 export const CLI_ROOT_TAGLINE =
-  'Validate keys · sync locales · generate · fill · review · locales · cleanup · doctor';
+  'Production-grade i18n operations toolkit';
 
 /**
  * Root `i18nprune --help` description: what the tool does today and what it is moving toward.
  */
 export const CLI_ROOT_DESCRIPTION =
-  'Validate literal keys in code against the source locale JSON; sync locale file shapes; generate and fill ' +
-  'translations; review and measure quality; list and edit locale files under your locales directory; list ' +
-  'supported target languages; remove unused keys with optional ripgrep safety; diagnose Node, rg, and paths. ' +
-  'Use `--json` on supported commands for CI; `--report-file` for structured output. Supports direct GitHub docs fallback.';
+  'Production-grade i18n CLI for validation, locale synchronization, translation workflows, quality review, and CI-safe automation.';
+     

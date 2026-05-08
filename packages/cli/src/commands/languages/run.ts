@@ -1,37 +1,30 @@
-import { resolveContext } from '@/core/context/index.js';
-import { filterLanguages } from '@/core/languages/index.js';
+import { resolveContext } from '@/shared/context/index.js';
+import { filterLanguages } from '@/shared/languages/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintDecorative, canPrintPrimary } from '@/utils/logger/policy.js';
 import { printLanguagesNumberedList } from '@/commands/languages/numbered.js';
 import { printTranslateLanguageTable } from '@/commands/languages/table.js';
 import type { LanguagesCommandOptions } from '@/types/commands/languages/index.js';
-import { stringifyEnvelope } from '@/core/result/cliJson.js';
-import { runLanguages } from '@/core/languages/jsonEnvelope.js';
-import { finalizeReportFile, pushReportEntry } from '@/utils/report/index.js';
+import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { runLanguages } from '@/commands/languages/jsonEnvelope.js';
+import { resolveCliListWindow } from '@/shared/context/listWindow.js';
+
+function resolveLanguagesData(opts: LanguagesCommandOptions): ReturnType<typeof filterLanguages> {
+  return filterLanguages(opts.filter);
+}
 
 export async function languages(opts: LanguagesCommandOptions): Promise<void> {
-  const started = Date.now();
-  const ctx = resolveContext();
+  const ctx = await resolveContext();
 
   if (ctx.run.json) {
     const envelope = runLanguages(ctx, opts);
     console.log(stringifyEnvelope(envelope));
-    const count = Array.isArray(envelope.data) ? envelope.data.length : 0;
-    pushReportEntry({
-      command: 'languages',
-      level: 'info',
-      message: 'languages list emitted',
-      data: { count, table: Boolean(opts.table), filter: opts.filter ?? '' },
-    });
-    finalizeReportFile(ctx.config, {
-      command: 'languages',
-      durationMs: Date.now() - started,
-      counts: { rows: count },
-    });
     return;
   }
 
-  const rows = filterLanguages(opts.filter);
+  const rows = resolveLanguagesData(opts);
+  const window = resolveCliListWindow(ctx.config, { defaultFull: true });
+  const shownRows = rows.slice(0, window.limit);
 
   if (canPrintDecorative(ctx.run)) {
     if (opts.filter?.trim()) {
@@ -51,23 +44,15 @@ export async function languages(opts: LanguagesCommandOptions): Promise<void> {
 
   if (canPrintPrimary(ctx.run)) {
     if (opts.table) {
-      printTranslateLanguageTable(rows);
+      printTranslateLanguageTable(shownRows);
     } else {
-      printLanguagesNumberedList(rows);
+      printLanguagesNumberedList(shownRows);
+    }
+    if (rows.length > shownRows.length) {
+      logger.primary(`  ... ${String(rows.length - shownRows.length)} more row(s) hidden`, ctx.run);
     }
   }
   if (canPrintDecorative(ctx.run)) {
     logger.decorative.blank(ctx.run);
   }
-  pushReportEntry({
-    command: 'languages',
-    level: 'info',
-    message: 'languages completed',
-    data: { count: rows.length, table: Boolean(opts.table), filter: opts.filter ?? '' },
-  });
-  finalizeReportFile(ctx.config, {
-    command: 'languages',
-    durationMs: Date.now() - started,
-    counts: { rows: rows.length },
-  });
 }

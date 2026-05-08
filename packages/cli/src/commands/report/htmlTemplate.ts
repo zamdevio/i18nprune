@@ -1,6 +1,7 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
+import { readRuntimeFsTextSync, existsRuntimeFsSync } from '@i18nprune/core/runtime/helpers/sync';
 import type { ProjectReportDocument } from '@/types/command/report/index.js';
 
 /**
@@ -13,7 +14,8 @@ import type { ProjectReportDocument } from '@/types/command/report/index.js';
  */
 export function renderProjectReportSpaHtml(doc: ProjectReportDocument): string {
   const templatePath = resolveReportSpaTemplatePath();
-  const tpl = fs.readFileSync(templatePath, 'utf8');
+  const fs = createNodeRuntimeAdapters().fs;
+  const tpl = readRuntimeFsTextSync(templatePath, fs);
   const safeJson = JSON.stringify(doc)
     .replace(/</g, '\\u003c')
     .replace(/>/g, '\\u003e')
@@ -42,27 +44,28 @@ export function injectJsonIntoPayloadScript(
   throw new Error(
     [
       `Report UI template at ${templatePathForError} is missing the inline JSON payload script tag or expected placeholder.`,
-      'From the repo root: run `pnpm install` (or `npm install`), then `pnpm run build`.',
+      'From the repo root: run `pnpm install` (or `npm install`), then `pnpm run cli:build`.',
       'That runs the CLI bundle build, builds `apps/report`, and copies `dist/report/index.html` next to the CLI output.',
     ].join(' '),
   );
 }
 
 function resolveReportSpaTemplatePath(): string {
+  const fs = createNodeRuntimeAdapters().fs;
   const here = path.dirname(fileURLToPath(import.meta.url));
   const packaged = path.join(here, 'report', 'index.html');
-  if (fs.existsSync(packaged)) {
+  if (existsRuntimeFsSync(packaged, fs)) {
     return packaged;
   }
   const fromSource = path.resolve(here, '../../..', 'dist', 'report', 'index.html');
-  if (fs.existsSync(fromSource)) {
+  if (existsRuntimeFsSync(fromSource, fs)) {
     return fromSource;
   }
   throw new Error(
     [
       `Report UI bundle not found (looked for ${packaged} and ${fromSource}).`,
       'The HTML shell is produced by Vite in `apps/report` and must be present when generating HTML reports.',
-      'From the repo root: `pnpm run build` (or `pnpm run build:report` then copy per `scripts/report/copy-template.mjs`).',
+      'From the repo root: `pnpm run cli:build` (or `pnpm run report:build` then run `node packages/report/scripts/build-assets.mjs`).',
       'Published npm installs include `dist/report/index.html` next to `dist/cli.js` after a full release build.',
     ].join(' '),
   );

@@ -1,167 +1,108 @@
-import { resolveContext } from '@/core/context/index.js';
-import { computeMissingLiteralKeysFromResolvedKeys } from '@/core/validate/index.js';
-import { scanProjectDynamicKeySites } from '@/core/extractor/dynamic/index.js';
-import { scanProjectKeyObservations } from '@/core/extractor/keySites/index.js';
-import { resolvedKeysFromObservations } from '@/core/extractor/keySites/scan.js';
-import { readJsonFile } from '@/utils/fs/index.js';
-import { printCommandSummary } from '@/core/output/index.js';
-import { stringifyEnvelope } from '@/core/result/cliJson.js';
-import { runValidate } from '@/core/programmatic/runValidate.js';
-import { issuesFromDiscoveryWarnings, mergeIssues } from '@/core/result/cliEnvelopeIssues.js';
-import { buildValidateJsonIssues } from '@/core/validate/jsonIssues.js';
+import { resolveContext } from '@/shared/context/index.js';
+import { getDisplaySourceLocaleCode } from '@/shared/locales/source.js';
+import { printCommandSummary } from '@/output/index.js';
+import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { runValidate } from '@/shared/programmatic/runValidate.js';
+import { buildValidateReportView } from '@i18nprune/core';
+import { buildValidateHumanView } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
 import type { ValidateOptions } from '@/types/command/validate/index.js';
-import { finalizeReportFile, pushReportEntry } from '@/utils/report/index.js';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '@/constants/issueCodes.js';
+import { resolveCliListWindow } from '@/shared/context/listWindow.js';
+import type { I18nPruneConfig } from '@i18nprune/core/config';
+import type { DynamicKeySite } from '@i18nprune/core';
+import { analyzePatchingState } from '@i18nprune/core';
+import { resolvePatchingProjectRoot } from '@/shared/patching/scaffoldI18nLayout.js';
+import { getCliGlobalOverrides } from '@/shared/context/globals.js';
+import { issuesFromPatchingDiagnostics, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
+import { resolveValidateData } from '@/shared/cache/index.js';
+import { attachWallTimer } from '@/utils/timer/index.js';
 
 function pushValidateReportEntriesFromEnvelope(
+  ctx: { config: I18nPruneConfig },
   envelope: ReturnType<typeof runValidate>,
 ): void {
   const { missing, dynamic, keyObservations } = envelope.data;
+  const window = resolveCliListWindow(ctx.config);
   const readFailed = envelope.issues.some((i) => i.code === ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED);
 
   if (readFailed) {
-    const first = envelope.issues.find((i) => i.code === ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED);
-    pushReportEntry({
-      command: 'validate',
-      level: 'error',
-      message: first?.message ?? 'Could not read source locale JSON',
-    });
+    envelope.issues.find((i) => i.code === ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED);
     return;
   }
 
-  if (missing.length > 0) {
-    pushReportEntry({
-      command: 'validate',
-      level: 'warn',
-      message: `${String(missing.length)} key(s) in code missing from source JSON`,
-      data: { missing: missing.slice(0, 200) },
-    });
-  } else {
-    pushReportEntry({
-      command: 'validate',
-      level: 'info',
-      message: 'All scanned literal keys exist in source JSON.',
-    });
-  }
-  if (dynamic.count > 0) {
-    pushReportEntry({
-      command: 'validate',
-      level: 'warn',
-      message: `${String(dynamic.count)} non-literal translation call site(s) found`,
-      data: { dynamic: dynamic.sites.slice(0, 200) },
-    });
-  }
-  pushReportEntry({
-    command: 'validate',
-    level: 'info',
-    message: `${String(keyObservations.count)} key observation(s) extracted`,
-    data: { keyObservations: keyObservations.observations.slice(0, 300) },
+  const view = buildValidateReportView({
+    missing,
+    dynamicSites: dynamic.sites,
+    keyObservations: keyObservations.observations,
+    listLimit: window.limit,
   });
+
+  if (missing.length > 0) {
+  } else {
+  }
+  if (dynamic.count > 0 && view.dynamicMessage) {
+  }
 }
 
 export async function validate(_opts: ValidateOptions): Promise<void> {
-  const started = Date.now();
-  const ctx = resolveContext();
+  const wall = attachWallTimer();
+  try {
+    const ctx = await resolveContext();
+    const runId = String(Date.now());
+    let envelope: ReturnType<typeof runValidate>;
+    let fullDynamicSites: DynamicKeySite[] = [];
 
-  if (ctx.run.json) {
-    const envelope = runValidate(ctx);
-    pushValidateReportEntriesFromEnvelope(envelope);
-    console.log(stringifyEnvelope(envelope));
-    if (!envelope.ok) {
-      process.exitCode = 1;
+    const resolved = resolveValidateData(ctx, runId);
+    envelope = resolved.envelope;
+    fullDynamicSites = resolved.fullDynamicSites;
+    const patchingProjectRoot = resolvePatchingProjectRoot(ctx);
+    const patchingAnalysis = await analyzePatchingState({
+      command: 'sync',
+      action: 'upsert_locales',
+      changedLocaleCodes: [],
+      sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
+      config: ctx.config.patching,
+      runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
+      treatAsPatchRequested: getCliGlobalOverrides().patch === true,
+      projectRoot: patchingProjectRoot,
+    });
+    envelope = {
+      ...envelope,
+      issues: mergeIssues(envelope.issues, issuesFromPatchingDiagnostics(patchingAnalysis.diagnostics)),
+    };
+
+    pushValidateReportEntriesFromEnvelope(ctx, envelope);
+    if (ctx.run.json) {
+      console.log(stringifyEnvelope(envelope));
+      if (!envelope.ok) {
+        process.exitCode = 1;
+      }
+      return;
     }
-    await finalizeReportFile(ctx.config, {
-      command: 'validate',
-      ok: envelope.ok,
-      durationMs: Date.now() - started,
-      counts: {
-        missing: envelope.data.missing.length,
-        dynamic: envelope.data.dynamic.count,
-        keyObservations: envelope.data.keyObservations.count,
+
+    const humanView = buildValidateHumanView({ missing: envelope.data.missing, dynamicSites: fullDynamicSites });
+    if (humanView.dynamicWarning) {
+      logger.warn(humanView.dynamicWarning, ctx.run);
+    }
+    if (envelope.data.missing.length === 0) {
+      logger.info(humanView.missingMessage, ctx.run);
+    } else {
+      logger.warn(humanView.missingMessage, ctx.run);
+      for (const m of humanView.missingPreview) logger.detail(`  ${m}`, ctx.run);
+      if (humanView.missingHiddenCount > 0) logger.detail(`  … and ${String(humanView.missingHiddenCount)} more`, ctx.run);
+    }
+    printCommandSummary(
+      {
+        command: 'validate',
+        ok: envelope.ok,
+        durationMs: wall.elapsedMs(),
+        counts: { missing: envelope.data.missing.length, dynamic: envelope.data.dynamic.count },
+        issues: envelope.issues,
       },
-    });
-    return;
-  }
-
-  const raw = readJsonFile(ctx.paths.sourceLocale);
-  const keyObservations = scanProjectKeyObservations(ctx);
-  const resolvedKeys = resolvedKeysFromObservations(keyObservations);
-  const dynamicSites = scanProjectDynamicKeySites(ctx);
-  const missing = computeMissingLiteralKeysFromResolvedKeys(raw, resolvedKeys);
-  if (missing.length > 0) {
-    pushReportEntry({
-      command: 'validate',
-      level: 'warn',
-      message: `${String(missing.length)} key(s) in code missing from source JSON`,
-      data: { missing: missing.slice(0, 200) },
-    });
-  } else {
-    pushReportEntry({
-      command: 'validate',
-      level: 'info',
-      message: 'All scanned literal keys exist in source JSON.',
-    });
-  }
-  if (dynamicSites.length > 0) {
-    pushReportEntry({
-      command: 'validate',
-      level: 'warn',
-      message: `${String(dynamicSites.length)} non-literal translation call site(s) found`,
-      data: { dynamic: dynamicSites.slice(0, 200) },
-    });
-  }
-  pushReportEntry({
-    command: 'validate',
-    level: 'info',
-    message: `${String(keyObservations.length)} key observation(s) extracted`,
-    data: { keyObservations: keyObservations.slice(0, 300) },
-  });
-  if (dynamicSites.length > 0) {
-    logger.warn(
-      `${String(dynamicSites.length)} translation call(s) use a non-literal key — not validated as static keys:`,
+      ctx,
     );
-    for (const d of dynamicSites.slice(0, 20)) {
-      const loc =
-        d.filePath !== undefined && d.line !== undefined ? `${d.filePath}:${String(d.line)} ` : '';
-      logger.detail(`  [${d.kind}] ${loc}${d.functionName}: ${d.preview}`);
-    }
-    if (dynamicSites.length > 20) {
-      logger.detail(`  … and ${String(dynamicSites.length - 20)} more`);
-    }
+  } finally {
+    wall.dispose();
   }
-  if (missing.length === 0) {
-    logger.info('All scanned literal keys exist in source JSON.');
-  } else {
-    logger.warn(`${String(missing.length)} key(s) in code missing from source JSON:`);
-    for (const m of missing.slice(0, 50)) logger.detail(`  ${m}`);
-    if (missing.length > 50) logger.detail(`  … and ${String(missing.length - 50)} more`);
-  }
-  printCommandSummary(
-    {
-      command: 'validate',
-      ok: missing.length === 0,
-      durationMs: Date.now() - started,
-      counts: { missing: missing.length, dynamic: dynamicSites.length },
-      issues: mergeIssues(
-        issuesFromDiscoveryWarnings(ctx.meta.warnings),
-        buildValidateJsonIssues({
-          missing,
-          dynamicSiteCount: dynamicSites.length,
-          sourceLocalePath: ctx.paths.sourceLocale,
-        }),
-      ),
-    },
-    ctx,
-  );
-  await finalizeReportFile(ctx.config, {
-    command: 'validate',
-    ok: missing.length === 0,
-    durationMs: Date.now() - started,
-    counts: {
-      missing: missing.length,
-      dynamic: dynamicSites.length,
-      keyObservations: keyObservations.length,
-    },
-  });
 }

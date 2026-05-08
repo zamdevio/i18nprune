@@ -1,18 +1,27 @@
 #!/usr/bin/env node
 
+import { ensureLanguageCatalogFile } from '../../../scripts/catalog/ensure.js';
 import { Command } from 'commander';
+
+ensureLanguageCatalogFile();
 import { preprocessArgv } from '@/argv/index.js';
-import { ensureConfig } from '@/config/init/index.js';
-import { ensureConfigPathResolved, setConfigPath } from '@/config/resolve/index.js';
+import { ensureConfig } from '@/commands/init/index.js';
 import {
   clearContextCache,
   resetRunOptions,
   setCliGlobalOverrides,
   resetCliGlobals,
   setRunOptions,
-} from '@/core/context/index.js';
-import { setCliYesFlag, getCliYesFlag, setArgvJsonFlag } from '@/core/context/globals.js';
-import { reportCliError } from '@/core/errors/index.js';
+} from '@/shared/context/index.js';
+import { ensureConfigPathResolved, setConfigPath } from '@/shared/config/index.js';
+import {
+  setCliYesFlag,
+  getCliYesFlag,
+  setArgvJsonFlag,
+  setCliListTopFlag,
+  setCliListFullFlag,
+} from '@/shared/context/globals.js';
+import { reportCliError } from '@/shared/errors/handler.js';
 import { generate } from '@/commands/generate/index.js';
 import { fill } from '@/commands/fill/index.js';
 import { sync } from '@/commands/sync/index.js';
@@ -21,9 +30,11 @@ import { missing } from '@/commands/missing/index.js';
 import { quality } from '@/commands/quality/index.js';
 import { cleanup } from '@/commands/cleanup/index.js';
 import { languages } from '@/commands/languages/index.js';
+import { providers } from '@/commands/providers/index.js';
 import { config } from '@/commands/config/index.js';
 import { review } from '@/commands/review/index.js';
 import { doctor } from '@/commands/doctor/index.js';
+import { patch } from '@/commands/patch/index.js';
 import { localesList, localesEdit, localesDynamic, localesDelete } from '@/commands/locales/index.js';
 import { report } from '@/commands/report/index.js';
 import { configureCliHelp } from '@/commands/help/index.js';
@@ -36,28 +47,28 @@ import {
   ISSUE_CLI_INVALID_JSON_PRETTY,
   ISSUE_REPORT_INVALID_FORMAT,
 } from '@/constants/issueCodes.js';
-import { resetReportCliOptions, setReportCliOptions } from '@/core/context/report.js';
-import { resetReportSession } from '@/utils/report/session.js';
-import type { ReportFormat } from '@/types/utils/report/index.js';
 import type { ReportCommandFormat } from '@/types/command/report/index.js';
 import type { ReportCliJsonPayload } from '@/types/command/report/json.js';
 import type { ProjectReportDocument } from '@/types/command/report/index.js';
 import { ensureUpdateCacheRefreshed } from '@/utils/update/index.js';
 import { printCurrentVersionLine, runVersionCheckCommand, runVersionResetCommand } from '@/utils/update/version.js';
-import { getRunOptions } from '@/core/runtime/options.js';
-import { emitCliJsonOptionError } from '@/core/result/optionErrorEnvelope.js';
-
-function parseReportFormat(s: string | undefined): ReportFormat | undefined {
-  if (!s) return undefined;
-  const x = s.trim().toLowerCase();
-  if (x === 'json' || x === 'text' || x === 'csv') return x;
-  throw new Error(`Invalid --report-format: expected json, text, or csv (got ${s})`);
-}
+import { getRunOptions, type ScanDebugEvent } from '@i18nprune/core';
+import { emitCliJsonOptionError } from '@/shared/result/optionErrorEnvelope.js';
+import { logger } from '@/utils/logger/index.js';
 
 function parseReportCommandFormat(s: string | undefined): ReportCommandFormat {
   const x = (s ?? 'html').trim().toLowerCase();
   if (x === 'html' || x === 'json' || x === 'csv' || x === 'text') return x;
   throw new Error(`Invalid --format: expected html, json, csv, or text (got ${s ?? ''})`);
+}
+
+function parseExcludeDirsCsv(s: string | undefined): string[] | undefined {
+  if (s === undefined || !String(s).trim()) return undefined;
+  const parts = String(s)
+    .split(',')
+    .map((x) => x.trim())
+    .filter(Boolean);
+  return parts.length > 0 ? parts : undefined;
 }
 
 function parseBooleanOption(name: string, value: string | undefined, fallback: boolean): boolean {
@@ -70,6 +81,11 @@ function parseBooleanOption(name: string, value: string | undefined, fallback: b
 
 const program = new Command();
 configureCliHelp(program);
+
+function parseOptionalTranslateParallelFlag(raw: string | undefined, label: string): number | undefined {
+  if (raw === undefined || raw === '') return undefined;
+  return parseCliPositiveIntTop(raw, label);
+}
 
 program
   .name(CLI_NAME)
@@ -102,13 +118,19 @@ program
     '--functions <list>',
     'comma-separated translation helpers (e.g. t,i18n.t,$t)',
   )
-  .option('--no-discovery', 'disable heuristic path discovery', false)
   .option(
-    '--report-file <path>',
-    'write structured run report at end (supported commands: sync, fill, cleanup, …)',
-    undefined,
+    '--exclude <list>',
+    'comma-separated directory basenames to skip while scanning sources (appended to config exclude.dirs; e.g. bench,vendor)',
   )
-  .option('--report-format <format>', 'report artifact format: json, text, or csv', undefined)
+  .option('--patch', 'enable patching for this run (overrides config patching.enabled=false)', false)
+  .option('--no-cache', 'disable CLI cache for this run only')
+  .option(
+    '--debug-scan',
+    'log source scan skip decisions to stderr (built-in skips, exclude rules, non-scanned extensions)',
+    false,
+  )
+  .option('--top <n>', 'global list limit override for human/list outputs')
+  .option('--full', 'global full list mode (still bounded by core hard cap)', false)
   .hook('preAction', async (_thisCommand, actionCommand) => {
     const opts = program.opts<{
       config?: string;
@@ -117,19 +139,20 @@ program
       localesDir?: string;
       src?: string;
       functions?: string;
-      noDiscovery?: boolean;
+      exclude?: string;
+      patch?: boolean;
+      cache?: boolean;
+      top?: string;
+      full?: boolean;
       json?: boolean;
       jsonPretty?: string;
       quiet?: boolean;
       silent?: boolean;
-      reportFile?: string;
-      reportFormat?: string;
+      debugScan?: boolean;
     }>();
     setConfigPath(opts.config);
     clearContextCache();
     resetRunOptions();
-    resetReportCliOptions();
-    resetReportSession();
     resetCliGlobals();
     setArgvJsonFlag(Boolean(opts.json));
     await ensureConfigPathResolved();
@@ -155,25 +178,44 @@ program
       }
       throw err;
     }
+    const debugScan = Boolean(opts.debugScan);
     setRunOptions({
       json: jsonOutput,
       jsonPretty,
       quiet,
       silent,
+      debugScan,
+      onScanDebug:
+        debugScan && !silent
+          ? (event: ScanDebugEvent) => {
+              const msg =
+                event.kind === 'skip_directory'
+                  ? `skip dir ${event.relativePath}: ${event.reason}`
+                  : `skip file ${event.relativePath}: ${event.reason}`;
+              logger.scan(msg, getRunOptions());
+            }
+          : undefined,
     });
+    const globalTop = jsonOutput ? undefined : parseCliPositiveIntTop(opts.top, 'global: --top');
+    setCliListTopFlag(globalTop);
+    setCliListFullFlag(jsonOutput ? false : Boolean(opts.full));
     await ensureUpdateCacheRefreshed({ jsonOutput });
+    const excludeDirs = parseExcludeDirsCsv(opts.exclude);
     setCliGlobalOverrides({
       ...(opts.source !== undefined ? { source: opts.source } : {}),
       ...(opts.localesDir !== undefined ? { localesDir: opts.localesDir } : {}),
       ...(opts.src !== undefined ? { src: opts.src } : {}),
       ...(opts.functions !== undefined ? { functions: opts.functions } : {}),
-      ...(opts.noDiscovery ? { noDiscovery: true } : {}),
+      ...(excludeDirs ? { scanExcludeDirNames: excludeDirs } : {}),
+      ...(opts.patch === true ? { patch: true } : {}),
+      ...(opts.cache === false ? { noCache: true } : {}),
     });
     setCliYesFlag(Boolean(opts.yes));
-    setReportCliOptions(opts.reportFile, parseReportFormat(opts.reportFormat));
-    maybePrintCommandBanner(actionCommand);
+    if (actionCommand.name() !== CLI_NAME) {
+      maybePrintCommandBanner(actionCommand);
+    }
     const inv = getCommandInvocationPath(actionCommand, CLI_NAME);
-    const skipEnsureConfig = ['languages', 'help', 'init', 'config', 'review', 'doctor', 'version'].includes(
+    const skipEnsureConfig = [CLI_NAME, 'languages', 'help', 'init', 'config', 'providers', 'review', 'doctor', 'version'].includes(
       actionCommand.name(),
     );
     if (!skipEnsureConfig) {
@@ -192,16 +234,20 @@ program
         inv === 'cleanup' ||
         inv === 'report' ||
         inv === 'locales dynamic' ||
-        inv === 'locales delete';
+        inv === 'locales delete' ||
+        inv === 'patch';
       await ensureConfig({ yes: Boolean(opts.yes), silentIfExists });
     }
   });
 
 program
   .command('init')
-  .description('Create i18nprune.config.ts (or .mts / .js) when missing — interactive unless --yes')
-  .action(async () => {
-    await ensureConfig({ yes: getCliYesFlag() });
+  .description(
+    'Create i18nprune.config.ts (or .mts / .js) when missing — interactive unless --yes; --rich writes every supported namespace with defaults',
+  )
+  .option('--rich', 'write expanded starter config (all namespaces + safe defaults)', false)
+  .action(async (opts: { rich?: boolean }) => {
+    await ensureConfig({ yes: getCliYesFlag(), rich: Boolean(opts.rich) });
   });
 
 program
@@ -223,19 +269,17 @@ program
   .description('Add keys used in code but missing from source or a locale JSON (placeholders)')
   .option('--locale <code>', 'target locales/<code>.json (default: source locale file)')
   .option('--dry-run', 'list paths only; do not write', false)
-  .option('--from-report <file>', 'use `missing` array from validate --json output')
   .option(
     '--top <n>',
     `max key paths to show in human listings (default: 10; use --full-list for all)`,
   )
   .option('--full-list', 'show every key path in human output (overrides --top)', false)
   .action(
-    async (opts: { locale?: string; dryRun?: boolean; fromReport?: string; top?: string; fullList?: boolean }) => {
+    async (opts: { locale?: string; dryRun?: boolean; top?: string; fullList?: boolean }) => {
       const top = getRunOptions().json ? undefined : parseCliPositiveIntTop(opts.top, 'missing: --top');
       await missing({
         locale: opts.locale,
         dryRun: Boolean(opts.dryRun),
-        fromReport: opts.fromReport,
         top,
         fullList: getRunOptions().json ? false : Boolean(opts.fullList),
       });
@@ -247,11 +291,26 @@ program
   .description('Align locale file shapes to the source (merge + prune; honors policies.preserve)')
   .option('--dry-run', 'show targets only; do not write files', false)
   .option(
+    '--metadata',
+    'write/repair structured locale leaves (`{ value, status, confidence, needsReview, source }`)',
+    false,
+  )
+  .option(
+    '--strip-metadata',
+    'rewrite structured `{ value, ... }` leaves to plain strings during sync (default from config localeLeaves.sync.stripMetadata)',
+    false,
+  )
+  .option(
     '--target <codes>',
     'comma-separated locale basenames, or "all" (default: all non-source locales under localesDir)',
   )
-  .action(async (opts: { dryRun?: boolean; target?: string }) => {
-    await sync({ dryRun: Boolean(opts.dryRun), target: opts.target });
+  .action(async (opts: { dryRun?: boolean; target?: string; stripMetadata?: boolean; metadata?: boolean }) => {
+    await sync({
+      dryRun: Boolean(opts.dryRun),
+      target: opts.target,
+      metadata: opts.metadata === true,
+      stripMetadata: opts.stripMetadata === true,
+    });
   });
 
 program
@@ -270,13 +329,26 @@ program
     'Native endonym in <lang>.meta.json (default: catalog for --target)',
   )
   .option('--direction <ltr|rtl>', 'layout direction for .meta.json (default ltr)')
-  .option(
-    '--no-meta',
-    'do not write <lang>.meta.json; skip English/native/direction prompts and related env',
-    false,
-  )
   .option('--force', 're-translate even if target already has every source string path', false)
   .option('--dry-run', 'do not call translator or write files', false)
+  .option(
+    '--metadata',
+    'write/repair structured locale leaves (`{ value, status, confidence, needsReview, source }`)',
+    false,
+  )
+  .option(
+    '--no-locale-meta',
+    'do not write or update <lang>.meta.json (merged with config noLocaleMeta; either true skips)',
+    false,
+  )
+  .option(
+    '--provider <id>',
+    'translation backend — precedence: --provider → I18NPRUNE_TRANSLATE_PROVIDER → translate.primary; credentials: translate.providers row + env (see docs/config/translate.md)',
+  )
+  .option(
+    '--workers <n>',
+    'max parallel translateLeaf calls this run (overrides I18NPRUNE_TRANSLATE_MAX_WORKERS, translate.workers)',
+  )
   .action(
     async (opts: {
       source?: string;
@@ -284,9 +356,12 @@ program
       englishName?: string;
       nativeName?: string;
       direction?: string;
-      noMeta?: boolean;
       force?: boolean;
       dryRun?: boolean;
+      metadata?: boolean;
+      noLocaleMeta?: boolean;
+      provider?: string;
+      workers?: string;
     }) => {
       const direction =
         opts.direction === 'ltr' || opts.direction === 'rtl' ? opts.direction : undefined;
@@ -296,9 +371,12 @@ program
         englishName: opts.englishName,
         nativeName: opts.nativeName,
         direction,
-        noMeta: opts.noMeta === true ? true : undefined,
         force: opts.force === true ? true : undefined,
         dryRun: Boolean(opts.dryRun),
+        metadata: opts.metadata === true ? true : undefined,
+        noLocaleMeta: opts.noLocaleMeta === true ? true : undefined,
+        provider: opts.provider,
+        workers: parseOptionalTranslateParallelFlag(opts.workers, 'generate: --workers'),
       });
     },
   );
@@ -311,26 +389,53 @@ program
     'preferred target selector: one locale, comma-separated list, or "all"',
   )
   .option('--all', 'fill all non-source locale files under localesDir', false)
-  .option(
-    '--no-meta',
-    'do not write <lang>.meta.json (default: create/update sidecar from catalog)',
-    false,
-  )
   .option('--ask', 'interactive TTY: confirm selected target locale(s) before processing', false)
   .option('--dry-run', 'list counts only; no API calls or writes', false)
-  .action(async (opts: { target?: string; all?: boolean; dryRun?: boolean; noMeta?: boolean; ask?: boolean }) => {
-    await fill({
-      target: opts.target,
-      all: Boolean(opts.all),
-      dryRun: Boolean(opts.dryRun),
-      noMeta: opts.noMeta === true ? true : undefined,
-      ask: Boolean(opts.ask),
-    });
-  });
+  .option(
+    '--metadata',
+    'write/repair structured locale leaves (`{ value, status, confidence, needsReview, source }`)',
+    false,
+  )
+  .option(
+    '--no-locale-meta',
+    'do not write or update <lang>.meta.json (merged with config noLocaleMeta; either true skips)',
+    false,
+  )
+  .option(
+    '--provider <id>',
+    'translation backend — precedence: --provider → I18NPRUNE_TRANSLATE_PROVIDER → translate.primary; credentials: translate.providers row + env (see docs/config/translate.md)',
+  )
+  .option(
+    '--workers <n>',
+    'max parallel translateLeaf calls this run (overrides I18NPRUNE_TRANSLATE_MAX_WORKERS, translate.workers)',
+  )
+  .action(
+    async (opts: {
+      target?: string;
+      all?: boolean;
+      dryRun?: boolean;
+      ask?: boolean;
+      metadata?: boolean;
+      noLocaleMeta?: boolean;
+      provider?: string;
+      workers?: string;
+    }) => {
+      await fill({
+        target: opts.target,
+        all: Boolean(opts.all),
+        dryRun: Boolean(opts.dryRun),
+        ask: Boolean(opts.ask),
+        metadata: opts.metadata === true ? true : undefined,
+        noLocaleMeta: opts.noLocaleMeta === true ? true : undefined,
+        provider: opts.provider,
+        workers: parseOptionalTranslateParallelFlag(opts.workers, 'fill: --workers'),
+      });
+    },
+  );
 
 program
   .command('quality')
-  .description('Parity / English-identical / drift (uses config policies when implemented)')
+  .description('Parity / source-identical vs source locale / drift (uses config policies when implemented)')
   .option('--target <code>', 'only this locale file (basename)')
   .action(async (opts: { target?: string }) => {
     await quality({ target: opts.target });
@@ -338,20 +443,15 @@ program
 
 program
   .command('review')
-  .description('Locale review vs source (paths + English-identical counts; use global --json)')
-  .option('--target <code>', 'only this locale basename')
-  .option(
-    '--top <n>',
-    'reserved: when per-path human lists ship, cap rows (positive integer; same rules as `missing --top`)',
+  .description(
+    'Locale review vs source: paths, source-identical counts, structured leaf metadata when present (use global --json)',
   )
-  .option('--full', 'reserved: unbounded lists when per-path output ships', false)
-  .action(async (opts: { target?: string; top?: string; full?: boolean }) => {
-    const top = getRunOptions().json ? undefined : parseCliPositiveIntTop(opts.top, 'review: --top');
-    await review({
-      target: opts.target,
-      top,
-      full: getRunOptions().json ? undefined : (opts.full === true ? true : undefined),
-    });
+  .option(
+    '--target <codes>',
+    'locale basenames: `all` (default), one code, or comma list (`ja`, `ja,ar`); optional `.json` suffix',
+  )
+  .action(async (opts: { target?: string }) => {
+    await review({ target: opts.target });
   });
 
 program
@@ -394,6 +494,15 @@ program
     });
   });
 
+program
+  .command('providers')
+  .description(
+    'List translation backends for generate/fill: ids, env vars, and translate.{ primary, providers } config (from @i18nprune/core)',
+  )
+  .action(async () => {
+    await providers();
+  });
+
 const localesCmd = program
   .command('locales')
   .description('Locale JSON under localesDir: list files and edit existing locales (see `i18nprune help locales`).')
@@ -434,7 +543,7 @@ localesCmd
   )
   .option(
     '--top <n>',
-    'max dynamic sites in human output (default: 10; use --full for all)',
+    'max dynamic sites in human output (default: 10)',
   )
   .option('--full', 'show every dynamic site in human output (overrides --top)', false)
   .action(async (opts: { top?: string; full?: boolean }) => {
@@ -456,7 +565,7 @@ localesCmd
 program
   .command('report')
   .description(
-    'Project-level report from a live scan or a validated prior JSON (--from); use global --json for a stdout envelope (still writes --out unless skipped); not the same as global --report-file',
+    'Project-level report from a live scan or a validated prior JSON (--from); use global --json for a stdout envelope (still writes --out unless skipped)',
   )
   .option('--format <fmt>', 'output: html, json, csv, or text', 'html')
   .option('--out <path>', 'output file (default: report-<timestamp>.<ext> in cwd)', undefined)
@@ -512,6 +621,27 @@ program
   });
 
 program
+  .command('patch')
+  .description(
+    'Patching: analyze (then "patch --fix"); --init fills missing scaffold files; --init --force renews config.json + loaders.generated.ts and resets patching config block defaults',
+  )
+  .option('--init', 'create missing CLI-owned files under <src>/i18n (config.json, loaders.generated.ts); see --force', false)
+  .option('--force', 'with --init only: overwrite config.json + loaders.generated.ts and reset patching config block in i18nprune.config.*', false)
+  .option('--fix', 'auto-apply suggested patch metadata corrections without prompt', false)
+  .option('--top <n>', 'max inconsistency items to show in patch warning/fix preview (default: 5)')
+  .option('--full', 'show full inconsistency preview in patch warnings/fix output (overrides --top)', false)
+  .action(async (opts: { init?: boolean; force?: boolean; fix?: boolean; top?: string; full?: boolean }) => {
+    const top = getRunOptions().json ? undefined : parseCliPositiveIntTop(opts.top, 'patch: --top');
+    await patch({
+      init: Boolean(opts.init),
+      force: Boolean(opts.force),
+      fix: Boolean(opts.fix),
+      top,
+      full: getRunOptions().json ? false : Boolean(opts.full),
+    });
+  });
+
+program
   .command('doctor')
   .description(
     'Read-only environment diagnostics (Node, rg, config, paths) — use global --json for CI',
@@ -555,6 +685,11 @@ program
       console.log(cur.helpInformation());
     }
   });
+
+/** Bare `i18nprune` (no subcommand): show help without Commander's error-style exit (code 1). */
+program.action(() => {
+  program.outputHelp();
+});
 
 program.parseAsync(preprocessArgv(process.argv)).catch((err: unknown) => {
   process.exitCode = reportCliError(err);

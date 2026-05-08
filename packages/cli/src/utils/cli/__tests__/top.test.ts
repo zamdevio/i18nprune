@@ -9,12 +9,12 @@ describe('parseCliPositiveIntTop', () => {
 
   it('parses positive integers', () => {
     expect(parseCliPositiveIntTop('10', 'missing: --top')).toBe(10);
-    expect(parseCliPositiveIntTop('1', 'review: --top')).toBe(1);
+    expect(parseCliPositiveIntTop('1', 'missing: --top')).toBe(1);
   });
 
   it('throws USAGE for invalid values', () => {
     expect(() => parseCliPositiveIntTop('0', 'missing: --top')).toThrow(/positive integer/i);
-    expect(() => parseCliPositiveIntTop('-1', 'review: --top')).toThrow(/positive integer/i);
-    expect(() => parseCliPositiveIntTop('nope', 'review: --top')).toThrow(/positive integer/i);
+    expect(() => parseCliPositiveIntTop('-1', 'missing: --top')).toThrow(/positive integer/i);
+    expect(() => parseCliPositiveIntTop('nope', 'missing: --top')).toThrow(/positive integer/i);
   });
 });

@@ -1,5 +1,1 @@
-/** Output of `mask()`: MT input text + `{{...}}` originals in sentinel order. */
-export type MaskedText = {
-  text: string;
-  originals: string[];
-};
+export type { MaskedText } from '@i18nprune/core';

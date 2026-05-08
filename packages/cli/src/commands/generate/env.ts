@@ -5,7 +5,6 @@ import {
   ENV_I18NPRUNE_GENERATE_FORCE,
   ENV_I18NPRUNE_GENERATE_LANG,
   ENV_I18NPRUNE_GENERATE_NATIVE_NAME,
-  ENV_I18NPRUNE_GENERATE_NO_META,
 } from '@/constants/env.js';
 import type { GenerateOptions } from '@/types/command/generate/index.js';
 
@@ -24,7 +23,6 @@ export function mergeGenerateOptionsFromEnv(opts: GenerateOptions): GenerateOpti
   if (dir === 'ltr' || dir === 'rtl') {
     out.direction = dir;
   }
-  if (truthy(e[ENV_I18NPRUNE_GENERATE_NO_META])) out.noMeta = true;
   if (truthy(e[ENV_I18NPRUNE_GENERATE_FORCE])) out.force = true;
   if (truthy(e[ENV_I18NPRUNE_GENERATE_DRY_RUN])) out.dryRun = true;
   return out;

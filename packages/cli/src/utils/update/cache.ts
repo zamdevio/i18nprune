@@ -1,8 +1,9 @@
-import fs from 'node:fs';
-
 import { UPDATE_STATE_SCHEMA_VERSION } from '@/constants/update.js';
+import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
+import { readRuntimeFsTextSync } from '@i18nprune/core/runtime/helpers/sync';
 
 import { ensureConfigDirExists, getUpdateStateFilePath } from './paths.js';
+const nodeFs = createNodeRuntimeAdapters().fs;
 
 export type UpdateStateFile = {
   schemaVersion: typeof UPDATE_STATE_SCHEMA_VERSION;
@@ -93,7 +94,7 @@ export function readUpdateState(registryEndpoint: string): UpdateStateFile {
 
   let parsed: unknown | null = null;
   try {
-    const raw = fs.readFileSync(p, 'utf8');
+    const raw = readRuntimeFsTextSync(p, nodeFs);
     parsed = JSON.parse(raw) as unknown;
   } catch {
     parsed = null;
@@ -119,13 +120,13 @@ export type UpdateCacheFile = UpdateStateFile;
 export function writeUpdateState(state: UpdateStateFile): void {
   ensureConfigDirExists();
   const path = getUpdateStateFilePath();
-  fs.writeFileSync(path, `${JSON.stringify(state, null, 2)}\n`, 'utf8');
+  nodeFs.writeText(path, `${JSON.stringify(state, null, 2)}\n`);
 }
 
 /** Remove `updatestate.json` so the next run can treat the throttle as fresh. */
 export function resetUpdateState(): void {
   try {
-    fs.unlinkSync(getUpdateStateFilePath());
+    nodeFs.deleteFile(getUpdateStateFilePath());
   } catch {
     /* ignore */
   }

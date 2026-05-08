@@ -1,5 +1,5 @@
-import { header, line, style } from '@/utils/ansi/index.js';
-import { getRunOptions } from '@/core/runtime/options.js';
+import { header, line, scanLine, style } from '@/utils/ansi/index.js';
+import { getRunOptions } from '@i18nprune/core';
 import type { RunOptions } from '@/types/core/runtime/index.js';
 import type { LoggerMask } from '@/types/core/logger/index.js';
 import type { HeaderOptions, LogLevel } from '@/types/utils/ansi/index.js';
@@ -35,6 +35,13 @@ export const logger = {
     const r = effective(run, mask);
     if (!canEmit(r, 'warn')) return;
     console.warn(line('warn', msg));
+  },
+
+  /** `[i18nprune] [scan] …` — source walk skip reasons (`--debug-scan` sink); stderr, **hidden under `--quiet`** (like `info`). */
+  scan(msg: string, run?: RunOptions, mask?: LoggerMask): void {
+    const r = effective(run, mask);
+    if (!canEmit(r, 'scan')) return;
+    console.warn(scanLine(msg));
   },
 
   /** Always prints (stderr). */
@@ -99,6 +106,7 @@ export function loggerFor(run: RunOptions) {
   return {
     info: (msg: string, mask?: LoggerMask) => logger.info(msg, run, mask),
     warn: (msg: string, mask?: LoggerMask) => logger.warn(msg, run, mask),
+    scan: (msg: string, mask?: LoggerMask) => logger.scan(msg, run, mask),
     err: logger.err,
     error: logger.error,
     detail: (msg: string, mask?: LoggerMask) => logger.detail(msg, run, mask),

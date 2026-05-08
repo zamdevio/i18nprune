@@ -1,5 +1,1 @@
-export type TranslateTargetLanguage = {
-  code: string;
-  english: string;
-  native: string;
-};
+export type { TranslateTargetLanguage } from '@i18nprune/core';

@@ -1,8 +1,8 @@
-import { getRunOptions } from '@/core/runtime/options.js';
+import { getRunOptions } from '@i18nprune/core';
 import type { RunOptions } from '@/types/core/runtime/index.js';
-import { style, joinMetaSubtitle } from '@/utils/ansi/index.js';
+import { joinMetaSubtitle } from '@/utils/ansi/index.js';
 import { logger } from '@/utils/logger/index.js';
-import { canPrintDetail, canPrintInfo, canPrintPrimary } from '@/utils/logger/policy.js';
+import { canPrintDetail, canPrintInfo } from '@/utils/logger/policy.js';
 
 export function printPreserveParityReport(
   preserveCount: number,
@@ -35,8 +35,8 @@ export function printGenerateFinalizeSummary(
 ): void {
   const r = run ?? getRunOptions();
   const sub = joinMetaSubtitle(opts.target, opts.englishName, opts.nativeName, opts.direction);
+  if (!canPrintInfo(r)) return;
   if (opts.dryRun) {
-    if (!canPrintInfo(r)) return;
     logger.info(
       `dry-run: no locale files written — would write ${opts.targetPath} (${String(opts.leafCount)} leaves).`,
       r,
@@ -44,14 +44,12 @@ export function printGenerateFinalizeSummary(
     if (opts.showMeta && opts.metaPath) {
       logger.info(`dry-run: would write ${opts.metaPath}`, r);
     }
-    logger.info(`  ${sub}`, r);
+    logger.info(sub, r);
     return;
   }
-  if (!canPrintPrimary(r)) return;
-  logger.primary('', r);
-  logger.primary(style.ok(`  Wrote ${opts.targetPath} (${String(opts.leafCount)} leaves).`), r);
+  logger.info(sub, r);
+  logger.info(`Wrote ${opts.targetPath} (${String(opts.leafCount)} leaves).`, r);
   if (opts.showMeta && opts.metaPath) {
-    logger.primary(style.dim(`  Meta: ${opts.metaPath}`), r);
+    logger.info(`Meta: ${opts.metaPath}`, r);
   }
-  logger.primary(style.dim(`  ${sub}`), r);
 }

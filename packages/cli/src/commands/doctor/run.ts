@@ -1,120 +1,150 @@
-import { resolveContext } from '@/core/context/index.js';
-import {
-  DOCTOR_CHECK_IDS,
-  collectDoctorFindings,
-  doctorExitCode,
-  runDoctor,
-} from '@/core/doctor/jsonEnvelope.js';
+import { resolveContext } from '@/shared/context/index.js';
+import { getCliGlobalOverrides } from '@/shared/context/globals.js';
+import { getDisplaySourceLocaleCode } from '@/shared/locales/source.js';
+import { collectDoctorFindings, runDoctor } from '@/commands/doctor/jsonEnvelope.js';
 import {
   issuesFromDiscoveryWarnings,
   issuesFromDoctorFindings,
+  issuesFromDynamicScanCount,
+  issuesFromPatchingDiagnostics,
   mergeIssues,
-} from '@/core/result/cliEnvelopeIssues.js';
-import { buildIoReadFailureEnvelope } from '@/core/result/ioEnvelope.js';
-import { printCommandSummary } from '@/core/output/index.js';
-import { stringifyEnvelope } from '@/core/result/cliJson.js';
-import { getRunOptions } from '@/core/runtime/options.js';
+} from '@/shared/result/cliEnvelopeIssues.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { printCommandSummary } from '@/output/index.js';
+import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import {
+  analyzePatchingState,
+  collectStringLeaves,
+  doctorExitCode,
+  getRunOptions,
+  noopRunEmitter,
+} from '@i18nprune/core';
+import { resolvePatchingProjectRoot } from '@/shared/patching/scaffoldI18nLayout.js';
 import { logger } from '@/utils/logger/index.js';
-import { finalizeReportFile, pushReportEntry } from '@/utils/report/index.js';
+import { canPrintWarn } from '@/utils/logger/policy.js';
+import { attachWallTimer } from '@/utils/timer/index.js';
+import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
+import { resolveDynamicSitesCount } from '@/shared/cache/index.js';
 import type { DoctorFinding, DoctorOptions } from '@/types/commands/doctor/index.js';
 
-export { DOCTOR_CHECK_IDS };
+function resolveDoctorData(
+  ctx: Awaited<ReturnType<typeof resolveContext>>,
+  opts: DoctorOptions,
+  runId: string,
+): { jsonEnvelope?: ReturnType<typeof runDoctor>; findings?: DoctorFinding[] } {
+  if (ctx.run.json) {
+    return { jsonEnvelope: runDoctor(ctx, opts, { emit: noopRunEmitter, runId }) };
+  }
+  return { findings: collectDoctorFindings(ctx, opts) };
+}
 
 export async function doctor(opts: DoctorOptions): Promise<void> {
-  const started = Date.now();
-  const ctx = resolveContext();
-  const run = getRunOptions();
+  const wall = attachWallTimer();
+  try {
+    const ctx = await resolveContext();
+    const run = getRunOptions();
+    const runId = String(Date.now());
+    const patchingProjectRoot = resolvePatchingProjectRoot(ctx);
 
-  if (run.json) {
+    if (run.json) {
+      try {
+        const envelope = resolveDoctorData(ctx, opts, runId).jsonEnvelope!;
+        const patchingAnalysis = await analyzePatchingState({
+          command: 'sync',
+          action: 'upsert_locales',
+          changedLocaleCodes: [],
+          sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
+          config: ctx.config.patching,
+          runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
+          treatAsPatchRequested: getCliGlobalOverrides().patch === true,
+          projectRoot: patchingProjectRoot,
+        });
+        const envelopeWithPatching = {
+          ...envelope,
+          issues: mergeIssues(envelope.issues, issuesFromPatchingDiagnostics(patchingAnalysis.diagnostics)),
+        };
+        const { findings, strict } = envelopeWithPatching.data;
+        const code = doctorExitCode(findings, strict);
+        console.log(stringifyEnvelope(envelopeWithPatching));
+        process.exitCode = code === 0 && patchingAnalysis.diagnostics.every((d) => d.severity !== 'error') ? 0 : 1;
+      } catch (err) {
+        const empty = {
+          kind: 'doctor' as const,
+          findings: [] as DoctorFinding[],
+          strict: Boolean(opts.strict),
+        };
+        console.log(stringifyEnvelope(buildIoReadFailureEnvelope('doctor', empty, ctx, err)));
+        process.exitCode = 1;
+      }
+      return;
+    }
+
+    const findings = resolveDoctorData(ctx, opts, runId).findings!;
+    const dynamicKeySites = resolveDynamicSitesCount(ctx);
+    const patchingAnalysis = await analyzePatchingState({
+      command: 'sync',
+      action: 'upsert_locales',
+      changedLocaleCodes: [],
+      sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
+      config: ctx.config.patching,
+      runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
+      treatAsPatchRequested: getCliGlobalOverrides().patch === true,
+      projectRoot: patchingProjectRoot,
+    });
+    for (const d of patchingAnalysis.diagnostics) {
+      if (d.severity === 'error') logger.err(d.message);
+      else if (d.severity === 'warn') logger.warn(d.message, run);
+    }
+
+    let sourceLeaves = 0;
     try {
-      const envelope = runDoctor(ctx, opts);
-      const { findings, strict } = envelope.data;
-      const code = doctorExitCode(findings, strict);
-      console.log(stringifyEnvelope(envelope));
-      pushReportEntry({
+      const sr = readHostJsonUnknown(ctx.paths.sourceLocale, ctx.adapters.fs);
+      sourceLeaves = collectStringLeaves(sr).length;
+    } catch {
+      /* source read issues surface via findings / other commands */
+    }
+    if (dynamicKeySites > 0 && canPrintWarn(run)) {
+      logger.warn(
+        `${String(dynamicKeySites)} translation call(s) use a non-literal key — run \`i18nprune locales dynamic\` for file:line listings.`,
+        run,
+      );
+    }
+
+    if (findings.length === 0) {
+      logger.warn('No checks matched --only (use: runtime,tools,config,paths)', run);
+    } else {
+      logger.info(`${String(findings.length)} check(s)`, run);
+    }
+    for (const f of findings) {
+      const msg = `  ● ${f.title}${f.detail ? ` — ${f.detail}` : ''}`;
+      if (f.severity === 'error') logger.err(msg);
+      else if (f.severity === 'warn') logger.warn(msg, run);
+      else logger.detail(msg, run);
+    }
+
+    const code = doctorExitCode(findings, Boolean(opts.strict));
+    printCommandSummary(
+      {
         command: 'doctor',
-        level: code === 0 ? 'info' : 'warn',
-        message: `doctor completed with ${String(findings.length)} check(s)`,
-        data: {
-          strict,
-          errors: findings.filter((f) => f.severity === 'error').length,
-          warns: findings.filter((f) => f.severity === 'warn').length,
-        },
-      });
-      await finalizeReportFile(ctx.config, {
-        command: 'doctor',
-        durationMs: Date.now() - started,
+        ok: code === 0,
+        durationMs: wall.elapsedMs(),
         counts: {
           checks: findings.length,
-          errors: findings.filter((f) => f.severity === 'error').length,
-          warns: findings.filter((f) => f.severity === 'warn').length,
+          sourceLeaves,
+          dynamicKeySites,
         },
-      });
-      process.exitCode = code;
-    } catch (err) {
-      const empty = {
-        kind: 'doctor' as const,
-        findings: [] as DoctorFinding[],
-        strict: Boolean(opts.strict),
-      };
-      console.log(stringifyEnvelope(buildIoReadFailureEnvelope('doctor', empty, ctx, err)));
-      process.exitCode = 1;
-      await finalizeReportFile(ctx.config, {
-        command: 'doctor',
-        ok: false,
-        durationMs: Date.now() - started,
-        counts: {},
-      });
-    }
-    return;
+        issues: mergeIssues(
+          issuesFromDiscoveryWarnings(ctx.meta.warnings),
+          issuesFromDoctorFindings(findings),
+          issuesFromPatchingDiagnostics(patchingAnalysis.diagnostics),
+          issuesFromDynamicScanCount(dynamicKeySites),
+        ),
+      },
+      { run },
+    );
+
+    process.exitCode = code === 0 && patchingAnalysis.diagnostics.every((d) => d.severity !== 'error') ? 0 : 1;
+  } finally {
+    wall.dispose();
   }
-
-  const findings = collectDoctorFindings(ctx, opts);
-
-  if (findings.length === 0) {
-    logger.warn('No checks matched --only (use: runtime,tools,config,paths)', run);
-  } else {
-    logger.info(`doctor: ${String(findings.length)} check(s)`, run);
-  }
-  for (const f of findings) {
-    const msg = `${f.title}${f.detail ? ` — ${f.detail}` : ''}`;
-    if (f.severity === 'error') logger.err(msg);
-    else if (f.severity === 'warn') logger.warn(msg, run);
-    else logger.detail(msg, run);
-  }
-
-  const code = doctorExitCode(findings, Boolean(opts.strict));
-  pushReportEntry({
-    command: 'doctor',
-    level: code === 0 ? 'info' : 'warn',
-    message: `doctor completed with ${String(findings.length)} check(s)`,
-    data: {
-      strict: Boolean(opts.strict),
-      errors: findings.filter((f) => f.severity === 'error').length,
-      warns: findings.filter((f) => f.severity === 'warn').length,
-    },
-  });
-  finalizeReportFile(ctx.config, {
-    command: 'doctor',
-    durationMs: Date.now() - started,
-    counts: {
-      checks: findings.length,
-      errors: findings.filter((f) => f.severity === 'error').length,
-      warns: findings.filter((f) => f.severity === 'warn').length,
-    },
-  });
-  printCommandSummary(
-    {
-      command: 'doctor',
-      ok: code === 0,
-      durationMs: Date.now() - started,
-      issues: mergeIssues(
-        issuesFromDiscoveryWarnings(ctx.meta.warnings),
-        issuesFromDoctorFindings(findings),
-      ),
-    },
-    { run },
-  );
-
-  process.exitCode = code;
 }

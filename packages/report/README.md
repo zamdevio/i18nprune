@@ -1,4 +1,4 @@
-# `@zamdevio/i18nprune-report` (source)
+# `@i18nprune/report` (source)
 
 This folder is the **single source of truth** for the `i18nprune.projectReport` JSON contract:
 
@@ -8,24 +8,24 @@ This folder is the **single source of truth** for the `i18nprune.projectReport` 
 
 ## Published import path (use this in apps and tools)
 
-Same semver as the CLI:
+Same semver line as the root **`i18nprune`** CLI release:
 
 ```ts
 import {
   projectReportDocumentSchema,
   PROJECT_REPORT_SCHEMA_VERSION,
   type ProjectReportDocument,
-} from '@zamdevio/i18nprune/report';
+} from '@i18nprune/report';
 ```
 
-Root `package.json` `"exports"` maps `@zamdevio/i18nprune/report` → `dist/report.js` and **`dist/report.d.ts`**. After `tsup`, `scripts/report/flatten-report-dts.mjs` copies the emitted declaration file to that stable path (the compiler initially writes under `dist/packages/report/...`).
+Root `package.json` **`"exports"`** maps **`@i18nprune/report`** → `dist/report.js` and **`dist/report/src/index.d.ts`** (where `tsup` emits declarations). No separate flatten step.
 
-**Internal package name** `packages/report/package.json` → `@zamdevio/i18nprune-report` is **private**; it exists so the workspace has a clear folder and optional `peerDependencies`. **Do not** publish it separately unless you intentionally split releases.
+**Workspace package name** (`packages/report/package.json` → **`@i18nprune/report`**) is **`private`**; it exists so the monorepo has a clear folder and optional **`peerDependencies`**. **Do not** publish it as its own tarball unless you intentionally split releases.
 
 ## What `PROJECT_REPORT_SCHEMA_VERSION` is (and is not)
 
 - **It is** the **document format version** embedded in every `i18nprune.projectReport` JSON (`schemaVersion` field). When the JSON shape changes in a breaking way, this number increments and the CLI + Zod schema + report UI are updated together.
-- **It is not** the npm version of `@zamdevio/i18nprune` or of this folder. Those can move independently; the **payload** carries `schemaVersion` so consumers can reject or explain mismatches.
+- **It is not** the semver of the **`i18nprune`** CLI tarball. Those move independently; the **payload** carries `schemaVersion` so consumers can reject or explain mismatches.
 
 **Who sets it:** `i18nprune report` when building the document (`src/commands/report/build.ts`).
 
@@ -40,9 +40,9 @@ Root `package.json` `"exports"` maps `@zamdevio/i18nprune/report` → `dist/repo
 
 | Symptom | What to do |
 |--------|------------|
-| TypeScript cannot resolve `@zamdevio/i18nprune/report` | Use the repo `tsconfig` paths / Vite alias above; do not import from `dist/` by hand in source. |
-| `pnpm run build` fails on missing `apps/report/dist/index.html` | Run from repo root; ensure `apps/report` exists and `pnpm run build:report` succeeds. |
-| HTML report generation says template missing | Full root `pnpm run build` must run so `dist/report/index.html` exists beside `dist/cli.js` (see `scripts/report/copy-template.mjs`). |
+| TypeScript cannot resolve `@i18nprune/report` | Use the repo `tsconfig` paths / Vite alias above; do not import from `dist/` by hand in source. |
+| `pnpm run build` fails on missing `apps/report/dist/index.html` | Run from repo root; ensure `apps/report` exists and `pnpm run report:build` succeeds. |
+| HTML report generation says template missing | Full root `pnpm run build` must run so `dist/report/index.html` exists beside `dist/cli.js` (see `packages/report/scripts/build-assets.mjs`). |
 | JSON opens in SPA but “Unsupported schema version” | Regenerate JSON/HTML with the **same** CLI major line, or align `schemaVersion` in JSON with `PROJECT_REPORT_SCHEMA_VERSION` in `packages/report/src/constants.ts`. |
 
 ## See also

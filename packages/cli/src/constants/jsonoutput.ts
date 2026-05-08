@@ -13,7 +13,9 @@ export const COMMANDS_WITH_JSON_OUTPUT = new Set([
   'review',
   'cleanup',
   'languages',
+  'providers',
   'doctor',
+  'patch',
   'report',
   // `locales` subcommands use these leaf command names in Commander.
   'list',

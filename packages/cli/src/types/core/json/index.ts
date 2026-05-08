@@ -1,8 +1,4 @@
-/** One string leaf in a JSON tree (`a[0].b` style paths). */
-export type StringLeaf = {
-  path: string;
-  value: string;
-};
+export type { StringLeaf } from '@i18nprune/core';
 
 export type {
   CliJsonEnvelope,

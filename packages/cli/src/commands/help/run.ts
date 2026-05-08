@@ -2,7 +2,7 @@ import { Help } from 'commander';
 import type { Command } from 'commander';
 import { CLI_NAME } from '@/constants/cli.js';
 import { getTopicBannerSubtitle, toolDisplayTitle } from '@/utils/cli/banner.js';
-import { docsCommandUrl, getDocsUrl } from '@/constants/docs.js';
+import { docsCommandUrl, getDocsUrl } from '@i18nprune/core';
 import { docsSlugForCommand } from '@/utils/cli/docsSlug.js';
 import { header } from '@/utils/ansi/index.js';
 import { styleCommandHelpTerm } from '@/utils/help/term.js';
@@ -18,13 +18,7 @@ const DEFAULT_NOTE = /\(default:[^)]+\)/g;
 export function configureCliHelp(program: Command): void {
   program.configureHelp({
     formatHelp(cmd: Command, helper: Help) {
-      let raw = Help.prototype.formatHelp.call(helper, cmd, helper);
-      if (cmd.name() === 'report') {
-        raw = raw.replace(
-          /^Usage:[^\n]*/m,
-          `Usage: ${CLI_NAME} <command> [options] [--report-file <path>] [--report-format <json|text|csv>]`,
-        );
-      }
+      const raw = Help.prototype.formatHelp.call(helper, cmd, helper);
       const colored = colorizeHelpText(raw);
       const opts = program.opts<{ json?: boolean; silent?: boolean }>();
       if (Boolean(opts.json) || Boolean(opts.silent)) {

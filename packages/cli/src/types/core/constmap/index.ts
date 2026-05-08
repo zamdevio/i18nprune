@@ -1,11 +1,1 @@
-import type { ConstSubstitutionStep } from '@/types/core/extractor/keySites/index.js';
-
-/** Result of resolving `${IDENT}` placeholders in a template fragment. */
-export type ResolveKeyPlaceholdersTraceResult = {
-  /** Fully resolved dotted key, or `null` if a placeholder could not be substituted. */
-  resolved: string | null;
-  /** Ordered substitutions applied from `constMap`. */
-  substitutions: ConstSubstitutionStep[];
-  /** Fragment after the last successful step, if resolution failed mid-way. */
-  remainder: string;
-};
+export type { ResolveKeyPlaceholdersTraceResult } from '@i18nprune/core';

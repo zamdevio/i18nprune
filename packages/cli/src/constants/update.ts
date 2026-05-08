@@ -5,9 +5,9 @@
  * User docs: **`docs/versioning/README.md`**.
  */
 
-/** Public npm registry URL for `@zamdevio/i18nprune` `latest` (persisted in local update state on disk). */
+/** Public npm registry URL for **`i18nprune`** `latest` (persisted in local update state on disk). */
 export const NPM_REGISTRY_LATEST_URL =
-  'https://registry.npmjs.org/@zamdevio%2Fi18nprune/latest' as const;
+  'https://registry.npmjs.org/i18nprune/latest' as const;
 
 /** Bump when the on-disk update state JSON shape changes (forward-compat readers can branch). */
 export const UPDATE_STATE_SCHEMA_VERSION = 1 as const;

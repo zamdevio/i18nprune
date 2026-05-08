@@ -1,4 +1,12 @@
+import type { TranslationProviderId } from '@i18nprune/core';
 import type { TargetProgressSummary } from '@/types/core/progress/index.js';
+import type { LocaleMetadataReport } from '@/types/core/localeLeaves/index.js';
+import type { ProviderAttemptOutcome } from '@/shared/translation/providerFallback.js';
+
+export type ProviderAttemptReport = {
+  providerId: TranslationProviderId;
+  outcome: ProviderAttemptOutcome;
+};
 
 /** One row in `GenerateJsonPayload.targetResults`. */
 export type GenerateTargetJsonRow = {
@@ -9,12 +17,19 @@ export type GenerateTargetJsonRow = {
   sourceLeafCount?: number;
   preserveCount?: number;
   paritySkip?: number;
+  providerAttempts?: ProviderAttemptReport[];
+  winnerProviderId?: TranslationProviderId;
+  fallbackCount?: number;
+  /** Count of leaves marked for review by translation policy/meta pipeline. */
+  markedForReview?: number;
   paths?: { localeJson: string; metaJson: string | null };
+  localeMetadata?: LocaleMetadataReport;
 };
 
 /** Payload inside `CliJsonEnvelope<'generate', …>`. */
 export type GenerateJsonPayload = {
   kind: 'generate';
+  providerId?: TranslationProviderId;
   dryRun: boolean;
   force: boolean;
   targets: string[];
