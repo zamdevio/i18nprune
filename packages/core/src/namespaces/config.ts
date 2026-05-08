@@ -1,0 +1,16 @@
+export {
+  clampTranslateMaxWorkers,
+  configSchema,
+  ConfigValidationError,
+  DEFAULT_CONFIG,
+  defineConfig,
+  loadCoreConfigFromPath,
+  mergeCoreConfigInputs,
+  mergePartialConfigIntoBase,
+  parseI18nPruneConfig,
+  REFERENCE_POLICY_SAFE_DEFAULTS,
+  resolveCoreConfig,
+  resolveCoreConfigLayers,
+  resolveTranslateConfig,
+  tryLoadCoreConfigFromPath,
+} from '../config/index.js';

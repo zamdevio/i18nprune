@@ -1,0 +1,12 @@
+/**
+ * Cleanup engine (pure): compute removable candidate keys and apply removals to locale JSON.
+ * Ripgrep checks and filesystem orchestration stay in the host (CLI).
+ */
+export { computeCleanupCandidateKeys, pathUnderRoot } from './candidates.js';
+export { applyCleanupKeysToLocaleJson } from './apply.js';
+export { resolveCleanupKeysWithStringPresencePolicy } from './stringPresence.js';
+export type { CleanupCandidateInput } from './candidates.js';
+export type {
+  CleanupStringPresenceEvidence,
+  ResolveCleanupKeysWithStringPresenceInput,
+} from './stringPresence.js';

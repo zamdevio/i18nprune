@@ -1,0 +1,224 @@
+import type { Issue } from '../../json/envelope/index.js';
+import type { TranslationProviderId } from '../../translator/providers.js';
+
+/**
+ * Known operation identifiers for `run.*` events.
+ *
+ * Note: this is intentionally small while the event contract is being threaded
+ * through operations. Expand as each operation adopts `run.*`.
+ */
+export type OperationId =
+  | 'generate'
+  | 'fill'
+  | 'sync'
+  | 'validate'
+  | 'quality'
+  | 'doctor'
+  | 'review'
+  | 'missing'
+  | 'cleanup';
+
+export type RunEventBase = {
+  /** Operation identifier (matches `CliJsonEnvelope.kind`). */
+  op: OperationId;
+  /** Optional run correlation id (host-provided). */
+  runId?: string;
+};
+
+export type RunStartedEvent = RunEventBase & {
+  type: 'run.started';
+  at: number;
+};
+
+export type GenerateCounts = {
+  targets: number;
+  leaves: number;
+  dynamicKeySites: number;
+};
+
+export type FillCounts = {
+  targets: number;
+  updated: number;
+  sourceLeaves: number;
+};
+
+export type SyncCounts = {
+  targets: number;
+  written: number;
+  dynamicKeySites: number;
+};
+
+export type ValidateCounts = {
+  missing: number;
+  dynamic: number;
+  keyObservations: number;
+};
+
+export type QualityCounts = {
+  total: number;
+  dynamicKeySites: number;
+};
+
+export type DoctorCounts = {
+  findings: number;
+};
+
+export type ReviewCounts = {
+  locales: number;
+  dynamicKeySites: number;
+};
+
+export type MissingCounts = {
+  pathsAdded: number;
+};
+
+export type CleanupCounts = {
+  wouldRemove: number;
+  dynamicKeySites: number;
+};
+
+export type RunCountsByOperation = {
+  generate: GenerateCounts;
+  fill: FillCounts;
+  sync: SyncCounts;
+  validate: ValidateCounts;
+  quality: QualityCounts;
+  doctor: DoctorCounts;
+  review: ReviewCounts;
+  missing: MissingCounts;
+  cleanup: CleanupCounts;
+};
+
+type RunCompletedEventFor<T extends OperationId> = Omit<RunEventBase, 'op'> & {
+  op: T;
+  type: 'run.completed';
+  at: number;
+  ok: boolean;
+};
+
+export type RunCompletedEvent = {
+  [K in OperationId]: RunCompletedEventFor<K>;
+}[OperationId];
+
+export type RunFailedEvent = RunEventBase & {
+  type: 'run.failed';
+  at: number;
+  error: {
+    /** Stable-ish error identifier for clients (not necessarily an issue code). */
+    name: string;
+    message: string;
+    recoverable: false;
+  };
+};
+
+export type RunWarningEvent = RunEventBase & {
+  type: 'run.warning';
+  at: number;
+  issue: Issue;
+};
+
+export type RunErrorEvent = RunEventBase & {
+  type: 'run.error';
+  at: number;
+  issue: Issue;
+  /** When true, operation may continue and still complete successfully. */
+  recoverable: boolean;
+};
+
+export type ProgressEvent<T extends OperationId> = RunEventBase & {
+  type: `run.progress.${T}`;
+  at: number;
+  current?: number;
+  total?: number;
+  label?: string;
+};
+/** Not all operations emit progress events; only ones with meaningful streaming progress should. */
+
+export type GeneratePhase =
+  | 'scan_dynamic_sites'
+  | 'read_source'
+  | 'resolve_targets'
+  | 'build_target'
+  | 'translate'
+  | 'write_files'
+  | 'done';
+
+export type FillPhase =
+  | 'scan_dynamic_sites'
+  | 'read_source'
+  | 'resolve_targets'
+  | 'build_target'
+  | 'translate'
+  | 'write_files'
+  | 'done';
+
+export type SyncPhase =
+  | 'scan_dynamic_sites'
+  | 'read_source'
+  | 'resolve_targets'
+  | 'build_target'
+  | 'merge'
+  | 'prune'
+  | 'write_files'
+  | 'done';
+
+export type ValidatePhase =
+  | 'scan_sources'
+  | 'extract_keys'
+  | 'read_source'
+  | 'compare'
+  | 'done';
+
+/** Per-operation progress payloads. */
+export type GenerateProgressEvent = ProgressEvent<'generate'> & {
+  target?: string;
+  phase: GeneratePhase;
+  /** Active translation backend — **non-secret** (for logs / `--json` consumers). */
+  providerId?: TranslationProviderId;
+  /** e.g. LLM model id when using an AI provider — **never** API keys or tokens. */
+  translationModel?: string;
+};
+
+export type FillProgressEvent = ProgressEvent<'fill'> & {
+  target?: string;
+  phase: FillPhase;
+  providerId?: TranslationProviderId;
+  translationModel?: string;
+};
+
+export type SyncProgressEvent = ProgressEvent<'sync'> & {
+  target?: string;
+  phase: SyncPhase;
+};
+
+export type ValidateProgressEvent = ProgressEvent<'validate'> & {
+  phase: ValidatePhase;
+};
+
+type RunSummaryEventFor<T extends OperationId> = Omit<RunEventBase, 'op'> & {
+  op: T;
+  type: 'run.summary';
+  at: number;
+  ok: boolean;
+  issueCount: number;
+  counts: RunCountsByOperation[T];
+};
+
+export type RunSummaryEvent = {
+  [K in OperationId]: RunSummaryEventFor<K>;
+}[OperationId];
+
+export type RunEvent =
+  | RunStartedEvent
+  | RunWarningEvent
+  | RunErrorEvent
+  | RunFailedEvent
+  | RunCompletedEvent
+  | RunSummaryEvent
+  | GenerateProgressEvent
+  | FillProgressEvent
+  | SyncProgressEvent
+  | ValidateProgressEvent;
+
+export type RunEmitter = (event: RunEvent) => void;
+

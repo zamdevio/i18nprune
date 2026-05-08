@@ -1,0 +1,10 @@
+export { buildPatchingSectionIncompleteDiagnostic, patchingBlockPresent } from './sectionCompleteness.js';
+export { detectPatchingRecipe } from './recipe.js';
+export { buildPatchPlan } from './planning/index.js';
+export { analyzePatchingState } from './analyze.js';
+export { applyPatchPlanAtomic } from './apply.js';
+export { runPatching } from './run.js';
+export { resolvePatchingConfigLocales } from './resolver.js';
+export { composeLoadersGeneratedFile, renderGeneratedInnerBlock } from './render/index.js';
+export * as planning from './planning/index.js';
+export * as render from './render/index.js';

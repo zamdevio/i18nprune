@@ -1,0 +1,309 @@
+/**
+ * Zod schema for `i18nprune` project config. Field `.describe()` text is surfaced in parse errors
+ * and documents the runtime shape of `I18nPruneConfig`.
+ */
+import { z } from 'zod';
+import { translateSchema } from './translate.js';
+
+const preserveSchema = z
+  .object({
+    copyKeys: z
+      .array(z.string())
+      .optional()
+      .describe('Locale key paths that must mirror the source locale verbatim (exact matches).'),
+    copyPrefixes: z
+      .array(z.string())
+      .optional()
+      .describe('Key path prefixes treated like copyKeys (prefix match).'),
+  })
+  .optional()
+  .describe('Preserve policy: keys/prefixes that must not be freely translated or drifted.');
+
+const paritySchema = z
+  .object({
+    excludeKeys: z
+      .array(z.string())
+      .optional()
+      .describe('Key paths excluded from source-identical / drift checks (exact).'),
+    excludePrefixes: z
+      .array(z.string())
+      .optional()
+      .describe('Key path prefixes excluded from parity checks.'),
+    excludeValues: z
+      .array(z.string())
+      .optional()
+      .describe('Locale string values excluded from parity checks.'),
+  })
+  .optional()
+  .describe('Parity policy: exclusions for “same as source” style checks.');
+
+const policiesSchema = z
+  .object({
+    preserve: preserveSchema,
+    parity: paritySchema,
+  })
+  .optional()
+  .describe('High-level preserve / parity rules used across fill, sync, quality, cleanup, etc.');
+
+const missingCommandSchema = z
+  .object({
+    placeholder: z
+      .string()
+      .optional()
+      .describe('String merged at each new key path for missing; omit for built-in sentinel.'),
+  })
+  .strict()
+  .optional()
+  .describe('Defaults for the missing command.');
+
+const outputSchema = z
+  .object({
+    list: z
+      .object({
+        top: z
+          .number()
+          .int()
+          .positive()
+          .max(100_000)
+          .optional()
+          .describe('Default max rows for bounded human lists when --top is omitted.'),
+        full: z
+          .boolean()
+          .optional()
+          .describe('When true, show all rows where the command supports it.'),
+        maxCap: z
+          .number()
+          .int()
+          .positive()
+          .max(1_000_000)
+          .optional()
+          .describe('Hard ceiling for list size even when full is used.'),
+      })
+      .strict()
+      .optional()
+      .describe('Human-readable list caps for previews and summaries.'),
+  })
+  .strict()
+  .optional()
+  .describe('CLI-wide defaults for human list-style output.');
+
+const referenceDefaultsSchema = z
+  .object({
+    treatCommentedCallSitesAsRuntime: z
+      .boolean()
+      .optional()
+      .describe('When false, translation calls inside comments do not count as runtime evidence.'),
+    treatNonSourceFileSitesAsRuntime: z
+      .boolean()
+      .optional()
+      .describe('When false, non-source file call sites are ignored for uncertainty.'),
+    uncertainKeyPolicy: z
+      .enum(['protect', 'allow', 'warn_only'])
+      .optional()
+      .describe('How dynamic / uncertain key prefixes are handled (protect is safest).'),
+    stringPresence: z
+      .enum(['guard', 'warn', 'off'])
+      .optional()
+      .describe('Whether ripgrep checks locale strings in src before destructive cleanup.'),
+    stringPresenceMaxHitsPerKey: z
+      .number()
+      .int()
+      .positive()
+      .max(1000)
+      .optional()
+      .describe('Max rg JSON matches recorded per key (performance cap).'),
+    respectPreserve: z
+      .boolean()
+      .optional()
+      .describe('When true, fill skips paths matching policies.preserve.'),
+  })
+  .passthrough()
+  .describe('Reference / uncertainty policy fields (defaults or per-operation override).');
+
+const referenceCommandsSchema = z
+  .object({
+    cleanup: referenceDefaultsSchema
+      .optional()
+      .describe('Overrides reference.defaults when running i18nprune cleanup.'),
+    fill: referenceDefaultsSchema
+      .optional()
+      .describe('Overrides reference.defaults when running i18nprune fill.'),
+    sync: referenceDefaultsSchema
+      .optional()
+      .describe('Overrides reference.defaults when running i18nprune sync.'),
+    generate: referenceDefaultsSchema
+      .optional()
+      .describe('Overrides reference.defaults when running i18nprune generate.'),
+  })
+  .passthrough()
+  .describe(
+    'Per-operation reference overrides. Supported keys: cleanup, fill, sync, generate. Unknown keys are preserved for forward compatibility.',
+  )
+  .optional();
+
+const referenceSchema = z
+  .object({
+    defaults: referenceDefaultsSchema
+      .optional()
+      .describe('Baseline merged before reference.commands.<operation> for each operation.'),
+    commands: referenceCommandsSchema,
+  })
+  .passthrough()
+  .optional()
+  .describe('Uncertainty and string-presence policy: defaults plus optional per-operation blocks.');
+
+const excludeSchema = z
+  .object({
+    preset: z
+      .enum(['production'])
+      .optional()
+      .describe('Built-in preset for common production skip sets (when defined).'),
+    dirs: z
+      .array(z.union([z.string(), z.instanceof(RegExp)]))
+      .optional()
+      .describe('Directory names or regexes to skip while scanning.'),
+    files: z
+      .array(z.union([z.string(), z.instanceof(RegExp)]))
+      .optional()
+      .describe('File paths or regexes to skip.'),
+    extensions: z
+      .array(z.union([z.string(), z.instanceof(RegExp)]))
+      .optional()
+      .describe('File extensions to skip.'),
+    patterns: z
+      .array(z.instanceof(RegExp))
+      .optional()
+      .describe('Path regexes to skip under src.'),
+    useDefaultSkip: z
+      .boolean()
+      .optional()
+      .describe('When true, apply built-in directory skips (node_modules, dist, etc.).'),
+  })
+  .strict()
+  .optional()
+  .describe('Scanner skip rules beyond CLI flags.');
+
+const scannerSchema = z
+  .object({
+    mode: z
+      .enum(['serial', 'concurrent', 'auto'])
+      .optional()
+      .describe('Scan worker layout: serial, concurrent, or auto-tuned.'),
+    concurrency: z
+      .number()
+      .int()
+      .positive()
+      .max(4096)
+      .optional()
+      .describe('Worker count hint when mode is concurrent or auto.'),
+    hardCap: z
+      .number()
+      .int()
+      .positive()
+      .max(4096)
+      .optional()
+      .describe('Upper bound on concurrent units (core may clamp).'),
+  })
+  .strict()
+  .optional()
+  .describe('Optional scan orchestration hints.');
+
+const localeLeavesSchema = z
+  .object({
+    mode: z
+      .enum(['structured', 'legacy_string'])
+      .optional()
+      .describe('JSON leaf shape: structured objects vs plain strings.'),
+    sync: z
+      .object({
+        stripMetadata: z
+          .boolean()
+          .optional()
+          .describe('When true, sync may strip structured metadata back to plain strings.'),
+      })
+      .strict()
+      .optional()
+      .describe('Options that apply when running sync.'),
+  })
+  .strict()
+  .optional()
+  .describe('How sync, generate, and fill read/write JSON terminals.');
+
+const patchingSchema = z
+  .object({
+    enabled: z.boolean().optional().describe('Master switch for loader / generated-file patching.'),
+    recipe: z
+      .enum(['loader_generated'])
+      .optional()
+      .describe('Which patching recipe to run when enabled.'),
+    loaderPath: z.string().optional().describe('Path to generated patching loader output (for example src/i18n/loaders.generated.ts).'),
+    configPath: z.string().optional().describe('Path to JSON consumed by the loader.'),
+    localeJsonImportBase: z
+      .string()
+      .optional()
+      .describe(
+        'Path to the locales directory relative to the folder that contains i18nprune.config.* (often the repo root). Core computes import() URLs inside loaders.generated.ts from this.',
+      ),
+    sizeLimitBytes: z
+      .number()
+      .int()
+      .positive()
+      .max(16 * 1024 * 1024)
+      .optional()
+      .describe('Max bytes to read when patching (safety).'),
+    mode: z
+      .enum(['warn_skip', 'strict'])
+      .optional()
+      .describe('warn_skip logs and continues on oversize; strict fails the run.'),
+  })
+  .strict()
+  .optional()
+  .describe('Auto-patch loader wiring for patch / generate --patch.');
+
+export const configSchema = z
+  .object({
+    source: z.string().describe('Path to the source-of-truth locale JSON (e.g. locales/en.json).'),
+    localesDir: z.string().describe('Directory containing locale *.json files (and optional .meta.json sidecars).'),
+    src: z.string().describe('Root directory scanned for translation helper calls.'),
+    functions: z
+      .array(z.string())
+      .min(1)
+      .describe('Function names treated as translation entry points (e.g. t).'),
+    noLocaleMeta: z
+      .boolean()
+      .optional()
+      .describe('When true, generate and fill skip writing <lang>.meta.json sidecars.'),
+    exclude: excludeSchema,
+    output: outputSchema,
+    scanner: scannerSchema,
+    policies: policiesSchema,
+    reference: referenceSchema,
+    localeLeaves: localeLeavesSchema,
+    patching: patchingSchema,
+    missing: missingCommandSchema,
+    translate: translateSchema,
+  })
+  .describe('i18nprune project configuration (merged with defaults then validated by parseI18nPruneConfig).');
+
+export type I18nPruneConfig = z.infer<typeof configSchema>;
+
+export class ConfigValidationError extends Error {
+  constructor(
+    message: string,
+    public readonly zodError?: z.ZodError,
+  ) {
+    super(message);
+    this.name = 'ConfigValidationError';
+  }
+}
+
+export function parseI18nPruneConfig(raw: unknown): I18nPruneConfig {
+  const r = configSchema.safeParse(raw);
+  if (!r.success) {
+    throw new ConfigValidationError(
+      `Invalid i18nprune config: ${r.error.message}`,
+      r.error,
+    );
+  }
+  return r.data;
+}
