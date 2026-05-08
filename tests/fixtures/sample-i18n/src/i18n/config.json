@@ -1,0 +1,16 @@
+{
+  "locales": [
+    {
+      "code": "en",
+      "englishName": "English",
+      "nativeName": "English",
+      "direction": "ltr"
+    },
+    {
+      "code": "ar",
+      "englishName": "Arabic",
+      "nativeName": "العربية",
+      "direction": "rtl"
+    }
+  ]
+}

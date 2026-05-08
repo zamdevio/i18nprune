@@ -1,0 +1,250 @@
+{
+  "app": {
+    "title": {
+      "value": "نموذج لتطبيق i18n",
+      "status": "translated",
+      "confidence": null,
+      "needsReview": true,
+      "needsTranslationAgain": false,
+      "source": "manual"
+    },
+    "description": {
+      "value": "مثال على التطبيق الدولي",
+      "status": "translated",
+      "confidence": null,
+      "needsReview": true,
+      "needsTranslationAgain": false,
+      "source": "manual"
+    },
+    "greeting": {
+      "value": "مرحباً!",
+      "status": "translated",
+      "confidence": null,
+      "needsReview": true,
+      "needsTranslationAgain": false,
+      "source": "manual"
+    },
+    "footer": {
+      "copyright": {
+        "value": "Copyright © 2024",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "privacy": {
+        "value": "Privacy Policy",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "terms": {
+        "value": "Terms of Service",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      }
+    },
+    "nav": {
+      "home": {
+        "value": "بيت",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "about": {
+        "value": "عن",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "contact": {
+        "value": "اتصال",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "profile": {
+        "value": "حساب تعريفي",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "logout": {
+        "value": "تسجيل الخروج",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      }
+    },
+    "does_not_exist": {
+      "value": "",
+      "status": "translated",
+      "confidence": null,
+      "needsReview": true,
+      "needsTranslationAgain": false,
+      "source": "manual"
+    }
+  },
+  "user": {
+    "login": {
+      "title": {
+        "value": "تسجيل الدخول",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "email": {
+        "value": "عنوان البريد الإلكتروني",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "password": {
+        "value": "كلمة المرور",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "submit": {
+        "value": "تسجيل الدخول",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "forgot": {
+        "value": "هل نسيت كلمة السر؟",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      }
+    },
+    "register": {
+      "title": {
+        "value": "يسجل",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "username": {
+        "value": "اسم المستخدم",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "email": {
+        "value": "بريد إلكتروني",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "password": {
+        "value": "كلمة المرور",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "submit": {
+        "value": "إنشاء حساب",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      }
+    },
+    "profile": {
+      "edit": {
+        "value": "تحرير الملف الشخصي",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "save": {
+        "value": "حفظ التغييرات",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "cancel": {
+        "value": "يلغي",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      },
+      "delete": {
+        "value": "حذف الحساب",
+        "status": "translated",
+        "confidence": null,
+        "needsReview": true,
+        "needsTranslationAgain": false,
+        "source": "manual"
+      }
+    }
+  },
+  "notifications": {
+    "success": {
+      "value": "كان العمل ناجحا.",
+      "status": "translated",
+      "confidence": null,
+      "needsReview": true,
+      "needsTranslationAgain": false,
+      "source": "manual"
+    },
+    "error": {
+      "value": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "status": "translated",
+      "confidence": null,
+      "needsReview": true,
+      "needsTranslationAgain": false,
+      "source": "manual"
+    },
+    "logout": {
+      "value": "لقد تم تسجيل خروجك.",
+      "status": "translated",
+      "confidence": null,
+      "needsReview": true,
+      "needsTranslationAgain": false,
+      "source": "manual"
+    }
+  }
+}

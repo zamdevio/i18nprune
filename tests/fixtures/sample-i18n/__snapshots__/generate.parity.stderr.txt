@@ -1,0 +1,34 @@
+[i18nprune] [warn] 3 translation call(s) use a non-literal key — generation follows source JSON paths only; computed keys are not enumerated here.
+
+  [1/29] app.title
+  [2/29] app.description
+  [3/29] app.greeting
+  [4/29] app.footer.copyright
+  [5/29] app.footer.privacy
+  [6/29] app.footer.terms
+  [7/29] app.nav.home
+  [8/29] app.nav.about
+  [9/29] app.nav.contact
+  [10/29] app.nav.profile
+  [11/29] app.nav.logout
+  [12/29] app.does_not_exist
+  [13/29] user.login.title
+  [14/29] user.login.email
+  [15/29] user.login.password
+  [16/29] user.login.submit
+  [17/29] user.login.forgot
+  [18/29] user.register.title
+  [19/29] user.register.username
+  [20/29] user.register.email
+  [21/29] user.register.password
+  [22/29] user.register.submit
+  [23/29] user.profile.edit
+  [24/29] user.profile.save
+  [25/29] user.profile.cancel
+  [26/29] user.profile.delete
+  [27/29] notifications.success
+  [28/29] notifications.error
+  [29/29] notifications.logout
+[i18nprune] [warn] Source locale has 1 string leaf value(s) that are empty or whitespace-only — they were copied without calling the translator. Use `i18nprune sync --metadata` when your project persists structured locale leaves. Sample paths: app.does_not_exist
+[i18nprune] [warn] issue: i18nprune.scan.dynamic_key_sites · https://docs.i18nprune.dev/issues/scan#dynamic-key-sites
+[i18nprune] [warn] issue: i18nprune.generate.source_empty_string_leaves · https://docs.i18nprune.dev/issues/generate#source-empty-string-leaves

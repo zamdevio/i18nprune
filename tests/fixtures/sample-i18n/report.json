@@ -1,0 +1,165 @@
+{
+  "kind": "i18nprune.report",
+  "command": "validate",
+  "ok": true,
+  "durationMs": 104,
+  "counts": {
+    "missing": 0,
+    "dynamic": 3,
+    "keyObservations": 5
+  },
+  "entries": [
+    {
+      "command": "validate",
+      "level": "info",
+      "message": "All scanned literal keys exist in source JSON."
+    },
+    {
+      "command": "validate",
+      "level": "warn",
+      "message": "3 non-literal translation call site(s) found",
+      "data": {
+        "dynamic": [
+          {
+            "kind": "template_interpolation",
+            "functionName": "t",
+            "preview": "t(`${NS}.footer.${'copyright'}`)",
+            "filePath": "src/main.ts",
+            "line": 13,
+            "column": 21,
+            "isMultilineCall": false,
+            "isCommented": false,
+            "isSourceFile": true,
+            "resolvedPrefix": "app.footer"
+          },
+          {
+            "kind": "non_literal",
+            "functionName": "t",
+            "preview": "t(greetingKey)",
+            "filePath": "src/main.ts",
+            "line": 18,
+            "column": 20,
+            "isMultilineCall": false,
+            "isCommented": false,
+            "isSourceFile": true
+          },
+          {
+            "kind": "non_literal",
+            "functionName": "t",
+            "preview": "t(key)",
+            "filePath": "src/main.ts",
+            "line": 29,
+            "column": 47,
+            "isMultilineCall": false,
+            "isCommented": false,
+            "isSourceFile": true
+          }
+        ]
+      }
+    },
+    {
+      "command": "validate",
+      "level": "info",
+      "message": "5 key observation(s) extracted",
+      "data": {
+        "keyObservations": [
+          {
+            "kind": "template_resolved",
+            "resolvedKey": "app.title",
+            "templateRaw": "${NS}.title",
+            "substitutions": [
+              {
+                "identifier": "NS",
+                "value": "app"
+              }
+            ],
+            "span": {
+              "line": 7,
+              "functionName": "t",
+              "isMultilineCall": false,
+              "charOffset": 129,
+              "filePath": "src/main.ts"
+            }
+          },
+          {
+            "kind": "template_resolved",
+            "resolvedKey": "app.nav.about",
+            "templateRaw": "${NS}.nav.${navPage}",
+            "substitutions": [
+              {
+                "identifier": "NS",
+                "value": "app"
+              },
+              {
+                "identifier": "navPage",
+                "value": "about"
+              }
+            ],
+            "span": {
+              "line": 10,
+              "functionName": "t",
+              "isMultilineCall": false,
+              "charOffset": 220,
+              "filePath": "src/main.ts"
+            }
+          },
+          {
+            "kind": "template_partial",
+            "templateRaw": "${NS}.footer.${'copyright'}",
+            "substitutions": [
+              {
+                "identifier": "NS",
+                "value": "app"
+              }
+            ],
+            "unresolvedPlaceholders": [],
+            "span": {
+              "line": 13,
+              "functionName": "t",
+              "isMultilineCall": false,
+              "charOffset": 313,
+              "filePath": "src/main.ts"
+            },
+            "uncertainPrefix": "app.footer"
+          },
+          {
+            "kind": "template_resolved",
+            "resolvedKey": "user.register.username",
+            "templateRaw": "${userNS}.register.username",
+            "substitutions": [
+              {
+                "identifier": "userNS",
+                "value": "user"
+              }
+            ],
+            "span": {
+              "line": 22,
+              "functionName": "t",
+              "isMultilineCall": false,
+              "charOffset": 678,
+              "filePath": "src/main.ts"
+            }
+          },
+          {
+            "kind": "template_resolved",
+            "resolvedKey": "app.does_not_exist",
+            "templateRaw": "${NS}.does_not_exist",
+            "substitutions": [
+              {
+                "identifier": "NS",
+                "value": "app"
+              }
+            ],
+            "span": {
+              "line": 25,
+              "functionName": "t",
+              "isMultilineCall": false,
+              "charOffset": 799,
+              "filePath": "src/main.ts"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

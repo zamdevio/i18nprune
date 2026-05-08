@@ -1,6 +1,6 @@
-# sample-i18n-app
+# sample-i18n
 
-Minimal **fake project** used by **Vitest integration tests** and for **manual CLI** practice. It lives under `tests/fixtures/sample-i18n-app` in the i18nprune repo.
+Minimal **fake project** used by **Vitest integration tests** and for **manual CLI** practice. It lives under `tests/fixtures/sample-i18n` in the i18nprune repo.
 
 **Goal:** run real commands against a tiny tree (`src/`, `locales/`, `i18nprune.config.mjs`) without touching your production app. `**targets.json`** lists locale codes you can loop for `**generate**` drills.
 
@@ -11,8 +11,8 @@ Minimal **fake project** used by **Vitest integration tests** and for **manual C
 ### Option A — install from npm
 
 ```bash
-npm install -g @zamdevio/i18nprune
-cd /path/to/i18nprune/tests/fixtures/sample-i18n-app
+npm install -g i18nprune
+cd /path/to/i18nprune/tests/fixtures/sample-i18n
 ```
 
 ### Option B — link the repo CLI after a local build
@@ -27,7 +27,7 @@ npm link
 That wires the workspace `bin` (`i18nprune` → `dist/cli.js`) onto your PATH. Then:
 
 ```bash
-cd tests/fixtures/sample-i18n-app
+cd tests/fixtures/sample-i18n
 ```
 
 ### Option C — `node` the built entrypoint (no link)
@@ -36,7 +36,7 @@ From the **repository root**:
 
 ```bash
 pnpm build
-cd tests/fixtures/sample-i18n-app
+cd tests/fixtures/sample-i18n
 ```
 
 ```bash

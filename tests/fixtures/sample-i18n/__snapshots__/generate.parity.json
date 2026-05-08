@@ -1,0 +1,788 @@
+{
+  "data": {
+    "dryRun": true,
+    "dynamicKeySites": 3,
+    "force": false,
+    "leavesProcessed": 29,
+    "providerId": "google",
+    "targetResults": [
+      {
+        "fallbackCount": 0,
+        "localeMetadata": {
+          "byReason": {
+            "canonical_metadata_materialized": 0,
+            "invalid_confidence": 0,
+            "invalid_needs_review": 0,
+            "invalid_needs_translation_again": 0,
+            "invalid_source": 0,
+            "invalid_status": 0,
+            "legacy_string_promoted": 0,
+            "missing_value": 0,
+            "non_object_replaced": 0
+          },
+          "changedPathsSample": [],
+          "leafDecisions": [
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Sample i18n App"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Sample i18n App"
+              },
+              "path": "app.title",
+              "reasons": [],
+              "sourceValue": "Sample i18n App"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "An example internationalized application"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "An example internationalized application"
+              },
+              "path": "app.description",
+              "reasons": [],
+              "sourceValue": "An example internationalized application"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Welcome!"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Welcome!"
+              },
+              "path": "app.greeting",
+              "reasons": [],
+              "sourceValue": "Welcome!"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Copyright © 2024"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Copyright © 2024"
+              },
+              "path": "app.footer.copyright",
+              "reasons": [],
+              "sourceValue": "Copyright © 2024"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Privacy Policy"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Privacy Policy"
+              },
+              "path": "app.footer.privacy",
+              "reasons": [],
+              "sourceValue": "Privacy Policy"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Terms of Service"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Terms of Service"
+              },
+              "path": "app.footer.terms",
+              "reasons": [],
+              "sourceValue": "Terms of Service"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Home"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Home"
+              },
+              "path": "app.nav.home",
+              "reasons": [],
+              "sourceValue": "Home"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "About"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "About"
+              },
+              "path": "app.nav.about",
+              "reasons": [],
+              "sourceValue": "About"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Contact"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Contact"
+              },
+              "path": "app.nav.contact",
+              "reasons": [],
+              "sourceValue": "Contact"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Profile"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Profile"
+              },
+              "path": "app.nav.profile",
+              "reasons": [],
+              "sourceValue": "Profile"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Logout"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Logout"
+              },
+              "path": "app.nav.logout",
+              "reasons": [],
+              "sourceValue": "Logout"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": ""
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": ""
+              },
+              "path": "app.does_not_exist",
+              "reasons": [],
+              "sourceValue": ""
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Log In"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Log In"
+              },
+              "path": "user.login.title",
+              "reasons": [],
+              "sourceValue": "Log In"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Email Address"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Email Address"
+              },
+              "path": "user.login.email",
+              "reasons": [],
+              "sourceValue": "Email Address"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Password"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Password"
+              },
+              "path": "user.login.password",
+              "reasons": [],
+              "sourceValue": "Password"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Sign In"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Sign In"
+              },
+              "path": "user.login.submit",
+              "reasons": [],
+              "sourceValue": "Sign In"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Forgot Password?"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Forgot Password?"
+              },
+              "path": "user.login.forgot",
+              "reasons": [],
+              "sourceValue": "Forgot Password?"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Register"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Register"
+              },
+              "path": "user.register.title",
+              "reasons": [],
+              "sourceValue": "Register"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Username"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Username"
+              },
+              "path": "user.register.username",
+              "reasons": [],
+              "sourceValue": "Username"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Email"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Email"
+              },
+              "path": "user.register.email",
+              "reasons": [],
+              "sourceValue": "Email"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Password"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Password"
+              },
+              "path": "user.register.password",
+              "reasons": [],
+              "sourceValue": "Password"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Create Account"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Create Account"
+              },
+              "path": "user.register.submit",
+              "reasons": [],
+              "sourceValue": "Create Account"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Edit Profile"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Edit Profile"
+              },
+              "path": "user.profile.edit",
+              "reasons": [],
+              "sourceValue": "Edit Profile"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Save Changes"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Save Changes"
+              },
+              "path": "user.profile.save",
+              "reasons": [],
+              "sourceValue": "Save Changes"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Cancel"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Cancel"
+              },
+              "path": "user.profile.cancel",
+              "reasons": [],
+              "sourceValue": "Cancel"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Delete Account"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Delete Account"
+              },
+              "path": "user.profile.delete",
+              "reasons": [],
+              "sourceValue": "Delete Account"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Action was successful."
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Action was successful."
+              },
+              "path": "notifications.success",
+              "reasons": [],
+              "sourceValue": "Action was successful."
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Something went wrong. Please try again."
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Something went wrong. Please try again."
+              },
+              "path": "notifications.error",
+              "reasons": [],
+              "sourceValue": "Something went wrong. Please try again."
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "You have been logged out."
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "You have been logged out."
+              },
+              "path": "notifications.logout",
+              "reasons": [],
+              "sourceValue": "You have been logged out."
+            }
+          ],
+          "missingPathsHydratedFromSource": 0,
+          "mode": "structured",
+          "promotedLegacyLeaves": 0,
+          "repairedCorruptLeaves": 0,
+          "strippedStructuredLeaves": 0,
+          "structuredLeavesWritten": 0,
+          "totalSourceLeafPaths": 29,
+          "unchangedLeaves": 29
+        },
+        "markedForReview": 0,
+        "paritySkip": 0,
+        "paths": {
+          "localeJson": "<fixture>/locales/ar.json",
+          "metaJson": "<fixture>/locales/ar.meta.json"
+        },
+        "preserveCount": 0,
+        "progress": {
+          "forced": false,
+          "paritySkipCount": 0,
+          "preserveCount": 0,
+          "processedLeafCount": 29,
+          "requestAttempts": 0,
+          "requestFailures": 0,
+          "requestRetries": 0,
+          "requestSuccesses": 0,
+          "sourceLeafCount": 29,
+          "translatedLeafCount": 28
+        },
+        "providerAttempts": [
+          {
+            "outcome": "success",
+            "providerId": "google"
+          }
+        ],
+        "sourceLeafCount": 29,
+        "status": "dry_run",
+        "target": "ar",
+        "winnerProviderId": "google"
+      }
+    ],
+    "targets": [
+      "ar"
+    ]
+  },
+  "issues": [
+    {
+      "code": "i18nprune.scan.dynamic_key_sites",
+      "docHref": "https://docs.i18nprune.dev/issues/scan#dynamic-key-sites",
+      "docPath": "docs/dynamic/README",
+      "message": "3 translation call(s) use a non-literal key — static analysis cannot enumerate computed keys as fixed paths.",
+      "severity": "warning"
+    },
+    {
+      "code": "i18nprune.generate.source_empty_string_leaves",
+      "docHref": "https://docs.i18nprune.dev/issues/generate#source-empty-string-leaves",
+      "docPath": "docs/issues/generate",
+      "message": "Source locale has 1 string leaf value(s) that are empty or whitespace-only — they were copied without calling the translator. Use `i18nprune sync --metadata` when your project persists structured locale leaves. Sample paths: app.does_not_exist",
+      "severity": "warning"
+    }
+  ],
+  "kind": "generate",
+  "meta": {
+    "apiVersion": "1",
+    "cwd": "<cwd>"
+  },
+  "ok": true
+}

@@ -14,7 +14,8 @@
       "contact": "Contact",
       "profile": "Profile",
       "logout": "Logout"
-    }
+    },
+    "does_not_exist": ""
   },
   "user": {
     "login": {

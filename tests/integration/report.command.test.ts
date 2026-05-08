@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -7,7 +7,21 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
-const fixture = path.join(root, 'tests/fixtures/sample-i18n-app');
+const fixture = path.join(root, 'tests/fixtures/sample-i18n');
+const reportHtml = path.join(root, 'dist/report/index.html');
+const tempDirs: string[] = [];
+
+function makeTempDir(prefix: string): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  tempDirs.push(dir);
+  return dir;
+}
+
+afterEach(() => {
+  for (const dir of tempDirs.splice(0)) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 function runCli(args: string[], cwd: string = fixture): string {
   return execFileSync(process.execPath, [cliJs, ...args], {
@@ -17,9 +31,18 @@ function runCli(args: string[], cwd: string = fixture): string {
   });
 }
 
+function ensureReportHtmlBundle(): void {
+  if (fs.existsSync(reportHtml)) return;
+  execFileSync('pnpm', ['run', 'report:build'], { cwd: root, stdio: 'inherit' });
+  execFileSync(process.execPath, ['packages/report/scripts/build-assets.mjs'], {
+    cwd: root,
+    stdio: 'inherit',
+  });
+}
+
 describe('report command', () => {
   it('writes project report JSON with kind i18nprune.projectReport', () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-report-'));
+    const dir = makeTempDir('i18nprune-report-');
     const out = path.join(dir, 'out.json');
     runCli(['report', '--format', 'json', '--out', out]);
     const raw = fs.readFileSync(out, 'utf8');
@@ -30,7 +53,7 @@ describe('report command', () => {
   });
 
   it('global --json prints CliJsonEnvelope on stdout and still writes --out', () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-report-json-'));
+    const dir = makeTempDir('i18nprune-report-json-');
     const out = path.join(dir, 'out.json');
     const stdout = execFileSync(process.execPath, [cliJs, '--json', 'report', '--format', 'json', '--out', out], {
       cwd: fixture,
@@ -38,10 +61,14 @@ describe('report command', () => {
     });
     const env = JSON.parse(stdout.trim()) as {
       kind?: string;
-      data?: { kind?: string; outputPath?: string | null; document?: { kind?: string } };
+      data?: {
+        format?: string;
+        outputPath?: string | null;
+        document?: { kind?: string };
+      };
     };
     expect(env.kind).toBe('report');
-    expect(env.data?.kind).toBe('report');
+    expect(env.data?.format).toBe('json');
     expect(env.data?.outputPath).toBe(out);
     expect(env.data?.document?.kind).toBe('i18nprune.projectReport');
     const disk = JSON.parse(fs.readFileSync(out, 'utf8')) as { kind?: string };
@@ -49,7 +76,7 @@ describe('report command', () => {
   });
 
   it('report --json when --out already exists uses keep-both path (no interactive prompt)', () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-report-json-collision-'));
+    const dir = makeTempDir('i18nprune-report-json-collision-');
     const out = path.join(dir, 'out.json');
     fs.writeFileSync(out, '{"kind":"stub"}', 'utf8');
     const stdout = execFileSync(process.execPath, [cliJs, '--json', 'report', '--format', 'json', '--out', out], {
@@ -69,7 +96,7 @@ describe('report command', () => {
   });
 
   it('--from validates schema and can emit text from a prior JSON', () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-report-'));
+    const dir = makeTempDir('i18nprune-report-');
     const jsonPath = path.join(dir, 'base.json');
     const txtPath = path.join(dir, 'out.txt');
     runCli(['report', '--format', 'json', '--out', jsonPath]);
@@ -80,7 +107,8 @@ describe('report command', () => {
   });
 
   it('html report is a single self-contained SPA with injected payload', () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-report-html-'));
+    ensureReportHtmlBundle();
+    const dir = makeTempDir('i18nprune-report-html-');
     const out = path.join(dir, 'report.html');
     runCli(['report', '--format', 'html', '--out', out]);
     const html = fs.readFileSync(out, 'utf8');
@@ -96,7 +124,7 @@ describe('report command', () => {
   });
 
   it('fails on --from with wrong kind', () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-report-'));
+    const dir = makeTempDir('i18nprune-report-');
     const bad = path.join(dir, 'bad.json');
     fs.writeFileSync(bad, JSON.stringify({ kind: 'other' }), 'utf8');
     expect(() => runCli(['report', '--from', bad, '--format', 'text', '--out', path.join(dir, 't.txt')])).toThrow();

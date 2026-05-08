@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -7,9 +7,16 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
-const fixture = path.join(root, 'tests/fixtures/sample-i18n-app');
+const fixture = path.join(root, 'tests/fixtures/sample-i18n');
 /** Empty source locale vs one literal key in code — stable `missing` CLI coverage. */
 const missingCliFixture = path.join(root, 'tests/fixtures/missing-cli');
+const tempDirs: string[] = [];
+
+afterEach(() => {
+  for (const dir of tempDirs.splice(0)) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 function runCli(args: string[], cwd: string = fixture): string {
   return execFileSync(process.execPath, [cliJs, ...args], {
@@ -58,11 +65,11 @@ function parseFirstEnvelope(out: string): {
   }
 }
 
-describe('CLI against sample-i18n-app fixture', () => {
+describe('CLI against sample-i18n fixture', () => {
   it('validate reports literal keys vs source JSON (fixture may include missing keys)', () => {
     const out = runCli(['validate']);
     expect(out).toMatch(/validate · (ok|failed) ·/);
-    expect(out).toMatch(/missing( from source JSON)?:/i);
+    expect(out).toMatch(/summary: missing=\d+ · dynamic=\d+/);
   });
 
   it('missing without --yes exits non-zero in non-interactive mode when paths would be added', () => {
@@ -75,11 +82,9 @@ describe('CLI against sample-i18n-app fixture', () => {
     expect(j.kind).toBe('missing');
     expect(j.meta.apiVersion).toBe('1');
     const d = j.data as {
-      kind?: string;
       paths?: string[];
       dryRun?: boolean;
     };
-    expect(d.kind).toBe('missing');
     expect(d.dryRun).toBe(true);
     expect(Array.isArray(d.paths)).toBe(true);
     expect(d.paths).toContain('fixture.missing.alpha');
@@ -91,13 +96,11 @@ describe('CLI against sample-i18n-app fixture', () => {
     expect(j.kind).toBe('fill');
     expect(j.meta.apiVersion).toBe('1');
     const d = j.data as {
-      kind?: string;
       dryRun?: boolean;
       targets?: string[];
       updated?: number;
       targetResults?: { target: string; progress?: { updatedLeafCount?: number; durationMs?: number } }[];
     };
-    expect(d.kind).toBe('fill');
     expect(d.dryRun).toBe(true);
     expect(Array.isArray(d.targets)).toBe(true);
     expect(typeof d.updated).toBe('number');
@@ -115,12 +118,10 @@ describe('CLI against sample-i18n-app fixture', () => {
     expect(j.kind).toBe('generate');
     expect(j.meta.apiVersion).toBe('1');
     const d = j.data as {
-      kind?: string;
       dryRun?: boolean;
       targets?: string[];
       targetResults?: { target: string; progress?: { sourceLeafCount?: number; durationMs?: number } }[];
     };
-    expect(d.kind).toBe('generate');
     expect(d.dryRun).toBe(true);
     expect(d.targets).toContain('so');
     expect(d.targets).toContain('de');
@@ -162,6 +163,7 @@ describe('CLI against sample-i18n-app fixture', () => {
 
   it('validate --json on unreadable source locale prints one JSON envelope (issues[], not logger-only)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-validate-missing-locale-'));
+    tempDirs.push(dir);
     const cfg = `export default {
   source: 'locales/en.json',
   localesDir: 'locales',
@@ -205,24 +207,65 @@ describe('CLI against sample-i18n-app fixture', () => {
     const out = runCli(['--json', 'review']);
     const j = parseFirstEnvelope(out);
     expect(j.kind).toBe('review');
-    const d = j.data as { kind?: string; locales?: Record<string, unknown> };
+    const d = j.data as {
+      kind?: string;
+      locales?: Record<string, { legacyLeaves?: number; structuredLeaves?: number }>;
+    };
     expect(d.kind).toBe('localeReview');
     expect(d.locales).toBeDefined();
+    const ar = d.locales?.['ar.json'];
+    expect(ar).toBeDefined();
+    expect(typeof ar?.legacyLeaves).toBe('number');
+    expect(typeof ar?.structuredLeaves).toBe('number');
+  });
+
+  it('review --json --target ar limits to one locale file', () => {
+    const out = runCli(['--json', 'review', '--target', 'ar']);
+    const j = parseFirstEnvelope(out);
+    expect(j.kind).toBe('review');
+    const d = j.data as { locales?: Record<string, unknown> };
+    expect(Object.keys(d.locales ?? {})).toEqual(['ar.json']);
   });
 
   it('doctor --json returns envelope; data has doctor block', () => {
     const out = runCli(['--json', 'doctor']);
     const j = parseFirstEnvelope(out);
     expect(j.kind).toBe('doctor');
-    const d = j.data as { kind?: string; findings?: unknown[] };
-    expect(d.kind).toBe('doctor');
+    const d = j.data as { findings?: unknown[] };
     expect(Array.isArray(d.findings)).toBe(true);
   });
 
-  it('sync --dry-run prints a human Sync summary footer', () => {
+  it('sync --dry-run prints human sync stats via info logger', () => {
     const out = runCli(['sync', '--dry-run']);
-    expect(out).toMatch(/Sync summary/);
-    expect(out).toMatch(/Duration:\s+\d+ms/);
-    expect(out).toMatch(/target file\(s\)/);
+    expect(out).not.toMatch(/Sync summary/);
+    expect(out).toMatch(/\[i18nprune\] \[info\].*target file\(s\)/);
+    expect(out).toMatch(/sync · ok · \d+ms/);
+  });
+
+  it('sync --json --dry-run with --metadata and --strip-metadata warns and uses legacy mode', () => {
+    const out = runCli(['sync', '--json', '--dry-run', '--target', 'ar', '--metadata', '--strip-metadata']);
+    const j = parseFirstEnvelope(out);
+    expect(j.kind).toBe('sync');
+    const hasConflictIssue = j.issues.some((i) => i.code === 'i18nprune.sync.metadata_flag_conflict');
+    expect(hasConflictIssue).toBe(true);
+    const d = j.data as {
+      localeMetadataReports?: Record<string, { mode?: string }>;
+    };
+    expect(d.localeMetadataReports?.['ar.json']?.mode).toBe('legacy_string');
+  });
+
+  it('cleanup --json --check-only returns cleanup envelope payload', () => {
+    const out = runCli(['cleanup', '--json', '--check-only']);
+    const j = parseFirstEnvelope(out);
+    expect(j.kind).toBe('cleanup');
+    expect(j.meta.apiVersion).toBe('1');
+    const d = j.data as {
+      wouldRemove?: number;
+      keys?: string[];
+      dynamicKeySites?: number;
+    };
+    expect(typeof d.wouldRemove).toBe('number');
+    expect(Array.isArray(d.keys)).toBe(true);
+    expect(typeof d.dynamicKeySites).toBe('number');
   });
 });
