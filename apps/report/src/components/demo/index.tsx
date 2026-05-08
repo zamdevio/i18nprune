@@ -30,9 +30,7 @@ export function DemoBadge({ placement }: DemoBadgeProps): JSX.Element {
     >
       <span className="demo-badge__label">Demo</span>
       <span className="demo-badge__tip" role="tooltip">
-        Real project report data. Reset or compare against <strong>CepatEdge</strong>. This preview is served on our demo
-        subdomain — it is not part of the default HTML bundle from{' '}
-        <code className="mono">i18nprune report</code>.
+        Demo preview only. Features or data may differ from i18nprune CLI-generated reports.
       </span>
     </span>
   );

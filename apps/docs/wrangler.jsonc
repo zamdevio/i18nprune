@@ -1,0 +1,6 @@
+{
+  // Cloudflare Pages — project name → default host docs-i18nprune.pages.dev (custom domain: docs.i18nprune.dev)
+  "name": "docs-i18nprune",
+  "compatibility_date": "2026-04-27",
+  "pages_build_output_dir": ".vitepress/dist"
+}

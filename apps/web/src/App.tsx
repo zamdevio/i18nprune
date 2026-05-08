@@ -1,13 +1,28 @@
-import { ToolVersionProvider } from "./contexts/version";
-import { ThemeProvider } from "./hooks/useTheme";
-import AppRoutes from "./routes";
+import { useState } from 'react';
+import { ThemeProvider } from './context/ThemeContext';
+import { RuntimeHeader } from './components/layout/RuntimeHeader';
+import { useHashRoute } from './hooks/useHashRoute';
+import { HomePage } from './pages/home';
+import { SettingsPage } from './pages/settings';
+import { WorkspacePage } from './pages/workspace';
+import type { WorkspaceSession } from './types/workspace';
 
 export default function App() {
+  const route = useHashRoute();
+  const [workspaceSession, setWorkspaceSession] = useState<WorkspaceSession | null>(null);
+
   return (
     <ThemeProvider>
-      <ToolVersionProvider>
-        <AppRoutes />
-      </ToolVersionProvider>
+      <RuntimeHeader />
+      <main className="page-shell">
+        {route === '/settings' ? (
+          <SettingsPage />
+        ) : route === '/workspace' ? (
+          <WorkspacePage session={workspaceSession} onSessionChange={setWorkspaceSession} />
+        ) : (
+          <HomePage onOpenWorkspace={setWorkspaceSession} />
+        )}
+      </main>
     </ThemeProvider>
   );
 }

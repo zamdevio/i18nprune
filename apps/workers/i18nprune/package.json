@@ -1,0 +1,23 @@
+{
+  "name": "@i18nprune/worker-i18nprune",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/swagger-ui": "^0.5.2",
+    "@i18nprune/core": "workspace:*",
+    "@i18nprune/report": "workspace:*",
+    "fflate": "^0.8.2",
+    "hono": "^4.8.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260410.0",
+    "typescript": "^5.9.0",
+    "wrangler": "^4.54.0"
+  }
+}

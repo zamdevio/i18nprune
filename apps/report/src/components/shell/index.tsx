@@ -4,7 +4,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { PayloadImportPanel } from '../payload-import/index.js';
 import { useReport, useReportImport } from '../../context/report/index.js';
 import { REPORT_SHELL_BRAND } from '../../constants/brand.js';
-import { getDocsUrl, GITHUB_BASE, GITHUB_REPO } from '../../lib/docs.js';
+import { getDocsUrl, GITHUB_BASE, GITHUB_REPO } from '@i18nprune/core';
 import { ThemeToggle } from '../ThemeToggle.js';
 import { ReportSearchBar } from '../search/index.js';
 import { EditorPreferenceDropdown } from '../editor/index.js';
@@ -33,7 +33,9 @@ export function AppShell({ children }: { children: ReactNode }): JSX.Element {
             <span className="badge-version" title="CLI version embedded in this report">
               v{doc.toolVersion}
             </span>
-            <span className="app-brand__meta">{doc.generatedAt}</span>
+            <span className="app-brand__meta" title="Report generation date">
+              {doc.generatedAt}
+            </span>
           </div>
           <div className="app-actions">
             <ThemeToggle />
@@ -60,7 +62,7 @@ export function AppShell({ children }: { children: ReactNode }): JSX.Element {
                 </NavLink>
               ))}
               <button type="button" className="nav-link nav-link--import" onClick={() => setImportOpen(true)}>
-                Import JSON
+                Import Project Report
               </button>
             </>
           : <PayloadImportPanel

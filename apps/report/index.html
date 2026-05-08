@@ -5,7 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <title>i18nprune · project report</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <script>
+      (function () {
+        try {
+          var s = localStorage.getItem("i18nprune-theme");
+          var dark =
+            s === "dark" ||
+            (!s && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.classList.toggle("dark", dark);
+        } catch (_) {}
+      })();
+    </script>
     <!-- JSON payload; replaced by CLI when emitting the final HTML file -->
     <script id="i18nprune-inline-payload" type="application/json">__I18NPRUNE_REPORT__</script>
   </head>

@@ -25,6 +25,11 @@ describe('canUseEditorDeepLinks', () => {
     expect(canUseEditorDeepLinks(env({ platform: 'darwin' }))).toBe(true);
   });
 
+  it('blocks browser and worker report environments', () => {
+    expect(canUseEditorDeepLinks(env({ platform: 'browser' }))).toBe(false);
+    expect(canUseEditorDeepLinks(env({ platform: 'cloudflare-worker' }))).toBe(false);
+  });
+
   it('allows native linux without WSL markers', () => {
     expect(canUseEditorDeepLinks(env({ platform: 'linux', runtimeFamily: 'linux' }))).toBe(true);
     expect(

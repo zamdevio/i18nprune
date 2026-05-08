@@ -11,7 +11,11 @@ export default defineConfig({
   root: dir,
   resolve: {
     alias: {
-      '@zamdevio/i18nprune/report': path.join(
+      '@i18nprune/core': path.join(
+        repoRoot,
+        'packages/core/src/index.ts',
+      ),
+      '@i18nprune/report': path.join(
         repoRoot,
         'packages/report/src/index.ts',
       ),

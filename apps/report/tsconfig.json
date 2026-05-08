@@ -12,7 +12,8 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@zamdevio/i18nprune/report": ["../../packages/report/src/index.ts"],
+      "@i18nprune/core": ["../../packages/core/src/index.ts"],
+      "@i18nprune/report": ["../../packages/report/src/index.ts"],
       "i18nprune/constants": ["../../packages/cli/src/constants/index.ts"]
     }
   },

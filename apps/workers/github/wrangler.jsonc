@@ -1,5 +1,5 @@
 {
-  "name": "i18nprune-github",
+  "name": "github-i18nprune",
   "main": "src/index.ts",
   "compatibility_date": "2026-04-14",
   "durable_objects": {

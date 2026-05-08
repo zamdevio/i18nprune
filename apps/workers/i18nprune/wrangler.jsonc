@@ -1,0 +1,27 @@
+{
+  "name": "worker-i18nprune",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-04-16",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PROJECT_STORE",
+        "class_name": "ProjectStoreDO"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "ProjectStoreDO"
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "worker.i18nprune.dev",
+      "custom_domain": true
+    }
+  ]
+}

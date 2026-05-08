@@ -1,5 +1,5 @@
 {
-  "name": "@zamdevio/i18nprune-extension",
+  "name": "@i18nprune/extension",
   "version": "0.1.0",
   "private": true,
   "type": "module",

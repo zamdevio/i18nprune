@@ -1,0 +1,6 @@
+{
+  // Cloudflare Pages — project name → default host web-i18nprune.pages.dev (custom domain: web.i18nprune.dev)
+  "name": "web-i18nprune",
+  "compatibility_date": "2026-04-26",
+  "pages_build_output_dir": "dist"
+}

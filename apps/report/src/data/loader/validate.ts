@@ -1,7 +1,7 @@
 import {
   PROJECT_REPORT_SCHEMA_VERSION,
   projectReportDocumentSchema,
-} from '@zamdevio/i18nprune/report';
+} from '@i18nprune/report';
 import { ZodError } from 'zod';
 import type { ProjectReportDocument } from '../../types/index.js';
 

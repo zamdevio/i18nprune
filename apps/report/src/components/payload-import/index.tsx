@@ -177,10 +177,10 @@ export function PayloadImportPanel({
     return (
       <div className="payload-import-shell">
         <div className="payload-import-shell__toolbar">
+          <span className="payload-import-shell__title">Import report JSON</span>
           <button type="button" className="btn-secondary payload-import-shell__close" onClick={() => shell.onClose()}>
             Close
           </button>
-          <span className="payload-import-shell__title">Import report JSON</span>
           <button
             type="button"
             className="btn-secondary payload-import-shell__collapse-btn"
