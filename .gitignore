@@ -41,3 +41,6 @@ apps/report/package-lock.json
 # Maintainer scratch (never commit). Rest of `maintainer/` stays tracked for collaborators.
 # Do not gitignore all of `maintainer/` — see `maintainer/README.md`.
 maintainer/temp/
+
+# Cloudflare Workers — local Wrangler caches (sqlite, DO state)
+apps/workers/**/.wrangler/
