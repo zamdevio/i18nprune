@@ -1,0 +1,150 @@
+# Docs refactor phase
+
+Status: Planned
+
+This phase defines how to evolve docs into a clear, official-quality product site without mixing public docs with maintainer-internal planning.
+
+## Why this phase exists
+
+The docs tree has grown quickly during major architecture work. It now needs a dedicated cleanup pass so:
+
+- navigation stays simple and discoverable,
+- topology pages become first-class entry points,
+- content quality is consistent across commands/config/behavior,
+- future sessions can reference one docs refactor source instead of many small checklist bullets.
+
+## Scope
+
+In scope:
+
+- Information architecture cleanup for `docs/**`.
+- Topology discoverability integration across related docs pages.
+- Content quality standards for command/config/behavior/exports pages.
+- Diagram workflow policy (maintainer source + published assets).
+- Release/readiness checks for docs structure quality.
+
+Out of scope:
+
+- command behavior changes,
+- public contract changes (`--json` envelope, issue codes, exit behavior),
+- maintainer planning structure changes outside docs policy alignment.
+
+## Public/internal boundary (locked)
+
+- `docs/**` is public and published.
+- `maintainer/**` is internal planning and source-of-truth for in-flight sequencing.
+- Diagram source files live in `maintainer/diagrams/**`.
+- Published diagram assets used by docs pages live under `apps/docs/.vitepress/public/**`.
+
+## Naming and IA decisions
+
+### Keep `docs/commands/` (do not rename to `docs/operations/`)
+
+Rationale:
+
+- better user mental model (`i18nprune <command>`),
+- stronger SEO/search discoverability,
+- lower migration cost for existing links.
+
+### Topology page naming (minimal)
+
+Under `docs/architecture/topology/`:
+
+- `overview.md`
+- `translation.md`
+- `runtime.md`
+- `provider.md`
+
+Optional future pages:
+
+- `patching.md`
+- `json.md`
+
+## Docs tree minimization rules
+
+Use these rules during refactor; do not force all moves in one PR.
+
+1. If a directory contains only one `README.md` and no sibling pages/assets, consider flattening to `<topic>.md`.
+2. Keep directory `README.md` only when there are sibling sub-pages needing an index.
+3. Avoid adding new top-level folders unless they contain at least 2-3 durable pages.
+4. Prefer cross-links over duplicate prose.
+5. Keep command docs as command-first pages; architecture/system flow belongs in topology pages.
+
+## Topology discoverability pattern
+
+Related pages should include a short architecture/topology section using this pattern:
+
+```md
+## Architecture
+
+See:
+- Topology: Translation
+- Topology: Runtime
+- Topology: Provider
+```
+
+Apply to:
+
+- `docs/commands/*` pages related to translation/provider/runtime behavior,
+- `docs/config/*` where settings affect topology-level behavior,
+- `docs/behavior/*` where runtime/output policy is explained.
+
+## "Official docs site" quality standard
+
+Each public page should target this minimum structure:
+
+1. What this page is for
+2. When to use it
+3. Core concepts / contract
+4. Practical examples
+5. Troubleshooting / edge cases (or link)
+6. Related pages (including topology links when relevant)
+
+Quality checks:
+
+- concise headings,
+- no stale internal-path assumptions in public docs,
+- no maintainer-only references as clickable public links.
+
+## Candidate IA consolidation map (planning only)
+
+These are candidates to evaluate during the phase, not mandatory immediate moves:
+
+- `docs/json/**` may be reduced to a smaller sub-page set if overlap is high.
+- small single-file directories across `docs/**` may be flattened where rule #1 applies.
+- topology links should be added to major command/config/behavior pages before any large folder moves.
+
+Any move must preserve:
+
+- stable internal links,
+- docs site sidebar coherence,
+- migration notes for renamed paths.
+
+## Execution slices (recommended)
+
+1. **Topology linkage sweep**
+   - Add architecture/topology sections to related command/config/behavior pages.
+2. **Template normalization**
+   - Align major pages with the quality standard sections above.
+3. **IA flattening pass**
+   - Apply minimization rules to low-value single-file directories.
+4. **Navigation polish**
+   - Ensure docs index and architecture hubs reflect final topology-first navigation.
+5. **Release validation**
+   - run docs build and architecture graph checks.
+
+## Validation / release gates for this phase
+
+- `pnpm docs:sync`
+- docs site build (`apps/docs` VitePress build path)
+- run Madge checks documented in `docs/madge/README.md` before release tagging
+- verify no broken links introduced by IA moves
+
+## Relationship to v1 sessions
+
+Sessions A-D may land architecture changes that require topology updates.
+This phase is the docs-side companion and should be referenced whenever:
+
+- core/CLI ownership boundaries move,
+- provider/runtime flows change,
+- command behavior docs need re-linking to topology pages.
