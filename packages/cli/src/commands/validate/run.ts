@@ -21,6 +21,7 @@ import { attachWallTimer } from '@/utils/timer/index.js';
 function pushValidateReportEntriesFromEnvelope(
   ctx: { config: I18nPruneConfig },
   envelope: ReturnType<typeof runValidate>,
+  fullDynamicSites: DynamicKeySite[],
 ): void {
   const { missing, dynamic, keyObservations } = envelope.data;
   const window = resolveCliListWindow(ctx.config);
@@ -33,7 +34,7 @@ function pushValidateReportEntriesFromEnvelope(
 
   const view = buildValidateReportView({
     missing,
-    dynamicSites: dynamic.sites,
+    dynamicSites: fullDynamicSites,
     keyObservations: keyObservations.observations,
     listLimit: window.limit,
   });
@@ -72,7 +73,7 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
       issues: mergeIssues(envelope.issues, issuesFromPatchingDiagnostics(patchingAnalysis.diagnostics)),
     };
 
-    pushValidateReportEntriesFromEnvelope(ctx, envelope);
+    pushValidateReportEntriesFromEnvelope(ctx, envelope, fullDynamicSites);
     if (ctx.run.json) {
       console.log(stringifyEnvelope(envelope));
       if (!envelope.ok) {

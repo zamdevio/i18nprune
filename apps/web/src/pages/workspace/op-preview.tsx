@@ -158,6 +158,10 @@ export function OpPreview({ title, payload }: Props) {
               ))}
             </ul>
           </>
+        ) : dyn !== undefined && dyn > 0 ? (
+          <p className="muted op-preview__hint">
+            Listing: run <code className="text-xs font-mono">i18nprune locales dynamic</code>.
+          </p>
         ) : null}
         {koObs.length > 0 ? (
           <>

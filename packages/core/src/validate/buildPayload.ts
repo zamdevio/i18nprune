@@ -12,7 +12,6 @@ export type ValidateScanPayload = {
   count: number;
   dynamic: {
     count: number;
-    sites: DynamicKeySite[];
   };
   keyObservations: {
     count: number;
@@ -22,7 +21,6 @@ export type ValidateScanPayload = {
 
 /**
  * Build validate result data from scan outputs (pure — no filesystem).
- * Caps match CLI `runValidate` / `runValidateCore`.
  */
 export function buildValidateScanPayload(input: {
   sourceLocaleJson: unknown;
@@ -46,7 +44,6 @@ export function buildValidateScanPayload(input: {
     count: ko.length,
     dynamic: {
       count: dyn.length,
-      sites: dyn.slice(0, window.limit),
     },
     keyObservations: {
       count: ko.length,

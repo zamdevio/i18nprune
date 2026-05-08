@@ -284,7 +284,7 @@ export default function ApiPage() {
           <SectionIntro title="i18nprune/core — scanning without the envelope">
             <p>
               <strong className="font-medium text-foreground">What:</strong> lower-level primitives — same heuristics as{" "}
-              <code className="font-mono text-xs">validate</code> — when you need raw literals, dynamic sites, or custom
+              <code className="font-mono text-xs">validate</code> — when you need raw literals, dynamic counts, or custom
               reporting before wrapping a <code className="font-mono text-xs">run*</code> call.
             </p>
             <p>

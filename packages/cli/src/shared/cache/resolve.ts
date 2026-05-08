@@ -6,6 +6,7 @@ import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import { measureQualityEnglishIdentical } from '@/shared/quality/measure.js';
 import { computeReviewReport } from '@/shared/review/report.js';
 import { resolveProjectReportData } from './reportData.js';
+import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { ValidateJsonOutput } from '@/types/command/validate/index.js';
 import type { QualityOptions } from '@/types/command/quality/index.js';
@@ -28,7 +29,7 @@ export function resolveValidateData(
     const data: ValidateJsonOutput = {
       missing,
       count: keyObservations.length,
-      dynamic: { count: dynamicSites.length, sites: dynamicSites.slice(0, window.limit) },
+      dynamic: { count: dynamicSites.length },
       keyObservations: { count: keyObservations.length, observations: keyObservations.slice(0, window.limit) },
     };
     return {
@@ -48,7 +49,9 @@ export function resolveValidateData(
     };
   } catch {
     const envelope = runValidate(ctx, { runId });
-    return { envelope, fullDynamicSites: envelope.data.dynamic.sites };
+    const scanInput = toExtractorScanInput(ctx);
+    const fullDynamicSites = extractor.dynamic.scanProjectDynamicKeySites(scanInput);
+    return { envelope, fullDynamicSites };
   }
 }
 

@@ -24,7 +24,7 @@ function emptyValidateData(): ValidateJsonOutput {
   return {
     missing: [],
     count: 0,
-    dynamic: { count: 0, sites: [] },
+    dynamic: { count: 0 },
     keyObservations: { count: 0, observations: [] },
   };
 }

@@ -9,18 +9,22 @@ i18nprune locales dynamic
 i18nprune locales dynamic --top 20
 i18nprune locales dynamic --full
 i18nprune locales dynamic --json
+i18nprune locales dynamic --json --top 50
+i18nprune locales dynamic --json --full
 ```
 
 | Flag | Meaning |
 |------|---------|
-| **`--top <n>`** | **Human output only:** max lines of sites to print (default **10**). Ignored when global **`--json`** is active. |
-| **`--full`** | **Human output only:** print every site. Ignored with **`--json`**. |
+| **`--top <n>`** | Max rows in **`sites[]`** (human output and **`--json`**; default **10** unless **`--full`**). |
+| **`--full`** | Include **every** site in **`sites[]`** (human and **`--json`**; overrides **`--top`**). |
 
 ## JSON mode
 
-With global **`--json`**, stdout is one **`CliJsonEnvelope`** (`kind`: **`locales-dynamic`**) whose **`data.dynamic`** matches the **`validate`** shape: **`count`** and full **`sites[]`** (`DynamicKeySite`). **`data`** also includes **`sourceLocalePath`**, **`sourceLocaleCode`**, and display metadata (**`top`**, **`full`**, **`shown`**) for human-mode parity; **`--top` / `--full` do not cap or alter the JSON site list**.
+With global **`--json`**, stdout is one **`CliJsonEnvelope`** (`kind`: **`locales-dynamic`**). **`data.dynamic`** has **`count`** (total matched sites) and **`sites[]`** (capped by **`--top`** / **`--full`** — same rules as human output). **`data`** also includes **`sourceLocalePath`**, **`sourceLocaleCode`**, **`top`**, **`full`**, and **`shown`** (`sites.length` for this emission).
 
-For the same scan with literal-key **`missing`**, use **`i18nprune validate --json`**.
+The root CLI also declares **`--top`** / **`--full`** (shared flags). Typical invocations **`i18nprune --json locales dynamic --top N`** / **`… --full`** resolve the same as placing those flags immediately after **`dynamic`**.
+
+For **missing literal keys** and the same dynamic **count** in one envelope, use **`i18nprune validate --json`**.
 
 ## See also
 

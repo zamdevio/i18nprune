@@ -110,7 +110,9 @@ export async function localesDynamic(opts: LocalesDynamicOptions = {}, run?: Run
         }
         if (sites.length > shownSites.length) {
           logger.primary(
-            style.dim(`  … ${String(sites.length - shownSites.length)} more (use --full or \`locales dynamic --json\`)`),
+            style.dim(
+              `  … ${String(sites.length - shownSites.length)} more (use --full or e.g. \`locales dynamic --json --top 50\`)`,
+            ),
             r,
           );
         }

@@ -144,13 +144,13 @@ describe('CLI against sample-i18n fixture', () => {
     const d = j.data as {
       count?: number;
       keyObservations?: { count: number };
-      dynamic?: { count: number; sites: unknown[] };
+      dynamic?: { count: number; sites?: unknown[] };
       missing?: string[];
     };
     expect(d.dynamic).toBeDefined();
     expect(d.count).toBe(d.keyObservations?.count);
     expect(typeof d.dynamic?.count).toBe('number');
-    expect(Array.isArray(d.dynamic?.sites)).toBe(true);
+    expect(d.dynamic).not.toHaveProperty('sites');
     expect(Array.isArray(d.missing)).toBe(true);
     expect(Array.isArray(j.issues)).toBe(true);
     if (d.missing !== undefined && d.missing.length > 0) {
@@ -267,5 +267,28 @@ describe('CLI against sample-i18n fixture', () => {
     expect(typeof d.wouldRemove).toBe('number');
     expect(Array.isArray(d.keys)).toBe(true);
     expect(typeof d.dynamicKeySites).toBe('number');
+  });
+
+  it('locales dynamic --json respects --top and --full', () => {
+    const fullRaw = runCli(['--json', 'locales', 'dynamic', '--full']);
+    const full = parseFirstEnvelope(fullRaw) as unknown as {
+      kind: string;
+      data: { dynamic: { count: number; sites: unknown[] }; full: boolean };
+    };
+    expect(full.kind).toBe('locales-dynamic');
+    expect(full.data.full).toBe(true);
+    expect(full.data.dynamic.sites).toHaveLength(full.data.dynamic.count);
+
+    const topRaw = runCli(['--json', 'locales', 'dynamic', '--top', '2']);
+    const top = parseFirstEnvelope(topRaw) as unknown as {
+      kind: string;
+      data: { dynamic: { count: number; sites: unknown[] }; shown: number; full: boolean };
+    };
+    expect(top.kind).toBe('locales-dynamic');
+    expect(top.data.dynamic.count).toBe(full.data.dynamic.count);
+    const cap = Math.min(2, full.data.dynamic.count);
+    expect(top.data.dynamic.sites).toHaveLength(cap);
+    expect(top.data.shown).toBe(cap);
+    expect(top.data.full).toBe(false);
   });
 });

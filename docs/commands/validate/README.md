@@ -15,4 +15,4 @@ i18nprune validate --json
 
 Uses config **`functions`**, **`src`**, and resolved **source** path. See [CLI overview](../../cli/README.md) and [verbosity](../../cli/verbosity/README.md).
 
-**`validate --json`:** **`data.count`** matches **`data.keyObservations.count`** (literal key observations scanned). Keys in code missing from the source locale JSON are **`data.missing`** — use **`missing.length`** for that total, not **`data.count`**.
+**`validate --json`:** **`data.count`** matches **`data.keyObservations.count`** (literal key observations; **`keyObservations.observations`** may be list-window capped like other commands). Keys in code missing from the source locale JSON are **`data.missing`** — use **`missing.length`** for that total, not **`data.count`**. **`data.dynamic.count`** summarizes non-literal call sites; **`issues[]`** may include the usual warnings. For file:line **`sites[]`**, use **`i18nprune locales dynamic`** (including **`--json`** with **`--top`** / **`--full`**).

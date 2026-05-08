@@ -543,12 +543,16 @@ localesCmd
   )
   .option(
     '--top <n>',
-    'max dynamic sites in human output (default: 10)',
+    'max dynamic sites listed in output (human and `--json`; default: 10 unless `--full`)',
   )
-  .option('--full', 'show every dynamic site in human output (overrides --top)', false)
-  .action(async (opts: { top?: string; full?: boolean }) => {
-    const top = getRunOptions().json ? undefined : parseCliPositiveIntTop(opts.top, 'locales dynamic: --top');
-    await localesDynamic({ top, full: getRunOptions().json ? false : Boolean(opts.full) });
+  .option('--full', 'list every dynamic site in output (human and `--json`; overrides `--top`)', false)
+  .action(async (opts: { top?: string; full?: boolean }, cmd: Command) => {
+    const root = cmd.parent?.parent;
+    const rootOpts =
+      typeof root?.opts === 'function' ? (root.opts() as { top?: string; full?: boolean }) : {};
+    const top = parseCliPositiveIntTop(opts.top ?? rootOpts.top, 'locales dynamic: --top');
+    const rootFull = Boolean(rootOpts.full);
+    await localesDynamic({ top, full: Boolean(opts.full) || rootFull });
   });
 
 localesCmd

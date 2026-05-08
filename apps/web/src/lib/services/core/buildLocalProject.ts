@@ -146,7 +146,6 @@ export function localValidateData(session: LocalProjectSession) {
     count: snapshot.extraction.keyObservationsCount,
     dynamic: {
       count: snapshot.extraction.dynamicSitesCount,
-      sites: snapshot.extraction.dynamicSitesPreview,
     },
     keyObservations: {
       count: snapshot.extraction.keyObservationsCount,

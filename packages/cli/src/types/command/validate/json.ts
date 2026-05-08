@@ -1,9 +1,8 @@
-import type { DynamicKeySite } from '@/types/core/extractor/dynamic/index.js';
 import type { KeyObservation } from '@/types/core/extractor/keySites/index.js';
 
 /**
  * Payload shape for `i18nprune validate --json`.
- * Arrays may be capped in practice (see command implementation); treat as **additive** — new fields may appear.
+ * Key observations may be capped (list window); treat as **additive** — new fields may appear.
  */
 export type ValidateJsonOutput = {
   missing: string[];
@@ -11,7 +10,6 @@ export type ValidateJsonOutput = {
   count: number;
   dynamic: {
     count: number;
-    sites: DynamicKeySite[];
   };
   keyObservations: {
     count: number;

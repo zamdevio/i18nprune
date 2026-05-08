@@ -34,7 +34,6 @@ export function validateRoute(app: Hono<WorkerEnv>): void {
       count: project.snapshot.extraction.keyObservationsCount,
       dynamic: {
         count: project.snapshot.extraction.dynamicSitesCount,
-        sites: project.snapshot.extraction.dynamicSitesPreview,
       },
       keyObservations: {
         count: project.snapshot.extraction.keyObservationsCount,

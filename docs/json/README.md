@@ -40,7 +40,7 @@ With global **`--json`**, these subcommands print **one primary `CliJsonEnvelope
 - **`fill`:** `data.targetResults[]` includes per-target **`progress`** (**`TargetProgressSummary`**) alongside paths and counts. See [Fill command](../commands/fill/README.md).
 - **`locales`:** each implemented subcommand uses its own envelope **`kind`** (`locales-list`, `locales-edit`, `locales-dynamic`, `locales-delete`); typed under `packages/cli/src/types/command/locales/json.ts`.
 - **`report`:** still uses **`--format`** for the **on-disk** artifact (`html`, `json`, `csv`, `text`). Global **`--json`** adds the **stdout envelope**; `data.document` is the same **`i18nprune.projectReport`** object (and `data.outputPath` is the resolved write path, or `null` if skipped). See [Report command](../commands/report/README.md#global-json). If **`--out`** already exists, **`--json`** (like CI / **`--yes`**) uses **keep-both** without prompting — [existing paths](../commands/report/README.md#existing-output-paths-report--out-and-global-stdout redirection).
-- **`validate`:** **`data.count`** equals **`data.keyObservations.count`** (scanned literal keys); missing keys are **`data.missing`**. See [Validate command](../commands/validate/README.md).
+- **`validate`:** **`data.missing`**, literal scan summary (**`data.count`** / **`data.keyObservations`**), and **`data.dynamic.count`** for non-literal call sites — same “summary in **`--json`**” style as other commands. See [Validate command](../commands/validate/README.md); call-site rows: [`locales dynamic`](../commands/locales/dynamic/README.md).
 
 ### Shape of stdout (primary JSON commands)
 

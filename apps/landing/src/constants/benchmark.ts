@@ -3,7 +3,7 @@
  * `time` captures. Update when you re-run `tree` / `validate --json` on that tree.
  *
  * Tree: `tree -I 'node_modules|dist|.next|out'` → dirs + files below.
- * Validate: one `validate --json` on that tree — literal key observations (`data.count`), dynamic call sites
+ * Validate: one `validate --json` on that tree — literal key observations (`data.count`), dynamic call-site count (`data.dynamic.count`)
  * (`data.dynamic.count`); wall times in screenshots were sub-second.
  */
 export const BENCHMARK_CASE_STUDY = {

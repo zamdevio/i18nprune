@@ -227,7 +227,7 @@ export const openApiDocument = {
         tags: ['operations'],
         summary: 'Run read-only validate from cached extraction',
         description:
-          'Returns CLI-compatible validate JSON fields (`missing`, `count`, `dynamic`, `keyObservations`) from upload-time cached extraction.',
+          'Returns CLI-compatible validate `data` from upload-time cached extraction (`missing`, `count`, `dynamic`, `keyObservations`). Non-literal call-site rows match the CLI (`locales dynamic --json`).',
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
         requestBody: {
           required: false,
