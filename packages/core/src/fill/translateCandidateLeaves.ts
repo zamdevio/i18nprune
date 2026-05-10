@@ -1,7 +1,7 @@
 import { setAtPath } from '../shared/json/index.js';
 import { localePathLooksTranslatedFromSource } from '../shared/translator/localePathTranslated.js';
 import { localeJsonValueFromTranslation, translateLeaf } from '../shared/translator/index.js';
-import { TranslateRunInterruptedError } from '../generate/translateRunInterruptedError.js';
+import { TranslateRunInterruptedError } from '../translator/errors/interrupted.js';
 import { mapWithConcurrencyWithProgress } from '../shared/translator/utils/orchestration.js';
 import { isFillCandidateLeaf } from './eligibleLeaves.js';
 import type { ReviewLeafRow } from '../review/collectReviewLeaves.js';

@@ -13,8 +13,8 @@ import { assertGenerateTargetCodes } from '../locales/generateTargets.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
 import { ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES, ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT } from '../shared/constants/issueCodes.js';
 import { I18nPruneError } from '../shared/errors/index.js';
-import { translateAndNormalizeGenerateLocale } from './translateAndNormalize.js';
-import { TranslateRunInterruptedError } from './translateRunInterruptedError.js';
+import { translateAndNormalizeGenerateLocale } from './normalize.js';
+import { TranslateRunInterruptedError } from '../translator/errors/interrupted.js';
 import { resolveTranslator, translationRunMeta } from '../shared/translator/providers/registry.js';
 import {
   assertTranslationProviderCredentialsReady,

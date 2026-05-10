@@ -1,7 +1,7 @@
 import { I18nPruneError } from '@i18nprune/core';
 import {
   createCoreContext,
-  normalizeGeneratePromptLang,
+  normalizeLanguageCode,
   parseLocaleCodesList,
   pickTargetSelector,
   runGenerate,
@@ -67,7 +67,7 @@ export async function executeGenerate(
   }
   const targets = rawTarget
     ? parseLocaleCodesList(rawTarget)
-    : [normalizeGeneratePromptLang((await promptLanguageCodeOnly(ctx.run)).trim())];
+    : [normalizeLanguageCode((await promptLanguageCodeOnly(ctx.run)).trim())];
   if (targets.length === 0) {
     throw new I18nPruneError('generate: no target locale codes provided', 'USAGE');
   }

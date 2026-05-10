@@ -4,7 +4,7 @@ import { isPreservePath } from '../policies/preserve.js';
 import { localeJsonValueFromTranslation, translateLeaf } from '../shared/translator/index.js';
 import { localePathLooksTranslatedFromSource } from '../shared/translator/localePathTranslated.js';
 import { mapWithConcurrencyWithProgressOrderedSequential } from '../shared/translator/utils/orchestration.js';
-import { TranslateRunInterruptedError } from './translateRunInterruptedError.js';
+import { TranslateRunInterruptedError } from '../translator/errors/interrupted.js';
 import type { TranslationResult } from '../types/translator/result.js';
 import type { StringLeaf } from '../types/json/index.js';
 import type { ParityPolicy, PreservePolicy } from '../types/policies/index.js';

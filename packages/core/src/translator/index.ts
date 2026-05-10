@@ -5,6 +5,7 @@
  * re-implementing them.
  */
 
+export * from './errors/index.js';
 export * from './identity/index.js';
 export * from './limits/index.js';
 export * from './policy/index.js';

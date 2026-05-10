@@ -3,7 +3,7 @@ import type { TranslationProviderId } from './providers.js';
 import type { TranslationLeafMeta } from './result.js';
 import type { TranslationTickProgressFn } from '../progress/tick.js';
 import type { ProviderAttemptOutcome } from '../../translator/policy/fallback.js';
-import type { TranslateRunPartialStats } from '../../generate/translateRunInterruptedError.js';
+import type { TranslateRunPartialStats } from './runStats.js';
 
 /**
  * Re-export so SDK consumers building **`TranslateOptions`** don't need to know which sub-module

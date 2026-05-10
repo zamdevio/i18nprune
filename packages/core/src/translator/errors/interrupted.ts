@@ -1,15 +1,9 @@
-/** Stats captured when translation stops before all planned leaves finished (provider retry resume). */
-export type TranslateRunPartialStats = {
-  readonly requestAttempts: number;
-  readonly retriesMade: number;
-  readonly successfulLeaves: number;
-  readonly failedRequests: number;
-};
+import type { TranslateRunPartialStats } from '../../types/translator/runStats.js';
 
 /**
- * Thrown when **`translateLeaf`** fails mid-run while **`generate`** / **`fill`** already committed
- * earlier leaf updates into **`partialLocaleJson`**. Host may retry with another provider using that
- * snapshot so completed paths are not re-translated.
+ * Thrown when **`translateLeaf`** fails mid-run while the translator pool / serial loop has already
+ * committed earlier leaf updates into **`partialLocaleJson`**. Callers (currently **`runGenerate`** and
+ * **`fill`**) catch this so a fallback provider can resume without re-translating completed paths.
  */
 export class TranslateRunInterruptedError extends Error {
   override readonly name = 'TranslateRunInterruptedError';

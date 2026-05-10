@@ -167,7 +167,6 @@ export * as extractor from './namespaces/extractor.js';
 
 export * as generate from './namespaces/generate.js';
 export {
-  normalizeGeneratePromptLang,
   buildTranslatedLocaleFromSourceLeaves,
   localeJsonHasKeyPath,
   translateAndNormalizeGenerateLocale,

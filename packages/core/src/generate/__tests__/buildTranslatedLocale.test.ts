@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { buildTranslatedLocaleFromSourceLeaves } from '../buildTranslatedLocale.js';
-import { TranslateRunInterruptedError } from '../translateRunInterruptedError.js';
+import { TranslateRunInterruptedError } from '../../translator/errors/interrupted.js';
 import type { Translator } from '../../types/translator/index.js';
 
 describe('buildTranslatedLocaleFromSourceLeaves', () => {

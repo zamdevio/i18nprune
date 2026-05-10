@@ -8,7 +8,7 @@
  */
 
 import type { TranslationProviderId } from '../translator/providers.js';
-import type { TranslateRunPartialStats } from '../../generate/translateRunInterruptedError.js';
+import type { TranslateRunPartialStats } from '../translator/runStats.js';
 import type { ProviderAttemptReportJson } from './generateRun.js';
 
 /**
