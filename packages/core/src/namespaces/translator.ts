@@ -28,3 +28,21 @@ export {
 } from '../shared/translator/utils/orchestration.js';
 export type { ResolveTranslateMaxParallelInput, TranslateLeafJob, TranslateOrchestrationLimits } from '../shared/translator/utils/orchestration.js';
 export type { ProviderRateLimitProfile, ProviderRateLimitRegistry, TranslateStartRateLimit } from '../types/translator/rateLimit.js';
+export {
+  buildIdentityStreakIssue,
+  createIdentityStreakGuard,
+  IDENTITY_STREAK_SAMPLE_MAX,
+  IDENTITY_STREAK_THRESHOLD,
+  IdentityAbortError,
+  isIdentityTranslation,
+  nextIdentityStreakState,
+} from '../translator/identity/index.js';
+export type {
+  IdentitySample,
+  IdentityStreakConfirmFn,
+  IdentityStreakConfirmInput,
+  IdentityStreakGuard,
+  IdentityStreakGuardOptions,
+  IdentityStreakInteractive,
+  IdentityStreakState,
+} from '../translator/identity/index.js';

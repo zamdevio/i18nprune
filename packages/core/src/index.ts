@@ -31,6 +31,13 @@ export {
   mapWithConcurrency,
   resolveTranslateMaxParallel,
   TRANSLATE_WORKERS_CAP,
+  buildIdentityStreakIssue,
+  createIdentityStreakGuard,
+  IDENTITY_STREAK_SAMPLE_MAX,
+  IDENTITY_STREAK_THRESHOLD,
+  IdentityAbortError,
+  isIdentityTranslation,
+  nextIdentityStreakState,
 } from './namespaces/translator.js';
 export type { ResolveTranslateMaxParallelInput } from './namespaces/translator.js';
 export type {
@@ -42,6 +49,13 @@ export type {
   TranslationProviderYield,
   TranslationProvidersListPayload,
   TranslationResult,
+  IdentitySample,
+  IdentityStreakConfirmFn,
+  IdentityStreakConfirmInput,
+  IdentityStreakGuard,
+  IdentityStreakGuardOptions,
+  IdentityStreakInteractive,
+  IdentityStreakState,
 } from './namespaces/translator.js';
 
 export * as json from './namespaces/json.js';

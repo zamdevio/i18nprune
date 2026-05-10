@@ -10,9 +10,9 @@ import { createSessionProgress } from '@/shared/progress/session.js';
 import { createFillTickProgressRelay } from '@/shared/progress/tickRelay.js';
 import { bindTranslationProgressTick } from '@/shared/progress/translation.js';
 import { translationMetaForEnvelope } from '@/shared/translation/resolveProvider.js';
+import { IdentityAbortError } from '@i18nprune/core';
 import {
   createIdentityStreakGuard,
-  IdentityAbortError,
   logIdentityStreakAbortNoWriteNotice,
 } from '@/shared/translator/identity.js';
 import { existsRuntimeFsSync } from '@i18nprune/core';

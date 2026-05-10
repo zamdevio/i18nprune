@@ -19,9 +19,9 @@ import {
   resolveCliTranslateMaxParallelEffective,
   resolveCliTranslateRateLimitEffective,
 } from '@/shared/translation/resolveTranslateParallel.js';
+import { IdentityAbortError } from '@i18nprune/core';
 import {
   createIdentityStreakGuard,
-  IdentityAbortError,
   logIdentityStreakAbortNoWriteNotice,
 } from '@/shared/translator/identity.js';
 import {
