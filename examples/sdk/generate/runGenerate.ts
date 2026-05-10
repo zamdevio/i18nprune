@@ -4,7 +4,7 @@
  * Demonstrates the L2 contract for the generate op:
  *
  *   1. Build `RuntimeAdapters` (no auto-default — every host passes their own).
- *   2. Load config + source locale through those adapters.
+ *   2. Author config with `defineConfig` in `i18nprune.config.ts` and import it.
  *   3. Build `CoreContext` (config + adapters + env + paths + optional run flags).
  *   4. Implement a minimal headless `GenerateHostHooks` (no TTY, no prompts).
  *   5. (Optional) Implement `GenerateRunHooks` for mid-run decisions.
@@ -14,7 +14,7 @@
  *
  *   pnpm tsx examples/sdk/generate/runGenerate.ts
  *
- * (uses the public `mymemory` provider — no API key, but a real network call).
+ * Uses the public `google` web-translate backend — no API key, but a real network call.
  */
 
 import * as nodeFs from 'node:fs';
@@ -26,8 +26,6 @@ import {
   runGenerate,
   // L2 builder
   createCoreContext,
-  // Config validation (zod-backed)
-  parseI18nPruneConfig,
   // Identity guard primitive (pure)
   createIdentityStreakGuard,
   // Errors / control
@@ -37,11 +35,12 @@ import type {
   GenerateHostHooks,
   GenerateRunHooks,
   GenerateRunOptions,
-  I18nPruneConfig,
   RunOptions,
   RuntimeAdapters,
 } from '@i18nprune/core';
 import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
+
+import config from './i18nprune.config.js';
 
 // ---------------------------------------------------------------------------
 // 1. Adapters — explicit, no auto-default. Workers / web / edge would build
@@ -50,19 +49,13 @@ import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 const adapters: RuntimeAdapters = createNodeRuntimeAdapters();
 
 // ---------------------------------------------------------------------------
-// 2. Load config + source locale. `parseI18nPruneConfig` runs the same zod
-//    schema the CLI uses, so a malformed config fails loudly instead of
-//    crashing deep inside `runGenerate`. (For a richer pipeline see
-//    `loadCoreConfigFromPath` from `@i18nprune/core`.)
+// 2. Config — authored in `i18nprune.config.ts` with `defineConfig`. The result
+//    is already typed as `I18nPruneConfig`, so it drops straight into
+//    `createCoreContext`. (Use `parseI18nPruneConfig` instead when accepting
+//    raw input from a REST/DB caller, or `loadCoreConfigFromPath` for full
+//    file-on-disk loading with layering and warnings.)
 // ---------------------------------------------------------------------------
 const exampleDir = nodePath.dirname(new URL(import.meta.url).pathname);
-const configPath = nodePath.join(exampleDir, 'i18nprune.config.json');
-// `parseI18nPruneConfig` returns the zod-derived shape; cast to the friendly
-// `I18nPruneConfig` view used by `createCoreContext` (same runtime data, tighter TS).
-const config = parseI18nPruneConfig(
-  JSON.parse(nodeFs.readFileSync(configPath, 'utf8')),
-) as I18nPruneConfig;
-
 const sourceLocalePath = nodePath.resolve(exampleDir, 'locales/en.json');
 const sourceRaw: unknown = JSON.parse(nodeFs.readFileSync(sourceLocalePath, 'utf8'));
 
@@ -96,7 +89,7 @@ const ctx = createCoreContext({
 //    SDK consumer formats output themselves from the returned `payload`).
 //
 //    Compare this surface to the CLI's flavor in
-//    `packages/cli/src/commands/generate/run.ts` to see the trade-offs.
+//    `packages/cli/src/commands/generate/hooks.ts` to see the trade-offs.
 // ---------------------------------------------------------------------------
 const host: GenerateHostHooks = {
   emitProgress: () => {},

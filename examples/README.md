@@ -23,7 +23,7 @@ Examples are added **as each op finishes its core migration**. The locked order 
 Every example must:
 
 1. **Compile** under the root `tsconfig.json` (no separate tsconfig). The `examples/**/*.ts` glob is included; just write `.ts`.
-2. **Run as `pnpm tsx examples/sdk/<op>/<file>.ts`** from repo root, with no API keys for the public path. Use `mymemory` for translate / generate; mock or skip for ops that need paid providers.
+2. **Run as `pnpm tsx examples/sdk/<op>/<file>.ts`** from repo root, with no API keys for the public path. Use the public `google` web backend for translate / generate; mock or skip for ops that need paid providers.
 3. **Show, top to bottom, in this exact order**:
    1. Build `RuntimeAdapters` (explicit; never auto-default).
    2. Load config + project files via the adapters.
