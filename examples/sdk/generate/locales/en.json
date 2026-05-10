@@ -1,0 +1,13 @@
+{
+  "app": {
+    "title": "Welcome to the example",
+    "description": "This is a small source-locale file used by the runGenerate SDK example.",
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel"
+    }
+  },
+  "errors": {
+    "network": "We couldn't reach the network. Please try again."
+  }
+}

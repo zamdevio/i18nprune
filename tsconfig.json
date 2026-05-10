@@ -46,6 +46,7 @@
   "include": [
     "i18nprune.config.ts",
     "i18nprune.config.ts.example",
+    "examples/**/*.ts",
     "packages/core/src/**/*.ts",
     "packages/cli/bin/**/*.ts",
     "packages/cli/src/**/*.ts",
