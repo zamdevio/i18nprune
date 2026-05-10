@@ -1,15 +1,45 @@
 import { DEFAULT_CONFIG } from '../defaults/index.js';
 import { clampTranslateMaxWorkers } from './translate.js';
-import type { I18nPruneConfig } from './root.js';
+import type { I18nPruneConfig } from '../index.js';
 
 /**
- * Typed `defineConfig` for `i18nprune.config.*`.
- * Merges partial user input with defaults and normalizes selected fields.
+ * Typed helper for **`i18nprune.config.{ts,mts,cts,js,mjs,cjs}`** files. Merges partial user input
+ * with **`DEFAULT_CONFIG`** and normalizes a few fields (notably **`translate.workers`** clamping)
+ * so the returned value matches what the CLI / SDK see at runtime.
+ *
+ * Returns the public friendly **`I18nPruneConfig`** directly — drop it straight into
+ * **`createCoreContext`**:
+ *
+ * @example
+ * ```ts
+ * // i18nprune.config.ts
+ * import { defineConfig } from '@i18nprune/core';
+ *
+ * export default defineConfig({
+ *   source: 'locales/en.json',
+ *   localesDir: 'locales',
+ *   src: 'src',
+ *   functions: ['t'],
+ *   translate: {
+ *     primary: 'google',
+ *     providers: [{ id: 'google' }],
+ *   },
+ * });
+ * ```
+ *
+ * @remarks
+ * - **`.json`** configs are intentionally not loaded by the CLI - see
+ *   **`SUPPORTED_CONFIG_EXTENSIONS`** in **`packages/cli/src/shared/config/paths.ts`**.
+ * - For runtime-validated input from REST / DB / generated sources, use
+ *   **`parseI18nPruneConfig`** instead - it runs the same zod schema and surfaces field errors via
+ *   **`ConfigValidationError`**.
+ * - Call this once per project; the file is loaded by the CLI host (or by an SDK consumer with
+ *   **`loadCoreConfigFromPath`**).
  */
 export function defineConfig(config: Partial<I18nPruneConfig>): I18nPruneConfig {
   const refDef = DEFAULT_CONFIG.reference?.defaults;
   const refCmd = DEFAULT_CONFIG.reference?.commands;
-  return {
+  const merged = {
     ...DEFAULT_CONFIG,
     ...config,
     noLocaleMeta: config.noLocaleMeta ?? DEFAULT_CONFIG.noLocaleMeta,
@@ -36,4 +66,6 @@ export function defineConfig(config: Partial<I18nPruneConfig>): I18nPruneConfig 
           }
         : DEFAULT_CONFIG.translate,
   };
+  // Same runtime shape as `I18nPruneConfigParsed`; cast surfaces the friendly authoring view.
+  return merged as I18nPruneConfig;
 }

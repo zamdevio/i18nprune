@@ -187,7 +187,7 @@ describe('parseI18nPruneConfig', () => {
     expect(c.translate?.primary).toBe('llm');
     const llm = c.translate?.providers.find((p) => p.id === 'llm');
     expect(llm).toMatchObject({ model: 'gpt-test', baseUrl: 'https://api.example.com/v1' });
-    expect(c.translate?.policy.routing).toBe('single');
+    expect(c.translate?.policy?.routing).toBe('single');
   });
 
   it('rejects duplicate translate.providers id values', () => {
@@ -254,7 +254,7 @@ describe('parseI18nPruneConfig', () => {
         policy: { routing: 'auto' },
       },
     });
-    expect(c.translate?.policy.routing).toBe('auto');
+    expect(c.translate?.policy?.routing).toBe('auto');
   });
 
   it('rejects stray keys on google row', () => {

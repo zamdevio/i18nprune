@@ -27,8 +27,7 @@ export async function loadConfig(): Promise<I18nPruneConfig> {
     ...DEFAULT_CONFIG,
     ...(typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {}),
   };
-  const parsed = parseI18nPruneConfig(merged);
-  return parsed as I18nPruneConfig;
+  return parseI18nPruneConfig(merged);
 }
 
 export { ConfigValidationError };

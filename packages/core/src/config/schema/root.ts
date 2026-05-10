@@ -4,6 +4,7 @@
  */
 import { z } from 'zod';
 import { translateSchema } from './translate.js';
+import type { I18nPruneConfig } from '../index.js';
 
 const preserveSchema = z
   .object({
@@ -285,8 +286,21 @@ export const configSchema = z
   })
   .describe('i18nprune project configuration (merged with defaults then validated by parseI18nPruneConfig).');
 
-export type I18nPruneConfig = z.infer<typeof configSchema>;
+/**
+ * Direct **`z.infer`** of {@link configSchema}. Internal — used by **`schema/define.ts`** /
+ * **`defaults/app.ts`** to type the spread / merge bodies. Public callers should use the friendly
+ * **`I18nPruneConfig`** from **`@i18nprune/core/config`** (or the root barrel).
+ *
+ * The two shapes are runtime-identical; the friendly version retypes **`reference`**,
+ * **`translate`**, and **`policies`** with stricter authoring-time interfaces.
+ */
+export type I18nPruneConfigParsed = z.infer<typeof configSchema>;
 
+/**
+ * Thrown by **`parseI18nPruneConfig`** (and **`loadCoreConfigFromPath`**) when an input value
+ * fails the zod schema. Carries the underlying **`zodError`** so callers can surface field-level
+ * issues (CLI uses it to emit **`ConfigValidationError`** issue codes).
+ */
 export class ConfigValidationError extends Error {
   constructor(
     message: string,
@@ -297,6 +311,25 @@ export class ConfigValidationError extends Error {
   }
 }
 
+/**
+ * Validate a raw object against the zod-backed config schema and return the public friendly
+ * **`I18nPruneConfig`**. Throws **`ConfigValidationError`** on invalid input.
+ *
+ * Use this when accepting config from untrusted sources (REST, DB, CLI args, generated
+ * fixtures). For files on disk prefer **`loadCoreConfigFromPath`** — it handles TS / JS
+ * loaders, layering with **`DEFAULT_CONFIG`**, and warning collection on top of this primitive.
+ *
+ * The returned value drops straight into **`createCoreContext`** and **`createTranslateContext`**
+ * with no further cast.
+ *
+ * @example
+ * ```ts
+ * import { parseI18nPruneConfig } from '@i18nprune/core';
+ *
+ * const config = parseI18nPruneConfig(await db.fetchProjectConfig(projectId));
+ * const ctx = createCoreContext({ config, adapters, env, paths });
+ * ```
+ */
 export function parseI18nPruneConfig(raw: unknown): I18nPruneConfig {
   const r = configSchema.safeParse(raw);
   if (!r.success) {
@@ -305,5 +338,7 @@ export function parseI18nPruneConfig(raw: unknown): I18nPruneConfig {
       r.error,
     );
   }
-  return r.data;
+  // Same runtime data as `I18nPruneConfigParsed`; the friendly view re-types a few fields with
+  // stricter authoring interfaces (no shape change, no field removed/added).
+  return r.data as I18nPruneConfig;
 }

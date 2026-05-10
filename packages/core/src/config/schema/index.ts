@@ -5,4 +5,4 @@ export {
   ConfigValidationError,
   parseI18nPruneConfig,
 } from './root.js';
-export type { I18nPruneConfig } from './root.js';
+export type { I18nPruneConfigParsed } from './root.js';

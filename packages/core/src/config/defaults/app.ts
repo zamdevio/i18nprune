@@ -1,7 +1,7 @@
-import type { I18nPruneConfig } from '../schema/root.js';
+import type { I18nPruneConfigParsed } from '../schema/root.js';
 
 export type ReferenceCommandOverrides = NonNullable<
-  NonNullable<I18nPruneConfig['reference']>['commands']
+  NonNullable<I18nPruneConfigParsed['reference']>['commands']
 >['cleanup'];
 
 /** Baseline reference policy copied into defaults and per-command overrides. */
@@ -15,7 +15,7 @@ export const REFERENCE_POLICY_SAFE_DEFAULTS: ReferenceCommandOverrides = {
 };
 
 /** Canonical app config defaults (shared by all hosts). */
-export const DEFAULT_CONFIG: I18nPruneConfig = {
+export const DEFAULT_CONFIG: I18nPruneConfigParsed = {
   source: 'locales/en.json',
   localesDir: 'locales',
   src: 'src',

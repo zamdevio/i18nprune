@@ -1,15 +1,15 @@
-import type { I18nPruneConfig as CoreI18nPruneConfig } from './schema/index.js';
+import type { I18nPruneConfigParsed } from './schema/index.js';
 import type { ReferenceConfig as CoreReferenceConfig } from '../types/reference/index.js';
 import type { ParityPolicy, PreservePolicy } from '../types/policies/index.js';
 import type { ScanExcludeConfig, ScannerConfigInput } from '../types/scanner/index.js';
 import type { PatchingConfigInput } from '../types/patching/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
 
-export { defineConfig } from './schema/index.js';
 export {
   clampTranslateMaxWorkers,
   configSchema,
   ConfigValidationError,
+  defineConfig,
   parseI18nPruneConfig,
 } from './schema/index.js';
 /** Optional per-backend rate-limit knobs (merged with provider defaults when omitted). */
@@ -180,7 +180,7 @@ export type TranslateConfig = {
 /**
  * Fully merged i18nprune project config (file + defaults + parse normalization).
  */
-export type I18nPruneConfig = Omit<CoreI18nPruneConfig, 'reference' | 'translate' | 'policies'> & {
+export type I18nPruneConfig = Omit<I18nPruneConfigParsed, 'reference' | 'translate' | 'policies'> & {
   /** Absolute or project-relative path to the **source-of-truth** locale JSON (e.g. **`locales/en.json`**). */
   source: string;
   /** Directory containing **`*.json`** locale files (and optional **`<code>.meta.json`** sidecars). */
@@ -224,6 +224,7 @@ export type I18nPruneConfig = Omit<CoreI18nPruneConfig, 'reference' | 'translate
   /** Translation providers and orchestration defaults. */
   translate?: TranslateConfig;
 };
+
 export { CORE_CONFIG_DEFAULT_INPUT } from './defaults/index.js';
 export { DEFAULT_CONFIG, REFERENCE_POLICY_SAFE_DEFAULTS } from './defaults/index.js';
 export { loadCoreConfigFromPath, tryLoadCoreConfigFromPath } from './resolve/index.js';
