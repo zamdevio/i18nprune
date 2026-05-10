@@ -1,0 +1,191 @@
+import type { I18nPruneConfig } from '../../config/index.js';
+import type { Issue } from '../json/envelope/index.js';
+import type { LocaleMetadataReport } from '../localeLeaves/index.js';
+import type { RuntimeAdapters } from '../runtime/adapters.js';
+import type { RunOptions } from '../runtime/index.js';
+import type { TranslationProviderId } from '../translator/providers.js';
+import type { TranslatorEnv } from '../../shared/constants/translate.js';
+import type { IdentityStreakGuard } from '../../translator/identity/guard.js';
+import type { IdentityAbortError } from '../../translator/identity/error.js';
+import type { TranslationTickProgressFn } from '../progress/index.js';
+import type { RunEmitter, RunEvent } from '../../shared/run/index.js';
+import type { ProviderAttemptOutcome } from '../../translator/policy/fallback.js';
+
+/** Shared per-target counters for JSON payloads (CLI-compatible). */
+export type GenerateTargetProgressSummary = {
+  sourceLeafCount?: number;
+  processedLeafCount?: number;
+  translatedLeafCount?: number;
+  preserveCount?: number;
+  paritySkipCount?: number;
+  forced?: boolean;
+  durationMs?: number;
+  requestAttempts?: number;
+  requestRetries?: number;
+  requestSuccesses?: number;
+  requestFailures?: number;
+};
+
+/** Resolved project paths (absolute); hosts compute once (CLI: `resolveContext`). */
+export type CoreResolvedPaths = {
+  readonly sourceLocale: string;
+  readonly localesDir: string;
+  readonly srcRoot: string;
+};
+
+/**
+ * L2 bundle for project ops (`runGenerate`, future `runQuality`, …). Same adapters/env rules as
+ * {@link TranslateContext}: required, no runtime defaults inside core.
+ */
+export type CoreContext = {
+  readonly config: I18nPruneConfig;
+  readonly adapters: RuntimeAdapters;
+  readonly env: TranslatorEnv;
+  readonly paths: CoreResolvedPaths;
+  readonly run?: RunOptions;
+};
+
+export type GenerateProgressEmit = (
+  e: Omit<Extract<RunEvent, { type: 'run.progress.generate' }>, 'op' | 'runId' | 'at'>,
+) => void;
+
+/** Session progress API produced by the host (CLI: {@link createSessionProgress}). */
+export type GenerateHostSession = {
+  readonly progress: {
+    tick(
+      current: number,
+      total: number,
+      label: string,
+      options?: import('../progress/index.js').TranslationTickProgressOptions,
+    ): void;
+    pauseClock?(opts?: { clearBar?: boolean }): void;
+    resumeClock?(): void;
+  };
+  finish(): void;
+  fail(): void;
+};
+
+export type GenerateFinalizeSummaryInput = {
+  target: string;
+  englishName: string;
+  nativeName: string;
+  direction: 'ltr' | 'rtl';
+  targetPath: string;
+  metaPath: string | null;
+  leafCount: number;
+  showMeta: boolean;
+  dryRun?: boolean;
+};
+
+export type MetaLocaleDefaults = {
+  englishName: string;
+  nativeName: string;
+  direction: 'ltr' | 'rtl';
+};
+
+/**
+ * CLI / Worker wires TTY, prompts, progress bars, and JSON **`run.progress`** here — core stays free of
+ * **`console.*`** and **`process.*`**.
+ */
+export type GenerateHostHooks = {
+  emitProgress: GenerateProgressEmit;
+  emit?: RunEmitter;
+  runId?: string;
+
+  createSession: () => GenerateHostSession;
+
+  createIdentityStreakGuard: (
+    target: string,
+    clock: { pauseClock?: () => void; resumeClock?: () => void },
+  ) => IdentityStreakGuard;
+
+  buildTickProgressRelay: (input: {
+    tick: GenerateHostSession['progress']['tick'];
+    target: string;
+    translationMeta: { providerId: TranslationProviderId; translationModel?: string };
+  }) => TranslationTickProgressFn;
+
+  /** Optional decorative newline before provider-fallback warning (CLI cursor lift). */
+  beforeProviderFallbackWarn?: () => void;
+
+  log: {
+    info?: (msg: string) => void;
+    warn?: (msg: string) => void;
+  };
+
+  shouldSkipInteractivePrompts: () => boolean;
+  canAskInteractive: () => boolean;
+
+  promptMetaLocaleDetails: (defaults: MetaLocaleDefaults) => Promise<MetaLocaleDefaults>;
+  promptFullRetranslate: () => Promise<boolean>;
+
+  printSessionBanner: () => void;
+  printPreserveParityReport: (preserveCount: number, paritySkip: number) => void;
+  printFinalizeSummary: (input: GenerateFinalizeSummaryInput) => void;
+
+  onIdentityAbortNotice: (err: IdentityAbortError, opts: { dryRun: boolean }) => void;
+};
+
+export type ProviderAttemptReportJson = {
+  providerId: TranslationProviderId;
+  outcome: ProviderAttemptOutcome;
+};
+
+/** One row in {@link GenerateJsonPayload.targetResults}. */
+export type GenerateTargetJsonRow = {
+  target: string;
+  status: 'written' | 'dry_run' | 'skipped_user_declined';
+  progress?: GenerateTargetProgressSummary;
+  sourceLeafCount?: number;
+  preserveCount?: number;
+  paritySkip?: number;
+  providerAttempts?: ProviderAttemptReportJson[];
+  winnerProviderId?: TranslationProviderId;
+  fallbackCount?: number;
+  markedForReview?: number;
+  paths?: { localeJson: string; metaJson: string | null };
+  localeMetadata?: LocaleMetadataReport;
+};
+
+/** Payload inside `CliJsonEnvelope<'generate', …>` — stable JSON contract. */
+export type GenerateJsonPayload = {
+  kind: 'generate';
+  providerId?: TranslationProviderId;
+  dryRun: boolean;
+  force: boolean;
+  targets: string[];
+  dynamicKeySites: number;
+  leavesProcessed: number;
+  targetResults: GenerateTargetJsonRow[];
+};
+
+/**
+ * Per-call options for {@link runGenerate}. **`targets`** must be resolved by the host (interactive
+ * prompt or `--target` parse). **`resume`** reserved for fill-style top-ups (wired in a follow-up slice).
+ */
+export type GenerateRunOptions = {
+  readonly targets: readonly string[];
+  readonly dynamicKeySites: number;
+  readonly source?: string;
+  readonly provider?: string;
+  readonly workers?: number;
+  readonly englishName?: string;
+  readonly nativeName?: string;
+  readonly direction?: 'ltr' | 'rtl';
+  readonly force?: boolean;
+  readonly dryRun?: boolean;
+  readonly metadata?: boolean;
+  readonly noLocaleMeta?: boolean;
+  readonly resume?: boolean;
+  /**
+   * When the CLI has already read the source JSON and emitted **`read_source`**, pass it here to avoid a
+   * second read and preserve **`run.progress`** ordering (**`read_source` → `resolve_targets`**).
+   */
+  readonly preloadedRaw?: unknown;
+};
+
+export type GenerateRunResult = {
+  payload: GenerateJsonPayload;
+  /** Issues owned by generate (identity streak, empty-source warnings). Host merges discovery warnings. */
+  issues: Issue[];
+};

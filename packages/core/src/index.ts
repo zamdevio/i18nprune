@@ -94,6 +94,19 @@ export type {
   IdentityStreakState,
 } from './namespaces/translator.js';
 
+export { createCoreContext, translateContextFromCore } from './generate/context.js';
+export { runGenerate, resolveGenerateDirectionDefault } from './generate/run.js';
+export type {
+  CoreContext,
+  CoreResolvedPaths,
+  GenerateHostHooks,
+  GenerateJsonPayload,
+  GenerateRunOptions,
+  GenerateRunResult,
+  GenerateTargetJsonRow,
+  GenerateTargetProgressSummary,
+} from './types/generate/generateRun.js';
+
 export * as json from './namespaces/json.js';
 export { collectStringLeaves, targetLocaleCoversAllSourcePaths } from './namespaces/json.js';
 export { applyPreserveFromSource, mergeToTemplateShape, pruneToTemplateShape } from './namespaces/json.js';
