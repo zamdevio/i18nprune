@@ -11,12 +11,16 @@
 
 ## CLI entry
 
-- **`runGenerate`:** `packages/cli/src/commands/generate/runGenerate.ts` (async)
-- **Execution body:** `packages/cli/src/commands/generate/execute.ts` → **`executeGenerate`**
+- **`generate`:** `packages/cli/src/commands/generate/run.ts` (async). Single-file shell —
+  argv merge, source read, target prompt, **`CoreContext`** + **`GenerateHostHooks`** build,
+  delegates to **`runGenerate`** in core, renders JSON envelope or human summary.
 
 ## Core & shared
 
-- Translation pipeline, **`translateLeaf`**, provider resolution, **`applyLocaleLeafNormalization`** after target writes (see `execute.ts`).
+- **`runGenerate`** in `packages/core/src/generate/run.ts` owns translation orchestration,
+  provider fallback, identity guard, locale-leaf normalization, and file IO via
+  **`RuntimeAdapters`**. SDK consumers can call it directly with their own
+  **`GenerateHostHooks`** (see `examples/sdk/generate/`).
 
 ## `run.*` events
 

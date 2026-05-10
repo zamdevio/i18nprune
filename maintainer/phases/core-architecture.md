@@ -484,7 +484,7 @@ export async function runGenerateCommand(cliCtx: CliContext, merged: GenerateOpt
 }
 ```
 
-`commands/generate/execute.ts` deletes outright in 5.b.3; only `run.ts` (thin shell), `prompts.ts`, `summary/`, and `index.ts` remain. The CLI is still needed for argv, prompts, banners, env, and TTY-only side effects.
+`commands/generate/execute.ts`, `commands/generate/runGenerate.ts`, and `commands/generate/hostBridge.ts` deleted in 5.b.3; only `run.ts` (single-file shell), `prompts.ts`, `summary/`, `env.ts`, and `index.ts` remain. The CLI is still needed for argv, prompts, banners, env, and TTY-only side effects.
 
 ---
 

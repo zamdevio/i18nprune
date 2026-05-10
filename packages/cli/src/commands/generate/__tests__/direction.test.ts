@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveGenerateDirectionDefault } from '@/commands/generate/execute.js';
+import { resolveGenerateDirectionDefault } from '@i18nprune/core';
 
 describe('resolveGenerateDirectionDefault', () => {
   it('prefers explicit direction when provided', () => {
