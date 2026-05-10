@@ -16,8 +16,13 @@ export type {
   CoreResolvedPaths,
   GenerateHostHooks,
   GenerateJsonPayload,
+  GenerateRunHooks,
   GenerateRunOptions,
   GenerateRunResult,
   GenerateTargetJsonRow,
   GenerateTargetProgressSummary,
-} from '../types/generate/generateRun.js';
+  HandoffOffer,
+  IncompleteRunDecision,
+  IncompleteRunInfo,
+  IncompleteRunReason,
+} from '../types/generate/index.js';

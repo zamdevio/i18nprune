@@ -101,11 +101,16 @@ export type {
   CoreResolvedPaths,
   GenerateHostHooks,
   GenerateJsonPayload,
+  GenerateRunHooks,
   GenerateRunOptions,
   GenerateRunResult,
   GenerateTargetJsonRow,
   GenerateTargetProgressSummary,
-} from './types/generate/generateRun.js';
+  HandoffOffer,
+  IncompleteRunDecision,
+  IncompleteRunInfo,
+  IncompleteRunReason,
+} from './types/generate/index.js';
 
 export * as json from './namespaces/json.js';
 export { collectStringLeaves, targetLocaleCoversAllSourcePaths } from './namespaces/json.js';
