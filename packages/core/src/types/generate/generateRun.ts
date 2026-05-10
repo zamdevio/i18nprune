@@ -9,6 +9,7 @@ import type { IdentityStreakGuard } from '../../translator/identity/guard.js';
 import type { IdentityAbortError } from '../../translator/identity/error.js';
 import type { TranslationTickProgressFn } from '../progress/index.js';
 import type { RunEmitter, RunEvent } from '../../shared/run/index.js';
+import type { TranslateFailureOutcome } from '../../translator/policy/classify.js';
 import type { ProviderAttemptOutcome } from '../../translator/policy/fallback.js';
 
 /** Shared per-target counters for JSON payloads (CLI-compatible). */
@@ -137,7 +138,13 @@ export type GenerateHostHooks = {
 
 export type ProviderAttemptReportJson = {
   providerId: TranslationProviderId;
+  /** Legacy coarse bucket for CLI summaries (`rate_limited` / `network_error` / `non_retryable_error` / `success`). */
   outcome: ProviderAttemptOutcome;
+  /**
+   * Fine-grained failure taxonomy from {@link classifyTranslateFailure} — present on **failed**
+   * attempts only (`translate-policy.md` step 8, `--json` `targetResults[].providerAttempts[]`).
+   */
+  translateFailureOutcome?: TranslateFailureOutcome;
 };
 
 /** One row in {@link GenerateJsonPayload.targetResults}. */

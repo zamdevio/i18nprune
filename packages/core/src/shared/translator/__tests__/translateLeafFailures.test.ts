@@ -7,7 +7,7 @@ import {
 } from '../../constants/issueCodes.js';
 
 describe('translateLeaf failure issue codes', () => {
-  it('sets decision=review when merged metadata requests review', async () => {
+  it('sets decision=review and mirrors needsReview=true when merged metadata requests review', async () => {
     const provider: Translator = {
       async translate() {
         return { text: 'hello', leafMeta: { needsReview: true } };
@@ -15,6 +15,18 @@ describe('translateLeaf failure issue codes', () => {
     };
     const out = await translateLeaf(provider, 'hi', 'en', 'so', { providerId: 'google' });
     expect(out.decision).toBe('review');
+    expect(out.leafMeta.needsReview).toBe(true);
+  });
+
+  it('sets decision=translated and needsReview=false on a clean translation', async () => {
+    const provider: Translator = {
+      async translate() {
+        return { text: 'hola', leafMeta: { confidence: 0.9 } };
+      },
+    };
+    const out = await translateLeaf(provider, 'hello', 'en', 'es', { providerId: 'google' });
+    expect(out.decision).toBe('translated');
+    expect(out.leafMeta.needsReview).toBe(false);
   });
 
   it('attaches rate limit issue for HTTP 429 errors', async () => {

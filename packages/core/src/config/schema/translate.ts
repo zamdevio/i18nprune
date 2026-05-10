@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { TRANSLATE_WORKERS_CAP } from '../../shared/translator/utils/orchestration.js';
+import { TRANSLATE_POLICY_DEFAULTS } from '../../types/translator/policy.js';
 
 /** Clamp `translate.workers` / CLI `--workers` to `1…64`. */
 export function clampTranslateMaxWorkers(n: number): number {
@@ -99,23 +100,65 @@ const translateProviderRowSchema = z.discriminatedUnion('id', [
 
 const translatePrimaryIdSchema = z.enum(['google', 'mymemory', 'libre', 'deepl', 'llm']);
 
+/**
+ * Locked translate-policy schema. Each `on*` key takes a single verb from
+ * {@link TranslatePolicyVerb}. Source: `maintainer/phases/translate-policy.md` §3.
+ *
+ * `.strict()` rejects typos. All keys optional — defaults are
+ * {@link TRANSLATE_POLICY_DEFAULTS} except `maxAttempts`, which resolves to
+ * `providers.length` in the parent transform once the chain is known.
+ */
 const translatePolicySchema = z
   .object({
     routing: z
       .enum(['single', 'auto'])
-      .default('single')
-      .describe('single: one backend per run. auto: ordered fallback chain across enabled providers for retryable backend failures.'),
-    onRateLimitResponse: z
-      .enum(['backoff', 'fail'])
-      .default('backoff')
-      .describe('How HTTP 429-heavy runs should behave once orchestration reads this flag.'),
+      .default(TRANSLATE_POLICY_DEFAULTS.routing)
+      .describe(
+        'single: one backend per run. auto: ordered fallback chain across enabled providers for retryable backend failures.',
+      ),
+    onRateLimit: z
+      .enum(['backoff', 'retry', 'fallback', 'abort'])
+      .default(TRANSLATE_POLICY_DEFAULTS.onRateLimit)
+      .describe('Action for HTTP 429 / "too many requests" outcomes.'),
     onTransientFailure: z
-      .enum(['retry', 'fail'])
-      .default('retry')
-      .describe('How intermittent network / 5xx behaviour is classified once orchestration reads this flag.'),
+      .enum(['retry', 'fallback', 'abort'])
+      .default(TRANSLATE_POLICY_DEFAULTS.onTransientFailure)
+      .describe('Action for transient network blips and ECONNRESET-style errors.'),
+    onQuotaExceeded: z
+      .enum(['fallback', 'prompt', 'abort'])
+      .default(TRANSLATE_POLICY_DEFAULTS.onQuotaExceeded)
+      .describe('Action when the provider explicitly reports daily/monthly quota exhausted.'),
+    onAuthFailure: z
+      .enum(['abort', 'prompt'])
+      .default(TRANSLATE_POLICY_DEFAULTS.onAuthFailure)
+      .describe('Action for HTTP 401 / 403 — never silently swap on credential failure.'),
+    onProviderUnavailable: z
+      .enum(['fallback', 'abort'])
+      .default(TRANSLATE_POLICY_DEFAULTS.onProviderUnavailable)
+      .describe('Action for sustained 5xx / DNS unavailable.'),
+    onIdentityOutput: z
+      .enum(['flag', 'fallback', 'abort'])
+      .default(TRANSLATE_POLICY_DEFAULTS.onIdentityOutput)
+      .describe('Action when the provider returned the source string unchanged.'),
+    onIncompleteRun: z
+      .enum(['confirm', 'write', 'discard'])
+      .default(TRANSLATE_POLICY_DEFAULTS.onIncompleteRun)
+      .describe('Action when a run cannot finish all leaves (cap hit or interrupt).'),
+    maxAttempts: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe(
+        'Cross-provider attempts per leaf. When omitted, defaults to providers.length at parse time.',
+      ),
+    handoff: z
+      .enum(['auto', 'on', 'off'])
+      .default(TRANSLATE_POLICY_DEFAULTS.handoff)
+      .describe('Mid-run rescue picker: auto = TTY-only when routing=single; on = always TTY; off = never.'),
   })
   .strict()
-  .describe('Translation orchestration: routing presets and failure posture (orchestrator reads these).');
+  .describe('Translation orchestration: routing + per-outcome actions consumed by the policy resolver.');
 
 const translateWorkersField = z
   .number()
@@ -130,18 +173,19 @@ const translateInnerSchema = z
       'Default backend when CLI --provider and I18NPRUNE_TRANSLATE_PROVIDER omit; must match an enabled providers[] row.',
     ),
     providers: z.array(translateProviderRowSchema).min(1),
-    policy: translatePolicySchema.default({
-      routing: 'single',
-      onRateLimitResponse: 'backoff',
-      onTransientFailure: 'retry',
-    }),
+    policy: translatePolicySchema.default({ ...TRANSLATE_POLICY_DEFAULTS }),
     workers: translateWorkersField.optional(),
   })
   .strict()
   .transform((t) => ({
     primary: t.primary,
     providers: t.providers,
-    policy: t.policy,
+    /**
+     * `maxAttempts` defaults to `providers.length` (one shot per provider in chain) per
+     * `maintainer/phases/translate-policy.md` §6. Resolved here because the default
+     * depends on a sibling field — Zod's static `.default()` can't express that.
+     */
+    policy: { ...t.policy, maxAttempts: t.policy.maxAttempts ?? t.providers.length },
     workers: t.workers ?? 1,
   }))
   .superRefine((data, ctx) => {

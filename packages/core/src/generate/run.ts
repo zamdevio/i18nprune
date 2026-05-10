@@ -11,7 +11,11 @@ import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
 import { assertGenerateTargetCodes } from '../locales/generateTargets.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
-import { ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES, ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT } from '../shared/constants/issueCodes.js';
+import {
+  ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES,
+  ISSUE_TRANSLATE_HANDOFF_NO_ELIGIBLE_PROVIDER,
+  ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT,
+} from '../shared/constants/issueCodes.js';
 import { I18nPruneError } from '../shared/errors/index.js';
 import { translateAndNormalizeGenerateLocale } from './normalize.js';
 import { TranslateRunInterruptedError } from '../translator/errors/interrupted.js';
@@ -29,6 +33,18 @@ import {
   resolveTranslateRateLimitEffective,
 } from '../translator/limits/parallel.js';
 import { classifyProviderFailureOutcome, isRetryableProviderFailure } from '../translator/policy/fallback.js';
+import { classifyTranslateFailure } from '../translator/policy/classify.js';
+import {
+  buildHandoffCatalogEligible,
+  prioritizeProviderAfter,
+  shouldOfferHandoffInteractivePrompt,
+  shouldWarnAndAbortHandoffOnNonTty,
+  synthesizeHandoffTranslationOptions,
+} from '../translator/policy/handoff.js';
+import { resolveProviderActionFor } from '../translator/policy/resolver.js';
+import type { TranslatePolicyVerb } from '../types/translator/policy.js';
+import { TRANSLATE_POLICY_DEFAULTS } from '../types/translator/policy.js';
+import { createProviderHealthMonitor } from '../shared/translator/utils/providerHealth.js';
 import { IdentityAbortError } from '../translator/identity/error.js';
 import { writeRuntimeJsonPretty } from './io/writeRuntimeJson.js';
 import type { Issue } from '../types/json/envelope/index.js';
@@ -142,6 +158,15 @@ export async function runGenerate(
   assertTranslationProviderCredentialsReady(primaryTranslation);
   const translationMeta = translationRunMeta(primaryTranslation);
 
+  // Translate-policy substrate (steps 4–6 of `maintainer/phases/translate-policy.md`).
+  // One health monitor per run; resolver consults it on every backoff verb.
+  const effectivePolicy = { ...TRANSLATE_POLICY_DEFAULTS, ...(translateCfg.policy ?? {}) };
+  const maxAttemptsTotal = Math.max(1, effectivePolicy.maxAttempts ?? chain.length);
+  // Plan §7: per-provider escalation threshold = ceil(maxAttempts / chain.length).
+  // With defaults (maxAttempts = providers.length), this yields 1 — "one shot per provider".
+  const escalationThreshold = Math.max(1, Math.ceil(maxAttemptsTotal / Math.max(1, chain.length)));
+  const health = createProviderHealthMonitor();
+
   let totalLeavesProcessed = 0;
   const targetResults: GenerateTargetJsonRow[] = [];
   const streakIssues: Issue[] = [];
@@ -239,13 +264,25 @@ export async function runGenerate(
       failedRequests: 0,
     };
 
-    for (let pi = 0; pi < chain.length; pi += 1) {
+    let pi = 0;
+    let attemptsRemaining = maxAttemptsTotal;
+    /** After an interactive handoff pick, one attempt uses {@link synthesizeHandoffTranslationOptions} (public Libre default, etc.). */
+    let synthHandoffOptions = false;
+    while (pi < chain.length && attemptsRemaining > 0) {
+      attemptsRemaining -= 1;
       const providerId = chain[pi]!;
-      const translation = resolveTranslationProviderOptionsForId({
-        config: translateCfg,
-        id: providerId,
-        env: ctx.env,
-      });
+      const translation = synthHandoffOptions
+        ? synthesizeHandoffTranslationOptions({
+            config: translateCfg,
+            id: providerId,
+            env: ctx.env,
+          })
+        : resolveTranslationProviderOptionsForId({
+            config: translateCfg,
+            id: providerId,
+            env: ctx.env,
+          });
+      synthHandoffOptions = false;
       assertTranslationProviderCredentialsReady(translation);
       const providerMeta = translationRunMeta(translation);
       const provider = resolveTranslator(translation);
@@ -350,11 +387,15 @@ export async function runGenerate(
         }
         break;
       } catch (e: unknown) {
-        session.fail();
         const interrupted = e instanceof TranslateRunInterruptedError ? e : undefined;
         const rootCause = interrupted !== undefined ? interrupted.cause : e;
         const outcome = classifyProviderFailureOutcome(rootCause);
-        providerAttempts?.push({ providerId, outcome });
+        const translateFailureOutcome = classifyTranslateFailure(rootCause);
+        providerAttempts?.push({
+          providerId,
+          outcome,
+          translateFailureOutcome,
+        });
         if (rootCause instanceof IdentityAbortError) {
           host.onIdentityAbortNotice(rootCause, { dryRun: Boolean(opts.dryRun) });
           const issuesAbort = [
@@ -378,48 +419,120 @@ export async function runGenerate(
             failedRequests: aggTranslateStats.failedRequests + interrupted.translateStats.failedRequests,
           };
         }
+
+        const action = resolveProviderActionFor({
+          outcome: translateFailureOutcome,
+          policy: effectivePolicy,
+          health,
+          providerId,
+          escalationThreshold,
+        });
         const hasNext = pi < chain.length - 1;
-        const isRetryable = isRetryableProviderFailure(rootCause);
-        if (!hasNext || !isRetryable) {
-          // Terminal: chain done or non-retryable. The post-loop `onIncomplete` flow surfaces it
-          // to the host (default decision: rethrow `lastErr`, matches today's behavior).
-          break;
-        }
-        // Retryable + next provider available: offer the host a handoff pick.
-        const remainingIds = chain.slice(pi + 1);
-        if (hooks?.onHandoffPick) {
-          const offer: HandoffOffer = {
-            target,
-            failedProviderId: providerId,
-            failureReason: outcome === 'success' ? 'non_retryable_error' : outcome,
-            remainingProviderIds: remainingIds,
-            partialStats: aggTranslateStats,
-          };
-          const pick = (await hooks.onHandoffPick(offer)) ?? null;
-          if (pick !== null) {
-            if (!remainingIds.includes(pick)) {
+        let verb: TranslatePolicyVerb = action.verb;
+
+        const routing = effectivePolicy.routing ?? 'single';
+        const handoffMode = effectivePolicy.handoff ?? 'auto';
+        const handoffTty = host.canAskInteractive() && !host.shouldSkipInteractivePrompts();
+
+        if (verb === 'prompt') {
+          if (
+            shouldWarnAndAbortHandoffOnNonTty({
+              routing,
+              handoff: handoffMode,
+              isTty: handoffTty,
+            })
+          ) {
+            host.log.warn?.(
+              `generate (${target}): handoff mode is "on" but this run is non-interactive; aborting instead of opening a provider picker.`,
+            );
+            verb = 'abort';
+          } else if (
+            shouldOfferHandoffInteractivePrompt({
+              routing,
+              handoff: handoffMode,
+              isTty: handoffTty,
+            })
+          ) {
+            const { eligibleRows, ineligibleReasons } = buildHandoffCatalogEligible(
+              providerId,
+              ctx.env,
+              translateCfg,
+            );
+            if (eligibleRows.length === 0) {
+              session.fail();
+              const detail = Object.values(ineligibleReasons).filter(Boolean).join('; ');
               throw new I18nPruneError(
-                `runGenerate: onHandoffPick returned "${String(pick)}" which is not in remainingProviderIds (${remainingIds.join(', ')}).`,
+                `No eligible translation backend for handoff after "${providerId}" failed.${detail ? ` Filtered: ${detail}.` : ''}`,
                 'USAGE',
+                {
+                  issueCode: ISSUE_TRANSLATE_HANDOFF_NO_ELIGIBLE_PROVIDER,
+                  cause: rootCause,
+                },
               );
             }
-            const targetIdx = chain.indexOf(pick, pi + 1);
-            if (targetIdx > pi + 1) {
-              [chain[pi + 1], chain[targetIdx]] = [chain[targetIdx]!, chain[pi + 1]!];
+            session.progress.pauseClock?.({ clearBar: false });
+            try {
+              const defaultPick = eligibleRows[0]!.id;
+              const offer: HandoffOffer = {
+                target,
+                failedProviderId: providerId,
+                failureReason: outcome === 'success' ? 'non_retryable_error' : outcome,
+                translateFailureOutcome,
+                remainingProviderIds: chain.slice(pi + 1),
+                eligibleHandoffRows: eligibleRows,
+                partialStats: aggTranslateStats,
+              };
+              const rawPick =
+                hooks?.onHandoffPick !== undefined ? await hooks.onHandoffPick(offer) : defaultPick;
+              const pick = rawPick ?? defaultPick;
+              const allowed = new Set(eligibleRows.map((r) => r.id));
+              if (!allowed.has(pick)) {
+                throw new I18nPruneError(
+                  `runGenerate: onHandoffPick returned "${String(pick)}" which is not in eligibleHandoffRows (${eligibleRows.map((r) => r.id).join(', ')}).`,
+                  'USAGE',
+                );
+              }
+              prioritizeProviderAfter(chain, pi, pick);
+              synthHandoffOptions = true;
+            } finally {
+              session.fail();
             }
+            pi += 1;
+            continue;
+          } else {
+            verb = hasNext ? 'fallback' : 'abort';
           }
         }
-        host.beforeProviderFallbackWarn?.();
-        {
-          const nextProvider = chain[pi + 1]!;
-          const partialHint =
-            interrupted !== undefined
-              ? ` Partial progress kept (${String(interrupted.translateStats.successfulLeaves)} leaf translation(s) succeeded before interrupt); next provider fills the rest without restarting.`
-              : '';
-          host.log.warn?.(
-            `provider "${providerId}" failed with a retryable backend error; retrying target "${target}" with "${nextProvider}".${partialHint}`,
-          );
+
+        if (verb === 'flag') verb = 'abort';
+
+        session.fail();
+
+        if (verb === 'abort' || (verb === 'fallback' && !hasNext) || attemptsRemaining <= 0) {
+          break;
         }
+
+        if (verb === 'fallback') {
+          host.beforeProviderFallbackWarn?.();
+          {
+            const nextProvider = chain[pi + 1]!;
+            const escalationHint =
+              action.escalatedFrom !== undefined ? ` (${action.reason})` : '';
+            const partialHint =
+              interrupted !== undefined
+                ? ` Partial progress kept (${String(interrupted.translateStats.successfulLeaves)} leaf translation(s) succeeded before interrupt); next provider fills the rest without restarting.`
+                : '';
+            host.log.warn?.(
+              `provider "${providerId}" failed (${translateFailureOutcome}); falling back to "${nextProvider}"${escalationHint}.${partialHint}`,
+            );
+          }
+          pi += 1;
+          continue;
+        }
+
+        host.log.warn?.(
+          `provider "${providerId}" failed (${translateFailureOutcome}); ${verb} per policy (attempts left: ${String(attemptsRemaining)}).`,
+        );
       }
     }
 

@@ -10,7 +10,7 @@ Use **`translate`** in **`i18nprune.config.*`** as a **roster** of backends (**`
 |-------|--------|
 | **`primary`** | Default **`TranslationProviderId`** when **`--provider`** and **`I18NPRUNE_TRANSLATE_PROVIDER`** are unset (must match an **enabled** row in **`providers`**). |
 | **`providers`** | Non-empty array; each element is **`{ id: '…', … }`** (discriminated union). **`enabled: false`** ignores a row for merges (rich **`init`** leaves optional backends scaffolded off). **`rateLimit`** — optional **`maxConcurrency`**, **`rpm`**, **`rps`**, **`intervalMs`**. Duplicate **`id`** values are rejected. |
-| **`policy`** | Optional orchestration presets; parse supplies defaults (**`routing: 'single'`**, backoff / retry enums). **`routing: 'auto'`** enables ordered provider fallback across enabled rows for retryable backend failures. With **`auto`**, **`--provider`** / **`I18NPRUNE_TRANSLATE_PROVIDER`** only pick **which backend runs first**; fallbacks still include the other **enabled** rows. With **`single`**, a CLI/env pin locks the run to **one** id (no chain). |
+| **`policy`** | Optional **translate-policy** block (`maintainer/phases/translate-policy.md`). Parse merges **`TRANSLATE_POLICY_DEFAULTS`**; **`maxAttempts`** defaults to **`providers.length`**. Keys: **`routing`**, **`onRateLimit`**, **`onTransientFailure`**, **`onQuotaExceeded`**, **`onAuthFailure`**, **`onProviderUnavailable`**, **`onIdentityOutput`**, **`onIncompleteRun`**, **`maxAttempts`**, **`handoff`**. **`.strict()`** rejects unknown keys. |
 | **`workers`** | **`number`** (**`1…64`**): max parallel **`translateLeaf`** jobs when CLI/env omit **`--workers`** (**`1`** = serial; default when omitted). |
 
 ### Row fields by **`id`**
@@ -42,14 +42,39 @@ export default defineConfig({
         // apiKey: prefer env — I18NPRUNE_TRANSLATE_LLM_API_KEY
       },
     ],
-    policy: { routing: 'single', onRateLimitResponse: 'backoff', onTransientFailure: 'retry' },
+    policy: { routing: 'single', onRateLimit: 'backoff', onTransientFailure: 'retry' },
   },
 });
 ```
 
 Run **`i18nprune init --rich`** for every namespace, including **`translate.providers`** stubs and **`policy`**.
 
-## Precedence — which **`id`** runs?
+## `translate.policy` (outcome → verb)
+
+Orchestration is **forward-only**: each failure class maps to a policy key whose value is a single **verb** (`retry`, `backoff`, `fallback`, `prompt`, `abort`, `flag`). Defaults match the locked table in **`maintainer/phases/translate-policy.md`** §6. Verb meanings §4.
+
+| Key | Default | Allowed verbs |
+|-----|---------|----------------|
+| **`routing`** | `single` | `single` \| `auto` |
+| **`onRateLimit`** | `backoff` | `backoff` \| `retry` \| `fallback` \| `abort` |
+| **`onTransientFailure`** | `retry` | `retry` \| `fallback` \| `abort` |
+| **`onQuotaExceeded`** | `fallback` | `fallback` \| `prompt` \| `abort` |
+| **`onAuthFailure`** | `abort` | `abort` \| `prompt` |
+| **`onProviderUnavailable`** | `fallback` | `fallback` \| `abort` |
+| **`onIdentityOutput`** | `flag` | `flag` \| `fallback` \| `abort` |
+| **`onIncompleteRun`** | `confirm` | `confirm` \| `write` \| `discard` |
+| **`maxAttempts`** | `providers.length` | positive integer |
+| **`handoff`** | `auto` | `auto` \| `on` \| `off` |
+
+**`providers[]` order is the auto chain** when **`routing: 'auto'`** — see init template comments.
+
+### Mid-run handoff (catalog pool)
+
+When policy resolves to **`prompt`** and the host is interactive (**`handoff`** matrix §8 in the plan doc), **`runGenerate`** offers the **built-in** provider catalogue (**not** the same as reordering `providers[]` only): **`google`**, **`mymemory`**, **`libre`**, **`deepl`**, **`llm`**, excluding the failing id. **`deepl`** appears only if **`apiKey`** resolves (**`I18NPRUNE_TRANSLATE_DEEPL_API_KEY`** or the **`deepl`** row). **`llm`** requires **`apiKey`**, **`baseUrl`**, and **`model`**. **`libre`** without a URL can use the public demo origin when picked from the handoff list.
+
+### `--json` route detail
+
+Each finished target includes **`markedForReview`** (already present) and **`providerAttempts[]`** rows: legacy **`outcome`** (`success` / `rate_limited` / `network_error` / `non_retryable_error`) plus, on failures, **`translateFailureOutcome`** — the seven-variant classifier string (`rate_limited`, `quota_exceeded`, `transient_network`, …) for tooling and dashboards.
 
 Order (first wins):
 

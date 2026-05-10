@@ -7,9 +7,13 @@
  * `run.failed`. New observability needs extend that union, not these hooks.
  */
 
+import type { TranslateFailureOutcome } from '../../translator/policy/classify.js';
+import type { HandoffEligibilityRow } from '../../translator/policy/handoff.js';
 import type { TranslationProviderId } from '../translator/providers.js';
 import type { TranslateRunPartialStats } from '../translator/runStats.js';
 import type { ProviderAttemptReportJson } from './generateRun.js';
+
+export type { HandoffEligibilityRow };
 
 /**
  * Why **`runGenerate`** stopped before all source leaves were translated. Hosts use this to choose
@@ -49,13 +53,22 @@ export type IncompleteRunDecision =
   | { readonly action: 'abort_no_write' }
   | { readonly action: 'retry_provider'; readonly providerId: TranslationProviderId };
 
-/** Information passed to {@link GenerateRunHooks.onHandoffPick} when more than one provider remains. */
+/** Information passed to {@link GenerateRunHooks.onHandoffPick}. */
 export type HandoffOffer = {
   readonly target: string;
   readonly failedProviderId: TranslationProviderId;
   readonly failureReason: 'rate_limited' | 'network_error' | 'non_retryable_error';
+  /** Classifier outcome for richer host copy (optional — legacy **`failureReason`** stays stable). */
+  readonly translateFailureOutcome?: TranslateFailureOutcome;
+  /** Config chain remainder (may be empty when **`routing: single`**). */
   readonly remainingProviderIds: readonly TranslationProviderId[];
   readonly partialStats: TranslateRunPartialStats;
+  /**
+   * Built-in catalogue pool eligible for rescue picks — **not** the same shape as **`remainingProviderIds`**
+   * (`translate-policy.md` §8). Hosts render this list; **`onHandoffPick`** must return **`null`** (means
+   * “first **`eligibleHandoffRows`** entry”) or an id present in this list.
+   */
+  readonly eligibleHandoffRows: readonly HandoffEligibilityRow[];
 };
 
 /**
@@ -73,9 +86,9 @@ export type GenerateRunHooks = {
   readonly onIncomplete?: (info: IncompleteRunInfo) => Promise<IncompleteRunDecision>;
 
   /**
-   * Called between providers when more than one remains in the chain after a retryable failure.
-   * Returning a provider id from {@link HandoffOffer.remainingProviderIds} pins that next attempt;
-   * returning **`null`** keeps the natural order (the next id in the resolved chain).
+   * Mid-run picker for **`prompt`** verbs (`quota_exceeded · prompt`, **`onAuthFailure: prompt`**, …).
+   * Return **`null`** to accept the default (**first **`eligibleHandoffRows`** row**). Any non-null id
+   * must appear in **`offer.eligibleHandoffRows`**.
    */
    readonly onHandoffPick?: (offer: HandoffOffer) => Promise<TranslationProviderId | null>;
 };

@@ -1,5 +1,6 @@
 import type { Issue } from '../json/envelope/index.js';
 import type { TranslationProviderId } from '../translator/providers.js';
+import type { TranslatePolicy } from '../translator/policy.js';
 import type { ProviderRateLimitProfile, TranslateStartRateLimit } from '../translator/rateLimit.js';
 
 export type TranslateRateLimitConfigInput = {
@@ -41,9 +42,12 @@ export type TranslateProviderRowInput =
   | TranslateProviderRowInputDeepl
   | TranslateProviderRowInputLlm;
 
-export type TranslatePolicyConfigInput = {
-  routing?: 'single' | 'auto';
-};
+/**
+ * Authoring shape (input) for the translate-policy block — the same surface SDK consumers
+ * pass through `defineConfig`. Re-export of {@link TranslatePolicy} so the config-input
+ * barrel under `types/config/` carries the full verb dictionary.
+ */
+export type TranslatePolicyConfigInput = TranslatePolicy;
 
 export type TranslateConfigInput = {
   primary?: TranslationProviderId;

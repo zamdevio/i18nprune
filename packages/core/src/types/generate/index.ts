@@ -20,6 +20,7 @@ export type {
 
 export type {
   GenerateRunHooks,
+  HandoffEligibilityRow,
   HandoffOffer,
   IncompleteRunDecision,
   IncompleteRunInfo,

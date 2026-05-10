@@ -4,6 +4,7 @@ import type { ParityPolicy, PreservePolicy } from '../types/policies/index.js';
 import type { ScanExcludeConfig, ScannerConfigInput } from '../types/scanner/index.js';
 import type { PatchingConfigInput } from '../types/patching/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
+import type { TranslatePolicy } from '../types/translator/policy.js';
 
 export {
   clampTranslateMaxWorkers,
@@ -75,20 +76,13 @@ export type TranslateProviderRow =
 export type TranslateMaxWorkersConfig = number;
 
 /**
- * Orchestration policy for **`generate`** / **`fill`**. Omit fields when authoring -
- * **`parseI18nPruneConfig`** applies defaults (**`routing: 'single'`**, backoff/retry presets).
+ * Orchestration policy for `generate` / `fill`. Re-export of {@link TranslatePolicy} so
+ * config-namespace consumers get the full verb dictionary in one barrel.
+ *
+ * Omit fields when authoring — `parseI18nPruneConfig` applies defaults from
+ * `TRANSLATE_POLICY_DEFAULTS`. `maxAttempts` defaults to `providers.length` at parse time.
  */
-export type TranslatePolicyConfig = {
-  /**
-   * **`single`** - one resolved backend per run (today).
-   * **`auto`** - ordered fallback chain across enabled providers for retryable backend failures.
-   */
-  routing?: 'single' | 'auto';
-  /** How 429-heavy runs should behave once the orchestrator reads this flag. */
-  onRateLimitResponse?: 'backoff' | 'fail';
-  /** Intermittent network / 5xx posture once the orchestrator reads this flag. */
-  onTransientFailure?: 'retry' | 'fail';
-};
+export type TranslatePolicyConfig = TranslatePolicy;
 
 export type { ParityPolicy, PreservePolicy };
 

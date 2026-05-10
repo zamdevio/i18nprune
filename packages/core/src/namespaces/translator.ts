@@ -5,6 +5,20 @@ export type {
   TranslationProviderYield,
   TranslationResult,
 } from '../types/translator/result.js';
+export { TRANSLATE_POLICY_DEFAULTS } from '../types/translator/policy.js';
+export type {
+  OnAuthFailureVerb,
+  OnIdentityOutputVerb,
+  OnIncompleteRunVerb,
+  OnProviderUnavailableVerb,
+  OnQuotaExceededVerb,
+  OnRateLimitVerb,
+  OnTransientFailureVerb,
+  TranslateHandoffMode,
+  TranslatePolicy,
+  TranslatePolicyVerb,
+  TranslateRoutingMode,
+} from '../types/translator/policy.js';
 export { createGoogleTranslator, parseGtxResponse } from '../shared/translator/providers/google/index.js';
 export { createLlmTranslator, parseOpenAiChatCompletionContent } from '../shared/translator/providers/llm/index.js';
 export {
@@ -26,7 +40,19 @@ export {
   resolveTranslateMaxParallel,
   TRANSLATE_WORKERS_CAP,
 } from '../shared/translator/utils/orchestration.js';
-export type { ResolveTranslateMaxParallelInput, TranslateLeafJob, TranslateOrchestrationLimits } from '../shared/translator/utils/orchestration.js';
+export type {
+  ResolveTranslateMaxParallelInput,
+  StartGateHealthCtx,
+  TranslateLeafJob,
+  TranslateOrchestrationLimits,
+} from '../shared/translator/utils/orchestration.js';
+export { createProviderHealthMonitor } from '../shared/translator/utils/providerHealth.js';
+export type {
+  ProviderAttemptObservation,
+  ProviderHealthMonitor,
+  ProviderHealthMonitorOptions,
+  ProviderHealthOutcome,
+} from '../shared/translator/utils/providerHealth.js';
 export type { ProviderRateLimitProfile, ProviderRateLimitRegistry, TranslateStartRateLimit } from '../types/translator/rateLimit.js';
 export {
   buildIdentityStreakIssue,
@@ -71,8 +97,12 @@ export {
   classifyProviderFailureOutcome,
   classifyTranslateFailure,
   isRetryableProviderFailure,
+  policyKeyForOutcome,
+  resolveProviderActionFor,
   type ProviderAttemptOutcome,
+  type ResolveProviderActionInput,
   type TranslateFailureOutcome,
+  type TranslatePolicyAction,
 } from '../translator/policy/index.js';
 
 export {

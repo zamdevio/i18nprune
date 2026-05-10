@@ -24,6 +24,10 @@ const DEEPL_RATE_LIMIT_LITERAL = rateLimitLiteral('deepl');
 const LLM_RATE_LIMIT_LITERAL = rateLimitLiteral('llm');
 
 const TRANSLATE_PROVIDER_COMMENT_ROWS = `
+      // The order of \`providers[]\` IS the auto-routing chain (\`policy.routing: 'auto'\` walks
+      // top-to-bottom on retryable failures). \`--provider\` / \`I18NPRUNE_TRANSLATE_PROVIDER\`
+      // pins an id to the FRONT of the chain without disabling fallback. Set \`enabled: false\`
+      // (or comment the row) to skip a provider.
       // Uncomment one row at a time · set \`translate.primary\` · use env vars where noted (run \`i18nprune providers\`).
       // { id: 'mymemory', enabled: true, contactEmail: 'you@example.com', rateLimit: ${MYMEMORY_RATE_LIMIT_LITERAL} },
       // { id: 'libre', enabled: true, baseUrl: 'https://libretranslate.com', rateLimit: ${LIBRE_RATE_LIMIT_LITERAL} },
@@ -38,10 +42,18 @@ const TRANSLATE_PROVIDER_COMMENT_ROWS = `
       // },`;
 
 const TRANSLATE_POLICY_BLOCK = `
+    // Per-outcome verbs consumed by the translate-policy resolver. All keys optional — these are the safe defaults.
     policy: {
       routing: 'single',
-      onRateLimitResponse: 'backoff',
+      onRateLimit: 'backoff',
       onTransientFailure: 'retry',
+      onQuotaExceeded: 'fallback',
+      onAuthFailure: 'abort',
+      onProviderUnavailable: 'fallback',
+      onIdentityOutput: 'flag',
+      onIncompleteRun: 'confirm',
+      handoff: 'auto',
+      // maxAttempts: providers.length, // omit to use one shot per provider in chain
     },`;
 
 function buildMinimalInitConfigTemplate(importSpecifier: string): string {
@@ -94,10 +106,18 @@ export default defineConfig({
     providers: [
       { id: 'google', rateLimit: ${GOOGLE_RATE_LIMIT_LITERAL} },${TRANSLATE_PROVIDER_COMMENT_ROWS}
     ],
+    // Per-outcome verbs consumed by the translate-policy resolver. All keys optional.
     policy: {
       routing: 'single',
-      onRateLimitResponse: 'backoff',
+      onRateLimit: 'backoff',
       onTransientFailure: 'retry',
+      onQuotaExceeded: 'fallback',
+      onAuthFailure: 'abort',
+      onProviderUnavailable: 'fallback',
+      onIdentityOutput: 'flag',
+      onIncompleteRun: 'confirm',
+      handoff: 'auto',
+      // maxAttempts: providers.length, // omit to use one shot per provider in chain
     },
   },
 

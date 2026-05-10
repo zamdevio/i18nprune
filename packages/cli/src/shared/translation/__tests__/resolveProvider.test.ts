@@ -266,7 +266,7 @@ describe('resolveCliTranslateMaxParallelEffective', () => {
       translate: {
         primary: 'mymemory',
         providers: [{ id: 'mymemory', rateLimit: { maxConcurrency: 2 } }, { id: 'google' }],
-        policy: { routing: 'single', onRateLimitResponse: 'backoff', onTransientFailure: 'retry' },
+        policy: { routing: 'single', onRateLimit: 'backoff', onTransientFailure: 'retry' },
         workers: 10,
       },
     });
@@ -286,7 +286,7 @@ describe('resolveCliTranslateRateLimitEffective', () => {
         ],
         policy: {
           routing: 'single',
-          onRateLimitResponse: 'backoff',
+          onRateLimit: 'backoff',
           onTransientFailure: 'retry',
         },
         workers: 4,
@@ -304,7 +304,7 @@ describe('resolveCliTranslateRateLimitEffective', () => {
       translate: {
         primary: 'google',
         providers: [{ id: 'google' }],
-        policy: { routing: 'single', onRateLimitResponse: 'backoff', onTransientFailure: 'retry' },
+        policy: { routing: 'single', onRateLimit: 'backoff', onTransientFailure: 'retry' },
         workers: 8,
       },
     });
@@ -324,7 +324,7 @@ describe('buildTranslateParallelLimitSuggestion', () => {
         providers: [{ id: 'mymemory', rateLimit: { maxConcurrency: 2 } }],
         policy: {
           routing: 'single',
-          onRateLimitResponse: 'backoff',
+          onRateLimit: 'backoff',
           onTransientFailure: 'retry',
         },
         workers: 10,

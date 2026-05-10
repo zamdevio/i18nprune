@@ -21,7 +21,9 @@ export type Translator = {
   ): Promise<string | TranslationProviderYield | TranslationResult>;
 };
 
+export type * from './policy.js';
 export type * from './rateLimit.js';
 export type * from './providers.js';
 export type * from './result.js';
 export type * from './translate.js';
+export { TRANSLATE_POLICY_DEFAULTS } from './policy.js';

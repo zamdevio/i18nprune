@@ -1,4 +1,4 @@
-import type { TranslationProviderId } from '@i18nprune/core';
+import type { TranslationProviderId, TranslateFailureOutcome } from '@i18nprune/core';
 import type { TargetProgressSummary } from '@/types/core/progress/index.js';
 import type { LocaleMetadataReport } from '@/types/core/localeLeaves/index.js';
 import type { ProviderAttemptOutcome } from '@/shared/translation/providerFallback.js';
@@ -6,6 +6,8 @@ import type { ProviderAttemptOutcome } from '@/shared/translation/providerFallba
 export type ProviderAttemptReport = {
   providerId: TranslationProviderId;
   outcome: ProviderAttemptOutcome;
+  /** Fine-grained taxonomy when `outcome !== 'success'` (mirrors core `ProviderAttemptReportJson`). */
+  translateFailureOutcome?: TranslateFailureOutcome;
 };
 
 /** One row in `GenerateJsonPayload.targetResults`. */

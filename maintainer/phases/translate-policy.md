@@ -1,6 +1,6 @@
 # `translate.policy` — final plan (ready to execute)
 
-**Status:** Plan locked — **execute after [`core-architecture.md`](./core-architecture.md) Phase 1** lands (Session A sequencing in **[`V1-RELEASE.md`](../V1-RELEASE.md)**). No additional maintainer prerequisites beyond that gate and normal **`pnpm typecheck` / `pnpm test`** before merge.  
+**Status:** Steps **1–9** are implemented in-tree (classifier → schema → resolver → `runGenerate` wiring → handoff → JSON route detail → docs/tests). **Step 10** (partial-run write hook / envelope `partial` / `resumeHint`) remains a follow-up slice per §13. Original prerequisite: Phase 1 **`runGenerate`** substrate — satisfied.  
 **Companion:** [`providers.md`](./providers.md) — Session A shipped baseline.  
 **Anchors:** `packages/cli/src/config/schema.ts` · `packages/cli/src/types/config/index.ts` · `packages/core/src/init/index.ts` · `packages/core/src/shared/translator/` · `packages/core/src/translator/` (new — created in phase 1) · `packages/core/src/generate/run.ts` (new — created in phase 1) · `packages/cli/src/shared/cursor/`
 
@@ -148,7 +148,7 @@ Pool: built-in catalog (`google`, `mymemory`, `libre`, `deepl`, `llm`). **Not** 
 
 Eligibility:
 - `google`, `mymemory`, `libre` → always eligible (no secret required).
-- `deepl` → eligible iff `apiKey` resolvable (env `I18NPRUNE_DEEPL_KEY` or config).
+- `deepl` → eligible iff `apiKey` resolvable (env `I18NPRUNE_TRANSLATE_DEEPL_API_KEY` or config row).
 - `llm` → eligible iff `apiKey` + `baseUrl` + `model` all resolvable.
 - Currently-failing provider excluded from the list.
 

@@ -20,6 +20,7 @@ export type {
   GenerateRunResult,
   GenerateTargetJsonRow,
   GenerateTargetProgressSummary,
+  HandoffEligibilityRow,
   HandoffOffer,
   IncompleteRunDecision,
   IncompleteRunInfo,

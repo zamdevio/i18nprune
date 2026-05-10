@@ -271,4 +271,150 @@ describe('parseI18nPruneConfig', () => {
       } as unknown),
     ).toThrow(ConfigValidationError);
   });
+
+  describe('translate.policy verb dictionary', () => {
+    const baseTranslate = {
+      primary: 'google' as const,
+      providers: [{ id: 'google' as const }, { id: 'mymemory' as const }],
+    };
+
+    it('applies all defaults when policy is omitted', () => {
+      const c = parseI18nPruneConfig({
+        source: 'locales/en.json',
+        localesDir: 'locales',
+        src: 'src',
+        functions: ['t'],
+        translate: baseTranslate,
+      });
+      expect(c.translate?.policy).toMatchObject({
+        routing: 'single',
+        onRateLimit: 'backoff',
+        onTransientFailure: 'retry',
+        onQuotaExceeded: 'fallback',
+        onAuthFailure: 'abort',
+        onProviderUnavailable: 'fallback',
+        onIdentityOutput: 'flag',
+        onIncompleteRun: 'confirm',
+        handoff: 'auto',
+      });
+    });
+
+    it('defaults maxAttempts to providers.length when omitted', () => {
+      const c = parseI18nPruneConfig({
+        source: 'locales/en.json',
+        localesDir: 'locales',
+        src: 'src',
+        functions: ['t'],
+        translate: baseTranslate,
+      });
+      expect(c.translate?.policy?.maxAttempts).toBe(2);
+    });
+
+    it('keeps an explicit maxAttempts over the providers.length default', () => {
+      const c = parseI18nPruneConfig({
+        source: 'locales/en.json',
+        localesDir: 'locales',
+        src: 'src',
+        functions: ['t'],
+        translate: { ...baseTranslate, policy: { maxAttempts: 7 } },
+      });
+      expect(c.translate?.policy?.maxAttempts).toBe(7);
+    });
+
+    it('accepts every locked verb across all on* keys', () => {
+      const c = parseI18nPruneConfig({
+        source: 'locales/en.json',
+        localesDir: 'locales',
+        src: 'src',
+        functions: ['t'],
+        translate: {
+          ...baseTranslate,
+          policy: {
+            routing: 'auto',
+            onRateLimit: 'fallback',
+            onTransientFailure: 'abort',
+            onQuotaExceeded: 'prompt',
+            onAuthFailure: 'prompt',
+            onProviderUnavailable: 'abort',
+            onIdentityOutput: 'fallback',
+            onIncompleteRun: 'write',
+            handoff: 'off',
+            maxAttempts: 3,
+          },
+        },
+      });
+      expect(c.translate?.policy).toMatchObject({
+        routing: 'auto',
+        onRateLimit: 'fallback',
+        onTransientFailure: 'abort',
+        onQuotaExceeded: 'prompt',
+        onAuthFailure: 'prompt',
+        onProviderUnavailable: 'abort',
+        onIdentityOutput: 'fallback',
+        onIncompleteRun: 'write',
+        handoff: 'off',
+        maxAttempts: 3,
+      });
+    });
+
+    it('rejects unknown verbs (e.g. legacy "fail")', () => {
+      expect(() =>
+        parseI18nPruneConfig({
+          source: 'locales/en.json',
+          localesDir: 'locales',
+          src: 'src',
+          functions: ['t'],
+          translate: {
+            ...baseTranslate,
+            policy: { onRateLimit: 'fail' },
+          },
+        } as unknown),
+      ).toThrow(ConfigValidationError);
+    });
+
+    it('rejects legacy onRateLimitResponse key (renamed to onRateLimit)', () => {
+      expect(() =>
+        parseI18nPruneConfig({
+          source: 'locales/en.json',
+          localesDir: 'locales',
+          src: 'src',
+          functions: ['t'],
+          translate: {
+            ...baseTranslate,
+            policy: { onRateLimitResponse: 'backoff' },
+          },
+        } as unknown),
+      ).toThrow(ConfigValidationError);
+    });
+
+    it('rejects unknown policy keys via .strict()', () => {
+      expect(() =>
+        parseI18nPruneConfig({
+          source: 'locales/en.json',
+          localesDir: 'locales',
+          src: 'src',
+          functions: ['t'],
+          translate: {
+            ...baseTranslate,
+            policy: { onTypo: 'abort' },
+          },
+        } as unknown),
+      ).toThrow(ConfigValidationError);
+    });
+
+    it('rejects non-positive maxAttempts', () => {
+      expect(() =>
+        parseI18nPruneConfig({
+          source: 'locales/en.json',
+          localesDir: 'locales',
+          src: 'src',
+          functions: ['t'],
+          translate: {
+            ...baseTranslate,
+            policy: { maxAttempts: 0 },
+          },
+        }),
+      ).toThrow(ConfigValidationError);
+    });
+  });
 });

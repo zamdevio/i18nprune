@@ -160,7 +160,8 @@ const hooks: GenerateRunHooks = {
     nodeProcess.stderr.write(
       `[onHandoffPick] target=${offer.target} ` +
         `failed=${offer.failedProviderId} (${offer.failureReason}) ` +
-        `remaining=[${offer.remainingProviderIds.join(', ')}]\n`,
+        `eligible=[${offer.eligibleHandoffRows.map((r) => r.id).join(', ')}] ` +
+        `chainRemainder=[${offer.remainingProviderIds.join(', ')}]\n`,
     );
     return null;
   },

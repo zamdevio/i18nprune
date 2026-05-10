@@ -1,7 +1,7 @@
 import { mask, restore, validateRestored } from '../placeholders/index.js';
 import type { Translator } from '../../types/translator/index.js';
 import type { TranslationProviderId } from '../../types/translator/providers.js';
-import type { TranslationResult } from '../../types/translator/result.js';
+import type { LeafDecision, TranslationResult } from '../../types/translator/result.js';
 import { buildHeuristicLeafMeta } from './utils/metadata.js';
 import {
   finalizeTranslationLeafMeta,
@@ -56,13 +56,15 @@ export async function translateLeaf(
         translatedText: restored,
         providerId,
       });
-      const leafMeta = finalizeTranslationLeafMeta(mergeTranslationLeafMeta(heuristic, unpacked.patch));
+      const merged = mergeTranslationLeafMeta(heuristic, unpacked.patch);
+      const decision: LeafDecision = merged.needsReview === true ? 'review' : 'translated';
+      const leafMeta = finalizeTranslationLeafMeta(merged, decision);
       await options?.onTranslated?.(sourceText, restored);
       const attempts = attempt + 1;
       return {
         text: restored,
         leafMeta,
-        decision: leafMeta.needsReview ? 'review' : 'translated',
+        decision,
         runtime: { attempts, retries: Math.max(0, attempts - 1) },
       };
     } catch (e) {

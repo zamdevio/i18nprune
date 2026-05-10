@@ -31,6 +31,8 @@ export const ISSUE_TRANSLATE_PROVIDER_NOT_IMPLEMENTED_YET =
   'i18nprune.translate.provider_not_implemented_yet' as const;
 export const ISSUE_TRANSLATE_MISSING_CREDENTIALS = 'i18nprune.translate.missing_credentials' as const;
 export const ISSUE_TRANSLATE_CONFIG_DEFAULT_APPLIED = 'i18nprune.translate.config_default_applied' as const;
+export const ISSUE_TRANSLATE_HANDOFF_NO_ELIGIBLE_PROVIDER =
+  'i18nprune.translate.handoff_no_eligible_provider' as const;
 export const ISSUE_GENERATE_USAGE = 'i18nprune.generate.usage' as const;
 export const ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES =
   'i18nprune.generate.source_empty_string_leaves' as const;

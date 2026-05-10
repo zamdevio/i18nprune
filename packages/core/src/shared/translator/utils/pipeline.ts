@@ -42,7 +42,23 @@ export function mergeTranslationLeafMeta(
   };
 }
 
-/** Normalize merged patch into the contract returned by {@link translateLeaf}. */
+/**
+ * Normalize a merged provider+heuristic patch into the fully-populated `TranslationLeafMeta`
+ * contract that {@link translateLeaf} returns.
+ *
+ * **`decision` is the source of truth for `needsReview`.** When `decision === 'review'`,
+ * the returned `needsReview` is forced to `true` — the patch's own `needsReview` is
+ * ignored in that case. When `decision` is `'translated'` or omitted, `needsReview` falls
+ * back to the patch (or `false`).
+ *
+ * @remarks
+ * Step 2 of `maintainer/phases/translate-policy.md`. Future signals (policy resolver,
+ * identity guard, partial-write) compute `decision` from non-heuristic sources and pass
+ * it here to update the persisted marker without bypassing the contract.
+ *
+ * Pure: no I/O, no clock, no host adapters. Confidence is clamped to `[0, 1]` and
+ * rounded to two decimals.
+ */
 export function finalizeTranslationLeafMeta(
   patch: TranslationLeafMetaPatch,
   decision?: LeafDecision,

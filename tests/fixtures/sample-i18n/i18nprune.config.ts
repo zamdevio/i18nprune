@@ -25,7 +25,7 @@ export default defineConfig({
     ],
     policy: {
       routing: 'single',
-      onRateLimitResponse: 'backoff',
+      onRateLimit: 'backoff',
       onTransientFailure: 'retry',
     },
   },

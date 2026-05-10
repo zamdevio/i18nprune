@@ -10,6 +10,18 @@ import type { TranslationProviderId } from '../../../types/translator/providers.
 import type { TranslationPoolProgressSnapshot } from '../../../types/progress/tick.js';
 import type { ProviderRateLimitRegistry, TranslateStartRateLimit } from '../../../types/translator/rateLimit.js';
 import { TRANSLATE_WORKERS_CAP } from '../../constants/translate.js';
+import type { ProviderHealthMonitor } from './providerHealth.js';
+
+/**
+ * Optional health-monitor context the start-rate gate consults on top of `rpm` / `rps` /
+ * `intervalMs` pacing. When supplied, each gate acquisition awaits
+ * `monitor.shouldDelayStartFor(providerId)` ms in addition to the configured pacing gap.
+ * When omitted (current default), behavior is identical to pre-step-3.
+ */
+export type StartGateHealthCtx = {
+  readonly monitor: ProviderHealthMonitor;
+  readonly providerId: string;
+};
 
 /** One leaf translation job for a future worker pool. */
 export type TranslateLeafJob = {
@@ -56,9 +68,21 @@ function resolveStartGapMs(limits: TranslateStartRateLimit | undefined): number 
   return Math.max(fromRpm, fromRps, fromMin);
 }
 
-function createStartRateGate(limits: TranslateStartRateLimit | undefined): () => Promise<void> {
+/**
+ * Serialized start gate that paces job launches by `rpm` / `rps` / `intervalMs` and, when a
+ * {@link StartGateHealthCtx} is supplied, additionally honors per-provider health delays from
+ * {@link ProviderHealthMonitor.shouldDelayStartFor} (translate-policy step 3).
+ *
+ * The two delay sources compose with `max` — the gate waits the longer of the configured
+ * pacing gap and the monitor's recommendation. The no-op fast path stays unchanged when
+ * neither pacing nor a monitor is configured.
+ */
+function createStartRateGate(
+  limits: TranslateStartRateLimit | undefined,
+  healthCtx?: StartGateHealthCtx,
+): () => Promise<void> {
   const gapMs = resolveStartGapMs(limits);
-  if (!(gapMs > 0)) return async () => {};
+  if (!(gapMs > 0) && healthCtx === undefined) return async () => {};
   let queueTail: Promise<void> = Promise.resolve();
   let nextAllowedStart = 0;
   return async () => {
@@ -68,8 +92,9 @@ function createStartRateGate(limits: TranslateStartRateLimit | undefined): () =>
       releaseCurrent = resolve;
     });
     await prev;
-    const now = Date.now();
-    const waitMs = Math.max(0, nextAllowedStart - now);
+    const pacingWait = Math.max(0, nextAllowedStart - Date.now());
+    const healthWait = healthCtx ? healthCtx.monitor.shouldDelayStartFor(healthCtx.providerId) : 0;
+    const waitMs = Math.max(pacingWait, healthWait);
     if (waitMs > 0) await sleep(waitMs);
     const startedAt = Date.now();
     nextAllowedStart = startedAt + gapMs;

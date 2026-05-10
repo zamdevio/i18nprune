@@ -21,7 +21,7 @@ export default defineConfig({
     providers: [{ id: 'google' }],
     policy: {
       routing: 'single',
-      onRateLimitResponse: 'backoff',
+      onRateLimit: 'backoff',
       onTransientFailure: 'retry',
     },
   },

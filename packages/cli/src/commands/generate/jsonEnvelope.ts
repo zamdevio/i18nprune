@@ -21,6 +21,7 @@ import {
   pickTargetSelector,
   runGenerate as runCoreGenerate,
 } from '@i18nprune/core';
+import type { GenerateRunHooks } from '@i18nprune/core';
 import type { RunEvent } from '@i18nprune/core';
 
 import { canAsk } from '@/shared/ask/index.js';
@@ -42,6 +43,7 @@ import { resolveFromCwd } from '@/utils/paths/index.js';
 
 import { buildGenerateHostHooks } from '@/commands/generate/hooks.js';
 import type { GenerateRuntime } from '@/commands/generate/hooks.js';
+import { promptGenerateHandoffPick } from '@/shared/translation/handoff.js';
 import { promptLanguageCodeOnly } from '@/commands/generate/prompts.js';
 
 import type { GenerateOptions } from '@/types/command/generate/index.js';
@@ -115,6 +117,10 @@ export async function executeCore(
     run: ctx.run,
   });
 
+  const generateHooks: GenerateRunHooks = {
+    onHandoffPick: (offer) => promptGenerateHandoffPick(offer, ctx.run),
+  };
+
   const { payload, issues: coreIssues } = await runCoreGenerate(
     coreCtx,
     {
@@ -133,6 +139,7 @@ export async function executeCore(
       noLocaleMeta: merged.noLocaleMeta,
     },
     buildGenerateHostHooks(ctx, runtime),
+    generateHooks,
   );
 
   const issues = mergeIssues(
