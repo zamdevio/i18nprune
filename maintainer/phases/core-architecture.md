@@ -18,7 +18,7 @@ Pre-v1 freedom is used: no backwards-compat constraints on internal APIs. Behavi
 
 | # | decision |
 |---|---|
-| A1 | **One entry per op named `run.ts`**, re-exported from `index.ts`. Function name pattern: `runGenerate`, `runFill`, `runQuality`, etc. (`orchestrator.ts` is reserved — already used by translator pacing utilities). |
+| A1 | **One entry per op named `run.ts`**, re-exported from `index.ts`. Function name pattern: `runTranslate` (translate primitive), `runGenerate`, `runQuality`, `runReview`, `runMissing`, `runSync`. (`orchestrator.ts` is reserved — already used by translator pacing utilities; `runFill` is intentionally not in the list — see §8 / §11.) |
 | A2 | **Config-driven entry params.** Entry takes the resolved config; reads source / existing target via host adapters; throws **`I18nPruneError`** for fatal IO / parse failures. SDK consumers detect failure with one type check. |
 | A3 | **Typed return shape per op** (`GenerateOutput`, `FillOutput`, …) so consumers — CLI included — never reach into internals. |
 | A4 | **CLI is a host.** It owns argv parsing, prompts, banners, logger calls, run-event emission. It does **not** own orchestration, retry loops, fallback, partial-resume, identity guards, file IO. Those move to core. |
@@ -30,27 +30,115 @@ Pre-v1 freedom is used: no backwards-compat constraints on internal APIs. Behavi
 
 ## 3. End-state shape
 
-After all phases ship, the SDK surface for `generate` is two functions:
+After all phases ship, every op is one core entry. Three layers compose:
 
+| layer | purpose | examples |
+|---|---|---|
+| **L1 — per-domain resolvers** (pure) | normalize one config block, return defaults applied + warnings | `resolveTranslateConfig`, `resolveCoreConfig`, `resolveScanExcludeConfig` |
+| **L2 — host context** (pure, optional) | bundle `config + adapters + env + run options + paths` once for ergonomics across multiple op calls | `createCoreContext({ config, adapters, env, run? })` |
+| **L3 — op entries** (pure orchestration) | call L1 resolvers, read I/O via L2 adapters, return typed output | `runTranslate` (translate primitive), `runGenerate`, `runQuality`, `runReview`, `runMissing`, `runSync` |
+
+Each L3 entry throws `I18nPruneError` (with stable `code`) on fatal config / env / IO failures so SDK consumers detect failure with one type check.
+
+### Hard rules
+
+- **Adapters are always passed explicitly. No defaults, no kind-sniffing.** Core does NOT auto-resolve `createNodeRuntimeAdapters()` when omitted. SDK consumers import the matching factory from `@i18nprune/core/runtime/node` (or `/web`, `/edge`) and pass it. The CLI does the same: it imports `createNodeRuntimeAdapters` and passes the result.
+- **`env` is always passed explicitly.** Core never touches `process.*`. Pass `process.env` (Node), Worker bindings (Workers), or `{}` (tests).
+- **`runTranslate` is the canonical translation primitive.** Any consumer who just wants strings translated uses it directly — no `I18nPruneConfig`, no project layout, no file IO. `runGenerate` is built on top of `runTranslate` for the locale-shape + IO use case.
+- **One canonical entry point per use case.** No proliferation of half-overlapping APIs.
+
+### SDK call shapes
+
+**A. Translate strings only — no project, no files (`runTranslate`):**
 ```ts
-import { resolveTranslateConfig, runGenerate } from '@i18nprune/core';
+import { runTranslate } from '@i18nprune/core';
+import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 
-const { resolved, warnings } = resolveTranslateConfig({ config: cfg.translate });
-warnings.forEach((w) => console.warn(w.message));
+const out = await runTranslate({
+  texts: ['Welcome', 'Sign in', 'Logout'],
+  targetLang: 'fr',
+  sourceLang: 'en',
+  config: {
+    primary: 'google',
+    providers: [{ id: 'google', enabled: true }],
+    policy: { routing: 'auto' },
+  },
+  adapters: createNodeRuntimeAdapters(),
+  env: process.env,
+});
+
+out.translations;       // ['Bienvenue', 'Se connecter', 'Déconnexion']
+out.providerAttempts;   // [{ providerId: 'google', outcome: 'success' }]
+out.warnings;           // forwarded from resolveTranslateConfig
+```
+
+**B. Generate a full target locale (`runGenerate`):**
+```ts
+import { runGenerate } from '@i18nprune/core';
+import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 
 const out = await runGenerate({
-  config: cfg,            // already-loaded I18nPruneConfig
+  config: cfg,                              // already-loaded I18nPruneConfig
   target: 'fr',
+  adapters: createNodeRuntimeAdapters(),
+  env: process.env,
   metadata: true,
-  hooks: { onTick: () => {} },
 });
 
 if (out.partial) {
-  console.warn(`partial — run with --resume; ${out.markedForReview} marked for review`);
+  console.warn(`partial — run with resume: true; ${out.markedForReview} marked for review`);
 }
 ```
 
-`runGenerate` reads source/target via adapters, runs the provider chain, applies policy, writes the target file (unless `dryRun`), and returns `GenerateOutput`. The CLI's `executeGenerate` becomes a thin shell: parse argv → build hooks (TTY prompts, progress bar, run events) → call `runGenerate` per target → print summary.
+**C. Resume / top-up (replaces `fill`):**
+```ts
+const filled = await runGenerate({
+  config,
+  target: 'fr',
+  adapters: createNodeRuntimeAdapters(),
+  env: process.env,
+  resume: true,                             // only translates needsReview / source-identical / missing
+  metadata: true,
+});
+```
+This is the substrate that **replaces the `fill` command** in phase 4 (see §8). Same semantics as today's `i18nprune fill --target fr --metadata`; one entry point covers both initial generate and partial top-ups.
+
+**D. Cloudflare Worker / Edge:**
+```ts
+import { runGenerate } from '@i18nprune/core';
+import { createWebRuntimeAdapters } from '@i18nprune/core/runtime/web';
+
+export default {
+  async fetch(req: Request, env: Env): Promise<Response> {
+    const adapters = createWebRuntimeAdapters({ kv: env.LOCALES, fetch: env.fetch });
+    const out = await runGenerate({
+      config,
+      target: new URL(req.url).searchParams.get('target')!,
+      adapters,
+      env,                                  // Worker bindings, not process.env
+      metadata: true,
+    });
+    return Response.json(out);
+  },
+};
+```
+
+**E. Multi-op flow via shared context (CLI uses this internally):**
+```ts
+import { createCoreContext, runGenerate, runQuality } from '@i18nprune/core';
+import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
+
+const ctx = await createCoreContext({
+  config: cfg,
+  adapters: createNodeRuntimeAdapters(),
+  env: process.env,
+});
+
+const generated = await runGenerate({ ctx, target: 'fr', metadata: true });
+const quality   = await runQuality({ ctx, target: 'fr' });
+```
+
+`runGenerate` reads source/target via `adapters.fs` / `adapters.path`, builds candidate leaves (preserve / parity / `needsReview` / source-identical / missing — gated by `resume`), **delegates actual translation work to `runTranslate`**, applies the metadata pipeline, and writes the target file (unless `dryRun`). The CLI's `executeGenerate` becomes a thin shell: parse argv → build hooks (TTY prompts, progress bar, run events) → build `CoreContext` → call `runGenerate` per target → print summary.
 
 ---
 
@@ -60,7 +148,7 @@ if (out.partial) {
 |---|---|---|---|
 | **1 — Generate-first refactor** | Core owns generate orchestration. CLI calls `runGenerate`. | **Before policy work.** | Hard prerequisite for phase 2. |
 | **2 — Translate policy** | All 10 steps from [`translate-policy.md`](./translate-policy.md), landing on the new substrate. | After phase 1. | Hard prerequisite for `fill` collapse. |
-| **3 — Other ops architecture** | `runFill`, `runQuality`, `runReview`, `runMissing`, `runSync`. Same pattern. | **Parallel with phase 2** (independent files). | Optional but recommended before phase 4. |
+| **3 — Other ops architecture** | `runQuality`, `runReview`, `runMissing`, `runSync`. Same pattern. (`runFill` is **not** part of this — `runGenerate({ resume: true })` covers it from 5.b.3.) | **Parallel with phase 2** (independent files). | Optional but recommended before phase 4. |
 | **4 — `fill` collapse + CLI thinning** | Fold `fill` into `generate --resume`. Reduce CLI `execute.ts` files to thin shells. | After phases 2 + 3. | Final state. |
 
 ---
@@ -96,22 +184,88 @@ export function resolveTranslateConfig(input: {
 
 **Tests.** Unit tests in `packages/core/src/translator/config/__tests__/resolveTranslateConfig.test.ts`. Parity test: existing `resolveProvider.test.ts` cases keep passing.
 
-### 5.b — `runGenerate` entry + move orchestration into core
+### 5.b — `runTranslate` primitive + `runGenerate` entry
 
-**New files:**
-- `packages/core/src/generate/run.ts` (the entry)
-- `packages/core/src/translator/identity/` (move from `packages/cli/src/shared/translator/identity.ts`)
-- `packages/core/src/translator/fallback/` (extract retry loop currently in `executeGenerate`)
+Three sub-slices, each independently shippable. `runTranslate` is extracted *first* so SDK consumers gain the translate primitive even before `runGenerate` lands, and `runGenerate` is built on top of it (not on top of an internal helper).
 
-**Entry signature:**
+| sub-slice | scope | parity gate |
+|---|---|---|
+| **5.b.1 ✓ identity guard** | move pure logic to `packages/core/src/translator/identity/`; CLI keeps thin host wrapper for the inquirer confirm UI | byte-identical |
+| **5.b.2 `runTranslate` primitive** | extract the per-provider chain + retry/fallback + identity wiring + attempts/stats aggregation into a public SDK entry at `packages/core/src/translator/run.ts`. CLI stops owning the loop. | byte-identical |
+| **5.b.3 `runGenerate` entry** | `packages/core/src/generate/run.ts` builds candidate leaves, calls `runTranslate`, applies metadata pipeline, returns `GenerateOutput`. Adds `resume?: boolean` from day one. CLI `executeGenerate` shrinks to ~120 lines. | byte-identical |
+
+**Adapter / env rule (binding for every sub-slice):** `adapters` and `env` are **required** parameters; core has no Node default and never touches `process.*`. The CLI imports `createNodeRuntimeAdapters` and passes both explicitly.
+
+**New core files (across the three sub-slices):**
+- `packages/core/src/translator/identity/` — done in 5.b.1.
+- `packages/core/src/translator/run.ts` — `runTranslate` (5.b.2).
+- `packages/core/src/types/translator/translate.ts` — `TranslateInput`, `TranslateOutput`, `ProviderAttemptReport`, etc. (5.b.2).
+- `packages/core/src/generate/run.ts` — `runGenerate` (5.b.3).
+- `packages/core/src/types/generate/index.ts` — `GenerateOutput`, `GenerateInput` (5.b.3).
+
+**`runTranslate` signature (5.b.2):**
+```ts
+export async function runTranslate(input: {
+  /** Plain strings to translate; output preserves order. Use this OR `leaves`, not both. */
+  texts?: readonly string[];
+  /** Keyed leaves; output preserves order and surfaces `key` per result. */
+  leaves?: readonly { key: string; source: string }[];
+
+  targetLang: string;
+  sourceLang?: string;
+
+  /** Translate-block config only — no full I18nPruneConfig needed. */
+  config: TranslateConfigInput;
+
+  adapters: RuntimeAdapters;                  // required, no default
+  env: Record<string, string | undefined>;    // required, no default
+
+  pin?: { providerId?: TranslationProviderId; workers?: number };
+
+  hooks?: {
+    onTick?: TranslationTickProgressFn;
+    onProviderAttempt?: (a: ProviderAttemptReport) => void;
+    onTranslatedLeaf?: (sourceText: string, translatedText: string, key: string | number) => void | Promise<void>;
+  };
+
+  identityGuard?: { enabled?: boolean; threshold?: number };
+}): Promise<TranslateOutput>;
+
+export type TranslateOutput = {
+  /** Same length and order as `input.texts` / `input.leaves`. */
+  translations: ReadonlyArray<TranslateResultItem>;
+  providerAttempts: ProviderAttemptReport[];
+  winnerProviderId: TranslationProviderId | null;
+  fallbackCount: number;
+  translateStats: TranslateRunPartialStats;
+  issues: Issue[];
+  warnings: Issue[];                          // from resolveTranslateConfig
+};
+
+export type TranslateResultItem =
+  | { ok: true;  key?: string; value: string; providerId: TranslationProviderId; confidence?: number }
+  | { ok: false; key?: string; reason: 'identity' | 'failed' | 'skipped'; sourceValue: string };
+```
+
+**`runGenerate` signature (5.b.3):**
 ```ts
 export async function runGenerate(input: {
   config: I18nPruneConfig;
   target: string;                              // single target per call
-  adapters?: HostAdapters;                     // defaults to Node fs/path
+
+  adapters: RuntimeAdapters;                   // required, no default
+  env: Record<string, string | undefined>;     // required, no default
+
   metadata?: boolean;
   dryRun?: boolean;
   force?: boolean;
+
+  /**
+   * When true, only re-translate leaves that are `needsReview: true` (when metadata on),
+   * source-identical, or missing. Replaces today's `fill` command in phase 4.
+   */
+  resume?: boolean;
+
   pin?: { providerId?: TranslationProviderId; workers?: number };
 
   hooks?: {
@@ -122,9 +276,11 @@ export async function runGenerate(input: {
     onTranslatedLeaf?: (sourceText: string, translatedText: string, path: string) => void | Promise<void>;
   };
 
-  identityGuard?: { enabled: boolean; thresholdRatio?: number };
+  identityGuard?: { enabled?: boolean; threshold?: number };
 }): Promise<GenerateOutput>;
 ```
+
+`RuntimeAdapters` is the published type (`@i18nprune/core/runtime/{node,web,edge}`); this doc previously called it `HostAdapters` — name aligned to the published surface.
 
 **`GenerateOutput`:**
 ```ts
@@ -142,12 +298,20 @@ export type GenerateOutput = {
 };
 ```
 
-**What moves into `runGenerate`:**
+**What moves into `runTranslate` (5.b.2):**
 - The per-provider `for` loop currently in `executeGenerate` (lines ~223-368).
-- `TranslateRunInterruptedError` partial-resume logic.
-- Identity-streak guard creation + handling.
+- `TranslateRunInterruptedError` partial-resume handling at the *translate* layer.
+- Identity-streak guard wiring (uses 5.b.1 core guard; host supplies confirm callback via hooks).
 - Provider-attempts aggregation.
 - Translate-stats aggregation.
+- Per-provider rate-limit profile + workers-effective math (currently in CLI's `resolveCliTranslateMaxParallelEffective` etc. — already covered by `resolveTranslateConfig`; CLI shims get deleted in 5.b.2 alongside).
+
+**What moves into `runGenerate` (5.b.3):**
+- Source-leaf collection from raw locale JSON (`collectStringLeaves`).
+- Existing-target read + candidate-leaf builder (preserve / parity / source-identical / `needsReview` / missing — gated by `resume`).
+- Metadata pipeline application (`applyLocaleLeafNormalization`).
+- Locale-file write (target + meta sidecar) via `adapters.fs` (5.c finishes the IO migration).
+- `GenerateOutput` shape construction.
 
 **What stays in CLI's `executeGenerate`:**
 - argv parsing / target list parsing.
@@ -171,7 +335,7 @@ If any byte changes, the slice is rejected unless A5 doc note is added.
 
 **Touched files:**
 - `packages/core/src/generate/run.ts` (read source, read existing target, write target + meta sidecar via adapters).
-- `packages/core/src/types/host/index.ts` (typed `HostAdapters` if not already exported).
+- `packages/core/src/types/runtime/adapters.ts` (already exports `RuntimeAdapters`; verify SDK surface coverage).
 
 **What moves:**
 - `readHostJsonUnknown(sourcePath, ctx.adapters.fs)` → core, called via `runGenerate`.
@@ -217,25 +381,30 @@ Same `run.ts` pattern, behavior-parity rule, one slice per PR. Order suggestion 
 | `review` | `commands/review/run.ts` | `core/src/review/run.ts` | small |
 | `missing` | `commands/missing/run.ts` | `core/src/missing/run.ts` | small |
 | `sync` | `commands/sync/run.ts` | `core/src/sync/run.ts` | medium |
-| `fill` | `commands/fill/executeFill.ts` | `core/src/fill/run.ts` | medium (collapses in phase 4) |
 
 Each PR follows phase-1 sub-slice pattern: extract resolver → entry function → file IO last. Parity snapshot per op.
 
+`fill` is intentionally absent from this table — its substrate (`runGenerate({ resume: true })`) lands in phase 1 / 5.b.3, so phase 3 has nothing to migrate. Phase 4 just deletes the CLI command surface.
+
 ---
 
-## 8. Phase 4 — `fill` collapse + CLI thinning
+## 8. Phase 4 — Delete `fill`, thin CLI executors
 
-After phases 1–3 stable.
+After phases 1–3 stable. `runGenerate({ resume: true })` is in core since 5.b.3 (phase 1), so this phase is mostly **CLI surface deletion**.
 
-### 8.a — `fill` → `generate --resume`
+### 8.a — Delete `fill` command (pre-v1, no deprecation alias)
 
-`generate --resume` reads existing target locale; only translates leaves that are:
-1. `needsReview: true` (when metadata on),
-2. source-identical (always),
-3. missing.
+Remove:
+- `packages/cli/src/commands/fill/` (entire folder).
+- `packages/cli/bin/cli.ts` `fill` registration.
+- Public docs: `docs/commands/fill/` (delete) + add a short pointer in `docs/commands/generate/` explaining `--resume` is the replacement.
+- All references in user docs / landing copy.
 
-**CLI:** `fill` command becomes a deprecated alias that calls `runGenerate(..., { resume: true })`. (Or removed outright — pre-v1.)
-**Core:** `runFill` → kept as thin `runGenerate(..., { resume: true })` shim for one release, then removed.
+Keep:
+- The `--resume` flag on `generate` (already wired in 5.b.3).
+- Core `runGenerate({ resume: true })` (already canonical).
+
+No `runFill` shim. No deprecation alias. Pre-v1.
 
 ### 8.b — Thin CLI executors
 
@@ -308,24 +477,37 @@ Codified — apply to every new file:
 **Forbidden:**
 - CLI re-export shim files for core types (`packages/cli/src/types/translator/rateLimit.ts`-style).
 - `console.*` calls in core (`packages/core/src/**`).
-- `process.*` access in core except via passed-in `env` parameter.
-- File IO in core except via passed-in `HostAdapters`.
+- `process.*` access in core (must come through passed-in `env` parameter).
+- File IO in core except via passed-in `RuntimeAdapters` (`adapters.fs` / `adapters.path`).
+- Default-resolving runtime adapters in core (no `kind === 'node'` sniffing, no `createNodeRuntimeAdapters()` fallback). Adapters are always supplied by the host.
 
 ---
 
 ## 11. SDK consumer surface after each phase
 
-After **phase 1**: SDK can run a generate without CLI.
+After **5.b.2 (phase 1, mid)**: SDK gets the translate primitive.
 ```ts
-const out = await runGenerate({ config, target: 'fr', metadata: true });
+const out = await runTranslate({
+  texts: ['Welcome', 'Sign in'],
+  targetLang: 'fr',
+  config: { primary: 'google', providers: [{ id: 'google', enabled: true }] },
+  adapters,           // required
+  env,                // required
+});
 ```
-No policy yet — single provider per call (config-driven), one shot.
 
-After **phase 2**: Same call, now with full policy / chain / handoff / partial-run.
+After **5.b.3 (phase 1, end)**: SDK gets `runGenerate` with `resume` from day one.
+```ts
+const out = await runGenerate({ config, target: 'fr', adapters, env, metadata: true });
+const filled = await runGenerate({ config, target: 'fr', adapters, env, resume: true, metadata: true });
+```
+No translate-policy yet — single provider per call (config-driven), one shot. Identity guard runs.
 
-After **phase 3**: Same pattern for `runQuality`, `runReview`, `runMissing`, `runSync`, `runFill`.
+After **phase 2**: Same calls, now with full policy / chain / handoff / partial-run hook.
 
-After **phase 4**: `runFill` is gone; `runGenerate({ ..., resume: true })` does the same thing.
+After **phase 3**: Same pattern for `runQuality`, `runReview`, `runMissing`, `runSync`. `runFill` is **never added** — it doesn't need to exist.
+
+After **phase 4**: `fill` command is deleted from the CLI; `runGenerate({ ..., resume: true })` is the only API.
 
 ---
 
@@ -343,6 +525,9 @@ After **phase 4**: `runFill` is gone; `runGenerate({ ..., resume: true })` does 
 
 ## 13. Open items
 
-- **`HostAdapters` exposure.** Phase 1.c moves file IO into core. If the existing `ctx.adapters` shape suffices, we re-export it. If we need a tighter typed export for SDK consumers, we add it in phase 1.c. Decision deferred to that slice.
+- **Adapter exposure — DECIDED.** `RuntimeAdapters` is the SDK surface (published via `@i18nprune/core/runtime/{node,web,edge}`). `runGenerate` and `runTranslate` take it as a **required** parameter. **No defaults, no Node auto-pick.** Hosts always supply both `adapters` and `env`. This doc previously used the older name `HostAdapters` — those are now `RuntimeAdapters`.
+- **`runTranslate` primitive — DECIDED.** Translate-only SDK entry at `packages/core/src/translator/run.ts`, lands in 5.b.2. `runGenerate` is built on top of it; SDK consumers can also use it directly without `I18nPruneConfig` or any locale-shape concerns.
+- **`generate --resume` substitute for `fill` — DECIDED.** `runGenerate` exposes `resume?: boolean` from 5.b.3 onward. No `runFill` ever ships in core. Phase 4 deletes the CLI `fill` command outright (pre-v1; no deprecation alias).
+- **`createCoreContext` (L2 builder) — DECIDED.** Pure host-context bundler living next to the L1 resolvers. Returns `{ config, adapters, env, run, paths }`. Both `adapters` and `env` are required. Lands in 5.b.3 (or 5.c when adapters plumb through). The CLI's existing `resolveContext` becomes a thin wrapper that adds CLI-only fields (`meta.fieldSources`, `meta.warnings`, `meta.cache`) on top.
 - **Run events as the canonical observability surface** (was Slice G in the prior proposal). Folded into phase 4 cleanup, not a separate slice.
-- **`HostAdapters` for non-Node runtimes.** Out of scope for v1 unless an actual consumer asks.
+- **Non-Node runtime presets.** `web` and `edge` are already wired in `packages/core/src/runtime/factory/`; phase 1 does not need to expand them, but both `runTranslate` and `runGenerate` are shape-compatible with all three.
