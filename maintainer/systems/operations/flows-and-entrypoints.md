@@ -31,7 +31,7 @@ If this summary diverges from code, **code + types win**; update **this doc** in
 | **languages** | `packages/cli/src/commands/languages/jsonEnvelope.ts` → **`runLanguages`** | |
 | **config** | `packages/cli/src/commands/config/jsonEnvelope.ts` → **`runConfig`** | |
 | **providers** | `packages/cli/src/commands/providers/jsonEnvelope.ts` → **`runProviders`** | |
-| **generate** | `packages/cli/src/commands/generate/run.ts` → **`generate`** (CLI shell) → core **`runGenerate`** | async, heavy **`run.progress.*`** |
+| **generate** | core entry: `packages/core/src/generate/run.ts` → **`runGenerate`**. CLI host: `packages/cli/src/commands/generate/run.ts` (shell) + `hooks.ts` (host hooks) + `jsonEnvelope.ts` (envelope + shared core delegate). Other hosts (SDK, extension, web, workers) call core **`runGenerate`** directly | async, heavy **`run.progress.*`** |
 | **fill** | `packages/cli/src/commands/fill/runFill.ts` → **`runFill`** | async |
 | **report** | `packages/cli/src/shared/report/runReport.ts` → **`runReport`** · `commands/report/buildEnvelope.ts` → **`runReportOperation`** | async / IO |
 
