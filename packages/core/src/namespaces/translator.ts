@@ -87,11 +87,12 @@ export type {
   ProviderAttemptReport,
   TranslateHooks,
   TranslateIdentityGuardOptions,
-  TranslateInput,
   TranslateLeafInput,
+  TranslateOptions,
   TranslateOutput,
   TranslateResultItem,
   TranslateRunPartialStats,
 } from '../types/translator/translate.js';
 
 export { runTranslate } from '../translator/run.js';
+export { createTranslateContext, type TranslateContext } from '../translator/context.js';

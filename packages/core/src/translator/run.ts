@@ -24,11 +24,12 @@ import type { TranslationResult } from '../types/translator/result.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
 import type {
   ProviderAttemptReport,
-  TranslateInput,
+  TranslateOptions,
   TranslateOutput,
   TranslateResultItem,
   TranslateRunPartialStats,
 } from '../types/translator/translate.js';
+import type { TranslateContext } from './context.js';
 
 type InternalLeaf = {
   readonly originalIndex: number;
@@ -52,22 +53,22 @@ function addStats(a: TranslateRunPartialStats, b: TranslateRunPartialStats): Tra
   };
 }
 
-function normalizeInputLeaves(input: TranslateInput): InternalLeaf[] {
-  if (input.texts !== undefined && input.leaves !== undefined) {
+function normalizeOptionLeaves(opts: TranslateOptions): InternalLeaf[] {
+  if (opts.texts !== undefined && opts.leaves !== undefined) {
     throw new I18nPruneError(
       'runTranslate: pass `texts` OR `leaves`, not both.',
       'USAGE',
     );
   }
-  if (input.leaves !== undefined) {
-    return input.leaves.map((leaf, i) => ({
+  if (opts.leaves !== undefined) {
+    return opts.leaves.map((leaf, i) => ({
       originalIndex: i,
       key: leaf.key,
       source: leaf.source,
     }));
   }
-  if (input.texts !== undefined) {
-    return input.texts.map((source, i) => ({ originalIndex: i, source }));
+  if (opts.texts !== undefined) {
+    return opts.texts.map((source, i) => ({ originalIndex: i, source }));
   }
   return [];
 }
@@ -129,7 +130,7 @@ async function translateBatchWithProvider(args: {
   sourceLang: string;
   workers: number;
   rateLimit: ReturnType<typeof import('./limits/parallel.js').resolveTranslateRateLimitEffective>;
-  hooks: TranslateInput['hooks'];
+  hooks: TranslateOptions['hooks'];
   streakGuard?: ReturnType<typeof createIdentityStreakGuard>;
   results: Map<number, TranslateResultItem>;
 }): Promise<TranslateRunPartialStats> {
@@ -178,24 +179,27 @@ async function translateBatchWithProvider(args: {
  * Translate a batch of strings or keyed leaves with the configured provider chain.
  *
  * Behavior:
- * - **`texts`** XOR **`leaves`** — output preserves input order.
+ * - **`opts.texts`** XOR **`opts.leaves`** — output preserves input order.
  * - Whitespace-only sources skip the network call and surface as **`{ ok: false, reason: 'skipped' }`**.
  * - Provider chain is resolved from **`resolveTranslateConfig`** (config + pin); retryable failures
  *   advance the chain, non-retryable errors throw.
  * - Partial resume across providers: completed leaves carry over, so the next provider only
  *   retranslates still-missing entries.
- * - Identity-streak guard is opt-in via **`identityGuard.enabled`**; warnings are surfaced on
+ * - Identity-streak guard is opt-in via **`opts.identityGuard.enabled`**; warnings are surfaced on
  *   **`output.issues`**. Hosts that need an interactive confirm prompt should keep owning their
- *   own guard via **`hooks.onTranslatedLeaf`**.
+ *   own guard via **`opts.hooks.onTranslatedLeaf`**.
  */
-export async function runTranslate(input: TranslateInput): Promise<TranslateOutput> {
-  const allLeaves = normalizeInputLeaves(input);
-  const sourceLang = input.sourceLang ?? 'en';
+export async function runTranslate(
+  ctx: TranslateContext,
+  opts: TranslateOptions,
+): Promise<TranslateOutput> {
+  const allLeaves = normalizeOptionLeaves(opts);
+  const sourceLang = opts.sourceLang ?? 'en';
 
   const { resolved, warnings } = resolveTranslateConfig({
-    config: input.config,
-    env: input.env,
-    pin: input.pin,
+    config: ctx.config,
+    env: ctx.env,
+    pin: opts.pin,
   });
   const providerOrder = resolved.providerOrder;
 
@@ -216,12 +220,12 @@ export async function runTranslate(input: TranslateInput): Promise<TranslateOutp
   let lastErr: unknown;
 
   // Identity-streak guard is created per-run (state spans providers) when opted in.
-  const identityEnabled = input.identityGuard?.enabled === true;
+  const identityEnabled = opts.identityGuard?.enabled === true;
   const streakGuard = identityEnabled
     ? createIdentityStreakGuard({
         command: 'translate',
-        target: input.targetLang,
-        threshold: input.identityGuard?.threshold ?? IDENTITY_STREAK_THRESHOLD,
+        target: opts.targetLang,
+        threshold: opts.identityGuard?.threshold ?? IDENTITY_STREAK_THRESHOLD,
       })
     : undefined;
 
@@ -234,17 +238,17 @@ export async function runTranslate(input: TranslateInput): Promise<TranslateOutp
     }
 
     const options = resolveTranslationProviderOptionsForId({
-      config: input.config,
+      config: ctx.config,
       id: providerId,
-      env: input.env,
+      env: ctx.env,
     });
     assertTranslationProviderCredentialsReady(options);
     const provider = resolveTranslator(options);
     const workers = resolveTranslateMaxParallelEffective({
-      config: input.config,
-      workers: input.pin?.workers,
+      config: ctx.config,
+      workers: opts.pin?.workers,
       providerId,
-      env: input.env,
+      env: ctx.env,
     });
     const rateLimit = resolved.providers[providerId].startRateLimit;
 
@@ -255,11 +259,11 @@ export async function runTranslate(input: TranslateInput): Promise<TranslateOutp
         leaves: remaining,
         provider,
         providerId,
-        targetLang: input.targetLang,
+        targetLang: opts.targetLang,
         sourceLang,
         workers,
         rateLimit,
-        hooks: input.hooks,
+        hooks: opts.hooks,
         streakGuard,
         results,
       });
@@ -270,7 +274,7 @@ export async function runTranslate(input: TranslateInput): Promise<TranslateOutp
         durationMs: Date.now() - startedAt,
       };
       providerAttempts.push(report);
-      input.hooks?.onProviderAttempt?.(report);
+      opts.hooks?.onProviderAttempt?.(report);
       aggregateStats = addStats(aggregateStats, attemptStats);
       winnerProviderId = providerId;
       break;
@@ -293,7 +297,7 @@ export async function runTranslate(input: TranslateInput): Promise<TranslateOutp
         durationMs: Date.now() - startedAt,
       };
       providerAttempts.push(report);
-      input.hooks?.onProviderAttempt?.(report);
+      opts.hooks?.onProviderAttempt?.(report);
       aggregateStats = addStats(aggregateStats, failureStats);
 
       const hasNext = pi < providerOrder.length - 1;

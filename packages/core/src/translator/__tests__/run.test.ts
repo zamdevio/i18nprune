@@ -14,6 +14,7 @@ vi.mock('../../shared/translator/providers/registry.js', async () => {
 });
 
 import { runTranslate } from '../run.js';
+import { createTranslateContext } from '../context.js';
 import { resolveTranslator } from '../../shared/translator/providers/registry.js';
 import {
   ISSUE_GENERATE_TRANSLATE_NETWORK_ERROR,
@@ -32,10 +33,18 @@ function fakeTranslator(impl: (text: string) => string | Promise<string>): Trans
   };
 }
 
-const config: TranslateConfigInput = {
+const baseConfig: TranslateConfigInput = {
   primary: 'google',
   providers: [{ id: 'google' }],
 };
+
+function makeCtx(config: TranslateConfigInput = baseConfig) {
+  return createTranslateContext({
+    config,
+    adapters: {} as never,
+    env: {},
+  });
+}
 
 describe('runTranslate', () => {
   beforeEach(() => {
@@ -45,12 +54,9 @@ describe('runTranslate', () => {
   it('translates plain texts in input order and aggregates stats', async () => {
     resolveTranslatorMock.mockReturnValue(fakeTranslator((t) => `${t}-fr`));
 
-    const out = await runTranslate({
+    const out = await runTranslate(makeCtx(), {
       texts: ['hello', 'world'],
       targetLang: 'fr',
-      config,
-      adapters: {} as never,
-      env: {},
     });
 
     expect(out.translations).toHaveLength(2);
@@ -67,16 +73,13 @@ describe('runTranslate', () => {
     const provider = vi.fn(fakeTranslator((t) => `${t}-fr`).translate);
     resolveTranslatorMock.mockReturnValue({ translate: provider });
 
-    const out = await runTranslate({
+    const out = await runTranslate(makeCtx(), {
       leaves: [
         { key: 'a', source: 'hi' },
         { key: 'b', source: '   ' },
         { key: 'c', source: 'world' },
       ],
       targetLang: 'fr',
-      config,
-      adapters: {} as never,
-      env: {},
     });
 
     expect(provider).toHaveBeenCalledTimes(2);
@@ -101,12 +104,9 @@ describe('runTranslate', () => {
       providers: [{ id: 'google' }, { id: 'mymemory' }],
       policy: { routing: 'auto' },
     };
-    const out = await runTranslate({
+    const out = await runTranslate(makeCtx(cfg), {
       texts: ['ok'],
       targetLang: 'de',
-      config: cfg,
-      adapters: {} as never,
-      env: {},
     });
 
     expect(out.providerAttempts.map((a) => a.providerId)).toEqual(['google', 'mymemory']);
@@ -132,13 +132,7 @@ describe('runTranslate', () => {
       policy: { routing: 'auto' },
     };
     await expect(
-      runTranslate({
-        texts: ['x'],
-        targetLang: 'fr',
-        config: cfg,
-        adapters: {} as never,
-        env: {},
-      }),
+      runTranslate(makeCtx(cfg), { texts: ['x'], targetLang: 'fr' }),
     ).rejects.toMatchObject({ issues: [{ code: ISSUE_GENERATE_TRANSLATE_NETWORK_ERROR }] });
   });
 
@@ -146,12 +140,9 @@ describe('runTranslate', () => {
     resolveTranslatorMock.mockReturnValue(fakeTranslator((t) => t));
 
     const sources = Array.from({ length: 8 }, (_, i) => `same-${String(i)}`);
-    const out = await runTranslate({
+    const out = await runTranslate(makeCtx(), {
       texts: sources,
       targetLang: 'fr',
-      config,
-      adapters: {} as never,
-      env: {},
       identityGuard: { enabled: true, threshold: 8 },
     });
 
@@ -164,14 +155,8 @@ describe('runTranslate', () => {
   it('returns warnings forwarded from resolveTranslateConfig', async () => {
     resolveTranslatorMock.mockReturnValue(fakeTranslator((t) => `${t}-x`));
 
-    const out = await runTranslate({
-      texts: ['hi'],
-      targetLang: 'fr',
-      // No translate.policy.routing → resolveTranslateConfig pushes a "defaulting to single" warning.
-      config,
-      adapters: {} as never,
-      env: {},
-    });
+    // No translate.policy.routing → resolveTranslateConfig pushes a "defaulting to single" warning.
+    const out = await runTranslate(makeCtx(), { texts: ['hi'], targetLang: 'fr' });
     expect(out.warnings.length).toBeGreaterThan(0);
   });
 });

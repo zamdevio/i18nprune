@@ -4,12 +4,9 @@ import type { TranslationLeafMeta } from './result.js';
 import type { TranslationTickProgressFn } from '../progress/tick.js';
 import type { ProviderAttemptOutcome } from '../../translator/policy/fallback.js';
 import type { TranslateRunPartialStats } from '../../generate/translateRunInterruptedError.js';
-import type { TranslateConfigInput } from '../config/translate.js';
-import type { RuntimeAdapters } from '../runtime/adapters.js';
-import type { TranslatorEnv } from '../../shared/constants/translate.js';
 
 /**
- * Re-export so SDK consumers building **`TranslateInput`** don't need to know which sub-module
+ * Re-export so SDK consumers building **`TranslateOptions`** don't need to know which sub-module
  * defines the partial-stats shape.
  */
 export type { TranslateRunPartialStats };
@@ -82,11 +79,11 @@ export type TranslateIdentityGuardOptions = {
 };
 
 /**
- * Inputs for **`runTranslate`** — the public SDK primitive that orchestrates one or more providers,
- * retries, and the identity guard. Use **`texts`** for plain string lists or **`leaves`** for
- * keyed pairs; the output preserves input order.
+ * Per-call options for **`runTranslate`**. The translator owns no project state — config / adapters /
+ * env are bundled in **`TranslateContext`** (the first argument). Use **`texts`** for plain string
+ * lists or **`leaves`** for keyed pairs; the output preserves input order.
  */
-export type TranslateInput = {
+export type TranslateOptions = {
   /** Plain strings to translate; mutually exclusive with **`leaves`**. */
   readonly texts?: readonly string[];
   /** Keyed leaves; mutually exclusive with **`texts`**. */
@@ -94,17 +91,6 @@ export type TranslateInput = {
 
   readonly targetLang: string;
   readonly sourceLang?: string;
-
-  /**
-   * Translate-block config only — no full **`I18nPruneConfig`** required. **`runTranslate`** runs
-   * **`resolveTranslateConfig`** internally and surfaces its warnings on the output.
-   */
-  readonly config: TranslateConfigInput;
-
-  /** Required: hosts always supply runtime adapters; core has no Node default. */
-  readonly adapters: RuntimeAdapters;
-  /** Required: hosts always supply env; core never reads **`process.*`**. */
-  readonly env: TranslatorEnv;
 
   /** Pin a provider id (CLI **`--provider`**) and/or a **`workers`** override for this run. */
   readonly pin?: { providerId?: TranslationProviderId; workers?: number };
