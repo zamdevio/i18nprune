@@ -9,11 +9,37 @@ export type TranslateRateLimitConfigInput = {
   intervalMs?: number;
 };
 
-export type TranslateProviderRowInput = {
-  id: TranslationProviderId;
+type TranslateProviderRowInputBase = {
   enabled?: boolean;
   rateLimit?: TranslateRateLimitConfigInput;
 };
+
+export type TranslateProviderRowInputGoogle = TranslateProviderRowInputBase & { id: 'google' };
+export type TranslateProviderRowInputMymemory = TranslateProviderRowInputBase & {
+  id: 'mymemory';
+  contactEmail?: string;
+};
+export type TranslateProviderRowInputLibre = TranslateProviderRowInputBase & {
+  id: 'libre';
+  baseUrl?: string;
+};
+export type TranslateProviderRowInputDeepl = TranslateProviderRowInputBase & {
+  id: 'deepl';
+  apiKey?: string;
+};
+export type TranslateProviderRowInputLlm = TranslateProviderRowInputBase & {
+  id: 'llm';
+  apiKey?: string;
+  baseUrl?: string;
+  model?: string;
+};
+
+export type TranslateProviderRowInput =
+  | TranslateProviderRowInputGoogle
+  | TranslateProviderRowInputMymemory
+  | TranslateProviderRowInputLibre
+  | TranslateProviderRowInputDeepl
+  | TranslateProviderRowInputLlm;
 
 export type TranslatePolicyConfigInput = {
   routing?: 'single' | 'auto';

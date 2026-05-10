@@ -46,3 +46,39 @@ export type {
   IdentityStreakInteractive,
   IdentityStreakState,
 } from '../translator/identity/index.js';
+
+export {
+  ENV_TRANSLATE_DEEPL_API_KEY,
+  ENV_TRANSLATE_LIBRE_URL,
+  ENV_TRANSLATE_LLM_API_KEY,
+  ENV_TRANSLATE_LLM_BASE_URL,
+  ENV_TRANSLATE_LLM_MODEL,
+  ENV_TRANSLATE_MAX_WORKERS,
+  ENV_TRANSLATE_PROVIDER,
+} from '../translator/env.js';
+export type { TranslatorEnv } from '../translator/env.js';
+
+export {
+  assertTranslationProviderCredentialsReady,
+  effectiveTranslationProviderId,
+  resolvedTranslationOptionsFromCliFlag,
+  resolveTranslationProviderOptions,
+  resolveTranslationProviderOptionsForId,
+  resolveTranslationProviderOrder,
+} from '../translator/providers/index.js';
+
+export {
+  classifyProviderFailureOutcome,
+  classifyTranslateFailure,
+  isRetryableProviderFailure,
+  type ProviderAttemptOutcome,
+  type TranslateFailureOutcome,
+} from '../translator/policy/index.js';
+
+export {
+  buildTranslateParallelLimitSuggestion,
+  resolveProviderRateLimitProfile,
+  resolveTranslateMaxParallelEffective,
+  resolveTranslateMaxParallelFromConfig,
+  resolveTranslateRateLimitEffective,
+} from '../translator/limits/index.js';
