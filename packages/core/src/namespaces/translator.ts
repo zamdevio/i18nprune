@@ -55,8 +55,8 @@ export {
   ENV_TRANSLATE_LLM_MODEL,
   ENV_TRANSLATE_MAX_WORKERS,
   ENV_TRANSLATE_PROVIDER,
-} from '../translator/env.js';
-export type { TranslatorEnv } from '../translator/env.js';
+} from '../shared/constants/translate.js';
+export type { TranslatorEnv } from '../shared/constants/translate.js';
 
 export {
   assertTranslationProviderCredentialsReady,

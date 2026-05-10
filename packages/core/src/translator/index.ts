@@ -5,7 +5,6 @@
  * re-implementing them.
  */
 
-export * from './env.js';
 export * from './identity/index.js';
 export * from './limits/index.js';
 export * from './policy/index.js';

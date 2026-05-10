@@ -6,7 +6,7 @@ import type { ProviderAttemptOutcome } from '../../translator/policy/fallback.js
 import type { TranslateRunPartialStats } from '../../generate/translateRunInterruptedError.js';
 import type { TranslateConfigInput } from '../config/translate.js';
 import type { RuntimeAdapters } from '../runtime/adapters.js';
-import type { TranslatorEnv } from '../../translator/env.js';
+import type { TranslatorEnv } from '../../shared/constants/translate.js';
 
 /**
  * Re-export so SDK consumers building **`TranslateInput`** don't need to know which sub-module

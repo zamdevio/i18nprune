@@ -17,7 +17,7 @@ import type {
 } from '../../types/translator/rateLimit.js';
 import type { TranslateConfigInput } from '../../types/config/index.js';
 import type { TranslationProviderId } from '../../types/translator/providers.js';
-import { ENV_TRANSLATE_MAX_WORKERS, type TranslatorEnv } from '../env.js';
+import { ENV_TRANSLATE_MAX_WORKERS, type TranslatorEnv } from '../../shared/constants/translate.js';
 
 function clampInt(n: number, lo: number, hi: number): number {
   if (!Number.isFinite(n)) return lo;

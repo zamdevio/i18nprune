@@ -29,7 +29,7 @@ import {
   ENV_TRANSLATE_LLM_MODEL,
   ENV_TRANSLATE_PROVIDER,
   type TranslatorEnv,
-} from '../env.js';
+} from '../../shared/constants/translate.js';
 
 function trimStr(s: string | undefined): string | undefined {
   const t = s?.trim();
