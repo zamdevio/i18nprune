@@ -37,6 +37,7 @@ import {
   generateCanPrintWarn,
 } from './runLogGates.js';
 import type { Issue } from '../types/json/envelope/index.js';
+import type { TranslationProviderId } from '../types/translator/providers.js';
 import type {
   CoreContext,
   GenerateHostHooks,
@@ -44,7 +45,12 @@ import type {
   GenerateRunOptions,
   GenerateRunResult,
   GenerateTargetJsonRow,
-} from '../types/generate/generateRun.js';
+  GenerateRunHooks,
+  HandoffOffer,
+  IncompleteRunDecision,
+  IncompleteRunInfo,
+  IncompleteRunReason,
+} from '../types/generate/index.js';
 
 const LANG_CATALOG = buildLanguageCatalog(generatedLanguageCatalog);
 
@@ -58,6 +64,25 @@ function resolveGenerateSourcePath(ctx: CoreContext, sourceOverride: string | un
 
 function shouldSkipLocaleMetaSidecar(opts: { noLocaleMeta?: boolean }, config: { noLocaleMeta?: boolean }): boolean {
   return opts.noLocaleMeta === true || config.noLocaleMeta === true;
+}
+
+/**
+ * Best-effort error summary for {@link IncompleteRunInfo.lastError}. Prefer the first issue code
+ * attached by **`translateLeaf`**'s structured failures; fall back to **`I18nPruneError.code`**;
+ * default to **`'unknown'`** so SDK consumers always see a stable shape.
+ */
+function summarizeLastError(err: unknown): { code: string; message: string } | undefined {
+  if (err === undefined || err === null) return undefined;
+  const e = err as { code?: unknown; issues?: unknown };
+  const issuesArr = Array.isArray(e.issues) ? (e.issues as Issue[]) : [];
+  const issueCode = issuesArr[0]?.code;
+  const code = typeof issueCode === 'string'
+    ? issueCode
+    : typeof e.code === 'string'
+      ? e.code
+      : 'unknown';
+  const message = err instanceof Error ? err.message : String(err);
+  return { code, message };
 }
 
 export function resolveGenerateDirectionDefault(input: {
@@ -74,6 +99,7 @@ export async function runGenerate(
   ctx: CoreContext,
   opts: GenerateRunOptions,
   host: GenerateHostHooks,
+  hooks?: GenerateRunHooks,
 ): Promise<GenerateRunResult> {
   const run = ctx.run;
   const emitProgress = host.emitProgress;
@@ -107,11 +133,13 @@ export async function runGenerate(
   if (!translateCfg) {
     throw new I18nPruneError('config.translate is required for generate', 'USAGE');
   }
-  const providerOrder = resolveTranslationProviderOrder({
-    config: translateCfg,
-    pin: opts.provider,
-    env: ctx.env,
-  });
+  const chain: TranslationProviderId[] = [
+    ...resolveTranslationProviderOrder({
+      config: translateCfg,
+      pin: opts.provider,
+      env: ctx.env,
+    }),
+  ];
   const primaryTranslation = resolveTranslationProviderOptions({
     config: translateCfg,
     pin: opts.provider,
@@ -217,8 +245,8 @@ export async function runGenerate(
       failedRequests: 0,
     };
 
-    for (let pi = 0; pi < providerOrder.length; pi += 1) {
-      const providerId = providerOrder[pi]!;
+    for (let pi = 0; pi < chain.length; pi += 1) {
+      const providerId = chain[pi]!;
       const translation = resolveTranslationProviderOptionsForId({
         config: translateCfg,
         id: providerId,
@@ -331,10 +359,8 @@ export async function runGenerate(
         session.fail();
         const interrupted = e instanceof TranslateRunInterruptedError ? e : undefined;
         const rootCause = interrupted !== undefined ? interrupted.cause : e;
-        providerAttempts?.push({
-          providerId,
-          outcome: classifyProviderFailureOutcome(rootCause),
-        });
+        const outcome = classifyProviderFailureOutcome(rootCause);
+        providerAttempts?.push({ providerId, outcome });
         if (rootCause instanceof IdentityAbortError) {
           host.onIdentityAbortNotice(rootCause, { dryRun: Boolean(opts.dryRun) });
           const issuesAbort = [
@@ -358,13 +384,40 @@ export async function runGenerate(
             failedRequests: aggTranslateStats.failedRequests + interrupted.translateStats.failedRequests,
           };
         }
-        const hasNext = pi < providerOrder.length - 1;
-        if (!hasNext || !isRetryableProviderFailure(rootCause)) {
-          throw rootCause instanceof Error ? rootCause : new Error(String(rootCause));
+        const hasNext = pi < chain.length - 1;
+        const isRetryable = isRetryableProviderFailure(rootCause);
+        if (!hasNext || !isRetryable) {
+          // Terminal: chain done or non-retryable. The post-loop `onIncomplete` flow surfaces it
+          // to the host (default decision: rethrow `lastErr`, matches today's behavior).
+          break;
+        }
+        // Retryable + next provider available: offer the host a handoff pick.
+        const remainingIds = chain.slice(pi + 1);
+        if (hooks?.onHandoffPick) {
+          const offer: HandoffOffer = {
+            target,
+            failedProviderId: providerId,
+            failureReason: outcome === 'success' ? 'non_retryable_error' : outcome,
+            remainingProviderIds: remainingIds,
+            partialStats: aggTranslateStats,
+          };
+          const pick = (await hooks.onHandoffPick(offer)) ?? null;
+          if (pick !== null) {
+            if (!remainingIds.includes(pick)) {
+              throw new I18nPruneError(
+                `runGenerate: onHandoffPick returned "${String(pick)}" which is not in remainingProviderIds (${remainingIds.join(', ')}).`,
+                'USAGE',
+              );
+            }
+            const targetIdx = chain.indexOf(pick, pi + 1);
+            if (targetIdx > pi + 1) {
+              [chain[pi + 1], chain[targetIdx]] = [chain[targetIdx]!, chain[pi + 1]!];
+            }
+          }
         }
         if (generateCanPrintWarn(run)) {
           host.beforeProviderFallbackWarn?.();
-          const nextProvider = providerOrder[pi + 1]!;
+          const nextProvider = chain[pi + 1]!;
           const partialHint =
             interrupted !== undefined
               ? ` Partial progress kept (${String(interrupted.translateStats.successfulLeaves)} leaf translation(s) succeeded before interrupt); next provider fills the rest without restarting.`
@@ -376,7 +429,38 @@ export async function runGenerate(
       }
     }
 
-    if (!translateResult) throw (lastErr ?? new Error('generate: provider fallback exhausted without a result'));
+    if (!translateResult) {
+      const reason: IncompleteRunReason = isRetryableProviderFailure(lastErr)
+        ? 'provider_chain_exhausted'
+        : 'partial_after_non_retryable';
+      const lastError = summarizeLastError(lastErr);
+      const info: IncompleteRunInfo = {
+        target,
+        reason,
+        partial: aggTranslateStats,
+        successfulLeaves: aggTranslateStats.successfulLeaves,
+        failedLeaves: Math.max(0, sourceLeaves.length - aggTranslateStats.successfulLeaves),
+        providerAttempts: (providerAttempts ?? []).slice(),
+        // Chain is fully consumed at this point; future slices may surface remaining ids when
+        // mid-run terminal failures stop the chain early.
+        remainingProviderIds: [],
+        ...(lastError !== undefined ? { lastError } : {}),
+      };
+      const decision: IncompleteRunDecision =
+        (await hooks?.onIncomplete?.(info)) ?? { action: 'abort_no_write' };
+      switch (decision.action) {
+        case 'abort_no_write':
+          throw lastErr instanceof Error
+            ? lastErr
+            : new Error(String(lastErr ?? 'generate: provider fallback exhausted without a result'));
+        case 'write_partial':
+        case 'retry_provider':
+          throw new I18nPruneError(
+            `runGenerate: onIncomplete returned "${decision.action}" but that path is not yet implemented (slice 5.b.3.hooks.behavior follow-up).`,
+            'USAGE',
+          );
+      }
+    }
 
     streakIssues.push(...targetStreakIssues);
     const emptyIssueList = translateResult.issues ?? [];
