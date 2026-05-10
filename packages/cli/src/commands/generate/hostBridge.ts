@@ -64,6 +64,10 @@ export function buildGenerateHostHooks(
       info: (msg) => {
         if (canPrintInfo(ctx.run)) logger.info(msg, ctx.run);
       },
+      // Warn-styled hint that should still hide under `--quiet` (info policy, not warn policy).
+      notice: (msg) => {
+        if (canPrintInfo(ctx.run)) logger.warn(msg, ctx.run);
+      },
       warn: (msg) => {
         if (canPrintWarn(ctx.run)) logger.warn(msg, ctx.run);
       },

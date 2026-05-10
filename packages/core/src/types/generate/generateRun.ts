@@ -108,8 +108,17 @@ export type GenerateHostHooks = {
   /** Optional decorative newline before provider-fallback warning (CLI cursor lift). */
   beforeProviderFallbackWarn?: () => void;
 
+  /**
+   * Host log channels. Core calls these unconditionally; the host applies its verbosity policy
+   * (e.g. CLI maps **`--json`** / **`--silent`** / **`--quiet`** to which methods are no-ops).
+   *
+   * - **`info`**: routine progress / breakdown lines (CLI: shown unless `--json`/`--silent`/`--quiet`).
+   * - **`notice`**: warn-styled hint that should still hide under `--quiet` (e.g. "ltr but often RTL").
+   * - **`warn`**: real warnings — provider fallback, persistent identity (CLI: shown unless `--json`/`--silent`).
+   */
   log: {
     info?: (msg: string) => void;
+    notice?: (msg: string) => void;
     warn?: (msg: string) => void;
   };
 

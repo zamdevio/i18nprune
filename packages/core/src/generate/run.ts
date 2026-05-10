@@ -31,11 +31,6 @@ import {
 import { classifyProviderFailureOutcome, isRetryableProviderFailure } from '../translator/policy/fallback.js';
 import { IdentityAbortError } from '../translator/identity/error.js';
 import { writeRuntimeJsonPretty } from './io/writeRuntimeJson.js';
-import {
-  generateCanPrintInfo,
-  generateCanPrintPrimary,
-  generateCanPrintWarn,
-} from './runLogGates.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
 import type {
@@ -101,7 +96,6 @@ export async function runGenerate(
   host: GenerateHostHooks,
   hooks?: GenerateRunHooks,
 ): Promise<GenerateRunResult> {
-  const run = ctx.run;
   const emitProgress = host.emitProgress;
 
   const sourcePath = resolveGenerateSourcePath(ctx, opts.source);
@@ -163,14 +157,14 @@ export async function runGenerate(
       targetCode: target,
       catalogDirection: catalog?.direction,
     });
-    if (generateCanPrintInfo(run)) {
+    {
       const oftenRtl = languageOftenRtl(target);
       if (oftenRtl && direction === 'ltr') {
-        host.log.warn?.(
+        host.log.notice?.(
           `generate: "${target}" is often RTL in UIs — direction is ltr. Pass --direction rtl if the locale should be mirrored.`,
         );
       } else if (!oftenRtl && direction === 'rtl') {
-        host.log.warn?.(
+        host.log.notice?.(
           `generate: "${target}" is usually LTR — confirm --direction rtl is intentional for your app.`,
         );
       }
@@ -275,7 +269,7 @@ export async function runGenerate(
         providerId: translation.provider,
         env: ctx.env,
       });
-      if (limitSuggestion && generateCanPrintInfo(run)) host.log.warn?.(limitSuggestion);
+      if (limitSuggestion) host.log.notice?.(limitSuggestion);
 
       const session = host.createSession();
       const streakGuard = host.createIdentityStreakGuard(target, {
@@ -333,7 +327,7 @@ export async function runGenerate(
         targetStreakIssues = streakGuard.flushIssues();
         session.finish();
 
-        if (generateCanPrintInfo(run)) {
+        {
           const wallMs = Date.now() - targetStarted;
           const s = translateResult.translateStats;
           const avgRequestMs = s.requestAttempts > 0 ? Math.round(wallMs / s.requestAttempts) : 0;
@@ -415,8 +409,8 @@ export async function runGenerate(
             }
           }
         }
-        if (generateCanPrintWarn(run)) {
-          host.beforeProviderFallbackWarn?.();
+        host.beforeProviderFallbackWarn?.();
+        {
           const nextProvider = chain[pi + 1]!;
           const partialHint =
             interrupted !== undefined
@@ -466,8 +460,8 @@ export async function runGenerate(
     const emptyIssueList = translateResult.issues ?? [];
     for (const issue of emptyIssueList) {
       streakIssues.push(issue);
-      if (issue.code === ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES && generateCanPrintInfo(run)) {
-        host.log.warn?.(issue.message);
+      if (issue.code === ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES) {
+        host.log.notice?.(issue.message);
       }
     }
 
@@ -484,19 +478,17 @@ export async function runGenerate(
     }
 
     host.printPreserveParityReport(preserveCount, paritySkip);
-    if (generateCanPrintPrimary(run) || (opts.dryRun && generateCanPrintInfo(run))) {
-      host.printFinalizeSummary({
-        target,
-        englishName,
-        nativeName,
-        direction,
-        targetPath,
-        metaPath,
-        leafCount: sourceLeaves.length,
-        showMeta: true,
-        dryRun: opts.dryRun,
-      });
-    }
+    host.printFinalizeSummary({
+      target,
+      englishName,
+      nativeName,
+      direction,
+      targetPath,
+      metaPath,
+      leafCount: sourceLeaves.length,
+      showMeta: true,
+      dryRun: opts.dryRun,
+    });
 
     totalLeavesProcessed += sourceLeaves.length;
     targetResults.push({
@@ -529,13 +521,13 @@ export async function runGenerate(
       localeMetadata: normalizedReport,
     });
 
-    if (generateCanPrintInfo(run)) {
+    {
       const route = (providerAttempts ?? []).map((a) => a.providerId).join(' -> ');
       host.log.info?.(
         `provider route (${target}): ${route} (winner: ${winnerProviderId ?? 'none'}, fallbacks: ${String(Math.max(0, (providerAttempts?.length ?? 0) - 1))})`,
       );
     }
-    if (modeDecision.mode === 'structured' && generateCanPrintInfo(run)) {
+    if (modeDecision.mode === 'structured') {
       host.log.info?.(
         `metadata for ${target}: structured ${String(normalizedReport.structuredLeavesWritten)}, repaired ${String(normalizedReport.repairedCorruptLeaves)}. Use "sync --strip-metadata" to remove metadata fields later.`,
       );
