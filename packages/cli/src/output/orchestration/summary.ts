@@ -52,6 +52,7 @@ export function printCommandSummary(
   }
   if (summary.counts && Object.keys(summary.counts).length > 0) {
     const countsLine = Object.entries(summary.counts)
+      .sort(([a], [b]) => a.localeCompare(b))
       .map(([k, v]) => `${k}=${String(v)}`)
       .join(' · ');
     logger.info(`summary: ${countsLine}`, run);

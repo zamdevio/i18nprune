@@ -149,7 +149,6 @@ export function localValidateData(session: LocalProjectSession) {
     },
     keyObservations: {
       count: snapshot.extraction.keyObservationsCount,
-      observations: snapshot.extraction.keyObservationsPreview,
     },
   };
 }

@@ -6,7 +6,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { CLI_VERSION } from "../constants/site";
 import { fetchLatestPublishedVersion } from "../lib/npmjs";
 
 export type ToolVersionContextValue = {
@@ -20,7 +19,7 @@ export type ToolVersionContextValue = {
 const ToolVersionContext = createContext<ToolVersionContextValue | null>(null);
 
 export function ToolVersionProvider({ children }: { children: ReactNode }) {
-  const staticVersion = CLI_VERSION;
+  const staticVersion = '0.1.0';
   const [npmLatest, setNpmLatest] = useState<string | null>(null);
   const [status, setStatus] = useState<"loading" | "ready">("loading");
 

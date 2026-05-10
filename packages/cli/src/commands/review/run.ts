@@ -9,7 +9,7 @@ import { attachWallTimer } from '@/utils/timer/index.js';
 import { canPrintWarn } from '@/utils/logger/policy.js';
 import type { ReviewLocaleStats } from '@/types/command/review/json.js';
 import type { RunOptions } from '@/types/core/runtime/index.js';
-import { resolveReviewData } from '@/shared/cache/index.js';
+import { resolveExtractionBaselineCounts, resolveReviewData } from '@/shared/cache/index.js';
 
 function humanLocaleBlock(v: ReviewLocaleStats, run: RunOptions): void {
   if (v.structuredLeaves === 0) {
@@ -115,7 +115,7 @@ export async function review(opts: { target?: string }): Promise<void> {
         command: 'review',
         ok: true,
         durationMs: wall.elapsedMs(),
-        counts: { localeFiles: Object.keys(locales).length, dynamicKeySites },
+        counts: { localeFiles: Object.keys(locales).length, ...resolveExtractionBaselineCounts(ctx) },
         issues,
       },
       ctx,

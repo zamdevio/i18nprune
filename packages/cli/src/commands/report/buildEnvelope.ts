@@ -10,6 +10,7 @@ import { projectReportDocumentSchema } from '@i18nprune/report';
 import { formatProjectReportDocument } from '@/commands/report/write.js';
 import { resolveReportOutputPath } from '@/utils/report/index.js';
 import { resolveCachedProjectReportDocument } from '@/shared/cache/index.js';
+import type { Context } from '@/types/core/context/index.js';
 import type { ProjectReportDocument } from '@/types/command/report/index.js';
 import type { ReportCliJsonPayload } from '@/types/command/report/json.js';
 import type { ReportCliRunOptions } from '@/types/command/report/index.js';
@@ -68,6 +69,7 @@ export async function runReportOperation(
   envelope: CliJsonEnvelope<'report', ReportCliJsonPayload>;
   wrotePath: string | null;
   dynamicSitesCount: number;
+  ctx: Context;
 }> {
   const ctx = await resolveContext();
   const fsPort = ctx.adapters.fs;
@@ -105,5 +107,5 @@ export async function runReportOperation(
     issues,
     cwd: process.cwd(),
   });
-  return { envelope, wrotePath, dynamicSitesCount };
+  return { envelope, wrotePath, dynamicSitesCount, ctx };
 }

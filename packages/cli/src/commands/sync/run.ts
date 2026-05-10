@@ -17,7 +17,7 @@ import { noopRunEmitter } from '@i18nprune/core';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import type { SyncJsonOutput } from '@/types/command/sync/json.js';
 import type { SyncOptions } from '@/types/command/sync/index.js';
-import { refreshProjectReportCache } from '@/shared/cache/index.js';
+import { refreshProjectReportCache, resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 
@@ -187,7 +187,7 @@ export async function sync(opts: SyncOptions): Promise<void> {
         command: 'sync',
         ok: true,
         durationMs: wall.elapsedMs(),
-        counts: { files: targets.length, written: updated, dynamic: dynamicSites.length },
+        counts: { files: targets.length, written: updated, ...resolveExtractionBaselineCounts(ctx) },
         issues: summaryIssues,
       },
       ctx,

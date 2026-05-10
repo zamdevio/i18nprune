@@ -37,7 +37,6 @@ export function validateRoute(app: Hono<WorkerEnv>): void {
       },
       keyObservations: {
         count: project.snapshot.extraction.keyObservationsCount,
-        observations: project.snapshot.extraction.keyObservationsPreview,
       },
     });
   });

@@ -2,7 +2,6 @@ import { buildValidateIssues, extractor, type DynamicKeySite, type KeyObservatio
 import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
 import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
 import { runValidate } from '@/shared/programmatic/runValidate.js';
-import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import { measureQualityEnglishIdentical } from '@/shared/quality/measure.js';
 import { computeReviewReport } from '@/shared/review/report.js';
 import { resolveProjectReportData } from './reportData.js';
@@ -19,8 +18,11 @@ export function resolveCachedProjectReportDocument(ctx: Context) {
 export function resolveValidateData(
   ctx: Context,
   runId: string,
-): { envelope: ReturnType<typeof runValidate>; fullDynamicSites: DynamicKeySite[] } {
-  const window = resolveCliListWindow(ctx.config);
+): {
+  envelope: ReturnType<typeof runValidate>;
+  fullDynamicSites: DynamicKeySite[];
+  fullKeyObservations: KeyObservation[];
+} {
   try {
     const doc = resolveCachedProjectReportDocument(ctx);
     const missing = doc.details.missingKeys;
@@ -30,7 +32,7 @@ export function resolveValidateData(
       missing,
       count: keyObservations.length,
       dynamic: { count: dynamicSites.length },
-      keyObservations: { count: keyObservations.length, observations: keyObservations.slice(0, window.limit) },
+      keyObservations: { count: keyObservations.length },
     };
     return {
       envelope: buildCliJsonEnvelope('validate', data, {
@@ -46,12 +48,14 @@ export function resolveValidateData(
         cwd: process.cwd(),
       }),
       fullDynamicSites: dynamicSites,
+      fullKeyObservations: keyObservations,
     };
   } catch {
     const envelope = runValidate(ctx, { runId });
     const scanInput = toExtractorScanInput(ctx);
     const fullDynamicSites = extractor.dynamic.scanProjectDynamicKeySites(scanInput);
-    return { envelope, fullDynamicSites };
+    const fullKeyObservations = extractor.keySites.scanProjectKeyObservations(scanInput);
+    return { envelope, fullDynamicSites, fullKeyObservations };
   }
 }
 
@@ -71,6 +75,24 @@ export function resolveLocalesDynamicSites(ctx: Context): ReturnType<typeof extr
 
 export function resolveDynamicSitesCount(ctx: Context): number {
   return resolveLocalesDynamicSites(ctx).length;
+}
+
+export function resolveKeyObservationsCount(ctx: Context): number {
+  try {
+    const doc = resolveCachedProjectReportDocument(ctx);
+    const obs = doc.details.keyObservations;
+    return Array.isArray(obs) ? obs.length : 0;
+  } catch {
+    return extractor.keySites.scanProjectKeyObservations(toExtractorScanInput(ctx)).length;
+  }
+}
+
+/** Human summaries: align with **`validate`** (`dynamic`, `keyObservations`). */
+export function resolveExtractionBaselineCounts(ctx: Context): {
+  dynamic: number;
+  keyObservations: number;
+} {
+  return { dynamic: resolveDynamicSitesCount(ctx), keyObservations: resolveKeyObservationsCount(ctx) };
 }
 
 export function resolveQualityData(ctx: Context, opts: QualityOptions) {

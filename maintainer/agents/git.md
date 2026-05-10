@@ -111,7 +111,7 @@ git commit -m "chore: add package metadata and build tooling"
 - [ ] `pnpm typecheck`
 - [ ] `pnpm test`
 - [ ] `pnpm run build`
-- [ ] If docs changed: `pnpm docs:sync` and commit **`apps/docs/content`** if your workflow tracks it
+- [ ] If docs changed: commit **`docs/`** only — **`apps/docs/content/`** is gitignored (sync runs in **`pnpm docs:build`** / **`pnpm docs:dev`**)
 
 ---
 

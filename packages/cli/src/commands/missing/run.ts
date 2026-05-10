@@ -29,7 +29,11 @@ import type { I18nPruneConfig } from '@i18nprune/core/config';
 import type { MissingOptions } from '@/types/command/missing/index.js';
 import type { MissingPathDisplayOpts } from '@/types/command/missing/summary.js';
 import { resolveMissingTargetState } from './target.js';
-import { resolveDynamicSitesCount, resolveMissingResolvedKeys } from '@/shared/cache/index.js';
+import {
+  resolveDynamicSitesCount,
+  resolveExtractionBaselineCounts,
+  resolveMissingResolvedKeys,
+} from '@/shared/cache/index.js';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 
 function resolveMissingData(
@@ -71,6 +75,7 @@ export async function missing(opts: MissingOptions): Promise<void> {
     const targetPath = target.targetPath;
     let localeJson = target.localeJson;
     const dynamicSites = resolveDynamicSitesCount(ctx);
+    const extractionBaseline = resolveExtractionBaselineCounts(ctx);
 
     if (dynamicSites > 0 && canPrintWarn(run)) {
       logger.warn(
@@ -137,7 +142,7 @@ export async function missing(opts: MissingOptions): Promise<void> {
           command: 'missing',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { wouldAdd: toAdd.length },
+          counts: { wouldAdd: toAdd.length, ...extractionBaseline },
           issues: summaryIssues,
         },
         ctx,
@@ -166,6 +171,7 @@ export async function missing(opts: MissingOptions): Promise<void> {
             command: 'missing',
             ok: true,
             durationMs: wall.elapsedMs(),
+            counts: extractionBaseline,
             notes: ['aborted: user declined confirmation'],
             issues: summaryIssues,
           },
@@ -196,7 +202,7 @@ export async function missing(opts: MissingOptions): Promise<void> {
         command: 'missing',
         ok: true,
         durationMs: wall.elapsedMs(),
-        counts: { added: toAdd.length },
+        counts: { added: toAdd.length, ...extractionBaseline },
         issues: summaryIssues,
       },
       ctx,

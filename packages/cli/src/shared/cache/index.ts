@@ -25,6 +25,8 @@ export {
   resolveCachedProjectReportDocument,
   resolveLocalesDynamicSites,
   resolveDynamicSitesCount,
+  resolveExtractionBaselineCounts,
+  resolveKeyObservationsCount,
   resolveMissingResolvedKeys,
   resolveQualityData,
   resolveReviewData,

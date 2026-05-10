@@ -8,7 +8,7 @@ import type { GenerateOptions } from '@/types/command/generate/index.js';
 import type { Issue } from '@/types/core/json/envelope.js';
 import { logger } from '@/utils/logger/index.js';
 import { noopRunEmitter } from '@i18nprune/core';
-import { refreshProjectReportCache } from '@/shared/cache/index.js';
+import { refreshProjectReportCache, resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { logTranslateFailureHelp } from '@/shared/translation/failureHelp.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
@@ -114,8 +114,8 @@ export async function generate(opts: GenerateOptions): Promise<void> {
         counts: {
           locales: payload.targets.length,
           leaves: payload.leavesProcessed,
-          dynamicKeySites: payload.dynamicKeySites,
           needsReview,
+          ...resolveExtractionBaselineCounts(ctx),
         },
         issues,
       },

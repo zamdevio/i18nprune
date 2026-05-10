@@ -30,7 +30,7 @@ type VersionBadgeProps = {
 };
 
 /** Header: compact pill — green when npm responded, soft yellow when not (details on hover). */
-export function VersionBadge({ className = "" }: VersionBadgeProps) {
+function VersionBadge({ className = "" }: VersionBadgeProps) {
   const { staticVersion, npmLatest, status, updateAvailable, isNpmReachable } =
     useToolVersion();
 

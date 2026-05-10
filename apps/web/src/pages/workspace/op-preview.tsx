@@ -172,6 +172,10 @@ export function OpPreview({ title, payload }: Props) {
               ))}
             </ul>
           </>
+        ) : ko !== undefined && ko > 0 ? (
+          <p className="muted op-preview__hint">
+            Rows: run <code className="text-xs font-mono">i18nprune report</code>.
+          </p>
         ) : null}
       </div>
     );

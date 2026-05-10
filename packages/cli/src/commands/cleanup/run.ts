@@ -27,6 +27,7 @@ import {
   issuesFromDynamicScanCount,
   mergeIssues,
 } from '@/shared/result/cliEnvelopeIssues.js';
+import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintDetail, canPrintInfo, canPrintWarn } from '@/utils/logger/policy.js';
 import { canAsk, promptApprovedRemovalKeys } from '@/shared/ask/index.js';
@@ -76,6 +77,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
     const refCtx = buildKeyReferenceContext(ctx, eff);
     const scanInput = toExtractorScanInput(ctx);
     const dynamicSites = extractor.dynamic.scanProjectDynamicKeySites(scanInput);
+    const extractionBaseline = resolveExtractionBaselineCounts(ctx);
     if (canPrintInfo(ctx.run)) {
       logger.info('scanning source locale and project sources for unused key paths…', ctx.run);
     }
@@ -137,7 +139,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
           command: 'cleanup',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { remove: safeToRemove.length, dynamicKeySites: dynamicSites.length },
+          counts: { remove: safeToRemove.length, ...extractionBaseline },
           issues: summaryIssues,
         },
         ctx,
@@ -179,6 +181,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
               command: 'cleanup',
               ok: true,
               durationMs: wall.elapsedMs(),
+              counts: extractionBaseline,
               notes: ['aborted: no keys approved'],
               issues: summaryIssues,
             },
@@ -204,6 +207,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
               command: 'cleanup',
               ok: true,
               durationMs: wall.elapsedMs(),
+              counts: extractionBaseline,
               notes: ['aborted: user declined confirmation'],
               issues: summaryIssues,
             },
@@ -254,7 +258,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
         counts: {
           removedPaths: keysToRemove.length,
           filesWritten: writes,
-          dynamicKeySites: dynamicSites.length,
+          ...extractionBaseline,
         },
         issues: summaryIssues,
       },

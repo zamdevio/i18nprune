@@ -1,4 +1,4 @@
-import { GITHUB_OWNER, GITHUB_REPO, LINKS } from "../constants/links";
+import { LINKS } from "../constants/links";
 import { safeFetchJson } from "./http";
 
 export type GitHubRepoMeta = {
@@ -33,14 +33,6 @@ type WorkerGithubPayload = {
 
 function asNumberOrNull(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
-function normalizeGithubUrl(url: string): string {
-  return url.replace(/\.git$/, "").replace(/\/+$/, "");
-}
-
-export function githubCloneUrl(url: string = LINKS.github): string {
-  return `${normalizeGithubUrl(url)}.git`;
 }
 
 export function formatGithubCount(value: number | null | undefined): string {

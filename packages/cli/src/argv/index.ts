@@ -25,8 +25,6 @@ export const DOUBLE_DASH_TO_CANONICAL: Readonly<Record<string, string>> = {
 
 const SUB_SET = new Set<string>(CANONICAL_SUBCOMMANDS);
 
-export const SUBCOMMAND_NAMES = [...CANONICAL_SUBCOMMANDS] as readonly string[];
-
 const VERSION_FLAGS = new Set(['-v', '--version']);
 
 /**

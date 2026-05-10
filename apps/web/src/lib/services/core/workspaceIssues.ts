@@ -16,7 +16,7 @@ function isIssueLike(x: unknown): x is Issue {
 function isValidateScanPayload(data: unknown): data is {
   missing: unknown[];
   dynamic: { count: number };
-  keyObservations: { count: number; observations: unknown[] };
+  keyObservations: { count: number };
 } {
   if (!data || typeof data !== 'object') return false;
   const o = data as Record<string, unknown>;

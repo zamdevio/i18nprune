@@ -10,20 +10,21 @@ import type { ValidateOptions } from '@/types/command/validate/index.js';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '@/constants/issueCodes.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
-import type { DynamicKeySite } from '@i18nprune/core';
+import type { DynamicKeySite, KeyObservation } from '@i18nprune/core';
 import { analyzePatchingState } from '@i18nprune/core';
 import { resolvePatchingProjectRoot } from '@/shared/patching/scaffoldI18nLayout.js';
 import { getCliGlobalOverrides } from '@/shared/context/globals.js';
 import { issuesFromPatchingDiagnostics, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
-import { resolveValidateData } from '@/shared/cache/index.js';
+import { resolveExtractionBaselineCounts, resolveValidateData } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 
 function pushValidateReportEntriesFromEnvelope(
   ctx: { config: I18nPruneConfig },
   envelope: ReturnType<typeof runValidate>,
   fullDynamicSites: DynamicKeySite[],
+  fullKeyObservations: KeyObservation[],
 ): void {
-  const { missing, dynamic, keyObservations } = envelope.data;
+  const { missing, dynamic } = envelope.data;
   const window = resolveCliListWindow(ctx.config);
   const readFailed = envelope.issues.some((i) => i.code === ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED);
 
@@ -35,7 +36,7 @@ function pushValidateReportEntriesFromEnvelope(
   const view = buildValidateReportView({
     missing,
     dynamicSites: fullDynamicSites,
-    keyObservations: keyObservations.observations,
+    keyObservations: fullKeyObservations,
     listLimit: window.limit,
   });
 
@@ -53,10 +54,12 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
     const runId = String(Date.now());
     let envelope: ReturnType<typeof runValidate>;
     let fullDynamicSites: DynamicKeySite[] = [];
+    let fullKeyObservations: KeyObservation[] = [];
 
     const resolved = resolveValidateData(ctx, runId);
     envelope = resolved.envelope;
     fullDynamicSites = resolved.fullDynamicSites;
+    fullKeyObservations = resolved.fullKeyObservations;
     const patchingProjectRoot = resolvePatchingProjectRoot(ctx);
     const patchingAnalysis = await analyzePatchingState({
       command: 'sync',
@@ -73,7 +76,7 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
       issues: mergeIssues(envelope.issues, issuesFromPatchingDiagnostics(patchingAnalysis.diagnostics)),
     };
 
-    pushValidateReportEntriesFromEnvelope(ctx, envelope, fullDynamicSites);
+    pushValidateReportEntriesFromEnvelope(ctx, envelope, fullDynamicSites, fullKeyObservations);
     if (ctx.run.json) {
       console.log(stringifyEnvelope(envelope));
       if (!envelope.ok) {
@@ -98,7 +101,10 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
         command: 'validate',
         ok: envelope.ok,
         durationMs: wall.elapsedMs(),
-        counts: { missing: envelope.data.missing.length, dynamic: envelope.data.dynamic.count },
+        counts: {
+          missing: envelope.data.missing.length,
+          ...resolveExtractionBaselineCounts(ctx),
+        },
         issues: envelope.issues,
       },
       ctx,

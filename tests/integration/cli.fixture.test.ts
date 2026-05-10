@@ -69,7 +69,7 @@ describe('CLI against sample-i18n fixture', () => {
   it('validate reports literal keys vs source JSON (fixture may include missing keys)', () => {
     const out = runCli(['validate']);
     expect(out).toMatch(/validate · (ok|failed) ·/);
-    expect(out).toMatch(/summary: missing=\d+ · dynamic=\d+/);
+    expect(out).toMatch(/summary: dynamic=\d+ · keyObservations=\d+ · missing=\d+/);
   });
 
   it('missing without --yes exits non-zero in non-interactive mode when paths would be added', () => {
@@ -151,6 +151,7 @@ describe('CLI against sample-i18n fixture', () => {
     expect(d.count).toBe(d.keyObservations?.count);
     expect(typeof d.dynamic?.count).toBe('number');
     expect(d.dynamic).not.toHaveProperty('sites');
+    expect(d.keyObservations).not.toHaveProperty('observations');
     expect(Array.isArray(d.missing)).toBe(true);
     expect(Array.isArray(j.issues)).toBe(true);
     if (d.missing !== undefined && d.missing.length > 0) {

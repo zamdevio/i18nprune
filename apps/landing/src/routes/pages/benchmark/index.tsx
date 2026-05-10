@@ -282,8 +282,10 @@ export default function BenchmarkPage() {
           title="validate"
           what={
             <>
-              Literal keys vs source JSON; dynamic call sites enumerated with file/line. Often the longest step in a tight
-              feedback loop. See <DocLink href={getDocsUrl("commands/validate/README")}>command doc</DocLink>.
+              Literal keys vs source JSON; JSON mode returns counts. Observation rows live in{' '}
+              <code className="font-mono text-xs">report</code>; dynamic listings in{' '}
+              <code className="font-mono text-xs">locales dynamic</code>. Often the longest step in a tight feedback loop. See{' '}
+              <DocLink href={getDocsUrl("commands/validate/README")}>command doc</DocLink>.
             </>
           }
           code={`time i18nprune validate --json | jq '{ ok, count: .data.count, dynamic: .data.dynamic.count, missing: (.data.missing | length) }'`}

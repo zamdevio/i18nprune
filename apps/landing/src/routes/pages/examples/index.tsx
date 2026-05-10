@@ -21,7 +21,7 @@ const FILL_ALL = `i18nprune fill --all --json`
 
 const FILL_DRY = `i18nprune fill --all --dry-run --json`
 
-const KEY_OBS = `i18nprune validate --json | jq '.data.keyObservations'`
+const REPORT_KEY_OBS_PREVIEW = `i18nprune report --format json --out report.json >/dev/null && jq '.details.keyObservations[0:5]' report.json`
 
 const SYNC_FILES = `i18nprune sync --json | jq '.data.files'`
 
@@ -154,14 +154,13 @@ export default function ExamplesPage() {
 
         <PowerSection
           eyebrow="Introspection"
-          title="Key observations"
-          caption="Where literals were resolved — use jq to drill into observations"
-          code={KEY_OBS}
+          title="Observation rows"
+          caption="First rows from report JSON (`details.keyObservations`) — run `report` when you need file:line payloads"
+          code={REPORT_KEY_OBS_PREVIEW}
         >
           <p>
-            <code className="font-mono text-xs">keyObservations</code> carries structured scan results (paths, spans — see{" "}
-            <DocLink href={getDocsUrl("json/README")}>docs</DocLink>
-            ).
+            <code className="font-mono text-xs">validate --json</code> carries counts (<code className="font-mono text-xs">data.keyObservations.count</code>). Full scans live in{' '}
+            <DocLink href={getDocsUrl("commands/report/README")}>report</DocLink> (<code className="font-mono text-xs">details.keyObservations</code>).
           </p>
         </PowerSection>
 

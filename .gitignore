@@ -1,5 +1,5 @@
-# Monorepo: `apps/*` and `packages/*` are tracked except generated paths below
-# (e.g. `apps/docs/content/` mirrors `docs/`). Other entries are build/dev/cache artifacts.
+# Monorepo: `apps/*` and `packages/*` are tracked except generated paths below.
+# Canonical docs prose: `docs/`; VitePress copy: `apps/docs/content/` (ignored — run `pnpm docs:sync`).
 
 node_modules/
 dist/
@@ -21,6 +21,8 @@ coverage/
 !.vscode/mcp.json
 
 # Docs site (VitePress)
+# Mirrored from repo `docs/` by `pnpm docs:sync` (also runs before `pnpm docs:build`). Do not commit.
+apps/docs/content/
 apps/docs/node_modules/
 apps/docs/.vitepress/.temp/
 apps/docs/.vitepress/cache/

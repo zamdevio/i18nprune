@@ -28,7 +28,7 @@ describe('buildValidateScanPayload', () => {
     expect(payload.count).toBe(0);
   });
 
-  it('caps key observations to the list window', () => {
+  it('includes key observation and dynamic counts in payload', () => {
     const keyObservations: KeyObservation[] = Array.from({ length: 400 }, (_, i) => literal(`k.${i}`));
     const dynamicSites: DynamicKeySite[] = Array.from({ length: 250 }, (_, i) => dynamic(i));
     const payload = buildValidateScanPayload({
@@ -38,8 +38,8 @@ describe('buildValidateScanPayload', () => {
       dynamicSites,
     });
     expect(payload.dynamic).toEqual({ count: 250 });
-    expect(payload.keyObservations.observations).toHaveLength(200);
-    expect(payload.keyObservations.count).toBe(400);
+    expect(payload.keyObservations).toEqual({ count: 400 });
+    expect(payload.count).toBe(400);
   });
 });
 

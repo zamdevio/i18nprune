@@ -11,7 +11,7 @@ import {
 import { logger } from '@/utils/logger/index.js';
 import { noopRunEmitter } from '@i18nprune/core';
 import type { QualityOptions } from '@/types/command/quality/index.js';
-import { resolveQualityData } from '@/shared/cache/index.js';
+import { resolveExtractionBaselineCounts, resolveQualityData } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { canPrintWarn } from '@/utils/logger/policy.js';
 
@@ -55,7 +55,7 @@ export async function quality(opts: QualityOptions): Promise<void> {
         command: 'quality',
         ok: true,
         durationMs: wall.elapsedMs(),
-        counts: { total, dynamicKeySites },
+        counts: { total, ...resolveExtractionBaselineCounts(ctx) },
         issues: summaryIssues,
       },
       ctx,

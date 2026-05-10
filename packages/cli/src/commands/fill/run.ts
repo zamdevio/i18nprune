@@ -22,7 +22,7 @@ import { noopRunEmitter } from '@i18nprune/core';
 import { mergeFillOptionsFromEnv } from '@/commands/fill/env.js';
 import type { FillOptions } from '@/types/command/fill/index.js';
 import type { Issue } from '@/types/core/json/envelope.js';
-import { refreshProjectReportCache } from '@/shared/cache/index.js';
+import { refreshProjectReportCache, resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { logTranslateFailureHelp } from '@/shared/translation/failureHelp.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
@@ -99,6 +99,7 @@ export async function fill(opts: FillOptions): Promise<void> {
           command: 'fill',
           ok: true,
           durationMs: wall.elapsedMs(),
+          counts: resolveExtractionBaselineCounts(ctx),
           notes: ['aborted: user declined --ask confirmation'],
           issues: summaryIssues,
         },
@@ -119,8 +120,8 @@ export async function fill(opts: FillOptions): Promise<void> {
           locales: payload.targets.length,
           updated: payload.updated,
           sourceLeaves: payload.sourceLeaves,
-          dynamicKeySites: payload.dynamicKeySites,
           needsReview,
+          ...resolveExtractionBaselineCounts(ctx),
         },
         issues: summaryIssues,
       },

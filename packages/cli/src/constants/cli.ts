@@ -13,12 +13,6 @@ export const CLI_VERSION = '0.1.0';
 export const CONFIG_BASE_NAME = `${CLI_NAME}.config`;
 
 /**
- * Default **source locale** language segment for baked-in config defaults and examples (`locales/<code>.json`).
- * The runtime source-of-truth locale code is always the normalized basename of the configured **`source`** path.
- */
-export const DEFAULT_SOURCE_LOCALE_LANGUAGE_CODE = 'en';
-
-/**
  * Default icon for box headers (`header()` when `mark` is omitted) and command banners.
  * **`⚡`** reads as fast / tooling; use **`⛅`** here if you prefer a softer brand mark.
  */

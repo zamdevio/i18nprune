@@ -24,7 +24,7 @@ import { logger } from '@/utils/logger/index.js';
 import { canPrintWarn } from '@/utils/logger/policy.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
-import { resolveDynamicSitesCount } from '@/shared/cache/index.js';
+import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import type { DoctorFinding, DoctorOptions } from '@/types/commands/doctor/index.js';
 
 function resolveDoctorData(
@@ -80,7 +80,7 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
     }
 
     const findings = resolveDoctorData(ctx, opts, runId).findings!;
-    const dynamicKeySites = resolveDynamicSitesCount(ctx);
+    const baseline = resolveExtractionBaselineCounts(ctx);
     const patchingAnalysis = await analyzePatchingState({
       command: 'sync',
       action: 'upsert_locales',
@@ -103,9 +103,9 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
     } catch {
       /* source read issues surface via findings / other commands */
     }
-    if (dynamicKeySites > 0 && canPrintWarn(run)) {
+    if (baseline.dynamic > 0 && canPrintWarn(run)) {
       logger.warn(
-        `${String(dynamicKeySites)} translation call(s) use a non-literal key — run \`i18nprune locales dynamic\` for file:line listings.`,
+        `${String(baseline.dynamic)} translation call(s) use a non-literal key — run \`i18nprune locales dynamic\` for file:line listings.`,
         run,
       );
     }
@@ -131,13 +131,13 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
         counts: {
           checks: findings.length,
           sourceLeaves,
-          dynamicKeySites,
+          ...baseline,
         },
         issues: mergeIssues(
           issuesFromDiscoveryWarnings(ctx.meta.warnings),
           issuesFromDoctorFindings(findings),
           issuesFromPatchingDiagnostics(patchingAnalysis.diagnostics),
-          issuesFromDynamicScanCount(dynamicKeySites),
+          issuesFromDynamicScanCount(baseline.dynamic),
         ),
       },
       { run },

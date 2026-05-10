@@ -10,7 +10,6 @@ import {
   type RuntimeAdapters,
   type RunEmitter,
 } from '@i18nprune/core';
-import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
 import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
 import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
@@ -25,7 +24,7 @@ function emptyValidateData(): ValidateJsonOutput {
     missing: [],
     count: 0,
     dynamic: { count: 0 },
-    keyObservations: { count: 0, observations: [] },
+    keyObservations: { count: 0 },
   };
 }
 
@@ -56,7 +55,6 @@ function runValidateCore(
 ): CliJsonEnvelope<'validate', ValidateJsonOutput> {
   const adapters = runtime?.adapters ?? ctx.adapters;
   const cwd = adapters.system.cwd();
-  const listWindow = resolveCliListWindow(ctx.config);
   const emit = runtime?.emit;
   const runId = runtime?.runId;
   emitRunEvent(emit, {
@@ -96,7 +94,6 @@ function runValidateCore(
     resolvedKeys,
     keyObservations,
     dynamicSites,
-    window: listWindow,
   });
   const issues = mergeIssues(
     issuesFromDiscoveryWarnings(ctx.meta.warnings),

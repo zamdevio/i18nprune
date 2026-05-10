@@ -1,8 +1,6 @@
-import type { KeyObservation } from '@/types/core/extractor/keySites/index.js';
-
 /**
  * Payload shape for `i18nprune validate --json`.
- * Key observations may be capped (list window); treat as **additive** — new fields may appear.
+ * Treat as **additive** — new fields may appear.
  */
 export type ValidateJsonOutput = {
   missing: string[];
@@ -13,6 +11,5 @@ export type ValidateJsonOutput = {
   };
   keyObservations: {
     count: number;
-    observations: KeyObservation[];
   };
 };
