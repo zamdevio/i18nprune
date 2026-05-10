@@ -59,11 +59,19 @@ export {
   ENV_TRANSLATE_LLM_MODEL,
   ENV_TRANSLATE_MAX_WORKERS,
   ENV_TRANSLATE_PROVIDER,
+  runTranslate,
 } from './namespaces/translator.js';
 export type {
   ProviderAttemptOutcome,
+  ProviderAttemptReport,
   ResolveTranslateMaxParallelInput,
   TranslateFailureOutcome,
+  TranslateHooks,
+  TranslateIdentityGuardOptions,
+  TranslateInput,
+  TranslateLeafInput,
+  TranslateOutput,
+  TranslateResultItem,
   TranslatorEnv,
 } from './namespaces/translator.js';
 export type {

@@ -24,3 +24,4 @@ export type Translator = {
 export type * from './rateLimit.js';
 export type * from './providers.js';
 export type * from './result.js';
+export type * from './translate.js';

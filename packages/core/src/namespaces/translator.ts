@@ -82,3 +82,16 @@ export {
   resolveTranslateMaxParallelFromConfig,
   resolveTranslateRateLimitEffective,
 } from '../translator/limits/index.js';
+
+export type {
+  ProviderAttemptReport,
+  TranslateHooks,
+  TranslateIdentityGuardOptions,
+  TranslateInput,
+  TranslateLeafInput,
+  TranslateOutput,
+  TranslateResultItem,
+  TranslateRunPartialStats,
+} from '../types/translator/translate.js';
+
+export { runTranslate } from '../translator/run.js';
