@@ -151,6 +151,8 @@ export type ProviderAttemptReportJson = {
 export type GenerateTargetJsonRow = {
   target: string;
   status: 'written' | 'dry_run' | 'skipped_user_declined';
+  /** True when this target was written from a partial translate (policy / hook), not a full success. */
+  partial?: boolean;
   progress?: GenerateTargetProgressSummary;
   sourceLeafCount?: number;
   preserveCount?: number;
@@ -173,6 +175,12 @@ export type GenerateJsonPayload = {
   dynamicKeySites: number;
   leavesProcessed: number;
   targetResults: GenerateTargetJsonRow[];
+  /** Present when at least one target was written from a partial run (`translate.policy.onIncompleteRun`). */
+  partial?: boolean;
+  /** Hint for topping up leaves after a partial write (stable contract string). */
+  resumeHint?: string;
+  /** Sum of {@link GenerateTargetJsonRow.markedForReview} across targets written as partial in this run. */
+  markedForReview?: number;
 };
 
 /**

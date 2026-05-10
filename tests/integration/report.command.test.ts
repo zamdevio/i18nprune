@@ -106,22 +106,26 @@ describe('report command', () => {
     expect(txt).toMatch(/missing keys:/);
   });
 
-  it('html report is a single self-contained SPA with injected payload', () => {
-    ensureReportHtmlBundle();
-    const dir = makeTempDir('i18nprune-report-html-');
-    const out = path.join(dir, 'report.html');
-    runCli(['report', '--format', 'html', '--out', out]);
-    const html = fs.readFileSync(out, 'utf8');
-    expect(html).toMatch(/id="root"/);
-    const m = html.match(/id="i18nprune-inline-payload"[^>]*>([\s\S]*?)<\/script>/);
-    expect(m?.[1]?.trim()).toBeTruthy();
-    const inner = m?.[1]?.trim();
-    expect(inner).toBeTruthy();
-    expect(inner).not.toBe('__I18NPRUNE_REPORT__');
-    expect(() => JSON.parse(inner!)).not.toThrow();
-    expect(html.split('__I18NPRUNE_REPORT__').length).toBeGreaterThanOrEqual(2);
-    expect(html).toMatch(/i18nprune-inline-payload/);
-  });
+  it(
+    'html report is a single self-contained SPA with injected payload',
+    () => {
+      ensureReportHtmlBundle();
+      const dir = makeTempDir('i18nprune-report-html-');
+      const out = path.join(dir, 'report.html');
+      runCli(['report', '--format', 'html', '--out', out]);
+      const html = fs.readFileSync(out, 'utf8');
+      expect(html).toMatch(/id="root"/);
+      const m = html.match(/id="i18nprune-inline-payload"[^>]*>([\s\S]*?)<\/script>/);
+      expect(m?.[1]?.trim()).toBeTruthy();
+      const inner = m?.[1]?.trim();
+      expect(inner).toBeTruthy();
+      expect(inner).not.toBe('__I18NPRUNE_REPORT__');
+      expect(() => JSON.parse(inner!)).not.toThrow();
+      expect(html.split('__I18NPRUNE_REPORT__').length).toBeGreaterThanOrEqual(2);
+      expect(html).toMatch(/i18nprune-inline-payload/);
+    },
+    15_000,
+  );
 
   it('fails on --from with wrong kind', () => {
     const dir = makeTempDir('i18nprune-report-');

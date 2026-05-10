@@ -3,6 +3,7 @@ import {
   resolveLocaleLeafMode,
   type ResolveLocaleLeafModeInput,
 } from '../shared/localeLeaves/index.js';
+import { collectReviewLeaves } from '../review/collectReviewLeaves.js';
 import { buildTranslatedLocaleFromSourceLeaves } from './buildTranslatedLocale.js';
 import { ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
@@ -14,6 +15,7 @@ import type { Translator } from '../types/translator/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
 import type { TranslationTickProgressFn } from '../types/progress/index.js';
 import type { TranslateStartRateLimit } from '../types/translator/rateLimit.js';
+import type { TranslateRunPartialStats } from '../types/translator/runStats.js';
 
 /**
  * Generate: translate source leaves into a working locale object, then apply structured-metadata /
@@ -107,5 +109,67 @@ export async function translateAndNormalizeGenerateLocale(input: {
     issues,
     translateStats: built.translateStats,
     markedForReview: built.markedForReview,
+  };
+}
+
+/**
+ * After a failed generate attempt, normalize **`working`** (already a partial locale object, e.g. from
+ * {@link TranslateRunInterruptedError}) the same way a successful pass ends: locale-leaf metadata
+ * rules + empty-source warnings + **`needsReview`** counts for **`--json`** / host summaries.
+ */
+export function finalizePartialTranslatedLocaleForGenerate(input: {
+  sourceLeaves: readonly StringLeaf[];
+  working: unknown;
+  sourceMap: Map<string, string>;
+  localeLeafResolve: ResolveLocaleLeafModeInput;
+  translateStats: TranslateRunPartialStats;
+}): {
+  preserveCount: number;
+  paritySkip: number;
+  emptySourceLeafCount: number;
+  next: unknown;
+  report: LocaleMetadataReport;
+  modeDecision: ReturnType<typeof resolveLocaleLeafMode>;
+  issues: Issue[];
+  translateStats: TranslateRunPartialStats;
+  markedForReview: number;
+} {
+  const norm = applyLocaleLeafNormalization({
+    localeJson: input.working,
+    sourceMap: input.sourceMap,
+    resolveInput: input.localeLeafResolve,
+  });
+  const modeDecision = norm.modeDecision;
+
+  const issues: Issue[] = [];
+  const emptyPaths = input.sourceLeaves.filter((l) => l.value.trim() === '').map((l) => l.path);
+  if (emptyPaths.length > 0) {
+    const n = emptyPaths.length;
+    const sample = emptyPaths.slice(0, 8).join(', ');
+    const tail = n > 8 ? ` (+${String(n - 8)} more)` : '';
+    const metaHint =
+      modeDecision.mode === 'structured'
+        ? ' Use `i18nprune sync --metadata` when your project persists structured locale leaves.'
+        : ' Use `i18nprune sync` (add `--metadata` if your project persists structured locale leaves).';
+    issues.push({
+      severity: 'warning',
+      code: ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES,
+      message: `Source locale has ${String(n)} string leaf value(s) that are empty or whitespace-only — they were copied without calling the translator.${metaHint} Sample paths: ${sample}${tail}`,
+      docPath: issueCodeRepoDocPathForIssueCode(ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES),
+    });
+  }
+
+  const markedForReview = collectReviewLeaves(norm.next).filter((r) => r.needsReview === true).length;
+
+  return {
+    preserveCount: 0,
+    paritySkip: 0,
+    emptySourceLeafCount: emptyPaths.length,
+    next: norm.next,
+    report: norm.report,
+    modeDecision: norm.modeDecision,
+    issues,
+    translateStats: input.translateStats,
+    markedForReview,
   };
 }

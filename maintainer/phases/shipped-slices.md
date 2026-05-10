@@ -14,6 +14,6 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 | **Key observations (`keySites`) + validate JSON** | Shipped | [`docs/regex/key-sites-and-dynamic.md`](../../docs/regex/key-sites-and-dynamic.md), [`docs/exports/core.md`](../../docs/exports/core.md) (`keySites` namespace) |
 | **`missing` command** | Shipped | [`commands/missing`](../../docs/commands/missing/README.md) |
 | **`sync`** merge preserves structured `{ value }` leaves at existing paths | Shipped (engine) | Uses core `mergeToTemplateShape` — pair with **`locales` / metadata** docs when you document edge cases |
-| **Translate policy** (classifier → schema → resolver → `runGenerate` → handoff → JSON `translateFailureOutcome` on attempts) | Shipped (steps 1–9) | [`docs/config/translate.md`](../../docs/config/translate.md), [`maintainer/phases/translate-policy.md`](../phases/translate-policy.md) (step 10 follow-up: partial-run envelope) |
+| **Translate policy** (classifier → schema → resolver → `runGenerate` → handoff → JSON `translateFailureOutcome` → partial-run **`onIncompleteRun`** / envelope) | Shipped (steps 1–10) | [`docs/config/translate.md`](../../docs/config/translate.md), [`maintainer/phases/translate-policy.md`](../phases/translate-policy.md) |
 
 Maintainer sequencing for **remaining** work: **[`../V1-RELEASE.md`](../V1-RELEASE.md)**.

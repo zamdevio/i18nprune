@@ -14,6 +14,8 @@ export type ProviderAttemptReport = {
 export type GenerateTargetJsonRow = {
   target: string;
   status: 'written' | 'dry_run' | 'skipped_user_declined';
+  /** True when this target was written from a partial translate (policy / hook), not a full success. */
+  partial?: boolean;
   progress?: TargetProgressSummary;
   /** Source string leaf count for this target session (same as source JSON). */
   sourceLeafCount?: number;
@@ -39,4 +41,7 @@ export type GenerateJsonPayload = {
   /** Sum of `sourceLeafCount` for targets that were written or dry-run (not user-skipped). */
   leavesProcessed: number;
   targetResults: GenerateTargetJsonRow[];
+  partial?: boolean;
+  resumeHint?: string;
+  markedForReview?: number;
 };

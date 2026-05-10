@@ -73,15 +73,18 @@ export type HandoffOffer = {
 
 /**
  * Decision hooks for **`runGenerate`**. Each is optional; omitting one means "use core's default
- * policy" (today: throw on chain exhaustion, advance linearly through the provider chain).
+ * for that consent point" (see **`translate.policy`** merge in core).
  *
  * Hosts that need full UX (CLI prompt, web modal, etc.) supply these. Headless hosts (CI, Worker,
- * SDK) typically supply policy-only implementations: e.g. `onIncomplete: async () => ({ action: 'write_partial' })`.
+ * SDK) often omit **`onIncomplete`** so **`onIncompleteRun: 'confirm'`** defaults to **`write_partial`**
+ * in core, or set **`onIncompleteRun: 'write'`** / **`'discard'`** for policy-only behavior.
  */
 export type GenerateRunHooks = {
   /**
-   * Called when **`runGenerate`** can't finish a target without help. The decision drives the next
-   * step: keep the partial output, abort cleanly, or retry with another provider.
+   * Invoked only when **`translate.policy.onIncompleteRun`** is **`'confirm'`** and a target stops
+   * before every leaf finished. Return **`write_partial`** to finalize and write in-memory JSON, or
+   * **`abort_no_write`** to rethrow the last error. **`retry_provider`** is reserved (throws if returned).
+   * For **`onIncompleteRun: 'write'`** or **`'discard'`**, core does not call **`onIncomplete`**.
    */
   readonly onIncomplete?: (info: IncompleteRunInfo) => Promise<IncompleteRunDecision>;
 

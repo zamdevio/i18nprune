@@ -17,7 +17,7 @@ import {
   ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT,
 } from '../shared/constants/issueCodes.js';
 import { I18nPruneError } from '../shared/errors/index.js';
-import { translateAndNormalizeGenerateLocale } from './normalize.js';
+import { finalizePartialTranslatedLocaleForGenerate, translateAndNormalizeGenerateLocale } from './normalize.js';
 import { TranslateRunInterruptedError } from '../translator/errors/interrupted.js';
 import { resolveTranslator, translationRunMeta } from '../shared/translator/providers/registry.js';
 import {
@@ -46,6 +46,7 @@ import type { TranslatePolicyVerb } from '../types/translator/policy.js';
 import { TRANSLATE_POLICY_DEFAULTS } from '../types/translator/policy.js';
 import { createProviderHealthMonitor } from '../shared/translator/utils/providerHealth.js';
 import { IdentityAbortError } from '../translator/identity/error.js';
+import type { IdentityStreakGuard } from '../translator/identity/guard.js';
 import { writeRuntimeJsonPretty } from './io/writeRuntimeJson.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
@@ -170,6 +171,8 @@ export async function runGenerate(
   let totalLeavesProcessed = 0;
   const targetResults: GenerateTargetJsonRow[] = [];
   const streakIssues: Issue[] = [];
+  let generatePayloadPartial = false;
+  let generatePayloadPartialMarkedSum = 0;
 
   for (const target of targets) {
     emitProgress({ type: 'run.progress.generate', phase: 'build_target', target });
@@ -268,6 +271,8 @@ export async function runGenerate(
     let attemptsRemaining = maxAttemptsTotal;
     /** After an interactive handoff pick, one attempt uses {@link synthesizeHandoffTranslationOptions} (public Libre default, etc.). */
     let synthHandoffOptions = false;
+    let lastIdentityStreakGuard: IdentityStreakGuard | undefined;
+    let targetHadPartialWrite = false;
     while (pi < chain.length && attemptsRemaining > 0) {
       attemptsRemaining -= 1;
       const providerId = chain[pi]!;
@@ -313,6 +318,7 @@ export async function runGenerate(
         pauseClock: () => session.progress.pauseClock?.({ clearBar: false }),
         resumeClock: () => session.progress.resumeClock?.(),
       });
+      lastIdentityStreakGuard = streakGuard;
 
       try {
         emitProgress({
@@ -362,6 +368,7 @@ export async function runGenerate(
         providerAttempts?.push({ providerId, outcome: 'success' });
         winnerProviderId = providerId;
         targetStreakIssues = streakGuard.flushIssues();
+        lastIdentityStreakGuard = undefined;
         session.finish();
 
         {
@@ -537,6 +544,11 @@ export async function runGenerate(
     }
 
     if (!translateResult) {
+      if (lastIdentityStreakGuard !== undefined) {
+        targetStreakIssues.push(...lastIdentityStreakGuard.flushIssues());
+        lastIdentityStreakGuard = undefined;
+      }
+
       const reason: IncompleteRunReason = isRetryableProviderFailure(lastErr)
         ? 'provider_chain_exhausted'
         : 'partial_after_non_retryable';
@@ -548,25 +560,60 @@ export async function runGenerate(
         successfulLeaves: aggTranslateStats.successfulLeaves,
         failedLeaves: Math.max(0, sourceLeaves.length - aggTranslateStats.successfulLeaves),
         providerAttempts: (providerAttempts ?? []).slice(),
-        // Chain is fully consumed at this point; future slices may surface remaining ids when
-        // mid-run terminal failures stop the chain early.
-        remainingProviderIds: [],
+        remainingProviderIds: chain.slice(pi + 1),
         ...(lastError !== undefined ? { lastError } : {}),
       };
-      const decision: IncompleteRunDecision =
-        (await hooks?.onIncomplete?.(info)) ?? { action: 'abort_no_write' };
+
+      const incompleteVerb = effectivePolicy.onIncompleteRun;
+      let decision: IncompleteRunDecision;
+      if (incompleteVerb === 'discard') {
+        decision = { action: 'abort_no_write' };
+      } else if (incompleteVerb === 'write') {
+        decision = { action: 'write_partial' };
+      } else {
+        decision = (await hooks?.onIncomplete?.(info)) ?? { action: 'write_partial' };
+      }
+
       switch (decision.action) {
         case 'abort_no_write':
           throw lastErr instanceof Error
             ? lastErr
             : new Error(String(lastErr ?? 'generate: provider fallback exhausted without a result'));
-        case 'write_partial':
         case 'retry_provider':
           throw new I18nPruneError(
-            `runGenerate: onIncomplete returned "${decision.action}" but that path is not yet implemented (slice 5.b.3.hooks.behavior follow-up).`,
+            'runGenerate: onIncomplete returned "retry_provider" but that path is not yet implemented.',
             'USAGE',
           );
+        case 'write_partial': {
+          const finalized = finalizePartialTranslatedLocaleForGenerate({
+            sourceLeaves,
+            working,
+            sourceMap,
+            localeLeafResolve: {
+              configMode: opts.metadata ? ctx.config.localeLeaves?.mode : 'legacy_string',
+              metadataFlag: opts.metadata === true,
+              stripMetadataFlag: false,
+            },
+            translateStats: aggTranslateStats,
+          });
+          translateResult = {
+            ...finalized,
+            translateStats: { ...aggTranslateStats },
+          };
+          working = translateResult.next;
+          preserveCount = translateResult.preserveCount;
+          paritySkip = translateResult.paritySkip;
+          targetHadPartialWrite = true;
+          host.log.info?.(
+            `generate (${target}): partial — ${String(aggTranslateStats.successfulLeaves)}/${String(sourceLeaves.length)} translated (${String(translateResult.markedForReview)} marked for review). Run \`i18nprune generate --target ${target} --resume\` to finish.`,
+          );
+          break;
+        }
       }
+    }
+
+    if (translateResult === undefined) {
+      throw new I18nPruneError('runGenerate: invariant violated (no translate result after provider loop)', 'USAGE');
     }
 
     streakIssues.push(...targetStreakIssues);
@@ -632,7 +679,13 @@ export async function runGenerate(
       markedForReview: translateResult.markedForReview,
       paths: { localeJson: targetPath, metaJson: metaPath },
       localeMetadata: normalizedReport,
+      ...(targetHadPartialWrite ? { partial: true } : {}),
     });
+
+    if (targetHadPartialWrite) {
+      generatePayloadPartial = true;
+      generatePayloadPartialMarkedSum += translateResult.markedForReview;
+    }
 
     {
       const route = (providerAttempts ?? []).map((a) => a.providerId).join(' -> ');
@@ -658,6 +711,13 @@ export async function runGenerate(
     dynamicKeySites: opts.dynamicKeySites,
     leavesProcessed: totalLeavesProcessed,
     targetResults,
+    ...(generatePayloadPartial
+      ? {
+          partial: true,
+          resumeHint: 'generate --resume',
+          markedForReview: generatePayloadPartialMarkedSum,
+        }
+      : {}),
   };
 
   return { payload, issues: streakIssues };

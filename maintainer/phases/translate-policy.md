@@ -1,6 +1,6 @@
 # `translate.policy` — final plan (ready to execute)
 
-**Status:** Steps **1–9** are implemented in-tree (classifier → schema → resolver → `runGenerate` wiring → handoff → JSON route detail → docs/tests). **Step 10** (partial-run write hook / envelope `partial` / `resumeHint`) remains a follow-up slice per §13. Original prerequisite: Phase 1 **`runGenerate`** substrate — satisfied.  
+**Status:** Steps **1–10** are implemented in-tree (classifier → schema → resolver → `runGenerate` wiring → handoff → JSON route detail → partial-run hook / envelope per §13 → docs/tests). Follow-ups (e.g. **`generate --resume`**, **`retry_provider`**) are tracked in §13 / companion docs. Original prerequisite: Phase 1 **`runGenerate`** substrate — satisfied.  
 **Companion:** [`providers.md`](./providers.md) — Session A shipped baseline.  
 **Anchors:** `packages/cli/src/config/schema.ts` · `packages/cli/src/types/config/index.ts` · `packages/core/src/init/index.ts` · `packages/core/src/shared/translator/` · `packages/core/src/translator/` (new — created in phase 1) · `packages/core/src/generate/run.ts` (new — created in phase 1) · `packages/cli/src/shared/cursor/`
 
@@ -192,9 +192,9 @@ Behavior matrix (TTY = `eligible(run)` from `shared/cursor`):
 | 7 | **Handoff** — split surface: core owns eligibility + offer construction; CLI owns the TTY picker UI (`shared/cursor` lift, prompt). | core: `packages/core/src/translator/policy/handoff.ts` (new); CLI: `packages/cli/src/shared/translation/handoff.ts` (new). | after 5 |
 | 8 | **JSON envelope route summary** — add `outcome` per attempt and `markedForReview` count per target (sourced from `GenerateOutput`). | CLI run rows; data already in `runGenerate` return. | after 6 |
 | 9 | **Docs + tests** — `docs/config/translate.md` policy table, verb dictionary, defaults; vitest cases per verb × outcome; smoke fixture for handoff. | docs + tests. | after 6, 7 |
-| 10 | **Partial-run write hook (§13).** New `onIncompleteRun` policy key, `IncompleteRunDecision` / `IncompleteRunInfo` types, `onIncomplete` core callback wired into `runGenerate`, CLI prompt impl using `eligible(run)` + `shared/cursor`, JSON envelope `partial` / `markedForReview` / `resumeHint`. | core + CLI + docs + tests. | after 9 |
+| 10 | **Partial-run write hook (§13).** `onIncompleteRun` policy key drives `runGenerate` when a target stops mid-run; `GenerateRunHooks.onIncomplete` on **`confirm`**; CLI prompt + non-TTY/`--yes`/`--json` → write; JSON **`partial`**, **`resumeHint`**, payload **`markedForReview`** sum, per-row **`partial`**. | core + CLI + docs + tests. | yes |
 
-Steps 1–4 land in parallel. Steps 5–9 sequence as listed. Step 10 is additive after the main plan ships.
+Steps 1–4 land in parallel. Steps 5–10 sequence as listed. **`retry_provider`** / **`generate --resume`** remain follow-ups (§10 kill-fill + §13 notes).
 
 ---
 

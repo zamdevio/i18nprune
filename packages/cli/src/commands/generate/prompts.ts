@@ -1,4 +1,5 @@
 import { input, confirm, select } from '@inquirer/prompts';
+import type { IncompleteRunInfo } from '@i18nprune/core';
 import type { RunOptions } from '@/types/core/runtime/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { duringPrompt } from '@/utils/timer/index.js';
@@ -54,6 +55,25 @@ export async function promptFullRetranslate(): Promise<boolean> {
     confirm({
       message: 'Target already complete. Re-translate all string leaves?',
       default: false,
+    }),
+  );
+}
+
+/** Step 10 (`translate-policy.md` §13): confirm writing a partial locale after the provider chain stops. */
+export async function promptGenerateIncompleteWrite(
+  info: IncompleteRunInfo,
+  run?: RunOptions,
+): Promise<boolean> {
+  const total = info.successfulLeaves + info.failedLeaves;
+  logger.decorative.dim(
+    `  Translation stopped early for "${info.target}" (${String(info.successfulLeaves)}/${String(total)} leaves succeeded in-session).`,
+    run,
+  );
+  return duringPrompt(() =>
+    confirm({
+      message:
+        'Write partial target now? You can run `i18nprune generate --resume` later to finish untranslated leaves.',
+      default: true,
     }),
   );
 }

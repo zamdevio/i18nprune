@@ -25,6 +25,7 @@ import type { GenerateRunHooks } from '@i18nprune/core';
 import type { RunEvent } from '@i18nprune/core';
 
 import { canAsk } from '@/shared/ask/index.js';
+import { getCliYesFlag } from '@/shared/context/globals.js';
 import { resolveLocalesDynamicSites } from '@/shared/cache/index.js';
 import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
 import {
@@ -44,7 +45,7 @@ import { resolveFromCwd } from '@/utils/paths/index.js';
 import { buildGenerateHostHooks } from '@/commands/generate/hooks.js';
 import type { GenerateRuntime } from '@/commands/generate/hooks.js';
 import { promptGenerateHandoffPick } from '@/shared/translation/handoff.js';
-import { promptLanguageCodeOnly } from '@/commands/generate/prompts.js';
+import { promptGenerateIncompleteWrite, promptLanguageCodeOnly } from '@/commands/generate/prompts.js';
 
 import type { GenerateOptions } from '@/types/command/generate/index.js';
 import type { GenerateJsonPayload } from '@/types/command/generate/json.js';
@@ -119,6 +120,13 @@ export async function executeCore(
 
   const generateHooks: GenerateRunHooks = {
     onHandoffPick: (offer) => promptGenerateHandoffPick(offer, ctx.run),
+    onIncomplete: async (info) => {
+      if (!canAsk(ctx.run) || getCliYesFlag()) {
+        return { action: 'write_partial' };
+      }
+      const ok = await promptGenerateIncompleteWrite(info, ctx.run);
+      return { action: ok ? 'write_partial' : 'abort_no_write' };
+    },
   };
 
   const { payload, issues: coreIssues } = await runCoreGenerate(

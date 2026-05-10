@@ -76,6 +76,8 @@ When policy resolves to **`prompt`** and the host is interactive (**`handoff`** 
 
 Each finished target includes **`markedForReview`** (already present) and **`providerAttempts[]`** rows: legacy **`outcome`** (`success` / `rate_limited` / `network_error` / `non_retryable_error`) plus, on failures, **`translateFailureOutcome`** — the seven-variant classifier string (`rate_limited`, `quota_exceeded`, `transient_network`, …) for tooling and dashboards.
 
+When at least one target was finalized as a **partial** write (see **`onIncompleteRun`** below), the payload also includes **`partial: true`**, **`resumeHint: "generate --resume"`**, and **`markedForReview`** (sum across those targets). Each such row sets **`partial: true`** on **`targetResults[]`**.
+
 Order (first wins):
 
 1. **`--provider`** (`generate`, `fill`)
@@ -102,6 +104,16 @@ Treat **`routing`** and **`--provider` / env** as:
 Retryable failure ⇒ advance one step in the chain and continue **without discarding** successful leaf translations from earlier attempts.
 
 Skipped rows: **`enabled: false`** never appears in the chain. Rows missing required secrets (**DeepL `apiKey`**, **`libre` `baseUrl`**, **`llm`** triple) fail **`assertTranslationProviderCredentialsReady`** when that id’s turn arrives — the run stops with a **`USAGE`** error (see below); they are **not** silently skipped.
+
+### Partial runs (`onIncompleteRun`)
+
+When **`generate`** cannot finish every string leaf for a target (chain exhausted, non-retryable error, or interrupt), core applies **`translate.policy.onIncompleteRun`**:
+
+| Verb | Behavior |
+|------|----------|
+| **`discard`** | Throw the last error; no locale file is written for that target. |
+| **`write`** | Finalize in-memory JSON (same normalization path as a full success) and write (**`--dry-run`** still exercises the path without touching disk). |
+| **`confirm`** | Interactive CLI: prompt to write or abort. **`--yes`**, non-interactive runs, and **`--json`** map to **`write`** (loss of completed translations is worse than auto-writing a partial file). SDK / **`runGenerate`** without **`GenerateRunHooks.onIncomplete`**: **`confirm`** defaults to **`write`** in core. |
 
 ### Missing **`apiKey`** / **`baseUrl`** / **`model`**
 
