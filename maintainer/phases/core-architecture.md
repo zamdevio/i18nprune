@@ -199,6 +199,8 @@ Three sub-slices, each independently shippable. `runTranslate` is extracted *fir
 | **5.b.2 ✓ `runTranslate` primitive** | extract the per-provider chain + retry/fallback + identity wiring + attempts/stats aggregation into a public SDK entry at `packages/core/src/translator/run.ts`. CLI stops owning the loop. Initial signature took a flat input object. | byte-identical |
 | **5.b.2.refine `runTranslate(ctx, opts)`** | swap to `(ctx: TranslateContext, opts: TranslateOptions)` — bundle config/adapters/env into a context built via `createTranslateContext`. Pre-v1 reshape; CLI doesn't call `runTranslate` yet. | byte-identical |
 | **5.b.3 `runGenerate` entry** | `packages/core/src/generate/run.ts` builds candidate leaves, calls `runTranslate` via `translateContextFromCore(ctx)`, applies metadata pipeline, returns `GenerateOutput`. Adds `resume?: boolean` from day one. CLI deletes `executeGenerate.ts`; `commands/generate/run.ts` becomes a thin shell that builds `CoreContext` and calls `runGenerate`. | byte-identical |
+| **5.b.3.cli.split** | follow-up after `cli.collapse`: split the CLI shell into `commands/generate/{run,hooks,jsonEnvelope}.ts`. `run.ts` keeps argv merge + branching; `hooks.ts` owns `buildGenerateHostHooks`; `jsonEnvelope.ts` owns `emptyGeneratePayload`, `executeCore`, and `runGenerateJsonEnvelope` (matching the `commands/<cmd>/jsonEnvelope.ts` pattern across the CLI). | byte-identical |
+| **5.b.3.config.zod-unify** | one `I18nPruneConfig` (zod-backed): the originals at `packages/core/src/config/schema/{define,root}.ts` directly return the public friendly type, and `config/index.ts` re-exports them as-is (no wrappers). The schema-derived shape stays internal as `I18nPruneConfigParsed` for `defaults/app.ts` + spread bodies. CLI `loadConfig` drops its `as I18nPruneConfig` cast. SDK consumers use `defineConfig` / `parseI18nPruneConfig` and pass the result straight into `createCoreContext`. | byte-identical |
 
 **Adapter / env rule (binding for every sub-slice):** `adapters` and `env` are **required** fields on `TranslateContext` / `CoreContext`; core has no Node default and never touches `process.*`. The CLI imports `createNodeRuntimeAdapters` and passes both explicitly.
 
@@ -387,6 +389,112 @@ If any byte changes, the slice is rejected unless A5 doc note is added.
 
 ---
 
+### 5.d — Canonical op pattern (the "generate playbook" for other ops)
+
+This subsection codifies the layout that **emerged from 5.b.1 → 5.b.3.config.zod-unify**. Every later op migration (§ 7 / Phase 3) and every future feature that wants to live in core should follow these rules unless the op has a documented reason to diverge. **If you fork the pattern, write it down here in the same PR**.
+
+#### 5.d.1 Core file layout (`packages/core/src/<op>/`)
+
+| file | responsibility | exported via |
+|---|---|---|
+| `run.ts` | Single L3 entry function `runXxx(ctx, opts, host, hooks?)`. Owns orchestration, delegates pure computation to siblings, uses `ctx.adapters.*` for IO, calls `host.log.*` / `host.emitProgress` / `host.printXxx` unconditionally (host applies policy). Returns `{ payload, issues }` for the op's JSON shape. | `index.ts` + root barrel |
+| `context.ts` | `createXxxContext(input)` builder + (optional) `xxxContextFromCore(ctx)` projection. Bundles `config + adapters + env + paths + run?`. No work; pure data assembly. | `index.ts` |
+| `<op>-specific helpers` (e.g. `normalize.ts`, `targetScope.ts`) | Pure functions used by `run.ts`. No `console.*`, no `process.*`, no IO. Testable in isolation, exported for SDK consumers who want the building blocks without the full op. | `index.ts` |
+| `errors/<name>.ts` (when needed) | Error classes carrying machine-readable state for the op (e.g. `TranslateRunInterruptedError` with `partialStats`). One class per file; flat `errors/index.ts` barrel. | `index.ts` re-exports the `errors/index.js` barrel |
+| `index.ts` | Barrel only. Re-exports types from `../types/<op>/index.js` plus the op's runtime functions. **No logic.** | root `packages/core/src/index.ts` |
+
+**Type layout (`packages/core/src/types/<op>/`):**
+
+| file | responsibility |
+|---|---|
+| `<opRun>.ts` | The op's L2 contract: `XxxContext`, `XxxRunOptions`, `XxxOutput` / `XxxJsonPayload`, `XxxHostHooks` (host capabilities the op requires). |
+| `hooks.ts` | Mid-run **decision** hooks (`XxxRunHooks`): `onIncomplete`, `onHandoffPick`, etc. **Optional 4th argument** to `runXxx`. Decision-input + decision-output types live here too (flat — one type per concept). |
+| `index.ts` | Barrel for the two files above. |
+
+#### 5.d.2 Naming + signature conventions
+
+- **Entry function**: `runXxx(ctx: XxxContext, opts: XxxRunOptions, host: XxxHostHooks, hooks?: XxxRunHooks)`. Always async. Always returns `Promise<{ payload, issues }>` with the op's JSON-shaped payload.
+- **Translate-using ops** take `CoreContext` and project to `TranslateContext` via `translateContextFromCore(ctx)` when calling `runTranslate`. Translate-only ops take `TranslateContext` directly.
+- **Hooks vs host**: `XxxHostHooks` is **required** (the host always implements it; printers / progress / identity / interactive policy live here). `XxxRunHooks` is **optional** (only present when there are mid-run decisions to delegate; omitting it keeps today's defaults).
+- **One file per error class** under `errors/`. Errors carry typed state (no string sniffing).
+- **No `runXxxCommand`, no `runXxxOperation`**. Just `runXxx`. CLI wrappers don't get their own `runXxx` name in core.
+
+#### 5.d.3 CLI host layout (`packages/cli/src/commands/<op>/`)
+
+For ops that need orchestration in core, the CLI is a **thin host** with three files:
+
+| file | responsibility |
+|---|---|
+| `run.ts` | Command entry exported as `xxx(opts)`. Argv merge from env, `resolveContext`, branch on `--json` vs human, post-success patching / cache refresh. ~120 lines. **Never builds host hooks itself; never owns envelope shaping.** |
+| `hooks.ts` | `buildXxxHostHooks(ctx, runtime)` returning the CLI flavor of `XxxHostHooks` (TTY prompts, identity guard, progress relay, logger policy via `canPrintInfo` / `canPrintWarn`). |
+| `jsonEnvelope.ts` | `emptyXxxPayload(ctx, opts)`, `executeCore(ctx, merged, runtime)` (single call site for core's `runXxx`; reused by both `--json` and human paths), and `runXxxJsonEnvelope(ctx, merged, runtime)` (success / failure envelope shaping + `run.*` event emission; **never throws**). |
+| `prompts.ts` (when needed) | Inquirer / TTY prompts. Pure host concern. |
+| `summary/*.ts` (when needed) | Human-mode printers (banner, finalize summary, parity report). |
+| `env.ts` (when needed) | `mergeXxxOptionsFromEnv(opts)` — argv ⊕ `process.env` overlay. |
+| `index.ts` | Barrel: re-export `xxx` from `./run.js` and the public `XxxOptions` type. |
+
+**`commands/<op>/run.ts` is forbidden from**:
+- Calling core's `runXxx` directly (always go through `executeCore` in `jsonEnvelope.ts`).
+- Defining `XxxHostHooks` inline (always come from `hooks.ts`).
+- Building the JSON envelope (always come from `jsonEnvelope.ts`).
+- Reading from disk before calling `executeCore` (the op owns IO via adapters; CLI only resolves argv-relative paths).
+
+#### 5.d.4 Logging + policy split
+
+- **Core calls `host.log.*` unconditionally.** No `runLogGates.ts`-style filtering inside core.
+- **Host owns the policy.** CLI's `hooks.ts` wires `canPrintInfo` / `canPrintWarn` etc. into each `host.log.*` channel; SDK consumers wire their own (typical headless pattern: stderr write).
+- Three log channels are canonical: `log.info` (info policy), `log.warn` (warn policy), `log.notice` (warn-styled string that should still hide under `--quiet`, i.e. info policy with warn formatting). Add new channels only when an existing one can't carry the new semantic.
+
+#### 5.d.5 Run events (`run.*` emission)
+
+- **Emission is host-owned**, accessed by core via `host.emit` / `host.emitProgress` / the runtime helpers (`emitRunEvent`, `emitRunErrorFromUnknown`, `emitIssuesAsRunErrors`, `nowMs`).
+- The **JSON envelope wrapper** (`runXxxJsonEnvelope`) emits `run.started` / `run.completed` / `run.summary` / `run.failed`.
+- The **core `runXxx`** emits `run.progress.<op>` events at the canonical phases (`scan_*`, `read_source`, `resolve_targets`, `build_target`, `merge`, `prune`, `write_files`, `done` — pick the subset relevant to the op).
+- `noopRunEmitter` is the CLI default when no out-of-band consumer is attached. SDK consumers can pass their own `RunEmitter` to surface progress over IPC / WebSocket / etc.
+
+#### 5.d.6 Error + issue conventions
+
+- **Throw `I18nPruneError`** for fatal usage / config errors. Carry a `'USAGE' | 'IO' | 'TRANSLATE'` code. CLI maps `USAGE` → `ISSUE_<OP>_USAGE` issue + `process.exitCode = 1`.
+- **Throw a typed error class** (under `errors/`) when the failure carries structured state the host needs to act on (e.g. `TranslateRunInterruptedError.translateStats`).
+- **Return `issues[]`** for non-fatal warnings / informational rows. Issue codes are stable API — never rename existing codes.
+- **Decision hooks return `Decision` objects**, not raw values. `IncompleteRunDecision = { action: 'abort_no_write' | 'write_partial' | 'retry_provider' }` is the template — extend with a discriminated union when more actions land.
+
+#### 5.d.7 SDK example contract (per op)
+
+Each op ships with `examples/sdk/<op>/<run<Op>>.ts` in the **same PR** as the op's core migration (per [`examples/README.md`](../../examples/README.md)). Required structure:
+
+1. Build `RuntimeAdapters` (explicit; never auto-default).
+2. Author config in `i18nprune.config.ts` via `defineConfig` (or load via `loadCoreConfigFromPath`); pass directly into the L2 builder — no cast.
+3. Build the L2 context for the op.
+4. Implement a **headless** `XxxHostHooks` (no TTY, no `console`, log → stderr).
+5. (Optional) Implement `XxxRunHooks` showing the most useful policy choice.
+6. Call `runXxx(ctx, opts, host, hooks?)` with `dryRun: true` by default.
+7. Inspect returned `payload` + `issues`.
+
+Examples must compile under the root `tsconfig.json` (the `examples/**/*.ts` glob is included) and run via `pnpm tsx examples/sdk/<op>/<file>.ts` from repo root — no API keys for the public path.
+
+#### 5.d.8 Parity gates per op migration
+
+Every op migration PR runs:
+
+1. `pnpm typecheck` — clean.
+2. `pnpm test` — green.
+3. `pnpm vitest run tests/parity` — byte-identical for any op already covered there.
+4. **New**: add a parity snapshot under `tests/parity/<op>.parity.test.ts` capturing `--json` envelope + stripped human stderr for the op's canonical fixture run. The snapshot becomes the merge gate for subsequent slices on that op.
+
+#### 5.d.9 Forbidden patterns (carried forward)
+
+These rules are absolute (already in § 10, restated for the playbook):
+
+- No `console.*` in `packages/core/src/**`.
+- No `process.*` in core except via the passed-in `env` parameter.
+- No file IO in core except via passed-in `RuntimeAdapters`.
+- No default-resolving runtime adapters in core.
+- No CLI re-export shim files for core types.
+- No new `runXxxCommand` / `runXxxOperation` names — one entry, one name: `runXxx`.
+
+---
+
 ## 6. Phase 2 — Translate policy on the new substrate
 
 The 10 steps in [`translate-policy.md`](./translate-policy.md) are unchanged in scope, but their **landing locations** are now:
@@ -410,18 +518,28 @@ The 10 steps in [`translate-policy.md`](./translate-policy.md) are unchanged in 
 
 ## 7. Phase 3 — Other ops architecture (parallel with phase 2)
 
-Same `run.ts` pattern, behavior-parity rule, one slice per PR. Order suggestion (least risk first):
+Same playbook as § 5.d. Each migration is one slice per PR with its own parity snapshot.
 
-| op | existing CLI executor | core entry | rough size |
-|---|---|---|---|
-| `quality` | `commands/quality/run.ts` | `core/src/quality/run.ts` (rename internal helper) | small |
-| `review` | `commands/review/run.ts` | `core/src/review/run.ts` | small |
-| `missing` | `commands/missing/run.ts` | `core/src/missing/run.ts` | small |
-| `sync` | `commands/sync/run.ts` | `core/src/sync/run.ts` | medium |
+| op | uses translate-policy? | existing CLI executor | core entry | rough size |
+|---|---|---|---|---|
+| `sync` | no — pure JSON merge / metadata | `commands/sync/run.ts` + `commands/sync/jsonEnvelope.ts` (`runSync` already in CLI) | `core/src/sync/run.ts` | medium |
+| `missing` | no — locale ↔ source diff | `commands/missing/run.ts` | `core/src/missing/run.ts` | small |
+| `quality` | no — source-identical leaf count (parity-adjacent) | `commands/quality/run.ts` + `commands/quality/jsonEnvelope.ts` | `core/src/quality/run.ts` (lift `measureQualityEnglishIdentical` into core) | small |
+| `review` | no — needs-review row aggregation | `commands/review/run.ts` + `commands/review/jsonEnvelope.ts` | `core/src/review/run.ts` (assemble around the existing pure helpers) | small |
 
-Each PR follows phase-1 sub-slice pattern: extract resolver → entry function → file IO last. Parity snapshot per op.
+**`fill` is intentionally absent** — its substrate (`runGenerate({ resume: true })`) landed in 5.b.3, so phase 3 has nothing to migrate. Phase 4 just deletes the CLI command surface.
 
-`fill` is intentionally absent from this table — its substrate (`runGenerate({ resume: true })`) lands in phase 1 / 5.b.3, so phase 3 has nothing to migrate. Phase 4 just deletes the CLI command surface.
+### 7.1 — `quality` / `review` and translate-policy: independent
+
+Neither op talks to translation providers, runs the per-leaf retry chain, or consults provider health. Their core code (`packages/core/src/quality/`, `packages/core/src/review/`) is already pure — only the CLI orchestration (resolve context → call helpers → shape envelope) hasn't been collapsed into a `runXxx` entry yet.
+
+This means:
+
+- **They do NOT need to migrate before translate-policy.** Translate-policy lands inside `runGenerate` (and later `runTranslate` policy resolver); no review / quality code path is on that hot path.
+- **They will NOT benefit from translate-policy** when they do migrate. They'd inherit the playbook (§ 5.d) but would have empty `XxxRunHooks` (no mid-run decisions to make).
+- **Recommended order**: ship translate-policy (phase 2) on the `generate` substrate first; then start phase 3 with `sync` (medium-size dry run for the playbook on a non-translation op), then small ops (`missing`, `quality`, `review`) in any order.
+
+`sync` is the recommended next phase-3 candidate because it exercises the playbook against a real IO-heavy op without dragging translate-policy along. `quality` and `review` are mechanical conversions afterward.
 
 ---
 
@@ -445,7 +563,13 @@ No `runFill` shim. No deprecation alias. Pre-v1.
 
 ### 8.b — Thin CLI executors
 
-After phase 4.a, `commands/generate/run.ts` should be ~80 lines:
+After 5.b.3 the CLI's `commands/generate/` is split into three files:
+
+- `run.ts` — argv merge, `resolveContext`, branch on `--json` vs human, post-success patching/cache. ~120 lines.
+- `hooks.ts` — `buildGenerateHostHooks(ctx, runtime)` returning the `GenerateHostHooks` for the CLI flavor (TTY prompts, identity guard, progress relay, logger policy).
+- `jsonEnvelope.ts` — `emptyGeneratePayload`, `executeCore` (single call site for core `runGenerate`; reused by both `--json` and human paths), and `runGenerateJsonEnvelope` (wraps `executeCore` with success/failure envelope shaping + `run.*` event emission). Same layout as `commands/<cmd>/jsonEnvelope.ts` for sync/missing/cleanup/quality/review/etc.
+
+For reference, the sketch of `executeCore`:
 ```ts
 export async function runGenerateCommand(cliCtx: CliContext, merged: GenerateOptions, runtime?: { emit?: RunEmitter; runId?: string }) {
   const ctx = createCoreContext({
@@ -484,7 +608,7 @@ export async function runGenerateCommand(cliCtx: CliContext, merged: GenerateOpt
 }
 ```
 
-`commands/generate/execute.ts`, `commands/generate/runGenerate.ts`, and `commands/generate/hostBridge.ts` deleted in 5.b.3; only `run.ts` (single-file shell), `prompts.ts`, `summary/`, `env.ts`, and `index.ts` remain. The CLI is still needed for argv, prompts, banners, env, and TTY-only side effects.
+`commands/generate/execute.ts`, `commands/generate/runGenerate.ts`, and `commands/generate/hostBridge.ts` were deleted in 5.b.3.cli.collapse. `run.ts` was further split in 5.b.3.cli.split into `run.ts` + `hooks.ts` + `jsonEnvelope.ts`; the CLI directory now holds `run.ts`, `hooks.ts`, `jsonEnvelope.ts`, `prompts.ts`, `summary/`, `env.ts`, and `index.ts`. The CLI is still needed for argv, prompts, banners, env, and TTY-only side effects — but `runGenerate` itself lives in core, and **the CLI is one host of many**: SDK / extension / web / worker consumers call core `runGenerate` directly with their own `GenerateHostHooks` (see `examples/sdk/generate/runGenerate.ts`).
 
 ---
 
@@ -537,13 +661,16 @@ const ctx = createTranslateContext({
 const out = await runTranslate(ctx, { texts: ['Welcome', 'Sign in'], targetLang: 'fr' });
 ```
 
-After **5.b.3 (phase 1, end)**: SDK gets `runGenerate(ctx, opts)` with `resume` from day one.
+After **5.b.3 (phase 1, end)**: SDK gets `runGenerate(ctx, opts, host, hooks?)` with `resume` from day one. The CLI's host wiring lives in `packages/cli/src/commands/generate/{run,hooks,jsonEnvelope}.ts`; SDK / extension / web / worker consumers ship their own `GenerateHostHooks` and reach the same engine through `examples/sdk/generate/runGenerate.ts`.
+
 ```ts
-const ctx = createCoreContext({ config, adapters, env });
-const out    = await runGenerate(ctx, { target: 'fr', metadata: true });
-const filled = await runGenerate(ctx, { target: 'fr', resume: true, metadata: true });
+const config = defineConfig({ /* …authored once, returns the public `I18nPruneConfig` directly… */ });
+const ctx = createCoreContext({ config, adapters, env, paths });
+const headlessHost: GenerateHostHooks = { /* no-TTY printers, headless prompts, log → stderr */ };
+const out    = await runGenerate(ctx, { targets: ['fr'], metadata: true }, headlessHost);
+const filled = await runGenerate(ctx, { targets: ['fr'], resume: true, metadata: true }, headlessHost);
 ```
-No translate-policy yet — single provider per call (config-driven), one shot. Identity guard runs.
+No translate-policy yet — single provider per call (config-driven), one shot. Identity guard runs. Mid-run decisions are exposed through optional `GenerateRunHooks` (`onIncomplete`, `onHandoffPick`).
 
 After **phase 2**: Same calls, now with full policy / chain / handoff / partial-run hook.
 
