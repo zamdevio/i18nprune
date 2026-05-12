@@ -14,8 +14,8 @@ import {
   issuesFromDiscoveryWarnings,
   issuesFromPatchingDiagnostics,
   mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
-import { getDisplaySourceLocaleCode } from '@/shared/locales/source.js';
+} from '@/shared/result/index.js';
+import { getDisplaySourceLocaleCode } from '@/shared/locales/index.js';
 import { logger } from '@/utils/logger/index.js';
 import {
   buildScaffoldFileContents,

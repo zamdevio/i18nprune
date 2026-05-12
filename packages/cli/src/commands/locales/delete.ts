@@ -3,20 +3,20 @@ import { confirm } from '@inquirer/prompts';
 import { resolveContext } from '@/shared/context/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import { I18nPruneError } from '@i18nprune/core';
-import { resolveLocalesTargetCodes } from '@/shared/locales/targets.js';
+import { resolveLocalesTargetCodes } from '@/shared/locales/index.js';
 import { canAsk } from '@/shared/ask/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintDecorative, canPrintInfo } from '@/utils/logger/policy.js';
 import { printCommandSummary } from '@/output/index.js';
 import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
 import {
   isLocaleTargetMissingMessage,
   issuesFromDiscoveryWarnings,
   issuesFromLocaleTargetMissing,
   issuesFromLocalesUsage,
   mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
+} from '@/shared/result/index.js';
 import { formatSectionTitle } from '@/utils/style/section.js';
 import type { LocalesDeleteJsonPayload } from '@/types/command/locales/json.js';
 import type { LocalesDeleteOptions } from '@/types/commands/locales/index.js';

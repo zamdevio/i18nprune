@@ -158,6 +158,60 @@ describe('patching engine', () => {
     expect(gen).toContain('// user');
   });
 
+  it('updates generated loader metadata for locales edit', async () => {
+    const root = makeTempDir();
+    const i18nDir = path.join(root, 'i18n');
+    const configPath = path.join(i18nDir, 'config.json');
+    const generatedPath = path.join(i18nDir, 'loaders.generated.ts');
+    fs.mkdirSync(i18nDir, { recursive: true });
+    const records = [
+      { code: 'en', englishName: 'English', nativeName: 'English', direction: 'ltr' as const },
+      { code: 'ja', englishName: 'Japanese', nativeName: '日本語', direction: 'ltr' as const },
+    ];
+    fs.writeFileSync(`${configPath}`, `${JSON.stringify({ locales: records }, null, 2)}\n`, 'utf8');
+    const inner = renderGeneratedInnerBlock({
+      records,
+      importBase: './locales',
+      defaultLocaleCode: 'en',
+    });
+    fs.writeFileSync(generatedPath, composeLoadersGeneratedFile(inner, '// user\n'), 'utf8');
+
+    const rt = createNodeRuntimeAdapters();
+    const planned = await buildPatchPlan({
+      command: 'locales-edit',
+      action: 'upsert_locales',
+      changedLocaleCodes: ['ja'],
+      upsertLocaleRecords: [
+        { code: 'ja', englishName: 'Japanese (custom)', nativeName: '日本語カスタム', direction: 'rtl' },
+      ],
+      sourceLocaleCode: 'en',
+      config: {
+        enabled: true,
+        recipe: 'loader_generated',
+        configPath,
+        loaderPath: generatedPath,
+        localeJsonImportBase: './locales',
+      },
+      runtime: { fs: rt.fs, path: rt.path },
+    });
+    expect(planned.ok).toBe(true);
+    if (!planned.ok) return;
+    const applied = await applyPatchPlanAtomic({ fs: rt.fs, path: rt.path }, planned.plan);
+    expect(applied.ok).toBe(true);
+    const nextConfig = JSON.parse(fs.readFileSync(configPath, 'utf8')) as {
+      locales: Array<{ code: string; englishName: string; nativeName: string; direction: string }>;
+    };
+    expect(nextConfig.locales.find((row) => row.code === 'ja')).toMatchObject({
+      englishName: 'Japanese (custom)',
+      nativeName: '日本語カスタム',
+      direction: 'rtl',
+    });
+    const gen = fs.readFileSync(generatedPath, 'utf8');
+    expect(gen).toContain('Japanese (custom)');
+    expect(gen).toContain('日本語カスタム');
+    expect(gen).toContain('// user');
+  });
+
   it('restores missing source locale and rewrites invalid default locale in loader_generated', async () => {
     const root = makeTempDir();
     const i18nDir = path.join(root, 'i18n');

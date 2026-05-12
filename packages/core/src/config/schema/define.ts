@@ -1,6 +1,6 @@
-import { DEFAULT_CONFIG } from '../defaults/index.js';
+import { DEFAULT_CONFIG } from '../defaults/app.js';
 import { clampTranslateMaxWorkers } from './translate.js';
-import type { I18nPruneConfig } from '../index.js';
+import type { I18nPruneConfig } from './root.js';
 
 /**
  * Typed helper for **`i18nprune.config.{ts,mts,cts,js,mjs,cjs}`** files. Merges partial user input

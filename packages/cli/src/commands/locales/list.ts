@@ -4,12 +4,12 @@ import { resolveContext } from '@/shared/context/index.js';
 import { I18nPruneError } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
 import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
 import {
   issuesFromDiscoveryWarnings,
   issuesFromLocalesUsage,
   mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
+} from '@/shared/result/index.js';
 import { buildLocaleListRows } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintInfo } from '@/utils/logger/policy.js';

@@ -51,7 +51,7 @@ describe('repairPatchingConfigLocales', () => {
     const out = await repairPatchingConfigLocales({
       config: makeConfig(),
       configPath,
-      run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false },
+      run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false, debugCache: false },
       fs: rt.fs,
     });
     const after = fs.readFileSync(configPath, 'utf8');
@@ -82,7 +82,7 @@ describe('repairPatchingConfigLocales', () => {
     const out = await repairPatchingConfigLocales({
       config: makeConfig(),
       configPath,
-      run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false },
+      run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false, debugCache: false },
       fs: rt.fs,
       fix: true,
     });

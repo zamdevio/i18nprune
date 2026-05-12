@@ -7,7 +7,7 @@ import {
   isSourceLocaleSlug,
   assertNotSourceTargetLocale,
   buildSourceLocaleTruthLabel,
-} from '@/shared/locales/source.js';
+} from '@/shared/locales/index.js';
 import { I18nPruneError } from '@i18nprune/core';
 import { stripAnsiVisible } from '@/utils/ansi/index.js';
 

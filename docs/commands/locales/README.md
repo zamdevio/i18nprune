@@ -7,7 +7,7 @@ Work with **existing locale JSON** under your configured **`localesDir`**. Subco
 | Subcommand | Role |
 |------------|------|
 | **[`locales list`](./list/README.md)** | Enumerate `*.json` under **`localesDir`**, leaf counts, source-identical hints vs source. |
-| **[`locales edit`](./edit/README.md)** | Update **`<lang>.meta.json`** (`englishName`, `nativeName`, `direction`) for an existing target locale. |
+| **[`locales edit`](./edit/README.md)** | Update **`<lang>.meta.json`** (`englishName`, `nativeName`, `direction`) for one, many, or all existing target locales; global **`--patch`** updates supported loader wiring. |
 | **[`locales dynamic`](./dynamic/README.md)** | Read-only scan for non-literal translation call sites (same dynamic model as **`validate`**). |
 | **[`locales delete`](./delete/README.md)** | Remove target **`*.json`** / **`*.meta.json`** (multi-target supported). |
 

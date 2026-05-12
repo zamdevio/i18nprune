@@ -30,7 +30,7 @@ function makeContext(config: Context['config']): Context {
       localesDir: '/tmp/locales',
       srcRoot: '/tmp/src',
     },
-    run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false },
+    run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false, debugCache: false },
     meta: {
       fieldSources: {},
       warnings: [],

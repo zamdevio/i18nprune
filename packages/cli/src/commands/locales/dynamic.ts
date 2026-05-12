@@ -2,7 +2,7 @@ import { resolveContext } from '@/shared/context/index.js';
 import { docsCommandUrl, getDocsUrl } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
 import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
 import {
   isLocaleTargetMissingMessage,
   issuesFromDiscoveryWarnings,
@@ -10,7 +10,7 @@ import {
   issuesFromLocaleTargetMissing,
   issuesFromLocalesUsage,
   mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
+} from '@/shared/result/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { style } from '@/utils/style/index.js';
 import { canPrintInfo, canPrintWarn } from '@/utils/logger/policy.js';

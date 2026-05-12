@@ -12,7 +12,13 @@ export type MergeToTemplateOptions = {
    * matches any prefix (uncertain / dynamic key protection). Array length extras are unchanged.
    */
   uncertainKeepPrefixes?: string[];
+  /** Source leaf paths that should keep target values but should not hydrate missing target paths. */
+  skipFillPaths?: readonly string[];
+  /** Target leaf paths that should be overwritten from the template source value. */
+  forceFillPaths?: readonly string[];
 };
+
+const OMIT = Symbol('i18nprune.merge.omit');
 
 /**
  * Merge `target` toward `template` shape: keep existing translations where paths match;
@@ -27,7 +33,15 @@ export function mergeToTemplateShape(
   preserve: unknown | undefined,
   options?: MergeToTemplateOptions,
 ): unknown {
-  return mergeWalk(template, target, preserve, '', options?.uncertainKeepPrefixes);
+  return mergeWalk(
+    template,
+    target,
+    preserve,
+    '',
+    options?.uncertainKeepPrefixes,
+    options?.skipFillPaths === undefined ? undefined : new Set(options.skipFillPaths),
+    options?.forceFillPaths === undefined ? undefined : new Set(options.forceFillPaths),
+  );
 }
 
 function mergeWalk(
@@ -36,9 +50,13 @@ function mergeWalk(
   preserve: unknown | undefined,
   path: string,
   uncertainKeepPrefixes: string[] | undefined,
-): unknown {
+  skipFillPaths: ReadonlySet<string> | undefined,
+  forceFillPaths: ReadonlySet<string> | undefined,
+): unknown | typeof OMIT {
   void preserve;
   if (typeof template === 'string') {
+    if (skipFillPaths?.has(path)) return OMIT;
+    if (forceFillPaths?.has(path)) return template;
     if (typeof target === 'string') return target;
     if (isPlainObject(target) && typeof target.value === 'string') {
       return deepClone(target);
@@ -51,7 +69,8 @@ function mergeWalk(
     const tArr = target as unknown[];
     for (let i = 0; i < template.length; i += 1) {
       const seg = path ? `${path}[${String(i)}]` : `[${String(i)}]`;
-      out.push(mergeWalk(template[i], tArr[i], preserve, seg, uncertainKeepPrefixes));
+      const next = mergeWalk(template[i], tArr[i], preserve, seg, uncertainKeepPrefixes, skipFillPaths, forceFillPaths);
+      if (next !== OMIT) out.push(next);
     }
     return out;
   }
@@ -60,7 +79,8 @@ function mergeWalk(
     const out: Record<string, unknown> = {};
     for (const k of Object.keys(template)) {
       const p = path ? `${path}.${k}` : k;
-      out[k] = mergeWalk(template[k], tObj[k], preserve, p, uncertainKeepPrefixes);
+      const next = mergeWalk(template[k], tObj[k], preserve, p, uncertainKeepPrefixes, skipFillPaths, forceFillPaths);
+      if (next !== OMIT) out[k] = next;
     }
     if (uncertainKeepPrefixes?.length) {
       for (const k of Object.keys(tObj)) {

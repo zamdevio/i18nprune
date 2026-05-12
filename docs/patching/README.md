@@ -1,6 +1,6 @@
 # Auto-patching
 
-Auto-patching keeps i18n loader wiring aligned after locale mutations (`generate`, `sync`, `locales delete`) without requiring manual edits every run.
+Auto-patching keeps i18n loader wiring aligned after locale mutations (`generate`, `sync`, `locales edit`, `locales delete`) without requiring manual edits every run.
 
 ## Principles
 
@@ -50,7 +50,7 @@ Use this workflow as the default operator path:
 
 - **`patch --init`** — tighten messaging when config injection skips (`skipped_existing`).
 - **Resolver** — tests: never mutate unknown fields; mismatch policy modes (`ask` / `auto` / `warn`).
-- **Shared CLI orchestration** — one patching handler path for `patch`, `sync --patch`, `generate --patch`, `locales delete --patch` (centralize envelope + `canAsk` / `--yes` / `--json`).
+- **Shared CLI orchestration** — one patching handler path for `patch`, `sync --patch`, `generate --patch`, `locales edit --patch`, `locales delete --patch` (centralize envelope + `canAsk` / `--yes` / `--json`).
 - **Core structure** — optional folder barrels under `packages/core/src/patching/*` (no behavior change).
 - **Generated module contract** — doc + tests: no stale “public API” constants; default-locale preservation across mutation flows.
 - **Docs** — troubleshooting in this README; mismatch examples in `config.md`; command docs for `--init` injection statuses.

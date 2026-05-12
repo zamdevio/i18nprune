@@ -27,7 +27,7 @@ export function buildPatchingSectionIncompleteDiagnostic(
   return {
     severity: 'warn',
     code: ISSUE_PATCHING_CONFIG_SECTION_INCOMPLETE,
-    message: `patching: config lists a patching block but required field(s) are empty: ${missing.join(', ')}. Set them (see i18nprune patch --init) before using --patch, generate --patch, or patch analyze/fix.`,
+    message: `patching: config lists a patching block but required field(s) are empty: ${missing.join(', ')}. Set them (see i18nprune patch --init) before using --patch, or patch analyze/fix.`,
     docPath: 'issues/patching',
   };
 }

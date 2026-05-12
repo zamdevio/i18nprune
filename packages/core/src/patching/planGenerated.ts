@@ -16,6 +16,7 @@ import {
 import { applyLocaleAction, parseLocaleRecords } from './locales.js';
 import { codeSet, toMessage } from './utils.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
+import { parseJsonText } from '../shared/json/parse.js';
 
 export function buildPlanFromGeneratedFiles(input: {
   action: PatchingAction;
@@ -26,6 +27,7 @@ export function buildPlanFromGeneratedFiles(input: {
   generatedText: string;
   importBase: string;
   sourceLocaleCode?: string;
+  upsertLocaleRecords?: readonly PatchingLocaleRecord[];
 }): { ok: true; plan: PatchingPlan; diagnostics: PatchingDiagnostic[] } | {
   ok: false;
   diagnostics: PatchingDiagnostic[];
@@ -34,7 +36,7 @@ export function buildPlanFromGeneratedFiles(input: {
   const diagnostics: PatchingDiagnostic[] = [];
   let parsed: unknown;
   try {
-    parsed = JSON.parse(input.configText);
+    parsed = parseJsonText(input.configText, { filePath: input.configPath });
   } catch (err) {
     return {
       ok: false,
@@ -81,7 +83,12 @@ export function buildPlanFromGeneratedFiles(input: {
     };
   }
 
-  let nextLocales = applyLocaleAction(localeRecords, input.action, input.changedLocaleCodes);
+  let nextLocales = applyLocaleAction(
+    localeRecords,
+    input.action,
+    input.changedLocaleCodes,
+    input.upsertLocaleRecords,
+  );
   const normalizedSourceCode = input.sourceLocaleCode ? normalizeLanguageCode(input.sourceLocaleCode) : undefined;
   if (normalizedSourceCode && !nextLocales.some((r) => r.code === normalizedSourceCode)) {
     const sourceFromPrevious = localeRecords.find((r) => r.code === normalizedSourceCode);

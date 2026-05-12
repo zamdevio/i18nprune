@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { I18nPruneJsonParseError } from '../../shared/json/parse.js';
 import { readJsonFromRuntimeFsSync } from '../helpers/sync/readJson.js';
 import type { RuntimeFsPort } from '../../types/runtime/fs.js';
 
@@ -29,16 +30,17 @@ describe('readJsonFromRuntimeFsSync', () => {
     expect(() => readJsonFromRuntimeFsSync('/y.json', fs)).toThrow(/Synchronous fs\.readText/);
   });
 
-  it('propagates JSON syntax errors', () => {
+  it('reports JSON syntax errors with file and location context', () => {
     const fs: RuntimeFsPort = {
       exists: () => true,
-      readText: () => 'not-json',
+      readText: () => '{\n  "ok": true,\n}',
       statKind: () => 'file',
       listDir: () => [],
       writeText: () => {},
       deleteFile: () => {},
       mkdirp: () => {},
     };
-    expect(() => readJsonFromRuntimeFsSync('/bad.json', fs)).toThrow(SyntaxError);
+    expect(() => readJsonFromRuntimeFsSync('/bad.json', fs)).toThrow(I18nPruneJsonParseError);
+    expect(() => readJsonFromRuntimeFsSync('/bad.json', fs)).toThrow(/\/bad\.json.*line \d+, column \d+/);
   });
 });

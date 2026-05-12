@@ -11,6 +11,7 @@ import {
 import { catalogDiagnostics, configSizeDiagnostics, parseLocaleRecords } from './locales.js';
 import { detectPatchingRecipe } from './recipe.js';
 import { codeSet, toMessage } from './utils.js';
+import { parseJsonText } from '../shared/json/parse.js';
 
 export async function analyzePatchingState(input: PatchingRunInput): Promise<PatchingAnalyzeOutput> {
   const initial = resolvePatchingConfig(input.config);
@@ -86,7 +87,7 @@ export async function analyzePatchingState(input: PatchingRunInput): Promise<Pat
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(configRead.content);
+    parsed = parseJsonText(configRead.content, { filePath: configAbs });
   } catch (err) {
     return {
       config: resolved,

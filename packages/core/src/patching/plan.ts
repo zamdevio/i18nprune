@@ -58,6 +58,7 @@ export async function buildPatchPlan(
     generatedText,
     importBase: computeGeneratedModuleImportBase(input.runtime, resolved, root),
     sourceLocaleCode: input.sourceLocaleCode,
+    upsertLocaleRecords: input.upsertLocaleRecords,
   });
   if (!planned.ok) {
     return { ok: false, config: resolved, skipReason: planned.skipReason, diagnostics: planned.diagnostics };

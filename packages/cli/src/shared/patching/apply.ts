@@ -1,6 +1,6 @@
 import { buildPatchingSectionIncompleteDiagnostic, runPatching } from '@i18nprune/core';
-import type { PatchingAction, PatchingCommandName, PatchingResult } from '@i18nprune/core';
-import { getDisplaySourceLocaleCode } from '@/shared/locales/source.js';
+import type { PatchingAction, PatchingCommandName, PatchingLocaleRecord, PatchingResult } from '@i18nprune/core';
+import { getDisplaySourceLocaleCode } from '@/shared/locales/index.js';
 import { getCliGlobalOverrides } from '@/shared/context/globals.js';
 import { patchingNotAppliedMessage, PATCH_INSPECT_THEN_FIX } from '@/shared/patching/guidance.js';
 import { resolvePatchingProjectRoot } from '@/shared/patching/scaffoldI18nLayout.js';
@@ -12,6 +12,7 @@ type ApplyCommandPatchingInput = {
   command: PatchingCommandName;
   action: PatchingAction;
   localeCodes: string[];
+  upsertLocaleRecords?: readonly PatchingLocaleRecord[];
 };
 
 function asWarnMessages(result: PatchingResult): string[] {
@@ -25,7 +26,7 @@ function asWarnMessages(result: PatchingResult): string[] {
  * Default mode is warn-and-skip; strict mode can escalate via config.
  */
 export async function applyCommandPatching(input: ApplyCommandPatchingInput): Promise<PatchingResult | undefined> {
-  const { ctx, command, action, localeCodes } = input;
+  const { ctx, command, action, localeCodes, upsertLocaleRecords } = input;
   if (localeCodes.length === 0) return undefined;
   if (getCliGlobalOverrides().patch !== true) {
     logger.info(patchingNotAppliedMessage(command), ctx.run);
@@ -43,6 +44,7 @@ export async function applyCommandPatching(input: ApplyCommandPatchingInput): Pr
     command,
     action,
     changedLocaleCodes: localeCodes,
+    upsertLocaleRecords,
     sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
     config: ctx.config.patching,
     runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },

@@ -14,6 +14,8 @@ export type RunOptions = {
    * Hosts may set this for their own UX without wiring a sink.
    */
   debugScan: boolean;
+  /** When true, the CLI may print report-cache dispatch/invalidation diagnostics. */
+  debugCache: boolean;
   /**
    * When set and {@link RunOptions.silent} is false, the scanner invokes this for each skip
    * (directory walk skip, file excluded, non-source extension). Core never uses `console`;

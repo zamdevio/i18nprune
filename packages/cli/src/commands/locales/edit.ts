@@ -1,48 +1,114 @@
 import { input, select } from '@inquirer/prompts';
 import { resolveContext } from '@/shared/context/index.js';
 import { canAsk } from '@/shared/ask/index.js';
-import { I18nPruneError } from '@i18nprune/core';
+import { I18nPruneError, type PatchingLocaleRecord } from '@i18nprune/core';
+import { getCliYesFlag } from '@/shared/context/globals.js';
 import { printCommandSummary } from '@/output/index.js';
 import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
 import {
   isLocaleTargetMissingMessage,
   issuesFromDiscoveryWarnings,
   issuesFromLocaleTargetMissing,
+  issuesFromLocaleTargetsSkipped,
   issuesFromLocalesUsage,
   mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
+} from '@/shared/result/index.js';
 import {
-  formatLocaleSlugHint,
+  formatLocaleSlugHintPlain,
   listLocaleJsonSlugs,
   resolveCanonicalSlug,
 } from '@/commands/locales/localeFiles.js';
 import { resolveLocaleMetaProfile } from '@i18nprune/core';
 import { assertHostDirectory, writeHostJson } from '@/shared/io/hostJson.js';
 import {
-  buildSourceLocaleTruthLabel,
   excludeSourceLocaleSlugs,
-  getDisplaySourceLocaleCode,
   isSourceLocaleSlug,
-} from '@/shared/locales/source.js';
+} from '@/shared/locales/index.js';
 import { logger } from '@/utils/logger/index.js';
 import type { LocalesEditJsonPayload } from '@/types/command/locales/json.js';
 import type { LocalesEditOptions } from '@/types/commands/locales/index.js';
+import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 
-/** Edit **existing** locale JSON and (when implemented) the app’s i18n loader wiring. */
+type ResolvedEditTargets = {
+  targets: string[];
+  skippedTargets: string[];
+};
+
+function parseRequestedTargets(rawTarget: string): string[] {
+  return rawTarget
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+async function resolveLocalesEditTargets(input: {
+  opts: LocalesEditOptions;
+  slugs: string[];
+  targetSlugs: string[];
+  sourcePath: string;
+  ctx: Awaited<ReturnType<typeof resolveContext>>;
+}): Promise<ResolvedEditTargets> {
+  const { opts, slugs, targetSlugs, sourcePath, ctx } = input;
+  const rawTarget = opts.target?.trim();
+  if (!rawTarget) {
+    if (getCliYesFlag() || !canAsk(ctx.run)) {
+      throw new I18nPruneError(
+        `locales edit requires --target <code[,code]|all> in non-interactive mode. Choose one of: ${formatLocaleSlugHintPlain(slugs, sourcePath, ctx.adapters.path)}`,
+        'USAGE',
+      );
+    }
+    const picked = await duringPrompt(() =>
+      select({
+        message: 'Which existing locale file should we work with?',
+        choices: targetSlugs.map((s) => ({ name: `${s}.json`, value: s })),
+      }),
+    );
+    return { targets: [picked], skippedTargets: [] };
+  }
+
+  if (rawTarget.toLowerCase() === 'all') {
+    return { targets: targetSlugs, skippedTargets: [] };
+  }
+
+  const targets: string[] = [];
+  const skippedTargets: string[] = [];
+  for (const requested of parseRequestedTargets(rawTarget)) {
+    const canon = resolveCanonicalSlug(requested, slugs);
+    if (!canon || isSourceLocaleSlug(canon, sourcePath, ctx)) {
+      skippedTargets.push(requested);
+      continue;
+    }
+    if (!targets.includes(canon)) targets.push(canon);
+  }
+
+  if (targets.length === 0) {
+    throw new I18nPruneError(
+      `No editable target locale file(s) found for "${rawTarget}" — expected one of: ${formatLocaleSlugHintPlain(slugs, sourcePath, ctx.adapters.path)}`,
+      'USAGE',
+    );
+  }
+  return { targets, skippedTargets };
+}
+
+/** Edit existing locale metadata and, with `--patch`, supported app i18n loader wiring. */
 export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> {
   const wall = attachWallTimer();
   const ctx = await resolveContext();
   const emptyPayload: LocalesEditJsonPayload = {
     kind: 'locales-edit',
     target: null,
+    targets: [],
+    skippedTargets: [],
+    updated: 0,
     mode: 'meta_updated',
     profileSource: 'catalog',
     before: null,
     after: null,
     metaPath: null,
-    supportsAutoPatching: false,
+    rows: [],
+    supportsAutoPatching: true,
   };
   try {
     const absDir = ctx.paths.localesDir;
@@ -60,129 +126,147 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
       );
     }
 
-    let target = opts.target?.trim();
-    if (target) {
-      const canon = resolveCanonicalSlug(target, slugs);
-      if (canon && isSourceLocaleSlug(canon, sourcePath, ctx)) {
-        throw new I18nPruneError(
-          `locales edit does not apply to the source locale ${buildSourceLocaleTruthLabel(getDisplaySourceLocaleCode(ctx))}.`,
-          'USAGE',
-        );
-      }
-      if (!canon) {
-        throw new I18nPruneError(
-          `No locale file for "${target}" — expected one of: ${formatLocaleSlugHint(slugs, sourcePath, ctx.adapters.path)}`,
-          'USAGE',
-        );
-      }
-      target = canon;
-    } else if (!canAsk(ctx.run)) {
-      throw new I18nPruneError(
-        `Missing --target (non-interactive). Choose one of: ${formatLocaleSlugHint(slugs, sourcePath, ctx.adapters.path)}`,
-        'USAGE',
+    const rawDirection = opts.directionRaw ?? opts.direction;
+    if (rawDirection !== undefined && rawDirection !== 'ltr' && rawDirection !== 'rtl') {
+      throw new I18nPruneError('locales edit: --direction must be "ltr" or "rtl"', 'USAGE');
+    }
+    const { targets, skippedTargets } = await resolveLocalesEditTargets({
+      opts,
+      slugs,
+      targetSlugs: slugsTargets,
+      sourcePath,
+      ctx,
+    });
+    const promptForFields = canAsk(ctx.run) && !getCliYesFlag();
+    const rows: LocalesEditJsonPayload['rows'] = [];
+    const upsertLocaleRecords: PatchingLocaleRecord[] = [];
+
+    for (const target of targets) {
+      const profile = resolveLocaleMetaProfile(
+        { fs: ctx.adapters.fs, path: ctx.adapters.path },
+        absDir,
+        target,
       );
-    } else {
-      target = await duringPrompt(() =>
-        select({
-          message: 'Which existing locale file should we work with?',
-          choices: slugsTargets.map((s) => ({ name: `${s}.json`, value: s })),
-        }),
+      const before = {
+        englishName: profile.englishName,
+        nativeName: profile.nativeName,
+        direction: profile.direction,
+      };
+      let englishName = opts.englishName?.trim() || before.englishName;
+      let nativeName = opts.nativeName?.trim() || before.nativeName;
+      let direction: 'ltr' | 'rtl' = rawDirection ?? before.direction;
+
+      if (promptForFields) {
+        if (!opts.englishName) {
+          englishName = (
+            await duringPrompt(() =>
+              input({
+                message: `${target}.meta.json englishName`,
+                default: englishName,
+              }),
+            )
+          ).trim();
+        }
+        if (!opts.nativeName) {
+          nativeName = (
+            await duringPrompt(() =>
+              input({
+                message: `${target}.meta.json nativeName`,
+                default: nativeName,
+              }),
+            )
+          ).trim();
+        }
+        if (!rawDirection) {
+          direction = await duringPrompt(() =>
+            select({
+              message: `${target}.meta.json direction`,
+              choices: [
+                { name: 'ltr', value: 'ltr' },
+                { name: 'rtl', value: 'rtl' },
+              ],
+              default: direction,
+            }),
+          );
+        }
+      }
+      writeHostJson(
+        profile.metaPath,
+        {
+          lang: target,
+          englishName,
+          nativeName,
+          direction,
+        },
+        ctx.adapters.fs,
       );
-    }
-
-    if (target == null || target === '') {
-      throw new I18nPruneError('locales edit: missing target locale', 'USAGE');
-    }
-
-    const profile = resolveLocaleMetaProfile(
-      { fs: ctx.adapters.fs, path: ctx.adapters.path },
-      absDir,
-      target,
-    );
-    const before = {
-      englishName: profile.englishName,
-      nativeName: profile.nativeName,
-      direction: profile.direction,
-    };
-    let englishName = opts.englishName?.trim() || before.englishName;
-    let nativeName = opts.nativeName?.trim() || before.nativeName;
-    let direction: 'ltr' | 'rtl' = opts.direction ?? before.direction;
-
-    if (canAsk(ctx.run)) {
-      if (!opts.englishName) {
-        englishName = (
-          await duringPrompt(() =>
-            input({
-              message: `${target}.meta.json englishName`,
-              default: englishName,
-            }),
-          )
-        ).trim();
-      }
-      if (!opts.nativeName) {
-        nativeName = (
-          await duringPrompt(() =>
-            input({
-              message: `${target}.meta.json nativeName`,
-              default: nativeName,
-            }),
-          )
-        ).trim();
-      }
-      if (!opts.direction) {
-        direction = await duringPrompt(() =>
-          select({
-            message: `${target}.meta.json direction`,
-            choices: [
-              { name: 'ltr', value: 'ltr' },
-              { name: 'rtl', value: 'rtl' },
-            ],
-            default: direction,
-          }),
-        );
-      }
-    }
-    writeHostJson(
-      profile.metaPath,
-      {
-        lang: target,
+      rows.push({
+        target,
+        profileSource: profile.source,
+        before,
+        after: { englishName, nativeName, direction },
+        metaPath: profile.metaPath,
+      });
+      upsertLocaleRecords.push({
+        code: target,
         englishName,
         nativeName,
         direction,
-      },
-      ctx.adapters.fs,
-    );
+      });
+    }
 
+    await applyCommandPatching({
+      ctx,
+      command: 'locales-edit',
+      action: 'upsert_locales',
+      localeCodes: targets,
+      upsertLocaleRecords,
+    });
+
+    const firstRow = rows[0];
     const payload: LocalesEditJsonPayload = {
       kind: 'locales-edit',
-      target,
+      target: targets.length === 1 ? targets[0] : null,
+      targets,
+      skippedTargets,
+      updated: rows.length,
       mode: 'meta_updated',
-      profileSource: profile.source,
-      before,
-      after: { englishName, nativeName, direction },
-      metaPath: profile.metaPath,
-      supportsAutoPatching: false,
+      profileSource: firstRow?.profileSource ?? 'catalog',
+      before: targets.length === 1 ? firstRow?.before ?? null : null,
+      after: targets.length === 1 ? firstRow?.after ?? null : null,
+      metaPath: targets.length === 1 ? firstRow?.metaPath ?? null : null,
+      rows,
+      supportsAutoPatching: true,
     };
+    const skippedIssues =
+      skippedTargets.length > 0
+        ? issuesFromLocaleTargetsSkipped(
+            `Skipped target locale(s) without editable locale JSON files: ${skippedTargets.join(', ')}`,
+          )
+        : [];
+    const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), skippedIssues);
 
     if (ctx.run.json) {
       console.log(
         stringifyEnvelope(
           buildCliJsonEnvelope('locales-edit', payload, {
             ok: true,
-            issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
+            issues,
             cwd: process.cwd(),
           }),
         ),
       );
     } else {
-      logger.info(`updated ${profile.metaPath} (englishName/nativeName/direction).`, ctx.run);
+      for (const row of rows) {
+        logger.info(`updated ${row.metaPath} (englishName/nativeName/direction).`, ctx.run);
+      }
       printCommandSummary(
         {
           command: 'locales edit',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { target: 1, metaUpdated: 1 },
-          issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
+          counts: { targets: targets.length, metaUpdated: rows.length, skippedTargets: skippedTargets.length },
+          issues,
         },
         ctx,
       );

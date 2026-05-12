@@ -29,7 +29,7 @@ function makeContext(root: string): Context {
       localesDir: path.join(root, 'locales'),
       srcRoot: path.join(root, 'src'),
     },
-    run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false },
+    run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false, debugCache: false },
     meta: {
       fieldSources: {},
       warnings: [],

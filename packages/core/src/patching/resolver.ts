@@ -5,6 +5,7 @@ import {
 } from '../shared/languages/catalog/index.js';
 import type { LocaleDirection } from '../types/patching/index.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
+import { parseJsonText } from '../shared/json/parse.js';
 import { recommendedLocaleDirection } from './locales.js';
 
 export type LocaleConfigMismatch = {
@@ -35,7 +36,7 @@ export function resolvePatchingConfigLocales(
   const applyCatalogMismatches = options?.applyCatalogMismatches === true;
   let parsed: unknown;
   try {
-    parsed = JSON.parse(configText);
+    parsed = parseJsonText(configText);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return { ok: false, error: 'parse_error', message };

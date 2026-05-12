@@ -160,19 +160,6 @@ export function composeLoadersGeneratedFile(innerBlock: string, userIsland: stri
   return `${body.endsWith('\n') ? body : `${body}\n`}`;
 }
 
-export function parseExistingGeneratedForUserIsland(existingFileText: string): {
-  innerBlock: string | null;
-  userIsland: string;
-} {
-  const gs = existingFileText.indexOf(GENERATED_MODULE_START);
-  const ge = existingFileText.indexOf(GENERATED_MODULE_END);
-  if (gs < 0 || ge < 0 || ge <= gs) {
-    return { innerBlock: null, userIsland: extractUserIsland(existingFileText) };
-  }
-  const innerBlock = existingFileText.slice(gs + GENERATED_MODULE_START.length, ge).trim();
-  return { innerBlock: innerBlock || null, userIsland: extractUserIsland(existingFileText) };
-}
-
 export function extractExistingDefaultLocaleCode(existingFileText: string): string | undefined {
   const match = existingFileText.match(
     /const\s+DEFAULT_LOCALE_CODE\s*=\s*(["'])(?<code>[A-Za-z0-9_-]+)\1/,

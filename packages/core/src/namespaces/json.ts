@@ -3,3 +3,10 @@ export { mergeToTemplateShape, applyPreserveFromSource } from '../shared/json/me
 export type { MergeToTemplateOptions } from '../shared/json/merge.js';
 export { pruneToTemplateShape } from '../shared/json/prune.js';
 export type { PruneToTemplateOptions } from '../shared/json/prune.js';
+export {
+  getJsonParseLocation,
+  I18nPruneJsonParseError,
+  parseJsonText,
+  tryParseJsonText,
+} from '../shared/json/parse.js';
+export type { JsonParseLocation, ParseJsonTextOptions, TryParseJsonTextResult } from '../shared/json/parse.js';

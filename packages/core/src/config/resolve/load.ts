@@ -13,6 +13,7 @@ import {
 import type { Issue, Result } from '../../types/json/envelope/index.js';
 import type { ConfigPathSystemRuntime } from '../../types/runtime/capabilities.js';
 import type { CoreConfigInput, CoreConfigResolved, ResolveCoreConfigOptions } from '../../types/config/index.js';
+import { parseJsonText } from '../../shared/json/parse.js';
 import { resolveCoreConfig } from './core.js';
 
 type ParseConfigText = (text: string, configPath: string) => unknown | Promise<unknown>;
@@ -58,7 +59,14 @@ function issueFromI18nError(error: I18nPruneError, configPath: string): Issue {
 
 /** Load + parse + resolve core config from a given path using host-provided I/O. */
 export async function loadCoreConfigFromPath(input: LoadCoreConfigFromPathInput): Promise<CoreConfigResolved> {
-  const parseText: ParseConfigText = input.parseText ?? ((text: string) => JSON.parse(text) as unknown);
+  const parseText: ParseConfigText =
+    input.parseText ??
+    ((text: string, configPath: string) =>
+      parseJsonText(text, {
+        filePath: configPath,
+        code: 'CONFIG_INVALID',
+        issueCode: ISSUE_CONFIG_INVALID,
+      }));
   const cwd = input.runtime?.system?.cwd();
   const effectivePath =
     cwd && input.runtime?.path && !input.runtime.path.isAbsolute(input.configPath)

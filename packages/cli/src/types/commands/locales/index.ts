@@ -3,6 +3,8 @@ export type LocalesEditOptions = {
   englishName?: string;
   nativeName?: string;
   direction?: 'ltr' | 'rtl';
+  /** Raw CLI value, kept so invalid values can become structured command usage errors. */
+  directionRaw?: string;
 };
 
 export type LocalesDeleteOptions = {

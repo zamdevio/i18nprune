@@ -11,6 +11,8 @@ i18nprune locales list --json | jq '.data.locales'
 
 ```bash
 i18nprune locales edit --help
+i18nprune --patch locales edit --target ja --english-name "Japanese" --native-name "日本語" --direction ltr
+i18nprune --json locales edit --target all
 i18nprune locales dynamic --help
 i18nprune locales delete --help
 ```

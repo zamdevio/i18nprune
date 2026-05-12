@@ -46,9 +46,11 @@ export function applyLocaleAction(
   current: readonly PatchingLocaleRecord[],
   action: PatchingAction,
   changedLocaleCodes: readonly string[],
+  upsertLocaleRecords: readonly PatchingLocaleRecord[] = [],
 ): PatchingLocaleRecord[] {
   const catalog = buildLanguageCatalog(generatedLanguageCatalog);
   const byCode = new Map(current.map((row) => [row.code, row]));
+  const upsertByCode = new Map(upsertLocaleRecords.map((row) => [row.code, row]));
   const delta = codeSet(changedLocaleCodes);
   if (action === 'delete_locales') {
     const remove = new Set(delta);
@@ -56,14 +58,24 @@ export function applyLocaleAction(
   }
   const out = [...current];
   for (const code of delta) {
-    if (byCode.has(code)) continue;
+    const upsert = upsertByCode.get(code);
+    const existing = byCode.get(code);
+    if (existing) {
+      if (upsert) {
+        const index = out.findIndex((row) => row.code === code);
+        if (index >= 0) out[index] = { ...existing, ...upsert, code };
+      }
+      continue;
+    }
     const cat = getLanguageByCodeFromCatalog(catalog, code);
-    out.push({
-      code,
-      englishName: cat?.english ?? code,
-      nativeName: cat?.native ?? code,
-      direction: recommendedLocaleDirection(code, cat?.direction),
-    });
+    out.push(
+      upsert ?? {
+        code,
+        englishName: cat?.english ?? code,
+        nativeName: cat?.native ?? code,
+        direction: recommendedLocaleDirection(code, cat?.direction),
+      },
+    );
   }
   return out.sort((a, b) => a.code.localeCompare(b.code));
 }
