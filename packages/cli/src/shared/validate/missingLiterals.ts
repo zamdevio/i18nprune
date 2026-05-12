@@ -1,5 +1,5 @@
 import type { Context } from '@/types/core/context/index.js';
-import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
+import { toExtractorScanInput } from '@/shared/extractor/index.js';
 import {
   compareDottedPathDepth,
   computeMissingLiteralKeysFromResolvedKeys,

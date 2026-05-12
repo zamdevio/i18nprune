@@ -5,19 +5,18 @@ export {
 } from '@i18nprune/core';
 
 export {
-  issuesFromCleanupRipgrepUnavailable,
-  issuesFromCleanupUncertainExcluded,
   issuesFromDiscoveryWarnings,
   issuesFromDoctorFindings,
   issuesFromDynamicScanCount,
   issuesFromLanguagesFilter,
   issuesFromLocaleTargetMissing,
+  issuesFromLocaleTargetsSkipped,
   issuesFromLocalesUsage,
-  issuesFromMissingSkippedNotInScan,
+  issuesFromPatchingDiagnostics,
   issuesFromQualityEnglishIdentical,
-  issuesFromSyncMissingLocaleFiles,
   isLocaleTargetMissingMessage,
   mergeIssues,
+  usageIssueFromI18nPruneError,
 } from './cliEnvelopeIssues.js';
 
 export { buildIoReadFailureEnvelope } from './ioEnvelope.js';

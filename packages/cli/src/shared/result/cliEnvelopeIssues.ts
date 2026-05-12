@@ -2,10 +2,6 @@ import { I18nPruneError, issueCodeRepoDocPathForIssueCode } from '@i18nprune/cor
 import {
   ISSUE_CONTEXT_DISCOVERY_WARNING,
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
-  ISSUE_MISSING_PATHS_NOT_IN_SCAN,
-  ISSUE_SYNC_LOCALE_FILE_NOT_FOUND,
-  ISSUE_CLEANUP_UNCERTAIN_PATHS_EXCLUDED,
-  ISSUE_CLEANUP_RIPGREP_UNAVAILABLE,
   ISSUE_QUALITY_ENGLISH_IDENTICAL_LEAVES,
   ISSUE_LANGUAGES_EMPTY_FILTER,
   ISSUE_LOCALES_USAGE,
@@ -60,54 +56,6 @@ export function issuesFromDynamicScanCount(count: number): Issue[] {
       code: ISSUE_SCAN_DYNAMIC_KEY_SITES,
       message: `${String(count)} translation call(s) use a non-literal key — static analysis cannot enumerate computed keys as fixed paths.`,
       docPath: 'dynamic/README',
-    },
-  ];
-}
-
-export function issuesFromMissingSkippedNotInScan(skipped: readonly string[]): Issue[] {
-  if (skipped.length === 0) return [];
-  return [
-    {
-      severity: 'warning',
-      code: ISSUE_MISSING_PATHS_NOT_IN_SCAN,
-      message: `${String(skipped.length)} path(s) are not in the current code scan (ignored).`,
-      docPath: 'commands/missing/README',
-    },
-  ];
-}
-
-export function issuesFromSyncMissingLocaleFiles(localeCodes: readonly string[]): Issue[] {
-  if (localeCodes.length === 0) return [];
-  return [
-    {
-      severity: 'warning',
-      code: ISSUE_SYNC_LOCALE_FILE_NOT_FOUND,
-      message: `Locale file(s) not found under locales dir (skipped): ${localeCodes.map((c) => `${c}.json`).join(', ')}`,
-      docPath: 'commands/sync/README',
-    },
-  ];
-}
-
-export function issuesFromCleanupUncertainExcluded(excludedCount: number): Issue[] {
-  if (excludedCount <= 0) return [];
-  return [
-    {
-      severity: 'info',
-      code: ISSUE_CLEANUP_UNCERTAIN_PATHS_EXCLUDED,
-      message: `${String(excludedCount)} path(s) excluded under uncertain key prefix policy.`,
-      docPath: 'commands/cleanup/README',
-    },
-  ];
-}
-
-export function issuesFromCleanupRipgrepUnavailable(): Issue[] {
-  return [
-    {
-      severity: 'warning',
-      code: ISSUE_CLEANUP_RIPGREP_UNAVAILABLE,
-      message:
-        'ripgrep (rg) not on PATH — cleanup uses a narrower reference check without rg. Install rg for stronger safety.',
-      docPath: 'commands/cleanup/README',
     },
   ];
 }
@@ -188,6 +136,17 @@ export function issuesFromLocaleTargetMissing(message: string): Issue[] {
   return [
     {
       severity: 'error',
+      code: ISSUE_LOCALE_TARGET_NOT_FOUND,
+      message,
+      docPath: issueCodeRepoDocPathForIssueCode(ISSUE_LOCALE_TARGET_NOT_FOUND),
+    },
+  ];
+}
+
+export function issuesFromLocaleTargetsSkipped(message: string): Issue[] {
+  return [
+    {
+      severity: 'warning',
       code: ISSUE_LOCALE_TARGET_NOT_FOUND,
       message,
       docPath: issueCodeRepoDocPathForIssueCode(ISSUE_LOCALE_TARGET_NOT_FOUND),

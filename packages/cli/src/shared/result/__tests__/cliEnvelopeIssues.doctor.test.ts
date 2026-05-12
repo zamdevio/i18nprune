@@ -6,7 +6,7 @@ import {
   ISSUE_DOCTOR_RUNTIME_UNSUPPORTED_NODE,
   ISSUE_DOCTOR_TOOLS_RG_NOT_ON_PATH,
 } from '@/constants/issueCodes.js';
-import { issuesFromDoctorFindings } from '@/shared/result/cliEnvelopeIssues.js';
+import { issuesFromDoctorFindings } from '@/shared/result/index.js';
 import type { DoctorFinding } from '@i18nprune/core';
 
 describe('issuesFromDoctorFindings', () => {

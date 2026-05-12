@@ -41,7 +41,7 @@ i18nprune missing --target ja,ar --yes
 4. **Scan** `src` for translation calls and extract **literal** key strings (same pipeline as **`validate`**).
 5. **Compute `toAdd`** — literals in code that are not yet string leaves in the target file.
 6. **Human mode, real write:** print preview (respecting **`--top`** / **`--full`** defaults), then **confirm each target** unless **`--yes`** or non-interactive rules apply; on success, merge the resolved placeholder at each path and **write** the file.
-7. **`--dry-run` / `--json`** — no write; **`--json`** prints the full **`paths`** array.
+7. **`--dry-run` / `--json`** — no write; **`--json`** prints capped lists by default, with **`shown`**, **`top`**, **`full`**, and total counts so automation can request **`--full`** when it needs every item.
 
 ## Config and environment
 
@@ -83,8 +83,8 @@ When you use **`--target <code[,code]|all>`** instead, **`sync`** / **`generate 
 |------|------|
 | **`--target <code[,code]\|all>`** | Write into existing **`locales/<code>.json`** file(s) instead of the **source locale** file. Optional. Normalized like other commands (e.g. **`pt-br`**). Missing files warn and skip. |
 | **`--dry-run`** | List paths that **would** be added; **no** file write. Preview uses **`--top`** / **`--full`**. |
-| **`--top <n>`** | Human listings show at most **`n`** paths. Default cap if omitted: **10**. Ignored with **`--full`**. Must be a **positive integer** (validated like **`locales dynamic --top`**). |
-| **`--full`** | Human listings print **every** path (overrides **`--top`**). |
+| **`--top <n>`** | Human and **`--json`** listings show at most **`n`** missing paths / placeholder leaves. Default cap if omitted: **10**. Ignored with **`--full`**. Must be a **positive integer** (validated like **`locales dynamic --top`**). |
+| **`--full`** | Human and **`--json`** listings print **every** missing path / placeholder leaf (overrides **`--top`**). |
 
 **Global (same as other commands)**
 
@@ -92,12 +92,12 @@ When you use **`--target <code[,code]|all>`** instead, **`sync`** / **`generate 
 |------|------|
 | **`--json`** with shell redirection** | Structured run report at end (when this command is wired into the report session). See [Examples](../../examples/README.md). |
 | **`-q` / `-s`**, **`--json`** | Verbosity and machine-readable mode; see [JSON & long runs](../../behavior/json-long.md). |
-| **`--yes`** (global) | Skip the write **confirmation** and proceed (required for non-interactive writes). |
+| **`--yes`** (global) | Skip the write **confirmation** and proceed (required for non-interactive writes). With **`--json`**, writes only happen when **`--yes`** is also passed; plain **`--json`** remains read-only unless **`--yes`** is explicit. |
 
 ## CI / `--json` / non-interactive
 
 - **`--target`** is optional; if omitted, the **source locale** file is the target (see table above).
-- **Global `--json`:** Machine-readable stdout; **no** confirmation prompt. The **`paths`** array is always **complete** (not capped by **`--top`**).
+- **Global `--json`:** Machine-readable stdout; **no** confirmation prompt. The **`paths`** and **`placeholderLeaves.leaves`** arrays follow **`--top`** / **`--full`** like **`locales dynamic`**; use **`pathsAdded`** and **`placeholderLeaves.count`** for totals.
 - **Writes without a TTY:** use **`--yes`** (or **`--dry-run`** to preview only). Otherwise the command fails with a clear **`USAGE`** message.
 - **Missing paths on disk:** See **Preconditions** — fail fast.
 

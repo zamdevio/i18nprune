@@ -50,6 +50,8 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.validate.source_locale_unreadable` | `error` | **`validate`**, **`runValidate`** |
 | `i18nprune.locales.usage` | `error` | **`locales`** subcommands |
 | `i18nprune.locale.target_not_found` | `error` / `warning` | **`locales edit`**, **`locales delete`**, **`missing --target`**, … |
+| `i18nprune.locale.source_placeholder_leaves` | `warning` | **`validate`**, **`missing`**, **`sync`**, **`quality`**, **`review`** when the source locale contains missing placeholders |
+| `i18nprune.locale.target_placeholder_leaves` | `warning` | **`missing --target`**, **`sync`**, **`quality`**, **`review`** when non-source locales contain missing placeholders |
 | `i18nprune.translate.identity_streak_warning` | `warning` | **`generate`** (including **`--resume`**) |
 | `i18nprune.translate.identity_streak_abort` | `error` | **`generate`** (including **`--resume`**) |
 | `i18nprune.translate.unknown_translation_provider` | `error` | Provider id resolution / validation |

@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { clearContextCache, resolveContext } from '@/shared/context/index.js';
 import { resetConfigPathResolution, setConfigPath } from '@/shared/config/index.js';
-import { computeMissingLiteralKeys } from '@/shared/validate/missingLiterals.js';
+import { computeMissingLiteralKeys } from '@/shared/validate/index.js';
 
 describe('computeMissingLiteralKeys', () => {
   let dir: string;
