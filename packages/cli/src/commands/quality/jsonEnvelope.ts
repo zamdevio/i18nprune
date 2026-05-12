@@ -1,27 +1,21 @@
 import {
   buildCliJsonEnvelope,
-  createCoreContext,
   emitRunErrorFromUnknown,
   emitRunEvent,
   nowMs,
   runQuality as runCoreQuality,
 } from '@i18nprune/core';
-import type { CliJsonEnvelope, QualityJsonData, QualityRunOptions, QualityRunResult, RunEmitter } from '@i18nprune/core';
-import type { QualityRuntime } from '@/types/command/quality/index.js';
+import type { QualityJsonData, QualityRunOptions, RunEmitter } from '@i18nprune/core';
+import type {
+  QualityJsonEnvelopeResult,
+  QualityJsonRunResult,
+  QualityRuntime,
+} from '@/types/command/quality/index.js';
 
 import { buildQualityHostHooks } from '@/commands/quality/hooks.js';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
-import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
+import { createCliCoreContext } from '@/shared/context/index.js';
+import { buildIoReadFailureEnvelope, issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
-
-export type QualityJsonRunResult = QualityRunResult & {
-  envelope: CliJsonEnvelope<'quality', QualityJsonData>;
-};
-
-export type QualityJsonEnvelopeResult = {
-  envelope: CliJsonEnvelope<'quality', QualityJsonData>;
-  result?: QualityJsonRunResult;
-};
 
 export function emptyQualityPayload(): QualityJsonData {
   return {
@@ -37,14 +31,8 @@ export function emptyQualityPayload(): QualityJsonData {
 }
 
 export function executeCore(ctx: Context, opts: QualityRunOptions, runtime: QualityRuntime = {}): QualityJsonRunResult {
-  const coreCtx = createCoreContext({
-    config: ctx.config,
-    adapters: ctx.adapters,
-    env: process.env,
-    paths: ctx.paths,
-    run: ctx.run,
-  });
-  const out = runCoreQuality(coreCtx, opts, buildQualityHostHooks(ctx, runtime));
+  const coreCtx = createCliCoreContext(ctx);
+  const out = runCoreQuality(coreCtx, opts, buildQualityHostHooks(runtime));
   const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), out.issues);
   const envelope = buildCliJsonEnvelope('quality', out.payload, {
     ok: true,

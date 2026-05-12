@@ -1,4 +1,10 @@
-import type { CleanupRunOptions, RunEmitter } from '@i18nprune/core';
+import type {
+  CleanupJsonOutput,
+  CleanupRunOptions,
+  CleanupRunResult,
+  CliJsonEnvelope,
+  RunEmitter,
+} from '@i18nprune/core';
 
 export type { CleanupJsonOutput } from '@i18nprune/core';
 
@@ -19,3 +25,12 @@ export type CleanupOptions = CleanupRunOptions & {
 };
 
 export type CleanupRuntime = { emit?: RunEmitter; runId?: string };
+
+export type CleanupJsonRunResult = CleanupRunResult & {
+  envelope: CliJsonEnvelope<'cleanup', CleanupJsonOutput>;
+};
+
+export type CleanupJsonEnvelopeResult = {
+  envelope: CliJsonEnvelope<'cleanup', CleanupJsonOutput>;
+  result?: CleanupJsonRunResult;
+};

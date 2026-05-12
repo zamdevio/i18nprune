@@ -1,16 +1,16 @@
 import { confirm } from '@inquirer/prompts';
-import { resolveContext } from '@/shared/context/index.js';
+import { createCliCoreContext, resolveContext } from '@/shared/context/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import { resolveMissingHumanDefaultTop } from '@/commands/missing/summary.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import {
-  createCoreContext,
-  DEFAULT_MISSING_LEAF_PLACEHOLDER,
   emitMissingPathsPreview,
+  emitMissingPlaceholderLeavesPreview,
   emitMissingTargetActionMessage,
   emitMissingTargetWriteIntro,
   I18nPruneError,
   noopRunEmitter,
+  resolveMissingLeafPlaceholder,
   writeMissingPaths,
 } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
@@ -21,9 +21,6 @@ import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
 import type { MissingOptions } from '@/types/command/missing/index.js';
 import type { MissingPathDisplayOpts } from '@/types/command/missing/summary.js';
-import {
-  resolveExtractionBaselineCounts,
-} from '@/shared/cache/index.js';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 import type { RunEmitter } from '@i18nprune/core';
 
@@ -46,7 +43,9 @@ export async function missing(opts: MissingOptions): Promise<void> {
     const runtime = { emit, runId };
 
     if (run.json) {
-      const { envelope } = runMissingJsonEnvelope(ctx, opts, { emit: noopRunEmitter, runId });
+      const { envelope } = runMissingJsonEnvelope(ctx, opts, { emit: noopRunEmitter, runId }, {
+        applyWrites: getCliYesFlag(),
+      });
       console.log(stringifyEnvelope(envelope));
       if (!envelope.ok) {
         process.exitCode = 1;
@@ -57,8 +56,16 @@ export async function missing(opts: MissingOptions): Promise<void> {
     const display = missingDisplayOpts(opts, ctx.config);
 
     const resolved = resolveMissingData(ctx, opts, runtime);
-    const extractionBaseline = resolveExtractionBaselineCounts(ctx);
+    const extractionBaseline = {
+      dynamic: resolved.dynamicSites,
+      keyObservations: resolved.keyObservationsCount,
+    };
     const summaryIssues = resolved.envelope.issues;
+    emitMissingPlaceholderLeavesPreview(runtime, {
+      leaves: resolved.placeholderLeaves,
+      fullList: display.fullList,
+      top: display.top,
+    });
 
     const plansWithAdds = resolved.targets.filter((entry) => entry.toAdd.length > 0);
     const totalToAdd = plansWithAdds.reduce((sum, entry) => sum + entry.toAdd.length, 0);
@@ -81,10 +88,7 @@ export async function missing(opts: MissingOptions): Promise<void> {
       return;
     }
 
-    const missingPlaceholder =
-      ctx.config.missing?.placeholder !== undefined
-        ? ctx.config.missing.placeholder
-        : DEFAULT_MISSING_LEAF_PLACEHOLDER;
+    const missingPlaceholder = resolveMissingLeafPlaceholder(ctx.config.missing?.placeholder).placeholder;
 
     if (opts.dryRun) {
       for (const entry of plansWithAdds) {
@@ -117,13 +121,7 @@ export async function missing(opts: MissingOptions): Promise<void> {
       );
     }
 
-    const coreCtx = createCoreContext({
-      config: ctx.config,
-      adapters: ctx.adapters,
-      env: process.env,
-      paths: ctx.paths,
-      run: ctx.run,
-    });
+    const coreCtx = createCliCoreContext(ctx);
     let added = 0;
     let filesWritten = 0;
     let declined = 0;

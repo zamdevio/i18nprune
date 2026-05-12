@@ -1,28 +1,42 @@
-import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
-import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
+import { existsRuntimeFsSync, listRuntimeFsDirSync, readRuntimeFsTextSync } from '../runtime/helpers/sync/fs.js';
 import { writeRuntimeJsonPretty } from '../generate/io/writeRuntimeJson.js';
 import { isAllLocaleToken, parseLocaleCodesList } from '../locales/targets.js';
 import {
   buildLanguageCatalog,
   generatedLanguageCatalog,
+  getLanguageByCodeFromCatalog,
 } from '../shared/languages/catalog/index.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { MAX_MISSING_TARGET_SUGGESTIONS } from '../shared/constants/missing.js';
 import { I18nPruneError } from '../shared/errors/index.js';
+import { parseJsonText } from '../shared/json/parse.js';
 import { setAtPath } from '../shared/json/path.js';
+import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
+import { resolveProjectAnalysis } from '../analysis/index.js';
+import {
+  detectLocalePlaceholderLeaves,
+  formatSourcePlaceholderMessage,
+  formatTargetPlaceholderMessage,
+  issuesFromSourcePlaceholderLeaves,
+  issuesFromTargetPlaceholderLeaves,
+  sourcePlaceholderValues,
+} from '../shared/sourcePlaceholders/index.js';
 import {
   ISSUE_LOCALE_TARGET_NOT_FOUND,
+  ISSUE_IO_READ_FAILED,
   ISSUE_MISSING_PATHS_NOT_IN_SCAN,
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
 } from '../shared/constants/issueCodes.js';
 import { resolveMissingPathsPlan } from './resolvePaths.js';
 import type { CoreContext } from '../types/generate/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
+import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 import type { RunMessageLevel } from '../types/shared/run/index.js';
 import type {
   MissingHostHooks,
   MissingJsonOutput,
+  MissingPlaceholderLeaf,
   MissingJsonTarget,
   MissingRunOptions,
   MissingRunResult,
@@ -93,6 +107,19 @@ function suggestExistingLocaleTargets(input: string, existingCodes: readonly str
   return out.slice(0, MAX_MISSING_TARGET_SUGGESTIONS);
 }
 
+function relativeDisplayPath(ctx: CoreContext, targetPath: string): string {
+  const cwd = ctx.adapters.system.cwd();
+  const rel = ctx.adapters.path.relative(cwd, targetPath);
+  if (rel === '') return ctx.adapters.path.basename(targetPath);
+  if (rel.startsWith('..')) return rel;
+  return rel;
+}
+
+function localeEnglishName(code: string): string {
+  const catalog = buildLanguageCatalog(generatedLanguageCatalog);
+  return getLanguageByCodeFromCatalog(catalog, code)?.english ?? code;
+}
+
 function readTargetState(
   ctx: CoreContext,
   targetPath: string,
@@ -100,12 +127,20 @@ function readTargetState(
   selectedLocaleCode?: string,
 ): MissingTargetState {
   const fs = ctx.adapters.fs;
-  const localeJson = readJsonFromRuntimeFsSync(targetPath, fs);
+  const localeText = readRuntimeFsTextSync(targetPath, fs);
+  const localeJson = parseJsonText(localeText, {
+    filePath: targetPath,
+    code: 'IO',
+    issueCode: ISSUE_IO_READ_FAILED,
+  });
   return {
     targetPath,
     targetKind,
     localeJson,
+    localeText,
     ...(selectedLocaleCode !== undefined ? { selectedLocaleCode } : {}),
+    ...(selectedLocaleCode !== undefined ? { selectedLocaleEnglishName: localeEnglishName(selectedLocaleCode) } : {}),
+    targetDisplayPath: relativeDisplayPath(ctx, targetPath),
   };
 }
 
@@ -219,7 +254,7 @@ export function emitMissingTargetWriteIntro(host: Pick<MissingHostHooks, 'emit' 
   if (entry.target.targetKind !== 'locale' || entry.target.selectedLocaleCode === undefined) return;
   emitMissingMessage(host, {
     level: 'info',
-    message: `target ${entry.target.selectedLocaleCode}.json has ${String(entry.toAdd.length)} missing path(s); preparing ${entry.target.targetPath}.`,
+    message: `target ${entry.target.selectedLocaleEnglishName ?? entry.target.selectedLocaleCode} (${entry.target.selectedLocaleCode}) has ${String(entry.toAdd.length)} missing path(s); preparing ${entry.target.targetDisplayPath ?? entry.target.targetPath}`,
     target: entry.target.selectedLocaleCode,
     path: entry.target.targetPath,
     data: { paths: entry.toAdd.length },
@@ -291,9 +326,85 @@ export function emitMissingPathsPreview(
   }
 }
 
+export function emitMissingPlaceholderLeavesPreview(
+  host: Pick<MissingHostHooks, 'emit' | 'runId'>,
+  input: { leaves: readonly MissingPlaceholderLeaf[]; fullList: boolean; top?: number },
+): void {
+  if (input.leaves.length === 0) return;
+  const cap = input.top ?? 10;
+  const visible = input.fullList ? input.leaves : input.leaves.slice(0, cap);
+  emitMissingMessage(host, {
+    level: 'info',
+    message: `placeholder leaves found: ${String(input.leaves.length)}`,
+    data: { placeholderLeaves: input.leaves.length },
+  });
+  let lastGroup = '';
+  for (const leaf of visible) {
+    const group = `${leaf.localeRole === 'source' ? 'source' : 'target'} ${leaf.localeCode} · ${leaf.file}`;
+    if (group !== lastGroup) {
+      emitMissingMessage(host, { level: 'detail', message: `  ${group}`, target: leaf.localeCode });
+      lastGroup = group;
+    }
+    emitMissingMessage(host, {
+      level: 'detail',
+      message: `    · ${leaf.location} ${leaf.path}`,
+      target: leaf.localeCode,
+      path: leaf.file,
+    });
+  }
+  const omitted = input.fullList ? 0 : Math.max(0, input.leaves.length - visible.length);
+  if (omitted > 0) {
+    emitMissingMessage(host, {
+      level: 'detail',
+      message: `  … and ${String(omitted)} more placeholder leaf/leaves (use --full or --top <n>)`,
+      data: { omitted },
+    });
+  }
+}
+
 function relativeToCwd(ctx: CoreContext, filePath: string): string {
   const rel = ctx.adapters.path.relative(ctx.adapters.system.cwd(), filePath);
   return rel || filePath;
+}
+
+function missingPayloadListWindow(opts: MissingRunOptions): { full: boolean; limit: number } {
+  return { full: opts.full === true, limit: opts.top ?? 10 };
+}
+
+function locatePlaceholderLine(text: string, path: string, value: string): number | null {
+  const key = path.split('.').at(-1);
+  if (key === undefined || key.length === 0) return null;
+  const keyNeedle = JSON.stringify(key);
+  const valueNeedle = JSON.stringify(value);
+  const lines = text.split(/\r?\n/);
+  const matches: number[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    if (line.includes(keyNeedle) && line.includes(valueNeedle)) {
+      matches.push(i + 1);
+    }
+  }
+  if (matches.length === 1) return matches[0]!;
+  if (matches.length > 1) return matches[0]!;
+  return null;
+}
+
+function placeholderLeafForTarget(
+  ctx: CoreContext,
+  target: MissingTargetState,
+  leaf: LocalePlaceholderLeaf,
+): MissingPlaceholderLeaf {
+  const file = target.targetDisplayPath ?? relativeToCwd(ctx, target.targetPath);
+  const line = locatePlaceholderLine(target.localeText, leaf.path, leaf.value);
+  return {
+    localeRole: target.targetKind,
+    localeCode: leaf.localeCode,
+    file,
+    path: leaf.path,
+    value: leaf.value,
+    line,
+    location: line === null ? file : `${file}:${String(line)}`,
+  };
 }
 
 export function applyMissingPaths(input: Omit<MissingWriteInput, 'targetPath'>): unknown {
@@ -315,7 +426,11 @@ export function runMissing(
   host: MissingHostHooks,
 ): MissingRunResult {
   const { targets: targetStates, skippedTargets } = resolveMissingTargetStates(ctx, opts);
-  const resolvedKeys = host.loadResolvedKeys();
+  const sourceCode = sourceLocaleCode(ctx);
+  const sourceTargetState =
+    targetStates.find((target) => target.targetKind === 'source') ?? resolveSourceTargetState(ctx);
+  const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'missing', runId: host.runId });
+  const resolvedKeys = analysis.usage.resolvedKeys;
   const targets = targetStates.map((target) => {
     const { toAdd, skippedNotInScan } = resolveMissingPathsPlan({
       localeJson: target.localeJson,
@@ -323,13 +438,65 @@ export function runMissing(
     });
     return { target, toAdd, skippedNotInScan };
   });
-  const dynamicSites = host.getDynamicSitesCount();
+  const placeholderValues = sourcePlaceholderValues(ctx.config.missing?.placeholder);
+  const sourcePlaceholderLeaves: SourcePlaceholderLeaf[] = [];
+  const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
+  const placeholderListTargets = [
+    sourceTargetState,
+    ...targetStates.filter((target) => target.targetKind !== 'source'),
+  ];
+  const placeholderLeaves: MissingPlaceholderLeaf[] = [];
+  for (const target of placeholderListTargets) {
+    const localeCode = target.selectedLocaleCode ?? sourceCode;
+    const leaves = detectLocalePlaceholderLeaves({
+      leaves: collectTranslationSurfaceLeaves(target.localeJson),
+      placeholderValues,
+      localeRole: target.targetKind === 'source' ? 'source' : 'target',
+      localeCode,
+      localePath: target.targetPath,
+    });
+    if (target.targetKind === 'source') {
+      sourcePlaceholderLeaves.push(...leaves.map((leaf) => ({ path: leaf.path, value: leaf.value })));
+    } else {
+      targetPlaceholderLeaves.push(...leaves);
+    }
+    placeholderLeaves.push(...leaves.map((leaf) => placeholderLeafForTarget(ctx, target, leaf)));
+  }
+  const dynamicSites = analysis.dynamicSites.length;
   if (dynamicSites > 0) {
     emitMissingMessage(host, {
       level: 'warn',
       message: `${String(dynamicSites)} translation call(s) use a non-literal key — missing only adds paths for literal keys seen in the scan; use \`validate\` or \`locales dynamic\` for dynamic call sites.`,
       data: { dynamicSites },
     });
+  }
+  if (sourcePlaceholderLeaves.length > 0) {
+    emitMissingMessage(host, {
+      level: 'warn',
+      message: formatSourcePlaceholderMessage({
+        count: sourcePlaceholderLeaves.length,
+        samplePaths: sourcePlaceholderLeaves.slice(0, 5).map((leaf) => leaf.path),
+      }),
+      data: { sourcePlaceholderLeaves: sourcePlaceholderLeaves.length },
+    });
+  }
+  if (targetPlaceholderLeaves.length > 0) {
+    const byLocale = new Map<string, LocalePlaceholderLeaf[]>();
+    for (const leaf of targetPlaceholderLeaves) {
+      byLocale.set(leaf.localeCode, [...(byLocale.get(leaf.localeCode) ?? []), leaf]);
+    }
+    for (const [localeCode, leaves] of byLocale) {
+      emitMissingMessage(host, {
+        level: 'warn',
+        message: formatTargetPlaceholderMessage({
+          count: leaves.length,
+          samplePaths: leaves.slice(0, 5).map((leaf) => leaf.path),
+          targetLabel: localeCode,
+        }),
+        target: localeCode,
+        data: { targetPlaceholderLeaves: leaves.length },
+      });
+    }
   }
   const targetPayloads: MissingJsonTarget[] = targets.map((entry) => ({
     targetPath: relativeToCwd(ctx, entry.target.targetPath),
@@ -378,24 +545,44 @@ export function runMissing(
     });
   }
   const firstTarget = targetPayloads[0];
+  const listWindow = missingPayloadListWindow(opts);
+  const visibleAggregatePaths = listWindow.full ? aggregatePaths : aggregatePaths.slice(0, listWindow.limit);
+  const shownPlaceholderLeaves = listWindow.full
+    ? placeholderLeaves
+    : placeholderLeaves.slice(0, listWindow.limit);
   const payload: MissingJsonOutput = {
     kind: 'missing',
     targetPath: firstTarget?.targetPath ?? '',
     targetKind: firstTarget?.targetKind ?? 'locale',
     pathsAdded: targets.reduce((sum, entry) => sum + entry.toAdd.length, 0),
-    paths: aggregatePaths,
+    shown: visibleAggregatePaths.length,
+    top: listWindow.full ? null : listWindow.limit,
+    full: listWindow.full,
+    paths: visibleAggregatePaths,
     dryRun: Boolean(opts.dryRun),
     skippedNotInScan: aggregateSkippedNotInScan,
-    targets: targetPayloads,
+    targets: targetPayloads.map((target) => ({
+      ...target,
+      paths: listWindow.full ? target.paths : target.paths.slice(0, listWindow.limit),
+    })),
     skippedTargets: skippedTargets.map((target) => ({
       ...target,
       targetPath: relativeToCwd(ctx, target.targetPath),
     })),
+    placeholderLeaves: {
+      count: placeholderLeaves.length,
+      shown: shownPlaceholderLeaves.length,
+      top: listWindow.full ? null : listWindow.limit,
+      full: listWindow.full,
+      leaves: shownPlaceholderLeaves,
+    },
   };
   const issues = [
     ...issuesFromDynamicScanCount(dynamicSites),
     ...issuesFromMissingSkippedNotInScan(aggregateSkippedNotInScan),
     ...issuesFromSkippedTargets(skippedTargets),
+    ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
+    ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),
   ];
 
   return {
@@ -406,5 +593,7 @@ export function runMissing(
     toAdd: aggregatePaths,
     skippedNotInScan: aggregateSkippedNotInScan,
     dynamicSites,
+    keyObservationsCount: analysis.keyObservations.length,
+    placeholderLeaves,
   };
 }

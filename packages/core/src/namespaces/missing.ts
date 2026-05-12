@@ -1,6 +1,7 @@
 export {
   applyMissingPaths,
   emitMissingPathsPreview,
+  emitMissingPlaceholderLeavesPreview,
   emitMissingTargetActionMessage,
   emitMissingTargetWriteIntro,
   MISSING_LEAF_PLACEHOLDER_MAX_LEN,
@@ -15,6 +16,8 @@ export type {
   MissingHostHooks,
   MissingJsonTarget,
   MissingJsonOutput,
+  MissingPlaceholderLeaf,
+  MissingPlaceholderLeafList,
   MissingRunOptions,
   MissingRunResult,
   MissingSkippedTarget,

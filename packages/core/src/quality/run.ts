@@ -1,15 +1,25 @@
 import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
+import { resolveProjectAnalysis } from '../analysis/index.js';
 import {
   ISSUE_QUALITY_ENGLISH_IDENTICAL_LEAVES,
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
 } from '../shared/constants/issueCodes.js';
 import { emitRunMessage } from '../shared/run/index.js';
+import {
+  detectLocalePlaceholderLeaves,
+  formatSourcePlaceholderMessage,
+  formatTargetPlaceholderMessage,
+  issuesFromSourcePlaceholderLeaves,
+  issuesFromTargetPlaceholderLeaves,
+  sourcePlaceholderValues,
+} from '../shared/sourcePlaceholders/index.js';
 import { computeEnglishIdenticalCounts } from './englishIdentical.js';
-import { buildQualityJsonData } from './index.js';
+import { buildQualityJsonData } from './payload.js';
 import type { CoreContext } from '../types/generate/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
+import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 import type { QualityHostHooks, QualityRunOptions, QualityRunResult } from '../types/quality/index.js';
 
 function listLocaleJsonBasenames(ctx: CoreContext, dirPath: string): string[] {
@@ -49,11 +59,20 @@ export function runQuality(
   opts: QualityRunOptions,
   host: QualityHostHooks,
 ): QualityRunResult {
-  const dynamicKeySites = host.getDynamicSitesCount();
+  const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'quality', runId: host.runId });
+  const dynamicKeySites = analysis.dynamicSites.length;
   const sourcePath = ctx.paths.sourceLocale;
   const sourceRaw = readJsonFromRuntimeFsSync(sourcePath, ctx.adapters.fs);
   const sourceLeaves = collectTranslationSurfaceLeaves(sourceRaw);
   const sourceBase = ctx.adapters.path.basename(sourcePath, '.json');
+  const placeholderValues = sourcePlaceholderValues(ctx.config.missing?.placeholder);
+  const sourcePlaceholderLeaves: SourcePlaceholderLeaf[] = detectLocalePlaceholderLeaves({
+    leaves: sourceLeaves,
+    placeholderValues,
+    localeRole: 'source',
+    localeCode: sourceBase,
+    localePath: sourcePath,
+  }).map((leaf) => ({ path: leaf.path, value: leaf.value }));
   const dir = ctx.paths.localesDir;
   const allFiles = listLocaleJsonBasenames(ctx, dir).sort((a, b) => a.localeCompare(b));
   const targetFiles = allFiles.filter((f) => f !== `${sourceBase}.json`);
@@ -61,10 +80,22 @@ export function runQuality(
     ? targetFiles.filter((f) => ctx.adapters.path.basename(f, '.json') === opts.target)
     : targetFiles;
 
+  const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
   const targets = filtered.map((file) => {
     const full = ctx.adapters.path.join(dir, file);
     const targetRaw = readJsonFromRuntimeFsSync(full, ctx.adapters.fs);
-    return { fileBasename: file, leaves: collectTranslationSurfaceLeaves(targetRaw) };
+    const leaves = collectTranslationSurfaceLeaves(targetRaw);
+    const code = ctx.adapters.path.basename(file, '.json');
+    targetPlaceholderLeaves.push(
+      ...detectLocalePlaceholderLeaves({
+        leaves,
+        placeholderValues,
+        localeRole: 'target',
+        localeCode: code,
+        localePath: full,
+      }),
+    );
+    return { fileBasename: file, leaves };
   });
 
   const { total, perFile } = computeEnglishIdenticalCounts({
@@ -134,10 +165,45 @@ export function runQuality(
       data: { dynamicKeySites },
     });
   }
+  if (sourcePlaceholderLeaves.length > 0) {
+    emitRunMessage(host.emit, {
+      op: 'quality',
+      runId: host.runId,
+      level: 'warn',
+      message: formatSourcePlaceholderMessage({
+        count: sourcePlaceholderLeaves.length,
+        samplePaths: sourcePlaceholderLeaves.slice(0, 5).map((leaf) => leaf.path),
+      }),
+      target: sourceBase,
+      data: { sourcePlaceholderLeaves: sourcePlaceholderLeaves.length },
+    });
+  }
+  if (targetPlaceholderLeaves.length > 0) {
+    const byLocale = new Map<string, LocalePlaceholderLeaf[]>();
+    for (const leaf of targetPlaceholderLeaves) {
+      byLocale.set(leaf.localeCode, [...(byLocale.get(leaf.localeCode) ?? []), leaf]);
+    }
+    for (const [localeCode, leaves] of byLocale) {
+      emitRunMessage(host.emit, {
+        op: 'quality',
+        runId: host.runId,
+        level: 'warn',
+        message: formatTargetPlaceholderMessage({
+          count: leaves.length,
+          samplePaths: leaves.slice(0, 5).map((leaf) => leaf.path),
+          targetLabel: localeCode,
+        }),
+        target: localeCode,
+        data: { targetPlaceholderLeaves: leaves.length },
+      });
+    }
+  }
   const issues = [
     ...issuesFromDynamicScanCount(dynamicKeySites),
     ...issuesFromQualityEnglishIdentical(total),
+    ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
+    ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),
   ];
 
-  return { payload, issues };
+  return { payload, issues, keyObservationsCount: analysis.keyObservations.length };
 }

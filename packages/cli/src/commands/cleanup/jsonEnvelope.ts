@@ -1,27 +1,22 @@
 import {
   buildCliJsonEnvelope,
-  createCoreContext,
   emitRunErrorFromUnknown,
   emitRunEvent,
   nowMs,
   runCleanup as runCoreCleanup,
 } from '@i18nprune/core';
-import type { CleanupJsonOutput, CleanupRunOptions, CleanupRunResult, CliJsonEnvelope, RunEmitter } from '@i18nprune/core';
+import type { CleanupJsonOutput, CleanupRunOptions, RunEmitter } from '@i18nprune/core';
 
 import { buildCleanupHostHooks } from '@/commands/cleanup/hooks.js';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
-import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
+import { createCliCoreContext } from '@/shared/context/index.js';
+import { buildIoReadFailureEnvelope, issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
-import type { CleanupOptions, CleanupRuntime } from '@/types/command/cleanup/index.js';
-
-export type CleanupJsonRunResult = CleanupRunResult & {
-  envelope: CliJsonEnvelope<'cleanup', CleanupJsonOutput>;
-};
-
-export type CleanupJsonEnvelopeResult = {
-  envelope: CliJsonEnvelope<'cleanup', CleanupJsonOutput>;
-  result?: CleanupJsonRunResult;
-};
+import type {
+  CleanupJsonEnvelopeResult,
+  CleanupJsonRunResult,
+  CleanupOptions,
+  CleanupRuntime,
+} from '@/types/command/cleanup/index.js';
 
 export function toCleanupRunOptions(opts: CleanupOptions): CleanupRunOptions {
   return {
@@ -48,13 +43,7 @@ export function executeCore(
   const { emit, runId } = runtime;
   emitRunEvent(emit, { type: 'run.started', op: 'cleanup', runId, at: nowMs() });
   try {
-    const coreCtx = createCoreContext({
-      config: ctx.config,
-      adapters: ctx.adapters,
-      env: process.env,
-      paths: ctx.paths,
-      run: ctx.run,
-    });
+    const coreCtx = createCliCoreContext(ctx);
     const out = runCoreCleanup(coreCtx, toCleanupRunOptions(opts), buildCleanupHostHooks(ctx, runtime));
     const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), out.issues);
     const envelope = buildCliJsonEnvelope('cleanup', out.payload, {

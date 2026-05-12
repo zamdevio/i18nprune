@@ -2,16 +2,10 @@ import { resolveContext } from '@/shared/context/index.js';
 import { executeCore, runSyncJsonEnvelope } from '@/commands/sync/jsonEnvelope.js';
 import { printCommandSummary } from '@/output/index.js';
 import { stringifyEnvelope } from '@i18nprune/core';
-import {
-  issuesFromDiscoveryWarnings,
-  issuesFromDynamicScanCount,
-  issuesFromSyncMissingLocaleFiles,
-  mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
 import { emitSyncHumanMessages, noopRunEmitter } from '@i18nprune/core';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import type { SyncOptions } from '@/types/command/sync/index.js';
-import { refreshProjectReportCache, resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
+import { refreshProjectReportCache } from '@/shared/cache/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
@@ -58,19 +52,18 @@ export async function sync(opts: SyncOptions): Promise<void> {
       targets,
       updated,
       dynamicSites,
+      keyObservationsCount,
       missingLocaleCodes,
       envelope,
       humanLeafSummaryByLocaleFile,
+      sourcePlaceholderLeaves,
+      targetPlaceholderLeaves,
     } = resolveSyncData(ctx, opts, { emit: createCliRunEmitter(ctx.run), runId });
     const explicitStripMetadata = opts.stripMetadata === true;
     const explicitMetadata = opts.metadata === true;
 
     const summaryListWindow = resolveCliListWindow(ctx.config, { defaultTop: 14 });
-    const summaryIssues = mergeIssues(
-      issuesFromDiscoveryWarnings(ctx.meta.warnings),
-      issuesFromDynamicScanCount(dynamicSites.length),
-      issuesFromSyncMissingLocaleFiles(missingLocaleCodes),
-    );
+    const summaryIssues = envelope.issues;
 
     emitSyncHumanMessages(
       { emit: createCliRunEmitter(ctx.run), runId },
@@ -82,8 +75,11 @@ export async function sync(opts: SyncOptions): Promise<void> {
           targets,
           updated,
           dynamicSites,
+          keyObservationsCount,
           missingLocaleCodes,
           humanLeafSummaryByLocaleFile,
+          sourcePlaceholderLeaves,
+          targetPlaceholderLeaves,
         },
         dryRun: Boolean(opts.dryRun),
         listLimit: summaryListWindow.limit,
@@ -109,7 +105,12 @@ export async function sync(opts: SyncOptions): Promise<void> {
         command: 'sync',
         ok: true,
         durationMs: wall.elapsedMs(),
-        counts: { files: targets.length, written: updated, ...resolveExtractionBaselineCounts(ctx) },
+        counts: {
+          files: targets.length,
+          written: updated,
+          dynamic: dynamicSites.length,
+          keyObservations: keyObservationsCount,
+        },
         issues: summaryIssues,
       },
       ctx,

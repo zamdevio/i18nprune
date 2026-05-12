@@ -1,12 +1,23 @@
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
 import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../shared/constants/issueCodes.js';
+import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
+import { resolveProjectAnalysis } from '../analysis/index.js';
+import {
+  detectLocalePlaceholderLeaves,
+  formatSourcePlaceholderMessage,
+  formatTargetPlaceholderMessage,
+  issuesFromSourcePlaceholderLeaves,
+  issuesFromTargetPlaceholderLeaves,
+  sourcePlaceholderValues,
+} from '../shared/sourcePlaceholders/index.js';
 import { formatCountMap } from './aggregate.js';
 import { buildReviewJsonData } from './report.js';
 import { filterLocaleFilesForReview, parseReviewTargetCodes } from './targetScope.js';
 import type { CoreContext } from '../types/generate/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
+import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 import type { ReviewHostHooks, ReviewLocaleStats, ReviewRunOptions, ReviewRunResult } from '../types/review/index.js';
 import type { RunMessageLevel } from '../types/shared/run/index.js';
 
@@ -99,19 +110,39 @@ export function runReview(
   opts: ReviewRunOptions,
   host: ReviewHostHooks,
 ): ReviewRunResult {
-  const dynamicKeySites = host.getDynamicSitesCount();
+  const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'review', runId: host.runId });
+  const dynamicKeySites = analysis.dynamicSites.length;
   const sourcePath = ctx.paths.sourceLocale;
   const sourceRaw = readJsonFromRuntimeFsSync(sourcePath, ctx.adapters.fs);
   const sourceBase = ctx.adapters.path.basename(sourcePath, '.json');
+  const placeholderValues = sourcePlaceholderValues(ctx.config.missing?.placeholder);
+  const sourcePlaceholderLeaves: SourcePlaceholderLeaf[] = detectLocalePlaceholderLeaves({
+    leaves: collectTranslationSurfaceLeaves(sourceRaw),
+    placeholderValues,
+    localeRole: 'source',
+    localeCode: sourceBase,
+    localePath: sourcePath,
+  }).map((leaf) => ({ path: leaf.path, value: leaf.value }));
   const dir = ctx.paths.localesDir;
   const files = listLocaleJsonBasenames(ctx, dir).filter((f) => f !== `${sourceBase}.json`);
   const codes = parseReviewTargetCodes(opts.target);
   const filtered = filterLocaleFilesForReview(ctx.adapters.path, files, codes);
 
   const targetLocaleJsonByFile: Record<string, unknown> = {};
+  const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
   for (const file of filtered) {
     const full = ctx.adapters.path.join(dir, file);
-    targetLocaleJsonByFile[file] = readJsonFromRuntimeFsSync(full, ctx.adapters.fs);
+    const targetRaw = readJsonFromRuntimeFsSync(full, ctx.adapters.fs);
+    targetLocaleJsonByFile[file] = targetRaw;
+    targetPlaceholderLeaves.push(
+      ...detectLocalePlaceholderLeaves({
+        leaves: collectTranslationSurfaceLeaves(targetRaw),
+        placeholderValues,
+        localeRole: 'target',
+        localeCode: ctx.adapters.path.basename(file, '.json'),
+        localePath: full,
+      }),
+    );
   }
 
   const payload = buildReviewJsonData({
@@ -142,6 +173,35 @@ export function runReview(
   for (const [f, v] of Object.entries(payload.locales)) {
     emitReviewLocaleBlock(host, f, v);
   }
+  if (sourcePlaceholderLeaves.length > 0) {
+    emitReviewMessage(host, {
+      level: 'warn',
+      message: formatSourcePlaceholderMessage({
+        count: sourcePlaceholderLeaves.length,
+        samplePaths: sourcePlaceholderLeaves.slice(0, 5).map((leaf) => leaf.path),
+      }),
+      target: sourceBase,
+      data: { sourcePlaceholderLeaves: sourcePlaceholderLeaves.length },
+    });
+  }
+  if (targetPlaceholderLeaves.length > 0) {
+    const byLocale = new Map<string, LocalePlaceholderLeaf[]>();
+    for (const leaf of targetPlaceholderLeaves) {
+      byLocale.set(leaf.localeCode, [...(byLocale.get(leaf.localeCode) ?? []), leaf]);
+    }
+    for (const [localeCode, leaves] of byLocale) {
+      emitReviewMessage(host, {
+        level: 'warn',
+        message: formatTargetPlaceholderMessage({
+          count: leaves.length,
+          samplePaths: leaves.slice(0, 5).map((leaf) => leaf.path),
+          targetLabel: localeCode,
+        }),
+        target: localeCode,
+        data: { targetPlaceholderLeaves: leaves.length },
+      });
+    }
+  }
   if (Object.values(payload.locales).some((v) => v.englishIdentical > 0)) {
     emitReviewMessage(host, {
       level: 'info',
@@ -152,6 +212,11 @@ export function runReview(
 
   return {
     payload,
-    issues: issuesFromDynamicScanCount(dynamicKeySites),
+    keyObservationsCount: analysis.keyObservations.length,
+    issues: [
+      ...issuesFromDynamicScanCount(dynamicKeySites),
+      ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
+      ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),
+    ],
   };
 }

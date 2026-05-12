@@ -1,27 +1,21 @@
 import {
   buildCliJsonEnvelope,
-  createCoreContext,
   emitRunErrorFromUnknown,
   emitRunEvent,
   nowMs,
   runReview as runCoreReview,
 } from '@i18nprune/core';
-import type { CliJsonEnvelope, ReviewJsonData, ReviewRunOptions, ReviewRunResult, RunEmitter } from '@i18nprune/core';
-import type { ReviewRuntime } from '@/types/command/review/index.js';
+import type { ReviewJsonData, ReviewRunOptions, RunEmitter } from '@i18nprune/core';
+import type {
+  ReviewJsonEnvelopeResult,
+  ReviewJsonRunResult,
+  ReviewRuntime,
+} from '@/types/command/review/index.js';
 
 import { buildReviewHostHooks } from '@/commands/review/hooks.js';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
-import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
+import { createCliCoreContext } from '@/shared/context/index.js';
+import { buildIoReadFailureEnvelope, issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
-
-export type ReviewJsonRunResult = ReviewRunResult & {
-  envelope: CliJsonEnvelope<'review', ReviewJsonData>;
-};
-
-export type ReviewJsonEnvelopeResult = {
-  envelope: CliJsonEnvelope<'review', ReviewJsonData>;
-  result?: ReviewJsonRunResult;
-};
 
 export function emptyReviewPayload(ctx: Context): ReviewJsonData {
   return {
@@ -34,14 +28,8 @@ export function emptyReviewPayload(ctx: Context): ReviewJsonData {
 }
 
 export function executeCore(ctx: Context, opts: ReviewRunOptions, runtime: ReviewRuntime = {}): ReviewJsonRunResult {
-  const coreCtx = createCoreContext({
-    config: ctx.config,
-    adapters: ctx.adapters,
-    env: process.env,
-    paths: ctx.paths,
-    run: ctx.run,
-  });
-  const out = runCoreReview(coreCtx, opts, buildReviewHostHooks(ctx, runtime));
+  const coreCtx = createCliCoreContext(ctx);
+  const out = runCoreReview(coreCtx, opts, buildReviewHostHooks(runtime));
   const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), out.issues);
   const envelope = buildCliJsonEnvelope('review', out.payload, {
     ok: true,

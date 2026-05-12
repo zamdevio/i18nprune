@@ -2,16 +2,27 @@ import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js
 import { applyLocaleLeafMode, resolveLocaleLeafMode } from '../shared/localeLeaves/index.js';
 import { buildKeyReferenceContextFromReportDetails } from '../shared/reference/context.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
+import { resolveProjectAnalysis } from '../analysis/index.js';
 import { parseSyncLangSelection } from '../locales/targets.js';
 import { assertNotSourceTargetLocale } from '../locales/source.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
 import { writeRuntimeJsonPretty } from '../generate/io/writeRuntimeJson.js';
+import { setAtPath } from '../shared/json/path.js';
 import {
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
   ISSUE_SYNC_LOCALE_FILE_NOT_FOUND,
   ISSUE_SYNC_METADATA_FLAG_CONFLICT,
 } from '../shared/constants/issueCodes.js';
+import {
+  detectSourcePlaceholderLeaves,
+  detectLocalePlaceholderLeaves,
+  formatSyncSourcePlaceholderMessage,
+  formatTargetPlaceholderMessage,
+  issuesFromSourcePlaceholderLeaves,
+  issuesFromTargetPlaceholderLeaves,
+  sourcePlaceholderValues,
+} from '../shared/sourcePlaceholders/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import { computeSyncedLocaleJson } from './apply.js';
 import { summarizeSyncLeavesForHumanLog } from './humanLeafSummary.js';
@@ -20,6 +31,7 @@ import type { CoreContext } from '../types/generate/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocaleMetadataRepairReason, LocaleMetadataReport } from '../types/localeLeaves/index.js';
 import type { SyncHostHooks, SyncRunOptions, SyncRunResult } from '../types/sync/index.js';
+import type { LocalePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 
 function listLocaleJsonBasenames(dirPath: string, ctx: CoreContext): string[] {
   const fs = ctx.adapters.fs;
@@ -148,6 +160,38 @@ export function emitSyncHumanMessages(
       data: { dynamicSites: result.dynamicSites.length },
     });
   }
+  if (result.sourcePlaceholderLeaves.length > 0) {
+    emitRunMessage(host.emit, {
+      op: 'sync',
+      runId: host.runId,
+      level: 'warn',
+      message: formatSyncSourcePlaceholderMessage({
+        count: result.sourcePlaceholderLeaves.length,
+        samplePaths: result.sourcePlaceholderLeaves.slice(0, 5).map((leaf) => leaf.path),
+      }),
+      data: { sourcePlaceholderLeaves: result.sourcePlaceholderLeaves.length },
+    });
+  }
+  if (result.targetPlaceholderLeaves.length > 0) {
+    const byLocale = new Map<string, LocalePlaceholderLeaf[]>();
+    for (const leaf of result.targetPlaceholderLeaves) {
+      byLocale.set(leaf.localeCode, [...(byLocale.get(leaf.localeCode) ?? []), leaf]);
+    }
+    for (const [localeCode, leaves] of byLocale) {
+      emitRunMessage(host.emit, {
+        op: 'sync',
+        runId: host.runId,
+        level: 'warn',
+        message: formatTargetPlaceholderMessage({
+          count: leaves.length,
+          samplePaths: leaves.slice(0, 5).map((leaf) => leaf.path),
+          targetLabel: localeCode,
+        }),
+        target: localeCode,
+        data: { targetPlaceholderLeaves: leaves.length },
+      });
+    }
+  }
   emitRunMessage(host.emit, {
     op: 'sync',
     runId: host.runId,
@@ -216,9 +260,9 @@ export function emitSyncHumanMessages(
 
 export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHooks): SyncRunResult {
   host.emitProgress({ type: 'run.progress.sync', phase: 'scan_dynamic_sites' });
-  const referenceData = host.loadReferenceData();
-  const observations = [...referenceData.keyObservations];
-  const dynamicSites = [...referenceData.dynamicSites];
+  const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'sync', runId: host.runId });
+  const observations = analysis.keyObservations;
+  const dynamicSites = analysis.dynamicSites;
   const eff = resolveReferenceConfig('sync', ctx.config);
   const refCtx = buildKeyReferenceContextFromReportDetails(observations, dynamicSites, eff);
   host.emitProgress({
@@ -265,8 +309,15 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     stripMetadataFlag: explicitStripMetadata,
   });
   const sourceLeaves = collectTranslationSurfaceLeaves(template);
-  const sourceMap = new Map(sourceLeaves.map((leaf) => [leaf.path, leaf.value]));
+  const sourcePlaceholderLeaves = detectSourcePlaceholderLeaves(
+    sourceLeaves,
+    sourcePlaceholderValues(ctx.config.missing?.placeholder),
+  );
+  const sourcePlaceholderPaths = new Set(sourcePlaceholderLeaves.map((leaf) => leaf.path));
+  const effectiveSourceLeaves = sourceLeaves.filter((leaf) => !sourcePlaceholderPaths.has(leaf.path));
+  const sourceMap = new Map(effectiveSourceLeaves.map((leaf) => [leaf.path, leaf.value]));
   const localeMetadataReports: Record<string, LocaleMetadataReport> = {};
+  const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
 
   for (let i = 0; i < targets.length; i++) {
     const file = targets[i]!;
@@ -279,10 +330,24 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       total: targets.length,
     });
     const cur = readJsonFromRuntimeFsSync(full, ctx.adapters.fs);
+    const targetCode = ctx.adapters.path.basename(file, '.json');
+    const targetPlaceholdersForFile = detectLocalePlaceholderLeaves({
+      leaves: collectTranslationSurfaceLeaves(cur),
+      placeholderValues: sourcePlaceholderValues(ctx.config.missing?.placeholder),
+      localeRole: 'target',
+      localeCode: targetCode,
+      localePath: full,
+    });
+    targetPlaceholderLeaves.push(...targetPlaceholdersForFile);
+    const targetPlaceholderPaths = targetPlaceholdersForFile.map((leaf) => leaf.path);
     const mergeOpts =
       eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only'
-        ? { uncertainKeepPrefixes: refCtx.uncertainPrefixes }
-        : undefined;
+        ? {
+            uncertainKeepPrefixes: refCtx.uncertainPrefixes,
+            skipFillPaths: [...sourcePlaceholderPaths],
+            forceFillPaths: targetPlaceholderPaths,
+          }
+        : { skipFillPaths: [...sourcePlaceholderPaths], forceFillPaths: targetPlaceholderPaths };
     host.emitProgress({
       type: 'run.progress.sync',
       phase: 'merge',
@@ -298,10 +363,16 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       current: i + 1,
       total: targets.length,
     });
-    humanLeafSummaryByLocaleFile[file] = summarizeSyncLeavesForHumanLog(sourceLeaves, cur, next);
+    humanLeafSummaryByLocaleFile[file] = summarizeSyncLeavesForHumanLog(effectiveSourceLeaves, cur, next);
     let finalNext: unknown = next;
     if (explicitStripMetadata || explicitMetadata) {
-      const normalized = applyLocaleLeafMode({ localeJson: next, sourceMap, mode: modeDecision.mode });
+      let metadataInput = next;
+      if (explicitMetadata && targetPlaceholderPaths.length > 0) {
+        for (const placeholderPath of targetPlaceholderPaths) {
+          metadataInput = setAtPath(metadataInput, placeholderPath, null);
+        }
+      }
+      const normalized = applyLocaleLeafMode({ localeJson: metadataInput, sourceMap, mode: modeDecision.mode });
       finalNext = normalized.next;
       localeMetadataReports[file] = normalized.report;
     } else {
@@ -348,6 +419,8 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     ...issuesFromDynamicScanCount(dynamicSites.length),
     ...issuesFromSyncMissingLocaleFiles(missingLocaleCodes),
     ...issueFromMetadataFlagConflict(modeDecision.conflict),
+    ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
+    ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),
   ];
 
   return {
@@ -357,7 +430,10 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     targets,
     updated,
     dynamicSites,
+    keyObservationsCount: observations.length,
     missingLocaleCodes,
     humanLeafSummaryByLocaleFile,
+    sourcePlaceholderLeaves,
+    targetPlaceholderLeaves,
   };
 }

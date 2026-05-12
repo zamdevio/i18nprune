@@ -39,6 +39,7 @@ const run: RunOptions = {
   quiet: false,
   silent: false,
   debugScan: false,
+  debugCache: false,
 };
 
 const ctx = createCoreContext({
@@ -53,17 +54,11 @@ const ctx = createCoreContext({
   run,
 });
 
-// 4. Host hooks — headless flavor. The CLI implementation loads cached report
-// details; this standalone example has no source scan, so it supplies an empty
-// reference set and logs progress to stderr.
+// 4. Host hooks — headless flavor. Analysis is core-owned; the host only logs progress.
 const host: SyncHostHooks = {
   emitProgress: (event) => {
     nodeProcess.stderr.write(`[sync progress] ${event.phase}${event.label ? ` · ${event.label}` : ''}\n`);
   },
-  loadReferenceData: () => ({
-    keyObservations: [],
-    dynamicSites: [],
-  }),
 };
 
 // 5. Run sync in dry-run mode so the example is non-destructive. `metadata: true`

@@ -6,6 +6,7 @@ import { writeRuntimeJsonPretty } from '../generate/io/writeRuntimeJson.js';
 import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { buildKeyReferenceContextFromLiteralUsageAndDynamicSites } from '../shared/reference/context.js';
+import { resolveProjectAnalysis } from '../analysis/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import {
   ISSUE_CLEANUP_RIPGREP_UNAVAILABLE,
@@ -159,10 +160,10 @@ export function runCleanup(
   emitCleanupMessage(host, { level: 'info', message: 'scanning source locale and project sources for unused key paths...' });
 
   const eff = resolveReferenceConfig('cleanup', ctx.config);
-  const referenceData = host.loadReferenceData();
-  const dynamicSites = [...referenceData.dynamicSites];
+  const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'cleanup', runId: host.runId });
+  const dynamicSites = analysis.dynamicSites;
   const refCtx = buildKeyReferenceContextFromLiteralUsageAndDynamicSites(
-    referenceData.usage,
+    analysis.usage,
     dynamicSites,
     eff,
   );
@@ -172,7 +173,7 @@ export function runCleanup(
   const filterUncertain = eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only';
   const { allKeyPaths, candidates, excludedUncertain } = computeCleanupCandidateKeys({
     leaves,
-    usage: referenceData.usage,
+    usage: analysis.usage,
     preserve: ctx.config.policies?.preserve,
     uncertainPrefixes: refCtx.uncertainPrefixes,
     filterUncertainPrefixes: filterUncertain,
@@ -262,6 +263,7 @@ export function runCleanup(
     safeToRemove,
     excludedUncertain,
     dynamicSites,
+    keyObservationsCount: analysis.keyObservations.length,
     stringPresenceAvailable,
     stringPresenceEvidence: stringPresence.evidence,
   };

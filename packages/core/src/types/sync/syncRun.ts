@@ -1,9 +1,10 @@
-import type { DynamicKeySite, KeyObservation } from '../extractor/index.js';
+import type { DynamicKeySite } from '../extractor/index.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { LocaleMetadataReport } from '../localeLeaves/index.js';
 import type { SyncProgressEvent } from '../shared/run/index.js';
 import type { SyncHumanLeafSummary } from '../../sync/humanLeafSummary.js';
 import type { RunEmitter } from '../shared/run/index.js';
+import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../../shared/sourcePlaceholders/index.js';
 
 export type SyncFileLine = { path: string; changed: boolean };
 
@@ -34,18 +35,12 @@ export type SyncRunOptions = {
   stripMetadata?: boolean;
 };
 
-export type SyncReferenceData = {
-  keyObservations: readonly KeyObservation[];
-  dynamicSites: readonly DynamicKeySite[];
-};
-
 export type SyncHostHooks = {
   emit?: RunEmitter;
   runId?: string;
   emitProgress: (
     e: Omit<Extract<SyncProgressEvent, { type: 'run.progress.sync' }>, 'op' | 'runId' | 'at'>,
   ) => void;
-  loadReferenceData: () => SyncReferenceData;
 };
 
 export type SyncRunResult = {
@@ -55,8 +50,13 @@ export type SyncRunResult = {
   targets: string[];
   updated: number;
   dynamicSites: DynamicKeySite[];
+  keyObservationsCount: number;
   /** Requested locale codes with no matching file under `localesDir` (human-mode warning). */
   missingLocaleCodes: string[];
   /** Per-locale leaf stats for human stderr (not part of `--json`). */
   humanLeafSummaryByLocaleFile: Record<string, SyncHumanLeafSummary>;
+  /** Source placeholder leaves skipped to avoid copying scaffold sentinels into target locales. */
+  sourcePlaceholderLeaves: SourcePlaceholderLeaf[];
+  /** Target placeholder leaves observed before sync applies its source-shape plan. */
+  targetPlaceholderLeaves: LocalePlaceholderLeaf[];
 };

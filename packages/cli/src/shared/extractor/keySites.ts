@@ -4,8 +4,6 @@ import type { Context } from '@/types/core/context/index.js';
 import type { KeyObservation } from '@i18nprune/core';
 import type { ProjectLiteralKeyUsage } from '@i18nprune/core';
 
-export const literalKeyUsageFromObservations = extractor.keySites.literalKeyUsageFromObservations;
-
 /** Scan all source files under `srcRoot` and return key observations with file paths. */
 export function scanProjectKeyObservations(ctx: Context): KeyObservation[] {
   return extractor.keySites.scanProjectKeyObservations(toExtractorScanInput(ctx));

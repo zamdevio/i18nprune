@@ -49,11 +49,10 @@ export type QualityRunOptions = {
 export type QualityHostHooks = {
   emit?: RunEmitter;
   runId?: string;
-  /** Dynamic translation call-site count used for JSON/human warnings. */
-  getDynamicSitesCount: () => number;
 };
 
 export type QualityRunResult = {
   payload: QualityJsonData;
   issues: Issue[];
+  keyObservationsCount: number;
 };

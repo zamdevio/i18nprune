@@ -15,7 +15,6 @@ export type {
   SyncHostHooks,
   SyncHumanLeafSummary,
   SyncJsonOutput,
-  SyncReferenceData,
   SyncRunOptions,
   SyncRunResult,
 } from '../sync/index.js';

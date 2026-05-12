@@ -1,27 +1,24 @@
 import {
   buildCliJsonEnvelope,
-  createCoreContext,
   emitRunErrorFromUnknown,
   emitRunEvent,
   nowMs,
   runMissing as runCoreMissing,
+  writeMissingPaths,
+  resolveMissingLeafPlaceholder,
 } from '@i18nprune/core';
-import type { CliJsonEnvelope, MissingJsonOutput, MissingRunOptions, MissingRunResult, RunEmitter } from '@i18nprune/core';
-import type { MissingRuntime } from '@/types/command/missing/index.js';
+import type { MissingJsonOutput, MissingRunOptions, RunEmitter } from '@i18nprune/core';
+import type {
+  MissingJsonEnvelopeOptions,
+  MissingJsonEnvelopeResult,
+  MissingJsonRunResult,
+  MissingRuntime,
+} from '@/types/command/missing/index.js';
 
 import { buildMissingHostHooks } from '@/commands/missing/hooks.js';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
-import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
+import { createCliCoreContext } from '@/shared/context/index.js';
+import { buildIoReadFailureEnvelope, issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
-
-export type MissingJsonRunResult = MissingRunResult & {
-  envelope: CliJsonEnvelope<'missing', MissingJsonOutput>;
-};
-
-export type MissingJsonEnvelopeResult = {
-  envelope: CliJsonEnvelope<'missing', MissingJsonOutput>;
-  result?: MissingJsonRunResult;
-};
 
 export function emptyMissingPayload(opts: MissingRunOptions): MissingJsonOutput {
   return {
@@ -29,11 +26,21 @@ export function emptyMissingPayload(opts: MissingRunOptions): MissingJsonOutput 
     targetPath: '',
     targetKind: 'source',
     pathsAdded: 0,
+    shown: 0,
+    top: opts.full === true ? null : (opts.top ?? 10),
+    full: opts.full === true,
     paths: [],
     dryRun: Boolean(opts.dryRun),
     skippedNotInScan: [],
     targets: [],
     skippedTargets: [],
+    placeholderLeaves: {
+      count: 0,
+      shown: 0,
+      top: opts.full === true ? null : (opts.top ?? 10),
+      full: opts.full === true,
+      leaves: [],
+    },
   };
 }
 
@@ -42,14 +49,8 @@ export function executeCore(
   opts: MissingRunOptions,
   runtime: MissingRuntime = {},
 ): MissingJsonRunResult {
-  const coreCtx = createCoreContext({
-    config: ctx.config,
-    adapters: ctx.adapters,
-    env: process.env,
-    paths: ctx.paths,
-    run: ctx.run,
-  });
-  const out = runCoreMissing(coreCtx, opts, buildMissingHostHooks(ctx, runtime));
+  const coreCtx = createCliCoreContext(ctx);
+  const out = runCoreMissing(coreCtx, opts, buildMissingHostHooks(runtime));
   const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), out.issues);
   const envelope = buildCliJsonEnvelope('missing', out.payload, {
     ok: true,
@@ -64,10 +65,24 @@ export function runMissingJsonEnvelope(
   ctx: Context,
   opts: MissingRunOptions,
   runtime?: MissingRuntime,
+  jsonOpts: MissingJsonEnvelopeOptions = {},
 ): MissingJsonEnvelopeResult {
   emitRunEvent(runtime?.emit, { type: 'run.started', op: 'missing', runId: runtime?.runId, at: nowMs() });
   try {
     const result = executeCore(ctx, opts, runtime);
+    if (jsonOpts.applyWrites === true && opts.dryRun !== true) {
+      const placeholder = resolveMissingLeafPlaceholder(ctx.config.missing?.placeholder).placeholder;
+      const coreCtx = createCliCoreContext(ctx);
+      for (const entry of result.targets) {
+        if (entry.toAdd.length === 0) continue;
+        writeMissingPaths(coreCtx, {
+          targetPath: entry.target.targetPath,
+          localeJson: entry.target.localeJson,
+          paths: entry.toAdd,
+          placeholder,
+        });
+      }
+    }
     emitRunEvent(runtime?.emit, {
       type: 'run.completed',
       op: 'missing',

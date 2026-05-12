@@ -6,7 +6,7 @@
  *   1. Build `RuntimeAdapters` (no auto-default — every host passes their own).
  *   2. Author config with `defineConfig` in `i18nprune.config.ts` and import it.
  *   3. Build `CoreContext` (config + adapters + env + paths + optional run flags).
- *   4. Implement `MissingHostHooks` for resolved keys and dynamic-site counts.
+ *   4. Implement optional `MissingHostHooks` for host messages.
  *   5. Call `runMissing(ctx, opts, host)` with `dryRun: true` and inspect the result.
  *
  * Run from the repo root:
@@ -36,6 +36,7 @@ const run: RunOptions = {
   quiet: false,
   silent: false,
   debugScan: false,
+  debugCache: false,
 };
 
 const ctx = createCoreContext({
@@ -50,12 +51,8 @@ const ctx = createCoreContext({
   run,
 });
 
-// 4. Host hooks — the CLI derives these from its cached project report. This
-// standalone example supplies a small resolved-key set directly.
-const host: MissingHostHooks = {
-  loadResolvedKeys: () => new Set(['app.title', 'app.subtitle', 'actions.save']),
-  getDynamicSitesCount: () => 0,
-};
+// 4. Host hooks — analysis is core-owned; hosts only provide message plumbing when needed.
+const host: MissingHostHooks = {};
 
 // 5. Run in dry-run mode. `runMissing` plans the paths; hosts decide when to
 // call `writeMissingPaths` after user confirmation.

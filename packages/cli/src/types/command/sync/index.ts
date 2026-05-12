@@ -1,4 +1,4 @@
-import type { RunEmitter } from '@i18nprune/core';
+import type { CliJsonEnvelope, RunEmitter, SyncJsonOutput, SyncRunResult } from '@i18nprune/core';
 
 export type SyncOptions = {
   /** Report only; do not write locale files */
@@ -12,3 +12,12 @@ export type SyncOptions = {
 };
 
 export type SyncRuntime = { emit?: RunEmitter; runId?: string };
+
+export type SyncJsonRunResult = SyncRunResult & {
+  envelope: CliJsonEnvelope<'sync', SyncJsonOutput>;
+};
+
+export type SyncJsonEnvelopeResult = {
+  envelope: CliJsonEnvelope<'sync', SyncJsonOutput>;
+  result?: SyncJsonRunResult;
+};

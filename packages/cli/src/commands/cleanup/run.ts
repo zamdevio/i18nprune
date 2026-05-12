@@ -1,9 +1,8 @@
 import { confirm } from '@inquirer/prompts';
-import { resolveContext } from '@/shared/context/index.js';
+import { createCliCoreContext, resolveContext } from '@/shared/context/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import {
   createCleanupSourceWritePlan,
-  createCoreContext,
   emitCleanupAbortMessage,
   emitCleanupAskIgnoredMessage,
   emitCleanupWriteDone,
@@ -15,7 +14,6 @@ import {
 } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
 import { executeCore, runCleanupJsonEnvelope } from '@/commands/cleanup/jsonEnvelope.js';
-import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { canAsk, promptApprovedRemovalKeys } from '@/shared/ask/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import type { CleanupOptions } from '@/types/command/cleanup/index.js';
@@ -23,13 +21,7 @@ import type { CleanupJsonOutput, CliJsonEnvelope, CoreContext } from '@i18nprune
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 
 function createCleanupCoreContext(ctx: Awaited<ReturnType<typeof resolveContext>>): CoreContext {
-  return createCoreContext({
-    config: ctx.config,
-    adapters: ctx.adapters,
-    env: process.env,
-    paths: ctx.paths,
-    run: ctx.run,
-  });
+  return createCliCoreContext(ctx);
 }
 
 export async function cleanup(opts: CleanupOptions): Promise<void> {
@@ -61,10 +53,13 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
       return;
     }
 
-    const extractionBaseline = resolveExtractionBaselineCounts(ctx);
     const runtime = { emit: createCliRunEmitter(ctx.run), runId };
     const result = executeCore(ctx, opts, runtime);
     const summaryIssues = result.envelope.issues;
+    const extractionBaseline = {
+      dynamic: result.dynamicSites.length,
+      keyObservations: result.keyObservationsCount,
+    };
 
     if (opts.checkOnly || opts.dryRun) {
       printCommandSummary(

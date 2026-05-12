@@ -4,7 +4,6 @@ import { printCommandSummary } from '@/output/index.js';
 import { stringifyEnvelope } from '@i18nprune/core';
 import { executeCore, runReviewJsonEnvelope } from '@/commands/review/jsonEnvelope.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
-import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 
 /** Locale-level review: paths vs source, source-identical counts, structured leaf metadata when present. */
@@ -24,7 +23,7 @@ export async function review(opts: { target?: string }): Promise<void> {
       return;
     }
 
-    const { payload, envelope } = executeCore(ctx, opts, { emit: createCliRunEmitter(run), runId });
+    const { payload, envelope, keyObservationsCount } = executeCore(ctx, opts, { emit: createCliRunEmitter(run), runId });
     const { locales } = payload;
 
     printCommandSummary(
@@ -32,7 +31,11 @@ export async function review(opts: { target?: string }): Promise<void> {
         command: 'review',
         ok: true,
         durationMs: wall.elapsedMs(),
-        counts: { localeFiles: Object.keys(locales).length, ...resolveExtractionBaselineCounts(ctx) },
+        counts: {
+          localeFiles: Object.keys(locales).length,
+          dynamic: payload.dynamicKeySites,
+          keyObservations: keyObservationsCount,
+        },
         issues: envelope.issues,
       },
       ctx,

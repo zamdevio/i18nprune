@@ -1,7 +1,5 @@
-import { logger } from '@/utils/logger/index.js';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
 import type { MissingPathDisplayOpts } from '@/types/command/missing/summary.js';
-import type { RunOptions } from '@i18nprune/core';
 
 /** Fallback when env, config, and CLI omit a cap. */
 export const MISSING_DISPLAY_DEFAULT_TOP = 10;
@@ -39,14 +37,4 @@ export function formatMissingPathsDetailLines(paths: string[], opts: MissingPath
     lines.push(`  … and ${String(omitted)} more (use --full or --top <n>)`);
   }
   return lines;
-}
-
-export function logMissingPathsPreview(
-  paths: string[],
-  display: MissingPathDisplayOpts,
-  run: RunOptions | undefined,
-): void {
-  for (const line of formatMissingPathsDetailLines(paths, display)) {
-    logger.detail(line, run);
-  }
 }

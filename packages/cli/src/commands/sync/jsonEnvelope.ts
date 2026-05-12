@@ -1,27 +1,17 @@
 import {
   buildCliJsonEnvelope,
-  createCoreContext,
   emitRunErrorFromUnknown,
   emitRunEvent,
   nowMs,
   runSync as runCoreSync,
 } from '@i18nprune/core';
-import type { CliJsonEnvelope, RunEmitter, SyncJsonOutput, SyncRunOptions, SyncRunResult } from '@i18nprune/core';
+import type { RunEmitter, SyncJsonOutput, SyncRunOptions } from '@i18nprune/core';
 
 import { buildSyncHostHooks } from '@/commands/sync/hooks.js';
-import type { SyncRuntime } from '@/types/command/sync/index.js';
-import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { createCliCoreContext } from '@/shared/context/index.js';
+import type { SyncJsonEnvelopeResult, SyncJsonRunResult, SyncRuntime } from '@/types/command/sync/index.js';
+import { buildIoReadFailureEnvelope, issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
-
-export type SyncJsonRunResult = SyncRunResult & {
-  envelope: CliJsonEnvelope<'sync', SyncJsonOutput>;
-};
-
-export type SyncJsonEnvelopeResult = {
-  envelope: CliJsonEnvelope<'sync', SyncJsonOutput>;
-  result?: SyncJsonRunResult;
-};
 
 export function emptySyncPayload(ctx: Context, opts: { dryRun?: boolean }): SyncJsonOutput {
   return {
@@ -44,14 +34,8 @@ export function executeCore(
   const { emit, runId } = runtime;
   emitRunEvent(emit, { type: 'run.started', op: 'sync', runId, at: nowMs() });
   try {
-    const coreCtx = createCoreContext({
-      config: ctx.config,
-      adapters: ctx.adapters,
-      env: process.env,
-      paths: ctx.paths,
-      run: ctx.run,
-    });
-    const out = runCoreSync(coreCtx, opts, buildSyncHostHooks(ctx, runtime));
+    const coreCtx = createCliCoreContext(ctx);
+    const out = runCoreSync(coreCtx, opts, buildSyncHostHooks(runtime));
     const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), out.issues);
     const envelope = buildCliJsonEnvelope('sync', out.payload, {
       ok: true,

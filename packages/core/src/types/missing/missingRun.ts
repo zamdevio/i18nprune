@@ -12,24 +12,35 @@ export type MissingJsonOutput = {
   targetPath: string;
   targetKind: MissingTargetKind;
   pathsAdded: number;
+  shown: number;
+  top: number | null;
+  full: boolean;
   paths: string[];
   dryRun: boolean;
   skippedNotInScan: string[];
   targets: MissingJsonTarget[];
   skippedTargets: MissingSkippedTarget[];
+  placeholderLeaves: MissingPlaceholderLeafList;
 };
 
 export type MissingRunOptions = {
   /** Locale basename(s) under `localesDir`, or `all`; omit = source locale file. */
   target?: string;
   dryRun?: boolean;
+  /** Max placeholder leaves to include in JSON listings; default 10. Ignored when `full` is true. */
+  top?: number;
+  /** JSON listings include every placeholder leaf (overrides `top`). */
+  full?: boolean;
 };
 
 export type MissingTargetState = {
   targetPath: string;
   targetKind: MissingTargetKind;
   localeJson: unknown;
+  localeText: string;
   selectedLocaleCode?: string;
+  selectedLocaleEnglishName?: string;
+  targetDisplayPath?: string;
 };
 
 export type MissingSkippedTarget = {
@@ -54,13 +65,27 @@ export type MissingJsonTarget = {
   skippedNotInScan: string[];
 };
 
+export type MissingPlaceholderLeaf = {
+  localeRole: MissingTargetKind;
+  localeCode: string;
+  file: string;
+  path: string;
+  value: string;
+  line: number | null;
+  location: string;
+};
+
+export type MissingPlaceholderLeafList = {
+  count: number;
+  shown: number;
+  top: number | null;
+  full: boolean;
+  leaves: MissingPlaceholderLeaf[];
+};
+
 export type MissingHostHooks = {
   emit?: RunEmitter;
   runId?: string;
-  /** All resolved literal/template-resolved keys from the current project scan. */
-  loadResolvedKeys: () => ReadonlySet<string>;
-  /** Dynamic translation call-site count used for JSON/human warnings. */
-  getDynamicSitesCount: () => number;
 };
 
 export type MissingRunResult = {
@@ -72,6 +97,8 @@ export type MissingRunResult = {
   toAdd: string[];
   skippedNotInScan: string[];
   dynamicSites: number;
+  keyObservationsCount: number;
+  placeholderLeaves: MissingPlaceholderLeaf[];
 };
 
 export type MissingWriteInput = {

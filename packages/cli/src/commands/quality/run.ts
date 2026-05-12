@@ -7,10 +7,9 @@ import {
   issuesFromDynamicScanCount,
   issuesFromQualityEnglishIdentical,
   mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
+} from '@/shared/result/index.js';
 import { noopRunEmitter } from '@i18nprune/core';
 import type { QualityOptions } from '@/types/command/quality/index.js';
-import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 
@@ -29,7 +28,7 @@ export async function quality(opts: QualityOptions): Promise<void> {
       return;
     }
 
-    const { payload } = executeCore(ctx, opts, { emit: createCliRunEmitter(ctx.run), runId });
+    const { payload, keyObservationsCount } = executeCore(ctx, opts, { emit: createCliRunEmitter(ctx.run), runId });
     const { total, dynamicKeySites } = payload;
     const summaryIssues = mergeIssues(
       issuesFromDiscoveryWarnings(ctx.meta.warnings),
@@ -41,7 +40,7 @@ export async function quality(opts: QualityOptions): Promise<void> {
         command: 'quality',
         ok: true,
         durationMs: wall.elapsedMs(),
-        counts: { total, ...resolveExtractionBaselineCounts(ctx) },
+        counts: { total, dynamic: dynamicKeySites, keyObservations: keyObservationsCount },
         issues: summaryIssues,
       },
       ctx,

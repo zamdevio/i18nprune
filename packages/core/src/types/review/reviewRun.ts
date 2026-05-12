@@ -37,11 +37,10 @@ export type ReviewJsonData = {
 export type ReviewHostHooks = {
   emit?: RunEmitter;
   runId?: string;
-  /** Dynamic translation call-site count used for JSON/human warnings. */
-  getDynamicSitesCount: () => number;
 };
 
 export type ReviewRunResult = {
   payload: ReviewJsonData;
   issues: Issue[];
+  keyObservationsCount: number;
 };

@@ -1,8 +1,17 @@
 {
   "data": {
     "dryRun": true,
+    "full": false,
     "paths": [],
     "pathsAdded": 0,
+    "placeholderLeaves": {
+      "count": 0,
+      "full": false,
+      "leaves": [],
+      "shown": 0,
+      "top": 10
+    },
+    "shown": 0,
     "skippedNotInScan": [],
     "skippedTargets": [],
     "targetKind": "source",
@@ -15,7 +24,8 @@
         "targetKind": "source",
         "targetPath": "locales/en.json"
       }
-    ]
+    ],
+    "top": 10
   },
   "issues": [
     {

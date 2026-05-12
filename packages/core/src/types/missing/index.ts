@@ -11,6 +11,8 @@ export type {
   MissingHostHooks,
   MissingJsonTarget,
   MissingJsonOutput,
+  MissingPlaceholderLeaf,
+  MissingPlaceholderLeafList,
   MissingRunOptions,
   MissingRunResult,
   MissingSkippedTarget,

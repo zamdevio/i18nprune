@@ -6,6 +6,7 @@ export { DEFAULT_MISSING_LEAF_PLACEHOLDER, MAX_MISSING_TARGET_SUGGESTIONS } from
 export {
   applyMissingPaths,
   emitMissingPathsPreview,
+  emitMissingPlaceholderLeavesPreview,
   emitMissingTargetActionMessage,
   emitMissingTargetWriteIntro,
   runMissing,
@@ -18,6 +19,8 @@ export type {
   MissingHostHooks,
   MissingJsonTarget,
   MissingJsonOutput,
+  MissingPlaceholderLeaf,
+  MissingPlaceholderLeafList,
   MissingRunOptions,
   MissingRunResult,
   MissingSkippedTarget,

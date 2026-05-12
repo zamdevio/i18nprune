@@ -2,14 +2,14 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 import { buildKeyReferenceContext as buildKeyReferenceContextCore, extractor } from '@i18nprune/core';
-import { scanProjectDynamicKeySites as scanProjectDynamicKeySitesAdapter } from '@/shared/extractor/dynamic.js';
+import { scanProjectDynamicKeySites as scanProjectDynamicKeySitesAdapter } from '@/shared/extractor/index.js';
 import {
   scanProjectKeyObservations as scanProjectKeyObservationsAdapter,
   scanProjectLiteralKeyUsage as scanProjectLiteralKeyUsageAdapter,
-} from '@/shared/extractor/keySites.js';
-import { buildKeyReferenceContext } from '@/shared/reference/context.js';
+} from '@/shared/extractor/index.js';
+import { buildKeyReferenceContext } from '@/shared/reference/index.js';
 import { resolveReferenceConfig } from '@i18nprune/core';
-import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
+import { toExtractorScanInput } from '@/shared/extractor/index.js';
 import type { Context } from '@/types/core/context/index.js';
 
 function fixtureContext(): Context {
@@ -27,7 +27,7 @@ function fixtureContext(): Context {
       functions: ['t'],
       reference: {},
     },
-    run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false },
+    run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false, debugCache: false },
     meta: {
       warnings: [],
       fieldSources: {},

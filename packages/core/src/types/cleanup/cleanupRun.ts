@@ -1,7 +1,6 @@
 import type { DynamicKeySite } from '../extractor/index.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { StringLeaf } from '../json/index.js';
-import type { ProjectLiteralKeyUsage } from '../../extractor/projectLiteralKeyUsage.js';
 import type { CleanupStringPresenceEvidence } from '../../cleanup/stringPresence.js';
 import type { RunEmitter } from '../shared/run/index.js';
 
@@ -30,15 +29,9 @@ export type CleanupRunOptions = {
   skipStringPresenceCheck?: boolean;
 };
 
-export type CleanupReferenceData = {
-  usage: ProjectLiteralKeyUsage;
-  dynamicSites: readonly DynamicKeySite[];
-};
-
 export type CleanupHostHooks = {
   emit?: RunEmitter;
   runId?: string;
-  loadReferenceData: () => CleanupReferenceData;
   isStringPresenceAvailable: () => boolean;
   hasStringPresence: (sample: string) => boolean;
   getStringPresenceLocations: (sample: string, maxHits: number) => string[];
@@ -61,6 +54,7 @@ export type CleanupRunResult = {
   safeToRemove: string[];
   excludedUncertain: number;
   dynamicSites: readonly DynamicKeySite[];
+  keyObservationsCount: number;
   stringPresenceAvailable: boolean;
   stringPresenceEvidence: CleanupStringPresenceEvidence[];
 };
