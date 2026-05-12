@@ -1,6 +1,6 @@
 import { resolveContext } from '@/shared/context/index.js';
 import { getCliGlobalOverrides } from '@/shared/context/globals.js';
-import { getDisplaySourceLocaleCode } from '@/shared/locales/source.js';
+import { getDisplaySourceLocaleCode } from '@/shared/locales/index.js';
 import { collectDoctorFindings, runDoctor } from '@/commands/doctor/jsonEnvelope.js';
 import {
   issuesFromDiscoveryWarnings,
@@ -8,8 +8,8 @@ import {
   issuesFromDynamicScanCount,
   issuesFromPatchingDiagnostics,
   mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+} from '@/shared/result/index.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
 import { printCommandSummary } from '@/output/index.js';
 import { stringifyEnvelope } from '@i18nprune/core';
 import {

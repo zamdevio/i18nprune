@@ -9,7 +9,7 @@ import {
 } from '@i18nprune/core';
 import { canAsk } from '@/shared/ask/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
-import { truncateMiddle } from '@/shared/progress/format.js';
+import { truncateMiddle } from '@/shared/progress/index.js';
 import { style } from '@/utils/style/index.js';
 import { canPrintInfo } from '@/utils/logger/policy.js';
 import { logger } from '@/utils/logger/index.js';

@@ -6,6 +6,7 @@ let run: RunOptions = {
   quiet: false,
   silent: false,
   debugScan: false,
+  debugCache: false,
   onScanDebug: undefined,
 };
 
@@ -16,6 +17,7 @@ export function resetRunOptions(): void {
     quiet: false,
     silent: false,
     debugScan: false,
+    debugCache: false,
     onScanDebug: undefined,
   };
 }

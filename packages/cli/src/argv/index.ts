@@ -1,5 +1,3 @@
-export type { CanonicalSubcommand } from '@/types/argv/index.js';
-
 /**
  * Canonical subcommand names (no short aliases). Optional `--langs` → `languages` only.
  */

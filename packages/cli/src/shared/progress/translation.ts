@@ -1,7 +1,6 @@
 import {
   getRunOptions,
   isTranslationProgressParallelPoolPhase,
-  type TranslationTickProgressFn,
   type TranslationTickProgressOptions,
 } from '@i18nprune/core';
 import { hideCursor, showCursor } from '@/shared/terminal/cursor.js';
@@ -252,11 +251,6 @@ function createMinimalTranslationProgress(): TranslationProgress {
       }
     },
   };
-}
-
-/** Pass-through from core **`tickProgress`** to a session renderer (generate wiring). */
-export function bindTranslationProgressTick(progress: TranslationProgress): TranslationTickProgressFn {
-  return (i, total, path, opts) => progress.tick(i, total, path, opts);
 }
 
 export function createTranslationProgress(opts: {

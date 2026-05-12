@@ -1,6 +1,6 @@
 import { buildConfigSnapshot } from './snapshot.js';
 import { buildCliJsonEnvelope } from '@i18nprune/core';
-import { issuesFromDiscoveryWarnings } from '@/shared/result/cliEnvelopeIssues.js';
+import { issuesFromDiscoveryWarnings } from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { ConfigSnapshot } from '@/types/commands/config/index.js';
 import type { CliJsonEnvelope } from '@i18nprune/core';

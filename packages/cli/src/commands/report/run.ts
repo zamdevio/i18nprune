@@ -1,6 +1,6 @@
 import { resolveContext } from '@/shared/context/index.js';
 import { getRunOptions } from '@i18nprune/core';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
 import { stringifyEnvelope } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
 import { logger } from '@/utils/logger/index.js';
@@ -13,8 +13,6 @@ import type { CliJsonEnvelope } from '@i18nprune/core';
 import { runReportOperation } from '@/commands/report/buildEnvelope.js';
 import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
-
-export type { ReportCliRunOptions };
 
 function printHumanReportSummary(
   wall: { elapsedMs(): number },

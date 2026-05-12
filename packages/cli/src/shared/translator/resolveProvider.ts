@@ -4,7 +4,6 @@ import {
   effectiveTranslationProviderId as effectiveCoreTranslationProviderId,
   resolvedTranslationOptionsFromCliFlag,
   resolveTranslationProviderOptions as resolveCoreTranslationProviderOptions,
-  resolveTranslationProviderOptionsForId as resolveCoreTranslationProviderOptionsForId,
   resolveTranslationProviderOrder as resolveCoreTranslationProviderOrder,
   translationRunMeta,
   type ResolvedTranslationProviderOptions,
@@ -57,17 +56,6 @@ export function resolveTranslationProviderOptions(
   return resolveCoreTranslationProviderOptions({
     config: ctx.config.translate,
     pin: cliProvider,
-    env: process.env,
-  });
-}
-
-export function resolveTranslationProviderOptionsForId(
-  ctx: Context,
-  id: TranslationProviderId,
-): ResolvedTranslationProviderOptions {
-  return resolveCoreTranslationProviderOptionsForId({
-    config: ctx.config.translate,
-    id,
     env: process.env,
   });
 }

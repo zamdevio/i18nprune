@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { truncateMiddle, formatDurationMs, toUnicodeSuperscriptInt } from '@/shared/progress/format.js';
+import { truncateMiddle, formatDurationMs, toUnicodeSuperscriptInt } from '@/shared/progress/index.js';
 
 describe('progress format', () => {
   it('toUnicodeSuperscriptInt', () => {

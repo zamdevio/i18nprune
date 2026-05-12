@@ -127,6 +127,11 @@ program
     'log source scan skip decisions to stderr (built-in skips, exclude rules, non-scanned extensions)',
     false,
   )
+  .option(
+    '--debug-cache',
+    'log report-cache dispatch, invalidation, and per-file delta decisions',
+    false,
+  )
   .option('--top <n>', 'global list limit override for human/list outputs')
   .option('--full', 'global full list mode (still bounded by core hard cap)', false)
   .hook('preAction', async (_thisCommand, actionCommand) => {
@@ -147,6 +152,7 @@ program
       quiet?: boolean;
       silent?: boolean;
       debugScan?: boolean;
+      debugCache?: boolean;
     }>();
     setConfigPath(opts.config);
     clearContextCache();
@@ -177,12 +183,14 @@ program
       throw err;
     }
     const debugScan = Boolean(opts.debugScan);
+    const debugCache = Boolean(opts.debugCache);
     setRunOptions({
       json: jsonOutput,
       jsonPretty,
       quiet,
       silent,
       debugScan,
+      debugCache,
       onScanDebug:
         debugScan && !silent
           ? (event: ScanDebugEvent) => {
@@ -268,17 +276,17 @@ program
   .option('--dry-run', 'list paths only; do not write', false)
   .option(
     '--top <n>',
-    `max key paths to show in human listings (default: 10; use --full for all)`,
+    `max key paths / placeholder leaves to show in output (human and --json; default: 10; use --full for all)`,
   )
-  .option('--full', 'show every key path in human output (overrides --top)', false)
+  .option('--full', 'show every key path / placeholder leaf in output (human and --json; overrides --top)', false)
   .action(
     async (opts: { target?: string; dryRun?: boolean; top?: string; full?: boolean }) => {
-      const top = getRunOptions().json ? undefined : parseCliPositiveIntTop(opts.top, 'missing: --top');
+      const top = parseCliPositiveIntTop(opts.top, 'missing: --top');
       await missing({
         target: opts.target,
         dryRun: Boolean(opts.dryRun),
         top,
-        full: getRunOptions().json ? false : Boolean(opts.full),
+        full: Boolean(opts.full),
       });
     },
   );
@@ -484,19 +492,18 @@ localesCmd
 localesCmd
   .command('edit')
   .description(
-    'Edit an existing locale JSON and your app i18n loader wiring. Future: safe auto-patches for supported loader patterns.',
+    'Edit existing locale metadata; pass global --patch to update supported app i18n loader wiring.',
   )
   .option('--target <code>', 'locale basename (e.g. ja) — must match a *.json in localesDir; prompts if omitted in a TTY')
   .option('--english-name <name>', 'value for englishName in <lang>.meta.json')
   .option('--native-name <name>', 'value for nativeName in <lang>.meta.json')
   .option('--direction <ltr|rtl>', 'value for direction in <lang>.meta.json')
   .action(async (opts: { target?: string; englishName?: string; nativeName?: string; direction?: string }) => {
-    const direction = opts.direction === 'rtl' || opts.direction === 'ltr' ? opts.direction : undefined;
     await localesEdit({
       target: opts.target,
       englishName: opts.englishName,
       nativeName: opts.nativeName,
-      direction,
+      directionRaw: opts.direction,
     });
   });
 

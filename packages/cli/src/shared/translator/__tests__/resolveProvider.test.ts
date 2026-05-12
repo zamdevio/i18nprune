@@ -37,7 +37,7 @@ function makeContext(overrides?: Partial<I18nPruneConfig>): Context {
       localesDir: '/tmp/locales',
       srcRoot: '/tmp/src',
     },
-    run: { json: false, jsonPretty: true, quiet: false, silent: false, debugScan: false },
+    run: { json: false, jsonPretty: true, quiet: false, silent: false, debugScan: false, debugCache: false },
     meta: {
       fieldSources: {},
       warnings: [],

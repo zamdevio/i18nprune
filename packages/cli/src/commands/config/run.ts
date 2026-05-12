@@ -1,18 +1,17 @@
 import { resolveContext } from '@/shared/context/index.js';
 import { buildConfigSnapshot } from '@/commands/config/snapshot.js';
 import { runConfig } from '@/commands/config/jsonEnvelope.js';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
 import { getRunOptions } from '@i18nprune/core';
 import { style } from '@/utils/ansi/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintPrimary } from '@/utils/logger/policy.js';
 import { printCommandSummary } from '@/output/index.js';
 import { stringifyEnvelope } from '@i18nprune/core';
-import { issuesFromDiscoveryWarnings } from '@/shared/result/cliEnvelopeIssues.js';
+import { issuesFromDiscoveryWarnings } from '@/shared/result/index.js';
 import type { ConfigSnapshot } from '@/types/commands/config/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 
-export type { ConfigSnapshot };
 export { buildConfigSnapshot } from '@/commands/config/snapshot.js';
 
 function resolveConfigData(ctx: Awaited<ReturnType<typeof resolveContext>>): {

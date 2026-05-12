@@ -2,16 +2,10 @@ import {
   ALL_LOCALES_TOKEN,
   isAllLocaleToken,
   parseSyncLangSelection as parseSyncLangSelectionFromCore,
-  parseLocaleCodesList as parseLocaleCodesListFromCore,
   pickTargetSelector as pickTargetSelectorFromCore,
 } from '@i18nprune/core';
 
 export const ALL_LANG_TOKEN = ALL_LOCALES_TOKEN;
-
-/** Comma-separated locale basenames, or **`all`** (case-insensitive). */
-export function parseLocaleCodesList(raw: string): string[] {
-  return parseLocaleCodesListFromCore(raw);
-}
 
 export function isAllLangToken(raw: string): boolean {
   return isAllLocaleToken(raw);

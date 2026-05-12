@@ -6,7 +6,7 @@ import {
   issuesFromDoctorFindings,
   issuesFromDynamicScanCount,
   mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
+} from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { DoctorOptions } from '@/types/commands/doctor/index.js';
 import type { CliJsonEnvelope } from '@i18nprune/core';

@@ -1,7 +1,7 @@
 import os from 'node:os';
-import { computeMissingLiteralKeys } from '@/shared/validate/missingLiterals.js';
+import { computeMissingLiteralKeys } from '@/shared/validate/index.js';
 import { listSourceFiles } from '@i18nprune/core';
-import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
+import { toExtractorScanInput } from '@/shared/extractor/index.js';
 import { CLI_VERSION } from '@/constants/cli.js';
 import { PROJECT_REPORT_KIND } from '@/constants/env.js';
 import { PROJECT_REPORT_SCHEMA_VERSION } from '@/constants/report.js';

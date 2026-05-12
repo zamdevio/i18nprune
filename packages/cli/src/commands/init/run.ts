@@ -15,8 +15,6 @@ import { logger } from '@/utils/logger/index.js';
 import { confirmWriteConfig, promptConfigFormat } from '@/commands/init/prompts.js';
 import type { EnsureConfigOptions } from '@/types/config/init.js';
 
-export type { EnsureConfigOptions };
-
 export async function ensureConfig(opts: EnsureConfigOptions = {}): Promise<void> {
   const adapters = createNodeRuntimeAdapters();
   const fs = adapters.fs;

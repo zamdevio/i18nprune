@@ -70,6 +70,7 @@ const run: RunOptions = {
   quiet: false,
   silent: false,
   debugScan: false,
+  debugCache: false,
 };
 
 const ctx = createCoreContext({

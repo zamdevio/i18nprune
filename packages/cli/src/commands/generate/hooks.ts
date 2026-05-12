@@ -12,8 +12,7 @@ import type { GenerateHostHooks, RunEvent } from '@i18nprune/core';
 import { canAsk } from '@/shared/ask/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import { rows, up } from '@/shared/cursor/index.js';
-import { createSessionProgress } from '@/shared/progress/session.js';
-import { createGenerateTickProgressRelay } from '@/shared/progress/tickRelay.js';
+import { createGenerateTickProgressRelay, createSessionProgress } from '@/shared/progress/index.js';
 import {
   createIdentityStreakGuard,
   logIdentityStreakAbortNoWriteNotice,

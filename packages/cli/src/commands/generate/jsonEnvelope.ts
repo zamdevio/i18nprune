@@ -10,7 +10,6 @@
  */
 
 import {
-  createCoreContext,
   emitIssuesAsRunErrors,
   emitRunErrorFromUnknown,
   emitRunEvent,
@@ -29,6 +28,7 @@ import type { RunEvent } from '@i18nprune/core';
 
 import { canAsk } from '@/shared/ask/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
+import { createCliCoreContext } from '@/shared/context/index.js';
 import { resolveLocalesDynamicSites } from '@/shared/cache/index.js';
 import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
 import {
@@ -36,16 +36,16 @@ import {
   issuesFromDynamicScanCount,
   mergeIssues,
   usageIssueFromI18nPruneError,
-} from '@/shared/result/cliEnvelopeIssues.js';
+} from '@/shared/result/index.js';
 import { buildCliJsonEnvelope } from '@i18nprune/core';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
 import { safeTranslationMetaForEnvelope } from '@/shared/translator/resolveProvider.js';
 import { ISSUE_GENERATE_USAGE } from '@/constants/issueCodes.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintWarn } from '@/utils/logger/policy.js';
 import { resolveFromCwd } from '@/utils/paths/index.js';
 
-import { buildKeyReferenceContext } from '@/shared/reference/context.js';
+import { buildKeyReferenceContext } from '@/shared/reference/index.js';
 import { buildGenerateHostHooks } from '@/commands/generate/hooks.js';
 import type { GenerateRuntime } from '@/types/command/generate/index.js';
 import {
@@ -173,13 +173,7 @@ export async function executeCore(
     throw new I18nPruneError('generate: no target locale codes provided', 'USAGE');
   }
 
-  const coreCtx = createCoreContext({
-    config: ctx.config,
-    adapters: ctx.adapters,
-    env: process.env,
-    paths: ctx.paths,
-    run: ctx.run,
-  });
+  const coreCtx = createCliCoreContext(ctx);
 
   const generateHooks: GenerateRunHooks = {
     onHandoffPick: (offer) => promptGenerateHandoffPick(offer, ctx.run),

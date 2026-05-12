@@ -19,18 +19,12 @@ export {
   UPDATE_CHECK_INTERVAL_MS,
   UPDATE_STATE_SCHEMA_VERSION,
 } from '@/constants/update.js';
+export { getUpdateStateFilePath } from './paths.js';
 export {
-  getI18npruneConfigDir,
-  getUpdateCacheFilePath,
-  getUpdateStateFilePath,
-} from './paths.js';
-export {
-  readUpdateCache,
   readUpdateState,
   resetUpdateState,
   writeUpdateState,
   msSinceLastAttempt,
-  type UpdateCacheFile,
   type UpdateStateFile,
 } from './cache.js';
 export {

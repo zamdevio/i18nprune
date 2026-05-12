@@ -11,21 +11,8 @@ function getConfigDir(): string {
   return path.join(os.homedir(), '.config', 'i18nprune');
 }
 
-/**
- * Path to the on-disk update state file (rich JSON: last check, registry version, errors).
- * Uses XDG: `$XDG_CONFIG_HOME/i18nprune/updatestate.json` or `~/.config/i18nprune/updatestate.json`.
- */
-export function getI18npruneConfigDir(): string {
-  return getConfigDir();
-}
-
 export function getUpdateStateFilePath(): string {
   return path.join(getConfigDir(), UPDATE_STATE_BASENAME);
-}
-
-/** @deprecated use getUpdateStateFilePath */
-export function getUpdateCacheFilePath(): string {
-  return getUpdateStateFilePath();
 }
 
 export function ensureConfigDirExists(): void {

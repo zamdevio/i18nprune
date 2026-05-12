@@ -5,7 +5,7 @@ import {
   issuesFromDiscoveryWarnings,
   issuesFromDynamicScanCount,
   mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
+} from '@/shared/result/index.js';
 import { projectReportDocumentSchema } from '@i18nprune/report';
 import { formatProjectReportDocument } from '@/commands/report/write.js';
 import { resolveReportOutputPath } from '@/utils/report/index.js';
@@ -15,7 +15,7 @@ import type { ProjectReportDocument } from '@/types/command/report/index.js';
 import type { ReportCliJsonPayload } from '@/types/command/report/json.js';
 import type { ReportCliRunOptions } from '@/types/command/report/index.js';
 import type { CliJsonEnvelope } from '@i18nprune/core';
-import { readRuntimeFsTextSync, existsRuntimeFsSync } from '@i18nprune/core/runtime/helpers/sync';
+import { existsRuntimeFsSync, readJsonFromRuntimeFsSync } from '@i18nprune/core/runtime/helpers/sync';
 
 function localTimestamp(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -28,19 +28,12 @@ function defaultOutBasename(format: ReportCliRunOptions['format']): string {
 }
 
 function parseReportJsonFromFile(filePath: string, fsPort: Awaited<ReturnType<typeof resolveContext>>['adapters']['fs']): ProjectReportDocument {
-  let raw: string;
+  let parsed: unknown;
   try {
-    raw = readRuntimeFsTextSync(filePath, fsPort);
+    parsed = readJsonFromRuntimeFsSync(filePath, fsPort);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     throw new Error(`Cannot read --from file ${filePath}: ${msg}`);
-  }
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw) as unknown;
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    throw new Error(`Invalid JSON in --from file ${filePath}: ${msg}`);
   }
   const result = projectReportDocumentSchema.safeParse(parsed);
   if (!result.success) {

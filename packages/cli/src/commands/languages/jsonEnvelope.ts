@@ -4,7 +4,7 @@ import {
   issuesFromDiscoveryWarnings,
   issuesFromLanguagesFilter,
   mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
+} from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { LanguagesCommandOptions } from '@/types/commands/languages/index.js';
 import type { CliJsonEnvelope } from '@i18nprune/core';

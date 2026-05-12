@@ -33,6 +33,13 @@ export function scanLine(message: string): string {
   return `${app} ${tag} ${message}`;
 }
 
+/** `[i18nprune] [cache] message` — report-cache status, hidden by the info gate. */
+export function cacheLine(message: string): string {
+  const app = `${style.dim('[')}${style.bold(style.accent(CLI_NAME))}${style.dim(']')}`;
+  const tag = style.accent('[cache]');
+  return `${app} ${tag} ${message}`;
+}
+
 /**
  * Box header that **sizes to content** (ANSI-safe) — dim frame, bold title.
  * Uses **`CLI_MARK`** when `mark` is omitted; pass **`mark: ''`** to hide the icon.
