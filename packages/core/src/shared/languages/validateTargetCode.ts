@@ -15,7 +15,7 @@ function catalog(): ReturnType<typeof buildLanguageCatalog> {
 
 /**
  * Ensures a language code exists in the translation-target catalog (plain error text, no terminal styling).
- * Use from fill/generate and other core flows; CLI may layer styled hints separately.
+ * Use from generate and other core flows; CLI may layer styled hints separately.
  */
 export function assertSupportedTargetLanguageCode(code: string): void {
   const cat = catalog();

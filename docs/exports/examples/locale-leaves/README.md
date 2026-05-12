@@ -44,6 +44,6 @@ time node ./scripts/locale-leaves-example.mjs
 
 ## Why this export matters
 
-- Same normalization logic used by `sync` / `generate` / `fill`
+- Same normalization logic used by `sync` / `generate` (including **`generate --resume`**)
 - Stable mode precedence rules
 - Full per-leaf decisions for custom reporting pipelines

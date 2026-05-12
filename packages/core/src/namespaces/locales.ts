@@ -12,8 +12,8 @@ export { buildLocaleListRows } from '../locales/summary.js';
 export type { LocaleListRow } from '../locales/summary.js';
 export { resolveLocaleMetaProfile } from '../locales/metaProfile.js';
 export type { LocaleMetaProfile } from '../locales/metaProfile.js';
-export { resolveFillAllTargetCodes, resolveFillTargetCodesFromRaw } from '../locales/fillTargets.js';
-export type { ResolveFillTargetCodesFromRawInput } from '../locales/fillTargets.js';
+export { resolveResumeAllTargetCodes, resolveResumeTargetCodesFromRaw } from '../locales/resumeTargets.js';
+export type { ResolveResumeTargetCodesFromRawInput } from '../locales/resumeTargets.js';
 export { assertGenerateTargetCodes } from '../locales/generateTargets.js';
 export type { AssertGenerateTargetCodesInput } from '../locales/generateTargets.js';
 export {

@@ -1,14 +1,14 @@
 # Policies (`policies` in config)
 
-The config schema includes optional **`policies`** so sync / quality / fill can respect **copy** and **exclusion** rules without ad-hoc flags everywhere.
+The config schema includes optional **`policies`** so sync / quality / **`generate --resume`** can respect **copy** and **exclusion** rules without ad-hoc flags everywhere.
 
 ## Who applies what (vs `exclude`)
 
 | knob | Applied by | Effect |
 | --- | --- | --- |
 | **`exclude`** (top-level scan config) | **Scanner / validate / cleanup** pipelines that decide **which files and code** participate in discovery | Shrinks **where** keys can be referenced or reported — it is **not** a per-key translator rule inside locale JSON |
-| **`policies.preserve`** | **`sync`**, merges, cleanup/fill flows that honor **`reference.defaults.respectPreserve`** | Keys/prefixes that should **stay** in targets when merging from source (regions, legal blobs, intentional extras) |
-| **`policies.parity`** | **`quality`**, **`fill`**, **review-style** checks (e.g. source-identical leaves) | Excludes paths or values **only from those heuristic checks**, not from scanning or sync |
+| **`policies.preserve`** | **`sync`**, merges, cleanup / **`generate --resume`** flows that honor **`reference.defaults.respectPreserve`** | Keys/prefixes that should **stay** in targets when merging from source (regions, legal blobs, intentional extras) |
+| **`policies.parity`** | **`quality`**, **`generate --resume`**, **review-style** checks (e.g. source-identical leaves) | Excludes paths or values **only from those heuristic checks**, not from scanning or sync |
 
 So **`parity` is not a duplicate of `exclude`**: `exclude` limits **sources** scanned; **`parity`** only suppresses noisy **quality signals** where matching the **source** locale is expected (brand strings, placeholders, experimental keys, etc.). **`preserve`** is about **merge behavior**, not ignoring files during scan.
 
@@ -25,7 +25,7 @@ Used by **`sync`** (and related) so certain keys or prefixes **stay** in target 
 
 ## `policies.parity`
 
-Used by **`quality`**, **`fill`**, **`review`**-style checks for “still English?” / drift — **exclude** keys or values from those heuristics when you know they are expected to match English.
+Used by **`quality`**, **`generate --resume`**, **`review`**-style checks for “still English?” / drift — **exclude** keys or values from those heuristics when you know they are expected to match English.
 
 - **`excludeKeys`**, **`excludePrefixes`**, **`excludeValues`**
 

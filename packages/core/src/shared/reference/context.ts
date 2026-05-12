@@ -34,7 +34,7 @@ function collectUncertainPrefixesFromDynamic(
 }
 
 /**
- * Build proven key set and uncertain prefixes for cleanup / fill / sync / generate decisions.
+ * Build proven key set and uncertain prefixes for cleanup / sync / generate decisions.
  */
 export function buildKeyReferenceContext(
   input: BuildKeyReferenceContextInput,

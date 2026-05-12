@@ -8,7 +8,6 @@ const DOC_ISSUE_PARENT_SEGMENTS = new Set([
   'config',
   'context',
   'doctor',
-  'fill',
   'generate',
   'io',
   'languages',

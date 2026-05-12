@@ -90,23 +90,25 @@ describe('CLI against sample-i18n fixture', () => {
     expect(d.paths).toContain('fixture.missing.alpha');
   });
 
-  it('fill --json --dry-run --all returns fill envelope', () => {
-    const out = runCli(['fill', '--json', '--dry-run', '--all']);
+  it('generate --resume --json --dry-run --all returns generate envelope', () => {
+    const out = runCli(['generate', '--resume', '--json', '--dry-run', '--all']);
     const j = parseFirstEnvelope(out);
-    expect(j.kind).toBe('fill');
+    expect(j.kind).toBe('generate');
     expect(j.meta.apiVersion).toBe('1');
     const d = j.data as {
       dryRun?: boolean;
       targets?: string[];
-      updated?: number;
-      targetResults?: { target: string; progress?: { updatedLeafCount?: number; durationMs?: number } }[];
+      leavesProcessed?: number;
+      targetResults?: {
+        target: string;
+        resumeUpdatedLeafCount?: number;
+        progress?: { updatedLeafCount?: number; durationMs?: number };
+      }[];
     };
     expect(d.dryRun).toBe(true);
     expect(Array.isArray(d.targets)).toBe(true);
-    expect(typeof d.updated).toBe('number');
-    const rows = d.targetResults as
-      | { target: string; progress?: { updatedLeafCount?: number; durationMs?: number } }[]
-      | undefined;
+    expect(typeof d.leavesProcessed).toBe('number');
+    const rows = d.targetResults;
     expect(Array.isArray(rows)).toBe(true);
     expect(rows && rows.length > 0).toBe(true);
     expect(typeof rows?.[0]?.progress?.durationMs).toBe('number');

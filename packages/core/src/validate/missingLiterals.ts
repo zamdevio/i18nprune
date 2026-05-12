@@ -1,4 +1,4 @@
-import { collectStringLeaves } from '../shared/json/leaves.js';
+import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/translationSurfaceWalk.js';
 import { splitPath } from '../shared/json/path.js';
 
 /**
@@ -10,7 +10,7 @@ export function computeMissingLiteralKeysFromResolvedKeys(
   localeJson: unknown,
   resolvedKeys: ReadonlySet<string>,
 ): string[] {
-  const leaves = collectStringLeaves(localeJson);
+  const leaves = collectTranslationSurfaceLeaves(localeJson);
   const keySet = new Set(leaves.map((l) => l.path));
   return [...resolvedKeys].filter((k) => !keySet.has(k)).sort(compareDottedPathDepth);
 }

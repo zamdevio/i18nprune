@@ -50,7 +50,7 @@ CLI flag precedence: **`--strip-metadata`** always enables stripping for that ru
 When omitted, **`localeLeaves.sync.stripMetadata`** (if set) is used.
 
 To write metadata, use **`--metadata`** (or set **`localeLeaves.mode: 'structured'`** in config).  
-See [Locales metadata mode](../../locales/metadata/README.md) for shared writer behavior used by `sync`/`generate`/`fill`.
+See [Locales metadata mode](../../locales/metadata/README.md) for shared writer behavior used by `sync` / `generate` (including **`generate --resume`**).
 
 In `sync --json`, metadata details are available per locale file under `data.localeMetadataReports`, including `leafDecisions[]` for full per-leaf simulation/reporting.
 For practical filters, see the [jq cookbook](../../examples/jq-cookbook/README.md).

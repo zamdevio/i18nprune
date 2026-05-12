@@ -80,11 +80,9 @@ export type { CommandBannerSpec } from '@/types/utils/cli/banner.js';
 
 export type { ReviewJsonData, ReviewJsonOpts } from '@/types/command/review/json.js';
 export type { GenerateOptions } from '@/types/command/generate/index.js';
-export type { GenerateJsonPayload, GenerateTargetJsonRow } from '@/types/command/generate/json.js';
+export type { GenerateJsonPayload, GenerateTargetJsonRow } from '@i18nprune/core';
 export type { ReportCliJsonPayload } from '@/types/command/report/json.js';
 export type { ReportCliRunOptions } from '@/types/command/report/index.js';
-export type { FillOptions } from '@/types/command/fill/index.js';
-export type { FillTargetJsonRow } from '@/types/command/fill/json.js';
 export type { SyncJsonOutput, SyncOptions } from '@/types/command/sync/index.js';
 export type { CleanupJsonOutput, CleanupOptions } from '@/types/command/cleanup/index.js';
 export type { ValidateJsonOutput, ValidateOptions } from '@/types/command/validate/index.js';

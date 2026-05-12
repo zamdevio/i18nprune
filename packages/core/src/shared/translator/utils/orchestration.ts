@@ -1,5 +1,5 @@
 /**
- * Parallel translation scheduling for **`generate`** / **`fill`**.
+ * Parallel translation scheduling for **`generate`** (including **`generate --resume`**).
  * **`translateLeaf`** stays a single-leaf primitive; this module pools **`translateLeaf`** calls with a bounded concurrency.
  *
  * Roadmap: **`maintainer/phases/providers.md`** → *Concurrency & orchestration*.

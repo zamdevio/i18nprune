@@ -10,7 +10,7 @@ Before **writing** (not **`--dry-run`**), the CLI shows a **path preview** (see 
 
 | User input | Write target |
 |------------|----------------|
-| **`--locale <code>`** passed | **`locales/<code>.json`** under **`localesDir`** (same resolution as **`sync`** / **`fill`**). The CLI **warns** if this is **not** the **source locale** file: **`validate`** may still report gaps in the **source locale** until you align files. |
+| **`--locale <code>`** passed | **`locales/<code>.json`** under **`localesDir`** (same resolution as **`sync`** / **`generate --resume`**). The CLI **warns** if this is **not** the **source locale** file: **`validate`** may still report gaps in the **source locale** until you align files. |
 | **`--locale` omitted** | The **source locale** file — `config.source` resolved (the file **`validate`** checks against). |
 
 The **scan** (which keys the code references) is always the same; only the **file** that receives new paths changes.
@@ -69,11 +69,11 @@ When you use the **default** (update **source locale** only):
 
 1. **`missing`** — **source locale** JSON gains keys the code references.
 2. **`sync`** — other locale files under **`localesDir`** match the **source locale** shape.
-3. **`fill`** — **re-translate** leaves in target locales that still **match the source locale** string (stale source-identical copies). **`fill`** does not invent keys; it **re-translates** existing paths.
+3. **`generate --resume`** — **re-translate** review-eligible leaves in target locales that still **match the source locale** string (stale source-identical copies). Does not invent keys; only existing paths.
 4. **`validate`** — confirm code vs **source locale** JSON.
 5. **`quality`** / **`review`** — parity and per-locale review.
 
-When you used **`--locale <code>`** instead, **`sync`** / **`fill`** / **`validate`** still follow the same roles: **`validate`** is defined against the **source locale** file, so keep that file in sync before relying on a green **`validate`** for the whole project.
+When you used **`--locale <code>`** instead, **`sync`** / **`generate --resume`** / **`validate`** still follow the same roles: **`validate`** is defined against the **source locale** file, so keep that file in sync before relying on a green **`validate`** for the whole project.
 
 ## Flags
 
@@ -115,14 +115,13 @@ When you used **`--locale <code>`** instead, **`sync`** / **`fill`** / **`valida
 | **`validate`** | Read-only; compares code to **source locale** JSON and lists **missing** + **dynamic** sites. |
 | **`missing`** | **Writes** placeholders into **source locale** JSON by default, or into **`locales/<locale>.json`** with **`--locale`**. |
 | **`sync`** | Aligns **non-source** locale files to the **source locale** shape. |
-| **`fill`** | **Re-translates** string leaves in a **target** locale that still **match the source locale** value (does not add new key paths). |
+| **`generate --resume`** | **Re-translates** eligible string leaves in a **target** locale that still **match the source locale** value (does not add new key paths). |
 | **`generate`** | Builds a **new target** locale from the **source locale** via the translator — different from **`missing`**. |
 
 ## See also
 
 - [validate](../validate/README.md)
 - [sync](../sync/README.md)
-- [fill](../fill/README.md)
 - [generate](../generate/README.md)
 - [CLI overview](../../cli/README.md)
 - [Exit codes & behavior](../../behavior/README.md)

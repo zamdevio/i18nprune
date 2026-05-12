@@ -2,7 +2,7 @@
 
 ## Scope
 
-This page describes the translation pipeline as a shared system used by `generate` and `fill` flows.
+This page describes the translation pipeline as a shared system used by **`generate`** (full runs and **`--resume`**).
 
 ## Pipeline shape
 

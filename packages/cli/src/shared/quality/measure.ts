@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { collectStringLeaves } from '@i18nprune/core';
+import { collectTranslationSurfaceLeaves } from '@i18nprune/core';
 import { listHostJsonBasenames, readHostJsonUnknown } from '@/shared/io/hostJson.js';
 import { computeEnglishIdenticalCounts, extractor } from '@i18nprune/core';
 import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
@@ -20,7 +20,7 @@ export function measureQualityEnglishIdentical(
   const fs = ctx.adapters.fs;
   const sourcePath = ctx.paths.sourceLocale;
   const sourceRaw = readHostJsonUnknown(sourcePath, fs);
-  const sourceLeaves = collectStringLeaves(sourceRaw);
+  const sourceLeaves = collectTranslationSurfaceLeaves(sourceRaw);
   const sourceBase = path.basename(sourcePath, '.json');
   const dir = ctx.paths.localesDir;
   const files = listHostJsonBasenames(dir, fs).filter((f) => f !== `${sourceBase}.json`);
@@ -31,7 +31,7 @@ export function measureQualityEnglishIdentical(
   const targets = filtered.map((file) => {
     const full = path.join(dir, file);
     const targetRaw = readHostJsonUnknown(full, fs);
-    return { fileBasename: file, leaves: collectStringLeaves(targetRaw) };
+    return { fileBasename: file, leaves: collectTranslationSurfaceLeaves(targetRaw) };
   });
 
   const { total, perFile } = computeEnglishIdenticalCounts({

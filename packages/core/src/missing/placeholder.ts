@@ -21,7 +21,7 @@ export function resolveMissingLeafPlaceholder(raw: unknown): { placeholder: stri
   const t = raw.trim();
   if (t.length === 0) {
     warnings.push(
-      `missing.placeholder is empty or whitespace-only; using default ${JSON.stringify(def)} so fill/missing tooling can detect scaffolded paths.`,
+      `missing.placeholder is empty or whitespace-only; using default ${JSON.stringify(def)} so missing tooling can detect scaffolded paths.`,
     );
     return { placeholder: def, warnings };
   }

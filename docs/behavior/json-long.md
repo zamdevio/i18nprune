@@ -1,4 +1,4 @@
-# `--json` and long-running commands (`generate`, `fill`, `sync`, …)
+# `--json` and long-running commands (`generate`, `sync`, …)
 
 This page describes **how machine-readable mode and long-running work interact** with **prompts**, **progress**, and **stdout**. Release sequencing and **`stdout redirection`** are tracked in the **[Roadmap](../roadmap/README.md)** and maintainer **`maintainer/phases/README.md`**.
 
@@ -16,7 +16,7 @@ A command can be “JSON-capable” but still need **all inputs from flags** in 
 - **Interactive (TTY, no `--json`):** prompts may run (language, meta fields, confirmations).
 - **Non-interactive or `--json`:** the same command must obtain everything from **flags + env + config**; otherwise exit non-zero. For **`generate`**, **`run.json`** (structured stdout for that command) is treated like non-interactive for prompts — **`canPromptGenerate`** returns false when **`ctx.run.json`** is true.
 
-That way **`generate --json`** and **`fill --json`** are predictable in scripts and CI. For **`generate`**, non-interactive defaults for catalog-backed fields (when **`--lang`** is valid) are defined in [commands/generate](../commands/generate/README.md) and [Exit codes & behavior](./README.md).
+That way **`generate --json`** is predictable in scripts and CI. For **`generate`**, non-interactive defaults for catalog-backed fields (when **`--target`** is valid) are defined in [commands/generate](../commands/generate/README.md) and [Exit codes & behavior](./README.md).
 
 ## Progress and “how it’s going”
 
@@ -24,7 +24,7 @@ Long work has **three** audiences:
 
 | Audience | Mechanism |
 |----------|-----------|
-| **Human TTY** | stderr **progress** (spinner / bar) — wired for **`generate`** / **`fill`** via session progress; respects **`-q` / `-s`**. |
+| **Human TTY** | stderr **progress** (spinner / bar) — wired for **`generate`** via session progress; respects **`-q` / `-s`**. |
 | **`--json` machine** | **No live stream** of per-key progress on stdout (would corrupt JSON). Emit **one JSON document at the end** (or structured **line-delimited** events only if a spec is added later). |
 | **Logs** | stderr lines are separate from stdout JSON; scripts should redirect or filter. |
 

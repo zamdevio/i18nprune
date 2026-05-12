@@ -7,7 +7,7 @@ export function pathMatchesPreserveKey(path: string, prefix: string): boolean {
 
 /**
  * Paths that must stay verbatim from source (`policies.preserve`) — also used to skip cleanup removal
- * and (when configured) fill skips.
+ * and (when configured) `generate --resume` preserve skips.
  */
 export function isPreservePath(path: string, policy: PreservePolicy | undefined): boolean {
   if (!policy) return false;

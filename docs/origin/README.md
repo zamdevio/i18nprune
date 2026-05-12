@@ -69,7 +69,7 @@ Build a tool that can:
 - validate translation usage
 - detect missing / unused keys
 - sync locale structures
-- generate and fill keys
+- generate and **`generate --resume`** keys
 - produce structured reports
 - integrate into CI workflows
 

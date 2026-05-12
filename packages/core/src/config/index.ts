@@ -76,7 +76,7 @@ export type TranslateProviderRow =
 export type TranslateMaxWorkersConfig = number;
 
 /**
- * Orchestration policy for `generate` / `fill`. Re-export of {@link TranslatePolicy} so
+ * Orchestration policy for **`generate`** (including **`generate --resume`**). Re-export of {@link TranslatePolicy} so
  * config-namespace consumers get the full verb dictionary in one barrel.
  *
  * Omit fields when authoring — `parseI18nPruneConfig` applies defaults from
@@ -87,7 +87,7 @@ export type TranslatePolicyConfig = TranslatePolicy;
 export type { ParityPolicy, PreservePolicy };
 
 /**
- * High-level merge / parity rules applied across **`fill`**, **`sync`**, **`quality`**, **`cleanup`**, etc.
+ * High-level merge / parity rules applied across **`sync`**, **`quality`**, **`cleanup`**, **`generate`**, etc.
  * See **`PreservePolicy`** / **`ParityPolicy`** for field shapes.
  */
 export type Policies = {
@@ -98,7 +98,7 @@ export type Policies = {
 };
 
 /**
- * How **`sync`**, **`generate`**, and **`fill`** read/write JSON terminals (plain strings vs structured objects).
+ * How **`sync`** and **`generate`** read/write JSON terminals (plain strings vs structured objects).
  */
 export type LocaleLeavesConfig = {
   /**
@@ -150,7 +150,7 @@ export type OutputConfig = {
 export type PatchingConfig = PatchingConfigInput;
 
 /**
- * Translation registry for **`generate`** / **`fill`**.
+ * Translation registry for **`generate`**.
  * Omit entirely to follow **`I18NPRUNE_TRANSLATE_PROVIDER`** env + built-in default (**`google`**) without file rows.
  *
  * **`--provider`** overrides **`translate.primary`** (and **`I18NPRUNE_TRANSLATE_PROVIDER`** sits between CLI and file).
@@ -184,7 +184,7 @@ export type I18nPruneConfig = Omit<I18nPruneConfigParsed, 'reference' | 'transla
   /** Function names treated as translation helpers when walking **`src`** (at least one required). */
   functions: string[];
   /**
-   * When **`true`**, **`generate`** and **`fill`** skip writing **`<lang>.meta.json`**.
+   * When **`true`**, **`generate`** skips writing **`<lang>.meta.json`**.
    * Merged with CLI **`--no-locale-meta`** (**OR** - either **`true`** skips sidecar writes).
    */
   noLocaleMeta?: boolean;
@@ -200,11 +200,11 @@ export type I18nPruneConfig = Omit<I18nPruneConfigParsed, 'reference' | 'transla
    * Core clamps values to safe ranges.
    */
   scanner?: ScannerConfigInput;
-  /** Preserve / parity policy bags consumed by **`fill`**, **`sync`**, **`quality`**, **`cleanup`**, … */
+  /** Preserve / parity policy bags consumed by **`sync`**, **`quality`**, **`cleanup`**, **`generate`**, … */
   policies?: Policies;
   /**
    * Reference / uncertainty policy: **`defaults`** plus optional **`commands`** overrides
-   * (**`cleanup`**, **`fill`**, **`sync`**, **`generate`**).
+   * (**`cleanup`**, **`sync`**, **`generate`**). Legacy **`reference.commands.fill`** is merged into **`generate`** at resolve time.
    */
   reference?: CoreReferenceConfig;
   /** Structured vs legacy string leaves and **`sync`** metadata stripping defaults. */

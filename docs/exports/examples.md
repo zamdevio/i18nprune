@@ -23,7 +23,7 @@ if (dynamicSites.length > 0) {
 ```ts
 import {
   resolveContext,
-  collectStringLeaves,
+  collectTranslationSurfaceLeaves,
   scanSources,
   readJsonFile,
   exactLiteralKeys,
@@ -33,7 +33,7 @@ const ctx = resolveContext();
 const sourceData = readJsonFile(ctx.paths.sourceLocale);
 const usedKeys = new Set(exactLiteralKeys(scanSources(ctx.paths.srcRoot), ctx.config.functions));
 
-const unused = collectStringLeaves(sourceData)
+const unused = collectTranslationSurfaceLeaves(sourceData)
   .map((l) => l.path)
   .filter((k) => !usedKeys.has(k));
 

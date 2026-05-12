@@ -5,7 +5,7 @@ import { getCliYesFlag } from '@/shared/context/globals.js';
 import {
   I18nPruneError,
   applyCleanupKeysToLocaleJson,
-  collectStringLeaves,
+  collectTranslationSurfaceLeaves,
   computeCleanupCandidateKeys,
   extractor,
   noopRunEmitter,
@@ -83,7 +83,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
     }
     const sourcePath = ctx.paths.sourceLocale;
     const sourceRaw = readHostJsonUnknown(sourcePath, ctx.adapters.fs);
-    const leaves = collectStringLeaves(sourceRaw);
+    const leaves = collectTranslationSurfaceLeaves(sourceRaw);
     const usage = extractor.keySites.scanProjectLiteralKeyUsage(scanInput);
     const filterUncertain = eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only';
     const { allKeyPaths, candidates, excludedUncertain } = computeCleanupCandidateKeys({

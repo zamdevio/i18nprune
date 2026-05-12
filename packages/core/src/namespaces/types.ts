@@ -52,7 +52,7 @@ export type {
 export type { LocaleListRow } from '../locales/summary.js';
 export type { LocaleMetaProfile } from '../locales/metaProfile.js';
 export type { ResolveLocaleTargetCodesInput } from '../locales/targets.js';
-export type { ResolveFillTargetCodesFromRawInput } from '../locales/fillTargets.js';
+export type { ResolveResumeTargetCodesFromRawInput } from '../locales/resumeTargets.js';
 export type { AssertGenerateTargetCodesInput } from '../locales/generateTargets.js';
 export type { ParityPolicy, PreservePolicy } from '../types/policies/index.js';
 export type {
@@ -71,10 +71,10 @@ export type {
   QualityJsonData,
 } from '../types/quality/index.js';
 export type { DoctorCheckId, DoctorFinding } from '../types/doctor/index.js';
-export type { FillCandidateLeafInput, FillEligibilityRefContext } from '../types/fill/index.js';
+export type { GenerateResumeCandidateLeafInput, GenerateResumeRefContext } from '../types/generate/resumeCandidates.js';
 export type { ProjectLiteralKeyUsage } from '../extractor/projectLiteralKeyUsage.js';
 export type { CleanupCandidateInput } from '../cleanup/candidates.js';
-export type { ReviewLeafRow, ReviewLeafShape } from '../review/collectReviewLeaves.js';
+export type { ReviewLeafRow, ReviewLeafShape } from '../types/localeLeaves/index.js';
 export type {
   DynamicKeySite,
   DynamicKeySiteKind,

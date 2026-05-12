@@ -1,6 +1,6 @@
 # Translator engine & progress (design)
 
-This document aligns **how translation runs** in i18nprune: **provider abstraction**, **shared leaf pipeline** (`translateLeaf`), **stderr progress** + **SIGINT**, and how **`generate`** / **`fill`** behave with **flags**, **errors**, and **non-interactive** runs.
+This document aligns **how translation runs** in i18nprune: **provider abstraction**, **shared leaf pipeline** (`translateLeaf`), **stderr progress** + **SIGINT**, and how **`generate`** (including **`--resume`**) behaves with **flags**, **errors**, and **non-interactive** runs.
 
 Live progress behaviour and flags are documented in **[Translation progress](../progress/README.md)**.
 
@@ -25,7 +25,7 @@ Live progress behaviour and flags are documented in **[Translation progress](../
 
 The codebase already has a **single** `translateLeaf` entry point. The **next** tightening steps (not all done yet):
 
-1. **Stable errors** — Map provider failures (`fetch`, 4xx/5xx, malformed JSON) to **`I18nPruneError`** (or a small **`TranslatorError`** subclass) with `code` / `cause`, so **`generate`** / **`fill`** can surface **one** consistent pattern (retry exhausted → message + optional hint).
+1. **Stable errors** — Map provider failures (`fetch`, 4xx/5xx, malformed JSON) to **`I18nPruneError`** (or a small **`TranslatorError`** subclass) with `code` / `cause`, so **`generate`** can surface **one** consistent pattern (retry exhausted → message + optional hint).
 2. **Edge cases** — Empty string, overlong text, rate limits: classify in **one** place (provider or thin wrapper), not in each command.
 3. **Optional `@types`** — Keep **`packages/cli/src/types/core/translator`** as the single contract; add **`TranslatorResult`** / **`TranslatorFailure`** only if we need discriminated unions for **`--json`** summaries.
 4. **Future providers** — `createTranslator()` (or env-based factory) chooses implementation; **commands** never import `google` directly.
@@ -50,12 +50,12 @@ The codebase already has a **single** `translateLeaf` entry point. The **next** 
 
 ---
 
-## 5. Data flow: `fill`
+## 5. Data flow: `generate --resume`
 
-1. **`--lang`** — prompt or flag; **catalog** validation; **not** the source locale.
-2. **Source vs target** — only leaves where **target value still equals source** are re-translated (respect parity policy).
-3. **Progress** — same **`createSessionProgress`** contract as **`generate`**.
-4. **Failure** — same as **`generate`**: translate errors → non-zero exit.
+1. **`--resume`** + **`--target`** / **`--all`** — same catalog rules as full **`generate`**; non-interactive runs require an explicit selector (or **`--all`** with **`--resume`**).
+2. **Eligibility** — only **review-eligible** leaves that still **match the source** string at the same path are translated (respect **`policies.parity`**, **`reference`**, and preserve rules).
+3. **Progress** — same **`createSessionProgress`** contract as full **`generate`**.
+4. **Failure** — same as **`generate`**: translate errors → non-zero exit; partial runs may set **`partial`** / **`resumeHint`** on the **`generate`** JSON envelope (see [Translation config](../config/translate.md)).
 
 ---
 

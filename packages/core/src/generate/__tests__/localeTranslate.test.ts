@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { buildTranslatedLocaleFromSourceLeaves } from '../buildTranslatedLocale.js';
+import { buildTranslatedLocaleFromSourceLeaves } from '../localeTranslate.js';
 import { TranslateRunInterruptedError } from '../../translator/errors/interrupted.js';
 import type { Translator } from '../../types/translator/index.js';
 
@@ -80,6 +80,25 @@ describe('buildTranslatedLocaleFromSourceLeaves', () => {
       targetLang: 'fr',
       tickProgress: () => {},
     });
+    expect(out.working).toEqual({ k: 'hello-fr' });
+  });
+
+  it('force re-translates existing manual target strings', async () => {
+    const translate = vi.fn(async (text: string) => `${text}-fr`);
+    const provider = { translate } as unknown as Translator;
+    const out = await buildTranslatedLocaleFromSourceLeaves({
+      sourceLeaves: [{ path: 'k', value: 'hello' }],
+      working: { k: 'hello' },
+      existingRaw: { k: 'bonjour' },
+      dryRun: false,
+      force: true,
+      provider,
+      persistStructuredLeafMetadata: false,
+      providerId: 'google',
+      targetLang: 'fr',
+      tickProgress: () => {},
+    });
+    expect(translate).toHaveBeenCalledOnce();
     expect(out.working).toEqual({ k: 'hello-fr' });
   });
 

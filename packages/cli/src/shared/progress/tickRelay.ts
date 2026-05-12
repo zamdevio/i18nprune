@@ -38,33 +38,3 @@ export function createGenerateTickProgressRelay(input: {
     }
   };
 }
-
-/**
- * Maps core **`tickProgress`** to session TTY + throttled **`run.progress.fill`** events (translate phase).
- */
-export function createFillTickProgressRelay(input: {
-  tick: TranslationProgress['tick'];
-  emit?: RunEmitter;
-  runId?: string | undefined;
-  target: string;
-  translationMeta: { providerId: TranslationProviderId; translationModel?: string };
-}): TranslationTickProgressFn {
-  return (i, total, label, opts) => {
-    input.tick(i, total, label, opts);
-    if (!input.emit) return;
-    if (shouldEmitThrottledTranslateProgressJson(i, total)) {
-      emitRunEvent(input.emit, {
-        op: 'fill',
-        runId: input.runId,
-        at: nowMs(),
-        type: 'run.progress.fill',
-        phase: 'translate',
-        target: input.target,
-        current: i,
-        total,
-        label,
-        ...input.translationMeta,
-      });
-    }
-  };
-}

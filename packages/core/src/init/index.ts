@@ -151,7 +151,7 @@ export default defineConfig({
       stringPresenceMaxHitsPerKey: 5,
       respectPreserve: true,
     },
-    // Per-command overrides: add \`commands: { cleanup?: {…}, fill?: {…}, sync?: {…}, generate?: {…} }\` using the SAME field keys as \`defaults\`.
+    // Per-command overrides: add \`commands: { cleanup?: {…}, sync?: {…}, generate?: {…} }\` using the SAME field keys as \`defaults\`.
     // Each block shallow-merges over \`defaults\` when that command runs (documented keys only; omit \`commands\` until you need a divergence).
     // See repo \`docs/reference/\` and types \`ReferenceConfig\` via \`i18nprune/core/config\`.
   },
@@ -195,7 +195,7 @@ export default defineConfig({
     // sizeLimitBytes: 524288,
   },
 
-  // When \`true\`, \`generate\` / \`fill\` skip **\`<lang>.meta.json\`** (same effect as CLI \`--no-locale-meta\`; either skips).
+  // When \`true\`, \`generate\` skips **\`<lang>.meta.json\`** (same effect as CLI \`--no-locale-meta\`; either skips).
   noLocaleMeta: false,
 
 } satisfies Partial<I18nPruneConfig>);

@@ -23,25 +23,25 @@ Pipe **`--json`** into jq or your own gates; exit codes are non-zero on failure 
 
 ## Structured run reports (`stdout redirection`)
 
-Write a **single artifact** after supported commands (sync, fill, cleanup, …):
+Write a **single artifact** after supported commands (sync, generate, cleanup, …):
 
 ```bash
 i18nprune sync --dry-run stdout redirection ./artifacts/sync-report.json
-i18nprune fill --lang all --dry-run stdout redirection ./artifacts/fill.txt --format text
+i18nprune generate --resume --all --dry-run stdout redirection ./artifacts/resume.txt --format text
 ```
 
 Default format is **`json`**; override with **`--format`** or **``** in config. Use for **audits** and **dashboards** without parsing stdout.
 
 ---
 
-## Sync all locales, then fill stale source-identical strings
+## Sync all locales, then resume stale source-identical strings
 
 ```bash
-i18nprune sync --lang all
-i18nprune fill --lang all
+i18nprune sync --target all
+i18nprune generate --resume --all
 ```
 
-**`--lang all`** targets every non-source locale under **`localesDir`**. Use **`--dry-run`** first on **`fill`** to estimate API usage.
+**`--target all`** / **`--all`** (with **`--resume`**) walk non-source locales under **`localesDir`**. Use **`--dry-run`** first on **`generate --resume`** to estimate API usage.
 
 ---
 
@@ -63,7 +63,7 @@ i18nprune config --json
 i18nprune doctor --only config,paths --json
 ```
 
-Use before **`generate`** or **`fill`** in CI to catch missing **`rg`** or bad paths early.
+Use before **`generate`** or **`generate --resume`** in CI to catch missing **`rg`** or bad paths early.
 
 ---
 

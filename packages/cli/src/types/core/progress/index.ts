@@ -32,7 +32,7 @@ export type SessionProgressOptions = {
 };
 
 /**
- * Shared per-target execution counters used by `generate`, `fill`, and future patching flows.
+ * Shared per-target execution counters used by `generate` (including `--resume`) and future patching flows.
  * Keep this shape stable so commands can share one JSON contract.
  */
 export type TargetProgressSummary = {

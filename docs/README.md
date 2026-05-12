@@ -15,7 +15,7 @@ Start here if you want to use i18nprune fast: follow [Onboarding](./onboarding/R
 | Topic | Description |
 |--------|-------------|
 | [Exports](./exports/README.md) | **`i18nprune`** (CLI tarball), **`i18nprune/core`**, **`@i18nprune/core`** — programmatic surface |
-| [Examples](./examples/README.md) | Advanced CLI workflows (CI, `stdout redirection`, batch sync/fill, cleanup) |
+| [Examples](./examples/README.md) | Advanced CLI workflows (CI, `stdout redirection`, batch sync, **`generate --resume`**, cleanup) |
 | [Onboarding](./onboarding/README.md) | Start in 60 seconds path for first successful run |
 | [Dynamic keys](./dynamic/README.md) | Reduce dynamic usage; configure `functions`; how the tool classifies sites |
 | [Contributing](./contributors/README.md) | Repo patterns; references maintainer agent notes (repo-only) for AI-assisted contributors |
@@ -41,7 +41,7 @@ Start here if you want to use i18nprune fast: follow [Onboarding](./onboarding/R
 | [Prompts & CLI boundaries](./prompts/README.md) | Inquirer scope, `--json` / CI, utils debt |
 | [Command orchestration](./commands/orchestration/README.md) | Command vs `core` file layout |
 | [Programmatic API & JSON](./json/programmatic.md) | Library `Result` roadmap vs CLI `--json` |
-| [Translator engine](./translator/README.md) | Provider, `translateLeaf`, `generate` / `fill` flows |
+| [Translator engine](./translator/README.md) | Provider, `translateLeaf`, **`generate`** (including **`--resume`**) |
 | [Vision](./vision/README.md) | Product direction |
 | [Roadmap](./roadmap/README.md) | High-level direction |
 | [Workflow](./workflow/README.md) | Local dev commands |

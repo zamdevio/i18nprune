@@ -3,7 +3,7 @@ import type { TranslateRunPartialStats } from '../../types/translator/runStats.j
 /**
  * Thrown when **`translateLeaf`** fails mid-run while the translator pool / serial loop has already
  * committed earlier leaf updates into **`partialLocaleJson`**. Callers (currently **`runGenerate`** and
- * **`fill`**) catch this so a fallback provider can resume without re-translating completed paths.
+ * **`generate --resume`**) catch this so a fallback provider can resume without re-translating completed paths.
  */
 export class TranslateRunInterruptedError extends Error {
   override readonly name = 'TranslateRunInterruptedError';

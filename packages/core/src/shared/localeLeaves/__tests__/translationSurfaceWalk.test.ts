@@ -1,19 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import {
-  collectReviewLeaves,
+  collectTranslationSurfaceLeaves,
   isCompleteStructuredLocaleLeafMeta,
   isStructuredLocaleLeafNode,
-} from '../collectReviewLeaves.js';
+} from '../translationSurfaceWalk.js';
 
-describe('collectReviewLeaves', () => {
+describe('collectTranslationSurfaceLeaves', () => {
   it('collects legacy string leaves', () => {
-    const rows = collectReviewLeaves({ a: { b: 'hello' } });
+    const rows = collectTranslationSurfaceLeaves({ a: { b: 'hello' } });
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ path: 'a.b', value: 'hello', shape: 'legacy_string' });
   });
 
+  it('collects nested legacy paths', () => {
+    const leaves = collectTranslationSurfaceLeaves({ a: { b: 'x' }, c: [{ d: 'y' }] });
+    const paths = leaves.map((l) => l.path).sort();
+    expect(paths).toEqual(['a.b', 'c[0].d']);
+  });
+
   it('treats { value } objects as structured terminals', () => {
-    const rows = collectReviewLeaves({
+    const rows = collectTranslationSurfaceLeaves({
       k: {
         value: 'x',
         status: 'translated',
@@ -44,7 +50,7 @@ describe('collectReviewLeaves', () => {
       needsTranslationAgain: false,
       source: 'manual',
     };
-    const rows = collectReviewLeaves({ k: raw });
+    const rows = collectTranslationSurfaceLeaves({ k: raw });
     expect(rows[0]?.structuredMetaComplete).toBe(true);
     expect(isCompleteStructuredLocaleLeafMeta(raw)).toBe(true);
   });

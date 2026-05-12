@@ -4,7 +4,7 @@
 
 ## Context
 
-**Validate** (and any future lint-style features) need to know **which function calls** represent translation lookups, e.g. `t('screen.title')`, `i18n.t('screen.title')`, `$t('screen.title')`. Real codebases differ in import aliases, namespaces, and wrappers. We had to choose between **hard-coding** one pattern, **regex-only** heuristics with no config, or a **declarative config** that lists acceptable call shapes. The tool therefore needs a **configurable** story for **translation calls** (same concept as **`functions`** for **`generate`** / **`fill`** / **`sync`**).
+**Validate** (and any future lint-style features) need to know **which function calls** represent translation lookups, e.g. `t('screen.title')`, `i18n.t('screen.title')`, `$t('screen.title')`. Real codebases differ in import aliases, namespaces, and wrappers. We had to choose between **hard-coding** one pattern, **regex-only** heuristics with no config, or a **declarative config** that lists acceptable call shapes. The tool therefore needs a **configurable** story for **translation calls** (same concept as **`functions`** for **`generate`** / **`sync`**).
 
 ## Decision rationale
 

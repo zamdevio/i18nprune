@@ -1,7 +1,7 @@
 import { isParityExcluded } from '../policies/parity.js';
 import type { ReviewLocaleStats } from '../types/review/index.js';
 import type { ParityPolicy } from '../types/policies/index.js';
-import type { ReviewLeafRow } from './collectReviewLeaves.js';
+import type { ReviewLeafRow } from '../types/localeLeaves/index.js';
 
 function bump(m: Record<string, number>, key: string): void {
   m[key] = (m[key] ?? 0) + 1;

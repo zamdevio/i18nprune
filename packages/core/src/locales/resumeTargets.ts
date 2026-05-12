@@ -6,7 +6,7 @@ import { assertNotSourceTargetLocale } from './source.js';
 import { isAllLocaleToken, parseLocaleCodesList } from './targets.js';
 import { listOtherLocaleCodes } from './otherLocales.js';
 
-export type ResolveFillTargetCodesFromRawInput = {
+export type ResolveResumeTargetCodesFromRawInput = {
   commandName: string;
   /** Non-empty selector string (after `pickTargetSelector`), including `all` or comma-separated codes. */
   raw: string;
@@ -16,7 +16,7 @@ export type ResolveFillTargetCodesFromRawInput = {
 };
 
 /** All non-source locale files under `localesDir` (normalized codes), or throws if none. */
-export function resolveFillAllTargetCodes(
+export function resolveResumeAllTargetCodes(
   runtime: ProjectFilesystemRuntime,
   localesDir: string,
   sourceBase: string,
@@ -24,16 +24,15 @@ export function resolveFillAllTargetCodes(
 ): string[] {
   const codes = listOtherLocaleCodes(runtime, localesDir, sourceBase);
   if (codes.length === 0) {
-    throw new I18nPruneError(`${commandName}: no target locales to fill (besides source).`, 'USAGE');
+    throw new I18nPruneError(`${commandName}: no target locales to resume (besides source).`, 'USAGE');
   }
   return codes.map((c) => normalizeLanguageCode(c));
 }
 
 /**
- * Resolves fill targets from an explicit `--target` string (or interactive pick string).
- * No prompts; callers supply `raw` after optional UI selection.
+ * Resolves **`generate --resume`** targets from an explicit **`--target`** string (or interactive pick).
  */
-export function resolveFillTargetCodesFromRaw(input: ResolveFillTargetCodesFromRawInput): string[] {
+export function resolveResumeTargetCodesFromRaw(input: ResolveResumeTargetCodesFromRawInput): string[] {
   const { commandName, raw, localesDir, sourceLocalePath, runtime } = input;
   const sourceBase = runtime.path.basename(sourceLocalePath, '.json');
   const ctx = {
@@ -42,7 +41,7 @@ export function resolveFillTargetCodesFromRaw(input: ResolveFillTargetCodesFromR
   };
 
   if (isAllLocaleToken(raw)) {
-    return resolveFillAllTargetCodes(runtime, localesDir, sourceBase, commandName);
+    return resolveResumeAllTargetCodes(runtime, localesDir, sourceBase, commandName);
   }
   if (raw.includes(',')) {
     const codes = parseLocaleCodesList(raw);

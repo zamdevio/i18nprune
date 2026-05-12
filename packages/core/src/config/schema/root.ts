@@ -44,7 +44,7 @@ const policiesSchema = z
     parity: paritySchema,
   })
   .optional()
-  .describe('High-level preserve / parity rules used across fill, sync, quality, cleanup, etc.');
+  .describe('High-level preserve / parity rules used across sync, quality, cleanup, generate, etc.');
 
 const missingCommandSchema = z
   .object({
@@ -116,7 +116,7 @@ const referenceDefaultsSchema = z
     respectPreserve: z
       .boolean()
       .optional()
-      .describe('When true, fill skips paths matching policies.preserve.'),
+      .describe('When true, `generate --resume` skips paths matching policies.preserve (same as full generate).'),
   })
   .passthrough()
   .describe('Reference / uncertainty policy fields (defaults or per-operation override).');
@@ -126,19 +126,16 @@ const referenceCommandsSchema = z
     cleanup: referenceDefaultsSchema
       .optional()
       .describe('Overrides reference.defaults when running i18nprune cleanup.'),
-    fill: referenceDefaultsSchema
-      .optional()
-      .describe('Overrides reference.defaults when running i18nprune fill.'),
     sync: referenceDefaultsSchema
       .optional()
       .describe('Overrides reference.defaults when running i18nprune sync.'),
     generate: referenceDefaultsSchema
       .optional()
-      .describe('Overrides reference.defaults when running i18nprune generate.'),
+      .describe('Overrides reference.defaults when running i18nprune generate (including `generate --resume`).'),
   })
   .passthrough()
   .describe(
-    'Per-operation reference overrides. Supported keys: cleanup, fill, sync, generate. Unknown keys are preserved for forward compatibility.',
+    'Per-operation reference overrides. Supported keys: cleanup, sync, generate. Unknown keys are preserved for forward compatibility.',
   )
   .optional();
 
@@ -228,7 +225,7 @@ const localeLeavesSchema = z
   })
   .strict()
   .optional()
-  .describe('How sync, generate, and fill read/write JSON terminals.');
+  .describe('How sync and generate read/write JSON terminals.');
 
 const patchingSchema = z
   .object({
@@ -273,7 +270,7 @@ export const configSchema = z
     noLocaleMeta: z
       .boolean()
       .optional()
-      .describe('When true, generate and fill skip writing <lang>.meta.json sidecars.'),
+      .describe('When true, generate skips writing <lang>.meta.json sidecars.'),
     exclude: excludeSchema,
     output: outputSchema,
     scanner: scannerSchema,

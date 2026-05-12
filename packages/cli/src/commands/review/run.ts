@@ -50,7 +50,7 @@ function humanLocaleBlock(v: ReviewLocaleStats, run: RunOptions): void {
 
   if (v.legacyLeaves > 0 && v.structuredLeaves > 0) {
     logger.warn(
-      `${String(v.legacyLeaves)} plain-string leaf(es) coexist with structured leaves — sync, generate, and fill still write string-shaped values at template paths today, so rich metadata is not applied there until a shared structured writer lands.`,
+      `${String(v.legacyLeaves)} plain-string leaf(es) coexist with structured leaves — sync and generate still write string-shaped values at template paths today, so rich metadata is not applied there until a shared structured writer lands.`,
       run,
     );
   }
@@ -105,7 +105,7 @@ export async function review(opts: { target?: string }): Promise<void> {
     if (anyIdentical) {
       logger.decorative.blank(run);
       logger.info(
-        'Tip: source-identical leaves match the source locale string at the same path — use fill or generate to refresh translations.',
+        'Tip: source-identical leaves match the source locale string at the same path — use `generate --resume` (or a full `generate`) to refresh translations.',
         run,
       );
     }

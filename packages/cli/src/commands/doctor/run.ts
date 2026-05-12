@@ -14,7 +14,7 @@ import { printCommandSummary } from '@/output/index.js';
 import { stringifyEnvelope } from '@/shared/result/cliJson.js';
 import {
   analyzePatchingState,
-  collectStringLeaves,
+  collectTranslationSurfaceLeaves,
   doctorExitCode,
   getRunOptions,
   noopRunEmitter,
@@ -99,7 +99,7 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
     let sourceLeaves = 0;
     try {
       const sr = readHostJsonUnknown(ctx.paths.sourceLocale, ctx.adapters.fs);
-      sourceLeaves = collectStringLeaves(sr).length;
+      sourceLeaves = collectTranslationSurfaceLeaves(sr).length;
     } catch {
       /* source read issues surface via findings / other commands */
     }

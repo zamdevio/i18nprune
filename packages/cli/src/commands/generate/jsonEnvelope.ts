@@ -19,6 +19,9 @@ import {
   nowMs,
   parseLocaleCodesList,
   pickTargetSelector,
+  resolveReferenceConfig,
+  resolveResumeAllTargetCodes,
+  resolveResumeTargetCodesFromRaw,
   runGenerate as runCoreGenerate,
 } from '@i18nprune/core';
 import type { GenerateRunHooks } from '@i18nprune/core';
@@ -42,13 +45,19 @@ import { logger } from '@/utils/logger/index.js';
 import { canPrintWarn } from '@/utils/logger/policy.js';
 import { resolveFromCwd } from '@/utils/paths/index.js';
 
+import { buildKeyReferenceContext } from '@/shared/reference/context.js';
 import { buildGenerateHostHooks } from '@/commands/generate/hooks.js';
 import type { GenerateRuntime } from '@/commands/generate/hooks.js';
+import {
+  promptGenerateIncompleteWrite,
+  promptGenerateResumeLanguageSelection,
+  promptLanguageCodeOnly,
+  confirmGenerateResumeAsk,
+} from '@/commands/generate/prompts.js';
 import { promptGenerateHandoffPick } from '@/shared/translation/handoff.js';
-import { promptGenerateIncompleteWrite, promptLanguageCodeOnly } from '@/commands/generate/prompts.js';
 
 import type { GenerateOptions } from '@/types/command/generate/index.js';
-import type { GenerateJsonPayload } from '@/types/command/generate/json.js';
+import type { GenerateJsonPayload } from '@i18nprune/core';
 import type { Context } from '@/types/core/context/index.js';
 import type { CliJsonEnvelope, Issue } from '@/types/core/json/envelope.js';
 
@@ -96,16 +105,70 @@ export async function executeCore(
   emitProgress({ type: 'run.progress.generate', phase: 'read_source', label: sourcePath });
   const raw = readHostJsonUnknown(sourcePath, ctx.adapters.fs);
 
-  const rawTarget = pickTargetSelector(merged.target);
-  if (!rawTarget && !canAsk(ctx.run)) {
-    throw new I18nPruneError(
-      'generate requires --target when running non-interactively (--json or CI)',
-      'USAGE',
-    );
+  const projectFs = { fs: ctx.adapters.fs, path: ctx.adapters.path };
+  const sourceBase = ctx.adapters.path.basename(ctx.paths.sourceLocale, '.json');
+
+  let resumeReference: import('@i18nprune/core').GenerateResumeRefContext | undefined;
+  if (merged.resume) {
+    const eff = resolveReferenceConfig('generate', ctx.config);
+    const refCtx = buildKeyReferenceContext(ctx, eff);
+    resumeReference = { uncertainPrefixes: refCtx.uncertainPrefixes };
   }
-  const targets = rawTarget
-    ? parseLocaleCodesList(rawTarget)
-    : [normalizeLanguageCode((await promptLanguageCodeOnly(ctx.run)).trim())];
+
+  let targets: string[];
+  if (merged.resume) {
+    if (merged.all) {
+      targets = resolveResumeAllTargetCodes(projectFs, ctx.paths.localesDir, sourceBase, 'generate');
+    } else {
+      const rawTarget = pickTargetSelector(merged.target);
+      if (!rawTarget) {
+        if (!canAsk(ctx.run)) {
+          throw new I18nPruneError(
+            'generate --resume requires --target or --all when running non-interactively (--json or CI)',
+            'USAGE',
+          );
+        }
+        const picked = await promptGenerateResumeLanguageSelection(
+          ctx.paths.localesDir,
+          sourceBase,
+          projectFs,
+          ctx.run,
+        );
+        targets = resolveResumeTargetCodesFromRaw({
+          commandName: 'generate',
+          raw: picked,
+          localesDir: ctx.paths.localesDir,
+          sourceLocalePath: ctx.paths.sourceLocale,
+          runtime: projectFs,
+        });
+      } else {
+        targets = resolveResumeTargetCodesFromRaw({
+          commandName: 'generate',
+          raw: rawTarget,
+          localesDir: ctx.paths.localesDir,
+          sourceLocalePath: ctx.paths.sourceLocale,
+          runtime: projectFs,
+        });
+      }
+    }
+    if (merged.ask === true && targets.length > 0 && canAsk(ctx.run) && !getCliYesFlag()) {
+      const ok = await confirmGenerateResumeAsk(targets);
+      if (!ok) {
+        throw new I18nPruneError('generate --resume cancelled by user', 'USAGE');
+      }
+    }
+  } else {
+    const rawTarget = pickTargetSelector(merged.target);
+    if (!rawTarget && !canAsk(ctx.run)) {
+      throw new I18nPruneError(
+        'generate requires --target when running non-interactively (--json or CI)',
+        'USAGE',
+      );
+    }
+    targets = rawTarget
+      ? parseLocaleCodesList(rawTarget)
+      : [normalizeLanguageCode((await promptLanguageCodeOnly(ctx.run)).trim())];
+  }
   if (targets.length === 0) {
     throw new I18nPruneError('generate: no target locale codes provided', 'USAGE');
   }
@@ -145,6 +208,9 @@ export async function executeCore(
       dryRun: merged.dryRun,
       metadata: merged.metadata,
       noLocaleMeta: merged.noLocaleMeta,
+      ask: merged.ask,
+      resume: merged.resume === true ? true : undefined,
+      resumeReference,
     },
     buildGenerateHostHooks(ctx, runtime),
     generateHooks,

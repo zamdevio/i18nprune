@@ -1,3 +1,10 @@
+export type {
+  ReviewLeafRow,
+  ReviewLeafShape,
+  TranslationSurfaceLeaf,
+  TranslationSurfaceShape,
+} from './translationSurface.js';
+
 export type LocaleLeafMode = 'legacy_string' | 'structured';
 
 export type StructuredLocaleLeaf = {

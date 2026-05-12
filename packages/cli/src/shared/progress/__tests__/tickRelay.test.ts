@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createFillTickProgressRelay, createGenerateTickProgressRelay } from '../tickRelay.js';
+import { createGenerateTickProgressRelay } from '../tickRelay.js';
 
 const translationMeta = { providerId: 'google' as const, translationModel: undefined };
 
@@ -31,29 +31,5 @@ describe('createGenerateTickProgressRelay', () => {
     relay(1, 10, 'x', undefined);
     relay(10, 10, 'y', undefined);
     expect(tick).toHaveBeenCalledTimes(2);
-  });
-});
-
-describe('createFillTickProgressRelay', () => {
-  it('mirrors generate throttle for run.progress.fill translate phase', () => {
-    const tick = vi.fn();
-    const emit = vi.fn();
-    const relay = createFillTickProgressRelay({
-      tick,
-      emit,
-      runId: 'r2',
-      target: 'de',
-      translationMeta,
-    });
-    const total = 55;
-    for (let i = 1; i <= total; i++) relay(i, total, `path.${String(i)}`, undefined);
-    expect(tick).toHaveBeenCalledTimes(55);
-    const fills = emit.mock.calls.map((c) => c[0]).filter((e) => e.type === 'run.progress.fill');
-    expect(fills.every((e: { phase?: string }) => e.phase === 'translate')).toBe(true);
-    expect(fills.map((e: { current?: number; op?: string }) => [e.op, e.current])).toEqual([
-      ['fill', 1],
-      ['fill', 50],
-      ['fill', 55],
-    ]);
   });
 });

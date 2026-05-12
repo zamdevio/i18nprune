@@ -18,7 +18,7 @@
 
 ## Providers + CLI progress (**Session A — P0**)
 
-**Focus:** Tick/progress semantics and translation provider orchestration shared by **`generate`** and **`fill`**. Maintainer notes: **[`providers.md`](./providers.md)** (includes **shipped baseline vs optional tail** for V1-RELEASE Session A) · user docs **`docs/progress/README.md`**, **`docs/commands/generate`**, **`docs/commands/fill`**, **`docs/config/translate.md`**.
+**Focus:** Tick/progress semantics and translation provider orchestration shared by **`generate`** (including **`generate --resume`**). Maintainer notes: **[`providers.md`](./providers.md)** (includes **shipped baseline vs optional tail** for V1-RELEASE Session A) · user docs **`docs/progress/README.md`**, **`docs/commands/generate`**, **`docs/config/translate.md`**.
 
 ---
 

@@ -43,11 +43,11 @@ export const ENV_I18NPRUNE_GENERATE_DIRECTION = 'I18NPRUNE_GENERATE_DIRECTION' a
 export const ENV_I18NPRUNE_GENERATE_FORCE = 'I18NPRUNE_GENERATE_FORCE' as const;
 export const ENV_I18NPRUNE_GENERATE_DRY_RUN = 'I18NPRUNE_GENERATE_DRY_RUN' as const;
 
-/** Shared by **`generate`** and **`fill`**: translation backend id (e.g. `google`). See docs. */
+/** Primary translation backend id for **`generate`** (e.g. `google`). See docs. */
 export const ENV_I18NPRUNE_TRANSLATE_PROVIDER = 'I18NPRUNE_TRANSLATE_PROVIDER' as const;
 
 /**
- * Positive integer cap on parallel **`translateLeaf`** calls for **`generate`** / **`fill`**.
+ * Positive integer cap on parallel **`translateLeaf`** calls for **`generate`**.
  * Precedence: **`--workers`** → this env → **`translate.workers`** → **1**.
  */
 export const ENV_I18NPRUNE_TRANSLATE_MAX_WORKERS = 'I18NPRUNE_TRANSLATE_MAX_WORKERS' as const;

@@ -30,7 +30,6 @@ export const DEFAULT_CONFIG: I18nPruneConfigParsed = {
     defaults: { ...REFERENCE_POLICY_SAFE_DEFAULTS },
     commands: {
       cleanup: { ...REFERENCE_POLICY_SAFE_DEFAULTS },
-      fill: { ...REFERENCE_POLICY_SAFE_DEFAULTS },
       sync: { ...REFERENCE_POLICY_SAFE_DEFAULTS },
       generate: { ...REFERENCE_POLICY_SAFE_DEFAULTS },
     },

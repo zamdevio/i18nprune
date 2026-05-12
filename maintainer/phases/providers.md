@@ -3,7 +3,7 @@
 **Status:** **Session A baseline + Phases 1–2 + most of Phase 3 are shipped.** This file now lists **only what is left** plus a minimal “done” receipt for tracking. Detailed historical write-ups live in PRs / `shipped-slices.md`.
 
 **User docs:** [Translation config](../../docs/config/translate.md) · [Issues — translate](../../docs/issues/translate.md) · [Issues — generate](../../docs/issues/generate.md)  
-**Commands:** [generate](../../docs/commands/generate/README.md) · [fill](../../docs/commands/fill/README.md)
+**Commands:** [generate](../../docs/commands/generate/README.md) (**`--resume`**)
 
 **Code anchors:** `packages/core/src/shared/translator/` · `packages/core/src/shared/translator/utils/orchestration.ts` · `packages/cli/src/shared/translation/resolveProvider.ts` · `packages/cli/src/shared/cursor/`
 
@@ -11,8 +11,8 @@
 
 ## Shipped (do not reopen)
 
-- **Session A baseline:** core progress types + ticks, CLI stderr bar (rich + minimal), generate / fill orchestration ticks, **`TRANSLATE_WORKERS_CAP`**.
-- **Phase 1 — concurrency:** **`translate.providers[].rateLimit.maxConcurrency`** is honored; effective resolver + cap warnings in **`generate`** / **`fill`**.
+- **Session A baseline:** core progress types + ticks, CLI stderr bar (rich + minimal), **`generate`** / **`generate --resume`** orchestration ticks, **`TRANSLATE_WORKERS_CAP`**.
+- **Phase 1 — concurrency:** **`translate.providers[].rateLimit.maxConcurrency`** is honored; effective resolver + cap warnings in **`generate`** (including **`--resume`**).
 - **Phase 2 — pacing:** per-provider start-rate gate (**`rpm` / `rps` / `intervalMs`**); merge order **provider row → core defaults**.
 - **Provider defaults:** **`DEFAULT_PROVIDER_RATE_LIMITS`** exported from core; `init` templates pull from it.
 - **`translate.policy.throttle` removed** (no compat); per-provider `rateLimit` is the only knob.

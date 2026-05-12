@@ -10,7 +10,7 @@ This surface backs the **`i18nprune`** CLI, IDE extensions running on Node, and 
 |------------|---------|
 | **Filesystem** | Project-aware **`fs`** + **`path`** bindings (`RuntimeAdapters.filesystem`) mirror POSIX semantics consumers expect from CLI tooling |
 | **`node:` modules** | Allowed because Node bundles explicitly load **`i18nprune/core/runtime/node`** |
-| **Tier B operations** | **`generate`**, **`fill`**, **`sync`**, **`cleanup`**, **`missing`**, **`patch`** flows assume durable disk writes |
+| **Tier B operations** | **`generate`**, **`sync`**, **`cleanup`**, **`missing`**, **`patch`** flows assume durable disk writes |
 
 Anything labeled “same behavior as CLI” should resolve adapters through this entry before comparing outputs against browsers or Workers.
 

@@ -22,7 +22,7 @@
 
 **Code:** `i18nprune.generate.translate_rate_limited`  
 **Severity:** `error`  
-**When:** The translation backend returns **HTTP 429** (*Too Many Requests*) during **`generate`** or **`fill`** (often when `--workers` is high or the provider quota is low). i18nprune retries a few times and then stops the run.  
+**When:** The translation backend returns **HTTP 429** (*Too Many Requests*) during **`generate`** (including **`generate --resume`**; often when `--workers` is high or the provider quota is low). i18nprune retries a few times and then stops the run.  
 **Who:** **`translateLeaf`** (`@i18nprune/core`), surfaced by **`runGenerate`** / **`runFill`**.  
 **What to do:** Reduce concurrency (lower **`--workers`**), wait and retry, or switch providers. For MyMemory specifically, quotas are low; consider another provider for bulk runs.
 

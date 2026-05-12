@@ -30,10 +30,6 @@
       "types": "./src/generate/index.ts",
       "default": "./src/generate/index.ts"
     },
-    "./fill": {
-      "types": "./src/fill/index.ts",
-      "default": "./src/fill/index.ts"
-    },
     "./init": {
       "types": "./src/init/index.ts",
       "default": "./src/init/index.ts"

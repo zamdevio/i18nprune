@@ -1,4 +1,4 @@
-# Translation progress (`generate` / `fill`)
+# Translation progress (`generate`)
 
 Long-running translation commands draw a **live progress UI** on **standard error** so **standard output** stays free for structured **`--json`** payloads on supported commands.
 
@@ -20,11 +20,11 @@ Implementation uses **`canPrintProgress`** (`packages/cli/src/utils/logger/polic
 | `packages/cli/src/shared/progress/index.ts` | Barrel: `createTranslationProgress`, session export, format helpers. |
 | `packages/cli/src/shared/progress/translation.ts` | Multi-line stderr redraw (cursor-up), styled bar and labels; policy gate for quiet/json. |
 | `packages/cli/src/shared/progress/format.ts` | Duration and path truncation helpers. |
-| `packages/cli/src/shared/progress/session.ts` | SIGINT exit **130**, stdin handling during progress, `done` / `fail` cleanup, and post-clear cursor lift (shared for `generate`/`fill`). |
-| `packages/cli/src/shared/progress/tickRelay.ts` | **`generate`** / **`fill`**: maps **`tickProgress`** to session UI + throttled **`run.progress.*`** translate events (same **~50-step** cadence when a run emitter is wired, e.g. **`--json`**). |
+| `packages/cli/src/shared/progress/session.ts` | SIGINT exit **130**, stdin handling during progress, `done` / `fail` cleanup, and post-clear cursor lift (shared for **`generate`**). |
+| `packages/cli/src/shared/progress/tickRelay.ts` | **`generate`**: maps **`tickProgress`** to session UI + throttled **`run.progress.*`** translate events (same **~50-step** cadence when a run emitter is wired, e.g. **`--json`**). |
 | `packages/core/src/types/progress/tick.ts` | Tick contract: **`TranslationProgressPhase`**, optional **`TranslationPoolProgressSnapshot`** (in-flight paths + job counts). |
 
 ## See also
 
-- [generate](../commands/generate/README.md) · [fill](../commands/fill/README.md)
+- [generate](../commands/generate/README.md)
 - [Translator engine & progress](../translator/README.md)

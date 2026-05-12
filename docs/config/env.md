@@ -29,7 +29,7 @@ Read when running **`i18nprune generate`**; merged into options before CLI flags
 | **`I18NPRUNE_GENERATE_FORCE`** | Truthy → force re-translate. |
 | **`I18NPRUNE_GENERATE_DRY_RUN`** | Truthy → dry-run. |
 
-## Translation backends (`generate` / `fill`)
+## Translation backends (`generate`)
 
 Full rules (**`translate.primary`**, **`translate.providers`** rows, credentials, precedence) are in **[Translation config](./translate.md)**.
 
@@ -40,7 +40,7 @@ For **secrets and endpoints**, each env var listed below — when set — **supe
 | Variable | When used |
 |----------|-----------|
 | **`I18NPRUNE_TRANSLATE_PROVIDER`** | Backend id when flag omitted (`google`, `deepl`, `llm`, …). Case-insensitive. |
-| **`I18NPRUNE_TRANSLATE_MAX_WORKERS`** | Positive integer: default cap on parallel **`translateLeaf`** calls for **`generate`** / **`fill`** when **`--workers`** is omitted. Lower precedence than **`--workers`**; higher than **`translate.workers`** in the file. |
+| **`I18NPRUNE_TRANSLATE_MAX_WORKERS`** | Positive integer: default cap on parallel **`translateLeaf`** calls for **`generate`** (including **`generate --resume`**) when **`--workers`** is omitted. Lower precedence than **`--workers`**; higher than **`translate.workers`** in the file. |
 | **`I18NPRUNE_TRANSLATE_DEEPL_API_KEY`** | Supersedes **`apiKey`** for **`deepl`**. |
 | **`I18NPRUNE_TRANSLATE_LIBRE_URL`** | Supersedes **`baseUrl`** for **`libre`**. |
 | **`I18NPRUNE_TRANSLATE_LLM_API_KEY`** | Supersedes **`apiKey`** for **`llm`**. |

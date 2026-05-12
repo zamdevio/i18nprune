@@ -43,13 +43,13 @@ Non-source files can mix **plain strings** (legacy) and objects shaped like:
 
 at terminal paths. Nested objects without a string **`value`** are traversed as usual.
 
-### Why everything is still “legacy” after `sync` / `generate` / `fill`
+### Why everything is still “legacy” after `sync` / `generate`
 
-Those commands follow the **source locale JSON shape**: leaves are **strings**, matching `mergeToTemplateShape` / `setAtPath` behavior in **`sync`** and the generate/fill pipelines. **`sync`** only merges and prunes to that shape — it does **not** upgrade plain strings into structured objects, so **`written: 0`** means the file already matched the template.
+Those commands follow the **source locale JSON shape**: leaves are **strings**, matching `mergeToTemplateShape` / `setAtPath` behavior in **`sync`** and the **`generate`** pipelines (including **`generate --resume`**). **`sync`** only merges and prunes to that shape — it does **not** upgrade plain strings into structured objects, so **`written: 0`** means the file already matched the template.
 
 **`review`** still computes real **`needsReview` / confidence / by-status`** histograms, but only from **structured** leaves. For all-string files, **`byStatus: legacy`** is the honest aggregate (every string is counted as legacy for those dimensions). Human output skips the redundant confidence/status/source lines until **`structuredLeaves > 0`**.
 
-A future **opt-in migration** (or generate/fill mode) to emit structured locale JSON would be a separate, explicitly versioned feature—watch **[Roadmap](../../roadmap/README.md)** / **[Patching](../../patching/README.md)** if it lands, not something `sync` does silently today.
+A future **opt-in migration** (or generate-only mode) to emit structured locale JSON would be a separate, explicitly versioned feature—watch **[Roadmap](../../roadmap/README.md)** / **[Patching](../../patching/README.md)** if it lands, not something `sync` does silently today.
 
 ## Related
 

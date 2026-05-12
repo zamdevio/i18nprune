@@ -11,12 +11,15 @@ import type { TranslationTickProgressFn } from '../progress/index.js';
 import type { RunEmitter, RunEvent } from '../../shared/run/index.js';
 import type { TranslateFailureOutcome } from '../../translator/policy/classify.js';
 import type { ProviderAttemptOutcome } from '../../translator/policy/fallback.js';
+import type { GenerateResumeRefContext } from './resumeCandidates.js';
 
 /** Shared per-target counters for JSON payloads (CLI-compatible). */
 export type GenerateTargetProgressSummary = {
   sourceLeafCount?: number;
   processedLeafCount?: number;
   translatedLeafCount?: number;
+  /** Present on **`generate --resume`** rows (leaves written this run). */
+  updatedLeafCount?: number;
   preserveCount?: number;
   paritySkipCount?: number;
   forced?: boolean;
@@ -129,7 +132,6 @@ export type GenerateHostHooks = {
   promptMetaLocaleDetails: (defaults: MetaLocaleDefaults) => Promise<MetaLocaleDefaults>;
   promptFullRetranslate: () => Promise<boolean>;
 
-  printSessionBanner: () => void;
   printPreserveParityReport: (preserveCount: number, paritySkip: number) => void;
   printFinalizeSummary: (input: GenerateFinalizeSummaryInput) => void;
 
@@ -153,6 +155,8 @@ export type GenerateTargetJsonRow = {
   status: 'written' | 'dry_run' | 'skipped_user_declined';
   /** True when this target was written from a partial translate (policy / hook), not a full success. */
   partial?: boolean;
+  /** Leaf values updated this run (**`generate --resume`** only). */
+  resumeUpdatedLeafCount?: number;
   progress?: GenerateTargetProgressSummary;
   sourceLeafCount?: number;
   preserveCount?: number;
@@ -185,7 +189,7 @@ export type GenerateJsonPayload = {
 
 /**
  * Per-call options for {@link runGenerate}. **`targets`** must be resolved by the host (interactive
- * prompt or `--target` parse). **`resume`** reserved for fill-style top-ups (wired in a follow-up slice).
+ * prompt or **`--target`** parse). Use **`resume`** (+ optional **`all`**) for top-up runs.
  */
 export type GenerateRunOptions = {
   readonly targets: readonly string[];
@@ -200,7 +204,18 @@ export type GenerateRunOptions = {
   readonly dryRun?: boolean;
   readonly metadata?: boolean;
   readonly noLocaleMeta?: boolean;
+  /** With normal **`generate`** only: ask for editable locale meta defaults (English/native/direction). */
+  readonly ask?: boolean;
+  /**
+   * Top-up existing locale JSON (review-eligible leaves only). Requires existing **`&lt;target&gt;.json`**.
+   * Always combine with the **`--resume`** CLI flag — not a persisted config field.
+   */
   readonly resume?: boolean;
+  /**
+   * CLI-built uncertain-prefix slice for resume eligibility; required when **`resume`** is true.
+   * Omitted on normal **`generate`** runs.
+   */
+  readonly resumeReference?: GenerateResumeRefContext;
   /**
    * When the CLI has already read the source JSON and emitted **`read_source`**, pass it here to avoid a
    * second read and preserve **`run.progress`** ordering (**`read_source` → `resolve_targets`**).

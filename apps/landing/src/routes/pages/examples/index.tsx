@@ -17,9 +17,9 @@ const JSON_SYNC_FILTER = `i18nprune sync --json | jq '.data.files[] | select(.ch
 
 const GENERATE_TARGET = `i18nprune generate --target ar --json`
 
-const FILL_ALL = `i18nprune fill --all --json`
+const RESUME_ALL_JSON = `i18nprune generate --resume --all --json`
 
-const FILL_DRY = `i18nprune fill --all --dry-run --json`
+const RESUME_ALL_DRY = `i18nprune generate --resume --all --dry-run --json`
 
 const REPORT_KEY_OBS_PREVIEW = `i18nprune report --format json --out report.json >/dev/null && jq '.details.keyObservations[0:5]' report.json`
 
@@ -144,12 +144,12 @@ export default function ExamplesPage() {
 
         <PowerSection
           eyebrow="Bulk"
-          title="Fill all locales"
+          title="Resume all locales"
           caption="Then dry-run: same envelope, no writes"
-          code={FILL_ALL}
+          code={RESUME_ALL_JSON}
         >
           <p className="mb-3">Preview first:</p>
-          <CodeBlock caption="Dry-run (counts, no API / writes)" code={FILL_DRY} lang="bash" />
+          <CodeBlock caption="Dry-run (counts, no API / writes)" code={RESUME_ALL_DRY} lang="bash" />
         </PowerSection>
 
         <PowerSection

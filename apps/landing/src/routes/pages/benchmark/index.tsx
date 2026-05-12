@@ -311,7 +311,7 @@ export default function BenchmarkPage() {
 
         <section className="reveal scroll-mt-24 rounded-xl border border-border bg-card p-5 sm:p-8 md:p-10">
           <p className="text-xs font-semibold uppercase tracking-wider text-sidebar-primary">Translator</p>
-          <h2 className={`mt-2 ${DISPLAY_CARD_TITLE}`}>generate & fill</h2>
+          <h2 className={`mt-2 ${DISPLAY_CARD_TITLE}`}>generate & resume</h2>
           <div className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
             String-leaf translation with the same session/progress model. Use explicit{" "}
             <code className="font-mono text-xs">--target</code> in CI. Batch with{" "}
@@ -331,12 +331,12 @@ export default function BenchmarkPage() {
           </div>
           <div className="mt-4">
             <CodeBlock
-              caption="fill — `updated` counts leaves written; `sourceLeaves` is the baseline size"
-              code={`time i18nprune fill --target so --dry-run --json | jq '{ ok, updated: .data.updated, sourceLeaves: .data.sourceLeaves, dynamicKeySites: .data.dynamicKeySites }'`}
+              caption="generate --resume — per-target `resumeUpdatedLeafCount` / `progress.updatedLeafCount` for top-ups"
+              code={`time i18nprune generate --resume --target so --dry-run --json | jq '{ ok, targets: .data.targets, first: .data.targetResults[0] | {target, resumeUpdatedLeafCount, updatedLeafCount: .progress.updatedLeafCount} }'`}
               lang="bash"
             />
           </div>
-          <ProofSlot file="generate.png" caption="generate & fill — dry-run or full run" />
+          <ProofSlot file="generate.png" caption="generate — dry-run or full run" />
         </section>
 
         <CmdSection

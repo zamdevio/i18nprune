@@ -14,6 +14,9 @@ cd tests/fixtures/simple-i18n-app
 | `--dry-run` | Preview only; no translator writes to locale files | `... generate --target ja --dry-run` |
 | `--metadata` | Structured leaf write/repair mode | `... --json generate --target ja --dry-run --metadata` |
 | `--force` | Re-translate even when target already covers source paths | `... generate --target ja --force --dry-run` |
+| `--resume` | Top-up existing locale JSON (review-eligible leaves matching source) | `... generate --resume --target ja --dry-run` |
+| `--all` | With `--resume`: all non-source locales | `... generate --resume --all --dry-run` |
+| `--ask` | With `--resume`, TTY: confirm multi-target list | `... generate --resume --target ja,ar --ask` |
 | `--english-name` | Override meta English label | `... generate --target ja --english-name "Japanese" --dry-run` |
 | `--native-name` | Override meta native label | `... generate --target ja --native-name "日本語" --dry-run` |
 | `--direction <ltr\|rtl>` | Override meta direction | `... generate --target ar --direction rtl --dry-run` |

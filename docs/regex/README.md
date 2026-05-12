@@ -23,7 +23,7 @@ This toolkit is **not** a full JavaScript/TypeScript compiler. It uses **regex**
 - **Merged / concatenated scans** — APIs that concatenate files may **omit per-file comment detection** (see [key-sites-and-dynamic](./key-sites-and-dynamic.md)).
 - **Framework-specific syntax** — Vue Svelte etc. are scanned as text; script boundaries and macros can hide or duplicate calls.
 
-For **cleanup / fill / sync**, the **`reference`** config and **uncertain prefixes** exist to reduce false removals; they do not guarantee every runtime path is enumerated.
+For **cleanup / `generate --resume` / sync**, the **`reference`** config and **uncertain prefixes** exist to reduce false removals; they do not guarantee every runtime path is enumerated.
 
 ## Pages
 
@@ -34,4 +34,4 @@ For **cleanup / fill / sync**, the **`reference`** config and **uncertain prefix
 ## Related config
 
 - **`policies.preserve` / `policies.parity`** — catalog copy and parity exclusions.
-- **`reference`** — defaults and per-command overrides for uncertain prefixes, string presence (`rg`), `respectPreserve` for fill (see `packages/cli/src/config/schema.ts` and defaults).
+- **`reference`** — defaults and per-command overrides for uncertain prefixes, string presence (`rg`), `respectPreserve` for **`generate --resume`** (see `packages/core/src/config/schema/root.ts` and defaults).

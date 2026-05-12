@@ -124,11 +124,11 @@ describe('parseI18nPruneConfig', () => {
       functions: ['t'],
       reference: {
         defaults: { uncertainKeyPolicy: 'protect', stringPresence: 'warn' },
-        commands: { fill: { respectPreserve: false } },
+        commands: { generate: { respectPreserve: false } },
       },
     });
     expect(c.reference?.defaults?.uncertainKeyPolicy).toBe('protect');
-    expect(c.reference?.commands?.fill?.respectPreserve).toBe(false);
+    expect(c.reference?.commands?.generate?.respectPreserve).toBe(false);
   });
 
   it('accepts unknown keys under reference.commands (passthrough forward compatibility)', () => {
@@ -139,7 +139,7 @@ describe('parseI18nPruneConfig', () => {
       functions: ['t'],
       reference: {
         commands: {
-          fill: {},
+          legacyFillAlias: {},
           futureOp: { uncertainKeyPolicy: 'warn_only' },
         },
       },

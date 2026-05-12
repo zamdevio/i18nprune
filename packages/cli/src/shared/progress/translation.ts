@@ -7,7 +7,7 @@ import {
 import { hideCursor, showCursor } from '@/shared/terminal/cursor.js';
 import type { TranslationProgress } from '@/types/core/progress/index.js';
 import { canPrintProgress } from '@/utils/logger/policy.js';
-import { clearStderrLines, rewindStderrForRedraw } from '@/shared/cursor/index.js';
+import { rewindStderrForRedraw } from '@/shared/cursor/index.js';
 import { style } from '@/utils/style/index.js';
 import { truncateToDisplayWidth } from '@/utils/width/index.js';
 import { formatDurationMs, toUnicodeSuperscriptInt, truncateMiddle } from './format.js';
@@ -40,9 +40,9 @@ export function createRichTranslationProgress(): TranslationProgress {
   /** While an interactive prompt owns stderr above us, skip redraw. */
   let promptOpen = false;
 
-  const clearBlock = (): void => {
+  const reclaimBlock = (): void => {
     if (lineCount === 0) return;
-    clearStderrLines(lineCount);
+    rewindStderrForRedraw(lineCount);
     lineCount = 0;
   };
 
@@ -174,7 +174,7 @@ export function createRichTranslationProgress(): TranslationProgress {
       stopHeartbeat();
       const clearBar = opts?.clearBar !== false;
       if (clearBar) {
-        clearBlock();
+        reclaimBlock();
         process.stderr.write(showCursor());
         hidden = false;
       } else if (hidden) {
@@ -200,16 +200,16 @@ export function createRichTranslationProgress(): TranslationProgress {
     },
     done() {
       stopHeartbeat();
+      reclaimBlock();
       if (hidden) {
-        clearBlock();
         process.stderr.write(showCursor());
         hidden = false;
       }
     },
     fail() {
       stopHeartbeat();
+      reclaimBlock();
       if (hidden) {
-        clearBlock();
         process.stderr.write(showCursor());
         hidden = false;
       }
@@ -254,7 +254,7 @@ function createMinimalTranslationProgress(): TranslationProgress {
   };
 }
 
-/** Pass-through from core **`tickProgress`** to a session renderer (generate/fill wiring). */
+/** Pass-through from core **`tickProgress`** to a session renderer (generate wiring). */
 export function bindTranslationProgressTick(progress: TranslationProgress): TranslationTickProgressFn {
   return (i, total, path, opts) => progress.tick(i, total, path, opts);
 }

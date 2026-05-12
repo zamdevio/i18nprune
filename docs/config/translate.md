@@ -1,4 +1,4 @@
-# Translation config (`generate` / `fill`)
+# Translation config (`generate` / `generate --resume`)
 
 Use **`translate`** in **`i18nprune.config.*`** as a **roster** of backends (**`translate.providers`**) plus a **default id** (**`translate.primary`**) when the CLI flag and provider env omit.
 
@@ -80,14 +80,14 @@ When at least one target was finalized as a **partial** write (see **`onIncomple
 
 Order (first wins):
 
-1. **`--provider`** (`generate`, `fill`)
+1. **`--provider`** (`generate`, including **`generate --resume`**)
 2. **`I18NPRUNE_TRANSLATE_PROVIDER`**
 3. **`translate.primary`**
 4. Built-in default (**`google`**)
 
 Credential fields merge only from the **`translate.providers`** row whose **`id`** matches the resolved backend. Rows with **`enabled: false`** are skipped.
 
-When **`policy.routing` is `'auto'`**, the CLI resolves an ordered chain: the pin (**`--provider`** / env) or **`translate.primary`** first, then every other **enabled** provider row (deduped, typically config file order). After **retryable** failures (**`429`**, transient network errors, etc.), the next provider continues **`generate`** / **`fill`** using the **same in-memory locale**: paths already translated by the previous backend are **not** sent again; only remaining strings hit the next provider. **`routing: 'single'`** locks to **one** id for that run (no chain).
+When **`policy.routing` is `'auto'`**, the CLI resolves an ordered chain: the pin (**`--provider`** / env) or **`translate.primary`** first, then every other **enabled** provider row (deduped, typically config file order). After **retryable** failures (**`429`**, transient network errors, etc.), the next provider continues **`generate`** (full or **`--resume`**) using the **same in-memory locale**: paths already translated by the previous backend are **not** sent again; only remaining strings hit the next provider. **`routing: 'single'`** locks to **one** id for that run (no chain).
 
 ### Routing combinations (mental model)
 
@@ -117,7 +117,7 @@ When **`generate`** cannot finish every string leaf for a target (chain exhauste
 
 ### Missing **`apiKey`** / **`baseUrl`** / **`model`**
 
-Before each provider attempt, the CLI validates required fields (after env merge). If anything required is missing, it throws **`I18nPruneError`** with **`code: 'USAGE'`** and **`issueCode: i18nprune.translate.missing_credentials`** — **immediate hard stop** (no translation). In **`--json`** mode, **`generate`** / **`fill`** map that to an **`issues[]`** row via **`usageIssueFromI18nPruneError`** (same pattern as other usage failures). Human runs log the error message on stderr; there is no separate warning-only path for misconfigured backends.
+Before each provider attempt, the CLI validates required fields (after env merge). If anything required is missing, it throws **`I18nPruneError`** with **`code: 'USAGE'`** and **`issueCode: i18nprune.translate.missing_credentials`** — **immediate hard stop** (no translation). In **`--json`** mode, **`generate`** maps that to an **`issues[]`** row via **`usageIssueFromI18nPruneError`** (same pattern as other usage failures). Human runs log the error message on stderr; there is no separate warning-only path for misconfigured backends.
 
 ### Example commands (copy/paste)
 
@@ -140,14 +140,14 @@ i18nprune generate --target ja --metadata --provider google --workers 8 --yes
 
 ```bash
 # policy.routing: 'single'
-i18nprune fill --target de --metadata --workers 4 --yes
+i18nprune generate --resume --target de --metadata --workers 4 --yes
 ```
 
-**D — Fill all targets with env pin + auto chain**
+**D — Resume all targets with env pin + auto chain**
 
 ```bash
 export I18NPRUNE_TRANSLATE_PROVIDER=mymemory
-i18nprune fill --all --metadata --yes
+i18nprune generate --resume --all --metadata --yes
 ```
 
 ## Precedence — same field again (env vs file)

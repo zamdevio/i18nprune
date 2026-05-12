@@ -16,7 +16,7 @@ function extractMyMemoryWaitHint(issues: readonly Issue[]): string | null {
   return null;
 }
 
-export function logTranslateFailureHelp(ctx: Context, command: 'generate' | 'fill', issues: readonly Issue[]): void {
+export function logTranslateFailureHelp(ctx: Context, command: 'generate', issues: readonly Issue[]): void {
   const codes = new Set(issues.map((i) => i.code));
   if (codes.has(ISSUE_GENERATE_TRANSLATE_RATE_LIMITED)) {
     up(ctx.run, rows.gap);

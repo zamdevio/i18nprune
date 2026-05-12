@@ -10,7 +10,7 @@ Teams ship i18n bugs when **keys in code drift from locale JSON**, when **locale
 
 1. **Validate** — Prove that literal keys used in configured translation calls exist in the **source locale** JSON (or fail loudly).
 2. **Sync** — Keep secondary locale files **aligned in structure** with the source (merge + prune, with explicit preserve rules).
-3. **Generate / fill** — Drive machine translation for string **leaves** while preserving nested JSON shape; provider is pluggable (Google first).
+3. **Generate** — Drive machine translation for string **leaves** while preserving nested JSON shape; provider is pluggable (Google first). Use **`generate --resume`** to top up stale source-identical strings.
 4. **Quality & review** — Surface parity and source-identical metrics so humans can prioritise fixes.
 5. **Cleanup** — Remove unused keys with optional **ripgrep**-backed safety against deleting still-referenced strings.
 6. **Doctor** — Read-only diagnostics (runtime, tools, config, paths) for CI and onboarding.

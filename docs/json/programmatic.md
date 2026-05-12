@@ -20,7 +20,7 @@ Every command in `COMMANDS_WITH_JSON_OUTPUT` (`packages/cli/src/constants/jsonou
 | **`runQuality(ctx, opts)`** | **`quality --json`** |
 | **`runReview(ctx, opts)`** | **`review --json`** |
 | **`runLanguages(ctx, opts)`** | **`languages --json`** |
-| **`runGenerate(ctx, opts)`** | **`generate --json`** (async; writes locales unless **`dryRun`**) |
+| **`runGenerate(ctx, opts)`** | **`generate --json`** (async; writes locales unless **`dryRun`**). Pass **`opts.resume`** + **`opts.resumeReference`** for **`generate --resume`** (not config). |
 | **`runReport(opts)`** | **`report`** with global **`--json`** (async; **`opts.format`** selects file body; envelope includes full **`document`**) |
 
 Helpers: **`collectDoctorFindings`**, **`doctorExitCode`**, **`DOCTOR_CHECK_IDS`**.
@@ -33,7 +33,7 @@ Issue **`code`** strings: [issue codes](../issues/README.md). Constants **`ISSUE
 
 `RESULT_API_VERSION`, `buildCliJsonEnvelope`, `stringifyCliCommandJson`, `Issue`, `CliJsonEnvelope`, `Result`, … — see [exports/core](../exports/core.md).
 
-**Type locations (repo):** envelope and `Result` types — `packages/cli/src/types/core/json/envelope.ts` (also re-exported from `types/result/index.ts`). Command JSON payloads — e.g. `types/command/missing/json.ts`, `types/command/generate/json.ts`, `types/command/report/json.ts`, `types/command/review/json.ts`.
+**Type locations (repo):** envelope and `Result` types — `packages/cli/src/types/core/json/envelope.ts` (also re-exported from `types/result/index.ts`). Command JSON payloads — e.g. `types/command/missing/json.ts`; **`generate`** payload types live in **`@i18nprune/core`** (`GenerateJsonPayload` in `packages/core/src/types/generate/generateRun.ts`) and are re-exported from `packages/cli/src/types/index.ts` for the CLI barrel.
 
 ## Phase record
 

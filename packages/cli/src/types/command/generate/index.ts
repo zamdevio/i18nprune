@@ -22,4 +22,10 @@ export type GenerateOptions = {
   metadata?: boolean;
   /** Skip writing **`<lang>.meta.json`** (merged with **`config.noLocaleMeta`**; either **`true`** skips). */
   noLocaleMeta?: boolean;
+  /** Top-up existing locale JSON (same as former **`fill`** command). Use CLI **`--resume`** only. */
+  resume?: boolean;
+  /** With **`resume`**: process all non-source locales under **`localesDir`**. */
+  all?: boolean;
+  /** Normal generate: ask to edit locale meta defaults. With **`resume`**: confirm before processing. */
+  ask?: boolean;
 };

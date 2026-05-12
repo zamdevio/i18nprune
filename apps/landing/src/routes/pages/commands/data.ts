@@ -200,9 +200,9 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
         slug: "generate",
         title: "generate",
         summary:
-          "Creates or overwrites a target locale JSON from the source file using the translation provider; writes optional `<lang>.meta.json` with catalog labels and direction.",
+          "Creates or overwrites a target locale JSON from the source file using the translation provider; writes optional `<lang>.meta.json` with catalog labels and direction. Use `--resume` to re-translate review-eligible leaves that still match the source (non-interactive runs need `--target` or `--all`).",
         detail:
-          "Non-interactive runs require `--target`. Multi-target accepts comma-separated codes. Use `--dry-run` to exercise progress without API calls or writes.",
+          "Non-interactive runs require `--target` unless `--resume` is combined with `--all`. Multi-target accepts comma-separated codes. Use `--dry-run` to exercise progress without API calls or writes.",
         examples: [
           {
             caption: "Generate one locale from the catalog",
@@ -222,45 +222,23 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
             lang: "bash",
             outcome: "Progress UI runs; logs what would have been written.",
           },
+          {
+            caption: "Top up one locale where values still match the source",
+            code: "i18nprune generate --resume --target ja",
+            lang: "bash",
+            outcome: "Re-translates eligible review leaves in `ja.json` only.",
+          },
+          {
+            caption: "Resume every non-source locale",
+            code: "i18nprune generate --resume --all",
+            lang: "bash",
+            outcome: "Walks each non-source `*.json` under `localesDir` (interactive pick if no TTY).",
+          },
         ],
         moreLinks: [
           L("progress/README", "Translation progress & stderr"),
           L("translator/README", "Translator pipeline"),
           L("examples/commands/generate/README", "Full generate examples"),
-          L("examples/jq-cookbook/README", "jq cookbook"),
-          L("locales/metadata/README", "Locale metadata mode"),
-        ],
-      },
-      {
-        slug: "fill",
-        title: "fill",
-        summary:
-          "Re-translates leaves that still match the source (stale source-identical strings) — complementary to `generate` for keeping translations fresh.",
-        detail:
-          "`--target` accepts one code, a comma list, or `all` / `--all` for every non-source locale. Requires a target when non-interactive.",
-        examples: [
-          {
-            caption: "Refresh one locale",
-            code: "i18nprune fill --target ja",
-            lang: "bash",
-            outcome: "Updates matching leaves in `ja.json` where values still equal source strings.",
-          },
-          {
-            caption: "All target locales",
-            code: "i18nprune fill --target all",
-            lang: "bash",
-            outcome: "Walks every non-source `*.json` under `localesDir`.",
-          },
-          {
-            caption: "Count work without API or writes",
-            code: "i18nprune fill --target ja --dry-run",
-            lang: "bash",
-            outcome: "Reports counts and would-write paths only.",
-          },
-        ],
-        moreLinks: [
-          L("behavior/commands", "Command behaviors"),
-          L("examples/commands/fill/README", "Full fill examples"),
           L("examples/jq-cookbook/README", "jq cookbook"),
           L("locales/metadata/README", "Locale metadata mode"),
         ],
@@ -398,7 +376,7 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
         slug: "languages",
         title: "languages",
         summary:
-          "Lists supported catalog codes and labels from the bundled `languages.json` — the same codes `generate` / `fill` validate against.",
+          "Lists supported catalog codes and labels from the bundled `languages.json` — the same codes `generate` validates against.",
         examples: [
           {
             caption: "Print catalog (human layout)",
@@ -472,7 +450,6 @@ const COMMAND_EXAMPLE_PATHS: Record<string, string> = {
   sync: "examples/commands/sync/README",
   cleanup: "examples/commands/cleanup/README",
   generate: "examples/commands/generate/README",
-  fill: "examples/commands/fill/README",
   review: "examples/commands/review/README",
   quality: "examples/commands/quality/README",
   report: "examples/commands/report/README",

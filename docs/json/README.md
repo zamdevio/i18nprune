@@ -34,10 +34,9 @@ If the command does **not** support JSON (e.g. **`init`**, **`help`**), **`--jso
 
 Source of truth: `packages/cli/src/constants/jsonoutput.ts`.
 
-With global **`--json`**, these subcommands print **one primary `CliJsonEnvelope`** on stdout (same shape as [programmatic](./programmatic.md) **`run*`** helpers): **`config`**, **`validate`**, **`missing`**, **`sync`**, **`generate`**, **`fill`**, **`quality`**, **`review`**, **`cleanup`**, **`languages`**, **`doctor`**, **`report`**, and the **`locales`** leaf names **`list`**, **`edit`**, **`dynamic`**, **`delete`** (see [Locales](../commands/locales/README.md)).
+With global **`--json`**, these subcommands print **one primary `CliJsonEnvelope`** on stdout (same shape as [programmatic](./programmatic.md) **`run*`** helpers): **`config`**, **`validate`**, **`missing`**, **`sync`**, **`generate`**, **`quality`**, **`review`**, **`cleanup`**, **`languages`**, **`doctor`**, **`report`**, and the **`locales`** leaf names **`list`**, **`edit`**, **`dynamic`**, **`delete`** (see [Locales](../commands/locales/README.md)).
             
-- **`generate`:** `data` is a summary payload (`targets`, `dryRun`, per-target rows with optional **`progress`**, leaf counts, dynamic key-site count) — not per-leaf translation traces. See [Generate command](../commands/generate/README.md#json-mode-primary-envelope).
-- **`fill`:** `data.targetResults[]` includes per-target **`progress`** (**`TargetProgressSummary`**) alongside paths and counts. See [Fill command](../commands/fill/README.md).
+- **`generate`:** `data` is a summary payload (`targets`, `dryRun`, per-target rows with optional **`progress`**, leaf counts, dynamic key-site count) — not per-leaf translation traces. **`generate --resume`** uses the same **`kind`: `generate`**; see [Generate command](../commands/generate/README.md#json-mode-primary-envelope) and the **`generate --resume`** section.
 - **`locales`:** each implemented subcommand uses its own envelope **`kind`** (`locales-list`, `locales-edit`, `locales-dynamic`, `locales-delete`); typed under `packages/cli/src/types/command/locales/json.ts`.
 - **`report`:** still uses **`--format`** for the **on-disk** artifact (`html`, `json`, `csv`, `text`). Global **`--json`** adds the **stdout envelope**; `data.document` is the same **`i18nprune.projectReport`** object (and `data.outputPath` is the resolved write path, or `null` if skipped). See [Report command](../commands/report/README.md#global-json). If **`--out`** already exists, **`--json`** (like CI / **`--yes`**) uses **keep-both** without prompting — [existing paths](../commands/report/README.md#existing-output-paths-report--out-and-global-stdout redirection).
 - **`validate`:** **`data.missing`**, **`data.count`** / **`data.keyObservations.count`**, **`data.dynamic.count`** — compact **`--json`** like other commands. Per-call-site literals and full observation objects: **`report --format json`** (document **`details`**). See [Validate command](../commands/validate/README.md), [Report command](../commands/report/README.md); dynamic file:lines: [`locales dynamic`](../commands/locales/dynamic/README.md).
@@ -59,7 +58,7 @@ For commands that emit a **primary** JSON **document** on stdout, each document 
 | Field | Meaning |
 |-------|---------|
 | **`ok`** | Domain outcome for that command (e.g. `validate`: no missing literal keys; `doctor`: would exit 0). |
-| **`kind`** | Envelope discriminator: `validate`, `missing`, `sync`, `cleanup`, `config`, `doctor`, `languages`, `review`, `quality`, `generate`, `fill`, `locales-list`, `locales-edit`, `locales-dynamic`, `locales-delete`, `report`, `summary`, … |
+| **`kind`** | Envelope discriminator: `validate`, `missing`, `sync`, `cleanup`, `config`, `doctor`, `languages`, `review`, `quality`, `generate`, `locales-list`, `locales-edit`, `locales-dynamic`, `locales-delete`, `report`, `summary`, … |
 | **`data`** | Command-specific payload (typed under `packages/cli/src/types/command/*/json.ts` where applicable; envelope types in `packages/cli/src/types/core/json/envelope.ts`). Inner `kind` fields (e.g. `missing`, `i18nprune.config`, `localeReview`) describe the **payload**, not the envelope. |
 | **`issues`** | Structured warnings/errors for integrators. Codes are stable strings — see **[issue codes](../issues/README.md)**. Every command that emits a primary **`--json`** document populates **`issues[]`** (may be empty). |
 | **`meta.apiVersion`** | Envelope contract version (`1`). Bump when envelope **semantics** change. |
@@ -75,7 +74,7 @@ Each **`Issue`** may include **`docHref`** (absolute URL to the hosted docs, inc
 
 ### Long-running commands
 
-How **`--json`** interacts with prompts, progress, and stdout for **`generate`**, **`fill`**, **`sync`**, …: **[`--json` and long-running commands](../behavior/json-long.md)**.
+How **`--json`** interacts with prompts, progress, and stdout for **`generate`**, **`sync`**, …: **[`--json` and long-running commands](../behavior/json-long.md)**.
 
 ---
 

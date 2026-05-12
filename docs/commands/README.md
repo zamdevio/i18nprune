@@ -23,8 +23,7 @@ Domain behavior stays in `packages/cli/src/core/**`. Table and rationale: [Comma
 | `validate` | [validate](./validate/README.md) |
 | `missing` | [missing](./missing/README.md) |
 | `sync` | [sync](./sync/README.md) |
-| `generate` | [generate](./generate/README.md) |
-| `fill` | [fill](./fill/README.md) |
+| `generate` | [generate](./generate/README.md) (includes **`--resume`** for existing targets) |
 | `quality` | [quality](./quality/README.md) |
 | `review` | [review](./review/README.md) |
 | `cleanup` | [cleanup](./cleanup/README.md) |

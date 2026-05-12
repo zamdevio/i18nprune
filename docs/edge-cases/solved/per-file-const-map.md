@@ -19,7 +19,7 @@ If the project is scanned as **one merged blob** with a **single** map built fro
 3. **`scanProjectDynamicKeySites`** (`packages/cli/src/core/extractor/dynamic/orchestrate.ts`)  
    For each file: **`findDynamicKeySitesForFile`** → inside the JS provider, **`buildConstStringMap(text)`** again **per file** (`findDynamicKeySitesInJavascriptFile`).
 
-**`validate`**, **`cleanup`** (via **`buildKeyReferenceContext`** → **`scanProjectLiteralKeyUsage`** + dynamic scan), **`sync`**, **`fill`**, and related commands all rely on these orchestrators, not a single global const map across the tree.
+**`validate`**, **`cleanup`** (via **`buildKeyReferenceContext`** → **`scanProjectLiteralKeyUsage`** + dynamic scan), **`sync`**, **`generate`**, **`generate --resume`**, and related commands all rely on these orchestrators, not a single global const map across the tree.
 
 ## When merged text is still used
 

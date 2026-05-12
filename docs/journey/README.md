@@ -28,7 +28,7 @@ On **March 24, 2026**, I formalized the frontend i18n direction over there (the 
 
 Emotionally, though, it was simpler than an ADR sounds. I was **actually pissed off**. Not performatively. Not for content. I was tired of feeling like my own localization surface was an unreliable teammate.
 
-So I made a decision I didn’t romanticize at the time: **stop patching**. Build something that could **validate**, **sync**, **generate**, **fill**, **review**, and land in **CI** with structured reports — something that could live **outside** the app, be **tested**, and be reused.
+So I made a decision I didn’t romanticize at the time: **stop patching**. Build something that could **validate**, **sync**, **generate**, **`generate --resume`**, **review**, and land in **CI** with structured reports — something that could live **outside** the app, be **tested**, and be reused.
 
 ---
 

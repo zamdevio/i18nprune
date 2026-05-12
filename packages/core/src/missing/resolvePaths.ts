@@ -1,4 +1,4 @@
-import { collectStringLeaves } from '../shared/json/index.js';
+import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/translationSurfaceWalk.js';
 import { computeMissingLiteralKeysFromResolvedKeys } from '../validate/index.js';
 import type { ResolveMissingPathsPlanInput } from '../types/missing/index.js';
 import { planMissingPathsFromReport } from './validateReport.js';
@@ -10,7 +10,7 @@ import { planMissingPathsFromReport } from './validateReport.js';
 export function resolveMissingPathsPlan(
   input: ResolveMissingPathsPlanInput,
 ): { toAdd: string[]; skippedNotInScan: string[] } {
-  const existingLeafPaths = new Set(collectStringLeaves(input.localeJson).map((l) => l.path));
+  const existingLeafPaths = new Set(collectTranslationSurfaceLeaves(input.localeJson).map((l) => l.path));
   if (input.reportMissingPaths) {
     return planMissingPathsFromReport(input.reportMissingPaths as string[], input.resolvedKeys, existingLeafPaths);
   }

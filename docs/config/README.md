@@ -27,10 +27,10 @@ Canonical env var **names** are defined in **`packages/cli/src/constants/env.ts`
 
 ## Topics
 
-- [Translation (`translate`)](./translate.md) — **`translate.{ primary, providers, policy }`** for **`generate`** / **`fill`**, precedence with CLI + env.
+- [Translation (`translate`)](./translate.md) — **`translate.{ primary, providers, policy }`** for **`generate`** (including **`--resume`**), precedence with CLI + env.
 - [Environment variables](./env.md) — full list (`I18NPRUNE_*`, `CI`, …) and **`constants/env.ts`**.
 - [Command namespaces](./commands.md) — **`missing`** defaults and config-shaped guidance (**`validate`** has no config namespace today).
-- [Policies](./policies/README.md) — `preserve` and `parity` (sync, quality, fill).
+- [Policies](./policies/README.md) — `preserve` and `parity` (sync, quality, **`generate --resume`**).
 - [Exclude](./exclude.md) — scan scope control (`preset`, `dirs/files/extensions/patterns`, CLI merge).
 
 ## Troubleshooting

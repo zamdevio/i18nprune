@@ -52,7 +52,7 @@ i18nprune --json generate --target ja,de --dry-run --metadata \
 ## 5) Fill: only show repair decisions
 
 ```bash
-i18nprune --json fill --target ja --dry-run --metadata \
+i18nprune --json generate --resume --target ja --dry-run --metadata \
 | jq '.data.targetResults[0].localeMetadata.leafDecisions
       | map(select(.action == "repaired_corrupt"))
       | .[:25]'

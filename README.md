@@ -7,7 +7,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![pnpm](https://img.shields.io/badge/pnpm-package%20manager-F69220?logo=pnpm&logoColor=white)](https://pnpm.io/)
 
-**Validate · sync · generate · fill · review · quality · cleanup · doctor**
+**Validate · sync · generate · review · quality · cleanup · doctor**
 
 </div>
 
@@ -23,11 +23,11 @@ It connects your **source code**, a **source-of-truth locale JSON**, and **targe
 |------|----------------|
 | **Validate** | Match **literal** translation keys in `src/` to the **source** JSON; report **dynamic** (non-literal) call sites. |
 | **Sync** | **Merge + prune** every locale file to the source **shape**; optional **`policies.preserve`**; **`--lang`** for **`all`**, comma lists, or defaults; **`--dry-run`**. |
-| **Generate / fill** | Machine translation via the configured provider (**Google `gtx`** today); **catalog-backed** language codes; **`fill`** supports **`--lang all`** and multi-locale runs. |
+| **Generate** | Machine translation via the configured provider (**Google `gtx`** today); **catalog-backed** language codes; **`generate --resume`** tops up existing targets; **`generate --all`** with **`--resume`** covers every non-source locale. |
 | **Quality / review** | Parity and drift signals; **per-locale** review vs source (**`--json`** on supported commands). |
 | **Cleanup** | Remove **unused** keys with optional **ripgrep** verification, **confirmations**, and **global `--yes`** for CI. |
 | **Locales** | **`list`**, **`edit`**, **`dynamic`** (heuristic non-literal sites), **`delete`** (with safety prompts). |
-| **Languages** | Browse bundled **BCP47-style** codes for **generate** / **fill**. |
+| **Languages** | Browse bundled **BCP47-style** codes for **generate**. |
 | **Doctor** | Read-only checks: Node, `rg`, config, paths (**`--json`**, **`--strict`**). |
 | **Report topic** | Project report export (`html` / `json` / `csv` / `text`) with optional `--json` stdout envelope. |
 | **Automation** | Global **`--json`**, **`-q` / `-s`**, path overrides, **`I18NPRUNE_*`** env; **`--yes`** for non-interactive flows. |
@@ -148,7 +148,7 @@ How **`@i18nprune/core`** runs per environment is covered on **[docs.i18nprune.d
 
 ## Examples
 
-📎 **Workflow recipes** (CI, `--json` artifacts, `fill --lang all`, safe cleanup): [docs/examples/README.md](./docs/examples/README.md)
+📎 **Workflow recipes** (CI, `--json` artifacts, `generate --resume --all`, safe cleanup): [docs/examples/README.md](./docs/examples/README.md)
 
 ---
 

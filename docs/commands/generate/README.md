@@ -10,6 +10,8 @@ i18nprune generate --target ar,id,ja,ms,zh-cn
 i18nprune generate --target pt-br --dry-run
 i18nprune generate --target ja --metadata
 i18nprune generate --target ja --no-locale-meta
+i18nprune generate --resume --target ja
+i18nprune generate --resume --all --dry-run
 ```
 
 ## Progress and translation
@@ -17,6 +19,22 @@ i18nprune generate --target ja --no-locale-meta
 - **Live progress** is written to **stderr** (multi-line bar + key + timing on a TTY when allowed). It is **off** for **`--json`**, **`-q`**, **`-s`**, or non-TTY stderr — see [Translation progress](../../progress/README.md).
 - **`--dry-run`** still walks every leaf and updates the progress UI but **does not** call the API or write under **`localesDir`**. When **`--json`** is off and **`--quiet` / `--silent`** are off, **`logger.info`** summarizes what **would** have been written (no **`Wrote …`** success lines).
 - String work goes through **`translateLeaf`** (mask → provider → restore → validate; retries). See [Translator & progress](../../translator/README.md).
+
+## `generate --resume` (top-up and partial continuation)
+
+**`--resume`** is for **existing** target locale files: it re-translates **review-eligible** leaves that still **match the source** at the same path (the workflow formerly covered by the removed **`fill`** command). It is **not** a **`translate.{…}` config field** — hosts pass it **per invocation** (CLI **`--resume`**, or **`GenerateRunOptions.resume`** + **`resumeReference`** when calling **`runGenerate`** from the SDK or an editor extension).
+
+Also use **`--resume`** after a **partial** full **`generate`** when the envelope reports **`partial: true`** and **`resumeHint: "generate --resume"`** (see **`translate.policy.onIncompleteRun`** in [Translation config](../../config/translate.md)): finish the remaining strings without discarding work already written.
+
+| Flag | Role |
+|------|------|
+| **`--resume`** | Top-up / continue mode for this run only. |
+| **`--all`** | With **`--resume`**: every non-source **`*.json`** under **`localesDir`**. |
+| **`--ask`** | With **`--resume`**, multiple targets, TTY: confirm before processing. |
+
+**Non-interactive:** with **`--json`** or in CI, **`--resume`** requires **`--target …`** or **`--all`** (same catalog and source-exclusion rules as full **`generate`**).
+
+**SDK:** `await runGenerate(ctx, { …targets, dynamicKeySites, resume: true, resumeReference: { uncertainPrefixes } }, hooks)` — build **`uncertainPrefixes`** the same way as for cleanup/sync reference policy (the CLI does this before calling core).
 
 ### `--workers` and what the bar means
 
@@ -84,9 +102,9 @@ See global **`--json`**, **`--quiet`**, **`--silent`**, and [JSON mode & long co
 
 ### JSON mode (primary envelope)
 
-**`generate --json`** prints one **`CliJsonEnvelope`** on stdout after the run (`kind`: **`generate`**). Payload shape: **`types/command/generate/json.ts`** — targets, **`dryRun`**, **`leavesProcessed`**, **`dynamicKeySites`**, and **`targetResults`** (per-target status, paths, preserve/parity counts, optional **`progress`** with **`TargetProgressSummary`**: processed/translated/preserved/parity-skip/forced/duration). It is a **session summary**, not a per-leaf translation log (use **`stdout redirection`** or stderr for operational detail). Identity-streak outcomes surface as **`issues[]`** when applicable.
+**`generate --json`** prints one **`CliJsonEnvelope`** on stdout after the run (`kind`: **`generate`**). Payload types live in **`@i18nprune/core`** (`GenerateJsonPayload`, **`packages/core/src/types/generate/generateRun.ts`**); the CLI re-exports them for command-local typing. Payload includes **`targets`**, **`dryRun`**, **`leavesProcessed`**, **`dynamicKeySites`**, and **`targetResults`** (per-target status, paths, preserve/parity counts, optional **`progress`** with **`GenerateTargetProgressSummary`**, and **`resumeUpdatedLeafCount`** on resume rows). It is a **session summary**, not a per-leaf translation log (use **`stdout redirection`** or stderr for operational detail). Identity-streak outcomes surface as **`issues[]`** when applicable.
 
-Headless: **`runGenerate(ctx, opts)`** from **`i18nprune/core`** (async; same writes as the CLI when not **`dryRun`**).
+Headless: **`runGenerate(ctx, opts)`** from **`i18nprune/core`** (async; same writes as the CLI when not **`dryRun`**). Pass **`resume: true`** and **`resumeReference`** in **`opts`** for top-up mode — never via persisted **`translate`** config.
 
 **Multiple `--target` codes (comma-separated):** the CLI still emits **one** stdout **`CliJsonEnvelope`** for the whole run. `data.targets` lists every code; `data.targetResults` has **one row per target** that was processed or skipped (status, paths, preserve/parity counts). It does **not** emit one JSON document per locale — that would break the “single primary document on stdout” rule and complicate CI parsers. The locale bodies live on disk (or in **`stdout redirection`**), not duplicated in full inside stdout JSON.
 

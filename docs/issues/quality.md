@@ -9,4 +9,4 @@ Stable issue id (historical name); behavior is **source-identical** vs the confi
 **Severity:** `info`  
 **When:** Target locale leaves still **match** the source string (parity / copy candidates).  
 **Who:** **`quality`**, **`runQuality`**.  
-**What to do:** Use **`fill`**, **`generate`**, or manual translation as appropriate.
+**What to do:** Use **`generate --resume`**, **`generate`**, or manual translation as appropriate.

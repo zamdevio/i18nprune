@@ -5,7 +5,7 @@
 export type * from './doctor/index.js';
 export type * from './errors/index.js';
 export type * from './extractor/index.js';
-export type * from './fill/index.js';
+export type * from './generate/resumeCandidates.js';
 export type * from './json/index.js';
 export type * from './languages/index.js';
 export type * from './localeLeaves/index.js';

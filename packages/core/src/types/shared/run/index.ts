@@ -9,7 +9,6 @@ import type { TranslationProviderId } from '../../translator/providers.js';
  */
 export type OperationId =
   | 'generate'
-  | 'fill'
   | 'sync'
   | 'validate'
   | 'quality'
@@ -34,12 +33,6 @@ export type GenerateCounts = {
   targets: number;
   leaves: number;
   dynamicKeySites: number;
-};
-
-export type FillCounts = {
-  targets: number;
-  updated: number;
-  sourceLeaves: number;
 };
 
 export type SyncCounts = {
@@ -79,7 +72,6 @@ export type CleanupCounts = {
 
 export type RunCountsByOperation = {
   generate: GenerateCounts;
-  fill: FillCounts;
   sync: SyncCounts;
   validate: ValidateCounts;
   quality: QualityCounts;
@@ -143,15 +135,6 @@ export type GeneratePhase =
   | 'write_files'
   | 'done';
 
-export type FillPhase =
-  | 'scan_dynamic_sites'
-  | 'read_source'
-  | 'resolve_targets'
-  | 'build_target'
-  | 'translate'
-  | 'write_files'
-  | 'done';
-
 export type SyncPhase =
   | 'scan_dynamic_sites'
   | 'read_source'
@@ -176,13 +159,6 @@ export type GenerateProgressEvent = ProgressEvent<'generate'> & {
   /** Active translation backend — **non-secret** (for logs / `--json` consumers). */
   providerId?: TranslationProviderId;
   /** e.g. LLM model id when using an AI provider — **never** API keys or tokens. */
-  translationModel?: string;
-};
-
-export type FillProgressEvent = ProgressEvent<'fill'> & {
-  target?: string;
-  phase: FillPhase;
-  providerId?: TranslationProviderId;
   translationModel?: string;
 };
 
@@ -216,7 +192,6 @@ export type RunEvent =
   | RunCompletedEvent
   | RunSummaryEvent
   | GenerateProgressEvent
-  | FillProgressEvent
   | SyncProgressEvent
   | ValidateProgressEvent;
 

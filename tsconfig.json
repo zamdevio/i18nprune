@@ -25,7 +25,6 @@
       "@i18nprune/core/config": ["packages/core/src/config/index.ts"],
       "i18nprune/core/config": ["packages/core/src/config/index.ts"],
       "@i18nprune/core/generate": ["packages/core/src/generate/index.ts"],
-      "@i18nprune/core/fill": ["packages/core/src/fill/index.ts"],
       "@i18nprune/core/init": ["packages/core/src/init/index.ts"],
       "@i18nprune/core/sync": ["packages/core/src/sync/index.ts"],
       "@i18nprune/core/validate": ["packages/core/src/validate/index.ts"],

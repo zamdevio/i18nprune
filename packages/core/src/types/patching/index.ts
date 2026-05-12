@@ -4,7 +4,7 @@ import type { RuntimeFsPort, RuntimePathPort } from '../runtime/index.js';
 export type PatchingRecipeId = 'loader_generated';
 
 /** Commands that may trigger patching side effects after locale writes. */
-export type PatchingCommandName = 'generate' | 'fill' | 'sync' | 'locales-delete';
+export type PatchingCommandName = 'generate' | 'sync' | 'locales-delete';
 
 /** Whether patching is upserting locale rows or removing them from generated config. */
 export type PatchingAction = 'upsert_locales' | 'delete_locales';

@@ -5,7 +5,7 @@ import { buildKeyReferenceContext as buildKeyReferenceContextCore } from '@i18np
 import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
 
 /**
- * Build proven key set and uncertain prefixes for cleanup / fill / sync decisions.
+ * Build proven key set and uncertain prefixes for cleanup / sync / generate decisions.
  */
 export function buildKeyReferenceContext(
   ctx: Context,

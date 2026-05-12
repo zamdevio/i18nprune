@@ -16,7 +16,7 @@ Where **Inquirer** (or other interactive prompts) may appear, how they interact 
 | No TTY (`stdin` not a TTY) | **`shouldSkipInteractivePrompts()`** is true — no Inquirer prompts in **`init`**, duplicate-config pick, etc. |
 | `CI=1` or `CI=true` | Same as above. |
 | `I18NPRUNE_NO_INIT=1` | Same as above (init-oriented; see env docs). |
-| Global **`--json`** | Duplicate config: must use **`-c` / `--config`**; missing config file: default write without format picker; **`generate`** / **`fill`** use non-interactive rules. |
+| Global **`--json`** | Duplicate config: must use **`-c` / `--config`**; missing config file: default write without format picker; **`generate`** uses non-interactive rules. |
 | Global **`--yes`** | **`init`**: write default config without prompts. |
 
 ## Report / `stdout redirection` path collisions

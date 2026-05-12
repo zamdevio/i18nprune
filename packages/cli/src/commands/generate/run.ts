@@ -25,7 +25,7 @@ import { mergeGenerateOptionsFromEnv } from '@/commands/generate/env.js';
 import { executeCore, runGenerateJsonEnvelope } from '@/commands/generate/jsonEnvelope.js';
 
 import type { GenerateOptions } from '@/types/command/generate/index.js';
-import type { GenerateJsonPayload } from '@/types/command/generate/json.js';
+import type { GenerateJsonPayload } from '@i18nprune/core';
 import type { Issue } from '@/types/core/json/envelope.js';
 
 /**

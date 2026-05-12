@@ -19,7 +19,6 @@ export const ISSUE_LANGUAGES_UNSUPPORTED_LANGUAGE_CODE = 'i18nprune.languages.un
 export const ISSUE_CONFIG_MISSING = 'i18nprune.config.missing' as const;
 export const ISSUE_CONFIG_INVALID = 'i18nprune.config.invalid' as const;
 export const ISSUE_CONFIG_LOAD_FAILED = 'i18nprune.config.load_failed' as const;
-export const ISSUE_FILL_USAGE = 'i18nprune.fill.usage' as const;
 export const ISSUE_LOCALES_USAGE = 'i18nprune.locales.usage' as const;
 export const ISSUE_LOCALE_TARGET_NOT_FOUND = 'i18nprune.locale.target_not_found' as const;
 export const ISSUE_IO_READ_FAILED = 'i18nprune.io.read_failed' as const;

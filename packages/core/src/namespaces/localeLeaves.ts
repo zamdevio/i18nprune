@@ -1,6 +1,9 @@
 export {
   applyLocaleLeafMode,
   applyLocaleLeafNormalization,
+  collectTranslationSurfaceLeaves,
+  isCompleteStructuredLocaleLeafMeta,
+  isStructuredLocaleLeafNode,
   metadataModeEnabledFromConfig,
   resolveLocaleLeafMode,
 } from '../shared/localeLeaves/index.js';

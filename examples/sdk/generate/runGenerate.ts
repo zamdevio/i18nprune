@@ -113,6 +113,8 @@ const host: GenerateHostHooks = {
     (_current: number, _total: number, _label: string) => {},
 
   log: {
+    // Core sends policy explanations here too (for example: `force` disables
+    // preserving existing target strings; `resume` and `force` are mutually exclusive).
     info: (msg) => nodeProcess.stderr.write(`[info]   ${msg}\n`),
     notice: (msg) => nodeProcess.stderr.write(`[notice] ${msg}\n`),
     warn: (msg) => nodeProcess.stderr.write(`[warn]   ${msg}\n`),
@@ -125,7 +127,6 @@ const host: GenerateHostHooks = {
   promptMetaLocaleDetails: async (defaults) => defaults,
   promptFullRetranslate: async () => false,
 
-  printSessionBanner: () => {},
   printPreserveParityReport: () => {},
   printFinalizeSummary: () => {},
 
@@ -178,6 +179,15 @@ const opts: GenerateRunOptions = {
   preloadedRaw: sourceRaw,
   // Set `dryRun: true` if you want to walk the pipeline without writing files.
   dryRun: true,
+  // Set `force: true` for full generate when you want existing target strings
+  // re-translated instead of preserved. Do not combine `force` with `resume`.
+  // force: true,
+  // Set `ask: true` in an interactive normal-generate host if you want to let
+  // users edit catalog-derived meta defaults before writing <lang>.meta.json.
+  // ask: true,
+  // Set `resume: true` only when the host also supplies `resumeReference`; resume
+  // translates eligible stale/review leaves, not every leaf.
+  // resume: true,
 };
 
 async function main(): Promise<void> {

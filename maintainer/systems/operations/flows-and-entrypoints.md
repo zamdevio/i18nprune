@@ -31,8 +31,7 @@ If this summary diverges from code, **code + types win**; update **this doc** in
 | **languages** | `packages/cli/src/commands/languages/jsonEnvelope.ts` → **`runLanguages`** | |
 | **config** | `packages/cli/src/commands/config/jsonEnvelope.ts` → **`runConfig`** | |
 | **providers** | `packages/cli/src/commands/providers/jsonEnvelope.ts` → **`runProviders`** | |
-| **generate** | core entry: `packages/core/src/generate/run.ts` → **`runGenerate`**. CLI host: `packages/cli/src/commands/generate/run.ts` (shell) + `hooks.ts` (host hooks) + `jsonEnvelope.ts` (envelope + shared core delegate). Other hosts (SDK, extension, web, workers) call core **`runGenerate`** directly | async, heavy **`run.progress.*`** |
-| **fill** | `packages/cli/src/commands/fill/runFill.ts` → **`runFill`** | async |
+| **generate** | core entry: `packages/core/src/generate/run.ts` → **`runGenerate`**. CLI host: `packages/cli/src/commands/generate/run.ts` (shell) + `hooks.ts` (host hooks) + `jsonEnvelope.ts` (envelope + shared core delegate). Other hosts (SDK, extension, web, workers) call core **`runGenerate`** directly | async, heavy **`run.progress.*`** (**`--resume`** shares this path) |
 | **report** | `packages/cli/src/shared/report/runReport.ts` → **`runReport`** · `commands/report/buildEnvelope.ts` → **`runReportOperation`** | async / IO |
 
 **When this table drifts:** update it in the **same PR** that moves a **`runXxx`** or introduces a new envelope entry.

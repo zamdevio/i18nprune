@@ -207,7 +207,7 @@ const translateInnerSchema = z
       });
     }
   })
-  .describe('Translation registry + orchestration policy for generate and fill.');
+  .describe('Translation registry + orchestration policy for generate (including `generate --resume`).');
 
 export const translateSchema = translateInnerSchema
   .optional()

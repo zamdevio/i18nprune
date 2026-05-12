@@ -5,7 +5,7 @@
 - [context](./context/README.md)
 - [extractor](./extractor/README.md)
 - [dynamic](./dynamic/README.md)
-- [json](./json/README.md)
+- [Translation surface (locale JSON)](./json/README.md)
 - [validate](./validate/README.md)
 - [scanner](./scanner/README.md)
 - [files](./files/README.md)

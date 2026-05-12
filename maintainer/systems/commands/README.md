@@ -18,8 +18,7 @@ One **`.md` per CLI operation** we want maintainers/agents to navigate quickly. 
 | **languages** | [`languages.md`](languages.md) | |
 | **config** | [`config.md`](config.md) | |
 | **providers** | [`providers.md`](providers.md) | |
-| **generate** | [`generate.md`](generate.md) | Async, translate + metadata normalize |
-| **fill** | [`fill.md`](fill.md) | Async |
+| **generate** | [`generate.md`](generate.md) | Async, translate + metadata normalize (**`--resume`** for top-up) |
 | **report** | [`report.md`](report.md) | Async; separate envelope builder |
 
 ## Scaffold

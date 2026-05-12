@@ -1,6 +1,6 @@
 import type { ProjectFilesystemRuntime } from '../types/runtime/capabilities.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/index.js';
-import { collectStringLeaves } from '../shared/json/leaves.js';
+import { translationSurfacePathValueMap } from '../shared/projects/localeSurfaceMap.js';
 
 export type LocaleListRow = {
   code: string;
@@ -15,11 +15,7 @@ function basenameWithoutJson(fileName: string): string {
 }
 
 function toLeafMap(value: unknown): Map<string, string> {
-  const map = new Map<string, string>();
-  for (const leaf of collectStringLeaves(value)) {
-    map.set(leaf.path, leaf.value);
-  }
-  return map;
+  return translationSurfacePathValueMap(value);
 }
 
 export function buildLocaleListRows(

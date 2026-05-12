@@ -67,7 +67,8 @@ On **`i18nprune/core`**, the same functions are also available under **`context`
 
 ### JSON
 
-- **`collectStringLeaves(root)`** — String leaves with dot/bracket paths (for parity, diff tooling).
+- **`collectTranslationSurfaceLeaves(root)`** — Translation string terminals (legacy strings or structured `{ value, … }` leaves) with **logical paths** aligned to the source locale (used by **quality**, **review**, **sync** coverage, **generate**, etc.).
+- **`translationSurfacePathValueMap(root)`** — `Map<path, value>` from the same walk (see **`@i18nprune/core`** / **`projects`** namespace on the engine package).
 - **`readJsonFile(path)`** — Read JSON from disk (shared helper).
 
 ### Types
@@ -78,7 +79,7 @@ On **`i18nprune/core`**, the same functions are also available under **`context`
 
 ## What is *not* exported (by design)
 
-- **Command orchestration** (`generate`, `fill`, `cleanup` writes) stays in the CLI layer—call **`i18nprune`** or import internal paths only from a fork (not supported semver).
+- **Command orchestration** (`generate`, `cleanup` writes) stays in the CLI layer—call **`i18nprune`** or import internal paths only from a fork (not supported semver).
 - **Translator providers** are not a stable public API yet; extend via CLI or future explicit exports.
 - **Logger / UI** — not part of **`core`**; keep scripts machine-readable.
 

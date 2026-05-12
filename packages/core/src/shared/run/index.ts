@@ -1,6 +1,5 @@
 import type { Issue } from '../../types/json/envelope/index.js';
 import type {
-  FillProgressEvent,
   GenerateProgressEvent,
   OperationId,
   RunEmitter,
@@ -31,7 +30,7 @@ export function nowMs(): number {
 /** Narrow a run event to any `run.progress.*` variant. */
 export function isProgressEvent(
   event: RunEvent,
-): event is GenerateProgressEvent | FillProgressEvent | SyncProgressEvent | ValidateProgressEvent {
+): event is GenerateProgressEvent | SyncProgressEvent | ValidateProgressEvent {
   return event.type.startsWith('run.progress.');
 }
 

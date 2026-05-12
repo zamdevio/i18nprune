@@ -1,15 +1,15 @@
-# Export Example: json
+# Export Example: translation surface
 
-Read locale JSON and flatten string leaves for custom analysis.
+Read locale JSON and list **logical translation paths** (legacy strings or structured `{ value, … }` terminals).
 
 ## Script
 
 ```ts
-import { context, files, json } from 'i18nprune/core';
+import { collectTranslationSurfaceLeaves, readJsonFile, resolveContext } from 'i18nprune/core';
 
-const ctx = context.resolveContext();
-const source = files.readJsonFile(ctx.paths.sourceLocale);
-const leaves = json.collectStringLeaves(source);
+const ctx = resolveContext();
+const source = readJsonFile(ctx.paths.sourceLocale);
+const leaves = collectTranslationSurfaceLeaves(source);
 console.log({ count: leaves.length, sample: leaves.slice(0, 10) });
 ```
 

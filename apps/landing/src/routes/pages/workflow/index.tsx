@@ -71,8 +71,8 @@ export default function WorkflowPage() {
           <h2 className={DISPLAY_CARD_TITLE}>Step 2 — Repair</h2>
           <p className="mt-4 max-w-none text-sm leading-relaxed text-muted-foreground md:text-base">
             <strong className="font-medium text-foreground">What:</strong> merge and prune locale files to match the
-            catalog, add missing paths, optionally remove dead keys with safety checks, run generate/fill when copy needs
-            refresh.
+            catalog, add missing paths, optionally remove dead keys with safety checks, run generate (including{" "}
+            <code className="font-mono text-xs">--resume</code>) when copy needs refresh.
           </p>
           <p className="mt-3 max-w-none text-sm leading-relaxed text-muted-foreground md:text-base">
             <strong className="font-medium text-foreground">Why:</strong> structure and content move together — not a
@@ -83,8 +83,8 @@ export default function WorkflowPage() {
             <DocLink href={getDocsUrl("commands/sync/README")}>sync</DocLink>,{" "}
             <DocLink href={getDocsUrl("commands/cleanup/README")}>cleanup</DocLink>,{" "}
             <DocLink href={getDocsUrl("config/policies/README")}>policies</DocLink>,{" "}
-            <DocLink href={getDocsUrl("commands/generate/README")}>generate</DocLink> /{" "}
-            <DocLink href={getDocsUrl("commands/fill/README")}>fill</DocLink>.
+            <DocLink href={getDocsUrl("commands/generate/README")}>generate</DocLink>{" "}
+            (<code className="font-mono text-xs">--resume</code> for top-ups).
           </p>
         </section>
 

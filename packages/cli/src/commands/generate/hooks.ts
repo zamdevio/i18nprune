@@ -22,7 +22,6 @@ import { logger } from '@/utils/logger/index.js';
 import { canPrintInfo, canPrintWarn } from '@/utils/logger/policy.js';
 
 import {
-  printGenerateSessionBanner,
   promptFullRetranslate,
   promptMetaLocaleDetails,
 } from '@/commands/generate/prompts.js';
@@ -78,8 +77,6 @@ export function buildGenerateHostHooks(ctx: Context, runtime: GenerateRuntime): 
 
     promptMetaLocaleDetails: (defaults) => promptMetaLocaleDetails(defaults, ctx.run),
     promptFullRetranslate,
-
-    printSessionBanner: () => printGenerateSessionBanner(ctx.run),
 
     printPreserveParityReport: (preserve, parity) =>
       printPreserveParityReport(preserve, parity, ctx.run),

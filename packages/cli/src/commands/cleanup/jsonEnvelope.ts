@@ -1,4 +1,4 @@
-import { collectStringLeaves } from '@i18nprune/core';
+import { collectTranslationSurfaceLeaves } from '@i18nprune/core';
 import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
 import { computeCleanupCandidateKeys } from '@i18nprune/core';
 import { resolveCleanupKeysWithStringPresence } from '@/shared/cleanup/stringPresence.js';
@@ -83,7 +83,7 @@ function runCleanupCheckCore(ctx: Context, opts: CleanupOptions): CliJsonEnvelop
   const dynamicSites = extractor.dynamic.scanProjectDynamicKeySites(scanInput);
   const sourcePath = ctx.paths.sourceLocale;
   const sourceRaw = readHostJsonUnknown(sourcePath, ctx.adapters.fs);
-  const leaves = collectStringLeaves(sourceRaw);
+  const leaves = collectTranslationSurfaceLeaves(sourceRaw);
   const usage = extractor.keySites.scanProjectLiteralKeyUsage(scanInput);
   const filterUncertain =
     eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only';

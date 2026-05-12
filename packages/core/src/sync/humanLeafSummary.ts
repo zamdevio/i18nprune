@@ -1,4 +1,4 @@
-import { collectStringLeaves } from '../shared/json/leaves.js';
+import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/translationSurfaceWalk.js';
 import { getAtPath } from '../shared/json/path.js';
 import type { StringLeaf } from '../types/json/index.js';
 
@@ -49,7 +49,7 @@ export type SyncHumanLeafSummary = {
  *
  * - **Hydrated**: template paths with no readable leaf (`string` or structured `.value`) in the locale before sync.
  * - **Preserved**: template paths where a readable leaf already existed beforehand.
- * - **Pruned extras**: dotted paths from **`collectStringLeaves(before)`** that do not map to any template path and
+ * - **Pruned extras**: logical translation paths from **`collectTranslationSurfaceLeaves(before)`** that do not map to any template path and
  *   are absent from **`mergedLocaleJson`** (best-effort; compares raw collected paths).
  */
 export function summarizeSyncLeavesForHumanLog(
@@ -67,8 +67,8 @@ export function summarizeSyncLeavesForHumanLog(
     else preservedExistingLeaves++;
   }
 
-  const beforeRawPaths = new Set(collectStringLeaves(cur).map((leaf) => leaf.path));
-  const afterRawPaths = new Set(collectStringLeaves(mergedLocaleJson).map((leaf) => leaf.path));
+  const beforeRawPaths = new Set(collectTranslationSurfaceLeaves(cur).map((leaf) => leaf.path));
+  const afterRawPaths = new Set(collectTranslationSurfaceLeaves(mergedLocaleJson).map((leaf) => leaf.path));
   let prunedExtraLeaves = 0;
   for (const p of beforeRawPaths) {
     if (canonicalTemplatePathForCollectedLeaf(p, templatePaths) !== null) continue;

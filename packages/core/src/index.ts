@@ -2,10 +2,16 @@ export * as localeLeaves from './namespaces/localeLeaves.js';
 export {
   applyLocaleLeafMode,
   applyLocaleLeafNormalization,
+  collectTranslationSurfaceLeaves,
+  isCompleteStructuredLocaleLeafMeta,
+  isStructuredLocaleLeafNode,
   metadataModeEnabledFromConfig,
   resolveLocaleLeafMode,
 } from './namespaces/localeLeaves.js';
 export type { ApplyLocaleMetadataModeInput, ResolveLocaleLeafModeInput } from './namespaces/localeLeaves.js';
+
+export * as projects from './namespaces/projects.js';
+export { translationSurfacePathValueMap } from './namespaces/projects.js';
 
 export * as placeholders from './namespaces/placeholders.js';
 export { mask, restore, validateRestored } from './namespaces/placeholders.js';
@@ -119,6 +125,7 @@ export type {
   GenerateRunHooks,
   GenerateRunOptions,
   GenerateRunResult,
+  ProviderAttemptReportJson,
   GenerateTargetJsonRow,
   GenerateTargetProgressSummary,
   HandoffEligibilityRow,
@@ -129,7 +136,7 @@ export type {
 } from './types/generate/index.js';
 
 export * as json from './namespaces/json.js';
-export { collectStringLeaves, targetLocaleCoversAllSourcePaths } from './namespaces/json.js';
+export { targetLocaleCoversAllSourcePaths } from './namespaces/json.js';
 export { applyPreserveFromSource, mergeToTemplateShape, pruneToTemplateShape } from './namespaces/json.js';
 export type { MergeToTemplateOptions, PruneToTemplateOptions } from './namespaces/json.js';
 
@@ -190,9 +197,6 @@ export {
   type TranslateRunPartialStats,
 } from './generate/index.js';
 
-export * as fill from './namespaces/fill.js';
-export { isFillCandidateLeaf, leafMatchesSourceForFill, translateFillCandidateLeaves } from './fill/index.js';
-
 export * as init from './namespaces/init.js';
 export {
   buildInitConfigTemplate,
@@ -237,11 +241,8 @@ export * as review from './namespaces/review.js';
 export {
   aggregateReviewRows,
   buildReviewJsonData,
-  collectReviewLeaves,
   filterLocaleFilesForReview,
   formatCountMap,
-  isCompleteStructuredLocaleLeafMeta,
-  isStructuredLocaleLeafNode,
   parseReviewTargetCodes,
 } from './namespaces/review.js';
 
@@ -408,15 +409,15 @@ export {
   resolveTargetLocaleSlugs,
   isAllLocaleToken,
   ALL_LOCALES_TOKEN,
-  resolveFillAllTargetCodes,
-  resolveFillTargetCodesFromRaw,
+  resolveResumeAllTargetCodes,
+  resolveResumeTargetCodesFromRaw,
   assertGenerateTargetCodes,
 } from './namespaces/locales.js';
 export type {
   AssertGenerateTargetCodesInput,
   LocaleListRow,
   LocaleMetaProfile,
-  ResolveFillTargetCodesFromRawInput,
+  ResolveResumeTargetCodesFromRawInput,
   ResolveLocaleTargetCodesInput,
   SourceLocaleContext,
 } from './namespaces/locales.js';
@@ -525,7 +526,6 @@ export {
   ISSUE_CONFIG_MISSING,
   ISSUE_CONTEXT_DISCOVERY_WARNING,
   ISSUE_CONTEXT_RESOLUTION_FAILED,
-  ISSUE_FILL_USAGE,
   ISSUE_IO_READ_FAILED,
   ISSUE_LANGUAGES_EMPTY_FILTER,
   ISSUE_LANGUAGES_UNSUPPORTED_LANGUAGE_CODE,

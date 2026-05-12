@@ -9,7 +9,7 @@ How the CLI behaves when things go wrong, when you press **Ctrl+C**, and when ru
 | **0** | Success — command finished; **`doctor`** with no errors (and no **`--strict`** warn failures). |
 | **1** | Failure — validation error, **`I18nPruneError`**, **`doctor`** with **`error`** findings (or **`warn`** when **`--strict`**), **multiple config files** without **`--config`** in non-interactive mode, **invalid `-c` / `--config` path** (missing, not a file, or unsupported extension), or other handled errors. |
 | **2** | **Usage** — reserved for **`USAGE`**-class errors (e.g. missing required flags in some flows). |
-| **130** | **SIGINT** during a **long interactive session** (e.g. **`generate`** / **`fill`** progress UI) — cooperative cancel; see below. |
+| **130** | **SIGINT** during a **long interactive session** (e.g. **`generate`** progress UI) — cooperative cancel; see below. |
 
 Unhandled exceptions are normalized by **`reportCliError`** (see `packages/cli/src/core/errors/handler.ts`) and usually map to exit **1** (or **2** for usage).
 
@@ -18,7 +18,7 @@ Commands that only set **`process.exitCode`** (e.g. **`doctor`**) rely on Node e
 ## SIGINT (Ctrl+C)
 
 - **Default:** For most short commands, Node’s default applies: the process may exit with **128 + signal number** (often **130** for SIGINT) unless the runtime handles it differently.
-- **Generate / fill session:** While the translation **progress session** is active (`packages/cli/src/core/progress/session.ts`), **SIGINT** is caught: cursor is restored, stdin handling is detached, and the process exits with **130** — a deliberate “user cancelled” convention (similar to many CLIs).
+- **Generate session:** While the translation **progress session** is active (`packages/cli/src/shared/progress/session.ts`), **SIGINT** is caught: cursor is restored, stdin handling is detached, and the process exits with **130** — a deliberate “user cancelled” convention (similar to many CLIs).
 
 There is **no** global SIGINT handler on the root **`packages/cli/bin/cli.ts`**; behaviour is **per feature** where raw TTY / progress is used.
 
@@ -48,7 +48,7 @@ When prompts are skipped, **`generate`** requires **`--lang`**. The code must ex
 - [Command behaviors](./commands.md) — snapshot of every command (flags, JSON, notes)
 - [Auto-patching](../patching/README.md) — opt-in loader/config edits (when enabled)
 - [Roadmap](../roadmap/README.md) — product direction (`stdout redirection`, `review`, `locales`, …)
-- [JSON mode and long commands](./json-long.md) — `--json` with prompts, progress, and `generate` / `fill` / `sync`
+- [JSON mode and long commands](./json-long.md) — `--json` with prompts, progress, and `generate` / `sync`
 - [Verbosity & JSON](../cli/verbosity/README.md) — `--quiet`, `--silent`, `--json`
 - [Config](../config/README.md) — config file discovery order
 - [Barriers: dynamic keys](../barriers/dynamic-keys.md) — what we cannot automate

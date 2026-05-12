@@ -1,6 +1,6 @@
 /**
  * How JSON key paths that may be referenced only via partial/dynamic templates are treated
- * for destructive or shape-changing operations (fill, sync, cleanup, generate, …).
+ * for destructive or shape-changing operations (sync, cleanup, generate, …).
  */
 export type UncertainKeyPolicy = 'protect' | 'allow' | 'warn_only';
 
@@ -42,7 +42,7 @@ export type ReferenceDefaults = {
   /** Max rg JSON matches recorded per key (performance). @default 5 */
   stringPresenceMaxHitsPerKey?: number;
   /**
-   * When true (default), fill skips paths matching `policies.preserve`. Other operations ignore this.
+   * When true (default), `generate --resume` skips paths matching `policies.preserve`. Other operations ignore this.
    * @default true
    */
   respectPreserve?: boolean;
@@ -56,12 +56,13 @@ export type ReferenceCommandOverrides = ReferenceDefaults;
 
 /**
  * Per-operation entries under **`reference.commands`** in config.
- * Known keys: **`cleanup`**, **`fill`**, **`sync`**, **`generate`** — each overrides **`defaults`** for that operation only.
+ * Known keys: **`cleanup`**, **`sync`**, **`generate`** — each overrides **`defaults`** for that operation only.
+ * Legacy configs may still include **`fill`**; it is merged into **`generate`** when resolving reference policy for generate.
  */
 export type ReferenceCommands = {
   /** Reference policy when running **`i18nprune cleanup`**. */
   cleanup?: ReferenceCommandOverrides;
-  /** Reference policy when running **`i18nprune fill`**. */
+  /** Legacy **`reference.commands.fill`** (pre–`generate --resume`); merged into **`generate`** at resolve time. */
   fill?: ReferenceCommandOverrides;
   /** Reference policy when running **`i18nprune sync`**. */
   sync?: ReferenceCommandOverrides;
@@ -74,7 +75,7 @@ export type ReferenceConfig = {
   /** Baseline policy merged before any **`commands.*`** block. */
   defaults?: ReferenceDefaults;
   /**
-   * Per-operation overrides (**`cleanup`**, **`fill`**, **`sync`**, **`generate`**) deep-merged onto **`defaults`**.
+   * Per-operation overrides (**`cleanup`**, **`sync`**, **`generate`**) deep-merged onto **`defaults`**.
    * Unknown keys are preserved for forward compatibility.
    */
   commands?: ReferenceCommands & Record<string, ReferenceCommandOverrides | undefined>;

@@ -6,7 +6,7 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 |-------|--------|-----------|
 | **Locales** (`list`, meta `edit`, `dynamic`, `delete`, `--json`) | Shipped | [`commands/locales`](../../docs/commands/locales/README.md) |
 | **Generate** (core translate path, `--json`, progress envelope, identity guard) | Shipped | [`commands/generate`](../../docs/commands/generate/README.md), [`behavior`](../../docs/behavior/json-long.md) |
-| **Fill** (same envelope + parity with generate) | Shipped | [`commands/fill`](../../docs/commands/fill/README.md) |
+| **Fill → `generate --resume`** (CLI + core; **`fill`** command removed) | Shipped (superseded) | [`commands/generate`](../../docs/commands/generate/README.md) (**`--resume`**) |
 | **Exports + baseline `--json`** | Shipped | [`docs/exports/README.md`](../../docs/exports/README.md), [cli-json parity](../../docs/edge-cases/solved/cli-json-command-parity.md) |
 | **`i18nprune.dev` / `apps/web`** baseline | Shipped | `apps/web` (marketing site codebase) |
 | **Command orchestrator boundary** | Shipped (guardrail) | [`commands/orchestration/README.md`](../../docs/commands/orchestration/README.md), [`ADR 006`](../../docs/architecture/decisions/006-command-orchestrator-boundary.md) |

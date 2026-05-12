@@ -17,7 +17,7 @@ import type {
   TranslationProviderId,
 } from '@i18nprune/core';
 
-/** Resolve max parallel **`translateLeaf`** calls for **`generate`** / **`fill`** (config + env + CLI). */
+/** Resolve max parallel **`translateLeaf`** calls for **`generate`** (config + env + CLI). */
 export function resolveCliTranslateMaxParallel(input: {
   config: I18nPruneConfig;
   workers?: number;

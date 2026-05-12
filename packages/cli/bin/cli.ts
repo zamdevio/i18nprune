@@ -23,7 +23,6 @@ import {
 } from '@/shared/context/globals.js';
 import { reportCliError } from '@/shared/errors/handler.js';
 import { generate } from '@/commands/generate/index.js';
-import { fill } from '@/commands/fill/index.js';
 import { sync } from '@/commands/sync/index.js';
 import { validate } from '@/commands/validate/index.js';
 import { missing } from '@/commands/missing/index.js';
@@ -101,7 +100,7 @@ program
   )
   .option(
     '--json',
-    'machine-readable output (only commands that support it; e.g. config, validate, fill, doctor — ignored for init/help)',
+    'machine-readable output (only commands that support it; e.g. config, validate, generate, doctor — ignored for init/help)',
     false,
   )
   .option(
@@ -225,7 +224,6 @@ program
         inv === 'locales edit' ||
         inv === 'generate' ||
         inv === 'sync' ||
-        inv === 'fill' ||
         inv === 'doctor' ||
         inv === 'validate' ||
         inv === 'missing' ||
@@ -316,7 +314,7 @@ program
 program
   .command('generate')
   .description(
-    'Generate a target locale JSON from the source (nested shape preserved; string leaves translated)',
+    'Generate a target locale JSON from the source, or top up existing files with --resume (replaces the removed fill command)',
   )
   .option('--source <path>', 'source JSON path (defaults to resolved config / context)')
   .option('--target <codes>', 'target locale code(s): one code or comma-separated list (e.g. ja,ar,id)')
@@ -349,6 +347,17 @@ program
     '--workers <n>',
     'max parallel translateLeaf calls this run (overrides I18NPRUNE_TRANSLATE_MAX_WORKERS, translate.workers)',
   )
+  .option(
+    '--resume',
+    'top-up existing locale JSON: translate review-eligible leaves that still match the source (requires existing <target>.json)',
+    false,
+  )
+  .option('--all', 'with --resume: process every non-source locale under localesDir', false)
+  .option(
+    '--ask',
+    'normal generate: ask to edit locale meta defaults; with --resume: confirm before processing targets',
+    false,
+  )
   .action(
     async (opts: {
       source?: string;
@@ -362,6 +371,9 @@ program
       noLocaleMeta?: boolean;
       provider?: string;
       workers?: string;
+      resume?: boolean;
+      all?: boolean;
+      ask?: boolean;
     }) => {
       const direction =
         opts.direction === 'ltr' || opts.direction === 'rtl' ? opts.direction : undefined;
@@ -377,58 +389,9 @@ program
         noLocaleMeta: opts.noLocaleMeta === true ? true : undefined,
         provider: opts.provider,
         workers: parseOptionalTranslateParallelFlag(opts.workers, 'generate: --workers'),
-      });
-    },
-  );
-
-program
-  .command('fill')
-  .description('Re-translate strings that still match the source language')
-  .option(
-    '--target <codes>',
-    'preferred target selector: one locale, comma-separated list, or "all"',
-  )
-  .option('--all', 'fill all non-source locale files under localesDir', false)
-  .option('--ask', 'interactive TTY: confirm selected target locale(s) before processing', false)
-  .option('--dry-run', 'list counts only; no API calls or writes', false)
-  .option(
-    '--metadata',
-    'write/repair structured locale leaves (`{ value, status, confidence, needsReview, source }`)',
-    false,
-  )
-  .option(
-    '--no-locale-meta',
-    'do not write or update <lang>.meta.json (merged with config noLocaleMeta; either true skips)',
-    false,
-  )
-  .option(
-    '--provider <id>',
-    'translation backend — precedence: --provider → I18NPRUNE_TRANSLATE_PROVIDER → translate.primary; credentials: translate.providers row + env (see docs/config/translate.md)',
-  )
-  .option(
-    '--workers <n>',
-    'max parallel translateLeaf calls this run (overrides I18NPRUNE_TRANSLATE_MAX_WORKERS, translate.workers)',
-  )
-  .action(
-    async (opts: {
-      target?: string;
-      all?: boolean;
-      dryRun?: boolean;
-      ask?: boolean;
-      metadata?: boolean;
-      noLocaleMeta?: boolean;
-      provider?: string;
-      workers?: string;
-    }) => {
-      await fill({
-        target: opts.target,
-        all: Boolean(opts.all),
-        dryRun: Boolean(opts.dryRun),
-        ask: Boolean(opts.ask),
-        metadata: opts.metadata === true ? true : undefined,
-        noLocaleMeta: opts.noLocaleMeta === true ? true : undefined,
-        provider: opts.provider,
-        workers: parseOptionalTranslateParallelFlag(opts.workers, 'fill: --workers'),
+        resume: opts.resume === true ? true : undefined,
+        all: opts.all === true ? true : undefined,
+        ask: opts.ask === true ? true : undefined,
       });
     },
   );
@@ -497,7 +460,7 @@ program
 program
   .command('providers')
   .description(
-    'List translation backends for generate/fill: ids, env vars, and translate.{ primary, providers } config (from @i18nprune/core)',
+    'List translation backends for generate: ids, env vars, and translate.{ primary, providers } config (from @i18nprune/core)',
   )
   .action(async () => {
     await providers();

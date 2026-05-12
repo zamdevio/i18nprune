@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { collectStringLeaves } from '@i18nprune/core';
+import { collectTranslationSurfaceLeaves } from '@i18nprune/core';
 import { applyLocaleLeafMode, resolveLocaleLeafMode } from '@i18nprune/core';
 import { computeSyncedLocaleJson } from '@i18nprune/core';
 import { summarizeSyncLeavesForHumanLog } from '@i18nprune/core';
@@ -117,7 +117,7 @@ export function runSync(
       metadataFlag: explicitMetadata,
       stripMetadataFlag: explicitStripMetadata,
     });
-    const sourceLeaves = collectStringLeaves(template);
+    const sourceLeaves = collectTranslationSurfaceLeaves(template);
     const sourceMap = new Map(sourceLeaves.map((leaf) => [leaf.path, leaf.value]));
     const localeMetadataReports: Record<string, LocaleMetadataReport> = {};
 

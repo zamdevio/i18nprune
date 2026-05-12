@@ -2,7 +2,7 @@
 
 **Full examples:** [locales examples](../../examples/commands/locales/README.md)
 
-Work with **existing locale JSON** under your configured **`localesDir`**. Subcommands support global **`--json`** (structured **`CliJsonEnvelope`** on stdout) when the root program passes **`--json`** — same contract as **`validate`**, **`generate`**, **`fill`**, etc. See [JSON output](../../json/README.md).
+Work with **existing locale JSON** under your configured **`localesDir`**. Subcommands support global **`--json`** (structured **`CliJsonEnvelope`** on stdout) when the root program passes **`--json`** — same contract as **`validate`**, **`generate`**, etc. See [JSON output](../../json/README.md).
 
 | Subcommand | Role |
 |------------|------|

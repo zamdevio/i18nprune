@@ -2,7 +2,7 @@
 
 [← Issue codes index](./README.md)
 
-Product reference for **`generate`** / **`fill`** translation: **[Translation config](../config/translate.md)** and **[Environment variables](../config/env.md)** (translation backends section).
+Product reference for **`generate`** translation: **[Translation config](../config/translate.md)** and **[Environment variables](../config/env.md)** (translation backends section).
 
 Each section below follows the **[topic page pattern](./README.md#authoring-topic-pages-for-contributors)** (`Code`, `Severity`, `When`, …).
 
@@ -12,7 +12,7 @@ Each section below follows the **[topic page pattern](./README.md#authoring-topi
 
 **Code:** `i18nprune.translate.identity_streak_warning`  
 **Severity:** `warning`  
-**When:** **`generate`** or **`fill`** sees many consecutive string leaves whose post-translation value still **equals** the source (identity streak approaching the abort threshold).  
+**When:** **`generate`** sees many consecutive string leaves whose post-translation value still **equals** the source (identity streak approaching the abort threshold).  
 **Who:** **`translateLeaf`** / **`createIdentityStreakGuard`** (`@i18nprune/core`); invoked from **`runGenerate`**, **`runFill`**.  
 **What to do:** Check API keys, provider, source/target language codes, and network; confirm you are not repeatedly “translating” into the source language by mistake.
 
@@ -36,7 +36,7 @@ Each section below follows the **[topic page pattern](./README.md#authoring-topi
 **Who:** **`parseProviderLabel`** / **`resolveTranslationProviderOptions`** (`packages/cli`); **`validateResolvedTranslationOptions`** (`@i18nprune/core`).  
 **What to do:**
 
-1. Run **`i18nprune generate --help`** (or **`fill`**) and use a supported **`--provider`** id, or see **`listTranslationProviders()`** in **`@i18nprune/core`** / doctor output.
+1. Run **`i18nprune generate --help`** and use a supported **`--provider`** id, or see **`listTranslationProviders()`** in **`@i18nprune/core`** / doctor output.
 2. Fix **`translate.primary`** and matching **`translate.providers`** rows (unknown **`id`** rejected at load; **`primary`** must match an enabled row).
 3. Unset or correct **`I18NPRUNE_TRANSLATE_PROVIDER`** if it overrides your file unintentionally (**precedence**: flag → env → config → default — see **[translate config](../config/translate.md)**).
 
@@ -56,7 +56,7 @@ Each section below follows the **[topic page pattern](./README.md#authoring-topi
 
 **Code:** `i18nprune.translate.missing_credentials`  
 **Severity:** `error`  
-**When:** **`generate`** / **`fill`** abort before the first outbound translation call: a backend that **requires secrets or a base URL** is selected, but **`assertTranslationProviderCredentialsReady`** (and **`resolveTranslator`**) still see missing **`apiKey`** / **`baseUrl`** / **`model`** after env merge.  
+**When:** **`generate`** aborts before the first outbound translation call: a backend that **requires secrets or a base URL** is selected, but **`assertTranslationProviderCredentialsReady`** (and **`resolveTranslator`**) still see missing **`apiKey`** / **`baseUrl`** / **`model`** after env merge.  
 **Who:** **`assertTranslationProviderCredentialsReady`**, **`executeGenerate`** / **`executeFill`** (`packages/cli`).  
 **What to do:**
 

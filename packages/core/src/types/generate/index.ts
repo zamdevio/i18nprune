@@ -18,6 +18,8 @@ export type {
   ProviderAttemptReportJson,
 } from './generateRun.js';
 
+export type { GenerateResumeCandidateLeafInput, GenerateResumeRefContext } from './resumeCandidates.js';
+
 export type {
   GenerateRunHooks,
   HandoffEligibilityRow,

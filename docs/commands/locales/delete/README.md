@@ -2,7 +2,7 @@
 
 **Full examples:** [locales examples](../../../examples/commands/locales/README.md)
 
-Deletes target locale files **`<code>.json`** under **`localesDir`**, and **`<code>.meta.json`** when present. The **source** locale cannot be deleted (same rule as **`fill`** / **`generate`**).
+Deletes target locale files **`<code>.json`** under **`localesDir`**, and **`<code>.meta.json`** when present. The **source** locale cannot be deleted (same rule as **`generate`**).
 
 ```bash
 i18nprune locales delete --target ja

@@ -1,7 +1,7 @@
 export {
   aggregateReviewRows,
   buildReviewJsonData,
-  collectReviewLeaves,
+  collectTranslationSurfaceLeaves,
   filterLocaleFilesForReview,
   formatCountMap,
   isCompleteStructuredLocaleLeafMeta,

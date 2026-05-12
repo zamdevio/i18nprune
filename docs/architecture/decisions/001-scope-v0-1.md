@@ -21,7 +21,7 @@ Ship **one binary**, **`i18nprune`**, with an explicit set of **subcommands** fo
 |------|-------------------------|
 | Setup | `init`, `config` |
 | Correctness | `validate`, `sync`, `quality`, `review` |
-| Translation | `generate`, `fill` (provider-backed; Google first) |
+| Translation | `generate`, `generate --resume` (provider-backed; Google first) |
 | Maintenance | `cleanup` (optional rg) |
 | Reference | `languages` (catalog) |
 | Ops | `doctor` (diagnostics) |

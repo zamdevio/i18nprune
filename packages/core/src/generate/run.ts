@@ -5,7 +5,8 @@
 
 import { buildLanguageCatalog, generatedLanguageCatalog, getLanguageByCodeFromCatalog } from '../shared/languages/catalog/index.js';
 import { languageOftenRtl } from '../shared/languages/rtlHint.js';
-import { collectStringLeaves, deepClone } from '../shared/json/index.js';
+import { deepClone } from '../shared/json/index.js';
+import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
 import { targetLocaleCoversAllSourcePaths } from '../shared/json/targetCoverage.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
@@ -48,6 +49,8 @@ import { createProviderHealthMonitor } from '../shared/translator/utils/provider
 import { IdentityAbortError } from '../translator/identity/error.js';
 import type { IdentityStreakGuard } from '../translator/identity/guard.js';
 import { writeRuntimeJsonPretty } from './io/writeRuntimeJson.js';
+import { runGenerateResumeLocale } from './resume/run.js';
+import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
 import type {
@@ -123,12 +126,21 @@ export async function runGenerate(
     emitProgress({ type: 'run.progress.generate', phase: 'read_source', label: sourcePath });
     raw = readJsonFromRuntimeFsSync(sourcePath, ctx.adapters.fs);
   }
-  const sourceLeaves = collectStringLeaves(raw);
+  const sourceLeaves = collectTranslationSurfaceLeaves(raw);
   const sourceMap = new Map(sourceLeaves.map((leaf) => [leaf.path, leaf.value]));
 
   const targets = [...opts.targets];
   if (targets.length === 0) {
     throw new I18nPruneError('generate: no target locale codes provided', 'USAGE');
+  }
+  if (opts.resume === true && opts.resumeReference === undefined) {
+    throw new I18nPruneError('generate --resume requires internal resumeReference (host wiring bug)', 'USAGE');
+  }
+  if (opts.resume === true && opts.force === true) {
+    throw new I18nPruneError(
+      'generate --resume does not support --force: resume only translates eligible stale/review leaves. Use generate --force without --resume to re-translate all leaves.',
+      'USAGE',
+    );
   }
 
   emitProgress({ type: 'run.progress.generate', phase: 'resolve_targets', total: targets.length });
@@ -200,8 +212,10 @@ export async function runGenerate(
 
     const targetPath = ctx.adapters.path.join(ctx.paths.localesDir, `${target}.json`);
     const metaPath = skipLocaleMetaSidecar ? null : ctx.adapters.path.join(ctx.paths.localesDir, `${target}.meta.json`);
+    const targetJsonExists = existsRuntimeFsSync(targetPath, ctx.adapters.fs);
+    const metaSidecarExists = metaPath !== null && existsRuntimeFsSync(metaPath, ctx.adapters.fs);
 
-    if (metaPath !== null && existsRuntimeFsSync(metaPath, ctx.adapters.fs)) {
+    if (metaSidecarExists) {
       const prev = readJsonFromRuntimeFsSync(metaPath, ctx.adapters.fs);
       if (prev && typeof prev === 'object') {
         const p = prev as { englishName?: unknown; nativeName?: unknown; direction?: unknown };
@@ -212,10 +226,12 @@ export async function runGenerate(
     }
 
     if (
+      !opts.resume &&
+      opts.ask === true &&
+      !opts.force &&
       !host.shouldSkipInteractivePrompts() &&
       host.canAskInteractive() &&
-      !opts.englishName &&
-      !opts.nativeName
+      metaPath !== null
     ) {
       const meta = await host.promptMetaLocaleDetails({ englishName, nativeName, direction });
       englishName = meta.englishName;
@@ -223,11 +239,17 @@ export async function runGenerate(
       direction = meta.direction;
     }
 
-    const existingRaw = existsRuntimeFsSync(targetPath, ctx.adapters.fs)
-      ? readJsonFromRuntimeFsSync(targetPath, ctx.adapters.fs)
-      : null;
+    const existingRaw = targetJsonExists ? readJsonFromRuntimeFsSync(targetPath, ctx.adapters.fs) : null;
+    let forceTarget = Boolean(opts.force);
+    let forceReason: 'flag' | 'prompt' | undefined = forceTarget ? 'flag' : undefined;
 
-    if (existingRaw && targetLocaleCoversAllSourcePaths(raw, existingRaw) && !opts.force && !opts.dryRun) {
+    if (
+      !opts.resume &&
+      existingRaw &&
+      targetLocaleCoversAllSourcePaths(raw, existingRaw) &&
+      !forceTarget &&
+      !opts.dryRun
+    ) {
       if (!host.shouldSkipInteractivePrompts() && host.canAskInteractive()) {
         const ok = await host.promptFullRetranslate();
         if (!ok) {
@@ -248,10 +270,57 @@ export async function runGenerate(
           });
           continue;
         }
+        forceTarget = true;
+        forceReason = 'prompt';
       }
     }
 
-    host.printSessionBanner();
+    if (opts.resume) {
+      const eff = resolveReferenceConfig('generate', ctx.config);
+      host.log.info?.(`generate (${target}): translating string leaves (nested shape preserved).`);
+      const { row, issues: resumeIssues, leavesProcessed: resumeLeaves } = await runGenerateResumeLocale({
+        ctx,
+        opts,
+        host,
+        target,
+        sourceMap,
+        eff,
+        refCtx: opts.resumeReference!,
+        targetPath,
+        metaPath,
+        englishName,
+        nativeName,
+        direction,
+        targetStarted,
+      });
+      streakIssues.push(...resumeIssues);
+      totalLeavesProcessed += resumeLeaves;
+      targetResults.push(row);
+      host.printPreserveParityReport(0, 0);
+      host.printFinalizeSummary({
+        target,
+        englishName,
+        nativeName,
+        direction,
+        targetPath,
+        metaPath,
+        leafCount: row.progress?.processedLeafCount ?? 0,
+        showMeta: true,
+        dryRun: opts.dryRun,
+      });
+      continue;
+    }
+
+    host.log.info?.(`generate (${target}): translating string leaves (nested shape preserved).`);
+    if (forceReason === 'flag') {
+      host.log.info?.(
+        `generate (${target}): --force enabled — complete-target prompt skipped; existing target strings will be re-translated where policies allow.`,
+      );
+    } else if (forceReason === 'prompt') {
+      host.log.info?.(
+        `generate (${target}): full re-translate confirmed — existing target strings will be re-translated for this target where policies allow.`,
+      );
+    }
     let working: unknown = deepClone(raw);
     let preserveCount = 0;
     let paritySkip = 0;
@@ -335,7 +404,7 @@ export async function runGenerate(
           preserve: ctx.config.policies?.preserve,
           parity: ctx.config.policies?.parity,
           dryRun: Boolean(opts.dryRun),
-          force: Boolean(opts.force),
+          force: forceTarget,
           provider,
           providerId: translation.provider,
           targetLang: target,
@@ -666,7 +735,7 @@ export async function runGenerate(
         ),
         preserveCount,
         paritySkipCount: paritySkip,
-        forced: Boolean(opts.force),
+        forced: forceTarget,
         durationMs: Date.now() - targetStarted,
         requestAttempts: translateResult.translateStats.requestAttempts,
         requestRetries: translateResult.translateStats.retriesMade,

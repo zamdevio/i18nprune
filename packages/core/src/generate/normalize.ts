@@ -3,8 +3,8 @@ import {
   resolveLocaleLeafMode,
   type ResolveLocaleLeafModeInput,
 } from '../shared/localeLeaves/index.js';
-import { collectReviewLeaves } from '../review/collectReviewLeaves.js';
-import { buildTranslatedLocaleFromSourceLeaves } from './buildTranslatedLocale.js';
+import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
+import { buildTranslatedLocaleFromSourceLeaves } from './localeTranslate.js';
 import { ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
 import type { LocaleMetadataReport } from '../types/localeLeaves/index.js';
@@ -159,7 +159,7 @@ export function finalizePartialTranslatedLocaleForGenerate(input: {
     });
   }
 
-  const markedForReview = collectReviewLeaves(norm.next).filter((r) => r.needsReview === true).length;
+  const markedForReview = collectTranslationSurfaceLeaves(norm.next).filter((r) => r.needsReview === true).length;
 
   return {
     preserveCount: 0,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { StringLeaf } from '../../types/json/index.js';
-import { collectStringLeaves } from '../../shared/json/leaves.js';
+import { collectTranslationSurfaceLeaves } from '../../shared/localeLeaves/translationSurfaceWalk.js';
 import {
   canonicalTemplatePathForCollectedLeaf,
   readLeafDisplayString,
@@ -52,9 +52,9 @@ describe('humanLeafSummary', () => {
       });
     });
 
-    it('aligns with collectStringLeaves(template) paths for structured template leaves', () => {
+    it('aligns with collectTranslationSurfaceLeaves(template) paths for structured template leaves', () => {
       const template = { s: { value: 't' } };
-      const leaves = collectStringLeaves(template);
+      const leaves = collectTranslationSurfaceLeaves(template);
       const cur = { s: { value: 'loc' } };
       const fin = { s: { value: 'loc' } };
       expect(summarizeSyncLeavesForHumanLog(leaves, cur, fin)).toEqual({

@@ -290,7 +290,7 @@ export type IncompleteRunInfo = {
   lastError: unknown;
 };
 
-// packages/core/src/generate/buildTranslatedLocale.ts (option extension)
+// packages/core/src/generate/localeTranslate.ts (option extension)
 export type BuildTranslatedLocaleOptions = {
   // ...existing fields
   onIncomplete?: (info: IncompleteRunInfo) => Promise<IncompleteRunDecision>;

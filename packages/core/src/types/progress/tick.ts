@@ -1,5 +1,5 @@
 /**
- * Translation **`tickProgress`** contract for **`generate`** / **`fill`** (orchestration → host UI).
+ * Translation **`tickProgress`** contract for **`generate`** (orchestration → host UI).
  * Hosts map ticks to TTY / JSON / quiet; core stays I/O-free.
  */
 

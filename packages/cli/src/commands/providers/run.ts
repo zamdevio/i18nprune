@@ -47,7 +47,7 @@ async function printHumanProviders(): Promise<void> {
   }
 
   if (canPrintDecorative(run)) {
-    logger.decorative.dim('  Docs: config/translate · config/env · commands/generate · commands/fill', run);
+    logger.decorative.dim('  Docs: config/translate · config/env · commands/generate', run);
     logger.decorative.blank(run);
   }
 }

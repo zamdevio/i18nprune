@@ -1,6 +1,6 @@
 # Locales Data Model
 
-The locale writer commands (`sync`, `generate`, `fill`) can write leaves in two modes:
+The locale writer commands (`sync`, **`generate`**, **`generate --resume`**) can write leaves in two modes:
 
 - `legacy_string` (default): plain string terminals.
 - `structured`: object terminals with metadata (`{ value, status, confidence, needsReview, source }`).

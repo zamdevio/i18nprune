@@ -4,12 +4,13 @@
  */
 export { createCoreContext, translateContextFromCore } from './context.js';
 export { runGenerate, resolveGenerateDirectionDefault } from './run.js';
-export { buildTranslatedLocaleFromSourceLeaves, localeJsonHasKeyPath } from './buildTranslatedLocale.js';
+export { buildTranslatedLocaleFromSourceLeaves, localeJsonHasKeyPath } from './localeTranslate.js';
 export { translateAndNormalizeGenerateLocale } from './normalize.js';
 // Translator-layer error / partial-stats type are re-exported from `@i18nprune/core` and the
 // dedicated `@i18nprune/core/translator` subpath.
 export { TranslateRunInterruptedError } from '../translator/errors/interrupted.js';
 export type { TranslateRunPartialStats } from '../types/translator/runStats.js';
+export { isResumeCandidateLeaf, leafMatchesSourceForResume, translateResumeCandidateLeaves } from './resume/index.js';
 export type {
   CoreContext,
   CoreResolvedPaths,

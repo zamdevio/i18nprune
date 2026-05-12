@@ -1,26 +1,4 @@
-/**
- * Walk non-source locale JSON the same way translation-aware tools do: leaves are either
- * plain strings ("legacy") or objects with a string `value` plus optional review metadata.
- */
-export type ReviewLeafShape = 'legacy_string' | 'structured';
-
-export type ReviewLeafRow = {
-  path: string;
-  value: string;
-  shape: ReviewLeafShape;
-  /** Present when `shape === 'structured'` and the field exists. */
-  status?: string;
-  confidence: number | null;
-  needsReview: boolean | null;
-  /** Present when `shape === 'structured'` and the field exists. */
-  needsTranslationAgain?: boolean | null;
-  source?: string;
-  /**
-   * When `shape === 'structured'`, true iff the JSON node has every canonical metadata field
-   * with valid types (see {@link isCompleteStructuredLocaleLeafMeta}).
-   */
-  structuredMetaComplete?: boolean;
-};
+import type { TranslationSurfaceLeaf } from '../../types/localeLeaves/translationSurface.js';
 
 function isPlainObject(x: unknown): x is Record<string, unknown> {
   return typeof x === 'object' && x !== null && !Array.isArray(x);
@@ -63,7 +41,7 @@ function readNeedsTranslationAgain(o: Record<string, unknown>): boolean | null {
 
 /**
  * True when a structured locale terminal has **all** canonical metadata fields present with valid
- * types (`fill` may use meta-first eligibility; otherwise it falls back to `value === source` only).
+ * types (`generate --resume` may use meta-first eligibility; otherwise it falls back to `value === source` only).
  */
 export function isCompleteStructuredLocaleLeafMeta(node: unknown): boolean {
   if (!isStructuredLocaleLeafNode(node)) return false;
@@ -76,37 +54,54 @@ export function isCompleteStructuredLocaleLeafMeta(node: unknown): boolean {
   return true;
 }
 
+function pushStructuredRow(out: TranslationSurfaceLeaf[], prefix: string, root: Record<string, unknown>): void {
+  const structuredMetaComplete = isCompleteStructuredLocaleLeafMeta(root);
+  out.push({
+    path: prefix,
+    value: root.value as string,
+    shape: 'structured',
+    status: readOptionalStatus(root),
+    confidence: readConfidence(root),
+    needsReview: readNeedsReview(root),
+    needsTranslationAgain: readNeedsTranslationAgain(root),
+    source: readOptionalSource(root),
+    structuredMetaComplete,
+  });
+}
+
 /**
- * Depth-first collection of string leaves and structured `{ value }` terminals (no recursion
- * into structured leaf objects — matches how locale files store one object per key path).
+ * Depth-first collection of translation string terminals: legacy plain strings **or** structured
+ * `{ value: string, … }` objects (no descent into structured leaf objects — paths align with the source locale).
+ *
+ * Replaces naive `collectStringLeaves` for locale parity, **quality**, **sync** coverage, etc.
  */
-export function collectReviewLeaves(root: unknown, prefix = '', out: ReviewLeafRow[] = []): ReviewLeafRow[] {
+export function collectTranslationSurfaceLeaves(
+  root: unknown,
+  prefix = '',
+  out: TranslationSurfaceLeaf[] = [],
+): TranslationSurfaceLeaf[] {
   if (typeof root === 'string') {
-    if (prefix) out.push({ path: prefix, value: root, shape: 'legacy_string', confidence: null, needsReview: null });
+    if (prefix) {
+      out.push({
+        path: prefix,
+        value: root,
+        shape: 'legacy_string',
+        confidence: null,
+        needsReview: null,
+      });
+    }
     return out;
   }
 
   if (isStructuredLocaleLeafNode(root)) {
-    if (!prefix) return out;
-    const structuredMetaComplete = isCompleteStructuredLocaleLeafMeta(root);
-    out.push({
-      path: prefix,
-      value: root.value as string,
-      shape: 'structured',
-      status: readOptionalStatus(root),
-      confidence: readConfidence(root),
-      needsReview: readNeedsReview(root),
-      needsTranslationAgain: readNeedsTranslationAgain(root),
-      source: readOptionalSource(root),
-      structuredMetaComplete,
-    });
+    if (prefix) pushStructuredRow(out, prefix, root);
     return out;
   }
 
   if (Array.isArray(root)) {
     root.forEach((item, i) => {
       const p = prefix ? `${prefix}[${i}]` : `[${i}]`;
-      collectReviewLeaves(item, p, out);
+      collectTranslationSurfaceLeaves(item, p, out);
     });
     return out;
   }
@@ -114,7 +109,7 @@ export function collectReviewLeaves(root: unknown, prefix = '', out: ReviewLeafR
   if (isPlainObject(root)) {
     for (const k of Object.keys(root)) {
       const p = prefix ? `${prefix}.${k}` : k;
-      collectReviewLeaves(root[k], p, out);
+      collectTranslationSurfaceLeaves(root[k], p, out);
     }
   }
 

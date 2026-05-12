@@ -21,7 +21,6 @@ export const COMMAND_BANNER_LABELS: Record<string, CommandBannerSpec> = {
   missing: { subtitle: 'scaffold keys into locale JSON' },
   sync: { subtitle: 'merge + prune to source' },
   generate: { subtitle: 'generate translations from source' },
-  fill: { subtitle: 're-translate source-identical strings' },
   quality: { subtitle: 'parity / drift' },
   review: { subtitle: 'locale summaries vs source (+ structured leaf stats)' },
   cleanup: { subtitle: 'optional rg safety' },

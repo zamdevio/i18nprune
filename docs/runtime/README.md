@@ -47,7 +47,7 @@ CLI resolves adapters via **`resolveContext()` → `ctx.adapters`** on commands 
 | Tier | Typical hosts | Strong fits |
 |------|---------------|-------------|
 | **A — read / analyze** | Browser, Worker | **`validate`**, **`review`**, **`quality`**-style scans; interpreting **`report`** JSON already fetched elsewhere |
-| **B — write** | CLI (Node), IDE extensions | **`generate`**, **`fill`**, **`sync`**, **`cleanup`**, applying **`missing`** plans |
+| **B — write** | CLI (Node), IDE extensions | **`generate`**, **`sync`**, **`cleanup`**, applying **`missing`** plans |
 | **C — hybrid** | Web UI + backend you operate | Tier **B** executed server-side while Tier **A** runs client-side previews |
 
 Exact bundles shipped under **`apps/web`** or **`apps/workers/*`** evolve independently—the separation guarantees **`core`** never forks semantics.

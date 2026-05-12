@@ -25,8 +25,7 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | [config](./config.md) | Programmatic config load (`tryLoadCoreConfigFromPath`, …) |
 | [context](./context.md) | Workspace discovery and context resolution |
 | [doctor](./doctor.md) | **`doctor`** check findings (Node, rg, config file, resolved paths) + links to patching analyzer issues when relevant |
-| [fill](./fill.md) | `fill` command usage and envelope |
-| [generate](./generate.md) | `generate` command **`USAGE`** fallback (`i18nprune.generate.usage`) |
+| [generate](./generate.md) | `generate` command **`USAGE`** fallback (`i18nprune.generate.usage`) — includes **`--resume`** |
 | [io](./io.md) | stdin read and JSON parse failures on JSON commands |
 | [languages](./languages.md) | `languages` filters and empty results |
 | [locale](./locale.md) | Single-locale targets in `locales` subcommands |
@@ -37,7 +36,7 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | [report](./report.md) | Report format and payload errors |
 | [scan](./scan.md) | Dynamic key sites across pipelines |
 | [sync](./sync.md) | Missing locale files and metadata flag conflicts |
-| [translate](./translate.md) | Identity streak guard; provider / credentials / env troubleshooting (`generate` / `fill`; list backends: **`i18nprune providers`**) |
+| [translate](./translate.md) | Identity streak guard; provider / credentials / env troubleshooting (**`generate`** / **`generate --resume`**; list backends: **`i18nprune providers`**) |
 | [validate](./validate.md) | Missing keys, dynamic sites, unreadable source |
 
 ## Registry (quick lookup)
@@ -49,14 +48,14 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.validate.missing_literal_keys` | `warning` | **`validate`**, **`runValidate`** |
 | `i18nprune.validate.dynamic_key_sites` | `warning` | **`validate`**, **`runValidate`** |
 | `i18nprune.validate.source_locale_unreadable` | `error` | **`validate`**, **`runValidate`** |
-| `i18nprune.fill.usage` | `error` | **`fill`**, **`runFill`** |
+| `i18nprune.fill.usage` | _(removed)_ | Historical code; **`generate --resume`** uses **`i18nprune.generate.usage`** for usage-class failures |
 | `i18nprune.locales.usage` | `error` | **`locales`** subcommands |
 | `i18nprune.locale.target_not_found` | `error` | **`locales edit`**, **`locales delete`**, … |
-| `i18nprune.translate.identity_streak_warning` | `warning` | **`generate`**, **`fill`** |
-| `i18nprune.translate.identity_streak_abort` | `error` | **`generate`**, **`fill`** |
+| `i18nprune.translate.identity_streak_warning` | `warning` | **`generate`** (including **`--resume`**) |
+| `i18nprune.translate.identity_streak_abort` | `error` | **`generate`** (including **`--resume`**) |
 | `i18nprune.translate.unknown_translation_provider` | `error` | Provider id resolution / validation |
 | `i18nprune.translate.provider_not_implemented_yet` | `error` | **`resolveTranslator`** — reserved for newly registered ids without an engine yet |
-| `i18nprune.translate.missing_credentials` | `error` | **`generate`** / **`fill`** before outbound calls (DeepL / Libre URL / LLM) |
+| `i18nprune.translate.missing_credentials` | `error` | **`generate`** before outbound calls (DeepL / Libre URL / LLM) |
 | `i18nprune.generate.usage` | `error` | **`generate`** — generic **`USAGE`** when no translate-specific `issueCode` |
 | `i18nprune.report.invalid_format` | `error` | **`report`** |
 | `i18nprune.cli.invalid_json_pretty` | `error` | Global CLI option parsing |
@@ -101,7 +100,7 @@ Inside the section, prefer this order (skip lines that do not apply):
 
 **Extras (optional):** one short opening sentence if the title is terse; **`Related:`** (other `Issue.code` links) only when it saves a round trip.
 
-**`Who:`** — name the **command** (`generate`, `fill`, …) and/or **core entry** (`tryLoadCoreConfigFromPath`, `resolveTranslator`, …) so maintainers can **`rg`** the codebase.
+**`Who:`** — name the **command** (`generate`, …) and/or **core entry** (`tryLoadCoreConfigFromPath`, `resolveTranslator`, …) so maintainers can **`rg`** the codebase.
 
 Published URLs use **`/issues/<parent>#<anchor>`**; keep headings aligned with **`resolveIssueCodeDocLink()`** so anchors stay stable.
 

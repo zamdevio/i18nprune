@@ -1,6 +1,8 @@
 import { input, confirm, select } from '@inquirer/prompts';
-import type { IncompleteRunInfo } from '@i18nprune/core';
+import type { IncompleteRunInfo, ProjectFilesystemRuntime } from '@i18nprune/core';
+import { I18nPruneError, listOtherLocaleCodes } from '@i18nprune/core';
 import type { RunOptions } from '@/types/core/runtime/index.js';
+import { ALL_LANG_TOKEN } from '@/utils/cli/args.js';
 import { logger } from '@/utils/logger/index.js';
 import { duringPrompt } from '@/utils/timer/index.js';
 
@@ -78,6 +80,34 @@ export async function promptGenerateIncompleteWrite(
   );
 }
 
-export function printGenerateSessionBanner(run?: RunOptions): void {
-  logger.decorative.dim('  Translating string leaves (nested shape preserved)…', run);
+/** Interactive **`generate --resume`**: pick one locale or **`all`**. */
+export async function promptGenerateResumeLanguageSelection(
+  localesDir: string,
+  sourceBase: string,
+  runtime: ProjectFilesystemRuntime,
+  run?: RunOptions,
+): Promise<string> {
+  const codes = listOtherLocaleCodes(runtime, localesDir, sourceBase);
+  logger.decorative.dim('  Choose one target locale or all non-source locales (resume).', run);
+  if (codes.length === 0) {
+    throw new I18nPruneError('No target locale JSON files found under localesDir.', 'USAGE');
+  }
+  return duringPrompt(() =>
+    select({
+      message: 'Target locale(s) to resume',
+      choices: [
+        { name: `All target locales (${String(codes.length)})`, value: ALL_LANG_TOKEN },
+        ...codes.map((c) => ({ name: c, value: c })),
+      ],
+    }),
+  );
+}
+
+export async function confirmGenerateResumeAsk(targets: readonly string[]): Promise<boolean> {
+  return duringPrompt(() =>
+    confirm({
+      message: `Resume translate ${String(targets.length)} locale(s): ${targets.join(', ')}?`,
+      default: false,
+    }),
+  );
 }

@@ -325,7 +325,7 @@ export async function runTranslate(
   for (let i = 0; i < allLeaves.length; i += 1) {
     const item = results.get(i);
     if (!item) {
-      // Defensive: should not happen — we always pre-mark or fill above.
+      // Defensive: should not happen — we always pre-mark or populate above.
       const fallback = buildFailureItem(allLeaves[i]!);
       ordered[i] = fallback;
       continue;

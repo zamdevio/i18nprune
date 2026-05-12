@@ -86,8 +86,9 @@ export default function FeaturesPage() {
           <h2 className={DISPLAY_CARD_TITLE}>Repair and locale structure</h2>
           <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
             Sync merges and prunes locale JSON to match the source shape under <code className="font-mono text-xs">policies</code>.
-            Missing adds paths; cleanup removes unused keys with optional ripgrep-backed checks. Generate and fill cover
-            translation workflows when you need new locales or refreshed copy.
+            Missing adds paths; cleanup removes unused keys with optional ripgrep-backed checks. Generate covers translation
+            workflows when you need new locales, and <code className="font-mono text-xs">generate --resume</code> refreshes
+            stale copy that still matches the source.
           </p>
           <ul className="list-inside list-disc space-y-2 text-sm text-muted-foreground">
             <li>

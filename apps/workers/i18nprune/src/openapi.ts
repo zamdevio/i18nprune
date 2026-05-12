@@ -126,7 +126,7 @@ export const openApiDocument = {
                       mode: 'read-only',
                       readOnly: true,
                       supportedOperations: ['validate', 'review', 'missing', 'locales', 'doctor', 'report'],
-                      writeOperations: ['sync', 'fill', 'generate', 'cleanup', 'missing-apply'],
+                      writeOperations: ['sync', 'generate', 'cleanup', 'missing-apply'],
                       guidance:
                         'Use CLI/IDE extension for write-heavy operations. This worker is intentionally read-focused by default.',
                     },

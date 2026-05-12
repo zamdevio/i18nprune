@@ -9,7 +9,7 @@ The **programmatic heart** of i18nprune — battle-tested primitives used by the
 | **Stable** | Documented for integrations; breaking changes ship on a **major** bump. |
 | **Advanced** | Supported and typed, but sharper edges (heuristics, ordering, or TTY-only helpers) — read the section notes before upgrading blindly. |
 
-**Stable (initial classification):** `resolveContext`, `clearContextCache`, `scanProjectLiteralKeyUsage`, `computeMissingLiteralKeys`, `computeMissingLiteralKeysFromResolvedKeys`, `resolvedLiteralKeysInProject`, `readJsonFile`, `collectStringLeaves`, `scanSources`, `isPreservePath`, `buildKeyReferenceContext`, `resolveReferenceConfig`, `scanProjectDynamicKeySites`, CLI JSON output types (`ValidateJsonOutput`, `CleanupJsonOutput`, `MissingJsonOutput`, `SyncJsonOutput`), `Context`, `ResolvedPaths`, `ProjectLiteralKeyUsage`. For **`I18nPruneConfig`** / **`defineConfig`** authoring, use **`i18nprune/core/config`**.
+**Stable (initial classification):** `resolveContext`, `clearContextCache`, `scanProjectLiteralKeyUsage`, `computeMissingLiteralKeys`, `computeMissingLiteralKeysFromResolvedKeys`, `resolvedLiteralKeysInProject`, `readJsonFile`, `collectTranslationSurfaceLeaves`, `translationSurfacePathValueMap`, `scanSources`, `isPreservePath`, `buildKeyReferenceContext`, `resolveReferenceConfig`, `scanProjectDynamicKeySites`, CLI JSON output types (`ValidateJsonOutput`, `CleanupJsonOutput`, `MissingJsonOutput`, `SyncJsonOutput`), `Context`, `ResolvedPaths`, `ProjectLiteralKeyUsage`. For **`I18nPruneConfig`** / **`defineConfig`** authoring, use **`i18nprune/core/config`**.
 
 **Advanced:** lower-level observation pipeline (`scanProjectKeyObservations`, `literalKeyUsageFromObservations`, `resolvedKeysFromObservations`, `scanKeyObservations`, `exactLiteralKeys`), per-file dynamic analysis helpers (`findDynamicKeySites`, `analyzeDynamicKeysFromSourceText`), template rebuild utilities (`tryRebuildTemplateKeyFromConsts`, `tryResolveTemplatePrefixBeforeUnknown`), and interactive helpers (`canAsk`, `promptApprovedRemovalKeys`, `groupKeysByTopSegment`) — use only when you need the same hooks as the CLI.
 
@@ -174,10 +174,10 @@ import type { PromptRemovalKeysMode } from 'i18nprune/core';
 ### JSON Utilities
 
 ```ts
-import { collectStringLeaves, readJsonFile } from 'i18nprune/core';
+import { collectTranslationSurfaceLeaves, readJsonFile } from 'i18nprune/core';
 
 const sourceData = readJsonFile(ctx.paths.sourceLocale);
-const allLeaves = collectStringLeaves(sourceData);
+const allLeaves = collectTranslationSurfaceLeaves(sourceData);
 ```
 
 ## Safety & Design
