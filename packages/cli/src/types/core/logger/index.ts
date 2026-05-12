@@ -1,4 +1,4 @@
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 
 /** Which output gate applies (`canPrint*` / `canEmit`). */
 export type LogGate =

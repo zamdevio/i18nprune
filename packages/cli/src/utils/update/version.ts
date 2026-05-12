@@ -2,7 +2,7 @@ import { CLI_VERSION } from '@/constants/cli.js';
 import { NPM_REGISTRY_LATEST_URL, UPDATE_STATE_SCHEMA_VERSION } from '@/constants/update.js';
 import { ENV_I18NPRUNE_NO_UPDATE_CHECK } from '@/constants/env.js';
 import type { LoggerMask } from '@/types/core/logger/index.js';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
 import { style } from '@/utils/style/index.js';
 import { readUpdateState, resetUpdateState, writeUpdateState } from './cache.js';

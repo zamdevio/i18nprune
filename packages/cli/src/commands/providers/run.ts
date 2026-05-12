@@ -1,6 +1,6 @@
 import { buildTranslationProvidersPayload } from '@i18nprune/core';
 import { resolveContext } from '@/shared/context/index.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { stringifyEnvelope } from '@i18nprune/core';
 import { runProviders } from '@/commands/providers/jsonEnvelope.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintDecorative, canPrintPrimary } from '@/utils/logger/policy.js';

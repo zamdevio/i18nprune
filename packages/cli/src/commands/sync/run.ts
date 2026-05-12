@@ -1,7 +1,7 @@
 import { resolveContext } from '@/shared/context/index.js';
 import { executeCore, runSyncJsonEnvelope } from '@/commands/sync/jsonEnvelope.js';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { stringifyEnvelope } from '@i18nprune/core';
 import {
   issuesFromDiscoveryWarnings,
   issuesFromDynamicScanCount,

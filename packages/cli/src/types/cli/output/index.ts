@@ -1,4 +1,4 @@
-import type { Issue } from '@/types/core/json/envelope.js';
+import type { Issue } from '@i18nprune/core';
 
 export type CommandSummary = {
   command: string;

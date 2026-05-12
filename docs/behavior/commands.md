@@ -14,7 +14,7 @@ When **JSON** is **Yes**, structured stdout uses the envelope documented in **[J
 | `missing` | `--target`, `--dry-run`, `--top`, `--full`, global `stdout redirection`, global `--yes` | Human or JSON | **Yes** | Scaffold keys into **source** locale JSON or existing target locale files. See [missing](../commands/missing/README.md). |
 | `quality` | `--lang` | Human or JSON | **Yes** | Parity / drift. |
 | `review` | `--lang` | Human or JSON | **Yes** | Locale vs source. |
-| `cleanup` | `--check-only`, `--skip-rg` | Human or JSON | **Yes** | Unused keys. |
+| `cleanup` | `--check-only`, `--dry-run`, `--skip-rg` | Human or JSON | **Yes** | Removes unused keys from the **source** locale only; run `sync` to align targets. |
 | `languages` | `--filter`, `--table` | Human or JSON | **Yes** | Catalog list. |
 | `locales` (`list`, `edit`, `dynamic`, `delete`) | `--target` where applicable, global `--yes` for destructive JSON | Human or JSON | **Yes** (per subcommand) | **`list`**: inventory + counts; **`edit`**: meta sidecar; **`dynamic`**: validate-style dynamic scan; **`delete`**: remove locale files. See [locales](../commands/locales/README.md). |
 | `doctor` | `--only`, `--strict` | Human or JSON | **Yes** | Read-only diagnostics. |
@@ -26,6 +26,6 @@ When **JSON** is **Yes**, structured stdout uses the envelope documented in **[J
 
 **Translator** (**`generate`**, including **`--resume`**): shared **`translateLeaf`** + provider; see [Translator & progress](../translator/README.md).
 
-**Dry-run** (`--dry-run`): implemented for **`generate`** and **`sync`** — no writes under **`localesDir`**; human mode prints **`[info]`** lines that state nothing was written. Other commands do not expose **`--dry-run`** until there is a clear “would do X” contract.
+**Dry-run** (`--dry-run`): implemented for **`generate`**, **`sync`**, and **`cleanup`**. Cleanup dry-run reports the source-locale keys that would be removed without writing.
 
 **Source locale:** the basename of the configured **source** JSON (e.g. `en`) is **not** a valid **`--target`** for **`generate`**, or **`sync`**. Locale slug hints (e.g. **`locales edit`**) omit the source file from “expected one of …” lists.

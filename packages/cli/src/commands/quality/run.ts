@@ -1,6 +1,6 @@
 import { resolveContext } from '@/shared/context/index.js';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { stringifyEnvelope } from '@i18nprune/core';
 import { executeCore, runQualityJsonEnvelope } from '@/commands/quality/jsonEnvelope.js';
 import {
   issuesFromDiscoveryWarnings,

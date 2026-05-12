@@ -1,6 +1,6 @@
 import type { Context } from '@/types/core/context/index.js';
 import type { I18nPruneEnvSnapshot } from '@/types/core/context/env.js';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 
 export type ResolvedPathKind = 'file' | 'directory' | 'missing';
 

@@ -1,5 +1,5 @@
 import type { I18nPruneConfig } from '@i18nprune/core/config';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 import type { CliCacheState } from '@/types/shared/cache/index.js';
 import type { RuntimeAdapters } from '@i18nprune/core';
 

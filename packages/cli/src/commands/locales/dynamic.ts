@@ -1,7 +1,7 @@
 import { resolveContext } from '@/shared/context/index.js';
 import { docsCommandUrl, getDocsUrl } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
-import { buildCliJsonEnvelope, stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
 import {
   isLocaleTargetMissingMessage,
@@ -15,7 +15,7 @@ import { logger } from '@/utils/logger/index.js';
 import { style } from '@/utils/style/index.js';
 import { canPrintInfo, canPrintWarn } from '@/utils/logger/policy.js';
 import { getRunOptions } from '@i18nprune/core';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 import { I18nPruneError } from '@i18nprune/core';
 import type { LocalesDynamicJsonPayload } from '@/types/command/locales/json.js';
 import type { LocalesDynamicOptions } from '@/types/commands/locales/index.js';

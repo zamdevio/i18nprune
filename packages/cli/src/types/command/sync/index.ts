@@ -1,7 +1,5 @@
 import type { RunEmitter } from '@i18nprune/core';
 
-export type { SyncFileLine, SyncJsonOutput } from '@i18nprune/core';
-
 export type SyncOptions = {
   /** Report only; do not write locale files */
   dryRun?: boolean;

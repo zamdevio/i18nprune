@@ -1,0 +1,37 @@
+{
+  "data": {
+    "dynamicKeySites": 3,
+    "keys": [
+      "notifications.success",
+      "notifications.error",
+      "notifications.logout"
+    ],
+    "summary": {
+      "command": "cleanup",
+      "counts": {
+        "dynamicKeySites": 3,
+        "remove": 3
+      },
+      "ok": true
+    },
+    "uncertainPrefixes": [
+      "app.footer"
+    ],
+    "wouldRemove": 3
+  },
+  "issues": [
+    {
+      "code": "i18nprune.scan.dynamic_key_sites",
+      "docHref": "https://docs.i18nprune.dev/issues/scan#dynamic-key-sites",
+      "docPath": "docs/dynamic/README",
+      "message": "3 translation call(s) use a non-literal key — static analysis cannot enumerate computed keys as fixed paths.",
+      "severity": "warning"
+    }
+  ],
+  "kind": "cleanup",
+  "meta": {
+    "apiVersion": "1",
+    "cwd": "<cwd>"
+  },
+  "ok": true
+}

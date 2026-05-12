@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { canPrintScanDebug } from '@/utils/logger/policy.js';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 
 function base(): RunOptions {
   return {

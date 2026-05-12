@@ -79,7 +79,7 @@ On **`i18nprune/core`**, the same functions are also available under **`context`
 
 ## What is *not* exported (by design)
 
-- **Command orchestration** (`generate`, `cleanup` writes) stays in the CLI layer—call **`i18nprune`** or import internal paths only from a fork (not supported semver).
+- **Unmigrated command orchestration** stays in the CLI layer. Migrated operations such as **`generate`**, **`sync`**, **`missing`**, **`quality`**, **`review`**, and **`cleanup`** expose core `runXxx` entries; CLI-specific prompts and rendering remain host-owned.
 - **Translator providers** are not a stable public API yet; extend via CLI or future explicit exports.
 - **Logger / UI** — not part of **`core`**; keep scripts machine-readable.
 

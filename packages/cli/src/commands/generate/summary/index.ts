@@ -1,5 +1,5 @@
 import { getRunOptions } from '@i18nprune/core';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 import { joinMetaSubtitle } from '@/utils/ansi/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintDetail, canPrintInfo } from '@/utils/logger/policy.js';

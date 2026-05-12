@@ -18,7 +18,7 @@ Pre-v1 freedom is used: no backwards-compat constraints on internal APIs. Behavi
 
 | # | decision |
 |---|---|
-| A1 | **One entry per op named `run.ts`**, re-exported from `index.ts`. Function name pattern: `runTranslate` (translate primitive), `runGenerate`, `runQuality`, `runReview`, `runMissing`, `runSync`. (`orchestrator.ts` is reserved — already used by translator pacing utilities; `runFill` is intentionally not in the list — see §8 / §11.) |
+| A1 | **One entry per op named `run.ts`**, re-exported from `index.ts`. Function name pattern: `runTranslate` (translate primitive), `runGenerate`, `runQuality`, `runReview`, `runMissing`, `runSync`, `runCleanup`. (`orchestrator.ts` is reserved — already used by translator pacing utilities; `runFill` is intentionally not in the list — see §8 / §11.) |
 | A2 | **Config-driven entry params.** Entry takes the resolved config; reads source / existing target via host adapters; throws **`I18nPruneError`** for fatal IO / parse failures. SDK consumers detect failure with one type check. |
 | A3 | **Typed return shape per op** (`GenerateOutput`, `FillOutput`, …) so consumers — CLI included — never reach into internals. |
 | A4 | **CLI is a host.** It owns argv parsing, prompts, banners, and rendering policy. Core owns operation orchestration **and operation message copy** via `run.message` events; hosts decide whether to show, collect, ignore, or map those messages into their own UI. CLI must not duplicate core-op info/warn/detail copy after an op is migrated. |

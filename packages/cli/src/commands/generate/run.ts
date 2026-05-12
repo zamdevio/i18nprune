@@ -15,7 +15,7 @@ import { noopRunEmitter } from '@i18nprune/core';
 import { refreshProjectReportCache, resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { resolveContext } from '@/shared/context/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { stringifyEnvelope } from '@i18nprune/core';
 import { logTranslateFailureHelp } from '@/shared/translator/failureHelp.js';
 import { printCommandSummary } from '@/output/index.js';
 import { logger } from '@/utils/logger/index.js';
@@ -27,7 +27,7 @@ import { executeCore, runGenerateJsonEnvelope } from '@/commands/generate/jsonEn
 
 import type { GenerateOptions } from '@/types/command/generate/index.js';
 import type { GenerateJsonPayload } from '@i18nprune/core';
-import type { Issue } from '@/types/core/json/envelope.js';
+import type { Issue } from '@i18nprune/core';
 
 /**
  * Public CLI command for **`i18nprune generate`**. Branches on **`--json`** vs human and renders the

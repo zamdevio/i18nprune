@@ -1,6 +1,6 @@
 import { confirm, select } from '@inquirer/prompts';
 import type { InitConfigFormat } from '@i18nprune/core';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
 import { CLI_NAME, CONFIG_BASE_NAME } from '@/constants/cli.js';
 import { duringPrompt } from '@/utils/timer/index.js';

@@ -14,7 +14,7 @@ import {
   writeMissingPaths,
 } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { stringifyEnvelope } from '@i18nprune/core';
 import { executeCore, runMissingJsonEnvelope } from '@/commands/missing/jsonEnvelope.js';
 import { canAsk } from '@/shared/ask/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';

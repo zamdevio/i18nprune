@@ -1,11 +1,11 @@
 import { issueCodeRepoDocPathForIssueCode } from '@i18nprune/core';
 import { normalizeUnknownError } from '@/shared/errors/normalize.js';
 import { ISSUE_IO_READ_FAILED } from '@/constants/issueCodes.js';
-import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope } from '@i18nprune/core';
 import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
 import type { Context } from '@/types/core/context/index.js';
-import type { CliJsonEnvelope } from '@/types/core/json/envelope.js';
-import type { Issue } from '@/types/core/json/envelope.js';
+import type { CliJsonEnvelope } from '@i18nprune/core';
+import type { Issue } from '@i18nprune/core';
 
 function errnoPath(err: unknown): string | undefined {
   if (err && typeof err === 'object' && 'path' in err) {

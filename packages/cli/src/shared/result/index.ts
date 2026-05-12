@@ -2,7 +2,7 @@ export {
   buildCliJsonEnvelope,
   stringifyCliCommandJson,
   stringifyEnvelope,
-} from './cliJson.js';
+} from '@i18nprune/core';
 
 export {
   issuesFromCleanupRipgrepUnavailable,

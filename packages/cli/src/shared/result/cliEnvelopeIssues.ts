@@ -16,8 +16,8 @@ import {
   ISSUE_DOCTOR_RUNTIME_UNSUPPORTED_NODE,
   ISSUE_DOCTOR_TOOLS_RG_NOT_ON_PATH,
 } from '@/constants/issueCodes.js';
-import type { DoctorCheckId, DoctorFinding } from '@/types/commands/doctor/index.js';
-import type { Issue } from '@/types/core/json/envelope.js';
+import type { DoctorCheckId, DoctorFinding } from '@i18nprune/core';
+import type { Issue } from '@i18nprune/core';
 import type { PatchingDiagnostic } from '@i18nprune/core';
 
 function issueCodeForDoctorFinding(f: DoctorFinding): string | null {

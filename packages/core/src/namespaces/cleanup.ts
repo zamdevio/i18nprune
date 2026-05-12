@@ -1,11 +1,26 @@
 export {
   applyCleanupKeysToLocaleJson,
   computeCleanupCandidateKeys,
+  createCleanupSourceWritePlan,
+  emitCleanupAbortMessage,
+  emitCleanupAskIgnoredMessage,
+  emitCleanupCheckOnlyMessage,
+  emitCleanupWriteDone,
+  emitCleanupWriteIntro,
   pathUnderRoot,
   resolveCleanupKeysWithStringPresencePolicy,
+  runCleanup,
+  writeCleanupPlan,
 } from '../cleanup/index.js';
 export type {
   CleanupCandidateInput,
+  CleanupHostHooks,
+  CleanupJsonOutput,
+  CleanupJsonRunSummary,
+  CleanupReferenceData,
+  CleanupRunOptions,
+  CleanupRunResult,
   CleanupStringPresenceEvidence,
+  CleanupWritePlan,
   ResolveCleanupKeysWithStringPresenceInput,
 } from '../cleanup/index.js';

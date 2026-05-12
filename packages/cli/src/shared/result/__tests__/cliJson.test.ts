@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildCliJsonEnvelope, stringifyCliCommandJson } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope, stringifyCliCommandJson } from '@i18nprune/core';
 
 describe('stringifyCliCommandJson', () => {
   it('always wraps in envelope', () => {

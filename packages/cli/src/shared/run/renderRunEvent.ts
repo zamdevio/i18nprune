@@ -1,7 +1,7 @@
 import type { RunEmitter, RunEvent } from '@i18nprune/core';
 
 import { logger } from '@/utils/logger/index.js';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 
 export function renderRunEvent(event: RunEvent, run: RunOptions): void {
   if (event.type !== 'run.message') return;

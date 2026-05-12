@@ -1,4 +1,4 @@
-import type { DynamicKeySite } from '@/types/core/extractor/dynamic/index.js';
+import type { DynamicKeySite } from '@i18nprune/core';
 
 export type LocalesListJsonRow = {
   code: string;

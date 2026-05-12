@@ -1,5 +1,5 @@
-import { buildCliJsonEnvelope, stringifyEnvelope } from '@/shared/result/cliJson.js';
-import type { Issue } from '@/types/core/json/envelope.js';
+import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
+import type { Issue } from '@i18nprune/core';
 import type { EmitCliJsonOptionErrorInput } from '@/types/shared/result/index.js';
 
 /**

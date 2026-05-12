@@ -1,4 +1,4 @@
-import type { Issue } from '@/types/core/json/envelope.js';
+import type { Issue } from '@i18nprune/core';
 import { rows, up } from '@/shared/cursor/index.js';
 import { logger } from '@/utils/logger/index.js';
 import {

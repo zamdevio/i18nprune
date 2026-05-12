@@ -7,7 +7,7 @@
 
 import type { HandoffOffer, TranslationProviderId } from '@i18nprune/core';
 
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 
 import { select } from '@inquirer/prompts';
 

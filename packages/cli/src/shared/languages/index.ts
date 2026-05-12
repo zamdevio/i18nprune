@@ -1,5 +1,5 @@
 import { I18nPruneError, ISSUE_LANGUAGES_UNSUPPORTED_LANGUAGE_CODE } from '@i18nprune/core';
-import type { TranslateTargetLanguage } from '@/types/core/languages/catalog.js';
+import type { TranslateTargetLanguage } from '@i18nprune/core';
 import { style } from '@/utils/style/index.js';
 import {
   buildLanguageCatalog,

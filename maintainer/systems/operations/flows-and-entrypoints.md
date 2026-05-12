@@ -25,7 +25,7 @@ If this summary diverges from code, **code + types win**; update **this doc** in
 | **validate** | `packages/cli/src/shared/programmatic/runValidate.ts` → **`runValidate`** | |
 | **doctor** | `packages/cli/src/commands/doctor/jsonEnvelope.ts` → **`runDoctor`** | |
 | **missing** | core entry: `packages/core/src/missing/run.ts` → **`runMissing`**. CLI host: `packages/cli/src/commands/missing/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/missing/jsonEnvelope.ts` → **`executeCore`** / **`runMissingJsonEnvelope`** | |
-| **cleanup** | `packages/cli/src/commands/cleanup/jsonEnvelope.ts` → **`runCleanupCheck`** | |
+| **cleanup** | core entry: `packages/core/src/cleanup/run.ts` → **`runCleanup`**. CLI host: `packages/cli/src/commands/cleanup/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/cleanup/jsonEnvelope.ts` → **`executeCore`** / **`runCleanupJsonEnvelope`** | Source-locale-only write plan; CLI handles prompts and applies the core write plan |
 | **quality** | core entry: `packages/core/src/quality/run.ts` → **`runQuality`**. CLI host: `packages/cli/src/commands/quality/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/quality/jsonEnvelope.ts` → **`executeCore`** / **`runQualityJsonEnvelope`** | |
 | **review** | core entry: `packages/core/src/review/run.ts` → **`runReview`**. CLI host: `packages/cli/src/commands/review/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/review/jsonEnvelope.ts` → **`executeCore`** / **`runReviewJsonEnvelope`** | |
 | **languages** | `packages/cli/src/commands/languages/jsonEnvelope.ts` → **`runLanguages`** | |

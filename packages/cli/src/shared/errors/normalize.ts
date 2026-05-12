@@ -1,6 +1,6 @@
 import { ZodError } from 'zod';
 import { ConfigValidationError } from '@i18nprune/core/config';
-import type { NormalizedCliError, CliErrorCode } from '@/types/core/errors/index.js';
+import type { NormalizedCliError, CliErrorCode } from '@i18nprune/core';
 
 export function normalizeUnknownError(err: unknown): NormalizedCliError {
   if (err instanceof ConfigValidationError) {

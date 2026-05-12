@@ -1,7 +1,7 @@
 import { resolveContext } from '@/shared/context/index.js';
 import { noopRunEmitter } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { stringifyEnvelope } from '@i18nprune/core';
 import { executeCore, runReviewJsonEnvelope } from '@/commands/review/jsonEnvelope.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';

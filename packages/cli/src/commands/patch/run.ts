@@ -9,7 +9,7 @@ import {
   getRunOptions,
   runPatching,
 } from '@i18nprune/core';
-import { buildCliJsonEnvelope, stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import {
   issuesFromDiscoveryWarnings,
   issuesFromPatchingDiagnostics,

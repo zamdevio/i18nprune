@@ -1,7 +1,7 @@
 import { input, confirm, select } from '@inquirer/prompts';
 import type { IncompleteRunInfo, ProjectFilesystemRuntime } from '@i18nprune/core';
 import { I18nPruneError, listOtherLocaleCodes } from '@i18nprune/core';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 import { ALL_LANG_TOKEN } from '@/utils/cli/args.js';
 import { logger } from '@/utils/logger/index.js';
 import { duringPrompt } from '@/utils/timer/index.js';

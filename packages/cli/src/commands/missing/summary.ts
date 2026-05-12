@@ -1,7 +1,7 @@
 import { logger } from '@/utils/logger/index.js';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
 import type { MissingPathDisplayOpts } from '@/types/command/missing/summary.js';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 
 /** Fallback when env, config, and CLI omit a cap. */
 export const MISSING_DISPLAY_DEFAULT_TOP = 10;

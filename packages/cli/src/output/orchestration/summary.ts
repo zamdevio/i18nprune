@@ -1,4 +1,4 @@
-import { stringifyCliCommandJson } from '@/shared/result/cliJson.js';
+import { stringifyCliCommandJson } from '@i18nprune/core';
 import { issueCodeDocHref } from '@i18nprune/core';
 import { getRunOptions } from '@i18nprune/core';
 import type { Context } from '@/types/core/context/index.js';

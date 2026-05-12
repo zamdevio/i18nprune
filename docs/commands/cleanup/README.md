@@ -2,7 +2,7 @@
 
 **Full examples:** [cleanup examples](../../examples/commands/cleanup/README.md)
 
-Removes **unused** key paths from **all** locale JSON files under **`localesDir`**, using the **source** locale JSON as the key catalog, **`reference`** policy (uncertain prefixes, string presence), optional **ripgrep** checks on locale **string values** in **`src`**, and **`policies.preserve`**.
+Removes **unused** key paths from the configured **source locale JSON** only, using **`reference`** policy (uncertain prefixes, string presence), optional host string-presence checks on locale **string values** in **`src`**, and **`policies.preserve`**. Run **`i18nprune sync`** afterwards to align target locale files to the updated source shape.
 
 ## Detection limits
 
@@ -11,17 +11,17 @@ Cleanup key usage now follows the same **per-file key-site resolution** as `vali
 
 ## Safety
 
-- **`--check-only`** — Report what would be removed; **no writes**.
+- **`--check-only`** / **`--dry-run`** — Report what would be removed; **no writes**.
 - **Global `--json`** — Same as check-only for this command: prints a **`wouldRemove`** payload and **does not** modify files. The envelope includes **`data.summary`** (duration and counts) on the **same** stdout document — there is no separate **`kind: summary`** line.
 - **Destructive run** (default, without `--check-only` / `--json`):
   - **Interactive (TTY):** Prompts for confirmation unless you pass **global `--yes`**.
-  - **Non-interactive** (CI, no TTY, piped stdin): **Requires global `--yes`** or the command **throws** with a usage-class error. Use **`--check-only`** to audit without writes.
+  - **Non-interactive** (CI, no TTY, piped stdin): **Requires global `--yes`** or the command **throws** with a usage-class error. Use **`--check-only`** / **`--dry-run`** to audit without writes.
 - **Global `--yes`** — Confirms the run without prompts; **overrides** **`--ask`** / **`--ask-per-key`**.
 - **`--ask`** — Interactive TTY only: confirm removals **per top-level namespace** (segment before the first `.`). Ignored with **`--json`**, **`--check-only`**, or without a TTY (info message).
 - **`--ask-per-key`** — With **`--ask`**, confirm **each** key separately (verbose).
 - **`--skip-rg`** — Skips ripgrep; keys are removed using static + reference logic only (see **`reference.stringPresence`** when rg is enabled).
 
-Logs: scan summary, per-key **detail** when rg finds string presence, confirmation, per-file **detail** after writes, and a final **info** line.
+Logs: scan summary, per-key **detail** when string-presence checks find values in source code, confirmation, source-file **detail** after writes, and a final **info** line.
 
 ## Config
 

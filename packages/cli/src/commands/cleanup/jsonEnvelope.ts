@@ -1,129 +1,122 @@
-import { collectTranslationSurfaceLeaves } from '@i18nprune/core';
-import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
-import { computeCleanupCandidateKeys } from '@i18nprune/core';
-import { resolveCleanupKeysWithStringPresence } from '@/shared/cleanup/stringPresence.js';
-import { buildKeyReferenceContext } from '@/shared/reference/context.js';
-import { resolveReferenceConfig } from '@i18nprune/core';
-import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
-import { isRipgrepAvailable } from '@/utils/rg/index.js';
-import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
 import {
-  issuesFromCleanupRipgrepUnavailable,
-  issuesFromCleanupUncertainExcluded,
-  issuesFromDiscoveryWarnings,
-  issuesFromDynamicScanCount,
-  mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
-import type { Context } from '@/types/core/context/index.js';
-import type { CleanupJsonOutput, CleanupOptions } from '@/types/command/cleanup/index.js';
-import type { CliJsonEnvelope } from '@/types/core/json/envelope.js';
-import { emitRunErrorFromUnknown, emitRunEvent, extractor, nowMs } from '@i18nprune/core';
-import type { RunEmitter } from '@i18nprune/core';
+  buildCliJsonEnvelope,
+  createCoreContext,
+  emitRunErrorFromUnknown,
+  emitRunEvent,
+  nowMs,
+  runCleanup as runCoreCleanup,
+} from '@i18nprune/core';
+import type { CleanupJsonOutput, CleanupRunOptions, CleanupRunResult, CliJsonEnvelope, RunEmitter } from '@i18nprune/core';
 
-/** Same `cleanup --json` / `--check-only` payload (no writes). */
-export function runCleanupCheck(
+import { buildCleanupHostHooks } from '@/commands/cleanup/hooks.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
+import type { Context } from '@/types/core/context/index.js';
+import type { CleanupOptions, CleanupRuntime } from '@/types/command/cleanup/index.js';
+
+export type CleanupJsonRunResult = CleanupRunResult & {
+  envelope: CliJsonEnvelope<'cleanup', CleanupJsonOutput>;
+};
+
+export type CleanupJsonEnvelopeResult = {
+  envelope: CliJsonEnvelope<'cleanup', CleanupJsonOutput>;
+  result?: CleanupJsonRunResult;
+};
+
+export function toCleanupRunOptions(opts: CleanupOptions): CleanupRunOptions {
+  return {
+    checkOnly: opts.checkOnly,
+    dryRun: opts.dryRun,
+    skipStringPresenceCheck: opts.skipStringPresenceCheck ?? opts.skipRg,
+  };
+}
+
+export function emptyCleanupPayload(): CleanupJsonOutput {
+  return {
+    wouldRemove: 0,
+    keys: [],
+    dynamicKeySites: 0,
+    uncertainPrefixes: [],
+  };
+}
+
+export function executeCore(
   ctx: Context,
   opts: CleanupOptions,
-  runtime?: { emit?: RunEmitter; runId?: string },
-): CliJsonEnvelope<'cleanup', CleanupJsonOutput> {
-  emitRunEvent(runtime?.emit, { type: 'run.started', op: 'cleanup', runId: runtime?.runId, at: nowMs() });
+  runtime: CleanupRuntime = {},
+): CleanupJsonRunResult {
+  const { emit, runId } = runtime;
+  emitRunEvent(emit, { type: 'run.started', op: 'cleanup', runId, at: nowMs() });
   try {
-    const envelope = runCleanupCheckCore(ctx, opts);
-    emitRunEvent(runtime?.emit, {
+    const coreCtx = createCoreContext({
+      config: ctx.config,
+      adapters: ctx.adapters,
+      env: process.env,
+      paths: ctx.paths,
+      run: ctx.run,
+    });
+    const out = runCoreCleanup(coreCtx, toCleanupRunOptions(opts), buildCleanupHostHooks(ctx, runtime));
+    const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), out.issues);
+    const envelope = buildCliJsonEnvelope('cleanup', out.payload, {
+      ok: true,
+      issues,
+      cwd: ctx.adapters.system.cwd(),
+    });
+    emitRunEvent(emit, {
       type: 'run.completed',
       op: 'cleanup',
-      runId: runtime?.runId,
+      runId,
       at: nowMs(),
       ok: envelope.ok,
     });
-    emitRunEvent(runtime?.emit, {
+    emitRunEvent(emit, {
       type: 'run.summary',
       op: 'cleanup',
-      runId: runtime?.runId,
+      runId,
       at: nowMs(),
       ok: envelope.ok,
       issueCount: envelope.issues.length,
       counts: { wouldRemove: envelope.data.wouldRemove, dynamicKeySites: envelope.data.dynamicKeySites },
     });
-    return envelope;
+    return { ...out, envelope };
   } catch (err) {
-    emitRunErrorFromUnknown(runtime?.emit, {
-      op: 'cleanup',
-      runId: runtime?.runId,
-      err,
-      code: 'i18nprune.run.cleanup_failed',
-      recoverable: false,
-    });
-    emitRunEvent(runtime?.emit, {
-      type: 'run.failed',
-      op: 'cleanup',
-      runId: runtime?.runId,
-      at: nowMs(),
-      error: {
-        name: err instanceof Error ? err.name : 'Error',
-        message: err instanceof Error ? err.message : String(err),
-        recoverable: false,
-      },
-    });
-    const empty: CleanupJsonOutput = {
-      wouldRemove: 0,
-      keys: [],
-      dynamicKeySites: 0,
-      uncertainPrefixes: [],
-    };
-    return buildIoReadFailureEnvelope('cleanup', empty, ctx, err);
+    emitCleanupFailureEvents(emit, runId, err);
+    throw err;
   }
 }
 
-function runCleanupCheckCore(ctx: Context, opts: CleanupOptions): CliJsonEnvelope<'cleanup', CleanupJsonOutput> {
-  const eff = resolveReferenceConfig('cleanup', ctx.config);
-  const refCtx = buildKeyReferenceContext(ctx, eff);
-  const scanInput = toExtractorScanInput(ctx);
-  const dynamicSites = extractor.dynamic.scanProjectDynamicKeySites(scanInput);
-  const sourcePath = ctx.paths.sourceLocale;
-  const sourceRaw = readHostJsonUnknown(sourcePath, ctx.adapters.fs);
-  const leaves = collectTranslationSurfaceLeaves(sourceRaw);
-  const usage = extractor.keySites.scanProjectLiteralKeyUsage(scanInput);
-  const filterUncertain =
-    eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only';
-  const { candidates, excludedUncertain } = computeCleanupCandidateKeys({
-    leaves,
-    usage,
-    preserve: ctx.config.policies?.preserve,
-    uncertainPrefixes: refCtx.uncertainPrefixes,
-    filterUncertainPrefixes: filterUncertain,
+/** Same `cleanup --json` / `--check-only` payload (no writes). */
+export function runCleanupJsonEnvelope(
+  ctx: Context,
+  opts: CleanupOptions,
+  runtime?: CleanupRuntime,
+): CleanupJsonEnvelopeResult {
+  try {
+    const result = executeCore(ctx, { ...opts, checkOnly: true, dryRun: true }, runtime ?? {});
+    return { envelope: result.envelope, result };
+  } catch (err) {
+    return { envelope: buildIoReadFailureEnvelope('cleanup', emptyCleanupPayload(), ctx, err) };
+  }
+}
+
+function emitCleanupFailureEvents(emit: RunEmitter | undefined, runId: string | undefined, err: unknown): void {
+  emitRunErrorFromUnknown(emit, {
+    op: 'cleanup',
+    runId,
+    err,
+    code: 'i18nprune.run.cleanup_failed',
+    recoverable: false,
   });
-
-  const rgOk = opts.skipRg ? false : isRipgrepAvailable();
-  const safeToRemove = resolveCleanupKeysWithStringPresence({
-    candidates,
-    leaves,
-    srcRoot: ctx.paths.srcRoot,
-    eff,
-    skipRg: Boolean(opts.skipRg),
-    rgOk,
-    logDetail: undefined,
-  });
-
-  const jsonPayload: CleanupJsonOutput = {
-    wouldRemove: safeToRemove.length,
-    keys: safeToRemove,
-    dynamicKeySites: dynamicSites.length,
-    uncertainPrefixes: refCtx.uncertainPrefixes,
-  };
-
-  const issues = mergeIssues(
-    issuesFromDiscoveryWarnings(ctx.meta.warnings),
-    issuesFromDynamicScanCount(dynamicSites.length),
-    issuesFromCleanupUncertainExcluded(excludedUncertain),
-    !opts.skipRg && !rgOk ? issuesFromCleanupRipgrepUnavailable() : [],
-  );
-
-  return buildCliJsonEnvelope('cleanup', jsonPayload, {
-    ok: true,
-    issues,
-    cwd: process.cwd(),
+  emitRunEvent(emit, {
+    type: 'run.failed',
+    op: 'cleanup',
+    runId,
+    at: nowMs(),
+    error: {
+      name: err instanceof Error ? err.name : 'Error',
+      message: err instanceof Error ? err.message : String(err),
+      recoverable: false,
+    },
   });
 }
 

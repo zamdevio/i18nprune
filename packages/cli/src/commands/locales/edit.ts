@@ -3,7 +3,7 @@ import { resolveContext } from '@/shared/context/index.js';
 import { canAsk } from '@/shared/ask/index.js';
 import { I18nPruneError } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
-import { buildCliJsonEnvelope, stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
 import {
   isLocaleTargetMissingMessage,

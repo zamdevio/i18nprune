@@ -1,4 +1,4 @@
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 import type { LiftRows } from '@/types/shared/cursor/index.js';
 import { canPrintProgress } from '@/utils/logger/policy.js';
 

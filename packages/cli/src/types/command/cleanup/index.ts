@@ -1,9 +1,10 @@
-export type { CleanupJsonOutput } from '@/types/command/cleanup/json.js';
+import type { CleanupRunOptions, RunEmitter } from '@i18nprune/core';
+
+export type { CleanupJsonOutput } from '@i18nprune/core';
 
 /** Flags for `i18nprune cleanup`. */
-export type CleanupOptions = {
-  checkOnly?: boolean;
-  /** Do not run ripgrep safety (delete purely from static key analysis; use with care) */
+export type CleanupOptions = CleanupRunOptions & {
+  /** CLI spelling for skipping the host string-presence probe. */
   skipRg?: boolean;
   /**
    * Interactive TTY only: confirm removals in batches (grouped by top-level namespace).
@@ -16,3 +17,5 @@ export type CleanupOptions = {
    */
   askPerKey?: boolean;
 };
+
+export type CleanupRuntime = { emit?: RunEmitter; runId?: string };

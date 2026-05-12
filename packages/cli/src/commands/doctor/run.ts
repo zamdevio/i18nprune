@@ -11,7 +11,7 @@ import {
 } from '@/shared/result/cliEnvelopeIssues.js';
 import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { stringifyEnvelope } from '@i18nprune/core';
 import {
   analyzePatchingState,
   collectTranslationSurfaceLeaves,
@@ -25,7 +25,8 @@ import { canPrintWarn } from '@/utils/logger/policy.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
 import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
-import type { DoctorFinding, DoctorOptions } from '@/types/commands/doctor/index.js';
+import type { DoctorFinding } from '@i18nprune/core';
+import type { DoctorOptions } from '@/types/commands/doctor/index.js';
 
 function resolveDoctorData(
   ctx: Awaited<ReturnType<typeof resolveContext>>,

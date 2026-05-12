@@ -11,13 +11,13 @@ import {
   type RunEmitter,
 } from '@i18nprune/core';
 import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
-import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope } from '@i18nprune/core';
 import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
 import { normalizeUnknownError } from '@/shared/errors/normalize.js';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '@/constants/issueCodes.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { ValidateJsonOutput } from '@/types/command/validate/index.js';
-import type { CliJsonEnvelope, Issue } from '@/types/core/json/envelope.js';
+import type { CliJsonEnvelope, Issue } from '@i18nprune/core';
 
 function emptyValidateData(): ValidateJsonOutput {
   return {

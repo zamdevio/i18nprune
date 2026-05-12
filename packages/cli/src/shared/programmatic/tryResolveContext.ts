@@ -4,10 +4,10 @@ import {
   ISSUE_CONTEXT_DISCOVERY_WARNING,
   ISSUE_CONTEXT_RESOLUTION_FAILED,
 } from '@/constants/issueCodes.js';
-import { RESULT_API_VERSION } from '@/constants/result.js';
+import { RESULT_API_VERSION } from '@i18nprune/core';
 import { enrichIssuesWithDocHrefs } from '@/shared/result/issueDocLinks.js';
 import type { Context } from '@/types/core/context/index.js';
-import type { Issue, Result } from '@/types/core/json/envelope.js';
+import type { Issue, Result } from '@i18nprune/core';
 
 function resolutionFailedIssue(err: unknown): Issue {
   if (err instanceof I18nPruneError) {

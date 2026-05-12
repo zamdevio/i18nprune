@@ -1,6 +1,6 @@
 import { configExists, configPathForContext } from '@/shared/config/index.js';
 import { isRipgrepAvailable } from '@/utils/rg/index.js';
-import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope } from '@i18nprune/core';
 import {
   issuesFromDiscoveryWarnings,
   issuesFromDoctorFindings,
@@ -9,7 +9,7 @@ import {
 } from '@/shared/result/cliEnvelopeIssues.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { DoctorOptions } from '@/types/commands/doctor/index.js';
-import type { CliJsonEnvelope } from '@/types/core/json/envelope.js';
+import type { CliJsonEnvelope } from '@i18nprune/core';
 import type { DoctorFinding } from '@i18nprune/core/types';
 import { collectDoctorFindingsFromInputs, doctorExitCode } from '@i18nprune/core';
 import { emitIssuesAsRunErrors, emitRunErrorFromUnknown, emitRunEvent, nowMs } from '@i18nprune/core';

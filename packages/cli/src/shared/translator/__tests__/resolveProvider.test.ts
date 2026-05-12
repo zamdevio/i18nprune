@@ -21,11 +21,6 @@ import {
   resolvedTranslationOptionsFromCliFlag,
   safeTranslationMetaForEnvelope,
 } from '../resolveProvider.js';
-import {
-  buildTranslateParallelLimitSuggestion,
-  resolveCliTranslateMaxParallelEffective,
-  resolveCliTranslateRateLimitEffective,
-} from '../resolveTranslateParallel.js';
 
 const ENV_TOUCH = [
   ENV_I18NPRUNE_TRANSLATE_PROVIDER,
@@ -260,82 +255,3 @@ describe('translator env snapshots', () => {
   });
 });
 
-describe('resolveCliTranslateMaxParallelEffective', () => {
-  it('caps workers by policy throttle and provider row maxConcurrency', () => {
-    const ctx = makeContext({
-      translate: {
-        primary: 'mymemory',
-        providers: [{ id: 'mymemory', rateLimit: { maxConcurrency: 2 } }, { id: 'google' }],
-        policy: { routing: 'single', onRateLimit: 'backoff', onTransientFailure: 'retry' },
-        workers: 10,
-      },
-    });
-    // base=10, row=2 => 2
-    expect(resolveCliTranslateMaxParallelEffective({ config: ctx.config, workers: 50, providerId: 'mymemory' })).toBe(2);
-  });
-});
-
-describe('resolveCliTranslateRateLimitEffective', () => {
-  it('merges provider defaults with provider override (provider wins per-key)', () => {
-    const ctx = makeContext({
-      translate: {
-        primary: 'mymemory',
-        providers: [
-          { id: 'mymemory', rateLimit: { rps: 1.5 } },
-          { id: 'google', rateLimit: { rpm: 180, intervalMs: 200 } },
-        ],
-        policy: {
-          routing: 'single',
-          onRateLimit: 'backoff',
-          onTransientFailure: 'retry',
-        },
-        workers: 4,
-      },
-    });
-    expect(resolveCliTranslateRateLimitEffective({ config: ctx.config, providerId: 'mymemory' })).toEqual({
-      rpm: 60,
-      rps: 1.5,
-      intervalMs: 1000,
-    });
-  });
-
-  it('falls back to provider defaults when config omits throttle', () => {
-    const ctx = makeContext({
-      translate: {
-        primary: 'google',
-        providers: [{ id: 'google' }],
-        policy: { routing: 'single', onRateLimit: 'backoff', onTransientFailure: 'retry' },
-        workers: 8,
-      },
-    });
-    expect(resolveCliTranslateRateLimitEffective({ config: ctx.config, providerId: 'google' })).toEqual({
-      rpm: 1920,
-      rps: 32,
-      intervalMs: 32,
-    });
-  });
-});
-
-describe('buildTranslateParallelLimitSuggestion', () => {
-  it('explains why requested workers are capped by provider limits', () => {
-    const ctx = makeContext({
-      translate: {
-        primary: 'mymemory',
-        providers: [{ id: 'mymemory', rateLimit: { maxConcurrency: 2 } }],
-        policy: {
-          routing: 'single',
-          onRateLimit: 'backoff',
-          onTransientFailure: 'retry',
-        },
-        workers: 10,
-      },
-    });
-    const text = buildTranslateParallelLimitSuggestion({
-      config: ctx.config,
-      workers: 20,
-      providerId: 'mymemory',
-    });
-    expect(text).toContain('requested workers=20 was reduced to 2');
-    expect(text).toContain('Provider "mymemory"');
-  });
-});

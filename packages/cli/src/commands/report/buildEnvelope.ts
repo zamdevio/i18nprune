@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { resolveContext } from '@/shared/context/index.js';
-import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope } from '@i18nprune/core';
 import {
   issuesFromDiscoveryWarnings,
   issuesFromDynamicScanCount,
@@ -14,7 +14,7 @@ import type { Context } from '@/types/core/context/index.js';
 import type { ProjectReportDocument } from '@/types/command/report/index.js';
 import type { ReportCliJsonPayload } from '@/types/command/report/json.js';
 import type { ReportCliRunOptions } from '@/types/command/report/index.js';
-import type { CliJsonEnvelope } from '@/types/core/json/envelope.js';
+import type { CliJsonEnvelope } from '@i18nprune/core';
 import { readRuntimeFsTextSync, existsRuntimeFsSync } from '@i18nprune/core/runtime/helpers/sync';
 
 function localTimestamp(d: Date): string {

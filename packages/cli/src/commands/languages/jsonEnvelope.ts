@@ -1,5 +1,5 @@
 import { filterLanguages } from '@/shared/languages/index.js';
-import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope } from '@i18nprune/core';
 import {
   issuesFromDiscoveryWarnings,
   issuesFromLanguagesFilter,
@@ -7,7 +7,7 @@ import {
 } from '@/shared/result/cliEnvelopeIssues.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { LanguagesCommandOptions } from '@/types/commands/languages/index.js';
-import type { CliJsonEnvelope } from '@/types/core/json/envelope.js';
+import type { CliJsonEnvelope } from '@i18nprune/core';
 
 export function runLanguages(
   ctx: Context,

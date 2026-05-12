@@ -1,4 +1,4 @@
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 import type { CommandSummary } from '@/types/cli/output/index.js';
 
 export type OutputHookContext = {

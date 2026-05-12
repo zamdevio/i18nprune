@@ -4,13 +4,15 @@
 
 ```bash
 i18nprune cleanup --check-only
-i18nprune cleanup --json | jq '.data | {targets, wouldRemove: (.unused | length)}'
+i18nprune cleanup --dry-run
+i18nprune cleanup --json | jq '.data | {wouldRemove, keys}'
 ```
 
 ## Apply removals
 
 ```bash
 i18nprune cleanup --yes
+i18nprune sync --dry-run
 ```
 
 ## Ask flow (TTY)

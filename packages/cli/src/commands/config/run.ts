@@ -7,7 +7,7 @@ import { style } from '@/utils/ansi/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintPrimary } from '@/utils/logger/policy.js';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { stringifyEnvelope } from '@i18nprune/core';
 import { issuesFromDiscoveryWarnings } from '@/shared/result/cliEnvelopeIssues.js';
 import type { ConfigSnapshot } from '@/types/commands/config/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';

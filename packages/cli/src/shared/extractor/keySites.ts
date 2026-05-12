@@ -1,8 +1,8 @@
 import { extractor } from '@i18nprune/core';
 import { toExtractorScanInput } from './scanInput.js';
 import type { Context } from '@/types/core/context/index.js';
-import type { KeyObservation } from '@/types/core/extractor/keySites/index.js';
-import type { ProjectLiteralKeyUsage } from '@/types/core/extractor/keySites/index.js';
+import type { KeyObservation } from '@i18nprune/core';
+import type { ProjectLiteralKeyUsage } from '@i18nprune/core';
 
 export const literalKeyUsageFromObservations = extractor.keySites.literalKeyUsageFromObservations;
 

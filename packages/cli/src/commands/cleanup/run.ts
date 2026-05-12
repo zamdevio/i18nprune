@@ -1,47 +1,35 @@
-import path from 'node:path';
 import { confirm } from '@inquirer/prompts';
 import { resolveContext } from '@/shared/context/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import {
+  createCleanupSourceWritePlan,
+  createCoreContext,
+  emitCleanupAbortMessage,
+  emitCleanupAskIgnoredMessage,
+  emitCleanupWriteDone,
+  emitCleanupWriteIntro,
   I18nPruneError,
-  applyCleanupKeysToLocaleJson,
-  collectTranslationSurfaceLeaves,
-  computeCleanupCandidateKeys,
-  extractor,
   noopRunEmitter,
+  stringifyEnvelope,
+  writeCleanupPlan,
 } from '@i18nprune/core';
-import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
-import { resolveCleanupKeysWithStringPresence } from '@/shared/cleanup/stringPresence.js';
-import { buildKeyReferenceContext } from '@/shared/reference/context.js';
-import { resolveReferenceConfig } from '@i18nprune/core';
-import { listHostJsonBasenames, readHostJsonUnknown } from '@/shared/io/hostJson.js';
-import { writeHostJson } from '@/shared/io/hostJson.js';
-import { isRipgrepAvailable, printRipgrepInstallHint } from '@/utils/rg/index.js';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
-import { runCleanupCheck } from '@/commands/cleanup/jsonEnvelope.js';
-import {
-  issuesFromCleanupRipgrepUnavailable,
-  issuesFromCleanupUncertainExcluded,
-  issuesFromDiscoveryWarnings,
-  issuesFromDynamicScanCount,
-  mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
+import { executeCore, runCleanupJsonEnvelope } from '@/commands/cleanup/jsonEnvelope.js';
 import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
-import { logger } from '@/utils/logger/index.js';
-import { canPrintDetail, canPrintInfo, canPrintWarn } from '@/utils/logger/policy.js';
 import { canAsk, promptApprovedRemovalKeys } from '@/shared/ask/index.js';
-import type { CleanupJsonOutput } from '@/types/command/cleanup/json.js';
+import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import type { CleanupOptions } from '@/types/command/cleanup/index.js';
-import type { CliJsonEnvelope } from '@/types/core/json/envelope.js';
+import type { CleanupJsonOutput, CliJsonEnvelope, CoreContext } from '@i18nprune/core';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 
-function resolveCleanupJsonData(
-  ctx: Awaited<ReturnType<typeof resolveContext>>,
-  opts: CleanupOptions,
-  runId: string,
-): ReturnType<typeof runCleanupCheck> {
-  return runCleanupCheck(ctx, opts, { emit: noopRunEmitter, runId });
+function createCleanupCoreContext(ctx: Awaited<ReturnType<typeof resolveContext>>): CoreContext {
+  return createCoreContext({
+    config: ctx.config,
+    adapters: ctx.adapters,
+    env: process.env,
+    paths: ctx.paths,
+    run: ctx.run,
+  });
 }
 
 export async function cleanup(opts: CleanupOptions): Promise<void> {
@@ -51,7 +39,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
     const runId = String(Date.now());
 
     if (ctx.run.json) {
-      const envelope = resolveCleanupJsonData(ctx, opts, runId);
+      const { envelope } = runCleanupJsonEnvelope(ctx, opts, { emit: noopRunEmitter, runId });
       const durationMs = wall.elapsedMs();
       const d = envelope.data;
       const withSummary: CliJsonEnvelope<'cleanup', CleanupJsonOutput> = {
@@ -73,73 +61,18 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
       return;
     }
 
-    const eff = resolveReferenceConfig('cleanup', ctx.config);
-    const refCtx = buildKeyReferenceContext(ctx, eff);
-    const scanInput = toExtractorScanInput(ctx);
-    const dynamicSites = extractor.dynamic.scanProjectDynamicKeySites(scanInput);
     const extractionBaseline = resolveExtractionBaselineCounts(ctx);
-    if (canPrintInfo(ctx.run)) {
-      logger.info('scanning source locale and project sources for unused key paths…', ctx.run);
-    }
-    const sourcePath = ctx.paths.sourceLocale;
-    const sourceRaw = readHostJsonUnknown(sourcePath, ctx.adapters.fs);
-    const leaves = collectTranslationSurfaceLeaves(sourceRaw);
-    const usage = extractor.keySites.scanProjectLiteralKeyUsage(scanInput);
-    const filterUncertain = eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only';
-    const { allKeyPaths, candidates, excludedUncertain } = computeCleanupCandidateKeys({
-      leaves,
-      usage,
-      preserve: ctx.config.policies?.preserve,
-      uncertainPrefixes: refCtx.uncertainPrefixes,
-      filterUncertainPrefixes: filterUncertain,
-    });
+    const runtime = { emit: createCliRunEmitter(ctx.run), runId };
+    const result = executeCore(ctx, opts, runtime);
+    const summaryIssues = result.envelope.issues;
 
-    if (excludedUncertain > 0 && canPrintInfo(ctx.run)) {
-      logger.info(
-        `excluded ${String(excludedUncertain)} path(s) under uncertain key prefix(es) (${eff.uncertainKeyPolicy}).`,
-        ctx.run,
-      );
-    }
-
-    const rgOk = opts.skipRg ? false : isRipgrepAvailable();
-    if (!opts.skipRg && !rgOk) printRipgrepInstallHint();
-    if (canPrintInfo(ctx.run)) {
-      logger.info(
-        `${String(allKeyPaths.size)} key path(s) in source JSON · ${String(candidates.length)} unused candidate(s) after preserve / reference rules`,
-        ctx.run,
-      );
-    }
-    if (dynamicSites.length > 0 && canPrintWarn(ctx.run)) {
-      logger.warn(
-        `${String(dynamicSites.length)} translation call(s) use a non-literal key — cleanup literal-key inference may miss usage; tighten \`reference\` uncertain-key rules or inspect \`i18nprune validate\` / \`locales dynamic\`.`,
-        ctx.run,
-      );
-    }
-
-    const safeToRemove = resolveCleanupKeysWithStringPresence({
-      candidates,
-      leaves,
-      srcRoot: ctx.paths.srcRoot,
-      eff,
-      skipRg: Boolean(opts.skipRg),
-      rgOk,
-      logDetail: canPrintDetail(ctx.run) ? (msg) => logger.detail(msg, ctx.run) : undefined,
-    });
-    const summaryIssues = mergeIssues(
-      issuesFromDiscoveryWarnings(ctx.meta.warnings),
-      issuesFromDynamicScanCount(dynamicSites.length),
-      issuesFromCleanupUncertainExcluded(excludedUncertain),
-      !opts.skipRg && !rgOk ? issuesFromCleanupRipgrepUnavailable() : [],
-    );
-
-    if (opts.checkOnly) {
-      logger.info(`Would remove ${String(safeToRemove.length)} unused path(s) (check-only)`, ctx.run);
+    if (opts.checkOnly || opts.dryRun) {
       printCommandSummary(
         {
           command: 'cleanup',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { remove: safeToRemove.length, ...extractionBaseline },
+          counts: { remove: result.safeToRemove.length, ...extractionBaseline },
           issues: summaryIssues,
         },
         ctx,
@@ -147,18 +80,15 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
       return;
     }
 
-    let keysToRemove = safeToRemove;
+    let keysToRemove = result.safeToRemove;
 
     if (keysToRemove.length === 0) {
-      if (canPrintInfo(ctx.run)) {
-        logger.info('nothing to remove (no unused keys after filters).', ctx.run);
-      }
       printCommandSummary(
         {
           command: 'cleanup',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { removedPaths: 0, filesWritten: 0, dynamicKeySites: dynamicSites.length },
+          counts: { removedPaths: 0, filesWritten: 0, dynamicKeySites: result.dynamicSites.length },
           issues: summaryIssues,
         },
         ctx,
@@ -171,11 +101,11 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
       if (opts.ask && canAsk(ctx.run)) {
         keysToRemove = await promptApprovedRemovalKeys(keysToRemove, {
           mode: opts.askPerKey ? 'each' : 'group',
-          localesDirDisplay: ctx.paths.localesDir,
+          targetDisplay: ctx.paths.sourceLocale,
         });
         granularAskDone = true;
         if (keysToRemove.length === 0) {
-          if (canPrintInfo(ctx.run)) logger.info('aborted (no keys approved for removal).', ctx.run);
+          emitCleanupAbortMessage(runtime, 'no_keys_approved');
           printCommandSummary(
             {
               command: 'cleanup',
@@ -189,19 +119,19 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
           );
           return;
         }
-      } else if (opts.ask && !canAsk(ctx.run) && canPrintInfo(ctx.run)) {
-        logger.info('--ask ignored (not an interactive terminal).', ctx.run);
+      } else if (opts.ask && !canAsk(ctx.run)) {
+        emitCleanupAskIgnoredMessage(runtime);
       }
 
       if (!granularAskDone && canAsk(ctx.run)) {
         const ok = await duringPrompt(() =>
           confirm({
-            message: `Remove ${String(keysToRemove.length)} unused key path(s) from all locale JSON under ${ctx.paths.localesDir}?`,
+            message: `Remove ${String(keysToRemove.length)} unused key path(s) from ${ctx.paths.sourceLocale}?`,
             default: false,
           }),
         );
         if (!ok) {
-          if (canPrintInfo(ctx.run)) logger.info('aborted (no files changed).', ctx.run);
+          emitCleanupAbortMessage(runtime, 'declined_confirmation');
           printCommandSummary(
             {
               command: 'cleanup',
@@ -217,38 +147,22 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
         }
       } else if (!granularAskDone && !canAsk(ctx.run)) {
         throw new I18nPruneError(
-          'cleanup: destructive run requires global --yes when non-interactive (or use --check-only)',
+          'cleanup: destructive run requires global --yes when non-interactive (or use --check-only / --dry-run)',
           'USAGE',
         );
       }
     }
 
-    if (canPrintInfo(ctx.run)) {
-      logger.warn(
-        `removing ${String(keysToRemove.length)} path(s) from locale files (this affects every locale JSON that still contains them).`,
-        ctx.run,
-      );
-    }
-
-    const dir = ctx.paths.localesDir;
-    const files = listHostJsonBasenames(dir, ctx.adapters.fs);
-    let writes = 0;
-    for (const file of files) {
-      const full = path.join(dir, file);
-      const data = readHostJsonUnknown(full, ctx.adapters.fs);
-      const applied = applyCleanupKeysToLocaleJson(data, keysToRemove);
-      if (applied.removedPaths.length > 0) {
-        writeHostJson(full, applied.next, ctx.adapters.fs);
-        writes += 1;
-        if (canPrintDetail(ctx.run)) {
-          logger.detail(`wrote ${full}`, ctx.run);
-        }
-      }
-    }
-
-    if (canPrintInfo(ctx.run)) {
-      logger.info(`finished — ${String(writes)} file(s) updated on disk.`, ctx.run);
-    }
+    const coreCtx = createCleanupCoreContext(ctx);
+    const plan =
+      keysToRemove.length === result.writePlan.keys.length &&
+      keysToRemove.every((key, idx) => key === result.writePlan.keys[idx])
+        ? result.writePlan
+        : createCleanupSourceWritePlan(coreCtx, keysToRemove);
+    emitCleanupWriteIntro(runtime, plan.removedPaths.length);
+    writeCleanupPlan(coreCtx, plan);
+    const filesWritten = plan.removedPaths.length > 0 ? 1 : 0;
+    emitCleanupWriteDone(runtime, { plan, wrote: filesWritten > 0 });
 
     printCommandSummary(
       {
@@ -256,8 +170,8 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
         ok: true,
         durationMs: wall.elapsedMs(),
         counts: {
-          removedPaths: keysToRemove.length,
-          filesWritten: writes,
+          removedPaths: plan.removedPaths.length,
+          filesWritten,
           ...extractionBaseline,
         },
         issues: summaryIssues,

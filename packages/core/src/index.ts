@@ -179,8 +179,25 @@ export * as cleanup from './namespaces/cleanup.js';
 export {
   applyCleanupKeysToLocaleJson,
   computeCleanupCandidateKeys,
+  createCleanupSourceWritePlan,
+  emitCleanupAbortMessage,
+  emitCleanupAskIgnoredMessage,
+  emitCleanupCheckOnlyMessage,
+  emitCleanupWriteDone,
+  emitCleanupWriteIntro,
   pathUnderRoot,
   resolveCleanupKeysWithStringPresencePolicy,
+  runCleanup,
+  writeCleanupPlan,
+} from './namespaces/cleanup.js';
+export type {
+  CleanupHostHooks,
+  CleanupJsonOutput,
+  CleanupJsonRunSummary,
+  CleanupReferenceData,
+  CleanupRunOptions,
+  CleanupRunResult,
+  CleanupWritePlan,
 } from './namespaces/cleanup.js';
 
 export * as patching from './namespaces/patching.js';

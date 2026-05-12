@@ -37,7 +37,7 @@ import {
   mergeIssues,
   usageIssueFromI18nPruneError,
 } from '@/shared/result/cliEnvelopeIssues.js';
-import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope } from '@i18nprune/core';
 import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
 import { safeTranslationMetaForEnvelope } from '@/shared/translator/resolveProvider.js';
 import { ISSUE_GENERATE_USAGE } from '@/constants/issueCodes.js';
@@ -59,7 +59,7 @@ import { promptGenerateHandoffPick } from '@/shared/translator/handoff.js';
 import type { GenerateOptions } from '@/types/command/generate/index.js';
 import type { GenerateJsonPayload } from '@i18nprune/core';
 import type { Context } from '@/types/core/context/index.js';
-import type { CliJsonEnvelope, Issue } from '@/types/core/json/envelope.js';
+import type { CliJsonEnvelope, Issue } from '@i18nprune/core';
 
 /** Failure-envelope payload used when **`generate`** rejects before producing target results. */
 export function emptyGeneratePayload(ctx: Context, opts: GenerateOptions): GenerateJsonPayload {

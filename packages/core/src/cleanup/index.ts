@@ -4,8 +4,27 @@
  */
 export { computeCleanupCandidateKeys, pathUnderRoot } from './candidates.js';
 export { applyCleanupKeysToLocaleJson } from './apply.js';
+export {
+  createCleanupSourceWritePlan,
+  emitCleanupAbortMessage,
+  emitCleanupAskIgnoredMessage,
+  emitCleanupCheckOnlyMessage,
+  emitCleanupWriteDone,
+  emitCleanupWriteIntro,
+  runCleanup,
+  writeCleanupPlan,
+} from './run.js';
 export { resolveCleanupKeysWithStringPresencePolicy } from './stringPresence.js';
 export type { CleanupCandidateInput } from './candidates.js';
+export type {
+  CleanupHostHooks,
+  CleanupJsonOutput,
+  CleanupJsonRunSummary,
+  CleanupReferenceData,
+  CleanupRunOptions,
+  CleanupRunResult,
+  CleanupWritePlan,
+} from '../types/cleanup/index.js';
 export type {
   CleanupStringPresenceEvidence,
   ResolveCleanupKeysWithStringPresenceInput,

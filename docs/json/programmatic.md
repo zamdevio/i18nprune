@@ -15,7 +15,7 @@ Every command in `COMMANDS_WITH_JSON_OUTPUT` (`packages/cli/src/constants/jsonou
 | **`runConfig(ctx)`** | **`config --json`** |
 | **`runMissing(ctx, opts, host)`** | Core **`missing`** planner (payload before writes; CLI wraps returned `{ payload, issues }` in the stable JSON envelope) |
 | **`runSync(ctx, opts, host)`** | Core **`sync`** engine (runs the same writes as CLI when not **`dryRun`**; CLI wraps returned `{ payload, issues }` in the stable JSON envelope) |
-| **`runCleanupCheck(ctx, opts)`** | **`cleanup --json`** / **`--check-only`** payload |
+| **`runCleanup(ctx, opts, host)`** | Core **`cleanup`** planner (payload + source-only `writePlan`; CLI wraps it in the stable JSON envelope) |
 | **`runDoctor(ctx, opts)`** | **`doctor --json`** |
 | **`runQuality(ctx, opts, host)`** | Core **`quality`** checker (CLI wraps returned `{ payload, issues }` in the stable JSON envelope) |
 | **`runReview(ctx, opts, host)`** | Core **`review`** aggregator (CLI wraps returned `{ payload, issues }` in the stable JSON envelope) |
@@ -33,7 +33,7 @@ Issue **`code`** strings: [issue codes](../issues/README.md). Constants **`ISSUE
 
 `RESULT_API_VERSION`, `buildCliJsonEnvelope`, `stringifyCliCommandJson`, `Issue`, `CliJsonEnvelope`, `Result`, … — see [exports/core](../exports/core.md).
 
-**Type locations (repo):** envelope and `Result` types — `packages/cli/src/types/core/json/envelope.ts` (also re-exported from `types/result/index.ts`). Migrated core payload types live in **`@i18nprune/core`** (for example `GenerateJsonPayload`, `SyncJsonOutput`, `MissingJsonOutput`, `QualityJsonData`, `ReviewJsonData`).
+**Type locations (repo):** envelope and `Result` types live in **`@i18nprune/core`**. Migrated core payload types live there too (for example `GenerateJsonPayload`, `SyncJsonOutput`, `MissingJsonOutput`, `CleanupJsonOutput`, `QualityJsonData`, `ReviewJsonData`).
 
 ## Phase record
 

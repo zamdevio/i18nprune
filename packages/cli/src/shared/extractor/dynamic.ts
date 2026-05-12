@@ -1,7 +1,7 @@
 import { extractor } from '@i18nprune/core';
 import { toExtractorScanInput } from './scanInput.js';
 import type { Context } from '@/types/core/context/index.js';
-import type { DynamicKeySite } from '@/types/core/extractor/dynamic/index.js';
+import type { DynamicKeySite } from '@i18nprune/core';
 
 /**
  * Reuse merged source text for callers that already have it (e.g. tests).

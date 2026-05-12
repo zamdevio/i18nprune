@@ -1,6 +1,6 @@
 import { header, line, scanLine, style } from '@/utils/ansi/index.js';
 import { getRunOptions } from '@i18nprune/core';
-import type { RunOptions } from '@/types/core/runtime/index.js';
+import type { RunOptions } from '@i18nprune/core';
 import type { LoggerMask } from '@/types/core/logger/index.js';
 import type { HeaderOptions, LogLevel } from '@/types/utils/ansi/index.js';
 import { canEmit, resolveRun } from '@/utils/logger/policy.js';

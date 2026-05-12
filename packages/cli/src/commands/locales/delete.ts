@@ -8,7 +8,7 @@ import { canAsk } from '@/shared/ask/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintDecorative, canPrintInfo } from '@/utils/logger/policy.js';
 import { printCommandSummary } from '@/output/index.js';
-import { buildCliJsonEnvelope, stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
 import {
   isLocaleTargetMissingMessage,

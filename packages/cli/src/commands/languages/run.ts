@@ -5,7 +5,7 @@ import { canPrintDecorative, canPrintPrimary } from '@/utils/logger/policy.js';
 import { printLanguagesNumberedList } from '@/commands/languages/numbered.js';
 import { printTranslateLanguageTable } from '@/commands/languages/table.js';
 import type { LanguagesCommandOptions } from '@/types/commands/languages/index.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { stringifyEnvelope } from '@i18nprune/core';
 import { runLanguages } from '@/commands/languages/jsonEnvelope.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 

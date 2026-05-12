@@ -35,7 +35,7 @@ export async function promptApprovedRemovalKeys(
     for (const key of sorted) {
       const ok = await duringPrompt(() =>
         confirm({
-          message: `Remove unused key "${key}" from all locale JSON under ${options.localesDirDisplay}?`,
+          message: `Remove unused key "${key}" from ${options.targetDisplay}?`,
           default: false,
         }),
       );
@@ -55,7 +55,7 @@ export async function promptApprovedRemovalKeys(
       ks.length <= 6 ? ks.join(', ') : `${ks.slice(0, 6).join(', ')} … (+${String(ks.length - 6)} more)`;
     const ok = await duringPrompt(() =>
       confirm({
-        message: `Remove ${String(n)} unused path(s) in namespace "${seg}" (${preview}) from all locale JSON under ${options.localesDirDisplay}?`,
+        message: `Remove ${String(n)} unused path(s) in namespace "${seg}" (${preview}) from ${options.targetDisplay}?`,
         default: false,
       }),
     );

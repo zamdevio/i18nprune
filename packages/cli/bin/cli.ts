@@ -8,11 +8,10 @@ import { preprocessArgv } from '@/argv/index.js';
 import { ensureConfig } from '@/commands/init/index.js';
 import {
   clearContextCache,
-  resetRunOptions,
   setCliGlobalOverrides,
   resetCliGlobals,
-  setRunOptions,
 } from '@/shared/context/index.js';
+import { resetRunOptions, setRunOptions } from '@i18nprune/core';
 import { ensureConfigPathResolved, setConfigPath } from '@/shared/config/index.js';
 import {
   setCliYesFlag,
@@ -421,6 +420,7 @@ program
   .command('cleanup')
   .description('Remove unused keys (optional ripgrep safety on src/)')
   .option('--check-only', 'report only, no writes', false)
+  .option('--dry-run', 'report only, no writes (alias for --check-only behavior)', false)
   .option('--skip-rg', 'do not run ripgrep (static unused-key list only)', false)
   .option(
     '--ask',
@@ -429,9 +429,10 @@ program
   )
   .option('--ask-per-key', 'with --ask, confirm each key separately (noisy)', false)
   .action(
-    async (opts: { checkOnly?: boolean; skipRg?: boolean; ask?: boolean; askPerKey?: boolean }) => {
+    async (opts: { checkOnly?: boolean; dryRun?: boolean; skipRg?: boolean; ask?: boolean; askPerKey?: boolean }) => {
       await cleanup({
         checkOnly: Boolean(opts.checkOnly),
+        dryRun: Boolean(opts.dryRun),
         skipRg: Boolean(opts.skipRg),
         ask: Boolean(opts.ask),
         askPerKey: Boolean(opts.askPerKey),
@@ -653,7 +654,6 @@ program
     }
   });
 
-/** Bare `i18nprune` (no subcommand): show help without Commander's error-style exit (code 1). */
 program.action(() => {
   program.outputHelp();
 });

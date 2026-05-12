@@ -1,5 +1,5 @@
 import { buildValidateIssues, extractor, type DynamicKeySite, type KeyObservation } from '@i18nprune/core';
-import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
+import { buildCliJsonEnvelope } from '@i18nprune/core';
 import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
 import { runValidate } from '@/shared/programmatic/runValidate.js';
 import { resolveProjectReportData } from './reportData.js';

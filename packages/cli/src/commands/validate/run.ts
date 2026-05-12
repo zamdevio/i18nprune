@@ -1,7 +1,7 @@
 import { resolveContext } from '@/shared/context/index.js';
 import { getDisplaySourceLocaleCode } from '@/shared/locales/source.js';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@/shared/result/cliJson.js';
+import { stringifyEnvelope } from '@i18nprune/core';
 import { runValidate } from '@/shared/programmatic/runValidate.js';
 import { buildValidateReportView } from '@i18nprune/core';
 import { buildValidateHumanView } from '@i18nprune/core';
