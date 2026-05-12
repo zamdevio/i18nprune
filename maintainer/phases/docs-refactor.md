@@ -21,6 +21,7 @@ In scope:
 - Topology discoverability integration across related docs pages.
 - Content quality standards for command/config/behavior/SDK pages.
 - SDK documentation IA: public `docs/sdk/**` entry point and sub-pages for programmatic use of `@i18nprune/core`.
+- Repository health documentation: public architecture-health page plus maintainer policy page for Knip/Madge tradeoffs.
 - Diagram workflow policy (maintainer source + published assets).
 - Release/readiness checks for docs structure quality.
 
@@ -137,6 +138,38 @@ Quality checks:
 - no stale internal-path assumptions in public docs,
 - no maintainer-only references as clickable public links.
 
+## Repository health docs split
+
+The Madge / Knip story belongs in both public docs and maintainer docs, with different framing.
+
+Public docs should document the **result / confidence contract**, not the implementation churn:
+
+- dependency graph health,
+- no circular dependency guarantee,
+- export/dependency hygiene,
+- explicit package boundaries,
+- runtime layering and isolation,
+- how graph checks support SDK / CLI / app confidence.
+
+Candidate public page:
+
+- `docs/architecture/repository-health.md`
+
+Maintainer docs should document the **why / maintenance policy**:
+
+- Knip entry/ignore rationale,
+- why SDK examples and intentional public barrels are treated specially,
+- how to handle false positives,
+- workspace dependency declaration policy (`workspace:*` internally, semver externally after publish),
+- Madge command policy and future tightening goals,
+- when leaves/orphans are healthy entry surfaces vs dead-code signals.
+
+Candidate maintainer page:
+
+- `maintainer/systems/repository-health.md`
+
+Public docs say: "the system validates and maintains X." Maintainer docs say: "here is how we keep X true, and which tradeoffs are intentional."
+
 ## Candidate IA consolidation map (planning only)
 
 These are candidates to evaluate during the phase, not mandatory immediate moves:
@@ -167,7 +200,10 @@ Any move must preserve:
    - Move durable programmatic/API guidance from `docs/exports/**` and `docs/json/programmatic.md` into SDK docs.
    - Move CLI JSON/programmatic material out of `docs/json/**` into `docs/sdk/json.md` and `docs/sdk/programmatic.md`; retire `docs/json/**` after equivalent coverage and links exist.
    - Keep `@i18nprune/core` import names in code samples while presenting the section as the i18nprune SDK.
-6. **Release validation**
+6. **Repository health docs**
+   - Add public `docs/architecture/repository-health.md` focused on guarantees and contributor confidence.
+   - Add maintainer `maintainer/systems/repository-health.md` focused on Knip/Madge policy, ignores, barrels, examples, leaves/orphans, and future tightening.
+7. **Release validation**
    - run docs build and architecture graph checks.
 
 ## Validation / release gates for this phase

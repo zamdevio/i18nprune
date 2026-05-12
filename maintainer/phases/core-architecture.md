@@ -153,7 +153,7 @@ Inside `runGenerate`, the helper `translateContextFromCore(ctx): TranslateContex
 |---|---|---|---|
 | **1 — Generate-first refactor** | Core owns generate orchestration. CLI calls `runGenerate`. | **Before policy work.** | Hard prerequisite for phase 2. |
 | **2 — Translate policy** | All 10 steps from [`translate-policy.md`](./translate-policy.md), landing on the new substrate. | After phase 1. | Hard prerequisite for `fill` collapse. |
-| **3 — Other ops architecture** | `runQuality`, `runReview`, `runMissing`, `runSync`. Same pattern. (`runFill` is **not** part of this — `runGenerate({ resume: true })` covers it from 5.b.3.) | **Parallel with phase 2** (independent files). | Optional but recommended before phase 4. |
+| **3 — Other ops architecture** | `runQuality`, `runReview`, `runMissing`, `runSync`, then the remaining CLI-owned ops listed in §7.2. Same pattern. (`runFill` is **not** part of this — `runGenerate({ resume: true })` covers it from 5.b.3.) | **Parallel with phase 2** (independent files). | Complete before the docs refactor. |
 | **4 — `fill` collapse + CLI thinning** | Fold `fill` into `generate --resume`. Reduce CLI `execute.ts` files to thin shells. | After phases 2 + 3. | Final state. |
 
 ---
@@ -529,7 +529,21 @@ Same playbook as § 5.d. Each migration is one slice per PR with its own parity 
 
 **`fill` is intentionally absent** — its substrate (`runGenerate({ resume: true })`) landed in 5.b.3, so phase 3 has nothing to migrate. Phase 4 just deletes the CLI command surface.
 
-### 7.1 — `quality` / `review` and translate-policy: independent
+### 7.2 — Remaining core-op migrations before docs refactor
+
+After the cache-owned analysis slice, these commands are the remaining CLI-owned orchestration surfaces that should become core ops **before** the docs refactor starts. Keep one command per slice and preserve parity snapshots.
+
+| order | command | target core entry | notes |
+|---|---|---|---|
+| 1 | `validate` | `core/src/validate/run.ts` (`runValidate`) | Move the current command-local JSON envelope orchestration into core so validate owns the same cached analysis resolver as sync/missing/quality/review. CLI remains argv/rendering only. |
+| 2 | `report` | `core/src/report/run.ts` (`runReport`) | Move project-report document building into core; CLI keeps output format selection (HTML/JSON/CSV/text), file naming, and write/prompt behavior. |
+| 3 | `doctor` | `core/src/doctor/run.ts` (`runDoctor`) | Core owns findings and issue payloads; CLI keeps terminal rendering and any host-specific executable checks that require adapters/capabilities. |
+| 4 | `locales dynamic` | `core/src/locales/dynamic/run.ts` (or `core/src/locales/runDynamic.ts`) | Should become a thin view over core project analysis + list-window shaping; this removes the last command-specific dynamic-scan cache path. |
+| 5 | `locales list`, `locales edit`, `locales delete` | `core/src/locales/*/run.ts` entries | Lower risk after dynamic/report/doctor. Core owns locale file discovery and metadata edits via adapters; CLI keeps prompts, confirmations, and banners. |
+
+Docs refactor should start only after these remaining op boundaries are settled, otherwise user docs will mirror temporary CLI-owned seams.
+
+### 7.3 — `quality` / `review` and translate-policy: independent
 
 Neither op talks to translation providers, runs the per-leaf retry chain, or consults provider health. Their core code (`packages/core/src/quality/`, `packages/core/src/review/`) is already pure — only the CLI orchestration (resolve context → call helpers → shape envelope) hasn't been collapsed into a `runXxx` entry yet.
 
