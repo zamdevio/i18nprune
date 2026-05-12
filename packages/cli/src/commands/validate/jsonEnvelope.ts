@@ -1,18 +1,22 @@
 import {
   buildValidateIssues,
   buildValidateScanPayload,
+  collectTranslationSurfaceLeaves,
+  detectSourcePlaceholderLeaves,
   emitIssuesAsRunErrors,
   emitRunEvent,
   extractor,
   issueCodeRepoDocPathForIssueCode,
+  issuesFromSourcePlaceholderLeaves,
   nowMs,
   readJsonFromRuntimeFsSync,
+  sourcePlaceholderValues,
   type RuntimeAdapters,
   type RunEmitter,
 } from '@i18nprune/core';
-import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
+import { toExtractorScanInput } from '@/shared/extractor/index.js';
 import { buildCliJsonEnvelope } from '@i18nprune/core';
-import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
+import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/index.js';
 import { normalizeUnknownError } from '@/shared/errors/normalize.js';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '@/constants/issueCodes.js';
 import type { Context } from '@/types/core/context/index.js';
@@ -102,6 +106,12 @@ function runValidateCore(
       dynamicSiteCount: dynamicSites.length,
       sourceLocalePath: ctx.paths.sourceLocale,
     }),
+    issuesFromSourcePlaceholderLeaves(
+      detectSourcePlaceholderLeaves(
+        collectTranslationSurfaceLeaves(raw),
+        sourcePlaceholderValues(ctx.config.missing?.placeholder),
+      ),
+    ),
   );
   const ok = data.missing.length === 0;
   return buildCliJsonEnvelope('validate', data, {
@@ -114,7 +124,7 @@ function runValidateCore(
 /**
  * Same structured result as `validate --json`: full CLI envelope with `ok`, `data`, and `issues[]`.
  * Read/parse failures (missing source locale, invalid JSON, etc.) return **`ok: false`** and an **`issues[]`**
- * entry — they do not throw, so stdout is always one JSON envelope for automation.
+ * entry; they do not throw, so stdout can stay one JSON envelope for automation.
  *
  * **`Context.adapters`** (from **`resolveContext`**) is the default host: source JSON is read with
  * **`readJsonFromRuntimeFsSync`** and **`meta.cwd`** uses **`adapters.system.cwd()`**. Pass

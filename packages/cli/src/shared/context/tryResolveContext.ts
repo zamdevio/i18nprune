@@ -1,11 +1,10 @@
-import { resolveContext } from '@/shared/context/index.js';
-import { I18nPruneError, issueCodeRepoDocPathForIssueCode } from '@i18nprune/core';
+import { I18nPruneError, RESULT_API_VERSION, issueCodeRepoDocPathForIssueCode } from '@i18nprune/core';
+import { resolveContext } from './resolve.js';
 import {
   ISSUE_CONTEXT_DISCOVERY_WARNING,
   ISSUE_CONTEXT_RESOLUTION_FAILED,
 } from '@/constants/issueCodes.js';
-import { RESULT_API_VERSION } from '@i18nprune/core';
-import { enrichIssuesWithDocHrefs } from '@/shared/result/issueDocLinks.js';
+import { enrichIssuesWithDocHrefs } from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { Issue, Result } from '@i18nprune/core';
 

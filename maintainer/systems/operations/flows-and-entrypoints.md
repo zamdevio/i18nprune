@@ -22,7 +22,7 @@ If this summary diverges from code, **code + types win**; update **this doc** in
 | Operation | Primary programmatic / envelope entry | Notes |
 |-----------|--------------------------------------|--------|
 | **sync** | core entry: `packages/core/src/sync/run.ts` → **`runSync`**. CLI host: `packages/cli/src/commands/sync/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/sync/jsonEnvelope.ts` → **`executeCore`** / **`runSyncJsonEnvelope`** | Sync JSON = CLI envelope |
-| **validate** | `packages/cli/src/shared/programmatic/runValidate.ts` → **`runValidate`** | |
+| **validate** | `packages/cli/src/commands/validate/jsonEnvelope.ts` → **`runValidate`** | CLI-hosted envelope; core owns validate payload/issue builders |
 | **doctor** | `packages/cli/src/commands/doctor/jsonEnvelope.ts` → **`runDoctor`** | |
 | **missing** | core entry: `packages/core/src/missing/run.ts` → **`runMissing`**. CLI host: `packages/cli/src/commands/missing/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/missing/jsonEnvelope.ts` → **`executeCore`** / **`runMissingJsonEnvelope`** | |
 | **cleanup** | core entry: `packages/core/src/cleanup/run.ts` → **`runCleanup`**. CLI host: `packages/cli/src/commands/cleanup/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/cleanup/jsonEnvelope.ts` → **`executeCore`** / **`runCleanupJsonEnvelope`** | Source-locale-only write plan; CLI handles prompts and applies the core write plan |

@@ -2,6 +2,8 @@ export {
   resolveContext,
   clearContextCache,
 } from './resolve.js';
+export { tryResolveContext } from './tryResolveContext.js';
+export { createCliCoreContext } from './coreContext.js';
 export {
   setCliGlobalOverrides,
   getCliGlobalOverrides,

@@ -1,8 +1,8 @@
 import { resolveContext } from '@/shared/context/index.js';
-import { getDisplaySourceLocaleCode } from '@/shared/locales/source.js';
+import { getDisplaySourceLocaleCode } from '@/shared/locales/index.js';
 import { printCommandSummary } from '@/output/index.js';
 import { stringifyEnvelope } from '@i18nprune/core';
-import { runValidate } from '@/shared/programmatic/runValidate.js';
+import { runValidate } from './jsonEnvelope.js';
 import { buildValidateReportView } from '@i18nprune/core';
 import { buildValidateHumanView } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
@@ -14,9 +14,10 @@ import type { DynamicKeySite, KeyObservation } from '@i18nprune/core';
 import { analyzePatchingState } from '@i18nprune/core';
 import { resolvePatchingProjectRoot } from '@/shared/patching/scaffoldI18nLayout.js';
 import { getCliGlobalOverrides } from '@/shared/context/globals.js';
-import { issuesFromPatchingDiagnostics, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
-import { resolveExtractionBaselineCounts, resolveValidateData } from '@/shared/cache/index.js';
+import { issuesFromPatchingDiagnostics, mergeIssues } from '@/shared/result/index.js';
+import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
+import { resolveValidateData } from './cacheData.js';
 
 function pushValidateReportEntriesFromEnvelope(
   ctx: { config: I18nPruneConfig },

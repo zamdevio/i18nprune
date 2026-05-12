@@ -11,12 +11,12 @@
 
 ## CLI entry
 
-- **`runValidate`:** `packages/cli/src/shared/programmatic/runValidate.ts`
-- **Human command:** `packages/cli/src/commands/validate/run.ts` (if separate)
+- **Envelope entry:** `packages/cli/src/commands/validate/jsonEnvelope.ts` → **`runValidate`**
+- **Human command:** `packages/cli/src/commands/validate/run.ts`
 
 ## Core & shared
 
-- **Payload / issues:** `@i18nprune/core` — `buildValidateIssues`, `buildValidateScanPayload`, extractor scan path; see imports in `runValidate.ts`.
+- **Payload / issues:** `@i18nprune/core` — `buildValidateIssues`, `buildValidateScanPayload`, extractor scan path; see imports in `jsonEnvelope.ts`.
 
 ## Flow (short)
 

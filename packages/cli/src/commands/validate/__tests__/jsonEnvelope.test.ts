@@ -3,19 +3,19 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 import { clearContextCache } from '@/shared/context/index.js';
-import { tryResolveContext } from '@/shared/programmatic/tryResolveContext.js';
-import { runValidate } from '@/shared/programmatic/runValidate.js';
+import { tryResolveContext } from '@/shared/context/index.js';
+import { runValidate } from '../jsonEnvelope.js';
 import {
   ISSUE_VALIDATE_DYNAMIC_KEY_SITES,
   ISSUE_VALIDATE_MISSING_LITERAL_KEYS,
 } from '@/constants/issueCodes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-/** `programmatic/__tests__` → repo root (6 levels). */
+/** `commands/validate/__tests__` -> repo root (6 levels). */
 const repoRoot = path.join(__dirname, '..', '..', '..', '..', '..', '..');
 const fixture = path.join(repoRoot, 'tests/fixtures/sample-i18n');
 
-describe('programmatic entrypoints', () => {
+describe('validate JSON envelope', () => {
   let prevCwd: string;
 
   beforeEach(() => {
