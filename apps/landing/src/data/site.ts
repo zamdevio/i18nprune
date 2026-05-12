@@ -39,5 +39,3 @@ export const SITE_DATA = {
     pnpmWorkspaceProjects: 5,
   },
 } as const;
-
-export type SiteData = typeof SITE_DATA;

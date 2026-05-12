@@ -23,14 +23,6 @@ export function IconSearch(props: React.SVGProps<SVGSVGElement>): JSX.Element {
   );
 }
 
-export function IconFolder(props: React.SVGProps<SVGSVGElement>): JSX.Element {
-  return (
-    <svg {...svgProps} {...props}>
-      <path d="M3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-7l-2-2H5a2 2 0 0 0-2 2z" />
-    </svg>
-  );
-}
-
 export function IconChevronLeft(props: React.SVGProps<SVGSVGElement>): JSX.Element {
   return (
     <svg {...svgProps} {...props}>

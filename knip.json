@@ -1,10 +1,14 @@
 {
   "ignore": [
     "tests/fixtures/**",
-    "**/vite-env.d.ts"
+    "examples/sdk/**",
+    "i18nprune.config.ts",
+    "packages/core/src/extractor/index.ts",
+    "packages/core/src/runtime/factory/index.ts",
+    "packages/core/src/runtime/guards/index.ts",
+    "packages/core/src/runtime/index.ts",
+    "packages/core/src/translator/errors/index.ts",
+    "packages/core/src/translator/index.ts"
   ],
-  "ignoreExportsUsedInFile": true,
-  "entry": [
-    "packages/*/src/index.ts"
-  ]
+  "ignoreExportsUsedInFile": true
 }
