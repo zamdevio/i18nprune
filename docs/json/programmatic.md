@@ -4,7 +4,7 @@
 
 ## Who gets `run*`?
 
-Every command in `COMMANDS_WITH_JSON_OUTPUT` (`packages/cli/src/constants/jsonoutput.ts`) has a **`run*`** helper that returns the same **`CliJsonEnvelope`** the CLI prints with global **`--json`**. **`generate`** and **`report`** are **async** (`Promise<…>`); the rest are synchronous unless noted in code.
+Every command in `COMMANDS_WITH_JSON_OUTPUT` (`packages/cli/src/constants/jsonoutput.ts`) has a programmatic **`run*`** helper. Older helpers return the same **`CliJsonEnvelope`** the CLI prints with global **`--json`**. Migrated core ops (for example **`generate`** and **`sync`**) return `{ payload, issues }`; the CLI envelope wrapper stays host-owned.
 
 ## Headless entrypoints (flat or `programmatic` namespace)
 
@@ -13,12 +13,12 @@ Every command in `COMMANDS_WITH_JSON_OUTPUT` (`packages/cli/src/constants/jsonou
 | **`tryResolveContext(cwd?)`** | Context resolution without throw; **`Result<'context', Context>`** |
 | **`runValidate(ctx)`** | **`validate --json`** |
 | **`runConfig(ctx)`** | **`config --json`** |
-| **`runMissing(ctx, opts)`** | **`missing --json`** (payload before writes; throws on invalid paths like CLI) |
-| **`runSync(ctx, opts)`** | **`sync --json`** (runs the same writes as CLI when not **`dryRun`**) |
+| **`runMissing(ctx, opts, host)`** | Core **`missing`** planner (payload before writes; CLI wraps returned `{ payload, issues }` in the stable JSON envelope) |
+| **`runSync(ctx, opts, host)`** | Core **`sync`** engine (runs the same writes as CLI when not **`dryRun`**; CLI wraps returned `{ payload, issues }` in the stable JSON envelope) |
 | **`runCleanupCheck(ctx, opts)`** | **`cleanup --json`** / **`--check-only`** payload |
 | **`runDoctor(ctx, opts)`** | **`doctor --json`** |
-| **`runQuality(ctx, opts)`** | **`quality --json`** |
-| **`runReview(ctx, opts)`** | **`review --json`** |
+| **`runQuality(ctx, opts, host)`** | Core **`quality`** checker (CLI wraps returned `{ payload, issues }` in the stable JSON envelope) |
+| **`runReview(ctx, opts, host)`** | Core **`review`** aggregator (CLI wraps returned `{ payload, issues }` in the stable JSON envelope) |
 | **`runLanguages(ctx, opts)`** | **`languages --json`** |
 | **`runGenerate(ctx, opts)`** | **`generate --json`** (async; writes locales unless **`dryRun`**). Pass **`opts.resume`** + **`opts.resumeReference`** for **`generate --resume`** (not config). |
 | **`runReport(opts)`** | **`report`** with global **`--json`** (async; **`opts.format`** selects file body; envelope includes full **`document`**) |
@@ -33,7 +33,7 @@ Issue **`code`** strings: [issue codes](../issues/README.md). Constants **`ISSUE
 
 `RESULT_API_VERSION`, `buildCliJsonEnvelope`, `stringifyCliCommandJson`, `Issue`, `CliJsonEnvelope`, `Result`, … — see [exports/core](../exports/core.md).
 
-**Type locations (repo):** envelope and `Result` types — `packages/cli/src/types/core/json/envelope.ts` (also re-exported from `types/result/index.ts`). Command JSON payloads — e.g. `types/command/missing/json.ts`; **`generate`** payload types live in **`@i18nprune/core`** (`GenerateJsonPayload` in `packages/core/src/types/generate/generateRun.ts`) and are re-exported from `packages/cli/src/types/index.ts` for the CLI barrel.
+**Type locations (repo):** envelope and `Result` types — `packages/cli/src/types/core/json/envelope.ts` (also re-exported from `types/result/index.ts`). Migrated core payload types live in **`@i18nprune/core`** (for example `GenerateJsonPayload`, `SyncJsonOutput`, `MissingJsonOutput`, `QualityJsonData`, `ReviewJsonData`).
 
 ## Phase record
 

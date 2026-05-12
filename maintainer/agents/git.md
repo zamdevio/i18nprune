@@ -71,15 +71,14 @@ For **each** row, include the matching **`docs/commands/.../README.md`** and the
 17. **`feat(validate): validate command`** — `packages/cli/src/commands/validate/**`, `packages/cli/src/types/command/validate/**`, `docs/commands/validate/README.md`, `packages/cli/bin/cli.ts`.  
 18. **`feat(sync): sync command and human summary`** — `packages/cli/src/commands/sync/**`, `packages/cli/src/types/command/sync/**`, `docs/commands/sync/README.md`, `packages/cli/bin/cli.ts`.  
 19. **`feat(generate): generate command and prompts`** — `packages/cli/src/commands/generate/**`, `packages/cli/src/types/command/generate/**`, `docs/commands/generate/README.md`, `packages/cli/bin/cli.ts`.  
-20. **`feat(fill): fill command`** — `packages/cli/src/commands/fill/**`, `packages/cli/src/types/command/fill/**`, `docs/commands/fill/README.md`, `packages/cli/bin/cli.ts`.  
-21. **`feat(quality): quality command`** — `packages/cli/src/commands/quality/**`, `packages/cli/src/types/command/quality/**`, `docs/commands/quality/README.md`, `packages/cli/bin/cli.ts`.  
-22. **`feat(review): review command`** — `packages/cli/src/commands/review/**`, `packages/cli/src/types/command/review/**`, `docs/commands/review/README.md`, `packages/cli/bin/cli.ts`.  
-23. **`feat(cleanup): cleanup command`** — `packages/cli/src/commands/cleanup/**`, `packages/cli/src/types/command/cleanup/**`, `docs/commands/cleanup/README.md`, `packages/cli/bin/cli.ts`.  
-24. **`feat(languages): languages command`** — `packages/cli/src/commands/languages/**`, `docs/commands/languages/README.md`, `packages/cli/bin/cli.ts`.  
-25. **`feat(locales): locales list, edit, dynamic, delete`** — `packages/cli/src/commands/locales/**`, `docs/commands/locales/README.md`, `docs/commands/locales/list|edit|dynamic|delete/README.md`, `packages/cli/bin/cli.ts`.  
-26. **`feat(report): report help topic`** — `packages/cli/src/commands/report/**`, `docs/commands/report/README.md`, `packages/cli/bin/cli.ts`.  
-27. **`feat(doctor): doctor command`** — `packages/cli/src/commands/doctor/**`, `docs/commands/doctor/README.md`, `packages/cli/bin/cli.ts`.  
-28. **`feat(help): help command`** — `packages/cli/src/commands/help/**`, `docs/commands/help/README.md`, `packages/cli/bin/cli.ts`.
+20. **`feat(quality): quality command`** — `packages/cli/src/commands/quality/**`, `packages/cli/src/types/command/quality/**`, `docs/commands/quality/README.md`, `packages/cli/bin/cli.ts`.  
+21. **`feat(review): review command`** — `packages/cli/src/commands/review/**`, `packages/cli/src/types/command/review/**`, `docs/commands/review/README.md`, `packages/cli/bin/cli.ts`.  
+22. **`feat(cleanup): cleanup command`** — `packages/cli/src/commands/cleanup/**`, `packages/cli/src/types/command/cleanup/**`, `docs/commands/cleanup/README.md`, `packages/cli/bin/cli.ts`.  
+23. **`feat(languages): languages command`** — `packages/cli/src/commands/languages/**`, `docs/commands/languages/README.md`, `packages/cli/bin/cli.ts`.  
+24. **`feat(locales): locales list, edit, dynamic, delete`** — `packages/cli/src/commands/locales/**`, `docs/commands/locales/README.md`, `docs/commands/locales/list|edit|dynamic|delete/README.md`, `packages/cli/bin/cli.ts`.  
+25. **`feat(report): report help topic`** — `packages/cli/src/commands/report/**`, `docs/commands/report/README.md`, `packages/cli/bin/cli.ts`.  
+26. **`feat(doctor): doctor command`** — `packages/cli/src/commands/doctor/**`, `docs/commands/doctor/README.md`, `packages/cli/bin/cli.ts`.  
+27. **`feat(help): help command`** — `packages/cli/src/commands/help/**`, `docs/commands/help/README.md`, `packages/cli/bin/cli.ts`.
 
 ### Layer 6 — Exports, tests, docs site
 

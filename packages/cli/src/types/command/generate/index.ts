@@ -1,3 +1,5 @@
+import type { RunEmitter } from '@i18nprune/core';
+
 /** Flags for `i18nprune generate` (CLI + programmatic API). */
 export type GenerateOptions = {
   /** Optional `--provider` override; full precedence is `resolveTranslationProviderOptions` (flag → env → `translate` in config). */
@@ -22,10 +24,12 @@ export type GenerateOptions = {
   metadata?: boolean;
   /** Skip writing **`<lang>.meta.json`** (merged with **`config.noLocaleMeta`**; either **`true`** skips). */
   noLocaleMeta?: boolean;
-  /** Top-up existing locale JSON (same as former **`fill`** command). Use CLI **`--resume`** only. */
+  /** Top-up existing locale JSON. Use CLI **`--resume`** only. */
   resume?: boolean;
   /** With **`resume`**: process all non-source locales under **`localesDir`**. */
   all?: boolean;
   /** Normal generate: ask to edit locale meta defaults. With **`resume`**: confirm before processing. */
   ask?: boolean;
 };
+
+export type GenerateRuntime = { emit?: RunEmitter; runId?: string };

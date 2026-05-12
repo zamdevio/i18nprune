@@ -1,0 +1,10 @@
+{
+  "app": {
+    "title": "Welcome",
+    "subtitle": "A tiny sync example"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}

@@ -8,8 +8,6 @@ Run CLI-equivalent JSON envelopes from code.
 import {
   tryResolveContext,
   runValidate,
-  runSync,
-  runReview,
   stringifyEnvelope,
 } from 'i18nprune/core';
 
@@ -17,9 +15,9 @@ const ctx = tryResolveContext(process.cwd());
 if (!ctx.ok) throw new Error('context failed');
 
 console.log(stringifyEnvelope(runValidate(ctx.data), true));
-console.log(stringifyEnvelope(runSync(ctx.data, { dryRun: true }), true));
-console.log(stringifyEnvelope(runReview(ctx.data, { target: 'all' }), true));
 ```
+
+For migrated core ops such as `sync`, `quality`, and `review`, use the op-specific SDK examples under `examples/sdk/` and wrap the returned `{ payload, issues }` in your host's own transport or envelope.
 
 ## Timing
 

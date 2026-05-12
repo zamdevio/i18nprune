@@ -1,4 +1,6 @@
-export type { SyncJsonOutput } from '@/types/command/sync/json.js';
+import type { RunEmitter } from '@i18nprune/core';
+
+export type { SyncFileLine, SyncJsonOutput } from '@i18nprune/core';
 
 export type SyncOptions = {
   /** Report only; do not write locale files */
@@ -10,3 +12,5 @@ export type SyncOptions = {
   /** Force reset structured leaf metadata to plain string values. */
   stripMetadata?: boolean;
 };
+
+export type SyncRuntime = { emit?: RunEmitter; runId?: string };

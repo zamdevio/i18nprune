@@ -19,7 +19,8 @@ In scope:
 
 - Information architecture cleanup for `docs/**`.
 - Topology discoverability integration across related docs pages.
-- Content quality standards for command/config/behavior/exports pages.
+- Content quality standards for command/config/behavior/SDK pages.
+- SDK documentation IA: public `docs/sdk/**` entry point and sub-pages for programmatic use of `@i18nprune/core`.
 - Diagram workflow policy (maintainer source + published assets).
 - Release/readiness checks for docs structure quality.
 
@@ -59,6 +60,36 @@ Optional future pages:
 
 - `patching.md`
 - `json.md`
+
+### SDK docs naming
+
+Public docs should use **SDK** as the user-facing concept, while the real package/import name remains **`@i18nprune/core`** and the source tree remains **`packages/core`**.
+
+Rationale:
+
+- `core` is the correct implementation name for the runtime-agnostic engine shared by CLI, SDK consumers, docs examples, and future hosts.
+- `SDK` is the clearer user-facing docs label for developers calling APIs directly.
+- Renaming `packages/core` / `@i18nprune/core` to `sdk` would create large codebase churn without improving the current API contract.
+- Public docs can explain this plainly: "The i18nprune SDK APIs are exported from `@i18nprune/core`."
+
+Planned shape:
+
+- `docs/sdk/README.md` — official SDK entry page, with an index of sub-pages.
+- `docs/sdk/quickstart.md` — shortest path to `create*Context` + `run*`.
+- `docs/sdk/runtime-adapters.md` — Node/Web/Edge adapters, explicit `env`, no runtime defaults in core.
+- `docs/sdk/operations.md` — which entry to call (`runTranslate`, `runGenerate`, `runSync`, future ops).
+- `docs/sdk/json.md` — `{ payload, issues }`, CLI envelopes, issue codes, and error handling.
+- `docs/sdk/programmatic.md` — direct SDK usage patterns currently split across `docs/json/programmatic.md` and `docs/exports/**`.
+- `docs/sdk/examples/README.md` — pointers to runnable `examples/sdk/**`.
+
+Migration rule:
+
+- Do **not** delete `docs/exports/**` until `docs/sdk/**` has equivalent or better coverage and inbound links have been moved.
+- Do **not** delete `docs/json/**` until CLI JSON envelope docs and programmatic SDK guidance have been moved or redirected:
+  - CLI JSON contract → `docs/sdk/json.md` (or a command/output page if that reads better during the slice).
+  - `docs/json/programmatic.md` → `docs/sdk/programmatic.md`.
+- Once `docs/sdk/**` is stable, retire `docs/exports/**` in a dedicated docs-only slice (delete or short redirect-style pointer, depending on docs-site link behavior).
+- Once SDK JSON/programmatic docs are stable, retire `docs/json/**` in a dedicated docs-only slice (delete or short redirect-style pointer, depending on docs-site link behavior).
 
 ## Docs tree minimization rules
 
@@ -111,6 +142,7 @@ Quality checks:
 These are candidates to evaluate during the phase, not mandatory immediate moves:
 
 - `docs/json/**` may be reduced to a smaller sub-page set if overlap is high.
+- `docs/exports/**` should be folded into `docs/sdk/**` once SDK docs are stable; keep it as a compatibility/source page until then.
 - small single-file directories across `docs/**` may be flattened where rule #1 applies.
 - topology links should be added to major command/config/behavior pages before any large folder moves.
 
@@ -130,7 +162,12 @@ Any move must preserve:
    - Apply minimization rules to low-value single-file directories.
 4. **Navigation polish**
    - Ensure docs index and architecture hubs reflect final topology-first navigation.
-5. **Release validation**
+5. **SDK docs consolidation**
+   - Add `docs/sdk/README.md` and sub-pages.
+   - Move durable programmatic/API guidance from `docs/exports/**` and `docs/json/programmatic.md` into SDK docs.
+   - Move CLI JSON/programmatic material out of `docs/json/**` into `docs/sdk/json.md` and `docs/sdk/programmatic.md`; retire `docs/json/**` after equivalent coverage and links exist.
+   - Keep `@i18nprune/core` import names in code samples while presenting the section as the i18nprune SDK.
+6. **Release validation**
    - run docs build and architecture graph checks.
 
 ## Validation / release gates for this phase

@@ -4,6 +4,7 @@ import type {
   OperationId,
   RunEmitter,
   RunEvent,
+  RunMessageLevel,
   SyncProgressEvent,
   ValidateProgressEvent,
 } from '../../types/shared/run/index.js';
@@ -21,6 +22,32 @@ export function emitRunEvent(emit: RunEmitter | undefined, event: RunEvent): voi
   } catch {
     // Intentionally swallow: core must not crash on host event handling.
   }
+}
+
+export function emitRunMessage(
+  emit: RunEmitter | undefined,
+  input: {
+    op: OperationId;
+    runId?: string;
+    level: RunMessageLevel;
+    message: string;
+    target?: string;
+    path?: string;
+    data?: Record<string, string | number | boolean | null>;
+    at?: number;
+  },
+): void {
+  emitRunEvent(emit, {
+    type: 'run.message',
+    op: input.op,
+    runId: input.runId,
+    at: input.at ?? nowMs(),
+    level: input.level,
+    message: input.message,
+    ...(input.target !== undefined ? { target: input.target } : {}),
+    ...(input.path !== undefined ? { path: input.path } : {}),
+    ...(input.data !== undefined ? { data: input.data } : {}),
+  });
 }
 
 export function nowMs(): number {

@@ -22,7 +22,7 @@ i18nprune generate --resume --all --dry-run
 
 ## `generate --resume` (top-up and partial continuation)
 
-**`--resume`** is for **existing** target locale files: it re-translates **review-eligible** leaves that still **match the source** at the same path (the workflow formerly covered by the removed **`fill`** command). It is **not** a **`translate.{…}` config field** — hosts pass it **per invocation** (CLI **`--resume`**, or **`GenerateRunOptions.resume`** + **`resumeReference`** when calling **`runGenerate`** from the SDK or an editor extension).
+**`--resume`** is for **existing** target locale files: it re-translates **review-eligible** leaves that still **match the source** at the same path. It is **not** a **`translate.{…}` config field** — hosts pass it **per invocation** (CLI **`--resume`**, or **`GenerateRunOptions.resume`** + **`resumeReference`** when calling **`runGenerate`** from the SDK or an editor extension).
 
 Also use **`--resume`** after a **partial** full **`generate`** when the envelope reports **`partial: true`** and **`resumeHint: "generate --resume"`** (see **`translate.policy.onIncompleteRun`** in [Translation config](../../config/translate.md)): finish the remaining strings without discarding work already written.
 

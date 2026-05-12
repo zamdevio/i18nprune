@@ -1,5 +1,4 @@
 export { missing } from './run.js';
-export { resolvePathsToAddForMissing } from './paths.js';
 export {
   formatMissingPathsDetailLines,
   logMissingPathsPreview,

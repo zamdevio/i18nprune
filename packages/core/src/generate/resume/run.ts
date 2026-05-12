@@ -1,6 +1,6 @@
 /**
  * **`generate --resume`** per-target orchestration: review-leaf scan, translate stale paths, normalize,
- * write. Provider fallback matches the legacy **`fill`** command (retryable errors only).
+ * write. Provider fallback retries provider-retryable failures only.
  */
 
 import { collectTranslationSurfaceLeaves } from '../../shared/localeLeaves/index.js';
@@ -23,6 +23,7 @@ import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors
 import { ISSUE_LOCALE_TARGET_NOT_FOUND, ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT } from '../../shared/constants/issueCodes.js';
 import { I18nPruneError } from '../../shared/errors/index.js';
 import { applyLocaleLeafNormalization } from '../../shared/localeLeaves/index.js';
+import { emitRunMessage } from '../../shared/run/index.js';
 import { existsRuntimeFsSync } from '../../runtime/helpers/sync/fs.js';
 import { readJsonFromRuntimeFsSync } from '../../runtime/helpers/sync/readJson.js';
 import { writeRuntimeJsonPretty } from '../io/writeRuntimeJson.js';
@@ -51,6 +52,10 @@ export type RunGenerateResumeLocaleInput = {
   direction: 'ltr' | 'rtl';
   targetStarted: number;
 };
+
+function emitGenerateMessage(host: Pick<GenerateHostHooks, 'emit' | 'runId'>, level: 'info' | 'notice' | 'warn', message: string): void {
+  emitRunMessage(host.emit, { op: 'generate', runId: host.runId, level, message });
+}
 
 export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInput): Promise<{
   row: GenerateTargetJsonRow;
@@ -124,7 +129,7 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
       providerId: translation.provider,
       env: ctx.env,
     });
-    if (limitSuggestion) host.log.notice?.(limitSuggestion);
+    if (limitSuggestion) emitGenerateMessage(host, 'notice', limitSuggestion);
 
     const session = host.createSession();
     const streakGuard = host.createIdentityStreakGuard(target, {
@@ -221,18 +226,26 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
 
       const wallMs = Date.now() - input.targetStarted;
       const avgRequestMs = translateStats.requestAttempts > 0 ? Math.round(wallMs / translateStats.requestAttempts) : 0;
-      host.log.info?.(
+      emitGenerateMessage(
+        host,
+        'info',
         `progress (${target}): wall=${String(wallMs)}ms · requests=${String(translateStats.requestAttempts)} · success=${String(translateStats.successfulLeaves)} · failed=${String(translateStats.failedRequests)} · retries=${String(translateStats.retriesMade)} · avgRequest=${String(avgRequestMs)}ms`,
       );
-      host.log.info?.(
+      emitGenerateMessage(
+        host,
+        'info',
         `provider (${target}): id=${translation.provider} · workersRequested=${String(opts.workers ?? maxParallelTranslates)} · workersUsed=${String(maxParallelTranslates)} · maxConcurrency=${String(providerProfile.maxConcurrency)} · rpm=${String(rateLimit?.rpm ?? providerProfile.rpm)} · rps=${String(rateLimit?.rps ?? providerProfile.rps)} · intervalMs=${String(rateLimit?.intervalMs ?? providerProfile.intervalMs)}`,
       );
-      host.log.info?.(
+      emitGenerateMessage(
+        host,
+        'info',
         `leaves (${target}): valuesUpdated=${String(changed)} · needsReview=${String(markedForReview)}`,
       );
 
       if (normalized.modeDecision.mode === 'structured') {
-        host.log.info?.(
+        emitGenerateMessage(
+          host,
+          'info',
           `metadata for ${target}: structured ${String(normalized.report.structuredLeavesWritten)}, repaired ${String(normalized.report.repairedCorruptLeaves)}. Use "sync --strip-metadata" to remove metadata fields later.`,
         );
       }
@@ -288,7 +301,9 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
         e instanceof TranslateRunInterruptedError
           ? ` Partial progress kept (${String(e.translateStats.successfulLeaves)} leaf translation(s) succeeded before interrupt); next provider continues without restarting.`
           : '';
-      host.log.warn?.(
+      emitGenerateMessage(
+        host,
+        'warn',
         `provider "${providerId}" failed with a retryable backend error; retrying target "${target}" with "${nextProvider}".${partialHint}`,
       );
     }
@@ -318,7 +333,9 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
 
   {
     const route = (providerAttempts ?? []).map((a) => a.providerId).join(' -> ');
-    host.log.info?.(
+    emitGenerateMessage(
+      host,
+      'info',
       `provider route (${target}): ${route} (winner: ${winnerProviderId ?? 'none'}, fallbacks: ${String(Math.max(0, (providerAttempts?.length ?? 0) - 1))})`,
     );
   }

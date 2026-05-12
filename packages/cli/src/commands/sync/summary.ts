@@ -1,9 +1,9 @@
 import { getRunOptions } from '@i18nprune/core';
+import type { SyncFileLine } from '@i18nprune/core';
 import type { RunOptions } from '@/types/core/runtime/index.js';
 import { style } from '@/utils/style/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintDetail, canPrintInfo } from '@/utils/logger/policy.js';
-import type { SyncFileLine } from '@/types/command/sync/summary.js';
 
 /**
  * Human-oriented sync stats (info + dim detail). Skipped in **`-s` / `--json`**; uses **`info`** / **`detail`** gates

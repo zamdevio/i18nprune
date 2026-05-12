@@ -3,8 +3,8 @@
  * each one at a defined consent point and the host's return value drives the run.
  *
  * Observability is intentionally **not** here — the existing `RunEmitter` / `RunEvent` surface
- * already carries `run.progress.generate`, `run.started`, `run.completed`, `run.summary`, and
- * `run.failed`. New observability needs extend that union, not these hooks.
+ * carries `run.message`, `run.progress.generate`, `run.started`, `run.completed`, `run.summary`,
+ * and `run.failed`. New observability needs extend that union, not these hooks.
  */
 
 import type { TranslateFailureOutcome } from '../../translator/policy/classify.js';

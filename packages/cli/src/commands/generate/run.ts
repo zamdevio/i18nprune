@@ -16,10 +16,11 @@ import { refreshProjectReportCache, resolveExtractionBaselineCounts } from '@/sh
 import { resolveContext } from '@/shared/context/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { stringifyEnvelope } from '@/shared/result/cliJson.js';
-import { logTranslateFailureHelp } from '@/shared/translation/failureHelp.js';
+import { logTranslateFailureHelp } from '@/shared/translator/failureHelp.js';
 import { printCommandSummary } from '@/output/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
+import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 
 import { mergeGenerateOptionsFromEnv } from '@/commands/generate/env.js';
 import { executeCore, runGenerateJsonEnvelope } from '@/commands/generate/jsonEnvelope.js';
@@ -70,7 +71,7 @@ export async function generate(opts: GenerateOptions): Promise<void> {
     let payload: GenerateJsonPayload;
     let issues: Issue[];
     try {
-      const result = await executeCore(ctx, merged, {});
+      const result = await executeCore(ctx, merged, { emit: createCliRunEmitter(ctx.run), runId });
       payload = result.payload;
       issues = result.issues;
     } catch (err) {

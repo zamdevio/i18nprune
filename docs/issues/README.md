@@ -48,9 +48,8 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.validate.missing_literal_keys` | `warning` | **`validate`**, **`runValidate`** |
 | `i18nprune.validate.dynamic_key_sites` | `warning` | **`validate`**, **`runValidate`** |
 | `i18nprune.validate.source_locale_unreadable` | `error` | **`validate`**, **`runValidate`** |
-| `i18nprune.fill.usage` | _(removed)_ | Historical code; **`generate --resume`** uses **`i18nprune.generate.usage`** for usage-class failures |
 | `i18nprune.locales.usage` | `error` | **`locales`** subcommands |
-| `i18nprune.locale.target_not_found` | `error` | **`locales edit`**, **`locales delete`**, … |
+| `i18nprune.locale.target_not_found` | `error` / `warning` | **`locales edit`**, **`locales delete`**, **`missing --target`**, … |
 | `i18nprune.translate.identity_streak_warning` | `warning` | **`generate`** (including **`--resume`**) |
 | `i18nprune.translate.identity_streak_abort` | `error` | **`generate`** (including **`--resume`**) |
 | `i18nprune.translate.unknown_translation_provider` | `error` | Provider id resolution / validation |

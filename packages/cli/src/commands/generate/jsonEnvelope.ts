@@ -39,7 +39,7 @@ import {
 } from '@/shared/result/cliEnvelopeIssues.js';
 import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
 import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
-import { safeTranslationMetaForEnvelope } from '@/shared/translation/resolveProvider.js';
+import { safeTranslationMetaForEnvelope } from '@/shared/translator/resolveProvider.js';
 import { ISSUE_GENERATE_USAGE } from '@/constants/issueCodes.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintWarn } from '@/utils/logger/policy.js';
@@ -47,14 +47,14 @@ import { resolveFromCwd } from '@/utils/paths/index.js';
 
 import { buildKeyReferenceContext } from '@/shared/reference/context.js';
 import { buildGenerateHostHooks } from '@/commands/generate/hooks.js';
-import type { GenerateRuntime } from '@/commands/generate/hooks.js';
+import type { GenerateRuntime } from '@/types/command/generate/index.js';
 import {
   promptGenerateIncompleteWrite,
   promptGenerateResumeLanguageSelection,
   promptLanguageCodeOnly,
   confirmGenerateResumeAsk,
 } from '@/commands/generate/prompts.js';
-import { promptGenerateHandoffPick } from '@/shared/translation/handoff.js';
+import { promptGenerateHandoffPick } from '@/shared/translator/handoff.js';
 
 import type { GenerateOptions } from '@/types/command/generate/index.js';
 import type { GenerateJsonPayload } from '@i18nprune/core';

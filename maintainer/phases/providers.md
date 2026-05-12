@@ -5,7 +5,7 @@
 **User docs:** [Translation config](../../docs/config/translate.md) · [Issues — translate](../../docs/issues/translate.md) · [Issues — generate](../../docs/issues/generate.md)  
 **Commands:** [generate](../../docs/commands/generate/README.md) (**`--resume`**)
 
-**Code anchors:** `packages/core/src/shared/translator/` · `packages/core/src/shared/translator/utils/orchestration.ts` · `packages/cli/src/shared/translation/resolveProvider.ts` · `packages/cli/src/shared/cursor/`
+**Code anchors:** `packages/core/src/shared/translator/` · `packages/core/src/shared/translator/utils/orchestration.ts` · `packages/cli/src/shared/translator/resolveProvider.ts` · `packages/cli/src/shared/cursor/`
 
 ---
 

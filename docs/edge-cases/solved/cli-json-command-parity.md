@@ -12,8 +12,6 @@ If a command was **missing** from that set, **`ctx.run.json`** stayed **`false`*
 - **Human UI still ran** (banner, **`logger`**, **`printCommandSummary`**) — including a second **`kind: "summary"`** JSON line when summary printing assumed JSON mode, which **breaks `jq`** expecting a single document.
 - **Integrators** saw stderr and prose instead of one **`CliJsonEnvelope`** with **`ok`**, **`data`**, **`issues[]`**, **`meta`**.
 
-**Historical note:** the removed **`fill`** command once shared the translation pipeline with **`generate`** but was not initially in **`COMMANDS_WITH_JSON_OUTPUT`**, so **`fill --json`** did not match **`generate --json`** until parity work landed. **`fill`** is gone; **`generate --resume`** uses the same **`generate`** JSON path.
-
 ## What we do
 
 1. **Source of truth:** `COMMANDS_WITH_JSON_OUTPUT` — keep it aligned with commands that implement a primary stdout envelope (see [JSON output](../../json/README.md)).

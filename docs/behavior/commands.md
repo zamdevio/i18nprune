@@ -11,7 +11,7 @@ When **JSON** is **Yes**, structured stdout uses the envelope documented in **[J
 | `validate` | `--source`, `--locales-dir`, global overrides | Human or JSON | **Yes** | Keys vs source. |
 | `sync` | `--dry-run`, `--lang`, `--metadata`, `--strip-metadata` | Human or JSON | **Yes** | Merge/prune to source shape; shared locale metadata writer mode. |
 | `generate` | `--target`, `--resume`, `--all`, `--ask`, `--dry-run`, `--force`, `--metadata`, meta flags, … | Human or JSON; stderr progress when allowed (human) | **Yes** | **`--target` required** when non-interactive unless **`--resume`** uses **`--all`**. See [generate](../commands/generate/README.md). |
-| `missing` | `--locale`, `--dry-run`, `--top`, `--full-list`, global `stdout redirection`, global `--yes` | Human or JSON | **Yes** | Scaffold keys into **source** locale JSON or `locales/<code>.json`. See [missing](../commands/missing/README.md). |
+| `missing` | `--target`, `--dry-run`, `--top`, `--full`, global `stdout redirection`, global `--yes` | Human or JSON | **Yes** | Scaffold keys into **source** locale JSON or existing target locale files. See [missing](../commands/missing/README.md). |
 | `quality` | `--lang` | Human or JSON | **Yes** | Parity / drift. |
 | `review` | `--lang` | Human or JSON | **Yes** | Locale vs source. |
 | `cleanup` | `--check-only`, `--skip-rg` | Human or JSON | **Yes** | Unused keys. |

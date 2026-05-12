@@ -1,5 +1,5 @@
-/** Flags for `i18nprune quality` (parity / EN-identical reports). */
-export type QualityOptions = {
-  /** Report only this locale file (basename without .json); omit for all non-source locales */
-  target?: string;
-};
+import type { RunEmitter } from '@i18nprune/core';
+
+export type { QualityRunOptions as QualityOptions } from '@i18nprune/core';
+
+export type QualityRuntime = { emit?: RunEmitter; runId?: string };

@@ -15,7 +15,7 @@
   argv merge, **`resolveContext`**, branch on **`--json`** vs human, post-success
   patching / cache refresh.
 - Hooks factory: `packages/cli/src/commands/generate/hooks.ts` —
-  **`buildGenerateHostHooks(ctx, runtime)`** wires CLI logger / progress / TTY prompts
+  **`buildGenerateHostHooks(ctx, runtime)`** wires progress / TTY prompts
   into the **`GenerateHostHooks`** contract.
 - Envelope shaping + shared core delegate:
   `packages/cli/src/commands/generate/jsonEnvelope.ts` — owns
@@ -32,6 +32,7 @@
   consumers call **`runGenerate`** directly with their own **`GenerateHostHooks`** (see
   `examples/sdk/generate/runGenerate.ts`). Mid-run decision points are exposed through
   the optional **`GenerateRunHooks`** (`onIncomplete`, `onHandoffPick`).
+- Operation copy is emitted from core via **`run.message`**; CLI maps it to logger output.
 
 ## `run.*` events
 

@@ -78,18 +78,19 @@ export type {
 export type { HeaderOptions, LogLevel } from '@/types/utils/ansi/index.js';
 export type { CommandBannerSpec } from '@/types/utils/cli/banner.js';
 
-export type { ReviewJsonData, ReviewJsonOpts } from '@/types/command/review/json.js';
+export type { ReviewJsonData, ReviewLocaleStats, ReviewRunOptions as ReviewJsonOpts } from '@i18nprune/core';
 export type { GenerateOptions } from '@/types/command/generate/index.js';
 export type { GenerateJsonPayload, GenerateTargetJsonRow } from '@i18nprune/core';
 export type { ReportCliJsonPayload } from '@/types/command/report/json.js';
 export type { ReportCliRunOptions } from '@/types/command/report/index.js';
-export type { SyncJsonOutput, SyncOptions } from '@/types/command/sync/index.js';
+export type { SyncJsonOutput, SyncFileLine } from '@i18nprune/core';
+export type { SyncOptions } from '@/types/command/sync/index.js';
 export type { CleanupJsonOutput, CleanupOptions } from '@/types/command/cleanup/index.js';
 export type { ValidateJsonOutput, ValidateOptions } from '@/types/command/validate/index.js';
 export type { QualityOptions } from '@/types/command/quality/index.js';
-export type { MissingJsonOutput, MissingOptions } from '@/types/command/missing/index.js';
+export type { MissingJsonOutput } from '@i18nprune/core';
+export type { MissingOptions } from '@/types/command/missing/index.js';
 export type { MissingPathDisplayOpts } from '@/types/command/missing/summary.js';
-export type { SyncFileLine } from '@/types/command/sync/summary.js';
 
 export type { ConfigSnapshot, ResolvedPathKind } from '@/types/commands/config/index.js';
 export type { LanguagesCommandOptions } from '@/types/commands/languages/index.js';

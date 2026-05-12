@@ -27,7 +27,7 @@ describe('missing summary', () => {
     expect(s.omitted).toBe(paths.length - MISSING_DISPLAY_DEFAULT_TOP);
   });
 
-  it('--full-list shows all', () => {
+  it('--full shows all', () => {
     const s = sliceMissingPathsForDisplay(paths, { fullList: true });
     expect(s).toEqual({ visible: paths, omitted: 0 });
   });

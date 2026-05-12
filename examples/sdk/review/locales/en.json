@@ -1,0 +1,9 @@
+{
+  "app": {
+    "title": "Welcome",
+    "subtitle": "Review sample"
+  },
+  "actions": {
+    "save": "Save"
+  }
+}

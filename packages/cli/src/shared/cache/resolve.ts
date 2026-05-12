@@ -2,14 +2,10 @@ import { buildValidateIssues, extractor, type DynamicKeySite, type KeyObservatio
 import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
 import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
 import { runValidate } from '@/shared/programmatic/runValidate.js';
-import { measureQualityEnglishIdentical } from '@/shared/quality/measure.js';
-import { computeReviewReport } from '@/shared/review/report.js';
 import { resolveProjectReportData } from './reportData.js';
 import { toExtractorScanInput } from '@/shared/extractor/scanInput.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { ValidateJsonOutput } from '@/types/command/validate/index.js';
-import type { QualityOptions } from '@/types/command/quality/index.js';
-import type { ReviewJsonOpts } from '@/types/command/review/json.js';
 
 export function resolveCachedProjectReportDocument(ctx: Context) {
   return resolveProjectReportData(ctx).document;
@@ -93,24 +89,6 @@ export function resolveExtractionBaselineCounts(ctx: Context): {
   keyObservations: number;
 } {
   return { dynamic: resolveDynamicSitesCount(ctx), keyObservations: resolveKeyObservationsCount(ctx) };
-}
-
-export function resolveQualityData(ctx: Context, opts: QualityOptions) {
-  try {
-    const doc = resolveCachedProjectReportDocument(ctx);
-    return measureQualityEnglishIdentical(ctx, opts, { dynamicSitesCount: doc.details.dynamicSites.length });
-  } catch {
-    return measureQualityEnglishIdentical(ctx, opts);
-  }
-}
-
-export function resolveReviewData(ctx: Context, opts: ReviewJsonOpts) {
-  try {
-    const doc = resolveCachedProjectReportDocument(ctx);
-    return computeReviewReport(ctx, opts, { dynamicKeySites: doc.details.dynamicSites.length });
-  } catch {
-    return computeReviewReport(ctx, opts);
-  }
 }
 
 export function resolveMissingResolvedKeys(ctx: Context): ReadonlySet<string> | undefined {

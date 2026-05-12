@@ -4,3 +4,6 @@
  * A non-empty default is distinct from an intentional empty UI string so tooling can **`grep`** scaffolded keys.
  */
 export const DEFAULT_MISSING_LEAF_PLACEHOLDER = '__I18NPRUNE_MISSING__' as const;
+
+/** Keep locale target suggestions helpful without turning typo warnings into noisy catalog dumps. */
+export const MAX_MISSING_TARGET_SUGGESTIONS = 3;

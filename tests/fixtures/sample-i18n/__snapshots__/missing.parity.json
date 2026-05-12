@@ -1,0 +1,35 @@
+{
+  "data": {
+    "dryRun": true,
+    "paths": [],
+    "pathsAdded": 0,
+    "skippedNotInScan": [],
+    "skippedTargets": [],
+    "targetKind": "source",
+    "targetPath": "locales/en.json",
+    "targets": [
+      {
+        "paths": [],
+        "pathsAdded": 0,
+        "skippedNotInScan": [],
+        "targetKind": "source",
+        "targetPath": "locales/en.json"
+      }
+    ]
+  },
+  "issues": [
+    {
+      "code": "i18nprune.scan.dynamic_key_sites",
+      "docHref": "https://docs.i18nprune.dev/issues/scan#dynamic-key-sites",
+      "docPath": "docs/dynamic/README",
+      "message": "3 translation call(s) use a non-literal key — static analysis cannot enumerate computed keys as fixed paths.",
+      "severity": "warning"
+    }
+  ],
+  "kind": "missing",
+  "meta": {
+    "apiVersion": "1",
+    "cwd": "<cwd>"
+  },
+  "ok": true
+}

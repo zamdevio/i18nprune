@@ -2,7 +2,7 @@
 
 **Status:** Plan locked. **Phase 1 executes before [`translate-policy.md`](./translate-policy.md)**; subsequent phases run in parallel with policy and `fill` collapse.  
 **Companion docs:** [`translate-policy.md`](./translate-policy.md) · [`providers.md`](./providers.md)  
-**Anchors:** `packages/core/src/generate/` · `packages/core/src/translator/` · `packages/core/src/types/translator/` · `packages/cli/src/commands/generate/execute.ts` · `packages/cli/src/shared/translation/`
+**Anchors:** `packages/core/src/generate/` · `packages/core/src/translator/` · `packages/core/src/types/translator/` · `packages/cli/src/commands/generate/execute.ts` · `packages/cli/src/shared/translator/`
 
 ---
 
@@ -21,7 +21,7 @@ Pre-v1 freedom is used: no backwards-compat constraints on internal APIs. Behavi
 | A1 | **One entry per op named `run.ts`**, re-exported from `index.ts`. Function name pattern: `runTranslate` (translate primitive), `runGenerate`, `runQuality`, `runReview`, `runMissing`, `runSync`. (`orchestrator.ts` is reserved — already used by translator pacing utilities; `runFill` is intentionally not in the list — see §8 / §11.) |
 | A2 | **Config-driven entry params.** Entry takes the resolved config; reads source / existing target via host adapters; throws **`I18nPruneError`** for fatal IO / parse failures. SDK consumers detect failure with one type check. |
 | A3 | **Typed return shape per op** (`GenerateOutput`, `FillOutput`, …) so consumers — CLI included — never reach into internals. |
-| A4 | **CLI is a host.** It owns argv parsing, prompts, banners, logger calls, run-event emission. It does **not** own orchestration, retry loops, fallback, partial-resume, identity guards, file IO. Those move to core. |
+| A4 | **CLI is a host.** It owns argv parsing, prompts, banners, and rendering policy. Core owns operation orchestration **and operation message copy** via `run.message` events; hosts decide whether to show, collect, ignore, or map those messages into their own UI. CLI must not duplicate core-op info/warn/detail copy after an op is migrated. |
 | A5 | **Behavior parity rule.** During the refactor, `--json` envelope, human log lines, and exit codes on the fixture must be byte-identical before/after. Any deviation requires an explicit doc note in this file. Snapshot tests gate every PR. |
 | A6 | **One slice per PR.** No bundling. `pnpm typecheck` + relevant tests + parity snapshot are merge gates. |
 | A7 | **Folder conventions.** Shared types live in `packages/core/src/types/<domain>/` with an `index.ts` barrel. CLI never re-exports core types via shim files. |
@@ -397,7 +397,7 @@ This subsection codifies the layout that **emerged from 5.b.1 → 5.b.3.config.z
 
 | file | responsibility | exported via |
 |---|---|---|
-| `run.ts` | Single L3 entry function `runXxx(ctx, opts, host, hooks?)`. Owns orchestration, delegates pure computation to siblings, uses `ctx.adapters.*` for IO, calls `host.log.*` / `host.emitProgress` / `host.printXxx` unconditionally (host applies policy). Returns `{ payload, issues }` for the op's JSON shape. | `index.ts` + root barrel |
+| `run.ts` | Single L3 entry function `runXxx(ctx, opts, host, hooks?)`. Owns orchestration, delegates pure computation to siblings, uses `ctx.adapters.*` for IO, emits operation copy through `run.message`, and calls host decision/progress hooks where needed. Returns `{ payload, issues }` for the op's JSON shape. | `index.ts` + root barrel |
 | `context.ts` | `createXxxContext(input)` builder + (optional) `xxxContextFromCore(ctx)` projection. Bundles `config + adapters + env + paths + run?`. No work; pure data assembly. | `index.ts` |
 | `<op>-specific helpers` (e.g. `normalize.ts`, `targetScope.ts`) | Pure functions used by `run.ts`. No `console.*`, no `process.*`, no IO. Testable in isolation, exported for SDK consumers who want the building blocks without the full op. | `index.ts` |
 | `errors/<name>.ts` (when needed) | Error classes carrying machine-readable state for the op (e.g. `TranslateRunInterruptedError` with `partialStats`). One class per file; flat `errors/index.ts` barrel. | `index.ts` re-exports the `errors/index.js` barrel |
@@ -426,7 +426,7 @@ For ops that need orchestration in core, the CLI is a **thin host** with three f
 | file | responsibility |
 |---|---|
 | `run.ts` | Command entry exported as `xxx(opts)`. Argv merge from env, `resolveContext`, branch on `--json` vs human, post-success patching / cache refresh. ~120 lines. **Never builds host hooks itself; never owns envelope shaping.** |
-| `hooks.ts` | `buildXxxHostHooks(ctx, runtime)` returning the CLI flavor of `XxxHostHooks` (TTY prompts, identity guard, progress relay, logger policy via `canPrintInfo` / `canPrintWarn`). |
+| `hooks.ts` | `buildXxxHostHooks(ctx, runtime)` returning the CLI flavor of `XxxHostHooks` (TTY prompts, identity guard, progress relay). Message rendering comes from the shared CLI `RunEmitter`. |
 | `jsonEnvelope.ts` | `emptyXxxPayload(ctx, opts)`, `executeCore(ctx, merged, runtime)` (single call site for core's `runXxx`; reused by both `--json` and human paths), and `runXxxJsonEnvelope(ctx, merged, runtime)` (success / failure envelope shaping + `run.*` event emission; **never throws**). |
 | `prompts.ts` (when needed) | Inquirer / TTY prompts. Pure host concern. |
 | `summary/*.ts` (when needed) | Human-mode printers (banner, finalize summary, parity report). |
@@ -441,15 +441,15 @@ For ops that need orchestration in core, the CLI is a **thin host** with three f
 
 #### 5.d.4 Logging + policy split
 
-- **Core calls `host.log.*` unconditionally.** No `runLogGates.ts`-style filtering inside core.
-- **Host owns the policy.** CLI's `hooks.ts` wires `canPrintInfo` / `canPrintWarn` etc. into each `host.log.*` channel; SDK consumers wire their own (typical headless pattern: stderr write).
-- Three log channels are canonical: `log.info` (info policy), `log.warn` (warn policy), `log.notice` (warn-styled string that should still hide under `--quiet`, i.e. info policy with warn formatting). Add new channels only when an existing one can't carry the new semantic.
+- **Core owns operation message copy.** Core emits info/detail/notice/warn strings as `run.message`; it does not call `console.*` and does not apply CLI visibility policy.
+- **Host owns rendering policy.** CLI's `RunEmitter` renderer maps `run.message` to `logger.info` / `logger.detail` / `logger.notice` / `logger.warn`; SDK consumers can show, collect, ignore, or map messages into their own UI.
+- **Prompts stay host-owned.** Core may emit “about to write” / “skipped” / “summary” messages, but the host still owns the interactive question and decision.
 
 #### 5.d.5 Run events (`run.*` emission)
 
-- **Emission is host-owned**, accessed by core via `host.emit` / `host.emitProgress` / the runtime helpers (`emitRunEvent`, `emitRunErrorFromUnknown`, `emitIssuesAsRunErrors`, `nowMs`).
+- **Emission is host-wired**, accessed by core via `host.emit` / `host.emitProgress` / the runtime helpers (`emitRunEvent`, `emitRunMessage`, `emitRunErrorFromUnknown`, `emitIssuesAsRunErrors`, `nowMs`).
 - The **JSON envelope wrapper** (`runXxxJsonEnvelope`) emits `run.started` / `run.completed` / `run.summary` / `run.failed`.
-- The **core `runXxx`** emits `run.progress.<op>` events at the canonical phases (`scan_*`, `read_source`, `resolve_targets`, `build_target`, `merge`, `prune`, `write_files`, `done` — pick the subset relevant to the op).
+- The **core `runXxx`** emits `run.progress.<op>` events at the canonical phases (`scan_*`, `read_source`, `resolve_targets`, `build_target`, `merge`, `prune`, `write_files`, `done` — pick the subset relevant to the op) and `run.message` for user-facing operation copy.
 - `noopRunEmitter` is the CLI default when no out-of-band consumer is attached. SDK consumers can pass their own `RunEmitter` to surface progress over IPC / WebSocket / etc.
 
 #### 5.d.6 Error + issue conventions
@@ -466,7 +466,7 @@ Each op ships with `examples/sdk/<op>/<run<Op>>.ts` in the **same PR** as the op
 1. Build `RuntimeAdapters` (explicit; never auto-default).
 2. Author config in `i18nprune.config.ts` via `defineConfig` (or load via `loadCoreConfigFromPath`); pass directly into the L2 builder — no cast.
 3. Build the L2 context for the op.
-4. Implement a **headless** `XxxHostHooks` (no TTY, no `console`, log → stderr).
+4. Implement a **headless** `XxxHostHooks` (no TTY, no `console`, `run.message` → stderr if messages are displayed).
 5. (Optional) Implement `XxxRunHooks` showing the most useful policy choice.
 6. Call `runXxx(ctx, opts, host, hooks?)` with `dryRun: true` by default.
 7. Inspect returned `payload` + `issues`.
@@ -507,7 +507,7 @@ The 10 steps in [`translate-policy.md`](./translate-policy.md) are unchanged in 
 | 4 (schema + types + init) | `packages/cli/src/config/schema.ts` (CLI-side, schema lives where Zod is configured) + `packages/core/src/types/translator/policy.ts` |
 | 5 (policy resolver) | `packages/core/src/translator/policy/resolver.ts` |
 | 6 (wire resolver) | `packages/core/src/generate/run.ts` (was `executeGenerate`) |
-| 7 (handoff) | core: `packages/core/src/translator/policy/handoff.ts` (eligibility + offer); CLI: `packages/cli/src/shared/translation/handoff.ts` (TTY picker UI) |
+| 7 (handoff) | core: `packages/core/src/translator/policy/handoff.ts` (eligibility + offer); CLI: `packages/cli/src/shared/translator/handoff.ts` (TTY picker UI) |
 | 8 (JSON envelope) | already in CLI summary, sources data from `GenerateOutput` |
 | 9 (docs + tests) | unchanged |
 | 10 (partial-run hook) | core: hook in `runGenerate`; CLI: prompt impl |
@@ -524,8 +524,8 @@ Same playbook as § 5.d. Each migration is one slice per PR with its own parity 
 |---|---|---|---|---|
 | `sync` | no — pure JSON merge / metadata | `commands/sync/run.ts` + `commands/sync/jsonEnvelope.ts` (`runSync` already in CLI) | `core/src/sync/run.ts` | medium |
 | `missing` | no — locale ↔ source diff | `commands/missing/run.ts` | `core/src/missing/run.ts` | small |
-| `quality` | no — source-identical leaf count (parity-adjacent) | `commands/quality/run.ts` + `commands/quality/jsonEnvelope.ts` | `core/src/quality/run.ts` (lift `measureQualityEnglishIdentical` into core) | small |
-| `review` | no — needs-review row aggregation | `commands/review/run.ts` + `commands/review/jsonEnvelope.ts` | `core/src/review/run.ts` (assemble around the existing pure helpers) | small |
+| `quality` | no — source-identical leaf count (parity-adjacent) | `commands/quality/run.ts` + `commands/quality/jsonEnvelope.ts` | `core/src/quality/run.ts` (`runQuality`; CLI wrapper `runQualityJsonEnvelope`) | small — landed |
+| `review` | no — needs-review row aggregation | `commands/review/run.ts` + `commands/review/jsonEnvelope.ts` | `core/src/review/run.ts` (`runReview`; CLI wrapper `runReviewJsonEnvelope`) | small — landed |
 
 **`fill` is intentionally absent** — its substrate (`runGenerate({ resume: true })`) landed in 5.b.3, so phase 3 has nothing to migrate. Phase 4 just deletes the CLI command surface.
 
@@ -566,7 +566,7 @@ No `runFill` shim. No deprecation alias. Pre-v1.
 After 5.b.3 the CLI's `commands/generate/` is split into three files:
 
 - `run.ts` — argv merge, `resolveContext`, branch on `--json` vs human, post-success patching/cache. ~120 lines.
-- `hooks.ts` — `buildGenerateHostHooks(ctx, runtime)` returning the `GenerateHostHooks` for the CLI flavor (TTY prompts, identity guard, progress relay, logger policy).
+- `hooks.ts` — `buildGenerateHostHooks(ctx, runtime)` returning the `GenerateHostHooks` for the CLI flavor (TTY prompts, identity guard, progress relay).
 - `jsonEnvelope.ts` — `emptyGeneratePayload`, `executeCore` (single call site for core `runGenerate`; reused by both `--json` and human paths), and `runGenerateJsonEnvelope` (wraps `executeCore` with success/failure envelope shaping + `run.*` event emission). Same layout as `commands/<cmd>/jsonEnvelope.ts` for sync/missing/cleanup/quality/review/etc.
 
 For reference, the sketch of `executeCore`:
@@ -666,7 +666,7 @@ After **5.b.3 (phase 1, end)**: SDK gets `runGenerate(ctx, opts, host, hooks?)` 
 ```ts
 const config = defineConfig({ /* …authored once, returns the public `I18nPruneConfig` directly… */ });
 const ctx = createCoreContext({ config, adapters, env, paths });
-const headlessHost: GenerateHostHooks = { /* no-TTY printers, headless prompts, log → stderr */ };
+const headlessHost: GenerateHostHooks = { /* no-TTY printers, headless prompts, run.message -> stderr */ };
 const out    = await runGenerate(ctx, { targets: ['fr'], metadata: true }, headlessHost);
 const filled = await runGenerate(ctx, { targets: ['fr'], resume: true, metadata: true }, headlessHost);
 ```

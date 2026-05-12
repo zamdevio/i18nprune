@@ -53,7 +53,7 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
         summary:
           "Adds dotted key paths that appear in code but are absent from a chosen JSON file — by default the source locale (same file `validate` checks).",
         detail:
-          "Use `--dry-run` to preview and `--locale` to target a specific locale file. Writes need `--yes` in CI/non-interactive environments.",
+          "Use `--dry-run` to preview and `--target` to target one or more existing locale files. Writes need `--yes` in CI/non-interactive environments.",
         examples: [
           {
             caption: "Preview keys that would be added (no write)",
@@ -62,14 +62,14 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
             outcome: "Shows paths that would receive the __I18NPRUNE_MISSING__ scaffold; no file change.",
           },
           {
-            caption: "Limit human listing (full list uses --full-list)",
+            caption: "Limit human listing (full list uses --full)",
             code: "i18nprune missing --dry-run --top 5",
             lang: "bash",
             outcome: "Caps preview rows; JSON mode always returns complete `paths`.",
           },
           {
             caption: "Write placeholders into a specific locale file",
-            code: "i18nprune missing --locale ja --yes",
+            code: "i18nprune missing --target ja --yes",
             lang: "bash",
             outcome: "Merges missing paths into `locales/ja.json` (resolved under `localesDir`).",
           },

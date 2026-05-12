@@ -17,10 +17,7 @@ function isResumeCandidateStructuredMeta(input: GenerateResumeCandidateLeafInput
   return leafMatchesSourceForResume(leaf.value, srcVal);
 }
 
-/**
- * Whether this leaf would be considered for **`generate --resume`** (same guards as the legacy fill
- * command before removal).
- */
+/** Whether this leaf would be considered for **`generate --resume`**. */
 export function isResumeCandidateLeaf(input: GenerateResumeCandidateLeafInput): boolean {
   const { leaf, sourceMap, refCtx, eff, preserve, parity } = input;
   const srcVal = sourceMap.get(leaf.path);

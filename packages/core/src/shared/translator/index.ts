@@ -116,7 +116,7 @@ export async function translateLeaf(
         ]
       : [];
 
-  // Throw as a structured I18nPruneError AND attach issues so CLI `runGenerate` / `runFill` can surface them.
+  // Throw as a structured I18nPruneError AND attach issues so `runGenerate` can surface them.
   const norm = normalizeUnknownError(lastErr, {
     when: 'Translation failed after retries',
     defaultCode: 'INTERNAL',

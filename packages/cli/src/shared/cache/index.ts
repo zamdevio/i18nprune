@@ -28,7 +28,5 @@ export {
   resolveExtractionBaselineCounts,
   resolveKeyObservationsCount,
   resolveMissingResolvedKeys,
-  resolveQualityData,
-  resolveReviewData,
   resolveValidateData,
 } from './resolve.js';

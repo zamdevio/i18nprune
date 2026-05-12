@@ -26,7 +26,7 @@ export type ReferenceDefaults = {
    */
   treatNonSourceFileSitesAsRuntime?: boolean;
   /**
-   * `protect` — do not remove / do not fill / keep extras on sync under uncertain prefixes.
+   * `protect` — do not remove / do not generate resume candidates / keep extras on sync under uncertain prefixes.
    * `allow` — ignore uncertain-prefix protection (risky).
    * `warn_only` — same protection as `protect` for now; reserved for softer UX.
    * @default 'protect'
@@ -57,13 +57,10 @@ export type ReferenceCommandOverrides = ReferenceDefaults;
 /**
  * Per-operation entries under **`reference.commands`** in config.
  * Known keys: **`cleanup`**, **`sync`**, **`generate`** — each overrides **`defaults`** for that operation only.
- * Legacy configs may still include **`fill`**; it is merged into **`generate`** when resolving reference policy for generate.
  */
 export type ReferenceCommands = {
   /** Reference policy when running **`i18nprune cleanup`**. */
   cleanup?: ReferenceCommandOverrides;
-  /** Legacy **`reference.commands.fill`** (pre–`generate --resume`); merged into **`generate`** at resolve time. */
-  fill?: ReferenceCommandOverrides;
   /** Reference policy when running **`i18nprune sync`**. */
   sync?: ReferenceCommandOverrides;
   /** Reference policy when running **`i18nprune generate`**. */

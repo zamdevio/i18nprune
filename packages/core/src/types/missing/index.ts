@@ -6,3 +6,16 @@ export type ResolveMissingPathsPlanInput = {
   /** Optional `missing` entries from a prior validate JSON report. */
   reportMissingPaths?: readonly string[];
 };
+
+export type {
+  MissingHostHooks,
+  MissingJsonTarget,
+  MissingJsonOutput,
+  MissingRunOptions,
+  MissingRunResult,
+  MissingSkippedTarget,
+  MissingTargetKind,
+  MissingTargetPlan,
+  MissingTargetState,
+  MissingWriteInput,
+} from './missingRun.js';

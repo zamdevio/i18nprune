@@ -9,6 +9,7 @@ export type { HeaderOptions, LogLevel };
 
 const levelTag: Record<LogLevel, (s: string) => string> = {
   info: style.ok,
+  notice: style.warn,
   warn: style.warn,
   error: style.err,
 };

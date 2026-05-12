@@ -1,4 +1,4 @@
-export type LogLevel = 'info' | 'warn' | 'error';
+export type LogLevel = 'info' | 'notice' | 'warn' | 'error';
 
 export type HeaderOptions = {
   subtitle?: string;

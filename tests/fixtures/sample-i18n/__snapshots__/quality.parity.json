@@ -1,0 +1,51 @@
+{
+  "data": {
+    "dynamicKeySites": 3,
+    "files": [
+      {
+        "code": "en",
+        "file": "en.json",
+        "isSourceLocale": true,
+        "leafCount": 29,
+        "sourceIdenticalLeafCount": null
+      },
+      {
+        "code": "ar",
+        "file": "ar.json",
+        "isSourceLocale": false,
+        "leafCount": 29,
+        "sourceIdenticalLeafCount": 4
+      }
+    ],
+    "localeCount": 2,
+    "localesDir": "<fixture>/locales",
+    "perFile": {
+      "ar.json": 4
+    },
+    "sourceLocale": "en",
+    "targetLocaleCount": 1,
+    "total": 4
+  },
+  "issues": [
+    {
+      "code": "i18nprune.scan.dynamic_key_sites",
+      "docHref": "https://docs.i18nprune.dev/issues/scan#dynamic-key-sites",
+      "docPath": "docs/dynamic/README",
+      "message": "3 translation call(s) use a non-literal key — static analysis cannot enumerate computed keys as fixed paths.",
+      "severity": "warning"
+    },
+    {
+      "code": "i18nprune.quality.english_identical_leaves",
+      "docHref": "https://docs.i18nprune.dev/issues/quality#english-identical-leaves",
+      "docPath": "docs/commands/quality/README",
+      "message": "4 leaf value(s) still equal the source locale (parity / copy candidates).",
+      "severity": "info"
+    }
+  ],
+  "kind": "quality",
+  "meta": {
+    "apiVersion": "1",
+    "cwd": "<cwd>"
+  },
+  "ok": true
+}

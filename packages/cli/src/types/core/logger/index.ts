@@ -3,6 +3,7 @@ import type { RunOptions } from '@/types/core/runtime/index.js';
 /** Which output gate applies (`canPrint*` / `canEmit`). */
 export type LogGate =
   | 'info'
+  | 'notice'
   | 'warn'
   | 'detail'
   | 'primary'

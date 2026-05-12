@@ -1,8 +1,26 @@
 export {
+  applyMissingPaths,
+  emitMissingPathsPreview,
+  emitMissingTargetActionMessage,
+  emitMissingTargetWriteIntro,
   MISSING_LEAF_PLACEHOLDER_MAX_LEN,
   parseMissingArrayFromValidateReportJson,
   planMissingPathsFromReport,
   resolveMissingLeafPlaceholder,
   resolveMissingPathsPlan,
+  runMissing,
+  writeMissingPaths,
 } from '../missing/index.js';
-export type { ResolveMissingPathsPlanInput } from '../missing/index.js';
+export type {
+  MissingHostHooks,
+  MissingJsonTarget,
+  MissingJsonOutput,
+  MissingRunOptions,
+  MissingRunResult,
+  MissingSkippedTarget,
+  MissingTargetKind,
+  MissingTargetPlan,
+  MissingTargetState,
+  MissingWriteInput,
+  ResolveMissingPathsPlanInput,
+} from '../missing/index.js';

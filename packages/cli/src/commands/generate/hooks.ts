@@ -1,13 +1,13 @@
 /**
- * CLI flavor of {@link GenerateHostHooks}: TTY prompts, identity guard, progress relay, logger policy.
+ * CLI flavor of {@link GenerateHostHooks}: TTY prompts, identity guard, and progress relay.
  *
  * Built once per **`generate`** invocation by **`run.ts`** and handed to the core **`runGenerate`**.
- * Other hosts (extension, web, workers, custom SDK consumers) implement the same shape but with
- * their own logger / progress / prompt strategies — core stays runtime-agnostic.
+ * Other hosts (extension, web, workers, custom SDK consumers) implement the same shape with
+ * their own progress / prompt strategies — core messages flow through `RunEmitter`.
  */
 
 import { emitRunEvent, nowMs } from '@i18nprune/core';
-import type { GenerateHostHooks, RunEmitter, RunEvent } from '@i18nprune/core';
+import type { GenerateHostHooks, RunEvent } from '@i18nprune/core';
 
 import { canAsk } from '@/shared/ask/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
@@ -18,8 +18,6 @@ import {
   createIdentityStreakGuard,
   logIdentityStreakAbortNoWriteNotice,
 } from '@/shared/translator/identity.js';
-import { logger } from '@/utils/logger/index.js';
-import { canPrintInfo, canPrintWarn } from '@/utils/logger/policy.js';
 
 import {
   promptFullRetranslate,
@@ -31,8 +29,7 @@ import {
 } from '@/commands/generate/summary/index.js';
 
 import type { Context } from '@/types/core/context/index.js';
-
-export type GenerateRuntime = { emit?: RunEmitter; runId?: string };
+import type { GenerateRuntime } from '@/types/command/generate/index.js';
 
 export function buildGenerateHostHooks(ctx: Context, runtime: GenerateRuntime): GenerateHostHooks {
   const { emit, runId } = runtime;
@@ -41,7 +38,6 @@ export function buildGenerateHostHooks(ctx: Context, runtime: GenerateRuntime): 
   ): void => {
     emitRunEvent(emit, { op: 'generate', runId, at: nowMs(), ...e });
   };
-
   return {
     emitProgress,
     emit,
@@ -57,19 +53,6 @@ export function buildGenerateHostHooks(ctx: Context, runtime: GenerateRuntime): 
 
     beforeProviderFallbackWarn: () => {
       up(ctx.run, rows.gap);
-    },
-
-    log: {
-      info: (msg) => {
-        if (canPrintInfo(ctx.run)) logger.info(msg, ctx.run);
-      },
-      // Warn-styled hint that should still hide under `--quiet` (info policy, not warn policy).
-      notice: (msg) => {
-        if (canPrintInfo(ctx.run)) logger.warn(msg, ctx.run);
-      },
-      warn: (msg) => {
-        if (canPrintWarn(ctx.run)) logger.warn(msg, ctx.run);
-      },
     },
 
     shouldSkipInteractivePrompts: () => getCliYesFlag(),

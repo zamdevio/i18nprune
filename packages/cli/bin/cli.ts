@@ -265,21 +265,21 @@ program
 program
   .command('missing')
   .description('Add keys used in code but missing from source or a locale JSON (placeholders)')
-  .option('--locale <code>', 'target locales/<code>.json (default: source locale file)')
+  .option('--target <codes>', 'target locale code(s): one code, comma-separated list, or "all" (default: source locale file)')
   .option('--dry-run', 'list paths only; do not write', false)
   .option(
     '--top <n>',
-    `max key paths to show in human listings (default: 10; use --full-list for all)`,
+    `max key paths to show in human listings (default: 10; use --full for all)`,
   )
-  .option('--full-list', 'show every key path in human output (overrides --top)', false)
+  .option('--full', 'show every key path in human output (overrides --top)', false)
   .action(
-    async (opts: { locale?: string; dryRun?: boolean; top?: string; fullList?: boolean }) => {
+    async (opts: { target?: string; dryRun?: boolean; top?: string; full?: boolean }) => {
       const top = getRunOptions().json ? undefined : parseCliPositiveIntTop(opts.top, 'missing: --top');
       await missing({
-        locale: opts.locale,
+        target: opts.target,
         dryRun: Boolean(opts.dryRun),
         top,
-        fullList: getRunOptions().json ? false : Boolean(opts.fullList),
+        full: getRunOptions().json ? false : Boolean(opts.full),
       });
     },
   );
@@ -314,7 +314,7 @@ program
 program
   .command('generate')
   .description(
-    'Generate a target locale JSON from the source, or top up existing files with --resume (replaces the removed fill command)',
+    'Generate a target locale JSON from the source, or top up existing files with --resume',
   )
   .option('--source <path>', 'source JSON path (defaults to resolved config / context)')
   .option('--target <codes>', 'target locale code(s): one code or comma-separated list (e.g. ja,ar,id)')

@@ -175,6 +175,6 @@ When MyMemory returns quota text (e.g. *NEXT AVAILABLE IN ...*), i18nprune parse
 ## Source of truth
 
 - Zod: **`packages/cli/src/config/schema.ts`** — **`translate.workers`** must be a bare **integer** **`1…64`** (or omit for **`1`**). Objects / **`concurrency`** keys are **not** accepted.
-- Merge: **`resolveTranslationProviderOptions`** (**`packages/cli/src/shared/translation/resolveProvider.ts`**).
+- Merge: **`resolveTranslationProviderOptions`** (**`packages/cli/src/shared/translator/resolveProvider.ts`**).
 - Concurrency: **`resolveTranslateMaxParallel`** (**`@i18nprune/core`**) · **`resolveCliTranslateMaxParallel`**.
 - Troubleshooting: **[Issues — translate](../issues/translate.md)**.

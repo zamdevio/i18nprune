@@ -66,7 +66,7 @@ clearContextCache(); // for tests or long-running processes
 
 ### Headless envelopes (no `process.exit`)
 
-**`tryResolveContext`** returns a **`Result`** (no throw). **`runValidate`**, **`runConfig`**, **`runMissing`**, **`runSync`**, **`runCleanupCheck`**, **`runDoctor`**, **`runQuality`**, **`runReview`**, **`runLanguages`**, **`runGenerate`** (async), **`runReport`** (async) return the same **`CliJsonEnvelope`** the CLI uses for global **`--json`** (including **`issues[]`**). **`stringifyEnvelope`** serializes like stdout.
+**`tryResolveContext`** returns a **`Result`** (no throw). Older CLI-hosted helpers (**`runValidate`**, **`runConfig`**, **`runCleanupCheck`**, **`runDoctor`**, **`runLanguages`**, **`runReport`**) return the same **`CliJsonEnvelope`** the CLI uses for global **`--json`** (including **`issues[]`**). Migrated core ops such as **`runGenerate`**, **`runSync`**, **`runMissing`**, **`runQuality`**, and **`runReview`** return `{ payload, issues }`; the CLI owns envelope wrapping. **`stringifyEnvelope`** serializes envelopes like stdout.
 
 ```ts
 import {

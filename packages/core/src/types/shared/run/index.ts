@@ -63,6 +63,8 @@ export type ReviewCounts = {
 
 export type MissingCounts = {
   pathsAdded: number;
+  targets?: number;
+  skippedTargets?: number;
 };
 
 export type CleanupCounts = {
@@ -115,6 +117,18 @@ export type RunErrorEvent = RunEventBase & {
   issue: Issue;
   /** When true, operation may continue and still complete successfully. */
   recoverable: boolean;
+};
+
+export type RunMessageLevel = 'detail' | 'info' | 'notice' | 'warn';
+
+export type RunMessageEvent = RunEventBase & {
+  type: 'run.message';
+  at: number;
+  level: RunMessageLevel;
+  message: string;
+  target?: string;
+  path?: string;
+  data?: Record<string, string | number | boolean | null>;
 };
 
 export type ProgressEvent<T extends OperationId> = RunEventBase & {
@@ -188,6 +202,7 @@ export type RunEvent =
   | RunStartedEvent
   | RunWarningEvent
   | RunErrorEvent
+  | RunMessageEvent
   | RunFailedEvent
   | RunCompletedEvent
   | RunSummaryEvent

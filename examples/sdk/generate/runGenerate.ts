@@ -35,6 +35,7 @@ import type {
   GenerateHostHooks,
   GenerateRunHooks,
   GenerateRunOptions,
+  RunEvent,
   RunOptions,
   RuntimeAdapters,
 } from '@i18nprune/core';
@@ -92,6 +93,11 @@ const ctx = createCoreContext({
 //    `packages/cli/src/commands/generate/hooks.ts` to see the trade-offs.
 // ---------------------------------------------------------------------------
 const host: GenerateHostHooks = {
+  emit: (event: RunEvent) => {
+    if (event.type !== 'run.message') return;
+    nodeProcess.stderr.write(`[${event.level}] ${event.message}\n`);
+  },
+
   emitProgress: () => {},
 
   createSession: () => ({
@@ -111,14 +117,6 @@ const host: GenerateHostHooks = {
   buildTickProgressRelay:
     () =>
     (_current: number, _total: number, _label: string) => {},
-
-  log: {
-    // Core sends policy explanations here too (for example: `force` disables
-    // preserving existing target strings; `resume` and `force` are mutually exclusive).
-    info: (msg) => nodeProcess.stderr.write(`[info]   ${msg}\n`),
-    notice: (msg) => nodeProcess.stderr.write(`[notice] ${msg}\n`),
-    warn: (msg) => nodeProcess.stderr.write(`[warn]   ${msg}\n`),
-  },
 
   // Headless: never ask the user; always accept defaults.
   shouldSkipInteractivePrompts: () => true,

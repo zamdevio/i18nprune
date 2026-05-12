@@ -10,7 +10,7 @@ This document gives coding agents a **single map** of the repository: what the p
 
 - **Correctness** — Literal translation keys referenced in application source are checked against a **source-of-truth locale JSON**.
 - **Shape alignment** — Non-source locale files can be **merged and pruned** to match the source structure (with optional **preserve** rules).
-- **Generation & fill** — Machine translation for **generate** and **fill** via a pluggable translator (e.g. Google `gtx` client).
+- **Generation** — Machine translation for **generate** via a pluggable translator (e.g. Google `gtx` client).
 - **Quality & review** — Reporting for parity, drift, and locale-vs-source comparisons.
 - **Safety** — **Cleanup** of unused keys with optional **ripgrep** verification; confirmations for destructive operations where appropriate.
 - **DX** — Structured **`--json`** on supported commands, global **verbosity** (`-q` / `-s`), **`doctor`** diagnostics, **`languages`** catalog listing.
@@ -81,11 +81,10 @@ The CLI ships as **`i18nprune`** on npm (engine **`@i18nprune/core`**); local de
 | `validate` | Literal keys in `src` vs source JSON; dynamic key warnings. |
 | `sync` | Merge/prune locale JSON to source shape (`--lang`, `--dry-run`). |
 | `generate` | Create/update target locale from source + MT. |
-| `fill` | Re-translate leaves still matching source (`--lang` including `all` / lists). |
 | `quality` | Parity / drift signals (policy-aware). |
 | `review` | Locale vs source reporting (`--json`). |
 | `cleanup` | Remove unused keys (rg safety, confirmations, `--check-only`). |
-| `languages` | List catalog codes for `generate` / `fill`. |
+| `languages` | List catalog codes for `generate`. |
 | `locales` | `list`, `edit`, `dynamic`, `delete` subcommands. |
 | `report` | Project-level report export (`--format` + `--out`, optional global `--json`). |
 | `doctor` | Environment diagnostics. |
@@ -116,10 +115,10 @@ The CLI ships as **`i18nprune`** on npm (engine **`@i18nprune/core`**); local de
 - `mergeToTemplateShape` / `pruneToTemplateShape` (`packages/cli/src/core/json/`) driven by source JSON as template.
 - **`parseSyncLangSelection`** (`packages/cli/src/utils/cli/args.ts`) — default all non-source locales, or explicit list / `all`.
 
-### Generate / fill
+### Generate
 
 - **Translator** from `packages/cli/src/core/translator/init.ts`; **progress** via `packages/cli/src/core/progress/session.ts`.
-- **Fill** loops locales when `--lang` is `all` or comma-separated; prompts use **`promptFillLanguageSelection`** for TTY.
+- **Resume/top-up** mode lives on `generate --resume` and uses the same translation pipeline.
 
 ### Cleanup
 

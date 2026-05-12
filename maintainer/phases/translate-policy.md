@@ -102,7 +102,7 @@ Detection downstream stays a dual signal:
 - `packages/core/src/types/translator/result.ts` — add `decision?: 'translated' | 'review'` (optional, additive).
 - `packages/core/src/shared/translator/utils/pipeline.ts` (`finalizeTranslationLeafMeta`) — when `decision === 'review'`, set `needsReview: true` on the structured leaf.
 - `packages/core/src/shared/localeLeaves/` — `normalizeStructuredLeaf` already round-trips `needsReview`; nothing to add.
-- `packages/cli/src/shared/translation/` — gate marker write behind `--metadata`.
+- `packages/cli/src/shared/translator/` — gate marker write behind `--metadata`.
 
 ---
 
@@ -189,7 +189,7 @@ Behavior matrix (TTY = `eligible(run)` from `shared/cursor`):
 | 4 | **Schema + types + init template + JSDoc.** Drop old enums; introduce locked schema; emit the `providers[] order = chain` comment in init templates. | `packages/cli/src/config/schema.ts` (Zod), `packages/core/src/types/translator/policy.ts` (new — types), `packages/core/src/init/`. | after 1 |
 | 5 | **Policy resolver** — `resolveProviderActionFor(outcome, policy, health, routing)`. Single source of truth used by `runGenerate` (and future `runFill` / `--resume`). | `packages/core/src/translator/policy/resolver.ts` (new). | after 1, 2, 3, 4 |
 | 6 | **Wire resolver into `runGenerate`.** Replace the simple "retryable → next provider" loop (already in core after phase 1) with the resolver. | `packages/core/src/generate/run.ts`. | after 5 |
-| 7 | **Handoff** — split surface: core owns eligibility + offer construction; CLI owns the TTY picker UI (`shared/cursor` lift, prompt). | core: `packages/core/src/translator/policy/handoff.ts` (new); CLI: `packages/cli/src/shared/translation/handoff.ts` (new). | after 5 |
+| 7 | **Handoff** — split surface: core owns eligibility + offer construction; CLI owns the TTY picker UI (`shared/cursor` lift, prompt). | core: `packages/core/src/translator/policy/handoff.ts` (new); CLI: `packages/cli/src/shared/translator/handoff.ts` (new). | after 5 |
 | 8 | **JSON envelope route summary** — add `outcome` per attempt and `markedForReview` count per target (sourced from `GenerateOutput`). | CLI run rows; data already in `runGenerate` return. | after 6 |
 | 9 | **Docs + tests** — `docs/config/translate.md` policy table, verb dictionary, defaults; vitest cases per verb × outcome; smoke fixture for handoff. | docs + tests. | after 6, 7 |
 | 10 | **Partial-run write hook (§13).** `onIncompleteRun` policy key drives `runGenerate` when a target stops mid-run; `GenerateRunHooks.onIncomplete` on **`confirm`**; CLI prompt + non-TTY/`--yes`/`--json` → write; JSON **`partial`**, **`resumeHint`**, payload **`markedForReview`** sum, per-row **`partial`**. | core + CLI + docs + tests. | yes |

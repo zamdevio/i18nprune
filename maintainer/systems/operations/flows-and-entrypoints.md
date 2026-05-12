@@ -21,13 +21,13 @@ If this summary diverges from code, **code + types win**; update **this doc** in
 
 | Operation | Primary programmatic / envelope entry | Notes |
 |-----------|--------------------------------------|--------|
-| **sync** | `packages/cli/src/commands/sync/jsonEnvelope.ts` → **`runSync`** | Sync JSON = CLI envelope |
+| **sync** | core entry: `packages/core/src/sync/run.ts` → **`runSync`**. CLI host: `packages/cli/src/commands/sync/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/sync/jsonEnvelope.ts` → **`executeCore`** / **`runSyncJsonEnvelope`** | Sync JSON = CLI envelope |
 | **validate** | `packages/cli/src/shared/programmatic/runValidate.ts` → **`runValidate`** | |
 | **doctor** | `packages/cli/src/commands/doctor/jsonEnvelope.ts` → **`runDoctor`** | |
-| **missing** | `packages/cli/src/commands/missing/jsonEnvelope.ts` → **`runMissing`** | |
+| **missing** | core entry: `packages/core/src/missing/run.ts` → **`runMissing`**. CLI host: `packages/cli/src/commands/missing/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/missing/jsonEnvelope.ts` → **`executeCore`** / **`runMissingJsonEnvelope`** | |
 | **cleanup** | `packages/cli/src/commands/cleanup/jsonEnvelope.ts` → **`runCleanupCheck`** | |
-| **quality** | `packages/cli/src/commands/quality/jsonEnvelope.ts` → **`runQuality`** | |
-| **review** | `packages/cli/src/commands/review/jsonEnvelope.ts` → **`runReview`** | |
+| **quality** | core entry: `packages/core/src/quality/run.ts` → **`runQuality`**. CLI host: `packages/cli/src/commands/quality/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/quality/jsonEnvelope.ts` → **`executeCore`** / **`runQualityJsonEnvelope`** | |
+| **review** | core entry: `packages/core/src/review/run.ts` → **`runReview`**. CLI host: `packages/cli/src/commands/review/hooks.ts`; envelope/lifecycle wrapper: `packages/cli/src/commands/review/jsonEnvelope.ts` → **`executeCore`** / **`runReviewJsonEnvelope`** | |
 | **languages** | `packages/cli/src/commands/languages/jsonEnvelope.ts` → **`runLanguages`** | |
 | **config** | `packages/cli/src/commands/config/jsonEnvelope.ts` → **`runConfig`** | |
 | **providers** | `packages/cli/src/commands/providers/jsonEnvelope.ts` → **`runProviders`** | |

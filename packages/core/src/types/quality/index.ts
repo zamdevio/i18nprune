@@ -1,15 +1,29 @@
 /**
  * Types for the **quality** domain (source-identical / parity-adjacent reporting).
- * CLI-only option types live under the CLI package (`types/command/quality`); this barrel is envelope / programmatic shapes for `@i18nprune/core`.
  */
+import type { Issue } from '../json/envelope/index.js';
 import type { StringLeaf } from '../json/stringLeaf/index.js';
 import type { ParityPolicy } from '../policies/index.js';
+import type { RunEmitter } from '../shared/run/index.js';
 
 /** Payload for the `quality` operation JSON envelope (`data` field). */
 export type QualityJsonData = {
   total: number;
   perFile: Record<string, number>;
   dynamicKeySites: number;
+  sourceLocale: string;
+  localesDir: string;
+  localeCount: number;
+  targetLocaleCount: number;
+  files: QualityFileLine[];
+};
+
+export type QualityFileLine = {
+  code: string;
+  file: string;
+  leafCount: number;
+  isSourceLocale: boolean;
+  sourceIdenticalLeafCount: number | null;
 };
 
 export type ComputeEnglishIdenticalCountsInput = {
@@ -25,4 +39,21 @@ export type ComputeEnglishIdenticalCountsInput = {
   }>;
   /** Same semantics as CLI `config.policies.parity`. */
   parity?: ParityPolicy;
+};
+
+export type QualityRunOptions = {
+  /** Report only this locale file (basename without .json); omit for all non-source locales. */
+  target?: string;
+};
+
+export type QualityHostHooks = {
+  emit?: RunEmitter;
+  runId?: string;
+  /** Dynamic translation call-site count used for JSON/human warnings. */
+  getDynamicSitesCount: () => number;
+};
+
+export type QualityRunResult = {
+  payload: QualityJsonData;
+  issues: Issue[];
 };

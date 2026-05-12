@@ -1,0 +1,48 @@
+{
+  "data": {
+    "dynamicKeySites": 3,
+    "kind": "localeReview",
+    "locales": {
+      "ar.json": {
+        "bySource": {
+          "manual": 29
+        },
+        "byStatus": {
+          "translated": 29
+        },
+        "confidenceBuckets": {
+          "high": 0,
+          "low": 0,
+          "mid": 0,
+          "none": 29
+        },
+        "englishIdentical": 4,
+        "legacyLeaves": 0,
+        "needsReviewFalse": 0,
+        "needsReviewTrue": 29,
+        "needsReviewUnset": 0,
+        "stringPaths": 29,
+        "structuredLeaves": 29,
+        "structuredLeavesMissingConfidence": 29,
+        "structuredLeavesMissingNeedsReview": 0
+      }
+    },
+    "localesDir": "<fixture>/locales",
+    "sourceLocale": "en"
+  },
+  "issues": [
+    {
+      "code": "i18nprune.scan.dynamic_key_sites",
+      "docHref": "https://docs.i18nprune.dev/issues/scan#dynamic-key-sites",
+      "docPath": "docs/dynamic/README",
+      "message": "3 translation call(s) use a non-literal key — static analysis cannot enumerate computed keys as fixed paths.",
+      "severity": "warning"
+    }
+  ],
+  "kind": "review",
+  "meta": {
+    "apiVersion": "1",
+    "cwd": "<cwd>"
+  },
+  "ok": true
+}

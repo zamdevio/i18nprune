@@ -8,7 +8,7 @@ export const MISSING_DISPLAY_DEFAULT_TOP = 10;
 
 /**
  * Effective default list cap for **`missing`** human output when **`--top`** is omitted.
- * Precedence: internal default {@link MISSING_DISPLAY_DEFAULT_TOP} unless CLI **`--top`** / **`--full-list`** is set.
+ * Precedence: internal default {@link MISSING_DISPLAY_DEFAULT_TOP} unless CLI **`--top`** / **`--full`** is set.
  */
 export function resolveMissingHumanDefaultTop(_config: I18nPruneConfig): number {
   return MISSING_DISPLAY_DEFAULT_TOP;
@@ -36,7 +36,7 @@ export function formatMissingPathsDetailLines(paths: string[], opts: MissingPath
   const { visible, omitted } = sliceMissingPathsForDisplay(paths, opts);
   const lines = visible.map((p) => `  ${p}`);
   if (omitted > 0) {
-    lines.push(`  … and ${String(omitted)} more (use --full-list or --top <n>)`);
+    lines.push(`  … and ${String(omitted)} more (use --full or --top <n>)`);
   }
   return lines;
 }

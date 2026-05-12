@@ -1,6 +1,6 @@
 import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/translationSurfaceWalk.js';
 import type { ParityPolicy } from '../types/policies/index.js';
-import type { ReviewLocaleStats } from '../types/review/index.js';
+import type { ReviewJsonData } from '../types/review/index.js';
 import { aggregateReviewRows } from './aggregate.js';
 
 function basename(filePath: string): string {
@@ -23,13 +23,7 @@ export type BuildReviewJsonDataInput = {
   targetLocaleJsonByFile: Readonly<Record<string, unknown>>;
 };
 
-export type ReviewJsonDataCore = {
-  kind: 'localeReview';
-  sourceLocale: string;
-  localesDir: string;
-  dynamicKeySites: number;
-  locales: Record<string, ReviewLocaleStats>;
-};
+export type ReviewJsonDataCore = ReviewJsonData;
 
 /** Pure review payload builder from already-loaded locale JSON inputs. */
 export function buildReviewJsonData(input: BuildReviewJsonDataInput): ReviewJsonDataCore {

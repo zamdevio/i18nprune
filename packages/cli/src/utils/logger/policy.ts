@@ -11,6 +11,7 @@ import type { LogGate } from '@/types/core/logger/index.js';
  * | `canPrintCommandBanner` | Top box banner per command — **on** in **quiet**; **off** in **silent** / **JSON**. |
  * | `canPrintDecorative` | Dim hints, extra blank lines (stricter than banner — **off** in **quiet**). |
  * | `canPrintInfo` | `[i18nprune] [info]` lines. |
+ * | `canPrintNotice` | `[i18nprune] [notice]` lines; warning-styled but hidden with info under **quiet**. |
  * | `canPrintWarn` | `[i18nprune] [warn]` (still **on** in quiet; **off** in silent). |
  * | `canPrintScanDebug` | **`[scan]`** (`--debug-scan` traces) — **off** under **`--quiet`**, **`--silent`**, **`--json`**. |
  * | `canPrintDetail` | Dim / secondary prose. |
@@ -35,6 +36,10 @@ export function canPrintDecorative(run: RunOptions): boolean {
 
 export function canPrintInfo(run: RunOptions): boolean {
   return !run.json && !run.quiet && !run.silent;
+}
+
+export function canPrintNotice(run: RunOptions): boolean {
+  return canPrintInfo(run);
 }
 
 export function canPrintWarn(run: RunOptions): boolean {
@@ -63,6 +68,8 @@ export function canEmit(run: RunOptions, gate: LogGate): boolean {
   switch (gate) {
     case 'info':
       return canPrintInfo(run);
+    case 'notice':
+      return canPrintNotice(run);
     case 'warn':
       return canPrintWarn(run);
     case 'detail':

@@ -51,6 +51,7 @@ import type { IdentityStreakGuard } from '../translator/identity/guard.js';
 import { writeRuntimeJsonPretty } from './io/writeRuntimeJson.js';
 import { runGenerateResumeLocale } from './resume/run.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
+import { emitRunMessage } from '../shared/run/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
 import type {
@@ -68,6 +69,10 @@ import type {
 } from '../types/generate/index.js';
 
 const LANG_CATALOG = buildLanguageCatalog(generatedLanguageCatalog);
+
+function emitGenerateMessage(host: Pick<GenerateHostHooks, 'emit' | 'runId'>, level: 'info' | 'notice' | 'warn', message: string): void {
+  emitRunMessage(host.emit, { op: 'generate', runId: host.runId, level, message });
+}
 
 function resolveGenerateSourcePath(ctx: CoreContext, sourceOverride: string | undefined): string {
   if (sourceOverride === undefined || sourceOverride === '') return ctx.paths.sourceLocale;
@@ -200,11 +205,15 @@ export async function runGenerate(
     {
       const oftenRtl = languageOftenRtl(target);
       if (oftenRtl && direction === 'ltr') {
-        host.log.notice?.(
+        emitGenerateMessage(
+          host,
+          'notice',
           `generate: "${target}" is often RTL in UIs — direction is ltr. Pass --direction rtl if the locale should be mirrored.`,
         );
       } else if (!oftenRtl && direction === 'rtl') {
-        host.log.notice?.(
+        emitGenerateMessage(
+          host,
+          'notice',
           `generate: "${target}" is usually LTR — confirm --direction rtl is intentional for your app.`,
         );
       }
@@ -253,7 +262,7 @@ export async function runGenerate(
       if (!host.shouldSkipInteractivePrompts() && host.canAskInteractive()) {
         const ok = await host.promptFullRetranslate();
         if (!ok) {
-          host.log.info?.(`skipped for ${target} (target already complete).`);
+          emitGenerateMessage(host, 'info', `skipped for ${target} (target already complete).`);
           emitProgress({ type: 'run.progress.generate', phase: 'done', target, label: 'skipped_user_declined' });
           targetResults.push({
             target,
@@ -277,7 +286,7 @@ export async function runGenerate(
 
     if (opts.resume) {
       const eff = resolveReferenceConfig('generate', ctx.config);
-      host.log.info?.(`generate (${target}): translating string leaves (nested shape preserved).`);
+      emitGenerateMessage(host, 'info', `generate (${target}): translating string leaves (nested shape preserved).`);
       const { row, issues: resumeIssues, leavesProcessed: resumeLeaves } = await runGenerateResumeLocale({
         ctx,
         opts,
@@ -311,13 +320,17 @@ export async function runGenerate(
       continue;
     }
 
-    host.log.info?.(`generate (${target}): translating string leaves (nested shape preserved).`);
+    emitGenerateMessage(host, 'info', `generate (${target}): translating string leaves (nested shape preserved).`);
     if (forceReason === 'flag') {
-      host.log.info?.(
+      emitGenerateMessage(
+        host,
+        'info',
         `generate (${target}): --force enabled — complete-target prompt skipped; existing target strings will be re-translated where policies allow.`,
       );
     } else if (forceReason === 'prompt') {
-      host.log.info?.(
+      emitGenerateMessage(
+        host,
+        'info',
         `generate (${target}): full re-translate confirmed — existing target strings will be re-translated for this target where policies allow.`,
       );
     }
@@ -380,7 +393,7 @@ export async function runGenerate(
         providerId: translation.provider,
         env: ctx.env,
       });
-      if (limitSuggestion) host.log.notice?.(limitSuggestion);
+      if (limitSuggestion) emitGenerateMessage(host, 'notice', limitSuggestion);
 
       const session = host.createSession();
       const streakGuard = host.createIdentityStreakGuard(target, {
@@ -444,10 +457,14 @@ export async function runGenerate(
           const wallMs = Date.now() - targetStarted;
           const s = translateResult.translateStats;
           const avgRequestMs = s.requestAttempts > 0 ? Math.round(wallMs / s.requestAttempts) : 0;
-          host.log.info?.(
+          emitGenerateMessage(
+            host,
+            'info',
             `progress (${target}): wall=${String(wallMs)}ms · requests=${String(s.requestAttempts)} · success=${String(s.successfulLeaves)} · failed=${String(s.failedRequests)} · retries=${String(s.retriesMade)} · avgRequest=${String(avgRequestMs)}ms`,
           );
-          host.log.info?.(
+          emitGenerateMessage(
+            host,
+            'info',
             `provider (${target}): id=${translation.provider} · workersRequested=${String(opts.workers ?? maxParallelTranslates)} · workersUsed=${String(maxParallelTranslates)} · maxConcurrency=${String(providerProfile.maxConcurrency)} · rpm=${String(rateLimit?.rpm ?? providerProfile.rpm)} · rps=${String(rateLimit?.rps ?? providerProfile.rps)} · intervalMs=${String(rateLimit?.intervalMs ?? providerProfile.intervalMs)}`,
           );
           const translatedLeaves = Math.max(
@@ -457,7 +474,9 @@ export async function runGenerate(
               translateResult.paritySkip -
               translateResult.emptySourceLeafCount,
           );
-          host.log.info?.(
+          emitGenerateMessage(
+            host,
+            'info',
             `leaves (${target}): translated=${String(translatedLeaves)} · needsReview=${String(translateResult.markedForReview)}`,
           );
         }
@@ -518,7 +537,9 @@ export async function runGenerate(
               isTty: handoffTty,
             })
           ) {
-            host.log.warn?.(
+            emitGenerateMessage(
+              host,
+              'warn',
               `generate (${target}): handoff mode is "on" but this run is non-interactive; aborting instead of opening a provider picker.`,
             );
             verb = 'abort';
@@ -598,7 +619,9 @@ export async function runGenerate(
               interrupted !== undefined
                 ? ` Partial progress kept (${String(interrupted.translateStats.successfulLeaves)} leaf translation(s) succeeded before interrupt); next provider fills the rest without restarting.`
                 : '';
-            host.log.warn?.(
+            emitGenerateMessage(
+              host,
+              'warn',
               `provider "${providerId}" failed (${translateFailureOutcome}); falling back to "${nextProvider}"${escalationHint}.${partialHint}`,
             );
           }
@@ -606,7 +629,9 @@ export async function runGenerate(
           continue;
         }
 
-        host.log.warn?.(
+        emitGenerateMessage(
+          host,
+          'warn',
           `provider "${providerId}" failed (${translateFailureOutcome}); ${verb} per policy (attempts left: ${String(attemptsRemaining)}).`,
         );
       }
@@ -673,7 +698,9 @@ export async function runGenerate(
           preserveCount = translateResult.preserveCount;
           paritySkip = translateResult.paritySkip;
           targetHadPartialWrite = true;
-          host.log.info?.(
+          emitGenerateMessage(
+            host,
+            'info',
             `generate (${target}): partial — ${String(aggTranslateStats.successfulLeaves)}/${String(sourceLeaves.length)} translated (${String(translateResult.markedForReview)} marked for review). Run \`i18nprune generate --target ${target} --resume\` to finish.`,
           );
           break;
@@ -690,7 +717,7 @@ export async function runGenerate(
     for (const issue of emptyIssueList) {
       streakIssues.push(issue);
       if (issue.code === ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES) {
-        host.log.notice?.(issue.message);
+        emitGenerateMessage(host, 'notice', issue.message);
       }
     }
 
@@ -758,12 +785,16 @@ export async function runGenerate(
 
     {
       const route = (providerAttempts ?? []).map((a) => a.providerId).join(' -> ');
-      host.log.info?.(
+      emitGenerateMessage(
+        host,
+        'info',
         `provider route (${target}): ${route} (winner: ${winnerProviderId ?? 'none'}, fallbacks: ${String(Math.max(0, (providerAttempts?.length ?? 0) - 1))})`,
       );
     }
     if (modeDecision.mode === 'structured') {
-      host.log.info?.(
+      emitGenerateMessage(
+        host,
+        'info',
         `metadata for ${target}: structured ${String(normalizedReport.structuredLeavesWritten)}, repaired ${String(normalizedReport.repairedCorruptLeaves)}. Use "sync --strip-metadata" to remove metadata fields later.`,
       );
     }

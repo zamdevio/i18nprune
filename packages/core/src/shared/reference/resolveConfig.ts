@@ -15,12 +15,7 @@ const BASE: EffectiveReferenceConfig = {
 /** Which reference policy slice to resolve (matches keys under `reference.commands` in config). */
 type ReferenceOperationId = 'cleanup' | 'sync' | 'generate';
 
-/**
- * Merge `reference.defaults` and `reference.commands[operation]` into one effective policy.
- *
- * For **`generate`**, legacy **`reference.commands.fill`** (pre–`generate --resume`) is merged first so
- * existing configs keep working until authors move overrides to **`commands.generate`**.
- */
+/** Merge `reference.defaults` and `reference.commands[operation]` into one effective policy. */
 export function resolveReferenceConfig(
   operation: ReferenceOperationId,
   config: ReferenceConfigSource,
@@ -28,10 +23,7 @@ export function resolveReferenceConfig(
   const ref = config.reference;
   const d = ref?.defaults ?? {};
   const cmds = ref?.commands as Record<string, Partial<EffectiveReferenceConfig> | undefined> | undefined;
-  const cmd =
-    operation === 'generate'
-      ? { ...(cmds?.fill ?? {}), ...(cmds?.generate ?? {}) }
-      : (cmds?.[operation] ?? {});
+  const cmd = cmds?.[operation] ?? {};
   const merged = { ...BASE, ...d, ...cmd };
   return {
     treatCommentedCallSitesAsRuntime:

@@ -143,12 +143,23 @@ export type { MergeToTemplateOptions, PruneToTemplateOptions } from './namespace
 export * as sync from './namespaces/sync.js';
 export {
   computeSyncedLocaleJson,
+  emitSyncHumanMessages,
+  idleLocaleMetadataReportForSkippedSync,
   readLeafDisplayString,
   resolveSyncTargetFiles,
+  runSync,
   stripStructuredLeafMetadata,
   summarizeSyncLeavesForHumanLog,
 } from './sync/index.js';
-export type { SyncHumanLeafSummary } from './sync/index.js';
+export type {
+  SyncFileLine,
+  SyncHostHooks,
+  SyncHumanLeafSummary,
+  SyncJsonOutput,
+  SyncReferenceData,
+  SyncRunOptions,
+  SyncRunResult,
+} from './sync/index.js';
 
 export * as preserve from './namespaces/preserve.js';
 export {
@@ -218,9 +229,27 @@ export {
 
 export * as missing from './namespaces/missing.js';
 export {
+  applyMissingPaths,
+  emitMissingPathsPreview,
+  emitMissingTargetActionMessage,
+  emitMissingTargetWriteIntro,
   parseMissingArrayFromValidateReportJson,
   planMissingPathsFromReport,
   resolveMissingPathsPlan,
+  runMissing,
+  writeMissingPaths,
+} from './namespaces/missing.js';
+export type {
+  MissingHostHooks,
+  MissingJsonTarget,
+  MissingJsonOutput,
+  MissingRunOptions,
+  MissingRunResult,
+  MissingSkippedTarget,
+  MissingTargetKind,
+  MissingTargetPlan,
+  MissingTargetState,
+  MissingWriteInput,
 } from './namespaces/missing.js';
 
 export * as doctor from './namespaces/doctor.js';
@@ -235,7 +264,8 @@ export {
 } from './namespaces/doctor.js';
 
 export * as quality from './namespaces/quality.js';
-export { buildQualityJsonData, computeEnglishIdenticalCounts } from './namespaces/quality.js';
+export { buildQualityJsonData, computeEnglishIdenticalCounts, runQuality } from './namespaces/quality.js';
+export type { QualityFileLine, QualityHostHooks, QualityJsonData, QualityRunOptions, QualityRunResult } from './namespaces/quality.js';
 
 export * as review from './namespaces/review.js';
 export {
@@ -244,6 +274,14 @@ export {
   filterLocaleFilesForReview,
   formatCountMap,
   parseReviewTargetCodes,
+  runReview,
+} from './namespaces/review.js';
+export type {
+  ReviewHostHooks,
+  ReviewJsonData,
+  ReviewLocaleStats,
+  ReviewRunOptions,
+  ReviewRunResult,
 } from './namespaces/review.js';
 
 export { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from './project/buildProjectTree.js';
@@ -370,6 +408,7 @@ export {
 
 export * as run from './shared/run/index.js';
 export {
+  emitRunMessage,
   emitRunEvent,
   emitIssuesAsRunErrors,
   emitRunErrorFromUnknown,
@@ -377,7 +416,7 @@ export {
   noopRunEmitter,
   nowMs,
 } from './shared/run/index.js';
-export type { RunEmitter, RunEvent } from './types/shared/run/index.js';
+export type { RunEmitter, RunEvent, RunMessageEvent, RunMessageLevel } from './types/shared/run/index.js';
 
 export * as languages from './namespaces/languages.js';
 export {

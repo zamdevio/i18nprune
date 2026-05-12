@@ -30,6 +30,13 @@ export const logger = {
     console.log(line('info', msg));
   },
 
+  /** `[i18nprune] [notice] …` — warn-styled but respects the info gate. */
+  notice(msg: string, run?: RunOptions, mask?: LoggerMask): void {
+    const r = effective(run, mask);
+    if (!canEmit(r, 'notice')) return;
+    console.warn(line('notice', msg));
+  },
+
   /** `[i18nprune] [warn] …` — still prints in quiet unless silent/json. */
   warn(msg: string, run?: RunOptions, mask?: LoggerMask): void {
     const r = effective(run, mask);
@@ -105,6 +112,7 @@ export const logger = {
 export function loggerFor(run: RunOptions) {
   return {
     info: (msg: string, mask?: LoggerMask) => logger.info(msg, run, mask),
+    notice: (msg: string, mask?: LoggerMask) => logger.notice(msg, run, mask),
     warn: (msg: string, mask?: LoggerMask) => logger.warn(msg, run, mask),
     scan: (msg: string, mask?: LoggerMask) => logger.scan(msg, run, mask),
     err: logger.err,

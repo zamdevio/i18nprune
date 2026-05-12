@@ -7,7 +7,7 @@ Programmatic use of `@i18nprune/core`'s `runGenerate` from a Node script. This i
 1. Building `RuntimeAdapters` explicitly with `createNodeRuntimeAdapters()` — no auto-default.
 2. Authoring config in `i18nprune.config.ts` with `defineConfig` and importing it directly.
 3. Building a `CoreContext` (config + adapters + env + paths + run flags).
-4. Implementing a **headless** `GenerateHostHooks` (no TTY, no prompts, log-to-stderr).
+4. Implementing a **headless** `GenerateHostHooks` (no TTY, no prompts, `run.message` to stderr).
 5. (Optional) `GenerateRunHooks` for mid-run consent points (`onIncomplete`, `onHandoffPick`).
 6. Calling `runGenerate(ctx, opts, host, hooks?)` and reading `payload.targetResults`.
 

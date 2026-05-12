@@ -13,7 +13,7 @@ Each section below follows the **[topic page pattern](./README.md#authoring-topi
 **Code:** `i18nprune.translate.identity_streak_warning`  
 **Severity:** `warning`  
 **When:** **`generate`** sees many consecutive string leaves whose post-translation value still **equals** the source (identity streak approaching the abort threshold).  
-**Who:** **`translateLeaf`** / **`createIdentityStreakGuard`** (`@i18nprune/core`); invoked from **`runGenerate`**, **`runFill`**.  
+**Who:** **`translateLeaf`** / **`createIdentityStreakGuard`** (`@i18nprune/core`); invoked from **`runGenerate`**.  
 **What to do:** Check API keys, provider, source/target language codes, and network; confirm you are not repeatedly “translating” into the source language by mistake.
 
 ---
@@ -23,7 +23,7 @@ Each section below follows the **[topic page pattern](./README.md#authoring-topi
 **Code:** `i18nprune.translate.identity_streak_abort`  
 **Severity:** `error`  
 **When:** The identity streak guard **stops the run** to avoid burning quota on a broken configuration. In **`--json`** mode this typically yields **`ok: false`** on the primary envelope.  
-**Who:** **`runGenerate`**, **`runFill`**, **`translateLeaf`**, **`createIdentityStreakGuard`**. **`--yes`** in human/non-JSON flows may allow continuing without a prompt where implemented.  
+**Who:** **`runGenerate`**, **`translateLeaf`**, **`createIdentityStreakGuard`**. **`--yes`** in human/non-JSON flows may allow continuing without a prompt where implemented.  
 **What to do:** Same as **[`identity_streak_warning`](#identity-streak-warning)** — fix configuration; re-run with **`--yes`** only after you understand why translations were identical.
 
 ---

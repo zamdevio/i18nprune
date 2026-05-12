@@ -7,13 +7,12 @@ Programmatic SDK examples for `@i18nprune/core`. Each example is a standalone sc
 | Op | Path | Status |
 | --- | --- | --- |
 | `generate` | [`sdk/generate/runGenerate.ts`](sdk/generate/runGenerate.ts) | ✅ ready |
-| `translate` (primitive) | `sdk/translate/runTranslate.ts` | ⏳ post-translate-policy |
-| `fill` | _folded into `generate --resume`_ | n/a (deleted) |
-| `sync` | `sdk/sync/runSync.ts` | ⏳ after sync migration to core |
-| `missing` | `sdk/missing/runMissing.ts` | ⏳ after missing migration to core |
+| `sync` | [`sdk/sync/runSync.ts`](sdk/sync/runSync.ts) | ✅ ready |
+| `translate` (primitive) | [`sdk/translate/runTranslate.ts`](sdk/translate/runTranslate.ts) | ✅ ready |
+| `missing` | [`sdk/missing/runMissing.ts`](sdk/missing/runMissing.ts) | ✅ ready |
 | `cleanup` | `sdk/cleanup/runCleanup.ts` | ⏳ after cleanup migration to core |
-| `quality` | `sdk/quality/runQuality.ts` | ⏳ after quality migration to core |
-| `review` | `sdk/review/runReview.ts` | ⏳ after review migration to core |
+| `quality` | [`sdk/quality/runQuality.ts`](sdk/quality/runQuality.ts) | ✅ ready |
+| `review` | [`sdk/review/runReview.ts`](sdk/review/runReview.ts) | ✅ ready |
 | `validate` | `sdk/validate/runValidate.ts` | ⏳ after validate migration to core |
 
 Examples are added **as each op finishes its core migration**. The locked order in `maintainer/phases/core-architecture.md` is: `generate` → `translate-policy` → other ops. Each new core op gets its example shipped in the **same slice** as the op's migration, so the SDK contract is always documented alongside the code.
@@ -28,7 +27,7 @@ Every example must:
    1. Build `RuntimeAdapters` (explicit; never auto-default).
    2. Load config + project files via the adapters.
    3. Build the L2 context for the op (`CoreContext`, `TranslateContext`, etc.).
-   4. Implement a **headless** version of every required host-hook surface (no TTY, no `console`, log-to-stderr).
+   4. Implement a **headless** version of every required host-hook surface (no TTY, no `console`, optional `run.message` to stderr).
    5. (Optional) Implement run-hook overrides showing the most useful policy choice.
    6. Call the L3 entry (`runGenerate`, `runTranslate`, …) with `dryRun: true` by default.
    7. Inspect the returned payload + issues.

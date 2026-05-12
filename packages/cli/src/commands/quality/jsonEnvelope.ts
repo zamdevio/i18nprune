@@ -1,83 +1,108 @@
-import { buildCliJsonEnvelope } from '@/shared/result/cliJson.js';
-import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
 import {
-  issuesFromDiscoveryWarnings,
-  issuesFromDynamicScanCount,
-  issuesFromQualityEnglishIdentical,
-  mergeIssues,
-} from '@/shared/result/cliEnvelopeIssues.js';
-import type { Context } from '@/types/core/context/index.js';
-import type { QualityOptions } from '@/types/command/quality/index.js';
-import type { CliJsonEnvelope } from '@/types/core/json/envelope.js';
-import type { QualityJsonData } from '@i18nprune/core/types';
-import { measureQualityEnglishIdentical } from '@/shared/quality/measure.js';
-import { buildQualityJsonData, emitRunErrorFromUnknown, emitRunEvent, nowMs } from '@i18nprune/core';
-import type { RunEmitter } from '@i18nprune/core';
+  buildCliJsonEnvelope,
+  createCoreContext,
+  emitRunErrorFromUnknown,
+  emitRunEvent,
+  nowMs,
+  runQuality as runCoreQuality,
+} from '@i18nprune/core';
+import type { CliJsonEnvelope, QualityJsonData, QualityRunOptions, QualityRunResult, RunEmitter } from '@i18nprune/core';
+import type { QualityRuntime } from '@/types/command/quality/index.js';
 
-export function runQuality(
+import { buildQualityHostHooks } from '@/commands/quality/hooks.js';
+import { buildIoReadFailureEnvelope } from '@/shared/result/ioEnvelope.js';
+import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
+import type { Context } from '@/types/core/context/index.js';
+
+export type QualityJsonRunResult = QualityRunResult & {
+  envelope: CliJsonEnvelope<'quality', QualityJsonData>;
+};
+
+export type QualityJsonEnvelopeResult = {
+  envelope: CliJsonEnvelope<'quality', QualityJsonData>;
+  result?: QualityJsonRunResult;
+};
+
+export function emptyQualityPayload(): QualityJsonData {
+  return {
+    total: 0,
+    perFile: {},
+    dynamicKeySites: 0,
+    sourceLocale: '',
+    localesDir: '',
+    localeCount: 0,
+    targetLocaleCount: 0,
+    files: [],
+  };
+}
+
+export function executeCore(ctx: Context, opts: QualityRunOptions, runtime: QualityRuntime = {}): QualityJsonRunResult {
+  const coreCtx = createCoreContext({
+    config: ctx.config,
+    adapters: ctx.adapters,
+    env: process.env,
+    paths: ctx.paths,
+    run: ctx.run,
+  });
+  const out = runCoreQuality(coreCtx, opts, buildQualityHostHooks(ctx, runtime));
+  const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), out.issues);
+  const envelope = buildCliJsonEnvelope('quality', out.payload, {
+    ok: true,
+    issues,
+    cwd: ctx.adapters.system.cwd(),
+  });
+  return { ...out, envelope };
+}
+
+/** `--json` mode wrapper: returns a stable envelope and keeps `runQuality` reserved for core. */
+export function runQualityJsonEnvelope(
   ctx: Context,
-  opts: QualityOptions,
-  runtime?: { emit?: RunEmitter; runId?: string },
-): CliJsonEnvelope<'quality', QualityJsonData> {
+  opts: QualityRunOptions,
+  runtime?: QualityRuntime,
+): QualityJsonEnvelopeResult {
   emitRunEvent(runtime?.emit, { type: 'run.started', op: 'quality', runId: runtime?.runId, at: nowMs() });
   try {
-    const envelope = runQualityCore(ctx, opts);
+    const result = executeCore(ctx, opts, runtime);
     emitRunEvent(runtime?.emit, {
       type: 'run.completed',
       op: 'quality',
       runId: runtime?.runId,
       at: nowMs(),
-      ok: envelope.ok,
+      ok: result.envelope.ok,
     });
     emitRunEvent(runtime?.emit, {
       type: 'run.summary',
       op: 'quality',
       runId: runtime?.runId,
       at: nowMs(),
-      ok: envelope.ok,
-      issueCount: envelope.issues.length,
-      counts: { total: envelope.data.total, dynamicKeySites: envelope.data.dynamicKeySites },
+      ok: result.envelope.ok,
+      issueCount: result.envelope.issues.length,
+      counts: { total: result.payload.total, dynamicKeySites: result.payload.dynamicKeySites },
     });
-    return envelope;
+    return { envelope: result.envelope, result };
   } catch (err) {
-    emitRunErrorFromUnknown(runtime?.emit, {
-      op: 'quality',
-      runId: runtime?.runId,
-      err,
-      code: 'i18nprune.run.quality_failed',
-      recoverable: false,
-    });
-    emitRunEvent(runtime?.emit, {
-      type: 'run.failed',
-      op: 'quality',
-      runId: runtime?.runId,
-      at: nowMs(),
-      error: {
-        name: err instanceof Error ? err.name : 'Error',
-        message: err instanceof Error ? err.message : String(err),
-        recoverable: false,
-      },
-    });
-    const empty: QualityJsonData = { total: 0, perFile: {}, dynamicKeySites: 0 };
-    return buildIoReadFailureEnvelope('quality', empty, ctx, err);
+    emitQualityFailureEvents(runtime?.emit, runtime?.runId, err);
+    return { envelope: buildIoReadFailureEnvelope('quality', emptyQualityPayload(), ctx, err) };
   }
 }
 
-function runQualityCore(
-  ctx: Context,
-  opts: QualityOptions,
-): CliJsonEnvelope<'quality', QualityJsonData> {
-  const { total, perFile, dynamicKeySites } = measureQualityEnglishIdentical(ctx, opts);
-  const data: QualityJsonData = buildQualityJsonData({ total, perFile, dynamicKeySites });
-  const issues = mergeIssues(
-    issuesFromDiscoveryWarnings(ctx.meta.warnings),
-    issuesFromDynamicScanCount(dynamicKeySites),
-    issuesFromQualityEnglishIdentical(total),
-  );
-
-  return buildCliJsonEnvelope('quality', data, {
-    ok: true,
-    issues,
-    cwd: process.cwd(),
+function emitQualityFailureEvents(emit: RunEmitter | undefined, runId: string | undefined, err: unknown): void {
+  emitRunErrorFromUnknown(emit, {
+    op: 'quality',
+    runId,
+    err,
+    code: 'i18nprune.run.quality_failed',
+    recoverable: false,
+  });
+  emitRunEvent(emit, {
+    type: 'run.failed',
+    op: 'quality',
+    runId,
+    at: nowMs(),
+    error: {
+      name: err instanceof Error ? err.name : 'Error',
+      message: err instanceof Error ? err.message : String(err),
+      recoverable: false,
+    },
   });
 }

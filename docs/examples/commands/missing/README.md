@@ -10,7 +10,8 @@ i18nprune missing --dry-run --top 20
 ## Write placeholders
 
 ```bash
-i18nprune missing --locale ja --yes
+i18nprune missing --target ja --yes
+i18nprune missing --target ja,ar --yes
 ```
 
 ## Timing
@@ -29,5 +30,5 @@ i18nprune -c i18nprune.config.ts --json missing --dry-run --json-pretty false | 
 i18nprune --config i18nprune.config.ts --json missing --dry-run > ./out/missing-run.json
 
 # write mode in non-interactive sessions
-i18nprune --config i18nprune.config.ts --yes missing --locale ja
+i18nprune --config i18nprune.config.ts --yes missing --target ja
 ```

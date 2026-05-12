@@ -1,0 +1,56 @@
+{
+  "data": {
+    "dryRun": true,
+    "dynamicKeySites": 3,
+    "files": [
+      {
+        "changed": false,
+        "path": "<fixture>/locales/ar.json"
+      }
+    ],
+    "localeMetadataReports": {
+      "ar.json": {
+        "byReason": {
+          "canonical_metadata_materialized": 0,
+          "invalid_confidence": 0,
+          "invalid_needs_review": 0,
+          "invalid_needs_translation_again": 0,
+          "invalid_source": 0,
+          "invalid_status": 0,
+          "legacy_string_promoted": 0,
+          "missing_value": 0,
+          "non_object_replaced": 0
+        },
+        "changedPathsSample": [],
+        "leafDecisions": [],
+        "missingPathsHydratedFromSource": 0,
+        "mode": "legacy_string",
+        "promotedLegacyLeaves": 0,
+        "repairedCorruptLeaves": 0,
+        "strippedStructuredLeaves": 0,
+        "structuredLeavesWritten": 0,
+        "totalSourceLeafPaths": 29,
+        "unchangedLeaves": 29
+      }
+    },
+    "localesDir": "<fixture>/locales",
+    "sourcePath": "<fixture>/locales/en.json",
+    "targetFiles": 1,
+    "writtenFiles": 0
+  },
+  "issues": [
+    {
+      "code": "i18nprune.scan.dynamic_key_sites",
+      "docHref": "https://docs.i18nprune.dev/issues/scan#dynamic-key-sites",
+      "docPath": "docs/dynamic/README",
+      "message": "3 translation call(s) use a non-literal key — static analysis cannot enumerate computed keys as fixed paths.",
+      "severity": "warning"
+    }
+  ],
+  "kind": "sync",
+  "meta": {
+    "apiVersion": "1",
+    "cwd": "<cwd>"
+  },
+  "ok": true
+}

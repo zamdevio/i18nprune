@@ -9,11 +9,13 @@
 
 - **User docs:** `docs/commands/sync/README.md`
 
-## CLI entry
+## Core / CLI entry
 
-- **Orchestration + `--json`:** `packages/cli/src/commands/sync/jsonEnvelope.ts` → **`runSync(ctx, opts, runtime?)`**
+- **Core orchestration:** `packages/core/src/sync/run.ts` → **`runSync(ctx, opts, host)`**
+- **CLI envelope + `run.*` lifecycle:** `packages/cli/src/commands/sync/jsonEnvelope.ts` → **`executeCore(ctx, opts, runtime)`** / **`runSyncJsonEnvelope(ctx, opts, runtime?)`**
+- **CLI host hooks:** `packages/cli/src/commands/sync/hooks.ts` → **`buildSyncHostHooks(ctx, runtime)`**
 - **Human UI:** `packages/cli/src/commands/sync/run.ts` → **`sync()`**
-- **Idle metadata row when no `--metadata` / `--strip-metadata`:** `packages/cli/src/commands/sync/idleLocaleMetadataReport.ts`
+- **Idle metadata row when no `--metadata` / `--strip-metadata`:** `packages/core/src/sync/run.ts` → **`idleLocaleMetadataReportForSkippedSync`**
 
 ## Core & shared
 
@@ -23,7 +25,7 @@
 | Template string leaves → map | `collectStringLeaves` + `Map` paths (CLI uses `@i18nprune/core`) |
 | Structured / strip metadata | `packages/core/src/shared/localeLeaves/index.ts` → **`applyLocaleLeafMode`**, **`resolveLocaleLeafMode`** |
 | Target selection | `parseSyncLangSelection`, **`resolveSyncTargetFiles`** |
-| Uncertain prefixes (merge/prune opts) | `buildKeyReferenceContextFromReportDetails` + `resolveReferenceConfig('sync', …)` in CLI |
+| Uncertain prefixes (merge/prune opts) | `buildKeyReferenceContextFromReportDetails` + `resolveReferenceConfig('sync', …)` in core; CLI host supplies cached report details |
 
 ## Flow (short)
 

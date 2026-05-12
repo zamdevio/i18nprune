@@ -1,0 +1,9 @@
+{
+  "app": {
+    "title": "Bienvenue"
+  },
+  "actions": {
+    "save": "Enregistrer"
+  },
+  "legacy": "This extra key is not in the source locale"
+}

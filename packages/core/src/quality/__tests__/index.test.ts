@@ -8,11 +8,37 @@ describe('quality index helpers', () => {
         total: 3,
         perFile: { 'ja.json': 2, 'ar.json': 1 },
         dynamicKeySites: 4,
+        sourceLocale: 'en',
+        localesDir: 'locales',
+        localeCount: 3,
+        targetLocaleCount: 2,
+        files: [
+          {
+            code: 'en',
+            file: 'en.json',
+            leafCount: 3,
+            isSourceLocale: true,
+            sourceIdenticalLeafCount: null,
+          },
+        ],
       }),
     ).toEqual({
       total: 3,
       perFile: { 'ja.json': 2, 'ar.json': 1 },
       dynamicKeySites: 4,
+      sourceLocale: 'en',
+      localesDir: 'locales',
+      localeCount: 3,
+      targetLocaleCount: 2,
+      files: [
+        {
+          code: 'en',
+          file: 'en.json',
+          leafCount: 3,
+          isSourceLocale: true,
+          sourceIdenticalLeafCount: null,
+        },
+      ],
     });
   });
 });

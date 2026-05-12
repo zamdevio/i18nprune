@@ -204,7 +204,7 @@ export type I18nPruneConfig = Omit<I18nPruneConfigParsed, 'reference' | 'transla
   policies?: Policies;
   /**
    * Reference / uncertainty policy: **`defaults`** plus optional **`commands`** overrides
-   * (**`cleanup`**, **`sync`**, **`generate`**). Legacy **`reference.commands.fill`** is merged into **`generate`** at resolve time.
+   * (**`cleanup`**, **`sync`**, **`generate`**).
    */
   reference?: CoreReferenceConfig;
   /** Structured vs legacy string leaves and **`sync`** metadata stripping defaults. */

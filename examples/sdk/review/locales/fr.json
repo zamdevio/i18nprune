@@ -1,0 +1,21 @@
+{
+  "app": {
+    "title": {
+      "value": "Bienvenue",
+      "status": "translated",
+      "confidence": 0.92,
+      "needsReview": false,
+      "source": "example"
+    },
+    "subtitle": {
+      "value": "Review sample",
+      "status": "machine",
+      "confidence": 0.42,
+      "needsReview": true,
+      "source": "example"
+    }
+  },
+  "actions": {
+    "save": "Save"
+  }
+}
