@@ -40,6 +40,21 @@ Typical uses:
 - **Benchmarking** apples-to-apples without cache masking wall time ([Performance hub](../performance/README.md#cli-project-cache)).
 - **Debugging** nondeterministic report issues.
 
+## `--debug-cache`
+
+Global **`--debug-cache`** prints cache diagnostics with the **`[i18nprune] [cache]`** logger family. Like **`--debug-scan`**, it is CLI-only debug output and is suppressed in **`--json`**, **`--quiet`**, and **`--silent`** modes.
+
+Within a single CLI command, the first project-report lookup performs disk cache validation and then stores the loaded report in memory on the resolved command context. Later helpers in that same run reuse the in-memory document and print a compact **`project report cache memory hit (same_run)`** line instead of repeating file paths and deltas.
+
+The debug output includes:
+
+- dispatch status (**`hit`**, **`miss`**, **`bypass`**, **`disabled`**) and reason,
+- resolved cache file paths,
+- per-file fingerprint deltas for misses (**added**, **changed**, **deleted**, **unchanged** counts, with changed file samples),
+- cache read/write warnings such as malformed JSON or oversized cache files.
+
+Malformed cache JSON is treated as disposable cache state: the CLI warns in debug output, invalidates the broken project cache file where applicable, recomputes the report, and writes a fresh cache payload. A malformed global **`meta.json`** falls back to a fresh index and is overwritten on the next save.
+
 ## Clearing data
 
 Deleting **`~/.i18nprune/cache`** (or **`projects/<id>`** inside it) resets cached fingerprints and stored reports. There is **no dedicated subcommand** only for CLI cache wipe today — remove the directory safely when the CLI is not running.

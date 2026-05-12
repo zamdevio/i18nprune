@@ -10,6 +10,7 @@ export type LogGate =
   | 'decorative'
   | 'banner'
   | 'progress'
+  | 'cache'
   | 'scan';
 
 /** Per-call merge on top of resolved `RunOptions`. */

@@ -4,13 +4,14 @@ import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   defaultProjectsIndex,
-  initializeCliCacheState,
   loadProjectsIndex,
   maybeHealCacheIndex,
   normalizeProjectRootKey,
   saveProjectsIndex,
   touchProjectIndex,
-} from '../index.js';
+} from '@i18nprune/core';
+import { initializeCliCacheState } from '../paths.js';
+import { buildCliCacheRuntime } from '../runtime.js';
 
 const tempDirs: string[] = [];
 
@@ -26,12 +27,13 @@ describe('shared/cache/projects', () => {
     tempDirs.push(root);
     const cacheRootDir = path.join(root, '.cache');
     const { state } = initializeCliCacheState({ projectRoot: root, cacheRootDir });
-    const loaded = loadProjectsIndex(state);
+    const runtime = buildCliCacheRuntime();
+    const loaded = loadProjectsIndex(state, runtime);
     expect(loaded.index.projects).toEqual({});
-    const touched = touchProjectIndex(state, defaultProjectsIndex());
-    const warn = saveProjectsIndex(state, touched);
+    const touched = touchProjectIndex(state, defaultProjectsIndex(runtime), runtime);
+    const warn = saveProjectsIndex(state, touched, runtime);
     expect(warn).toBeUndefined();
-    const reloaded = loadProjectsIndex(state);
+    const reloaded = loadProjectsIndex(state, runtime);
     expect(reloaded.index.projects[normalizeProjectRootKey(state.projectRoot)]).toBe(state.projectId);
   });
 
@@ -40,10 +42,11 @@ describe('shared/cache/projects', () => {
     tempDirs.push(root);
     const cacheRootDir = path.join(root, '.cache');
     const { state } = initializeCliCacheState({ projectRoot: root, cacheRootDir });
-    let idx = touchProjectIndex(state, defaultProjectsIndex());
+    const runtime = buildCliCacheRuntime();
+    const idx = touchProjectIndex(state, defaultProjectsIndex(runtime), runtime);
     idx.maintenance.healEveryRuns = 1;
     fs.rmSync(state.projectDir, { recursive: true, force: true });
-    const healed = maybeHealCacheIndex(state, idx);
+    const healed = maybeHealCacheIndex(state, idx, runtime);
     expect(healed.index.projects[normalizeProjectRootKey(state.projectRoot)]).toBeUndefined();
   });
 });

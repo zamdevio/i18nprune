@@ -20,6 +20,10 @@ export function mergeCoreConfigInputs(a: CoreConfigInput | undefined, b: CoreCon
       ...(a?.scanner ?? {}),
       ...(b?.scanner ?? {}),
     },
+    cache: {
+      ...(a?.cache ?? {}),
+      ...(b?.cache ?? {}),
+    },
   };
 }
 
@@ -40,6 +44,10 @@ export function resolveCoreConfig(
       ),
     },
     scanner: resolveScannerConfig(input?.scanner, options?.scanner),
+    cache: {
+      enabled: input?.cache?.enabled ?? true,
+      ...(input?.cache?.dir !== undefined ? { dir: input.cache.dir } : {}),
+    },
   };
 }
 

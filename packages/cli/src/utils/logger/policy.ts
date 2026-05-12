@@ -7,7 +7,6 @@ import type { LogGate } from '@/types/core/logger/index.js';
  *
  * | Predicate | Meaning |
  * |-----------|---------|
- * | `isJsonMode` | Machine-readable mode; no styled human UI. |
  * | `canPrintCommandBanner` | Top box banner per command — **on** in **quiet**; **off** in **silent** / **JSON**. |
  * | `canPrintDecorative` | Dim hints, extra blank lines (stricter than banner — **off** in **quiet**). |
  * | `canPrintInfo` | `[i18nprune] [info]` lines. |
@@ -17,13 +16,10 @@ import type { LogGate } from '@/types/core/logger/index.js';
  * | `canPrintDetail` | Dim / secondary prose. |
  * | `canPrintPrimary` | Main human payload (lists, “Wrote …”). |
  * | `canPrintProgress` | TTY stderr progress. |
+ * | `canPrintCache` | **`[cache]`** report-cache status lines — opt-in with **`--debug-cache`**, otherwise same visibility as **`info`**. |
  */
 
 export type { LogGate } from '@/types/core/logger/index.js';
-
-export function isJsonMode(run: RunOptions): boolean {
-  return run.json;
-}
 
 /** Top-of-command box header: show in **quiet**; hide in **silent** and **JSON** only. */
 export function canPrintCommandBanner(run: RunOptions): boolean {
@@ -63,6 +59,10 @@ export function canPrintProgress(run: RunOptions): boolean {
   return !run.json && !run.quiet && !run.silent;
 }
 
+export function canPrintCache(run: RunOptions): boolean {
+  return run.debugCache && canPrintInfo(run);
+}
+
 /** Single entry for gate checks — use in custom code paths if needed. */
 export function canEmit(run: RunOptions, gate: LogGate): boolean {
   switch (gate) {
@@ -82,6 +82,8 @@ export function canEmit(run: RunOptions, gate: LogGate): boolean {
       return canPrintCommandBanner(run);
     case 'progress':
       return canPrintProgress(run);
+    case 'cache':
+      return canPrintCache(run);
     case 'scan':
       return canPrintScanDebug(run);
     default:

@@ -140,9 +140,15 @@ export async function resolveContext(cwd = process.cwd()): Promise<Context> {
       srcRoot: resolveFromCwd(merged.src, projectRoot),
     };
 
+    const configCacheDisabled = merged.cache?.enabled === false;
+    const cacheRootDir = merged.cache?.dir ? resolveFromCwd(merged.cache.dir, projectRoot) : undefined;
+    const disabledReason = cli.noCache === true ? 'cli_no_cache' : configCacheDisabled ? 'config_disabled' : undefined;
     const cacheInit = initializeCliCacheState({
       projectRoot,
-      noCache: cli.noCache === true,
+      noCache: cli.noCache === true || configCacheDisabled,
+      ...(disabledReason !== undefined ? { disabledReason } : {}),
+      ...(cacheRootDir !== undefined ? { cacheRootDir } : {}),
+      adapters,
     });
     for (const warn of cacheInit.warnings) {
       discoveryWarnings.push(`cache: ${warn.message}`);

@@ -10,6 +10,7 @@ export function createCoreContext(input: {
   env: CoreContext['env'];
   paths: CoreContext['paths'];
   run?: CoreContext['run'];
+  cache?: CoreContext['cache'];
 }): CoreContext {
   return {
     config: input.config,
@@ -17,6 +18,7 @@ export function createCoreContext(input: {
     env: input.env,
     paths: input.paths,
     ...(input.run !== undefined ? { run: input.run } : {}),
+    ...(input.cache !== undefined ? { cache: input.cache } : {}),
   };
 }
 

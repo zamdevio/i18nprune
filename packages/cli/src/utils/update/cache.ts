@@ -1,6 +1,6 @@
 import { UPDATE_STATE_SCHEMA_VERSION } from '@/constants/update.js';
 import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
-import { readRuntimeFsTextSync } from '@i18nprune/core/runtime/helpers/sync';
+import { readJsonFromRuntimeFsSync } from '@i18nprune/core/runtime/helpers/sync';
 
 import { ensureConfigDirExists, getUpdateStateFilePath } from './paths.js';
 const nodeFs = createNodeRuntimeAdapters().fs;
@@ -94,8 +94,7 @@ export function readUpdateState(registryEndpoint: string): UpdateStateFile {
 
   let parsed: unknown | null = null;
   try {
-    const raw = readRuntimeFsTextSync(p, nodeFs);
-    parsed = JSON.parse(raw) as unknown;
+    parsed = readJsonFromRuntimeFsSync(p, nodeFs);
   } catch {
     parsed = null;
   }
@@ -107,14 +106,6 @@ export function readUpdateState(registryEndpoint: string): UpdateStateFile {
 
   return emptyState(registryEndpoint);
 }
-
-/** @deprecated use readUpdateState */
-export function readUpdateCache(registryEndpoint: string): UpdateStateFile {
-  return readUpdateState(registryEndpoint);
-}
-
-/** @deprecated use UpdateStateFile */
-export type UpdateCacheFile = UpdateStateFile;
 
 /** Persists state; creates `~/.config/i18nprune/` (or `$XDG_CONFIG_HOME/i18nprune/`) with `recursive: true` if needed. */
 export function writeUpdateState(state: UpdateStateFile): void {

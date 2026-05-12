@@ -1,6 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import type { CacheProjectsIndex, CliCacheState, CliCacheWarning } from '@/types/shared/cache/index.js';
+import { assertSyncPortResult } from '../runtime/helpers/sync/index.js';
+import type { CacheProjectsIndex, CacheRuntime, CacheState, CacheWarning } from '../types/cache/index.js';
 import { loadProjectsIndex, maybeHealCacheIndex, saveProjectsIndex, touchProjectIndex } from './projects.js';
 import { loadProjectFilesState, loadProjectRunState } from './state.js';
 
@@ -11,23 +10,26 @@ import { loadProjectFilesState, loadProjectRunState } from './state.js';
  * - ensures current project directory exists
  * - validates current project's files/run cache readability
  */
-export function prepareCacheForRun(state: CliCacheState): {
+export function prepareCacheForRun(
+  state: CacheState,
+  runtime: CacheRuntime,
+): {
   index: CacheProjectsIndex;
-  warnings: CliCacheWarning[];
+  warnings: CacheWarning[];
 } {
-  const warnings: CliCacheWarning[] = [];
-  const loaded = loadProjectsIndex(state);
+  const warnings: CacheWarning[] = [];
+  const loaded = loadProjectsIndex(state, runtime);
   warnings.push(...loaded.warnings);
 
-  const touched = touchProjectIndex(state, loaded.index);
-  const healed = maybeHealCacheIndex(state, touched);
+  const touched = touchProjectIndex(state, loaded.index, runtime);
+  const healed = maybeHealCacheIndex(state, touched, runtime);
   warnings.push(...healed.warnings);
 
-  const saveWarn = saveProjectsIndex(state, healed.index);
+  const saveWarn = saveProjectsIndex(state, healed.index, runtime);
   if (saveWarn) warnings.push(saveWarn);
 
   try {
-    fs.mkdirSync(state.projectDir, { recursive: true });
+    assertSyncPortResult(runtime.fs.mkdirp(state.projectDir), 'fs.mkdirp', state.projectDir);
   } catch (err) {
     warnings.push({
       code: 'cache_dir_unavailable',
@@ -37,9 +39,9 @@ export function prepareCacheForRun(state: CliCacheState): {
     return { index: healed.index, warnings };
   }
 
-  const fileState = loadProjectFilesState(state);
+  const fileState = loadProjectFilesState(state, runtime);
   warnings.push(...fileState.warnings);
-  const runState = loadProjectRunState(state);
+  const runState = loadProjectRunState(state, runtime);
   warnings.push(...runState.warnings);
 
   // If either cache file is malformed/unusable, drop it now so this run can repopulate cleanly.
@@ -47,14 +49,14 @@ export function prepareCacheForRun(state: CliCacheState): {
   const hasInvalidRun = runState.warnings.some((w) => w.code === 'cache_malformed' || w.code === 'cache_oversize');
   if (hasInvalidFiles) {
     try {
-      fs.rmSync(state.filesPath, { force: true });
+      assertSyncPortResult(runtime.fs.deleteFile(state.filesPath), 'fs.deleteFile', state.filesPath);
     } catch {
       // best-effort only
     }
   }
   if (hasInvalidRun) {
     try {
-      fs.rmSync(state.runPath, { force: true });
+      assertSyncPortResult(runtime.fs.deleteFile(state.runPath), 'fs.deleteFile', state.runPath);
     } catch {
       // best-effort only
     }
@@ -62,7 +64,7 @@ export function prepareCacheForRun(state: CliCacheState): {
 
   // Ensure known essential files path parents always exist.
   try {
-    fs.mkdirSync(path.dirname(state.filesPath), { recursive: true });
+    assertSyncPortResult(runtime.fs.mkdirp(runtime.path.dirname(state.filesPath)), 'fs.mkdirp', runtime.path.dirname(state.filesPath));
   } catch {
     // ignore; runtime writes are still guarded
   }

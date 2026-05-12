@@ -13,7 +13,7 @@ import {
   resetCliGlobals,
   setCliGlobalOverrides,
 } from '@/shared/context/index.js';
-import { computeProjectId } from '@/shared/cache/index.js';
+import { resolveCliCacheState } from '@/shared/cache/paths.js';
 
 describe('resolveContext config-root path resolution', () => {
   let prevCwd: string;
@@ -145,10 +145,11 @@ describe('resolveContext CLI scan exclude flags', () => {
     setConfigPath(cfgPath);
     await ensureConfigPathResolved(dir);
     const ctx = await resolveContext(dir);
+    const expectedCache = resolveCliCacheState({ projectRoot: dir });
     expect(ctx.meta.cache.enabled).toBe(true);
     expect(ctx.meta.cache.reason).toBe('default');
-    expect(ctx.meta.cache.projectId).toBe(computeProjectId(dir));
-    expect(ctx.meta.cache.filesPath.endsWith(path.join('projects', computeProjectId(dir), 'files.json'))).toBe(true);
+    expect(ctx.meta.cache.projectId).toBe(expectedCache.projectId);
+    expect(ctx.meta.cache.filesPath.endsWith(path.join('projects', expectedCache.projectId, 'files.json'))).toBe(true);
   });
 
   it('honors --no-cache via cli globals', async () => {

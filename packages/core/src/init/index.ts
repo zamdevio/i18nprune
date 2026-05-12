@@ -184,6 +184,12 @@ export default defineConfig({
     // hardCap: 256,
   },
 
+  cache: {
+    // Core-owned project analysis cache. Omit \`dir\` to use the host default (CLI: ~/.i18nprune/cache).
+    enabled: true,
+    // dir: '.i18nprune/cache',
+  },
+
   patching: {
     // Opt-in: may create/refresh loader wiring under \`src\` — keep \`enabled: false\` until you deliberately adopt the patching recipe.
     enabled: false,

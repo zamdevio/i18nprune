@@ -4,7 +4,12 @@
  */
 import { z } from 'zod';
 import { translateSchema } from './translate.js';
-import type { I18nPruneConfig } from '../index.js';
+import type { ReferenceConfig as CoreReferenceConfig } from '../../types/reference/index.js';
+import type { ParityPolicy, PreservePolicy } from '../../types/policies/index.js';
+import type { ScanExcludeConfig, ScannerConfigInput } from '../../types/scanner/index.js';
+import type { PatchingConfigInput } from '../../types/patching/index.js';
+import type { TranslationProviderId } from '../../types/translator/providers.js';
+import type { TranslatePolicy } from '../../types/translator/policy.js';
 
 const preserveSchema = z
   .object({
@@ -206,6 +211,18 @@ const scannerSchema = z
   .optional()
   .describe('Optional scan orchestration hints.');
 
+const cacheSchema = z
+  .object({
+    enabled: z.boolean().optional().describe('Master switch for core-owned project analysis cache.'),
+    dir: z
+      .string()
+      .optional()
+      .describe('Cache root directory. Relative paths resolve from the project root; omit to use the host default.'),
+  })
+  .strict()
+  .optional()
+  .describe('Project cache policy shared by core operations. Hosts provide runtime adapters and the default root.');
+
 const localeLeavesSchema = z
   .object({
     mode: z
@@ -274,6 +291,7 @@ export const configSchema = z
     exclude: excludeSchema,
     output: outputSchema,
     scanner: scannerSchema,
+    cache: cacheSchema,
     policies: policiesSchema,
     reference: referenceSchema,
     localeLeaves: localeLeavesSchema,
@@ -292,6 +310,122 @@ export const configSchema = z
  * **`translate`**, and **`policies`** with stricter authoring-time interfaces.
  */
 export type I18nPruneConfigParsed = z.infer<typeof configSchema>;
+
+/** Optional per-backend rate-limit knobs (merged with provider defaults when omitted). */
+export type TranslateRateLimitConfig = {
+  maxConcurrency?: number;
+  rpm?: number;
+  rps?: number;
+  intervalMs?: number;
+};
+
+export type TranslateProviderRowGoogle = {
+  id: 'google';
+  enabled?: boolean;
+  rateLimit?: TranslateRateLimitConfig;
+};
+
+export type TranslateProviderRowMymemory = {
+  id: 'mymemory';
+  enabled?: boolean;
+  contactEmail?: string;
+  rateLimit?: TranslateRateLimitConfig;
+};
+
+export type TranslateProviderRowLibre = {
+  id: 'libre';
+  enabled?: boolean;
+  baseUrl?: string;
+  rateLimit?: TranslateRateLimitConfig;
+};
+
+export type TranslateProviderRowDeepL = {
+  id: 'deepl';
+  enabled?: boolean;
+  apiKey?: string;
+  rateLimit?: TranslateRateLimitConfig;
+};
+
+export type TranslateProviderRowLlm = {
+  id: 'llm';
+  enabled?: boolean;
+  apiKey?: string;
+  baseUrl?: string;
+  model?: string;
+  rateLimit?: TranslateRateLimitConfig;
+};
+
+export type TranslateProviderRow =
+  | TranslateProviderRowGoogle
+  | TranslateProviderRowMymemory
+  | TranslateProviderRowLibre
+  | TranslateProviderRowDeepL
+  | TranslateProviderRowLlm;
+
+export type TranslateMaxWorkersConfig = number;
+export type TranslatePolicyConfig = TranslatePolicy;
+export type { ParityPolicy, PreservePolicy };
+
+export type Policies = {
+  preserve?: PreservePolicy;
+  parity?: ParityPolicy;
+};
+
+export type LocaleLeavesConfig = {
+  mode?: 'structured' | 'legacy_string';
+  sync?: {
+    stripMetadata?: boolean;
+  };
+};
+
+export type MissingCommandConfig = {
+  placeholder?: string;
+};
+
+export type OutputListConfig = {
+  top?: number;
+  full?: boolean;
+  maxCap?: number;
+};
+
+export type OutputConfig = {
+  list?: OutputListConfig;
+};
+
+export type CacheConfig = {
+  enabled?: boolean;
+  dir?: string;
+};
+
+export type PatchingConfig = PatchingConfigInput;
+
+export type TranslateConfig = {
+  primary: TranslationProviderId;
+  providers: TranslateProviderRow[];
+  policy?: TranslatePolicyConfig;
+  workers?: TranslateMaxWorkersConfig;
+};
+
+/**
+ * Fully merged i18nprune project config (file + defaults + parse normalization).
+ */
+export type I18nPruneConfig = Omit<I18nPruneConfigParsed, 'reference' | 'translate' | 'policies'> & {
+  source: string;
+  localesDir: string;
+  src: string;
+  functions: string[];
+  noLocaleMeta?: boolean;
+  output?: OutputConfig;
+  cache?: CacheConfig;
+  exclude?: ScanExcludeConfig;
+  scanner?: ScannerConfigInput;
+  policies?: Policies;
+  reference?: CoreReferenceConfig;
+  localeLeaves?: LocaleLeavesConfig;
+  missing?: MissingCommandConfig;
+  patching?: PatchingConfig;
+  translate?: TranslateConfig;
+};
 
 /**
  * Thrown by **`parseI18nPruneConfig`** (and **`loadCoreConfigFromPath`**) when an input value

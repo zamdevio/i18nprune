@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { diffProjectFiles, mergeProjectFilesState } from '../index.js';
 
-describe('shared/cache/engine', () => {
+describe('cache engine', () => {
   it('diffs and merges file records', () => {
     const previous = {
       a: { hash: '1', size: 10, mtimeMs: 100, updatedAt: 'x' },

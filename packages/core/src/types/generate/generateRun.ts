@@ -3,6 +3,7 @@ import type { Issue } from '../json/envelope/index.js';
 import type { LocaleMetadataReport } from '../localeLeaves/index.js';
 import type { RuntimeAdapters } from '../runtime/adapters.js';
 import type { RunOptions } from '../runtime/index.js';
+import type { CacheRuntime, CacheState } from '../cache/index.js';
 import type { TranslationProviderId } from '../translator/providers.js';
 import type { TranslatorEnv } from '../../shared/constants/translate.js';
 import type { IdentityStreakGuard } from '../../translator/identity/guard.js';
@@ -47,6 +48,10 @@ export type CoreContext = {
   readonly env: TranslatorEnv;
   readonly paths: CoreResolvedPaths;
   readonly run?: RunOptions;
+  readonly cache?: {
+    readonly state: CacheState;
+    readonly runtime: CacheRuntime;
+  };
 };
 
 export type GenerateProgressEmit = (

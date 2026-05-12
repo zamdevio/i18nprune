@@ -1,6 +1,6 @@
 import type { I18nPruneConfig } from '@i18nprune/core/config';
 import type { RunOptions } from '@i18nprune/core';
-import type { CliCacheState } from '@/types/shared/cache/index.js';
+import type { CacheState } from '@i18nprune/core';
 import type { RuntimeAdapters } from '@i18nprune/core';
 
 export type ConfigLayer = 'default' | 'file' | 'env' | 'discovery' | 'cli';
@@ -18,7 +18,7 @@ export type FieldSources = {
 export type ContextMeta = {
   fieldSources: FieldSources;
   warnings: string[];
-  cache: CliCacheState;
+  cache: CacheState;
 };
 
 export type ResolvedPaths = {

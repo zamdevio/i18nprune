@@ -30,6 +30,7 @@ export function emitRunMessage(
     op: OperationId;
     runId?: string;
     level: RunMessageLevel;
+    channel?: import('../../types/shared/run/index.js').RunMessageChannel;
     message: string;
     target?: string;
     path?: string;
@@ -43,6 +44,7 @@ export function emitRunMessage(
     runId: input.runId,
     at: input.at ?? nowMs(),
     level: input.level,
+    ...(input.channel !== undefined ? { channel: input.channel } : {}),
     message: input.message,
     ...(input.target !== undefined ? { target: input.target } : {}),
     ...(input.path !== undefined ? { path: input.path } : {}),

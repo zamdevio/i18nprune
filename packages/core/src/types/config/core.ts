@@ -13,6 +13,10 @@ export type CoreConfigInput = {
     list?: OutputListConfigInput;
   };
   scanner?: ScannerConfigInput;
+  cache?: {
+    enabled?: boolean;
+    dir?: string;
+  };
 };
 
 export type CoreConfigResolved = {
@@ -20,6 +24,10 @@ export type CoreConfigResolved = {
     list: ListWindowResolved;
   };
   scanner: ScannerConfigResolved;
+  cache: {
+    enabled: boolean;
+    dir?: string;
+  };
 };
 
 export type ResolveCoreConfigOptions = {

@@ -29,6 +29,7 @@ describe('init core helpers', () => {
     expect(tpl).toContain('patching:');
     expect(tpl).toContain('enabled: false');
     expect(tpl).toContain('scanner:');
+    expect(tpl).toContain('cache:');
     expect(tpl).toContain('localeLeaves:');
     expect(tpl).toContain('missing:');
     expect(tpl).toContain('placeholder:');

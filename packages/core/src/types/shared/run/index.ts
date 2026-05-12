@@ -13,6 +13,7 @@ export type OperationId =
   | 'validate'
   | 'quality'
   | 'doctor'
+  | 'report'
   | 'review'
   | 'missing'
   | 'cleanup';
@@ -56,6 +57,13 @@ export type DoctorCounts = {
   findings: number;
 };
 
+export type ReportCounts = {
+  filesScanned?: number;
+  missing?: number;
+  dynamic?: number;
+  keyObservations?: number;
+};
+
 export type ReviewCounts = {
   locales: number;
   dynamicKeySites: number;
@@ -78,6 +86,7 @@ export type RunCountsByOperation = {
   validate: ValidateCounts;
   quality: QualityCounts;
   doctor: DoctorCounts;
+  report: ReportCounts;
   review: ReviewCounts;
   missing: MissingCounts;
   cleanup: CleanupCounts;
@@ -120,11 +129,13 @@ export type RunErrorEvent = RunEventBase & {
 };
 
 export type RunMessageLevel = 'detail' | 'info' | 'notice' | 'warn';
+export type RunMessageChannel = 'default' | 'cache';
 
 export type RunMessageEvent = RunEventBase & {
   type: 'run.message';
   at: number;
   level: RunMessageLevel;
+  channel?: RunMessageChannel;
   message: string;
   target?: string;
   path?: string;

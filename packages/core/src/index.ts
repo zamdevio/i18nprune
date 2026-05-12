@@ -136,9 +136,21 @@ export type {
 } from './types/generate/index.js';
 
 export * as json from './namespaces/json.js';
-export { targetLocaleCoversAllSourcePaths } from './namespaces/json.js';
+export {
+  getJsonParseLocation,
+  I18nPruneJsonParseError,
+  parseJsonText,
+  targetLocaleCoversAllSourcePaths,
+  tryParseJsonText,
+} from './namespaces/json.js';
 export { applyPreserveFromSource, mergeToTemplateShape, pruneToTemplateShape } from './namespaces/json.js';
-export type { MergeToTemplateOptions, PruneToTemplateOptions } from './namespaces/json.js';
+export type {
+  JsonParseLocation,
+  MergeToTemplateOptions,
+  ParseJsonTextOptions,
+  PruneToTemplateOptions,
+  TryParseJsonTextResult,
+} from './namespaces/json.js';
 
 export * as sync from './namespaces/sync.js';
 export {
@@ -156,7 +168,6 @@ export type {
   SyncHostHooks,
   SyncHumanLeafSummary,
   SyncJsonOutput,
-  SyncReferenceData,
   SyncRunOptions,
   SyncRunResult,
 } from './sync/index.js';
@@ -194,7 +205,6 @@ export type {
   CleanupHostHooks,
   CleanupJsonOutput,
   CleanupJsonRunSummary,
-  CleanupReferenceData,
   CleanupRunOptions,
   CleanupRunResult,
   CleanupWritePlan,
@@ -215,6 +225,15 @@ export {
 } from './namespaces/patching.js';
 
 export * as extractor from './namespaces/extractor.js';
+
+export * as analysis from './namespaces/analysis.js';
+export {
+  resolveProjectAnalysis,
+  resolveProjectDynamicSites,
+  resolveProjectDynamicSitesCount,
+  resolveProjectResolvedKeys,
+} from './namespaces/analysis.js';
+export type { ProjectAnalysis, ProjectAnalysisCacheData, ProjectAnalysisResolveOptions } from './namespaces/analysis.js';
 
 export * as generate from './namespaces/generate.js';
 export {
@@ -248,6 +267,7 @@ export * as missing from './namespaces/missing.js';
 export {
   applyMissingPaths,
   emitMissingPathsPreview,
+  emitMissingPlaceholderLeavesPreview,
   emitMissingTargetActionMessage,
   emitMissingTargetWriteIntro,
   parseMissingArrayFromValidateReportJson,
@@ -366,6 +386,55 @@ export type {
   RuntimeSystemCap,
   RuntimeSystemPort,
 } from './namespaces/runtime.js';
+
+export * as cache from './namespaces/cache.js';
+export {
+  CACHE_SCHEMA_VERSION,
+  computeCacheContentHash,
+  computeCacheProjectId,
+  defaultProjectFilesState,
+  defaultProjectsIndex,
+  diffProjectFiles,
+  emitCacheDispatchMessages,
+  emitCacheMemoryHitMessage,
+  getOrBuildCachedProjectData,
+  initializeCacheState,
+  loadProjectFilesState,
+  loadProjectRunState,
+  loadProjectsIndex,
+  MAX_PROJECT_FILES_BYTES,
+  MAX_PROJECT_RUN_BYTES,
+  MAX_PROJECTS_INDEX_BYTES,
+  maybeHealCacheIndex,
+  mergeProjectFilesState,
+  normalizeProjectRootKey,
+  nowIso,
+  prepareCacheForRun,
+  readJsonFileWithLimit,
+  resolveCacheState,
+  saveProjectFilesState,
+  saveProjectRunState,
+  saveProjectsIndex,
+  touchProjectIndex,
+  writeJsonAtomic,
+} from './namespaces/cache.js';
+export type {
+  CachedProjectInput,
+  CacheDisableReason,
+  CacheDispatchInfo,
+  CacheDispatchReason,
+  CacheDispatchResult,
+  CacheDispatchStatus,
+  CacheFileDelta,
+  CacheHashText,
+  CacheProjectFileRecord,
+  CacheProjectFilesState,
+  CacheProjectRunState,
+  CacheProjectsIndex,
+  CacheRuntime,
+  CacheState,
+  CacheWarning,
+} from './namespaces/cache.js';
 export * as config from './namespaces/config.js';
 export {
   clampTranslateMaxWorkers,
@@ -433,7 +502,7 @@ export {
   noopRunEmitter,
   nowMs,
 } from './shared/run/index.js';
-export type { RunEmitter, RunEvent, RunMessageEvent, RunMessageLevel } from './types/shared/run/index.js';
+export type { OperationId, RunEmitter, RunEvent, RunMessageChannel, RunMessageEvent, RunMessageLevel } from './types/shared/run/index.js';
 
 export * as languages from './namespaces/languages.js';
 export {
@@ -585,6 +654,8 @@ export {
   ISSUE_IO_READ_FAILED,
   ISSUE_LANGUAGES_EMPTY_FILTER,
   ISSUE_LANGUAGES_UNSUPPORTED_LANGUAGE_CODE,
+  ISSUE_LOCALE_SOURCE_PLACEHOLDER_LEAVES,
+  ISSUE_LOCALE_TARGET_PLACEHOLDER_LEAVES,
   ISSUE_LOCALES_USAGE,
   ISSUE_LOCALE_TARGET_NOT_FOUND,
   ISSUE_MISSING_PATHS_NOT_IN_SCAN,
@@ -621,6 +692,17 @@ export {
   ISSUE_DOCTOR_RUNTIME_UNSUPPORTED_NODE,
   ISSUE_DOCTOR_TOOLS_RG_NOT_ON_PATH,
 } from './shared/constants/index.js';
+export {
+  detectLocalePlaceholderLeaves,
+  detectSourcePlaceholderLeaves,
+  formatSourcePlaceholderMessage,
+  formatSyncSourcePlaceholderMessage,
+  formatTargetPlaceholderMessage,
+  issuesFromSourcePlaceholderLeaves,
+  issuesFromTargetPlaceholderLeaves,
+  sourcePlaceholderValues,
+} from './shared/sourcePlaceholders/index.js';
+export type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from './shared/sourcePlaceholders/index.js';
 export { deepClone } from './shared/json/clone.js';
 export { deleteAtPath, getAtPath, setAtPath, splitPath } from './shared/json/path.js';
 export type { PathSegment } from './types/json/path/index.js';

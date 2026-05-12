@@ -1,4 +1,4 @@
-import type { CacheFileDelta, CacheProjectFileRecord } from '@/types/shared/cache/index.js';
+import type { CacheFileDelta, CacheProjectFileRecord } from '../types/cache/index.js';
 
 /**
  * Computes file-level delta against cached records. `current` should be keyed by stable

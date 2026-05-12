@@ -25,6 +25,9 @@ export const DEFAULT_CONFIG: I18nPruneConfigParsed = {
   output: {
     list: {},
   },
+  cache: {
+    enabled: true,
+  },
   policies: {},
   reference: {
     defaults: { ...REFERENCE_POLICY_SAFE_DEFAULTS },

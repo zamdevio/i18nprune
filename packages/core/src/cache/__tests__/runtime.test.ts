@@ -1,0 +1,163 @@
+import { describe, expect, it } from 'vitest';
+import {
+  getOrBuildCachedProjectData,
+  initializeCacheState,
+  prepareCacheForRun,
+} from '../index.js';
+import type { CachedProjectInput, CacheRuntime } from '../../types/cache/index.js';
+import type { RuntimeDirEntry, RuntimeFsPort, RuntimePathPort } from '../../types/runtime/index.js';
+
+function normalizePath(value: string): string {
+  const parts: string[] = [];
+  for (const raw of value.replace(/\\/g, '/').split('/')) {
+    if (!raw || raw === '.') continue;
+    if (raw === '..') {
+      parts.pop();
+      continue;
+    }
+    parts.push(raw);
+  }
+  return `/${parts.join('/')}`;
+}
+
+function dirname(value: string): string {
+  const normalized = normalizePath(value);
+  const idx = normalized.lastIndexOf('/');
+  return idx <= 0 ? '/' : normalized.slice(0, idx);
+}
+
+function basename(value: string, ext?: string): string {
+  const name = normalizePath(value).split('/').pop() ?? '';
+  return ext && name.endsWith(ext) ? name.slice(0, -ext.length) : name;
+}
+
+const pathPort: RuntimePathPort = {
+  join: (...parts) => normalizePath(parts.join('/')),
+  dirname,
+  basename,
+  normalize: normalizePath,
+  relative: (from, to) => {
+    const fromParts = normalizePath(from).split('/').filter(Boolean);
+    const toParts = normalizePath(to).split('/').filter(Boolean);
+    while (fromParts.length > 0 && toParts.length > 0 && fromParts[0] === toParts[0]) {
+      fromParts.shift();
+      toParts.shift();
+    }
+    return [...fromParts.map(() => '..'), ...toParts].join('/');
+  },
+  resolve: (...parts) => normalizePath(parts.join('/')),
+  isAbsolute: (value) => value.startsWith('/'),
+};
+
+function memoryFs(initial: Record<string, string> = {}): RuntimeFsPort {
+  const files = new Map<string, string>();
+  const dirs = new Set<string>(['/']);
+  const ensureDir = (dirPath: string): void => {
+    let current = normalizePath(dirPath);
+    const chain: string[] = [];
+    while (current !== '/' && !dirs.has(current)) {
+      chain.push(current);
+      current = dirname(current);
+    }
+    for (const dir of chain.reverse()) dirs.add(dir);
+  };
+  for (const [filePath, content] of Object.entries(initial)) {
+    const normalized = normalizePath(filePath);
+    ensureDir(dirname(normalized));
+    files.set(normalized, content);
+  }
+  return {
+    exists: (filePath) => files.has(normalizePath(filePath)) || dirs.has(normalizePath(filePath)),
+    readText: (filePath) => {
+      const value = files.get(normalizePath(filePath));
+      if (value === undefined) throw new Error(`missing ${filePath}`);
+      return value;
+    },
+    statKind: (filePath) => {
+      const normalized = normalizePath(filePath);
+      if (files.has(normalized)) return 'file';
+      if (dirs.has(normalized)) return 'directory';
+      return 'missing';
+    },
+    listDir: (dirPath) => {
+      const normalized = normalizePath(dirPath);
+      const prefix = normalized === '/' ? '/' : `${normalized}/`;
+      const names = new Map<string, RuntimeDirEntry['kind']>();
+      for (const filePath of files.keys()) {
+        if (!filePath.startsWith(prefix)) continue;
+        const rest = filePath.slice(prefix.length);
+        if (!rest || rest.includes('/')) continue;
+        names.set(rest, 'file');
+      }
+      for (const dir of dirs) {
+        if (!dir.startsWith(prefix) || dir === normalized) continue;
+        const rest = dir.slice(prefix.length);
+        if (!rest || rest.includes('/')) continue;
+        names.set(rest, 'directory');
+      }
+      return [...names].map(([name, kind]) => ({ name, kind }));
+    },
+    writeText: (filePath, content) => {
+      const normalized = normalizePath(filePath);
+      ensureDir(dirname(normalized));
+      files.set(normalized, content);
+    },
+    deleteFile: (filePath) => {
+      files.delete(normalizePath(filePath));
+    },
+    mkdirp: ensureDir,
+  };
+}
+
+function runtime(fs: RuntimeFsPort): CacheRuntime {
+  return {
+    fs,
+    path: pathPort,
+    system: { cwd: () => '/project', now: () => 1_700_000_000_000 },
+    hashText: (text) => `h-${text}`,
+    byteLength: (text) => text.length,
+  };
+}
+
+describe('core cache runtime', () => {
+  it('initializes and prepares cache using only runtime adapters', () => {
+    const fs = memoryFs({ '/project/src/app.ts': 't("app.title")', '/project/locales/en.json': '{"app":{"title":"Title"}}' });
+    fs.mkdirp('/cache');
+    const rt = runtime(fs);
+    const { state, warnings } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
+    expect(warnings).toEqual([]);
+    expect(state.projectDir).toContain('/cache/projects/');
+
+    const prepared = prepareCacheForRun(state, rt);
+    expect(prepared.warnings).toEqual([]);
+    expect(fs.exists(state.metaPath)).toBe(true);
+  });
+
+  it('misses once, then serves cached data until inputs change', () => {
+    const fs = memoryFs({ '/project/src/app.ts': 't("app.title")', '/project/locales/en.json': '{"app":{"title":"Title"}}' });
+    const rt = runtime(fs);
+    const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
+    let builds = 0;
+    const input: CachedProjectInput<{ builds: number }> = {
+      state,
+      runtime: rt,
+      sourceLocalePath: '/project/locales/en.json',
+      srcRoot: '/project/src',
+      producer: () => ({ builds: (builds += 1) }),
+      parseCachedData: (data: unknown) =>
+        typeof data === 'object' && data !== null && typeof (data as { builds?: unknown }).builds === 'number'
+          ? { ok: true as const, data: data as { builds: number } }
+          : { ok: false as const },
+    };
+
+    expect(getOrBuildCachedProjectData(input).cache.status).toBe('miss');
+    const hit = getOrBuildCachedProjectData(input);
+    expect(hit.cache.status).toBe('hit');
+    expect(hit.data.builds).toBe(1);
+
+    fs.writeText('/project/src/app.ts', 't("app.changed")');
+    const changed = getOrBuildCachedProjectData(input);
+    expect(changed.cache.reason).toBe('files_changed');
+    expect(changed.data.builds).toBe(2);
+  });
+});
