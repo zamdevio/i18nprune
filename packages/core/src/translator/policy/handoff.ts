@@ -1,6 +1,6 @@
 /**
  * Translate handoff catalogue — built-in provider pool (**not** `translate.providers[]` order).
- * Step 7 of `maintainer/phases/translate-policy.md`: eligibility ordering and credential synthesis
+ * Step 7 of `translate-policy (shipped)`: eligibility ordering and credential synthesis
  * for mid-run picks; CLI / hosts render the picker UI separately.
  */
 
@@ -36,7 +36,7 @@ export const HANDOFF_PROVIDER_ORDER: readonly TranslationProviderId[] = [
   'llm',
 ];
 
-/** Whether interactive handoff UX may run (`translate-policy.md` §8 matrix). */
+/** Whether interactive handoff UX may run (`translate-policy (shipped)` §8 matrix). */
 export function shouldOfferHandoffInteractivePrompt(params: {
   readonly routing: 'single' | 'auto';
   readonly handoff: 'auto' | 'on' | 'off';
@@ -49,7 +49,7 @@ export function shouldOfferHandoffInteractivePrompt(params: {
   return params.isTty;
 }
 
-/** `single · on · non-TTY` → caller should warn once then abort (`translate-policy.md` §8). */
+/** `single · on · non-TTY` → caller should warn once then abort (`translate-policy (shipped)` §8). */
 export function shouldWarnAndAbortHandoffOnNonTty(params: {
   readonly routing: 'single' | 'auto';
   readonly handoff: 'auto' | 'on' | 'off';

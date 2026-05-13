@@ -102,7 +102,7 @@ const translatePrimaryIdSchema = z.enum(['google', 'mymemory', 'libre', 'deepl',
 
 /**
  * Locked translate-policy schema. Each `on*` key takes a single verb from
- * {@link TranslatePolicyVerb}. Source: `maintainer/phases/translate-policy.md` §3.
+ * {@link TranslatePolicyVerb}. Source: `translate-policy (shipped)` §3.
  *
  * `.strict()` rejects typos. All keys optional — defaults are
  * {@link TRANSLATE_POLICY_DEFAULTS} except `maxAttempts`, which resolves to
@@ -182,7 +182,7 @@ const translateInnerSchema = z
     providers: t.providers,
     /**
      * `maxAttempts` defaults to `providers.length` (one shot per provider in chain) per
-     * `maintainer/phases/translate-policy.md` §6. Resolved here because the default
+     * `translate-policy (shipped)` §6. Resolved here because the default
      * depends on a sibling field — Zod's static `.default()` can't express that.
      */
     policy: { ...t.policy, maxAttempts: t.policy.maxAttempts ?? t.providers.length },

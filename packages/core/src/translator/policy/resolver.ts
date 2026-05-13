@@ -62,7 +62,7 @@ export type ResolveProviderActionInput = {
    * Per-provider backoff escalation threshold. After this many consecutive backoffs on
    * the same provider, the resolver upgrades `'backoff'` → `'fallback'`.
    *
-   * Per `maintainer/phases/translate-policy.md` §7, callers derive this from
+   * Per `translate-policy (shipped)` §7, callers derive this from
    * `ceil(policy.maxAttempts / chain.length)` so the cross-provider budget yields
    * "one shot per provider in chain" by default. When omitted, falls back to
    * `policy.maxAttempts ?? 1` — the safe value for single-provider setups but a
@@ -114,7 +114,7 @@ export function policyKeyForOutcome(
 
 /**
  * **The single source of truth** for "given a failed provider attempt, what verb
- * should `runGenerate` apply next?". Step 5 of `maintainer/phases/translate-policy.md`.
+ * should `runGenerate` apply next?". Step 5 of `translate-policy (shipped)`.
  *
  * The resolver is the canonical consumer of {@link classifyTranslateFailure}'s
  * output and the canonical writer of {@link ProviderHealthMonitor} updates in the

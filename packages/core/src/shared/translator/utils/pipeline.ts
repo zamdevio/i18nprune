@@ -52,7 +52,7 @@ export function mergeTranslationLeafMeta(
  * back to the patch (or `false`).
  *
  * @remarks
- * Step 2 of `maintainer/phases/translate-policy.md`. Future signals (policy resolver,
+ * Step 2 of `translate-policy (shipped)`. Future signals (policy resolver,
  * identity guard, partial-write) compute `decision` from non-heuristic sources and pass
  * it here to update the persisted marker without bypassing the contract.
  *

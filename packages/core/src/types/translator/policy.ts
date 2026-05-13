@@ -5,7 +5,7 @@
  * `runGenerate`'s provider chain through `resolveProviderActionFor` (step 5).
  * SDK consumers author this shape inside `defineConfig({ translate: { policy } })`.
  *
- * Source of truth: `maintainer/phases/translate-policy.md` §3 (schema) + §4 (verb
+ * Source of truth: `translate-policy (shipped)` §3 (schema) + §4 (verb
  * dictionary) + §6 (defaults). When the plan moves a key, this file moves with it.
  */
 
@@ -118,11 +118,11 @@ export type TranslatePolicy = {
 };
 
 /**
- * Frozen defaults for {@link TranslatePolicy}. Mirrors `maintainer/phases/translate-policy.md` §6.
+ * Frozen defaults for {@link TranslatePolicy}. Mirrors `translate-policy (shipped)` §6.
  * `maxAttempts` is intentionally absent here — it's resolved against `providers.length` at parse time.
  *
  * @remarks
- * Step 4 of `maintainer/phases/translate-policy.md`. Consumed by `parseI18nPruneConfig` /
+ * Step 4 of `translate-policy (shipped)`. Consumed by `parseI18nPruneConfig` /
  * `defineConfig`'s policy merge and by step 5's resolver as the fallback for missing keys.
  */
 export const TRANSLATE_POLICY_DEFAULTS: Readonly<

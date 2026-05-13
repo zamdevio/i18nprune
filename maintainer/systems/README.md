@@ -56,8 +56,6 @@ Keep this tree truthful with `git`; don't maintain a brittle wall of filenames h
 | **User docs** | `docs/commands/<op>/README.md` |
 | **Agent authoring rules** | `maintainer/rules/agents/commands*.md` |
 
-Older consolidated prose (may be retired or merged into this tree before v1): `maintainer/OPERATIONS.md` — **do not** treat it as the long-term nav hub; prefer **`systems/operations/`** + **`phases/`** + code.
-
 ---
 
 ## Adding a new systems note

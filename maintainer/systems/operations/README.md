@@ -4,8 +4,6 @@
 
 Practical maps for **`run.*`**, envelopes, and today’s **`runXxx`** entry paths. **Typing and payload shape** defer to **`packages/core/src/types/shared/run/`**. **Scheduling and slice memory** defer to **`maintainer/phases/`** (not a substitute for wiring here + code.)
 
-Long-form prose companion (legacy / may shrink before v1): [`maintainer/OPERATIONS.md`](../../OPERATIONS.md).
-
 ## Files in this folder
 
 | File | Purpose |

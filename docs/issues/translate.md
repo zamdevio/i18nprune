@@ -48,7 +48,7 @@ Each section below follows the **[topic page pattern](./README.md#authoring-topi
 **Severity:** `error`  
 **When:** **`USAGE`** like *Translation provider "…" is not implemented yet* — a **new** provider id was added to the typed registry before its **`Translator`** shipped (today all registered ids are implemented; this code remains for forward compatibility).  
 **Who:** **`resolveTranslator`** (`packages/core` / **`registry.ts`**).  
-**What to do:** Run **`i18nprune providers`** for supported ids; upgrade **`@i18nprune/core`** / CLI, or track **[maintainer `providers.md`](../../maintainer/phases/providers.md)**.
+**What to do:** Run **`i18nprune providers`** for supported ids; upgrade **`@i18nprune/core`** / CLI.
 
 ---
 

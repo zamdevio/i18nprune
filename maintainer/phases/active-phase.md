@@ -1,8 +1,8 @@
 # Active sprint
 
-**v1 consolidated plan:** **[`V1-RELEASE.md`](../V1-RELEASE.md)** (sessions A–H — use first for sequencing).
+**v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** (sessions A–H — use first for sequencing).
 
-**Narrative focus:** **Session A (providers / progress UX)** → **`review`** refinements → **extractor / false-positive hardening (Session C)** → patching backlog in **`docs/patching/README.md`**. Hub overview: **`maintainer/phases/README.md`**.
+**Narrative focus:** **Core-op migrations (Session A.2)** — `report`, then `locales` commands. After that: **extractor / false-positive hardening (Session C)** → patching backlog in **`docs/patching/README.md`**. Hub overview: **`maintainer/phases/README.md`**.
 
 ---
 
@@ -16,27 +16,29 @@
 
 ---
 
-## Providers + CLI progress (**Session A — P0**)
+## Core-op migrations (**Session A.2 — active**)
 
-**Focus:** Tick/progress semantics and translation provider orchestration shared by **`generate`** (including **`generate --resume`**). Maintainer notes: **[`providers.md`](./providers.md)** (includes **shipped baseline vs optional tail** for V1-RELEASE Session A) · user docs **`docs/progress/README.md`**, **`docs/commands/generate`**, **`docs/config/translate.md`**.
+**Focus:** Migrate remaining CLI-owned command orchestration to core `runXxx` entries per [`core-architecture.md`](./core-architecture.md) § 7.2.
 
----
-
-## CLI — `review` command uplift (**Session B**)
-
-**Goal:** Stable **`review --json`** and tight filters once behavior is settled. Reference **`docs/commands/review/README.md`**. Keep **`review`** compact—deep scans stay on **`validate`** / **`report`**.
+| # | command | status |
+|---|---------|--------|
+| 1 | `validate` → `runValidate` | **Shipped** |
+| 2 | `report` → `runReport` | **Next** |
+| 3 | `doctor` → `runDoctor` | **Shipped** |
+| 4 | `locales dynamic` | Pending |
+| 5 | `locales list`, `locales edit`, `locales delete` | Pending |
 
 ---
 
 ## Extractor hardening (**Session C**)
 
-**Docs:** [`docs/regex/key-sites-and-dynamic.md`](../../docs/regex/key-sites-and-dynamic.md) · backlog **`maintainer/EXTRACTOR_IMPROVEMENT.md`** (bounded PRs, e.g. prose false positives).
+**Docs:** [`extractor.md`](./extractor.md) (§0), [`docs/regex/key-sites-and-dynamic.md`](../../docs/regex/key-sites-and-dynamic.md).
 
 ---
 
 ## Patching backlog (**Session D**)
 
-Tracked publicly under **[`docs/patching/README.md`](../../docs/patching/README.md)** (“Maintainer backlog” section).
+Tracked publicly under **[`docs/patching/README.md`](../../docs/patching/README.md)** ("Maintainer backlog" section).
 
 ---
 
@@ -50,10 +52,9 @@ Normative docs: **`docs/json/`**, **`docs/exports/`**.
 
 | Track | Status | Doc |
 |-------|--------|-----|
-| **v1 sessions (ordered)** | **Use first** | **[`../V1-RELEASE.md`](../V1-RELEASE.md)** |
-| **Translation providers + progress** | **P0 — Session A** | [`providers.md`](./providers.md) |
-| **`review` uplift** | **Session B** | [`docs/commands/review/README.md`](../../docs/commands/review/README.md) |
-| **Extractor / keySites follow-ups** | **Session C** | [`EXTRACTOR_IMPROVEMENT.md`](../EXTRACTOR_IMPROVEMENT.md), [`docs/regex/`](../../docs/regex/README.md) |
+| **v1 sessions (ordered)** | **Use first** | **[`V1-RELEASE.md`](./V1-RELEASE.md)** |
+| **Core-op migrations** | **Active — Session A.2** | [`core-architecture.md`](./core-architecture.md) § 7.2 |
+| **Extractor / keySites follow-ups** | **Session C** | [`extractor.md`](./extractor.md), [`docs/regex/`](../../docs/regex/README.md) |
 | **Patching backlog** | **Session D** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel / Session E** | [`standard-toolkit.md`](./standard-toolkit.md) |
 
@@ -63,10 +64,8 @@ Normative docs: **`docs/json/`**, **`docs/exports/`**.
 
 Baseline CLI slices + exports parity: **[`shipped-slices.md`](./shipped-slices.md)**
 
-**2026-05 maintainer note (CLI correctness + quiet):**
+**2026-05 (doctor + cache refactor):**
 
-- **Sync:** `mergeToTemplateShape` preserves existing structured leaves (`{ value: string, … }`) at paths the source still has as plain strings, so `--metadata` / `--strip-metadata` no longer clobber translated values at those paths only because of shape mismatch before leaf normalization.
-- **Logging:** `[i18nprune] [scan]` (`--debug-scan`) now **respects `--quiet`** (same visibility family as `[info]`); warnings still show in quiet unless `--silent`.
-- **Copy / issues:** Doctor / missing / report / `locales dynamic` surface non-literal key counts without implying cache freshness; validate success line clarifies “code scan vs source locale JSON”.
-- **Next:** Continue **Session A** ordering in **[`V1-RELEASE.md`](../V1-RELEASE.md)** — after **core-architecture Phase 1**, execute **[`translate-policy.md`](./translate-policy.md)** as written (no extra blocker from this slice unless Phase 1 is still open).
-
+- **Doctor:** `runDoctor` core entry shipped — pure orchestration with host-injected environment facts. SDK example at `examples/sdk/doctor/runDoctor.ts`.
+- **Cache:** Sub-folder reorganization (`io/`, `setup/`), circular dependency elimination, JSDoc, `baselineFiles` mechanism for accurate delta reporting.
+- **Translate policy + providers:** Steps 1–10 fully shipped; `fill` collapsed into `generate --resume`. Docs moved to `shipped-slices.md`.

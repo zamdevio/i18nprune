@@ -38,7 +38,7 @@ export type TranslationLeafMeta = {
  * - `'translated'` — leaf is final; downstream consumers treat it as done.
  * - `'review'` — leaf needs human or workflow attention before it can be considered
  *   complete. The persisted marker is `needsReview: true` on the structured leaf
- *   (no separate key — see `maintainer/phases/translate-policy.md` §5).
+ *   (no separate key — see `translate-policy (shipped)` §5).
  *
  * The decision is the source of truth; the structured-leaf `needsReview` flag mirrors it.
  * `finalizeTranslationLeafMeta` enforces the mirror.

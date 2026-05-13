@@ -10,7 +10,7 @@ Use **`translate`** in **`i18nprune.config.*`** as a **roster** of backends (**`
 |-------|--------|
 | **`primary`** | Default **`TranslationProviderId`** when **`--provider`** and **`I18NPRUNE_TRANSLATE_PROVIDER`** are unset (must match an **enabled** row in **`providers`**). |
 | **`providers`** | Non-empty array; each element is **`{ id: '…', … }`** (discriminated union). **`enabled: false`** ignores a row for merges (rich **`init`** leaves optional backends scaffolded off). **`rateLimit`** — optional **`maxConcurrency`**, **`rpm`**, **`rps`**, **`intervalMs`**. Duplicate **`id`** values are rejected. |
-| **`policy`** | Optional **translate-policy** block (`maintainer/phases/translate-policy.md`). Parse merges **`TRANSLATE_POLICY_DEFAULTS`**; **`maxAttempts`** defaults to **`providers.length`**. Keys: **`routing`**, **`onRateLimit`**, **`onTransientFailure`**, **`onQuotaExceeded`**, **`onAuthFailure`**, **`onProviderUnavailable`**, **`onIdentityOutput`**, **`onIncompleteRun`**, **`maxAttempts`**, **`handoff`**. **`.strict()`** rejects unknown keys. |
+| **`policy`** | Optional **translate-policy** block. Parse merges **`TRANSLATE_POLICY_DEFAULTS`**; **`maxAttempts`** defaults to **`providers.length`**. Keys: **`routing`**, **`onRateLimit`**, **`onTransientFailure`**, **`onQuotaExceeded`**, **`onAuthFailure`**, **`onProviderUnavailable`**, **`onIdentityOutput`**, **`onIncompleteRun`**, **`maxAttempts`**, **`handoff`**. **`.strict()`** rejects unknown keys. |
 | **`workers`** | **`number`** (**`1…64`**): max parallel **`translateLeaf`** jobs when CLI/env omit **`--workers`** (**`1`** = serial; default when omitted). |
 
 ### Row fields by **`id`**
@@ -51,7 +51,7 @@ Run **`i18nprune init --rich`** for every namespace, including **`translate.prov
 
 ## `translate.policy` (outcome → verb)
 
-Orchestration is **forward-only**: each failure class maps to a policy key whose value is a single **verb** (`retry`, `backoff`, `fallback`, `prompt`, `abort`, `flag`). Defaults match the locked table in **`maintainer/phases/translate-policy.md`** §6. Verb meanings §4.
+Orchestration is **forward-only**: each failure class maps to a policy key whose value is a single **verb** (`retry`, `backoff`, `fallback`, `prompt`, `abort`, `flag`). Defaults are defined in **`TRANSLATE_POLICY_DEFAULTS`** (see source). Verb meanings below.
 
 | Key | Default | Allowed verbs |
 |-----|---------|----------------|

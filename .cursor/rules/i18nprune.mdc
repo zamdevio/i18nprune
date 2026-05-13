@@ -5,10 +5,11 @@ alwaysApply: true
 
 ## Source of truth
 - **Local-only WIP:** `maintainer/temp/` — temporary plans and scratch (**gitignored**; not in clone history; read it on disk only if the user keeps notes there).
-- Active plans: `maintainer/phases/core-architecture.md`, `maintainer/phases/translate-policy.md`, `maintainer/phases/providers.md`. Read first.
+- Active plans: `maintainer/phases/core-architecture.md`, `maintainer/phases/extractor.md`. Read first.
 - Shipped receipts: `maintainer/phases/shipped-slices.md`.
-- Hub: `maintainer/V1-RELEASE.md`. Active sprint focus: `maintainer/phases/active-phase.md`.
+- Hub: `maintainer/phases/V1-RELEASE.md`. Active sprint focus: `maintainer/phases/active-phase.md`.
 - Contributor/agent subsystem maps (not user docs): `maintainer/systems/README.md`.
+- Agent coding guides: `maintainer/agents/README.md`. **Git hygiene:** `maintainer/agents/git.md` (commit style, bundling rules, checklist).
 
 ## Build / test gate
 - Required before commit: `pnpm typecheck` and `pnpm test`.

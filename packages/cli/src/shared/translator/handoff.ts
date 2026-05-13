@@ -1,5 +1,5 @@
 /**
- * Interactive mid-run rescue picker for **`runGenerate`** (`translate-policy.md` §8).
+ * Interactive mid-run rescue picker for **`runGenerate`** (`translate-policy (shipped)` §8).
  *
  * Called from **`GenerateRunHooks.onHandoffPick`** while core holds the translation progress bar
  * in **`pauseClock`** — stderr layout stays consistent with **`shared/cursor`** conventions.

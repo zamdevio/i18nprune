@@ -16,6 +16,7 @@ export type CoreConfigInput = {
   cache?: {
     enabled?: boolean;
     dir?: string;
+    mode?: 'readWrite' | 'readOnly';
   };
 };
 
@@ -27,6 +28,7 @@ export type CoreConfigResolved = {
   cache: {
     enabled: boolean;
     dir?: string;
+    mode: 'readWrite' | 'readOnly';
   };
 };
 

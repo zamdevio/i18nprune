@@ -61,7 +61,7 @@ export async function promptFullRetranslate(): Promise<boolean> {
   );
 }
 
-/** Step 10 (`translate-policy.md` §13): confirm writing a partial locale after the provider chain stops. */
+/** Step 10 (`translate-policy (shipped)` §13): confirm writing a partial locale after the provider chain stops. */
 export async function promptGenerateIncompleteWrite(
   info: IncompleteRunInfo,
   run?: RunOptions,

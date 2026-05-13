@@ -51,6 +51,8 @@ export type CoreContext = {
   readonly cache?: {
     readonly state: CacheState;
     readonly runtime: CacheRuntime;
+    /** Pre-loaded `files.json` baseline; shared across sibling dispatches for accurate delta. */
+    readonly baselineFiles?: Record<string, import('../cache/index.js').CacheProjectFileRecord>;
   };
 };
 
@@ -135,7 +137,7 @@ export type ProviderAttemptReportJson = {
   outcome: ProviderAttemptOutcome;
   /**
    * Fine-grained failure taxonomy from {@link classifyTranslateFailure} — present on **failed**
-   * attempts only (`translate-policy.md` step 8, `--json` `targetResults[].providerAttempts[]`).
+   * attempts only (`translate-policy (shipped)` step 8, `--json` `targetResults[].providerAttempts[]`).
    */
   translateFailureOutcome?: TranslateFailureOutcome;
 };

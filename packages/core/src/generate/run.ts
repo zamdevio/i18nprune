@@ -176,7 +176,7 @@ export async function runGenerate(
   assertTranslationProviderCredentialsReady(primaryTranslation);
   const translationMeta = translationRunMeta(primaryTranslation);
 
-  // Translate-policy substrate (steps 4–6 of `maintainer/phases/translate-policy.md`).
+  // Translate-policy substrate (steps 4–6 of `translate-policy (shipped)`).
   // One health monitor per run; resolver consults it on every backoff verb.
   const effectivePolicy = { ...TRANSLATE_POLICY_DEFAULTS, ...(translateCfg.policy ?? {}) };
   const maxAttemptsTotal = Math.max(1, effectivePolicy.maxAttempts ?? chain.length);

@@ -65,7 +65,7 @@ export type HandoffOffer = {
   readonly partialStats: TranslateRunPartialStats;
   /**
    * Built-in catalogue pool eligible for rescue picks — **not** the same shape as **`remainingProviderIds`**
-   * (`translate-policy.md` §8). Hosts render this list; **`onHandoffPick`** must return **`null`** (means
+   * (`translate-policy (shipped)` §8). Hosts render this list; **`onHandoffPick`** must return **`null`** (means
    * “first **`eligibleHandoffRows`** entry”) or an id present in this list.
    */
   readonly eligibleHandoffRows: readonly HandoffEligibilityRow[];

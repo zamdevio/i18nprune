@@ -24,6 +24,4 @@ This page describes provider chain topology for translation operations.
 
 See planning sources:
 
-- `maintainer/phases/providers.md`
 - `maintainer/phases/core-architecture.md`
-- `maintainer/phases/translate-policy.md`

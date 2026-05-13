@@ -7,8 +7,34 @@ This repository uses **small, coherent commits** so history is reviewable, bisec
 1. **One concern per commit** — A commit touches one *vertical slice* (e.g. one command + its user-facing doc) or one *horizontal layer* (e.g. logger policy only) — not unrelated refactors mixed with features.
 2. **Code + docs together** — When you add or change a CLI command, include **`docs/commands/<slug>/README.md`** (and **`docs/commands/README.md`** index row if new) in the **same commit** as the implementation. Users and the docs site stay aligned.
 3. **Tests with the feature** — Unit tests for a module ship with that module’s commit. Integration tests that cover several commands can land in a dedicated **`test:`** commit after the commands exist, or with the last command they need.
-4. **Messages** — Prefer [Conventional Commits](https://www.conventionalcommits.org/): `feat(validate): …`, `fix(sync): …`, `docs(generate): …`, `chore: …`, `test: …`, `refactor(core): …`.
+4. **Messages** — Prefer [Conventional Commits](https://www.conventionalcommits.org/): `feat(validate): …`, `fix(sync): …`, `docs(generate): …`, `chore: …`, `test: …`, `refactor(core): …`. See **Subject line (professional default)** below for slice tags and examples.
 5. **No drive-by churn** — Do not reformat unrelated files or rename symbols outside the stated scope of the commit.
+
+### Subject line — professional default (with optional slice tag)
+
+Use a **single-line** subject, **imperative mood**, **type + scope**, and an **optional parenthetical** for phase / slice tracking (matches large refactors in `maintainer/phases/core-architecture.md` and similar plans).
+
+**Shape:**
+
+```text
+<type>(<scope>): <short imperative description> (<optional-slice-or-phase-id>)
+```
+
+**Types (common):** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`.
+
+**Scopes (examples):** `cli`, `core`, `validate`, `generate`, `examples`, `tests`, `agents`.
+
+**Slice tag (optional but recommended for architecture work):** short, stable, grep-friendly token — e.g. `(5.b.3.cli.split)`, `(7.2.validate)`, `(cli.exit.ci-gate)`. Omit when the change is trivial or not tied to a tracked slice.
+
+**Good:**
+
+- `fix(cli): set non-zero exit when validate fails in human mode (cli.exit.validate-human)`
+- `refactor(core): move validate orchestration into runValidate (7.2.validate)`
+- `docs(examples): SDK generate example uses i18nprune.config.ts (5.b.3.sdk.example.modernize)`
+
+**Avoid:** vague subjects (`update`, `fix stuff`), past tense (`fixed`), sentence-long subjects (move detail to body if the repo later adopts body text), or mixing two unrelated concerns in one commit.
+
+**Body:** Optional second paragraph only when the subject cannot carry risk, rollback, or “why” without becoming unreadable. Most single-slice PRs stay subject-only.
 
 ## What to bundle
 
@@ -110,6 +136,7 @@ git commit -m "chore: add package metadata and build tooling"
 - [ ] `pnpm typecheck`
 - [ ] `pnpm test`
 - [ ] `pnpm run build`
+- [ ] If you touched CLI commands: **human and `--json` paths** both set `process.exitCode` on logical failure (use `applyCliCiExitGate` from `packages/cli/src/shared/cli/ciExitGate.ts` with the same `envelope.ok` / gate as JSON).
 - [ ] If docs changed: commit **`docs/`** only — **`apps/docs/content/`** is gitignored (sync runs in **`pnpm docs:build`** / **`pnpm docs:dev`**)
 
 ---

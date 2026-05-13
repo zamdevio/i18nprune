@@ -34,4 +34,4 @@ This page maps the major repository domains and who owns each boundary.
 - **Current:** mixed CLI/core responsibilities still exist while migration continues.
 - **Planned:** phase docs move orchestration ownership into core run-entries, with CLI acting as host shell.
 
-See maintainer sources for planned sequencing: `maintainer/phases/core-architecture.md`, `maintainer/phases/translate-policy.md`, `maintainer/phases/providers.md`.
+See maintainer sources for planned sequencing: `maintainer/phases/core-architecture.md`.

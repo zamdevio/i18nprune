@@ -85,7 +85,7 @@ export function logIdentityStreakAbortNoWriteNotice(
  * - **interactive TTY** → inquirer `confirm` with **default `Y` (Enter = continue)**, `N` stops.
  *
  * Aborting the run on a streak is now an *explicit* user "no", not an environmental default
- * (aligns with `translate-policy.md` D9: run never aborts because of one leaf).
+ * (aligns with `translate-policy (shipped)` D9: run never aborts because of one leaf).
  */
 export function createIdentityStreakGuard(
   ctx: Context,

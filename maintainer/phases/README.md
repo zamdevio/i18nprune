@@ -8,7 +8,7 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 
 ## Start here — v1
 
-**→ [`V1-RELEASE.md`](../V1-RELEASE.md)**
+**→ [`V1-RELEASE.md`](./V1-RELEASE.md)**
 
 **Active sprint tweaks:** [`active-phase.md`](./active-phase.md)
 
@@ -22,12 +22,20 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 
 ## Index (open / reference docs)
 
-See sessions in **`../V1-RELEASE.md`** and topic files here (`providers.md`, `standard-toolkit.md`, `extension/`, …).
+| Doc | Status |
+|-----|--------|
+| [`core-architecture.md`](./core-architecture.md) | **Active** — op migration playbook, remaining commands (report, locales) |
+| [`extractor.md`](./extractor.md) | **Active** — JS/TS extractor improvement plan (false-positive hardening, future languages) |
+| [`jsdoc.md`](./jsdoc.md) | **Active** — JSDoc enforcement tiers |
+| [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |
+| [`final.md`](./final.md) | **Gate** — one-time pre-publish checklist (delete after release) |
+| [`V1-RELEASE.md`](./V1-RELEASE.md) | **Hub** — ordered v1 sessions |
+| [`docs-refactor.md`](./docs-refactor.md) | Reference |
 
 ---
 
 ## Lifecycle
 
-1. Prefer **one hub** (**[`V1-RELEASE.md`](../V1-RELEASE.md)**) for sequencing; **`active-phase.md`** for sprint narrative.
+1. Prefer **one hub** (**[`V1-RELEASE.md`](./V1-RELEASE.md)**) for sequencing; **`active-phase.md`** for sprint narrative.
 2. When closing a slice, update or stub the topic file here; duplicate long histories in **`docs/`** user pages is discouraged.
 3. Session noise → **`maintainer/temp/`** only (never commit).

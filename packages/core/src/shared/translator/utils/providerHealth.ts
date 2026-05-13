@@ -29,7 +29,7 @@ export type ProviderAttemptObservation = {
 
 /**
  * Per-provider start-gate health state. The interface is the **load-bearing primitive** of
- * step 3 in `maintainer/phases/translate-policy.md`; the start-rate gate consults
+ * step 3 in `translate-policy (shipped)`; the start-rate gate consults
  * {@link ProviderHealthMonitor.shouldDelayStartFor} on top of `rpm` / `rps` / `intervalMs`
  * pacing, and the policy resolver consults {@link ProviderHealthMonitor.shouldEscalate}
  * to upgrade `backoff` → `fallback` after consecutive backoffs exhaust.
@@ -86,7 +86,7 @@ const DEFAULT_FALLBACK_BACKOFF_MS: readonly number[] = [1_000, 2_000, 4_000, 8_0
  * ```
  *
  * @remarks
- * Step 3 of `maintainer/phases/translate-policy.md`. Internal substrate — exported only so
+ * Step 3 of `translate-policy (shipped)`. Internal substrate — exported only so
  * SDK consumers building custom translator orchestrators can construct one. Most callers
  * receive the instance from `runGenerate`'s policy resolver in step 5.
  */

@@ -65,7 +65,7 @@ export type IdentityStreakGuard = {
  * 2. If `interactive()` is `false` or no `confirm` callback supplied → continue silently.
  * 3. Else `await confirm(...)`; `false` → throw {@link IdentityAbortError}, `true` → continue.
  *
- * Aligns with `translate-policy.md` D9: "Run never aborts because of one leaf."
+ * Aligns with `translate-policy (shipped)` D9: "Run never aborts because of one leaf."
  */
 export function createIdentityStreakGuard(opts: IdentityStreakGuardOptions): IdentityStreakGuard {
   const threshold = opts.threshold ?? IDENTITY_STREAK_THRESHOLD;

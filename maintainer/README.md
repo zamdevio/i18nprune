@@ -13,10 +13,9 @@ Ignoring all of **`maintainer/`** would strand clones without sequencing context
 
 | Doc | Role |
 |-----|------|
-| [**`V1-RELEASE.md`**](V1-RELEASE.md) | Ordered v1 **sessions** (code + docs work) |
-| [**`final.md`**](final.md) | **One-time pre-publish checklist** (includes ADR polish + repo hygiene); **delete after completion** |
-| [**`MIGRATION.md`**](MIGRATION.md) | Core vs CLI extraction backlog |
-| [**`OPERATIONS.md`**](OPERATIONS.md) | **`run.*`** events, core vs CLI boundaries |
+| [**`phases/V1-RELEASE.md`**](phases/V1-RELEASE.md) | Ordered v1 **sessions** (code + docs work) |
+| [**`phases/final.md`**](phases/final.md) | **One-time pre-publish checklist** (includes ADR polish + repo hygiene); **delete after completion** |
+| [**`phases/core-architecture.md`**](phases/core-architecture.md) | Core vs CLI architecture, op migration playbook, remaining commands |
 | [**`systems/README.md`**](systems/README.md) | **Internal** tree: **`systems/operations/`**, **`systems/commands/`** — entrypoints, flows, per-op sheets (not user docs) |
 
 **Phase narrative:** [`phases/README.md`](phases/README.md) · **scratch:** **`maintainer/temp/`** only.

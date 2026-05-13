@@ -1,7 +1,7 @@
 # Core architecture — phased refactor plan
 
-**Status:** Plan locked. **Phase 1 executes before [`translate-policy.md`](./translate-policy.md)**; subsequent phases run in parallel with policy and `fill` collapse.  
-**Companion docs:** [`translate-policy.md`](./translate-policy.md) · [`providers.md`](./providers.md)  
+**Status:** Plan locked. Phase 1 shipped; translate-policy steps 1–10 shipped; subsequent phases active.  
+**Shipped companions:** translate-policy (shipped; see [`shipped-slices.md`](./shipped-slices.md)) · providers (shipped)  
 **Anchors:** `packages/core/src/generate/` · `packages/core/src/translator/` · `packages/core/src/types/translator/` · `packages/cli/src/commands/generate/execute.ts` · `packages/cli/src/shared/translator/`
 
 ---
@@ -152,7 +152,7 @@ Inside `runGenerate`, the helper `translateContextFromCore(ctx): TranslateContex
 | phase | scope | when | order constraint |
 |---|---|---|---|
 | **1 — Generate-first refactor** | Core owns generate orchestration. CLI calls `runGenerate`. | **Before policy work.** | Hard prerequisite for phase 2. |
-| **2 — Translate policy** | All 10 steps from [`translate-policy.md`](./translate-policy.md), landing on the new substrate. | After phase 1. | Hard prerequisite for `fill` collapse. |
+| **2 — Translate policy** | All 10 steps (shipped; see [`shipped-slices.md`](./shipped-slices.md)), landed on the new substrate. | After phase 1. | Hard prerequisite for `fill` collapse. |
 | **3 — Other ops architecture** | `runQuality`, `runReview`, `runMissing`, `runSync`, then the remaining CLI-owned ops listed in §7.2. Same pattern. (`runFill` is **not** part of this — `runGenerate({ resume: true })` covers it from 5.b.3.) | **Parallel with phase 2** (independent files). | Complete before the docs refactor. |
 | **4 — `fill` collapse + CLI thinning** | Fold `fill` into `generate --resume`. Reduce CLI `execute.ts` files to thin shells. | After phases 2 + 3. | Final state. |
 
@@ -497,7 +497,7 @@ These rules are absolute (already in § 10, restated for the playbook):
 
 ## 6. Phase 2 — Translate policy on the new substrate
 
-The 10 steps in [`translate-policy.md`](./translate-policy.md) are unchanged in scope, but their **landing locations** are now:
+The 10 translate-policy steps (now shipped) landed at these locations:
 
 | policy step | new location (post-phase-1) |
 |---|---|
@@ -512,7 +512,7 @@ The 10 steps in [`translate-policy.md`](./translate-policy.md) are unchanged in 
 | 9 (docs + tests) | unchanged |
 | 10 (partial-run hook) | core: hook in `runGenerate`; CLI: prompt impl |
 
-**`translate-policy.md` will be edited surgically** to reflect these locations once this doc lands. No scope change.
+Translate-policy plan has been completed and the file removed. See [`shipped-slices.md`](./shipped-slices.md) for the receipt.
 
 ---
 

@@ -39,7 +39,7 @@
 For **repository collaborators only**: sequencing hubs & scratch processes live outside **`docs/`**.
 
 1. **Scratch & spikes** — use **`maintainer/temp/`** locally (**gitignored**). Promote anything worth keeping into **`docs/`**, ADRs, or focused phase Markdown—never commit scratch.
-2. **Sessions / sequencing** — follow **`maintainer/V1-RELEASE.md`** plus narrative in **`maintainer/phases/active-phase.md`**.
+2. **Sessions / sequencing** — follow **`maintainer/phases/V1-RELEASE.md`** plus narrative in **`maintainer/phases/active-phase.md`**.
 3. **Public docs** — keep user-visible explanations authoritative under **`docs/`**; avoid leaking contributor-only files into reader-facing pages unless necessary.
 
 Hub: **`maintainer/README.md`** · phase index **`maintainer/phases/README.md`**.

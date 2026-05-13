@@ -8,7 +8,7 @@ VitePress navigation is **manual** in **`apps/docs/.vitepress/sidebar.ts`**. Whe
 
 # i18nprune docs2 (planned migration sandbox)
 
-`apps/docs2` is a **planning/sandbox app** for the deferred docs-site migration noted in [`maintainer/MIGRATION.md`](../../maintainer/MIGRATION.md):
+`apps/docs2` is a **planning/sandbox app** for the deferred docs-site migration:
 
 - target tooling: **VitePress `@next`**
 - source of truth: root `docs/`

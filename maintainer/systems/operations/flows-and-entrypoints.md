@@ -2,7 +2,7 @@
 
 **Event types:** `packages/core/src/types/shared/run/index.ts` (and related) — **canonical** payloads and discriminated **`run.*`** kinds.
 
-**Planning / backlog:** sequencing and refactor targets → **`maintainer/phases/`** (e.g. **`core-architecture.md`**). Companion prose bucket (may consolidate here): [`maintainer/OPERATIONS.md`](../../OPERATIONS.md).
+**Planning / backlog:** sequencing and refactor targets → **`maintainer/phases/`** (e.g. **`core-architecture.md`**).
 
 ## Mental model
 
@@ -38,4 +38,4 @@ If this summary diverges from code, **code + types win**; update **this doc** in
 
 ## Extraction target (backlog)
 
-Remaining “runner in CLI” vs “engine in core” splits: **`maintainer/MIGRATION.md`**, **`maintainer/phases/core-architecture.md`**. This file describes **current** layout only.
+Remaining “runner in CLI” vs “engine in core” splits: **`maintainer/phases/core-architecture.md`**. This file describes **current** layout only.

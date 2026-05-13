@@ -30,4 +30,4 @@ This page describes the translation pipeline as a shared system used by **`gener
 - **Current:** translation responsibilities are partially split between CLI and core.
 - **Planned:** core owns orchestration and config resolution slices; CLI consumes stable run outputs.
 
-Planned sequencing is tracked in `maintainer/phases/core-architecture.md` and `maintainer/phases/translate-policy.md`.
+Planned sequencing is tracked in `maintainer/phases/core-architecture.md`.

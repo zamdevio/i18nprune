@@ -47,7 +47,7 @@ Length and required sections scale with priority. Internal helpers get the least
 
 ### Tier 2 — Required, summary + `@remarks`
 
-**Who:** canonical primitives named in any phase doc (`core-architecture.md`, `translate-policy.md`, future). Internal but load-bearing.
+**Who:** canonical primitives named in any phase doc (`core-architecture.md`, `extractor.md`, future). Internal but load-bearing.
 
 - Reference example: `classifyTranslateFailure` (`packages/core/src/translator/policy/classify.ts`) — sets the bar.
 - Examples this doc anticipates: `resolveTranslateConfig`, `ProviderHealthMonitor`, `resolveProviderActionFor`, `finalizeTranslationLeafMeta`, `createIdentityStreakGuard`, `IdentityStreakAbortError`, per-op `<op>/run.ts` orchestration entries.
@@ -90,7 +90,7 @@ Apply to every tier. Violations are a review-block, not a nit.
 1. **Don't narrate the code.** Say *why* and *when*, not *what*. Good: "Branch order is significant — earlier branches win." Bad: "Loops over the array and returns the first match."
 2. **Don't restate the schema.** TypeScript already prints the type. JSDoc adds intent.
 3. **`@example` is for non-obvious call shape only.** Skip when usage is `fn(x)`.
-4. **Reference plan docs by path** (e.g., `maintainer/phases/translate-policy.md` step 1) so the file points back to the locked source of truth instead of carrying a competing copy.
+4. **Reference plan docs by path** (e.g., `maintainer/phases/core-architecture.md` § 7) so the file points back to the locked source of truth instead of carrying a competing copy.
 5. **Reference issue codes by stable name** (`ISSUE_GENERATE_TRANSLATE_RATE_LIMITED`), never copy the human copy — it changes.
 6. **Use `@remarks` for purity / concurrency / runtime constraints** ("pure", "no `process.*` access", "must be called from inside a `runXxx`").
 7. **Mark internals with `@internal`** when they're tiered up only because plans name them — keeps them out of any future generated docs site.
