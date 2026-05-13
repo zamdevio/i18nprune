@@ -1,8 +1,7 @@
-import pathMod from 'node:path';
 import { confirm } from '@inquirer/prompts';
 import { resolveContext } from '@/shared/context/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
-import { I18nPruneError } from '@i18nprune/core';
+import { I18nPruneError, deleteLocaleFiles } from '@i18nprune/core';
 import { resolveLocalesTargetCodes } from '@/shared/locales/index.js';
 import { canAsk } from '@/shared/ask/index.js';
 import { logger } from '@/utils/logger/index.js';
@@ -21,7 +20,9 @@ import { formatSectionTitle } from '@/utils/style/section.js';
 import type { LocalesDeleteJsonPayload } from '@/types/command/locales/json.js';
 import type { LocalesDeleteOptions } from '@/types/commands/locales/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
+import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
+import { existsRuntimeFsSync } from '@i18nprune/core';
 
 export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
   const wall = attachWallTimer();
@@ -39,17 +40,15 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
       promptWhenMissing: true,
     });
     const dir = ctx.paths.localesDir;
-    const targetPaths = targets.map((target) => ({
-      target,
-      jsonPath: pathMod.join(dir, `${target}.json`),
-      metaPath: pathMod.join(dir, `${target}.meta.json`),
-      hadMeta: false,
-    }));
-    for (const row of targetPaths) {
-      if (!(await Promise.resolve(ctx.adapters.fs.exists(row.jsonPath)))) {
-        throw new I18nPruneError(`locales delete: file not found: ${row.jsonPath}`, 'USAGE');
+    const coreCtx = createCliCoreContext(ctx);
+
+    for (const target of targets) {
+      const jsonPath = ctx.adapters.path.join(dir, `${target}.json`);
+      if (!existsRuntimeFsSync(jsonPath, ctx.adapters.fs)) {
+        throw new I18nPruneError(`locales delete: file not found: ${jsonPath}`, 'USAGE');
       }
     }
+
     if (canAsk(ctx.run) && !getCliYesFlag()) {
       const ok = await duringPrompt(() =>
         confirm({
@@ -116,31 +115,16 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
     } else if (!canAsk(ctx.run) && !getCliYesFlag()) {
       throw new I18nPruneError('locales delete: requires global --yes when non-interactive', 'USAGE');
     }
-    let deletedJson = 0;
-    let deletedMeta = 0;
-    for (const row of targetPaths) {
-      row.hadMeta = await Promise.resolve(ctx.adapters.fs.exists(row.metaPath));
-      await Promise.resolve(ctx.adapters.fs.deleteFile(row.jsonPath));
-      deletedJson += 1;
-      if (row.hadMeta) {
-        await Promise.resolve(ctx.adapters.fs.deleteFile(row.metaPath));
-        deletedMeta += 1;
-      }
-    }
-    const payload: LocalesDeleteJsonPayload = {
-      kind: 'locales-delete',
-      targets,
-      deletedJson,
-      deletedMeta,
-      aborted: false,
-      supportsAutoPatching: false,
-    };
+
+    const { payload, deletedTargets } = await deleteLocaleFiles(coreCtx, targets);
+
     await applyCommandPatching({
       ctx,
       command: 'locales-delete',
       action: 'delete_locales',
       localeCodes: targets,
     });
+
     if (ctx.run.json) {
       console.log(
         stringifyEnvelope(
@@ -157,7 +141,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
         logger.primary(formatSectionTitle(`Deleted locale(s) · ${targets.join(', ')}`), ctx.run);
       }
       if (canPrintInfo(ctx.run)) {
-        for (const row of targetPaths) {
+        for (const row of deletedTargets) {
           logger.info(`Removed ${row.jsonPath}`, ctx.run);
           if (row.hadMeta) logger.info(`Removed ${row.metaPath}`, ctx.run);
         }
@@ -167,7 +151,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           command: 'locales delete',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { deletedJson, deletedMeta },
+          counts: { deletedJson: payload.deletedJson, deletedMeta: payload.deletedMeta },
           issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
         },
         ctx,

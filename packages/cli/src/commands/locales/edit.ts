@@ -2,6 +2,8 @@ import { input, select } from '@inquirer/prompts';
 import { resolveContext } from '@/shared/context/index.js';
 import { canAsk } from '@/shared/ask/index.js';
 import { I18nPruneError, type PatchingLocaleRecord } from '@i18nprune/core';
+import { resolveLocaleEditProfile, writeLocaleMetaEdit } from '@i18nprune/core';
+import type { EditTargetFields } from '@i18nprune/core';
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import { printCommandSummary } from '@/output/index.js';
 import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
@@ -19,8 +21,7 @@ import {
   listLocaleJsonSlugs,
   resolveCanonicalSlug,
 } from '@/commands/locales/localeFiles.js';
-import { resolveLocaleMetaProfile } from '@i18nprune/core';
-import { assertHostDirectory, writeHostJson } from '@/shared/io/hostJson.js';
+import { assertHostDirectory } from '@/shared/io/hostJson.js';
 import {
   excludeSourceLocaleSlugs,
   isSourceLocaleSlug,
@@ -29,6 +30,7 @@ import { logger } from '@/utils/logger/index.js';
 import type { LocalesEditJsonPayload } from '@/types/command/locales/json.js';
 import type { LocalesEditOptions } from '@/types/commands/locales/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
+import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 
 type ResolvedEditTargets = {
@@ -43,14 +45,14 @@ function parseRequestedTargets(rawTarget: string): string[] {
     .filter(Boolean);
 }
 
-async function resolveLocalesEditTargets(input: {
+async function resolveLocalesEditTargets(inp: {
   opts: LocalesEditOptions;
   slugs: string[];
   targetSlugs: string[];
   sourcePath: string;
   ctx: Awaited<ReturnType<typeof resolveContext>>;
 }): Promise<ResolvedEditTargets> {
-  const { opts, slugs, targetSlugs, sourcePath, ctx } = input;
+  const { opts, slugs, targetSlugs, sourcePath, ctx } = inp;
   const rawTarget = opts.target?.trim();
   if (!rawTarget) {
     if (getCliYesFlag() || !canAsk(ctx.run)) {
@@ -138,23 +140,15 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
       ctx,
     });
     const promptForFields = canAsk(ctx.run) && !getCliYesFlag();
-    const rows: LocalesEditJsonPayload['rows'] = [];
+    const coreCtx = createCliCoreContext(ctx);
+    const edits: EditTargetFields[] = [];
     const upsertLocaleRecords: PatchingLocaleRecord[] = [];
 
     for (const target of targets) {
-      const profile = resolveLocaleMetaProfile(
-        { fs: ctx.adapters.fs, path: ctx.adapters.path },
-        absDir,
-        target,
-      );
-      const before = {
-        englishName: profile.englishName,
-        nativeName: profile.nativeName,
-        direction: profile.direction,
-      };
-      let englishName = opts.englishName?.trim() || before.englishName;
-      let nativeName = opts.nativeName?.trim() || before.nativeName;
-      let direction: 'ltr' | 'rtl' = rawDirection ?? before.direction;
+      const profile = resolveLocaleEditProfile(coreCtx, target);
+      let englishName = opts.englishName?.trim() || profile.englishName;
+      let nativeName = opts.nativeName?.trim() || profile.nativeName;
+      let direction: 'ltr' | 'rtl' = rawDirection as 'ltr' | 'rtl' ?? profile.direction;
 
       if (promptForFields) {
         if (!opts.englishName) {
@@ -190,30 +184,12 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
           );
         }
       }
-      writeHostJson(
-        profile.metaPath,
-        {
-          lang: target,
-          englishName,
-          nativeName,
-          direction,
-        },
-        ctx.adapters.fs,
-      );
-      rows.push({
-        target,
-        profileSource: profile.source,
-        before,
-        after: { englishName, nativeName, direction },
-        metaPath: profile.metaPath,
-      });
-      upsertLocaleRecords.push({
-        code: target,
-        englishName,
-        nativeName,
-        direction,
-      });
+
+      edits.push({ target, englishName, nativeName, direction });
+      upsertLocaleRecords.push({ code: target, englishName, nativeName, direction });
     }
+
+    const { payload } = writeLocaleMetaEdit(coreCtx, edits, skippedTargets);
 
     await applyCommandPatching({
       ctx,
@@ -223,21 +199,6 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
       upsertLocaleRecords,
     });
 
-    const firstRow = rows[0];
-    const payload: LocalesEditJsonPayload = {
-      kind: 'locales-edit',
-      target: targets.length === 1 ? targets[0] : null,
-      targets,
-      skippedTargets,
-      updated: rows.length,
-      mode: 'meta_updated',
-      profileSource: firstRow?.profileSource ?? 'catalog',
-      before: targets.length === 1 ? firstRow?.before ?? null : null,
-      after: targets.length === 1 ? firstRow?.after ?? null : null,
-      metaPath: targets.length === 1 ? firstRow?.metaPath ?? null : null,
-      rows,
-      supportsAutoPatching: true,
-    };
     const skippedIssues =
       skippedTargets.length > 0
         ? issuesFromLocaleTargetsSkipped(
@@ -257,7 +218,7 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
         ),
       );
     } else {
-      for (const row of rows) {
+      for (const row of payload.rows) {
         logger.info(`updated ${row.metaPath} (englishName/nativeName/direction).`, ctx.run);
       }
       printCommandSummary(
@@ -265,7 +226,7 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
           command: 'locales edit',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { targets: targets.length, metaUpdated: rows.length, skippedTargets: skippedTargets.length },
+          counts: { targets: targets.length, metaUpdated: payload.rows.length, skippedTargets: skippedTargets.length },
           issues,
         },
         ctx,

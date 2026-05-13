@@ -339,6 +339,24 @@ export type {
   DynamicRunResult,
 } from './namespaces/localesDynamic.js';
 
+export { runLocalesList } from './locales/list/index.js';
+export type { ListJsonPayload, ListRunResult } from './locales/list/index.js';
+
+export { resolveLocaleEditProfile, writeLocaleMetaEdit } from './locales/edit/index.js';
+export type {
+  EditTargetFields,
+  EditResultRow,
+  EditJsonPayload,
+  EditRunResult,
+} from './locales/edit/index.js';
+
+export { deleteLocaleFiles } from './locales/delete/index.js';
+export type {
+  DeleteTargetResult,
+  DeleteJsonPayload,
+  DeleteRunResult,
+} from './locales/delete/index.js';
+
 export * as quality from './namespaces/quality.js';
 export { buildQualityJsonData, computeEnglishIdenticalCounts, runQuality } from './namespaces/quality.js';
 export type { QualityFileLine, QualityHostHooks, QualityJsonData, QualityRunOptions, QualityRunResult } from './namespaces/quality.js';
