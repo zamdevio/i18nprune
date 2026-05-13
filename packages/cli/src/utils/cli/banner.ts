@@ -79,6 +79,7 @@ export function maybePrintCommandBanner(actionCommand: Command): void {
   const run = getRunOptions();
   if (!canEmit(run, 'banner')) return;
   if (actionCommand.name() === 'help') return;
+  if (actionCommand.commands.length > 0) return;
 
   const path = getCommandInvocationPath(actionCommand, ROOT);
   const spec = COMMAND_BANNER_LABELS[path] ?? {};

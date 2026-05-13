@@ -16,7 +16,8 @@ export type OperationId =
   | 'report'
   | 'review'
   | 'missing'
-  | 'cleanup';
+  | 'cleanup'
+  | 'locales-dynamic';
 
 export type RunEventBase = {
   /** Operation identifier (matches `CliJsonEnvelope.kind`). */
@@ -80,6 +81,11 @@ export type CleanupCounts = {
   dynamicKeySites: number;
 };
 
+export type LocalesDynamicCounts = {
+  dynamicKeySites: number;
+  shown: number;
+};
+
 export type RunCountsByOperation = {
   generate: GenerateCounts;
   sync: SyncCounts;
@@ -90,6 +96,7 @@ export type RunCountsByOperation = {
   review: ReviewCounts;
   missing: MissingCounts;
   cleanup: CleanupCounts;
+  'locales-dynamic': LocalesDynamicCounts;
 };
 
 type RunCompletedEventFor<T extends OperationId> = Omit<RunEventBase, 'op'> & {

@@ -330,6 +330,15 @@ export type {
   ReportRunResult,
 } from './namespaces/report.js';
 
+export * as localesDynamic from './namespaces/localesDynamic.js';
+export { runDynamic } from './namespaces/localesDynamic.js';
+export type {
+  DynamicRunOptions,
+  DynamicHostHooks,
+  DynamicJsonPayload,
+  DynamicRunResult,
+} from './namespaces/localesDynamic.js';
+
 export * as quality from './namespaces/quality.js';
 export { buildQualityJsonData, computeEnglishIdenticalCounts, runQuality } from './namespaces/quality.js';
 export type { QualityFileLine, QualityHostHooks, QualityJsonData, QualityRunOptions, QualityRunResult } from './namespaces/quality.js';
