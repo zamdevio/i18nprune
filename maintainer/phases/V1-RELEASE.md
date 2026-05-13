@@ -37,7 +37,23 @@ Bounded PR: prose false positives (`t (or vice versa)`-style) + tests. Pure logi
 
 ---
 
-## Session C.2 — Apps rework
+## Session C.2 — Patching hardening
+
+**Refs:** [`docs/patching/README.md`](../../docs/patching/README.md) (backlog section).
+
+Patching is already implemented and working. This session hardens it:
+
+| Slice | What |
+|-------|------|
+| Tests | Resolver + loader variants, config injection status cases, optional integration (`init → patch → sync --patch → generate`) |
+| Shared orchestration | One patching handler path for `patch`, `sync --patch`, `generate --patch`, `locales edit --patch`, `locales delete --patch` — centralize envelope + `canAsk` / `--yes` / `--json` |
+| Messaging | Tighten `patch --init` messaging when config injection skips (`skipped_existing`) |
+| Core structure | Optional folder barrels under `packages/core/src/patching/*` (no behavior change) |
+| Docs | Troubleshooting in patching README; mismatch examples in `config.md`; command docs for `--init` injection statuses |
+
+---
+
+## Session C.3 — Apps rework
 
 Update `apps/web` and `apps/workers/i18nprune` to work with the current core API after heavy Session A/A.2 migrations. Verify imports, types, and runtime adapter usage are current.
 
@@ -94,7 +110,6 @@ Execute **[`final.md`](./final.md)** §§1–2 (phase hygiene + ADR polish). The
 
 | Item | Pointer |
 |------|---------|
-| Patching hardening (tests, shared orchestration, messaging) | [`docs/patching/README.md`](../../docs/patching/README.md) backlog section |
 | `translate.policy.routing: 'auto'` advanced posture | post-v1 optional tail |
 | Worker bundle `node:` CI | [`docs/runtime/README.md`](../../docs/runtime/README.md) |
 | VitePress `@next`, `docs/exports` → `docs/sdk` | post-v1 docs |

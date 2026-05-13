@@ -34,7 +34,7 @@ So I made a decision I didn’t romanticize at the time: **stop patching**. Buil
 
 ## What got built (and how fast)
 
-**i18nprune** is that toolkit: a CLI and programmatic APIs (`i18nprune/core`, `i18nprune/core`) meant for real repos, not demos.
+**i18nprune** is that toolkit: a CLI and programmatic APIs (`@i18nprune/core`) meant for real repos, not demos.
 
 The repo history tells the blunt version: the monorepo and CLI came together in a **compressed sprint** in **spring 2026** — the kind of stretch where you’re wiring commands, JSON output, docs, and tests while your brain is still annoyed at the problem that started it.
 

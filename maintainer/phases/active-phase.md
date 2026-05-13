@@ -2,7 +2,7 @@
 
 **v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** — use first for sequencing.
 
-**Narrative focus:** **Extractor hardening (Session C)** — false-positive reduction in `packages/core/src/extractor/`. After that: apps rework (C.2) → docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
+**Narrative focus:** **Extractor hardening (Session C)** — false-positive reduction in `packages/core/src/extractor/`. After that: patching hardening (C.2) → apps rework (C.3) → docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
 
 ---
 
@@ -24,7 +24,13 @@ Pure logic work: tighten call-site parsing to reject prose false positives while
 
 ---
 
-## Apps rework (**Session C.2**)
+## Patching hardening (**Session C.2**)
+
+Harden existing patching: tests, shared orchestration, messaging, core barrels. See [`docs/patching/README.md`](../../docs/patching/README.md) backlog.
+
+---
+
+## Apps rework (**Session C.3**)
 
 Update `apps/web` and `apps/workers/i18nprune` to work with current core API after Session A/A.2 migrations.
 
@@ -45,7 +51,7 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **v1 sessions (ordered)** | **Use first** | **[`V1-RELEASE.md`](./V1-RELEASE.md)** |
 | **Core-op migrations** | **Shipped — Session A.2** | [`shipped-slices.md`](./shipped-slices.md) |
 | **Extractor hardening** | **Active — Session C** | [`extractor.md`](./extractor.md) |
-| **Patching backlog** | **Post-v1** | [`docs/patching/README.md`](../../docs/patching/README.md) |
+| **Patching hardening** | **Session C.2** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |
 
 ---
