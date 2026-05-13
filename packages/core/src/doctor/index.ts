@@ -6,15 +6,14 @@ export {
   evaluatePathsFinding,
   evaluateRuntimeFinding,
   evaluateToolsFinding,
-  runDoctor,
-} from '../doctor/index.js';
+} from './findings.js';
+export type { DoctorFindingsInputs, DoctorPathsInput } from './findings.js';
+export { runDoctor } from './run.js';
 export type {
   DoctorCheckId,
   DoctorFinding,
-  DoctorFindingsInputs,
   DoctorHostHooks,
   DoctorJsonPayload,
-  DoctorPathsInput,
   DoctorRunOptions,
   DoctorRunResult,
-} from '../doctor/index.js';
+} from '../types/doctor/index.js';

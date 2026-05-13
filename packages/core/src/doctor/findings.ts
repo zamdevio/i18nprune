@@ -1,5 +1,6 @@
 import type { DoctorCheckId, DoctorFinding } from '../types/doctor/index.js';
 
+/** Ordered list of all built-in doctor check identifiers. Stable — append-only. */
 export const DOCTOR_CHECK_IDS: readonly DoctorCheckId[] = ['runtime', 'tools', 'config', 'paths'];
 
 function parseDoctorOnlyList(raw?: string): Set<DoctorCheckId> | null {
@@ -19,6 +20,11 @@ function nodeMajorFromVersion(version: string): number {
   return m ? Number(m[1]) : 0;
 }
 
+/**
+ * Checks whether the host Node.js version satisfies the engine requirement (>= 18).
+ *
+ * @remarks Pure — receives the version string from the host, never reads `process.version`.
+ */
 export function evaluateRuntimeFinding(nodeVersion: string): DoctorFinding {
   const major = nodeMajorFromVersion(nodeVersion);
   const ok = major >= 18;
@@ -31,6 +37,12 @@ export function evaluateRuntimeFinding(nodeVersion: string): DoctorFinding {
   };
 }
 
+/**
+ * Checks whether ripgrep (`rg`) is available on `$PATH`.
+ *
+ * @remarks The host probes ripgrep availability and passes the boolean; core never
+ * spawns child processes.
+ */
 export function evaluateToolsFinding(rgAvailable: boolean): DoctorFinding {
   return {
     id: 'tools',
@@ -43,6 +55,11 @@ export function evaluateToolsFinding(rgAvailable: boolean): DoctorFinding {
   };
 }
 
+/**
+ * Reports whether an `i18nprune.config.*` file was discovered by the host.
+ *
+ * @remarks Always `ok: true` — a missing config is a warning (defaults apply), not an error.
+ */
 export function evaluateConfigFinding(
   hasConfigFile: boolean,
   configPathLabel: string | null,
@@ -58,13 +75,20 @@ export function evaluateConfigFinding(
   };
 }
 
+/** Injected path-existence facts for the `paths` doctor check. */
 export type DoctorPathsInput = {
   sourceLocale: string;
   localesDir: string;
   srcRoot: string;
+  /** Host-supplied predicate — core calls this instead of touching the filesystem directly. */
   pathExists: (p: string) => boolean;
 };
 
+/**
+ * Verifies that the resolved project paths (source locale, localesDir, srcRoot) exist on disk.
+ *
+ * @remarks Missing source locale → `error`; missing localesDir / srcRoot only → `warn`.
+ */
 export function evaluatePathsFinding(paths: DoctorPathsInput): DoctorFinding {
   const { sourceLocale, localesDir, srcRoot, pathExists } = paths;
   const srcOk = pathExists(sourceLocale);
@@ -88,12 +112,18 @@ export function evaluatePathsFinding(paths: DoctorPathsInput): DoctorFinding {
   };
 }
 
+/**
+ * Derives a process exit code from a set of doctor findings.
+ *
+ * @returns `1` if any finding is `error` (or `warn` when `strict` is true), else `0`.
+ */
 export function doctorExitCode(findings: DoctorFinding[], strict: boolean): number {
   if (findings.some((f) => f.severity === 'error')) return 1;
   if (strict && findings.some((f) => f.severity === 'warn')) return 1;
   return 0;
 }
 
+/** Injected environment facts for {@link collectDoctorFindingsFromInputs}. */
 export type DoctorFindingsInputs = {
   onlyRaw?: string;
   nodeVersion: string;
@@ -104,7 +134,13 @@ export type DoctorFindingsInputs = {
 };
 
 /**
- * Collect doctor findings from injected environment facts (no filesystem or process access inside).
+ * Collect doctor findings from injected environment facts.
+ *
+ * Runs all built-in checks (or a subset when `onlyRaw` is set), returning one
+ * {@link DoctorFinding} per check in stable order.
+ *
+ * @remarks Pure — no filesystem or process access inside. The host reads the real
+ * environment and passes the facts via the `input` parameter.
  */
 export function collectDoctorFindingsFromInputs(input: DoctorFindingsInputs): DoctorFinding[] {
   const filter = parseDoctorOnlyList(input.onlyRaw);

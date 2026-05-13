@@ -7,55 +7,50 @@ import {
   issuesFromDynamicScanCount,
   mergeIssues,
 } from '@/shared/result/index.js';
+import { resolveDynamicSitesCount } from '@/shared/cache/index.js';
+import { emitIssuesAsRunErrors, emitRunErrorFromUnknown, emitRunEvent, nowMs } from '@i18nprune/core';
+import { runDoctor as runDoctorCore } from '@i18nprune/core';
+import type { DoctorHostHooks, DoctorJsonPayload } from '@i18nprune/core';
+import type { CliJsonEnvelope, RunEmitter } from '@i18nprune/core';
 import type { Context } from '@/types/core/context/index.js';
 import type { DoctorOptions } from '@/types/commands/doctor/index.js';
-import type { CliJsonEnvelope } from '@i18nprune/core';
-import type { DoctorFinding } from '@i18nprune/core/types';
-import { collectDoctorFindingsFromInputs, doctorExitCode } from '@i18nprune/core';
-import { emitIssuesAsRunErrors, emitRunErrorFromUnknown, emitRunEvent, nowMs } from '@i18nprune/core';
-import type { RunEmitter } from '@i18nprune/core';
-import { existsRuntimeFsSync } from '@i18nprune/core';
-import { resolveDynamicSitesCount } from '@/shared/cache/index.js';
+import { createCliCoreContext } from '@/shared/context/coreContext.js';
 
-export function collectDoctorFindings(ctx: Context, opts: DoctorOptions): DoctorFinding[] {
-  return collectDoctorFindingsFromInputs({
-    onlyRaw: opts.only,
+function buildDoctorHostHooks(runtime?: { emit?: RunEmitter; runId?: string }): DoctorHostHooks {
+  return {
+    emit: runtime?.emit,
+    runId: runtime?.runId,
     nodeVersion: process.version,
     rgAvailable: isRipgrepAvailable(),
     hasConfigFile: configExists(),
     configPathLabel: configPathForContext(),
-    paths: {
-      sourceLocale: ctx.paths.sourceLocale,
-      localesDir: ctx.paths.localesDir,
-      srcRoot: ctx.paths.srcRoot,
-      pathExists: (p) => existsRuntimeFsSync(p, ctx.adapters.fs),
-    },
-  });
+  };
+}
+
+export function collectDoctorFindings(ctx: Context, opts: DoctorOptions) {
+  const coreCtx = createCliCoreContext(ctx);
+  const host = buildDoctorHostHooks();
+  return runDoctorCore(coreCtx, { only: opts.only, strict: opts.strict }, host).payload.findings;
 }
 
 export function runDoctor(
   ctx: Context,
   opts: DoctorOptions,
   runtime?: { emit?: RunEmitter; runId?: string },
-): CliJsonEnvelope<'doctor', DoctorJsonData> {
+): CliJsonEnvelope<'doctor', DoctorJsonPayload> {
   emitRunEvent(runtime?.emit, { type: 'run.started', op: 'doctor', runId: runtime?.runId, at: nowMs() });
   try {
-    const findings = collectDoctorFindings(ctx, opts);
+    const coreCtx = createCliCoreContext(ctx);
+    const host = buildDoctorHostHooks(runtime);
+    const result = runDoctorCore(coreCtx, { only: opts.only, strict: opts.strict }, host);
     const dynamicKeySites = resolveDynamicSitesCount(ctx);
-    const strict = Boolean(opts.strict);
-    const code = doctorExitCode(findings, strict);
-    const data: DoctorJsonData = {
-      kind: 'doctor',
-      findings,
-      strict,
-    };
     const issues = mergeIssues(
       issuesFromDiscoveryWarnings(ctx.meta.warnings),
-      issuesFromDoctorFindings(findings),
+      issuesFromDoctorFindings(result.payload.findings),
       issuesFromDynamicScanCount(dynamicKeySites),
     );
-    const envelope = buildCliJsonEnvelope('doctor', data, {
-      ok: code === 0,
+    const envelope = buildCliJsonEnvelope('doctor', result.payload, {
+      ok: result.exitCode === 0,
       issues,
       cwd: process.cwd(),
     });
@@ -81,7 +76,7 @@ export function runDoctor(
       at: nowMs(),
       ok: envelope.ok,
       issueCount: envelope.issues.length,
-      counts: { findings: findings.length },
+      counts: { findings: result.payload.findings.length },
     });
     return envelope;
   } catch (err) {
@@ -106,9 +101,3 @@ export function runDoctor(
     throw err;
   }
 }
-
-type DoctorJsonData = {
-  kind: 'doctor';
-  findings: DoctorFinding[];
-  strict: boolean;
-};

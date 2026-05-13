@@ -23,9 +23,10 @@ import { resolvePatchingProjectRoot } from '@/shared/patching/scaffoldI18nLayout
 import { logger } from '@/utils/logger/index.js';
 import { canPrintWarn } from '@/utils/logger/policy.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
 import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
-import type { DoctorFinding } from '@i18nprune/core';
+import type { DoctorFinding, DoctorJsonPayload } from '@i18nprune/core';
 import type { DoctorOptions } from '@/types/commands/doctor/index.js';
 
 function resolveDoctorData(
@@ -67,15 +68,17 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
         const { findings, strict } = envelopeWithPatching.data;
         const code = doctorExitCode(findings, strict);
         console.log(stringifyEnvelope(envelopeWithPatching));
-        process.exitCode = code === 0 && patchingAnalysis.diagnostics.every((d) => d.severity !== 'error') ? 0 : 1;
+        applyCliCiExitGate(
+          code === 0 && patchingAnalysis.diagnostics.every((d) => d.severity !== 'error'),
+        );
       } catch (err) {
-        const empty = {
-          kind: 'doctor' as const,
-          findings: [] as DoctorFinding[],
+        const empty: DoctorJsonPayload = {
+          kind: 'doctor',
+          findings: [],
           strict: Boolean(opts.strict),
         };
         console.log(stringifyEnvelope(buildIoReadFailureEnvelope('doctor', empty, ctx, err)));
-        process.exitCode = 1;
+        applyCliCiExitGate(false);
       }
       return;
     }
@@ -144,7 +147,7 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
       { run },
     );
 
-    process.exitCode = code === 0 && patchingAnalysis.diagnostics.every((d) => d.severity !== 'error') ? 0 : 1;
+    applyCliCiExitGate(code === 0 && patchingAnalysis.diagnostics.every((d) => d.severity !== 'error'));
   } finally {
     wall.dispose();
   }
