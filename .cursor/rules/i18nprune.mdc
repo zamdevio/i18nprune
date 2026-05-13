@@ -9,7 +9,7 @@ alwaysApply: true
 - Shipped receipts: `maintainer/phases/shipped-slices.md`.
 - Hub: `maintainer/phases/V1-RELEASE.md`. Active sprint focus: `maintainer/phases/active-phase.md`.
 - Contributor/agent subsystem maps (not user docs): `maintainer/systems/README.md`.
-- Agent coding guides: `maintainer/agents/README.md`. **Git hygiene:** `maintainer/agents/git.md` (commit style, bundling rules, checklist).
+- Agent coding guides: `maintainer/agents/README.md`. **Architecture:** `maintainer/agents/architecture.md`. **Git hygiene:** `maintainer/agents/git.md`. **JSDoc:** `maintainer/agents/jsdoc.md` (when/where/how). Task checklist: `maintainer/phases/jsdoc.md`.
 
 ## Build / test gate
 - Required before commit: `pnpm typecheck` and `pnpm test`.

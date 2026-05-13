@@ -32,6 +32,6 @@
 
 ## 4 — Last step
 
-- [ ] Update **`maintainer/agents/analysis.md`** to match the final repo state (core/CLI split, tests, docs) and remove any stale "planned" notes that no longer apply.
+- [ ] Verify **`maintainer/agents/`** docs match the final repo state (architecture, rules, jsdoc, git).
 - [ ] Ensure **`maintainer/README.md`** and **`maintainer/phases/V1-RELEASE.md`** describe the post-v1 maintenance story (what lives where, which phases remain for extensions).
 - [ ] Delete **`maintainer/phases/final.md`** when you are ready to tag—this checklist must not linger after publish prep is finished.

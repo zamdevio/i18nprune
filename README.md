@@ -156,7 +156,7 @@ How **`@i18nprune/core`** runs per environment is covered on **[docs.i18nprune.d
 
 **Repo patterns, PR expectations, and human + agent workflows:** [docs/contributors/README.md](./docs/contributors/README.md)
 
-**Coding agents & deep onboarding** (architecture map, Git commit discipline): [docs/agents/README.md](./docs/agents/README.md) · [analysis](./docs/agents/analysis.md) · [git](./docs/agents/git.md)
+**Coding agents & deep onboarding** (architecture, rules, Git discipline): [docs/agents/README.md](./docs/agents/README.md) · [git](./docs/agents/git.md)
 
 ### Story & tooling
 

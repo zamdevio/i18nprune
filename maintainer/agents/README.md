@@ -1,21 +1,32 @@
-# Contributors & coding agents
+# Agents & contributors
 
-Helper docs for humans and **coding agents** working in this repo: architecture map, Git discipline, and implementation rules.
+Guides for humans and coding agents working in this repo.
 
-| Page | Topic |
-|------|-------|
-| [Analysis](./analysis.md) | **Start here** — full project map, layers, commands, tests, extension points |
-| [Git](./git.md) | **Commit plan** — how to slice commits (command + docs together); Conventional Commits |
-| [Vision](./vision.md) | Goals and constraints |
-| [Patterns](./patterns.md) | Core architecture and extension patterns |
-| [Rules](./rules.md) | TypeScript, CLI, tests |
-| [Logging](./logging.md) | `logger` + policy |
-| [Extraction](./extraction.md) | Literal key extraction |
+| Page | What it covers |
+|------|----------------|
+| [**Architecture**](./architecture.md) | Package topology, core purity, `runXxx` pattern, type/barrel layout, import discipline, health gates (knip/madge), cross-surface parity |
+| [**Rules**](./rules.md) | TypeScript, output contract, error handling, testing, logging, non-interactive safety, commit discipline |
+| [**JSDoc**](./jsdoc.md) | When/where/how to write JSDoc across core, CLI, and apps |
+| [**Git**](./git.md) | Commit style, bundling rules, Conventional Commits, pre-push checklist |
 
-Run **`pnpm typecheck`** and **`pnpm test`** before large changes. For a fresh repository history, follow the ordered plan in **[git.md](./git.md)**.
+## Onboarding (first steps)
 
-**Contributor sequencing:** see **`maintainer/README.md`** (repo root). **Temporary plans and scratch** go in **`maintainer/temp/`** (**gitignored** — not in git history; look on disk locally when the user references WIP there).
+1. Read [`architecture.md`](./architecture.md) and [`rules.md`](./rules.md).
+2. Run `pnpm install`, `pnpm typecheck`, `pnpm test`.
+3. Skim `packages/cli/bin/cli.ts` and one command end-to-end (e.g. `packages/cli/src/commands/validate/`).
+4. Check the active sprint: `maintainer/phases/active-phase.md`.
+5. Follow [`git.md`](./git.md) for commit hygiene.
 
 ## Docs site (VitePress)
 
-Root **`docs/`** is synced into **`apps/docs/content/`**. When you **add, rename, or remove** a Markdown page that should appear in the left nav, update **`apps/docs/.vitepress/sidebar.ts`** in the same change (see the **Issues reference** group for per-topic issue pages). Forgetting this leaves new pages reachable only by URL or search.
+`docs/` is synced into `apps/docs/content/`. When adding, renaming, or removing a markdown page that should appear in the nav, update `apps/docs/.vitepress/sidebar.ts` in the same change.
+
+## Where things live
+
+| Need | Location |
+|------|----------|
+| Active plans | `maintainer/phases/` |
+| Shipped receipts | `maintainer/phases/shipped-slices.md` |
+| System maps | `maintainer/systems/` |
+| Scratch / spikes | `maintainer/temp/` (gitignored) |
+| User-facing docs | `docs/` |

@@ -183,10 +183,8 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
       collapsed: true,
       items: [
         { text: 'Agents hub', link: '/agents/' },
-        { text: 'Analysis (repo map)', link: '/agents/analysis' },
         { text: 'Git hygiene', link: '/agents/git' },
         { text: 'Rules', link: '/agents/rules' },
-        { text: 'Patterns', link: '/agents/patterns' },
         { text: 'Changelog', link: '/changelog/' },
         { text: 'Versioning / npm checks', link: '/versioning' },
       ],
