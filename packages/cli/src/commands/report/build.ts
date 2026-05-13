@@ -1,16 +1,6 @@
 import os from 'node:os';
-import { computeMissingLiteralKeys } from '@/shared/validate/index.js';
-import { listSourceFiles } from '@i18nprune/core';
-import { toExtractorScanInput } from '@/shared/extractor/index.js';
-import { CLI_VERSION } from '@/constants/cli.js';
-import { PROJECT_REPORT_KIND } from '@/constants/env.js';
-import { PROJECT_REPORT_SCHEMA_VERSION } from '@/constants/report.js';
-import {
-  type ProjectReportDocument,
-} from '@/types/command/report/index.js';
+import type { ReportEnvironmentSnapshot } from '@i18nprune/core';
 import type { Context } from '@/types/core/context/index.js';
-import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
-import { extractor } from '@i18nprune/core';
 
 function runtimeFamily(): 'windows' | 'darwin' | 'linux' | 'linux-wsl' {
   if (process.platform === 'win32') return 'windows';
@@ -35,50 +25,17 @@ function readLinuxDistro(fsPort: Context['adapters']['fs']): string | undefined 
   }
 }
 
-export function buildProjectReportDocument(ctx: Context): ProjectReportDocument {
-  const cwd = process.cwd();
-  const raw = readHostJsonUnknown(ctx.paths.sourceLocale, ctx.adapters.fs);
-  const missing = computeMissingLiteralKeys(ctx, raw);
-  const scanInput = toExtractorScanInput(ctx);
-  const dynamicSites = extractor.dynamic.scanProjectDynamicKeySites(scanInput);
-  const keyObservations = extractor.keySites.scanProjectKeyObservations(scanInput);
-  const projectFs = { fs: ctx.adapters.fs, path: ctx.adapters.path };
-  const sourceFilesScannedCount = listSourceFiles(projectFs, ctx.paths.srcRoot, ctx.config.exclude).length;
-  const sourceLocaleTag = ctx.adapters.path.basename(ctx.paths.sourceLocale, '.json');
+/** Probe `process.*` and `os.*` to build the environment snapshot for the report document. */
+export function buildReportEnvironmentSnapshot(fsPort: Context['adapters']['fs']): ReportEnvironmentSnapshot {
   return {
-    kind: PROJECT_REPORT_KIND,
-    schemaVersion: PROJECT_REPORT_SCHEMA_VERSION,
-    generatedAt: new Date().toISOString(),
-    toolVersion: CLI_VERSION,
-    project: {
-      cwd,
-      sourceLocalePath: ctx.paths.sourceLocale,
-      localesDir: ctx.paths.localesDir,
-      srcRoot: ctx.paths.srcRoot,
-      sourceLocaleTag,
-      environment: {
-        platform: process.platform,
-        arch: process.arch,
-        nodeVersion: process.version,
-        osRelease: os.release(),
-        distro: readLinuxDistro(ctx.adapters.fs),
-        runtimeFamily: runtimeFamily(),
-        ...(process.env.WSL_DISTRO_NAME
-          ? { wslDistroName: process.env.WSL_DISTRO_NAME }
-          : {}),
-      },
-    },
-    summary: {
-      missingKeysCount: missing.length,
-      dynamicSitesCount: dynamicSites.length,
-      keyObservationsCount: keyObservations.length,
-      sourceFilesScannedCount,
-      ok: missing.length === 0,
-    },
-    details: {
-      missingKeys: missing,
-      dynamicSites: dynamicSites as unknown[],
-      keyObservations: keyObservations as unknown[],
-    },
+    platform: process.platform,
+    arch: process.arch,
+    nodeVersion: process.version,
+    osRelease: os.release(),
+    distro: readLinuxDistro(fsPort),
+    runtimeFamily: runtimeFamily(),
+    ...(process.env.WSL_DISTRO_NAME
+      ? { wslDistroName: process.env.WSL_DISTRO_NAME }
+      : {}),
   };
 }

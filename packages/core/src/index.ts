@@ -316,6 +316,20 @@ export type {
   DoctorRunResult,
 } from './namespaces/doctor.js';
 
+export * as report from './namespaces/report.js';
+export {
+  buildReportDocument,
+  runReport,
+} from './namespaces/report.js';
+export type {
+  BuildReportDocumentInput,
+  ReportEnvironmentSnapshot,
+  ReportHostHooks,
+  ReportJsonPayload,
+  ReportRunOptions,
+  ReportRunResult,
+} from './namespaces/report.js';
+
 export * as quality from './namespaces/quality.js';
 export { buildQualityJsonData, computeEnglishIdenticalCounts, runQuality } from './namespaces/quality.js';
 export type { QualityFileLine, QualityHostHooks, QualityJsonData, QualityRunOptions, QualityRunResult } from './namespaces/quality.js';

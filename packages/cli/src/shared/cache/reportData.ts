@@ -1,4 +1,7 @@
-import { buildProjectReportDocument } from '@/commands/report/build.js';
+import { buildReportDocument } from '@i18nprune/core';
+import { CLI_VERSION } from '@/constants/cli.js';
+import { buildReportEnvironmentSnapshot } from '@/commands/report/build.js';
+import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { ProjectReportDocument } from '@/types/command/report/index.js';
 import { getOrBuildProjectReportWithCache } from './dispatch.js';
@@ -9,6 +12,17 @@ import type { ProjectReportDataMemo } from '@/types/shared/cache/index.js';
 
 const projectReportDataByContext = new WeakMap<Context, ProjectReportDataMemo>();
 const PROJECT_REPORT_CACHE_OP: OperationId = 'report';
+
+function buildProjectReportDocumentFromCtx(ctx: Context): ProjectReportDocument {
+  const coreCtx = createCliCoreContext(ctx);
+  const { document } = buildReportDocument(coreCtx, {
+    environment: buildReportEnvironmentSnapshot(ctx.adapters.fs),
+    cwd: process.cwd(),
+    toolVersion: CLI_VERSION,
+    emit: createCliRunEmitter(ctx.run),
+  });
+  return document as ProjectReportDocument;
+}
 
 export function resolveProjectReportData(ctx: Context): { document: ProjectReportDocument; fromCache: boolean } {
   const memo = projectReportDataByContext.get(ctx);
@@ -21,7 +35,7 @@ export function resolveProjectReportData(ctx: Context): { document: ProjectRepor
     return memo;
   }
 
-  const out = getOrBuildProjectReportWithCache(ctx, () => buildProjectReportDocument(ctx));
+  const out = getOrBuildProjectReportWithCache(ctx, () => buildProjectReportDocumentFromCtx(ctx));
   emitCacheDispatchMessages({
     emit: createCliRunEmitter(ctx.run),
     op: PROJECT_REPORT_CACHE_OP,
@@ -38,7 +52,7 @@ export function resolveProjectReportData(ctx: Context): { document: ProjectRepor
 
 /** Rebuild/refresh cached project report after mutating commands write files. */
 export function refreshProjectReportCache(ctx: Context): void {
-  const out = getOrBuildProjectReportWithCache(ctx, () => buildProjectReportDocument(ctx));
+  const out = getOrBuildProjectReportWithCache(ctx, () => buildProjectReportDocumentFromCtx(ctx));
   emitCacheDispatchMessages({
     emit: createCliRunEmitter(ctx.run),
     op: PROJECT_REPORT_CACHE_OP,
