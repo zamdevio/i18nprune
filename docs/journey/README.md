@@ -38,7 +38,7 @@ So I made a decision I didn’t romanticize at the time: **stop patching**. Buil
 
 The repo history tells the blunt version: the monorepo and CLI came together in a **compressed sprint** in **spring 2026** — the kind of stretch where you’re wiring commands, JSON output, docs, and tests while your brain is still annoyed at the problem that started it.
 
-If you want the drier technical origin, see [`docs/origin/README.md`](../origin/README.md). If you want the meta story about tooling and Cursor accelerating the grind — without replacing human decisions — see [`docs/cursor/README.md`](../cursor/README.md).
+The repo history tells the rest.
 
 ---
 

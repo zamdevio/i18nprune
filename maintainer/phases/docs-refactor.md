@@ -1,8 +1,8 @@
 # Docs refactor phase
 
-Status: Planned
+Status: Planned (scoped for v1 — Session D in [`V1-RELEASE.md`](./V1-RELEASE.md))
 
-This phase defines how to evolve docs into a clear, official-quality product site without mixing public docs with maintainer-internal planning.
+This phase defines how to evolve docs into a clear, official-quality product site. **v1 scope** is focused on nav reduction (~10 categories), README rewrite, SDK quickstart, and tree flattening. Full topology linkage sweeps and repository health docs splits are deferred post-v1.
 
 ## Why this phase exists
 

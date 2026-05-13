@@ -83,4 +83,3 @@ An extension that **does not fork** i18n semantics: diagnostics and commands mus
 ## See also
 
 - [JSON output (`--json`)](../../../docs/json/README.md) · [Command orchestration](../../../docs/commands/orchestration/README.md)
-- [Launch & adoption](../../../docs/launch/README.md)

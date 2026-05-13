@@ -1,8 +1,8 @@
 # Active sprint
 
-**v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** (sessions A–H — use first for sequencing).
+**v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** — use first for sequencing.
 
-**Narrative focus:** Core-op migrations (Session A.2) **shipped** — all ops now have core entries. Next: **extractor / false-positive hardening (Session C)** → patching backlog in **`docs/patching/README.md`**. Hub overview: **`maintainer/phases/README.md`**.
+**Narrative focus:** **Extractor hardening (Session C)** — false-positive reduction in `packages/core/src/extractor/`. After that: apps rework (C.2) → docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
 
 ---
 
@@ -16,35 +16,25 @@
 
 ---
 
-## Core-op migrations (**Session A.2 — shipped**)
+## Extractor hardening (**Session C — active**)
 
-All CLI-owned command orchestration migrated to core `runXxx` entries.
+**Docs:** [`extractor.md`](./extractor.md) (§0).
 
-| # | command | status |
-|---|---------|--------|
-| 1 | `validate` → `runValidate` | **Shipped** |
-| 2 | `report` → `runReport` | **Shipped** |
-| 3 | `doctor` → `runDoctor` | **Shipped** |
-| 4 | `locales dynamic` → `runDynamic` | **Shipped** |
-| 5 | `locales list/edit/delete` | **Shipped** |
+Pure logic work: tighten call-site parsing to reject prose false positives while preserving real commented-call detection. Add regression tests.
 
 ---
 
-## Extractor hardening (**Session C**)
+## Apps rework (**Session C.2**)
 
-**Docs:** [`extractor.md`](./extractor.md) (§0), [`docs/regex/key-sites-and-dynamic.md`](../../docs/regex/key-sites-and-dynamic.md).
-
----
-
-## Patching backlog (**Session D**)
-
-Tracked publicly under **[`docs/patching/README.md`](../../docs/patching/README.md)** ("Maintainer backlog" section).
+Update `apps/web` and `apps/workers/i18nprune` to work with current core API after Session A/A.2 migrations.
 
 ---
 
-## Public API / programmatic exports
+## Docs (**Session D**)
 
-Normative docs: **`docs/json/`**, **`docs/exports/`**.
+**Plan:** [`docs-refactor.md`](./docs-refactor.md) (scoped to v1-essential items).
+
+Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree flattening.
 
 ---
 
@@ -54,9 +44,9 @@ Normative docs: **`docs/json/`**, **`docs/exports/`**.
 |-------|--------|-----|
 | **v1 sessions (ordered)** | **Use first** | **[`V1-RELEASE.md`](./V1-RELEASE.md)** |
 | **Core-op migrations** | **Shipped — Session A.2** | [`shipped-slices.md`](./shipped-slices.md) |
-| **Extractor / keySites follow-ups** | **Session C** | [`extractor.md`](./extractor.md), [`docs/regex/`](../../docs/regex/README.md) |
-| **Patching backlog** | **Session D** | [`docs/patching/README.md`](../../docs/patching/README.md) |
-| **Standard toolkit** | **Parallel / Session E** | [`standard-toolkit.md`](./standard-toolkit.md) |
+| **Extractor hardening** | **Active — Session C** | [`extractor.md`](./extractor.md) |
+| **Patching backlog** | **Post-v1** | [`docs/patching/README.md`](../../docs/patching/README.md) |
+| **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |
 
 ---
 
@@ -64,8 +54,11 @@ Normative docs: **`docs/json/`**, **`docs/exports/`**.
 
 Baseline CLI slices + exports parity: **[`shipped-slices.md`](./shipped-slices.md)**
 
-**2026-05 (doctor + cache refactor):**
+**2026-05 (core-op migrations):**
 
-- **Doctor:** `runDoctor` core entry shipped — pure orchestration with host-injected environment facts. SDK example at `examples/sdk/doctor/runDoctor.ts`.
-- **Cache:** Sub-folder reorganization (`io/`, `setup/`), circular dependency elimination, JSDoc, `baselineFiles` mechanism for accurate delta reporting.
-- **Translate policy + providers:** Steps 1–10 fully shipped; `fill` collapsed into `generate --resume`. Docs moved to `shipped-slices.md`.
+- **All ops migrated** to core `runXxx` entries — CLI is thin host. `core-architecture.md` plan deleted (fully shipped).
+- **Doctor:** `runDoctor` core entry. SDK example at `examples/sdk/doctor/runDoctor.ts`.
+- **Report:** `runReport` core entry with environment snapshot injection.
+- **Locales:** `runDynamic`, `runLocalesList`, `writeLocaleMetaEdit`, `deleteLocaleFiles`.
+- **Cache:** Sub-folder reorganization (`io/`, `setup/`), circular dependency elimination, `baselineFiles` mechanism.
+- **Agents:** Reconstructed `maintainer/agents/` — `architecture.md`, `jsdoc.md`, `rules.md`, `git.md`.

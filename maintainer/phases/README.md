@@ -29,7 +29,7 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 | [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |
 | [`final.md`](./final.md) | **Gate** — one-time pre-publish checklist (delete after release) |
 | [`V1-RELEASE.md`](./V1-RELEASE.md) | **Hub** — ordered v1 sessions |
-| [`docs-refactor.md`](./docs-refactor.md) | Reference |
+| [`docs-refactor.md`](./docs-refactor.md) | **Active** — v1-scoped docs nav reduction + SDK quickstart |
 
 ---
 

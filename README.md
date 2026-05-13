@@ -95,9 +95,6 @@ Copy **`i18nprune.config.ts.example`** to **`i18nprune.config.ts`** (or `.mts` /
 | **npm** | [npmjs.com/package/i18nprune](https://www.npmjs.com/package/i18nprune) *(live after first publish)* |
 | **Repo docs (source of truth)** | [`docs/README.md`](./docs/README.md) |
 | **Exports (config + core)** | [`docs/exports/README.md`](./docs/exports/README.md) |
-| **Why it exists** (backstory) | [`docs/origin/README.md`](./docs/origin/README.md) |
-| **How it was built** (Cursor, agents, limits) | [`docs/cursor/README.md`](./docs/cursor/README.md) |
-| **Launch & adoption** (positioning, public checklist) | [`docs/launch/README.md`](./docs/launch/README.md) |
 
 Local docs preview: **`pnpm docs:dev`** — VitePress dev server (**`8282`** by default) plus **live sync** from **`docs/`** → **`apps/docs/content/`**.
 
@@ -157,12 +154,6 @@ How **`@i18nprune/core`** runs per environment is covered on **[docs.i18nprune.d
 **Repo patterns, PR expectations, and human + agent workflows:** [docs/contributors/README.md](./docs/contributors/README.md)
 
 **Coding agents & deep onboarding** (architecture, rules, Git discipline): [docs/agents/README.md](./docs/agents/README.md) · [git](./docs/agents/git.md)
-
-### Story & tooling
-
-**Why i18nprune exists** — real-world context (pressure from a larger system, standalone toolkit decision): [docs/origin/README.md](./docs/origin/README.md).
-
-**How this repository was shipped** — Cursor, agent-assisted iteration, plan limits, and what stayed human-owned: [docs/cursor/README.md](./docs/cursor/README.md).
 
 ---
 
