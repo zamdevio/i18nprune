@@ -1,5 +1,5 @@
-import type { CacheHashText } from '../types/cache/index.js';
-import type { RuntimePathPort } from '../types/runtime/index.js';
+import type { CacheHashText } from '../../types/cache/index.js';
+import type { RuntimePathPort } from '../../types/runtime/index.js';
 
 function fallbackHashText(text: string): string {
   let hash = 0xcbf29ce484222325n;
@@ -16,7 +16,7 @@ function normalizeProjectRoot(projectRoot: string, pathPort?: Pick<RuntimePathPo
   return resolved.replace(/\\/g, '/').toLowerCase();
 }
 
-/** Stable project id from a normalized project root path. */
+/** Stable 16-char hex project id derived from the normalized project root path. */
 export function computeCacheProjectId(
   projectRoot: string,
   input: { path?: Pick<RuntimePathPort, 'resolve'>; hashText?: CacheHashText } = {},
@@ -24,7 +24,7 @@ export function computeCacheProjectId(
   return (input.hashText ?? fallbackHashText)(normalizeProjectRoot(projectRoot, input.path)).slice(0, 16);
 }
 
-/** Content hash helper for file-level cache records. */
+/** Content hash for file-level cache records; uses the runtime hasher when available, otherwise FNV-1a. */
 export function computeCacheContentHash(text: string, hashText?: CacheHashText): string {
   return (hashText ?? fallbackHashText)(text);
 }

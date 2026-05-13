@@ -1,15 +1,13 @@
 import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js';
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
-import { emitCacheDispatchMessages, getOrBuildCachedProjectData } from '../cache/index.js';
+import { ANALYSIS_CACHE_KEY, emitCacheDispatchMessages, getOrBuildCachedProjectData } from '../cache/index.js';
 import type { DynamicKeySite } from '../types/extractor/dynamic/index.js';
 import type { KeyObservation } from '../types/extractor/keySites/index.js';
 import type { ProjectLiteralKeyUsage } from '../extractor/projectLiteralKeyUsage.js';
 import type { CacheDispatchInfo } from '../types/cache/index.js';
 import type { CoreContext } from '../types/generate/index.js';
 import type { OperationId, RunEmitter } from '../types/shared/run/index.js';
-
-const PROJECT_ANALYSIS_CACHE_KEY = 'project-analysis-v1';
 
 export type ProjectAnalysisCacheData = {
   version: 1;
@@ -75,7 +73,7 @@ export function resolveProjectAnalysis(ctx: CoreContext, opts: ProjectAnalysisRe
   }
 
   const result = getOrBuildCachedProjectData<ProjectAnalysisCacheData>({
-    cacheKey: PROJECT_ANALYSIS_CACHE_KEY,
+    cacheKey: ANALYSIS_CACHE_KEY,
     state: cacheCtx.state,
     runtime: cacheCtx.runtime,
     sourceLocalePath: ctx.paths.sourceLocale,
@@ -83,6 +81,7 @@ export function resolveProjectAnalysis(ctx: CoreContext, opts: ProjectAnalysisRe
     exclude: ctx.config.exclude,
     producer: () => scanProjectAnalysis(ctx),
     parseCachedData: parseProjectAnalysisCacheData,
+    baselineFiles: cacheCtx.baselineFiles,
   });
   if (opts.emit !== undefined && opts.op !== undefined) {
     emitCacheDispatchMessages({

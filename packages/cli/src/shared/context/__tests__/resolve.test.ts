@@ -150,6 +150,7 @@ describe('resolveContext CLI scan exclude flags', () => {
     expect(ctx.meta.cache.reason).toBe('default');
     expect(ctx.meta.cache.projectId).toBe(expectedCache.projectId);
     expect(ctx.meta.cache.filesPath.endsWith(path.join('projects', expectedCache.projectId, 'files.json'))).toBe(true);
+    expect(ctx.meta.cache.readOnly).toBe(false);
   });
 
   it('honors --no-cache via cli globals', async () => {

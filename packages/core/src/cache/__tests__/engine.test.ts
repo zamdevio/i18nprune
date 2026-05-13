@@ -1,8 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { diffProjectFiles, mergeProjectFilesState } from '../index.js';
+import { computeInputFilesEpoch, diffProjectFiles } from '../index.js';
 
 describe('cache engine', () => {
-  it('diffs and merges file records', () => {
+  it('computeInputFilesEpoch changes when the tracked map shape changes', () => {
+    const a = { 'x.ts': { hash: '1', size: 1, mtimeMs: 0, updatedAt: 't' } };
+    const b = {
+      'x.ts': { hash: '1', size: 1, mtimeMs: 0, updatedAt: 't' },
+      'y.ts': { hash: '2', size: 2, mtimeMs: 0, updatedAt: 't' },
+    };
+    expect(computeInputFilesEpoch(a)).not.toBe(computeInputFilesEpoch(b));
+  });
+
+  it('diffProjectFiles categorizes added, changed, deleted, and unchanged', () => {
     const previous = {
       a: { hash: '1', size: 10, mtimeMs: 100, updatedAt: 'x' },
       b: { hash: '2', size: 20, mtimeMs: 200, updatedAt: 'x' },
@@ -16,9 +25,5 @@ describe('cache engine', () => {
     expect(delta.changed).toEqual(['b']);
     expect(delta.deleted).toEqual(['a']);
     expect(delta.unchanged).toEqual([]);
-
-    const merged = mergeProjectFilesState(previous, current, delta);
-    expect(Object.keys(merged).sort()).toEqual(['b', 'c']);
-    expect(merged.b?.hash).toBe('3');
   });
 });

@@ -5,7 +5,7 @@ import path from 'node:path';
 import type { CacheRuntime, RuntimeAdapters } from '@i18nprune/core';
 import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 
-export function nodeCacheHashText(text: string): string {
+function nodeCacheHashText(text: string): string {
   return crypto.createHash('sha256').update(text).digest('hex');
 }
 

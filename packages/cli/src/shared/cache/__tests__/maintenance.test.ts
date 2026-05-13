@@ -61,14 +61,16 @@ describe('shared/cache/maintenance', () => {
     const { state } = initializeCliCacheState({ projectRoot: root, cacheRootDir });
     fs.mkdirSync(state.projectDir, { recursive: true });
     fs.writeFileSync(state.filesPath, '{not json', 'utf8');
-    fs.writeFileSync(state.runPath, '{not json', 'utf8');
+    fs.writeFileSync(state.snapshotPath, '{not json', 'utf8');
+    fs.writeFileSync(state.analysisPath, '{not json', 'utf8');
 
     const out = prepareCacheForRun(state, buildCliCacheRuntime());
 
     expect(out.warnings.filter((w) => w.code === 'cache_malformed').map((w) => w.path).sort()).toEqual(
-      [state.filesPath, state.runPath].sort(),
+      [state.filesPath, state.snapshotPath, state.analysisPath].sort(),
     );
     expect(fs.existsSync(state.filesPath)).toBe(false);
-    expect(fs.existsSync(state.runPath)).toBe(false);
+    expect(fs.existsSync(state.snapshotPath)).toBe(false);
+    expect(fs.existsSync(state.analysisPath)).toBe(false);
   });
 });

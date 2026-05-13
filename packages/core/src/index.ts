@@ -305,6 +305,15 @@ export {
   evaluatePathsFinding,
   evaluateRuntimeFinding,
   evaluateToolsFinding,
+  runDoctor,
+} from './namespaces/doctor.js';
+export type {
+  DoctorCheckId,
+  DoctorFinding,
+  DoctorHostHooks,
+  DoctorJsonPayload,
+  DoctorRunOptions,
+  DoctorRunResult,
 } from './namespaces/doctor.js';
 
 export * as quality from './namespaces/quality.js';
@@ -396,9 +405,17 @@ export type {
 
 export * as cache from './namespaces/cache.js';
 export {
+  ANALYSIS_CACHE_KEY,
   CACHE_SCHEMA_VERSION,
+  LEGACY_ANALYSIS_BASENAME,
+  LEGACY_SNAPSHOT_BASENAME,
+  MAX_PROJECT_FILES_BYTES,
+  MAX_PROJECTS_INDEX_BYTES,
+  MAX_SNAPSHOT_BYTES,
+  cacheSlotReadPaths,
   computeCacheContentHash,
   computeCacheProjectId,
+  computeInputFilesEpoch,
   defaultProjectFilesState,
   defaultProjectsIndex,
   diffProjectFiles,
@@ -406,23 +423,22 @@ export {
   emitCacheMemoryHitMessage,
   getOrBuildCachedProjectData,
   initializeCacheState,
+  isProjectCacheWritable,
   loadProjectFilesState,
   loadProjectRunState,
   loadProjectsIndex,
-  MAX_PROJECT_FILES_BYTES,
-  MAX_PROJECT_RUN_BYTES,
-  MAX_PROJECTS_INDEX_BYTES,
   maybeHealCacheIndex,
-  mergeProjectFilesState,
   normalizeProjectRootKey,
   nowIso,
   prepareCacheForRun,
   readJsonFileWithLimit,
   resolveCacheState,
+  resolveCacheSlotPath,
   saveProjectFilesState,
   saveProjectRunState,
   saveProjectsIndex,
   touchProjectIndex,
+  tryDeleteCacheFile,
   writeJsonAtomic,
 } from './namespaces/cache.js';
 export type {
@@ -434,6 +450,7 @@ export type {
   CacheDispatchStatus,
   CacheFileDelta,
   CacheHashText,
+  CacheInputFilesEpochDebug,
   CacheProjectFileRecord,
   CacheProjectFilesState,
   CacheProjectRunState,

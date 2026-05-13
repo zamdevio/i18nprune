@@ -1,32 +1,46 @@
-export { computeCacheContentHash, computeCacheProjectId } from './hash.js';
-export { initializeCacheState, resolveCacheState } from './paths.js';
 export {
-  MAX_PROJECT_FILES_BYTES,
-  MAX_PROJECT_RUN_BYTES,
-  MAX_PROJECTS_INDEX_BYTES,
-  nowIso,
-  readJsonFileWithLimit,
-  writeJsonAtomic,
-} from './helpers.js';
-export { diffProjectFiles, mergeProjectFilesState } from './engine.js';
-export {
+  computeCacheContentHash,
+  computeCacheProjectId,
+  defaultProjectFilesState,
   defaultProjectsIndex,
+  loadProjectFilesState,
+  loadProjectRunState,
   loadProjectsIndex,
   maybeHealCacheIndex,
   normalizeProjectRootKey,
-  saveProjectsIndex,
-  touchProjectIndex,
-} from './projects.js';
-export {
-  defaultProjectFilesState,
-  loadProjectFilesState,
-  loadProjectRunState,
+  nowIso,
+  readJsonFileWithLimit,
   saveProjectFilesState,
   saveProjectRunState,
-} from './state.js';
-export { prepareCacheForRun } from './maintenance.js';
+  saveProjectsIndex,
+  textByteLength,
+  touchProjectIndex,
+  writeJsonAtomic,
+} from './io/index.js';
+export {
+  cacheSlotReadPaths,
+  initializeCacheState,
+  isProjectCacheWritable,
+  loadProjectRunEnvelopeFromCandidates,
+  prepareCacheForRun,
+  resolveCacheSlotPath,
+  resolveCacheState,
+  tryDeleteCacheFile,
+  validateProjectFilesPayload,
+  validateProjectRunEnvelope,
+} from './setup/index.js';
+export { diffProjectFiles, computeInputFilesEpoch } from './engine.js';
 export { getOrBuildCachedProjectData } from './dispatch.js';
 export { emitCacheDispatchMessages, emitCacheMemoryHitMessage } from './events.js';
+export {
+  ANALYSIS_CACHE_KEY,
+  CACHE_SCHEMA_VERSION,
+  LEGACY_ANALYSIS_BASENAME,
+  LEGACY_SNAPSHOT_BASENAME,
+  MAX_PROJECT_FILES_BYTES,
+  MAX_PROJECTS_INDEX_BYTES,
+  MAX_SNAPSHOT_BYTES,
+} from '../shared/constants/cache.js';
 export type {
   CachedProjectInput,
   CacheDisableReason,
@@ -37,6 +51,7 @@ export type {
   CacheDispatchStatus,
   CacheFileDelta,
   CacheHashText,
+  CacheInputFilesEpochDebug,
   CacheProjectFileRecord,
   CacheProjectFilesState,
   CacheProjectRunState,
@@ -46,4 +61,3 @@ export type {
   CacheStateInput,
   CacheWarning,
 } from '../types/cache/index.js';
-export { CACHE_SCHEMA_VERSION } from '../types/cache/index.js';

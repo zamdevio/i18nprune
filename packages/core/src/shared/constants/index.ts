@@ -1,3 +1,4 @@
+export * from './cache.js';
 export * from './docs.js';
 export * from './issueCodes.js';
 export * from './missing.js';

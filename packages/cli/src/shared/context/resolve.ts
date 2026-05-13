@@ -1,6 +1,6 @@
 import { loadConfig, configExists } from '@/shared/config/load.js';
 import { configPathForContext, resolveConfigFilePath, resetConfigPathResolution } from '@/shared/config/paths.js';
-import { getRunOptions } from '@i18nprune/core';
+import { getRunOptions, loadProjectFilesState } from '@i18nprune/core';
 import type { ScanExcludeConfig } from '@i18nprune/core';
 import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
@@ -15,6 +15,7 @@ import { runDiscovery } from './discover.js';
 import { getCliGlobalOverrides } from './globals.js';
 import { resolveFromCwd } from '@/utils/paths/index.js';
 import { initializeCliCacheState } from '@/shared/cache/index.js';
+import { buildCliCacheRuntime } from '@/shared/cache/runtime.js';
 import {
   buildCliPatchSuppressedWarning,
   normalizeConfigRuntimeFields,
@@ -148,11 +149,16 @@ export async function resolveContext(cwd = process.cwd()): Promise<Context> {
       noCache: cli.noCache === true || configCacheDisabled,
       ...(disabledReason !== undefined ? { disabledReason } : {}),
       ...(cacheRootDir !== undefined ? { cacheRootDir } : {}),
+      cacheReadOnly: merged.cache?.mode === 'readOnly',
       adapters,
     });
     for (const warn of cacheInit.warnings) {
       discoveryWarnings.push(`cache: ${warn.message}`);
     }
+
+    const cacheBaselineFiles = cacheInit.state.enabled
+      ? loadProjectFilesState(cacheInit.state, buildCliCacheRuntime(adapters)).files.files
+      : undefined;
 
     return {
       config: merged,
@@ -162,6 +168,7 @@ export async function resolveContext(cwd = process.cwd()): Promise<Context> {
         fieldSources: sources,
         warnings: discoveryWarnings,
         cache: cacheInit.state,
+        cacheBaselineFiles,
       },
       adapters,
     };

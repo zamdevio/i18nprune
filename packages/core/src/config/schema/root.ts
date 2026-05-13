@@ -218,6 +218,12 @@ const cacheSchema = z
       .string()
       .optional()
       .describe('Cache root directory. Relative paths resolve from the project root; omit to use the host default.'),
+    mode: z
+      .enum(['readWrite', 'readOnly'])
+      .optional()
+      .describe(
+        'readWrite (default): cache may persist hits and misses. readOnly: reuse valid cache on disk but skip all cache writes (meta, files index, snapshots).',
+      ),
   })
   .strict()
   .optional()
@@ -395,6 +401,7 @@ export type OutputConfig = {
 export type CacheConfig = {
   enabled?: boolean;
   dir?: string;
+  mode?: 'readWrite' | 'readOnly';
 };
 
 export type PatchingConfig = PatchingConfigInput;

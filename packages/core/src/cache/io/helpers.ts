@@ -1,19 +1,24 @@
-import { assertSyncPortResult } from '../runtime/helpers/sync/index.js';
-import { tryParseJsonText } from '../shared/json/index.js';
-import type { CacheRuntime, CacheWarning } from '../types/cache/index.js';
+import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
+import { tryParseJsonText } from '../../shared/json/index.js';
+import type { CacheRuntime, CacheWarning } from '../../types/cache/index.js';
 
-export const MAX_PROJECTS_INDEX_BYTES = 2 * 1024 * 1024; // 2 MiB
-export const MAX_PROJECT_FILES_BYTES = 32 * 1024 * 1024; // 32 MiB
-export const MAX_PROJECT_RUN_BYTES = 16 * 1024 * 1024; // 16 MiB
-
+/** ISO-8601 timestamp from the runtime clock, falling back to `Date.now()` when no runtime is available. */
 export function nowIso(runtime?: Pick<CacheRuntime, 'system'>): string {
   return new Date(runtime?.system.now() ?? Date.now()).toISOString();
 }
 
-function textByteLength(text: string, runtime: CacheRuntime): number {
+/** Byte length of a UTF-8 string using the runtime adapter when available, otherwise `TextEncoder`. */
+export function textByteLength(text: string, runtime: CacheRuntime): number {
   return runtime.byteLength ? runtime.byteLength(text) : new TextEncoder().encode(text).length;
 }
 
+/**
+ * Reads a JSON cache file with size-limit and format guards.
+ *
+ * Returns the parsed data on success, or a diagnostic `CacheWarning` when the file is
+ * missing, oversized, non-JSON, or unreadable. Never throws — IO/parse errors are
+ * captured as warnings so the caller can treat the slot as a cache miss.
+ */
 export function readJsonFileWithLimit<T>(
   filePath: string,
   maxBytes: number,
@@ -52,7 +57,7 @@ export function readJsonFileWithLimit<T>(
         },
       };
     }
-    const parsed = tryParseJsonText<T>(raw, { filePath });
+    const parsed = tryParseJsonText<T>(raw, { filePath, issueCode: 'i18nprune.cache.json' });
     if (!parsed.ok) {
       return {
         warning: {
@@ -74,6 +79,10 @@ export function readJsonFileWithLimit<T>(
   }
 }
 
+/**
+ * Writes a JSON value to disk atomically when the runtime supports it, falling back to
+ * `fs.mkdirp` + `fs.writeText`. Returns a `CacheWarning` on failure instead of throwing.
+ */
 export function writeJsonAtomic(filePath: string, data: unknown, runtime: CacheRuntime): CacheWarning | undefined {
   try {
     const content = JSON.stringify(data, null, 2);

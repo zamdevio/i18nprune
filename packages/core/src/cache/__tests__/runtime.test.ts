@@ -160,4 +160,36 @@ describe('core cache runtime', () => {
     expect(changed.cache.reason).toBe('files_changed');
     expect(changed.data.builds).toBe(2);
   });
+
+  it('misses when snapshot payload exists but inputFilesEpoch binding is missing (legacy)', () => {
+    const fs = memoryFs({ '/project/src/app.ts': 't("app.title")', '/project/locales/en.json': '{"app":{"title":"Title"}}' });
+    const rt = runtime(fs);
+    const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
+    let builds = 0;
+    const input: CachedProjectInput<{ builds: number }> = {
+      state,
+      runtime: rt,
+      sourceLocalePath: '/project/locales/en.json',
+      srcRoot: '/project/src',
+      producer: () => ({ builds: (builds += 1) }),
+      parseCachedData: (data: unknown) =>
+        typeof data === 'object' && data !== null && typeof (data as { builds?: unknown }).builds === 'number'
+          ? { ok: true as const, data: data as { builds: number } }
+          : { ok: false as const },
+    };
+
+    expect(getOrBuildCachedProjectData(input).cache.status).toBe('miss');
+    const hit = getOrBuildCachedProjectData(input);
+    expect(hit.cache.status).toBe('hit');
+
+    const raw = JSON.parse(fs.readText(state.snapshotPath) as string) as { inputFilesEpoch?: string };
+    delete raw.inputFilesEpoch;
+    fs.writeText(state.snapshotPath, JSON.stringify(raw));
+
+    const stale = getOrBuildCachedProjectData(input);
+    expect(stale.cache.status).toBe('miss');
+    expect(stale.cache.reason).toBe('run_binding_stale');
+    expect(stale.cache.inputFilesEpochDebug?.current).toBeDefined();
+    expect(stale.data.builds).toBe(2);
+  });
 });

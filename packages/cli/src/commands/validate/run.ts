@@ -17,6 +17,7 @@ import { getCliGlobalOverrides } from '@/shared/context/globals.js';
 import { issuesFromPatchingDiagnostics, mergeIssues } from '@/shared/result/index.js';
 import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
 function pushValidateReportEntriesFromEnvelope(
   ctx: { config: I18nPruneConfig },
@@ -79,9 +80,7 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
     pushValidateReportEntriesFromEnvelope(ctx, envelope, fullDynamicSites, fullKeyObservations);
     if (ctx.run.json) {
       console.log(stringifyEnvelope(envelope));
-      if (!envelope.ok) {
-        process.exitCode = 1;
-      }
+      applyCliCiExitGate(envelope.ok);
       return;
     }
 
@@ -109,6 +108,7 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
       },
       ctx,
     );
+    applyCliCiExitGate(envelope.ok);
   } finally {
     wall.dispose();
   }

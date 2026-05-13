@@ -21,6 +21,7 @@ import { printCommandSummary } from '@/output/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
 import { mergeGenerateOptionsFromEnv } from '@/commands/generate/env.js';
 import { executeCore, runGenerateJsonEnvelope } from '@/commands/generate/jsonEnvelope.js';
@@ -48,8 +49,8 @@ export async function generate(opts: GenerateOptions): Promise<void> {
     if (ctx.run.json) {
       const envelope = await runGenerateJsonEnvelope(ctx, merged, { emit: noopRunEmitter, runId });
       console.log(stringifyEnvelope(envelope));
+      applyCliCiExitGate(envelope.ok);
       if (!envelope.ok) {
-        process.exitCode = 1;
         return;
       }
       const payload = envelope.data;
@@ -83,7 +84,7 @@ export async function generate(opts: GenerateOptions): Promise<void> {
             { command: 'generate', ok: false, durationMs: wall.elapsedMs(), issues: embedded },
             ctx,
           );
-          process.exitCode = 1;
+          applyCliCiExitGate(false);
           return;
         }
       }

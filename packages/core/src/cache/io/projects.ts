@@ -1,16 +1,16 @@
-import {
-  CACHE_SCHEMA_VERSION,
-  type CacheProjectsIndex,
-  type CacheRuntime,
-  type CacheState,
-  type CacheWarning,
-} from '../types/cache/index.js';
-import { assertSyncPortResult } from '../runtime/helpers/sync/index.js';
-import { MAX_PROJECTS_INDEX_BYTES, nowIso, readJsonFileWithLimit, writeJsonAtomic } from './helpers.js';
+import { CACHE_SCHEMA_VERSION, DEFAULT_HEAL_EVERY_RUNS, MAX_PROJECTS_INDEX_BYTES } from '../../shared/constants/cache.js';
+import type {
+  CacheProjectsIndex,
+  CacheRuntime,
+  CacheState,
+  CacheWarning,
+} from '../../types/cache/index.js';
+import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
+import { nowIso, readJsonFileWithLimit, writeJsonAtomic } from './helpers.js';
 import { computeCacheProjectId } from './hash.js';
+import { isProjectCacheWritable } from '../setup/policy.js';
 
-const DEFAULT_HEAL_EVERY_RUNS = 20;
-
+/** Fresh meta index with zero projects and default maintenance schedule. */
 export function defaultProjectsIndex(runtime?: Pick<CacheRuntime, 'system'>): CacheProjectsIndex {
   return {
     version: CACHE_SCHEMA_VERSION,
@@ -20,6 +20,7 @@ export function defaultProjectsIndex(runtime?: Pick<CacheRuntime, 'system'>): Ca
   };
 }
 
+/** Loads the global `meta.json` projects index; falls back to a fresh default on any read error. */
 export function loadProjectsIndex(
   state: CacheState,
   runtime: CacheRuntime,
@@ -88,20 +89,33 @@ function migrateLegacyProjectsIndex(
   return { index: next, warnings };
 }
 
+/** Persists the meta index; skips (with warning) when cache is read-only. */
 export function saveProjectsIndex(
   state: CacheState,
   index: CacheProjectsIndex,
   runtime: CacheRuntime,
 ): CacheWarning | undefined {
   if (!state.enabled) return undefined;
+  if (!isProjectCacheWritable(state)) {
+    return {
+      code: 'cache_read_only',
+      message: 'cache is read-only; skipped persisting meta index',
+      path: state.metaPath,
+    };
+  }
   return writeJsonAtomic(state.metaPath, { ...index, updatedAt: nowIso(runtime), version: CACHE_SCHEMA_VERSION }, runtime);
 }
 
+/**
+ * Normalizes a project root path for use as a meta-index key.
+ * Backslashes are replaced with forward slashes and a trailing `/` is always appended.
+ */
 export function normalizeProjectRootKey(projectRoot: string): string {
   const normalized = projectRoot.replace(/\\/g, '/').replace(/\/+$/g, '');
-  return normalized.endsWith('/') ? normalized : `${normalized}/`;
+  return `${normalized}/`;
 }
 
+/** Registers the current project in the meta index and increments the run counter. */
 export function touchProjectIndex(state: CacheState, index: CacheProjectsIndex, runtime?: CacheRuntime): CacheProjectsIndex {
   const next: CacheProjectsIndex = {
     ...index,
@@ -123,10 +137,8 @@ function shouldHeal(index: CacheProjectsIndex): boolean {
 }
 
 /**
- * Removes cache drift:
- * - delete meta entries whose projects/<id> dir is missing
- * - delete projects/<id> dirs not referenced by meta
- * Runs periodically based on `maintenance.healEveryRuns`.
+ * Periodic cache self-heal: prunes meta entries whose project dir is missing and
+ * removes orphan project dirs not referenced in meta. Runs every `healEveryRuns` invocations.
  */
 export function maybeHealCacheIndex(
   state: CacheState,

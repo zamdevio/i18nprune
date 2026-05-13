@@ -12,6 +12,7 @@ import { noopRunEmitter } from '@i18nprune/core';
 import type { QualityOptions } from '@/types/command/quality/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
 export async function quality(opts: QualityOptions): Promise<void> {
   const wall = attachWallTimer();
@@ -22,13 +23,11 @@ export async function quality(opts: QualityOptions): Promise<void> {
     if (ctx.run.json) {
       const { envelope } = runQualityJsonEnvelope(ctx, opts, { emit: noopRunEmitter, runId });
       console.log(stringifyEnvelope(envelope));
-      if (!envelope.ok) {
-        process.exitCode = 1;
-      }
+      applyCliCiExitGate(envelope.ok);
       return;
     }
 
-    const { payload, keyObservationsCount } = executeCore(ctx, opts, { emit: createCliRunEmitter(ctx.run), runId });
+    const { payload, keyObservationsCount, envelope } = executeCore(ctx, opts, { emit: createCliRunEmitter(ctx.run), runId });
     const { total, dynamicKeySites } = payload;
     const summaryIssues = mergeIssues(
       issuesFromDiscoveryWarnings(ctx.meta.warnings),
@@ -45,6 +44,7 @@ export async function quality(opts: QualityOptions): Promise<void> {
       },
       ctx,
     );
+    applyCliCiExitGate(envelope.ok);
   } finally {
     wall.dispose();
   }

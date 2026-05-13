@@ -27,6 +27,7 @@ export const DEFAULT_CONFIG: I18nPruneConfigParsed = {
   },
   cache: {
     enabled: true,
+    mode: 'readWrite',
   },
   policies: {},
   reference: {

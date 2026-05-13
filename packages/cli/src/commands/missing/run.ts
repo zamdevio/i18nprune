@@ -22,6 +22,7 @@ import type { I18nPruneConfig } from '@i18nprune/core/config';
 import type { MissingOptions } from '@/types/command/missing/index.js';
 import type { MissingPathDisplayOpts } from '@/types/command/missing/summary.js';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import type { RunEmitter } from '@i18nprune/core';
 
 function resolveMissingData(
@@ -47,9 +48,7 @@ export async function missing(opts: MissingOptions): Promise<void> {
         applyWrites: getCliYesFlag(),
       });
       console.log(stringifyEnvelope(envelope));
-      if (!envelope.ok) {
-        process.exitCode = 1;
-      }
+      applyCliCiExitGate(envelope.ok);
       return;
     }
 
@@ -81,12 +80,13 @@ export async function missing(opts: MissingOptions): Promise<void> {
             targets: resolved.targets.length,
             skippedTargets: resolved.skippedTargets.length,
           },
-          issues: summaryIssues,
-        },
-        ctx,
-      );
-      return;
-    }
+        issues: summaryIssues,
+      },
+      ctx,
+    );
+    applyCliCiExitGate(resolved.envelope.ok);
+    return;
+  }
 
     const missingPlaceholder = resolveMissingLeafPlaceholder(ctx.config.missing?.placeholder).placeholder;
 
@@ -107,12 +107,13 @@ export async function missing(opts: MissingOptions): Promise<void> {
             skippedTargets: resolved.skippedTargets.length,
             ...extractionBaseline,
           },
-          issues: summaryIssues,
-        },
-        ctx,
-      );
-      return;
-    }
+        issues: summaryIssues,
+      },
+      ctx,
+    );
+    applyCliCiExitGate(resolved.envelope.ok);
+    return;
+  }
 
     if (!canAsk(run) && !getCliYesFlag()) {
       throw new I18nPruneError(
@@ -177,6 +178,7 @@ export async function missing(opts: MissingOptions): Promise<void> {
       },
       ctx,
     );
+    applyCliCiExitGate(resolved.envelope.ok);
   } finally {
     wall.dispose();
   }

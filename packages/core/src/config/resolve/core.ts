@@ -46,6 +46,7 @@ export function resolveCoreConfig(
     scanner: resolveScannerConfig(input?.scanner, options?.scanner),
     cache: {
       enabled: input?.cache?.enabled ?? true,
+      mode: input?.cache?.mode === 'readOnly' ? 'readOnly' : 'readWrite',
       ...(input?.cache?.dir !== undefined ? { dir: input.cache.dir } : {}),
     },
   };

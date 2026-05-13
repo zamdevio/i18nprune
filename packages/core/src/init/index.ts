@@ -188,6 +188,7 @@ export default defineConfig({
     // Core-owned project analysis cache. Omit \`dir\` to use the host default (CLI: ~/.i18nprune/cache).
     enabled: true,
     // dir: '.i18nprune/cache',
+    // mode: 'readWrite', // 'readOnly' skips all cache writes (useful for CI audit runs).
   },
 
   patching: {

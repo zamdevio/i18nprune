@@ -13,6 +13,7 @@ import type { CliJsonEnvelope } from '@i18nprune/core';
 import { runReportOperation } from '@/commands/report/buildEnvelope.js';
 import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
 function printHumanReportSummary(
   wall: { elapsedMs(): number },
@@ -34,6 +35,7 @@ function printHumanReportSummary(
     },
     ctx,
   );
+  applyCliCiExitGate(envelope.ok);
 }
 
 export async function report(opts: ReportCliRunOptions): Promise<void> {
@@ -67,15 +69,13 @@ export async function report(opts: ReportCliRunOptions): Promise<void> {
       };
       envelope = buildIoReadFailureEnvelope('report', empty, ctx, err);
       console.log(stringifyEnvelope(envelope));
-      process.exitCode = 1;
+      applyCliCiExitGate(envelope.ok);
       return;
     }
 
     if (r.json) {
       console.log(stringifyEnvelope(envelope));
-      if (!envelope.ok) {
-        process.exitCode = 1;
-      }
+      applyCliCiExitGate(envelope.ok);
       return;
     }
 

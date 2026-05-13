@@ -9,6 +9,7 @@ import { refreshProjectReportCache } from '@/shared/cache/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import type { SyncRuntime } from '@/types/command/sync/index.js';
 
 function resolveSyncData(
@@ -43,7 +44,7 @@ export async function sync(opts: SyncOptions): Promise<void> {
         }
       }
       console.log(stringifyEnvelope(envelope));
-      if (!envelope.ok) process.exitCode = 1;
+      applyCliCiExitGate(envelope.ok);
       return;
     }
 
@@ -115,6 +116,7 @@ export async function sync(opts: SyncOptions): Promise<void> {
       },
       ctx,
     );
+    applyCliCiExitGate(envelope.ok);
   } finally {
     wall.dispose();
   }

@@ -1,14 +1,14 @@
-import { assertSyncPortResult } from '../runtime/helpers/sync/index.js';
-import type { CacheProjectsIndex, CacheRuntime, CacheState, CacheWarning } from '../types/cache/index.js';
-import { loadProjectsIndex, maybeHealCacheIndex, saveProjectsIndex, touchProjectIndex } from './projects.js';
-import { loadProjectFilesState, loadProjectRunState } from './state.js';
+import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
+import { ANALYSIS_CACHE_KEY } from '../../shared/constants/cache.js';
+import type { CacheProjectsIndex, CacheRuntime, CacheState, CacheWarning } from '../../types/cache/index.js';
+import { loadProjectsIndex, maybeHealCacheIndex, saveProjectsIndex, touchProjectIndex } from '../io/projects.js';
+import { loadProjectFilesState, loadProjectRunState } from '../io/state.js';
+import { cacheSlotReadPaths, tryDeleteCacheFile } from './policy.js';
 
 /**
- * Per-run cache maintenance:
- * - touches project mapping in meta
- * - runs periodic global self-heal
- * - ensures current project directory exists
- * - validates current project's files/run cache readability
+ * Per-run cache maintenance: touches the project mapping in meta, runs periodic
+ * global self-heal, ensures the project directory exists, and validates current
+ * project cache files (dropping corrupt ones so this run can repopulate cleanly).
  */
 export function prepareCacheForRun(
   state: CacheState,
@@ -41,12 +41,13 @@ export function prepareCacheForRun(
 
   const fileState = loadProjectFilesState(state, runtime);
   warnings.push(...fileState.warnings);
-  const runState = loadProjectRunState(state, runtime);
-  warnings.push(...runState.warnings);
+  const snapshotState = loadProjectRunState(state, runtime, undefined);
+  const analysisState = loadProjectRunState(state, runtime, ANALYSIS_CACHE_KEY);
+  warnings.push(...snapshotState.warnings, ...analysisState.warnings);
 
-  // If either cache file is malformed/unusable, drop it now so this run can repopulate cleanly.
   const hasInvalidFiles = fileState.warnings.some((w) => w.code === 'cache_malformed' || w.code === 'cache_oversize');
-  const hasInvalidRun = runState.warnings.some((w) => w.code === 'cache_malformed' || w.code === 'cache_oversize');
+  const hasInvalidSnapshot = snapshotState.warnings.some((w) => w.code === 'cache_malformed' || w.code === 'cache_oversize');
+  const hasInvalidAnalysis = analysisState.warnings.some((w) => w.code === 'cache_malformed' || w.code === 'cache_oversize');
   if (hasInvalidFiles) {
     try {
       assertSyncPortResult(runtime.fs.deleteFile(state.filesPath), 'fs.deleteFile', state.filesPath);
@@ -54,15 +55,17 @@ export function prepareCacheForRun(
       // best-effort only
     }
   }
-  if (hasInvalidRun) {
-    try {
-      assertSyncPortResult(runtime.fs.deleteFile(state.runPath), 'fs.deleteFile', state.runPath);
-    } catch {
-      // best-effort only
+  if (hasInvalidSnapshot) {
+    for (const p of cacheSlotReadPaths(state, runtime, undefined)) {
+      tryDeleteCacheFile(runtime, p);
+    }
+  }
+  if (hasInvalidAnalysis) {
+    for (const p of cacheSlotReadPaths(state, runtime, ANALYSIS_CACHE_KEY)) {
+      tryDeleteCacheFile(runtime, p);
     }
   }
 
-  // Ensure known essential files path parents always exist.
   try {
     assertSyncPortResult(runtime.fs.mkdirp(runtime.path.dirname(state.filesPath)), 'fs.mkdirp', runtime.path.dirname(state.filesPath));
   } catch {

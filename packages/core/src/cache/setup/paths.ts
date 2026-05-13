@@ -1,7 +1,8 @@
-import { assertSyncPortResult } from '../runtime/helpers/sync/index.js';
-import { computeCacheProjectId } from './hash.js';
-import type { CacheState, CacheStateInput, CacheWarning } from '../types/cache/index.js';
+import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
+import { computeCacheProjectId } from '../io/hash.js';
+import type { CacheState, CacheStateInput, CacheWarning } from '../../types/cache/index.js';
 
+/** Builds a `CacheState` from raw inputs without performing any IO or validation. */
 export function resolveCacheState(input: CacheStateInput): CacheState {
   const projectRoot = input.runtime.path.resolve(input.projectRoot);
   const projectId = computeCacheProjectId(projectRoot, {
@@ -11,6 +12,7 @@ export function resolveCacheState(input: CacheStateInput): CacheState {
   const rootDir = input.cacheRootDir;
   const projectDir = input.runtime.path.join(rootDir, 'projects', projectId);
   const reason = input.noCache === true ? input.disabledReason ?? 'cli_no_cache' : 'default';
+  const readOnly = input.cacheReadOnly === true;
   return {
     enabled: input.noCache !== true,
     reason,
@@ -20,11 +22,18 @@ export function resolveCacheState(input: CacheStateInput): CacheState {
     projectRoot,
     projectDir,
     filesPath: input.runtime.path.join(projectDir, 'files.json'),
-    runPath: input.runtime.path.join(projectDir, 'run.json'),
+    snapshotPath: input.runtime.path.join(projectDir, 'snapshot.json'),
+    analysisPath: input.runtime.path.join(projectDir, 'analysis.json'),
+    readOnly,
   };
 }
 
-/** Validates root paths and write access; disables cache gracefully when unavailable. */
+/**
+ * Resolves cache paths and validates that the project root and cache directory are accessible.
+ *
+ * Disables the cache gracefully (with diagnostic warnings) when the project root is missing
+ * or the cache directory cannot be created — never throws.
+ */
 export function initializeCacheState(input: CacheStateInput): {
   state: CacheState;
   warnings: CacheWarning[];

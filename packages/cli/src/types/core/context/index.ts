@@ -1,6 +1,6 @@
 import type { I18nPruneConfig } from '@i18nprune/core/config';
 import type { RunOptions } from '@i18nprune/core';
-import type { CacheState } from '@i18nprune/core';
+import type { CacheProjectFileRecord, CacheState } from '@i18nprune/core';
 import type { RuntimeAdapters } from '@i18nprune/core';
 
 export type ConfigLayer = 'default' | 'file' | 'env' | 'discovery' | 'cli';
@@ -19,6 +19,8 @@ export type ContextMeta = {
   fieldSources: FieldSources;
   warnings: string[];
   cache: CacheState;
+  /** Pre-loaded `files.json` snapshot from before any dispatch. Shared by all dispatches for accurate delta. */
+  cacheBaselineFiles?: Record<string, CacheProjectFileRecord>;
 };
 
 export type ResolvedPaths = {

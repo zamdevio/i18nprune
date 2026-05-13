@@ -10,6 +10,10 @@ export default defineConfig({
     workers: 32,
     providers: [
       { id: 'google', rateLimit: { maxConcurrency: 32, rpm: 1920, rps: 32, intervalMs: 32 } },
+      // The order of `providers[]` IS the auto-routing chain (`policy.routing: 'auto'` walks
+      // top-to-bottom on retryable failures). `--provider` / `I18NPRUNE_TRANSLATE_PROVIDER`
+      // pins an id to the FRONT of the chain without disabling fallback. Set `enabled: false`
+      // (or comment the row) to skip a provider.
       // Uncomment one row at a time · set `translate.primary` · use env vars where noted (run `i18nprune providers`).
       // { id: 'mymemory', enabled: true, contactEmail: 'you@example.com', rateLimit: { maxConcurrency: 2, rpm: 60, rps: 1, intervalMs: 1000 } },
       // { id: 'libre', enabled: true, baseUrl: 'https://libretranslate.com', rateLimit: { maxConcurrency: 6, rpm: 120, rps: 2, intervalMs: 500 } },
@@ -23,10 +27,18 @@ export default defineConfig({
       //   rateLimit: { maxConcurrency: 2, rpm: 30, rps: 0.5, intervalMs: 1500 },
       // },
     ],
+    // Per-outcome verbs consumed by the translate-policy resolver. All keys optional.
     policy: {
       routing: 'single',
       onRateLimit: 'backoff',
       onTransientFailure: 'retry',
+      onQuotaExceeded: 'fallback',
+      onAuthFailure: 'abort',
+      onProviderUnavailable: 'fallback',
+      onIdentityOutput: 'flag',
+      onIncompleteRun: 'confirm',
+      handoff: 'auto',
+      // maxAttempts: providers.length, // omit to use one shot per provider in chain
     },
   },
 
@@ -93,12 +105,21 @@ export default defineConfig({
     // hardCap: 256,
   },
 
-  patching: {
+  cache: {
+    // Core-owned project analysis cache. Omit `dir` to use the host default (CLI: ~/.i18nprune/cache).
     enabled: true,
-    recipe: "loader_generated",
-    configPath: "src/i18n/config.json",
-    loaderPath: "src/i18n/loaders.generated.ts",
-    localeJsonImportBase: "locales",
+    // dir: '.i18nprune/cache',
+  },
+
+  patching: {
+    // Opt-in: may create/refresh loader wiring under `src` — keep `enabled: false` until you deliberately adopt the patching recipe.
+    enabled: false,
+    recipe: 'loader_generated',
+    mode: 'warn_skip',
+    // loaderPath: 'src/i18n/loaders.generated.ts',
+    // configPath: 'src/i18n/config.json',
+    // localeJsonImportBase: 'locales',
+    // sizeLimitBytes: 524288,
   },
 
   // When `true`, `generate` skips **`<lang>.meta.json`** (same effect as CLI `--no-locale-meta`; either skips).

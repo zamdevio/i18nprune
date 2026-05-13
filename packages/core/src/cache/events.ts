@@ -5,17 +5,21 @@ import type { OperationId, RunEmitter } from '../types/shared/run/index.js';
 function describeCacheInvalidation(reason: CacheDispatchReason): string | undefined {
   switch (reason) {
     case 'files_changed':
-      return 'input file fingerprints changed';
+      return 'source files changed';
+    case 'run_binding_stale':
+      return 'stale (source files changed since last cache write)';
     case 'run_invalid':
-      return 'cached payload failed schema validation';
+      return 'cached data failed validation';
     case 'run_missing':
-      return 'cached payload is missing';
+      return 'no cached data';
     case 'cache_unavailable':
-      return 'cache unavailable for this run';
+      return 'cache unavailable';
     case 'no_cache':
-      return 'cache disabled for this run';
+      return 'cache disabled';
     case 'cache_hit':
     case 'producer_succeeded':
+      return undefined;
+    default:
       return undefined;
   }
 }
@@ -51,6 +55,7 @@ function emitCacheDeltaFiles(input: {
   }
 }
 
+/** Emits `--debug-cache` output: status line, invalidation reason, paths, delta summary, and file samples. */
 export function emitCacheDispatchMessages(input: {
   emit?: RunEmitter;
   op: OperationId;
@@ -73,16 +78,18 @@ export function emitCacheDispatchMessages(input: {
     emitCacheDetail({ ...input, message: `  meta: ${input.cache.paths.meta}` });
     emitCacheDetail({ ...input, message: `  project: ${input.cache.paths.projectDir}` });
     emitCacheDetail({ ...input, message: `  files: ${input.cache.paths.files}` });
-    emitCacheDetail({ ...input, message: `  run: ${input.cache.paths.run}` });
+    emitCacheDetail({ ...input, message: `  snapshot: ${input.cache.paths.snapshot}` });
+    emitCacheDetail({ ...input, message: `  analysis: ${input.cache.paths.analysis}` });
   }
   if (input.cache.delta) {
+    const d = input.cache.delta;
     emitCacheDetail({
       ...input,
-      message: `  file delta: +${String(input.cache.delta.added.length)} ~${String(input.cache.delta.changed.length)} -${String(input.cache.delta.deleted.length)} =${String(input.cache.delta.unchanged.length)}`,
+      message: `  file delta: +${String(d.added.length)} ~${String(d.changed.length)} -${String(d.deleted.length)} =${String(d.unchanged.length)}`,
     });
-    emitCacheDeltaFiles({ ...input, kind: 'added', files: input.cache.delta.added });
-    emitCacheDeltaFiles({ ...input, kind: 'changed', files: input.cache.delta.changed });
-    emitCacheDeltaFiles({ ...input, kind: 'deleted', files: input.cache.delta.deleted });
+    emitCacheDeltaFiles({ ...input, kind: 'added', files: d.added });
+    emitCacheDeltaFiles({ ...input, kind: 'changed', files: d.changed });
+    emitCacheDeltaFiles({ ...input, kind: 'deleted', files: d.deleted });
   }
   for (const warn of input.cache.warnings) {
     const path = warn.path ? ` (${warn.path})` : '';
@@ -96,6 +103,7 @@ export function emitCacheDispatchMessages(input: {
   }
 }
 
+/** Emits a `same_run` memory-hit line for a second dispatch that reuses the first dispatch's result. */
 export function emitCacheMemoryHitMessage(input: {
   emit?: RunEmitter;
   op: OperationId;

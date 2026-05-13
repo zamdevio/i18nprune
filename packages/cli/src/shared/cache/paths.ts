@@ -8,6 +8,7 @@ export function resolveCliCacheState(input: {
   noCache?: boolean;
   disabledReason?: CacheDisableReason;
   cacheRootDir?: string;
+  cacheReadOnly?: boolean;
   adapters?: RuntimeAdapters;
 }): CacheState {
   const adapters = input.adapters ?? createNodeRuntimeAdapters();
@@ -16,6 +17,7 @@ export function resolveCliCacheState(input: {
     noCache: input.noCache,
     disabledReason: input.disabledReason,
     cacheRootDir: input.cacheRootDir ?? defaultCliCacheRootDir(),
+    cacheReadOnly: input.cacheReadOnly,
     runtime: buildCliCacheRuntime(adapters),
   });
 }
@@ -26,6 +28,7 @@ export function initializeCliCacheState(input: {
   noCache?: boolean;
   disabledReason?: CacheDisableReason;
   cacheRootDir?: string;
+  cacheReadOnly?: boolean;
   adapters?: RuntimeAdapters;
 }): {
   state: CacheState;
@@ -37,6 +40,7 @@ export function initializeCliCacheState(input: {
     noCache: input.noCache,
     disabledReason: input.disabledReason,
     cacheRootDir: input.cacheRootDir ?? defaultCliCacheRootDir(),
+    cacheReadOnly: input.cacheReadOnly,
     runtime: buildCliCacheRuntime(adapters),
   });
 }

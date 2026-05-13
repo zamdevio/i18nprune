@@ -19,6 +19,7 @@ import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import type { CleanupOptions } from '@/types/command/cleanup/index.js';
 import type { CleanupJsonOutput, CliJsonEnvelope, CoreContext } from '@i18nprune/core';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
 function createCleanupCoreContext(ctx: Awaited<ReturnType<typeof resolveContext>>): CoreContext {
   return createCliCoreContext(ctx);
@@ -47,9 +48,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
         },
       };
       console.log(stringifyEnvelope(withSummary));
-      if (!envelope.ok) {
-        process.exitCode = 1;
-      }
+      applyCliCiExitGate(envelope.ok);
       return;
     }
 
@@ -72,6 +71,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
         },
         ctx,
       );
+      applyCliCiExitGate(result.envelope.ok);
       return;
     }
 
@@ -88,6 +88,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
         },
         ctx,
       );
+      applyCliCiExitGate(result.envelope.ok);
       return;
     }
 
@@ -112,6 +113,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
             },
             ctx,
           );
+          applyCliCiExitGate(result.envelope.ok);
           return;
         }
       } else if (opts.ask && !canAsk(ctx.run)) {
@@ -138,6 +140,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
             },
             ctx,
           );
+          applyCliCiExitGate(result.envelope.ok);
           return;
         }
       } else if (!granularAskDone && !canAsk(ctx.run)) {
@@ -173,6 +176,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
       },
       ctx,
     );
+    applyCliCiExitGate(result.envelope.ok);
   } finally {
     wall.dispose();
   }

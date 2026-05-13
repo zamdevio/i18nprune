@@ -16,6 +16,7 @@ export function getOrBuildProjectReportWithCache(
     srcRoot: ctx.paths.srcRoot,
     exclude: ctx.config.exclude,
     producer,
+    baselineFiles: ctx.meta.cacheBaselineFiles,
     parseCachedData: (data) => {
       const parsed = projectReportDocumentSchema.safeParse(data);
       return parsed.success ? { ok: true, data: parsed.data as ProjectReportDocument } : { ok: false };

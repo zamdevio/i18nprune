@@ -16,12 +16,6 @@
       "docPath": "docs/dynamic/README",
       "message": "3 translation call site(s) use non-literal keys (not proven as static keys).",
       "severity": "warning"
-    },
-    {
-      "code": "i18nprune.patching.file_locale_missing_config",
-      "docPath": "patching/loader.md",
-      "message": "patching: ../../locales/so.json exists but config has no \"so\" locale record",
-      "severity": "warning"
     }
   ],
   "kind": "validate",

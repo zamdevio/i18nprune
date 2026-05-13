@@ -5,6 +5,7 @@ import { stringifyEnvelope } from '@i18nprune/core';
 import { executeCore, runReviewJsonEnvelope } from '@/commands/review/jsonEnvelope.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
 /** Locale-level review: paths vs source, source-identical counts, structured leaf metadata when present. */
 export async function review(opts: { target?: string }): Promise<void> {
@@ -17,9 +18,7 @@ export async function review(opts: { target?: string }): Promise<void> {
     if (run.json) {
       const { envelope } = runReviewJsonEnvelope(ctx, opts, { emit: noopRunEmitter, runId });
       console.log(stringifyEnvelope(envelope));
-      if (!envelope.ok) {
-        process.exitCode = 1;
-      }
+      applyCliCiExitGate(envelope.ok);
       return;
     }
 
@@ -40,6 +39,7 @@ export async function review(opts: { target?: string }): Promise<void> {
       },
       ctx,
     );
+    applyCliCiExitGate(envelope.ok);
   } finally {
     wall.dispose();
   }

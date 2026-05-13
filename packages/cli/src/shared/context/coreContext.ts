@@ -12,6 +12,7 @@ export function createCliCoreContext(ctx: Context): CoreContext {
     cache: {
       state: ctx.meta.cache,
       runtime: buildCliCacheRuntime(ctx.adapters),
+      baselineFiles: ctx.meta.cacheBaselineFiles,
     },
   });
 }

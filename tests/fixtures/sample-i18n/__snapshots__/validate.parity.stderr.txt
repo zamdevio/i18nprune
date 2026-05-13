@@ -1,3 +1,2 @@
 [i18nprune] [warn] 3 translation call(s) use a non-literal key — not validated as fixed literal paths. Run `i18nprune locales dynamic` for file:line samples.
 [i18nprune] [warn] issue: i18nprune.validate.dynamic_key_sites · https://docs.i18nprune.dev/issues/validate#dynamic-key-sites
-[i18nprune] [warn] issue: i18nprune.patching.file_locale_missing_config · https://docs.i18nprune.dev/issues/patching#file-locale-missing-config
