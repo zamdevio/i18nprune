@@ -25,7 +25,7 @@ The CLI ships as **`i18nprune`** on npm (engine **`@i18nprune/core`**); local de
 |------|------|
 | `packages/cli/bin/cli.ts` | **Entry point** — Commander program, global flags, `preAction` (config resolution, `RunOptions`, banners), subcommand registration. |
 | `packages/cli/src/commands/<name>/` | **Per-command orchestration** — Thin layers calling `@i18nprune/core` and shared CLI utilities. |
-| `packages/core/src/**` | **Domain logic (planned)** — Context, JSON operations, extraction, languages, translator, progress, errors, dynamic keys; see `maintainer/phases/core-architecture.md`. |
+| `packages/core/src/**` | **Domain logic** — Context, JSON operations, extraction, languages, translator, progress, errors, dynamic keys; all ops migrated to core `runXxx` entries. |
 | `packages/cli/src/config/` | **Config loading** — Resolve path, parse schema, `defineConfig`, `init` prompts. |
 | `packages/cli/src/types/` | **TypeScript contracts** — Config, context, commands, runtime, logger, etc. |
 | `packages/cli/src/utils/` | **Shared utilities** — Logger, ANSI/style, fs, rg, CLI helpers, report writer. |

@@ -22,6 +22,4 @@ This page describes provider chain topology for translation operations.
 - **Current:** provider-order/rate-limit decisions are split across host helpers and core seams.
 - **Planned:** unified resolver behavior in core with additive warning output and consistent chain eligibility.
 
-See planning sources:
-
-- `maintainer/phases/core-architecture.md`
+Core architecture migration is **shipped** — resolver behavior lives in core.

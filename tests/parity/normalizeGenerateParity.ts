@@ -2,8 +2,8 @@
  * Normalize `generate --json` stdout and human stderr so parity snapshots stay stable across
  * machines (absolute paths), clocks (`durationMs`, `*ms` timings), and ANSI progress noise.
  *
- * Baseline command (Phase 1 gate in maintainer/phases/core-architecture.md §5.b): the locked doc
- * names `generate --target ar --metadata` without `--dry-run`. CI uses **`--dry-run`** here so the
+ * Baseline command: the locked doc names `generate --target ar --metadata` without `--dry-run`.
+ * CI uses **`--dry-run`** here so the
  * snapshot does not call remote translators or require credentials; it still exercises the same
  * CLI orchestration + envelope shape as the non-dry path.
  */

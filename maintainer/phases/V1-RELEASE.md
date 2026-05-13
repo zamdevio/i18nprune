@@ -1,7 +1,7 @@
 # v1 release — consolidated work plan (~1 week)
 
 **Single hub:** Ordered **sessions** below.  
-**Norms:** [`core-architecture.md`](./core-architecture.md). **Sprint tweaks:** [`active-phase.md`](./active-phase.md).
+**Sprint tweaks:** [`active-phase.md`](./active-phase.md).
 
 **Shipped (do not reopen):** [`shipped-slices.md`](./shipped-slices.md)
 
@@ -17,17 +17,17 @@
 
 ---
 
-## Session A.2 — Remaining core-op migrations (**active**)
+## Session A.2 — Core-op migrations (**shipped**)
 
-**Docs:** [`core-architecture.md`](./core-architecture.md) § 7.2.
+All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 | # | command | status |
 |---|---------|--------|
 | 1 | `validate` → `runValidate` | **Shipped** |
-| 2 | `report` → `runReport` | **Next** |
+| 2 | `report` → `runReport` | **Shipped** |
 | 3 | `doctor` → `runDoctor` | **Shipped** |
-| 4 | `locales dynamic` | Pending |
-| 5 | `locales list`, `locales edit`, `locales delete` | Pending |
+| 4 | `locales dynamic` → `runDynamic` | **Shipped** |
+| 5 | `locales list/edit/delete` | **Shipped** |
 
 ---
 

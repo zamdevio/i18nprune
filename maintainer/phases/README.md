@@ -24,7 +24,6 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 
 | Doc | Status |
 |-----|--------|
-| [`core-architecture.md`](./core-architecture.md) | **Active** — op migration playbook, remaining commands (report, locales) |
 | [`extractor.md`](./extractor.md) | **Active** — JS/TS extractor improvement plan (false-positive hardening, future languages) |
 | [`jsdoc.md`](./jsdoc.md) | **Active** — JSDoc enforcement tiers |
 | [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |

@@ -15,7 +15,7 @@ Programmatic SDK examples for `@i18nprune/core`. Each example is a standalone sc
 | `review` | [`sdk/review/runReview.ts`](sdk/review/runReview.ts) | ✅ ready |
 | `validate` | `sdk/validate/runValidate.ts` | ⏳ after validate migration to core |
 
-Examples are added **as each op finishes its core migration**. The locked order in `maintainer/phases/core-architecture.md` is: `generate` → `translate-policy` → other ops. Each new core op gets its example shipped in the **same slice** as the op's migration, so the SDK contract is always documented alongside the code.
+Examples are added **as each op finishes its core migration**. All core-op migrations are **shipped** — every op has a core entry. Each new core op gets its example shipped in the **same slice** as the op's migration, so the SDK contract is always documented alongside the code.
 
 ## Per-op example contract
 

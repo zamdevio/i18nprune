@@ -12,7 +12,7 @@ This repository uses **small, coherent commits** so history is reviewable, bisec
 
 ### Subject line — professional default (with optional slice tag)
 
-Use a **single-line** subject, **imperative mood**, **type + scope**, and an **optional parenthetical** for phase / slice tracking (matches large refactors in `maintainer/phases/core-architecture.md` and similar plans).
+Use a **single-line** subject, **imperative mood**, **type + scope**, and an **optional parenthetical** for phase / slice tracking (matches large refactors tracked in `maintainer/phases/` plan docs).
 
 **Shape:**
 

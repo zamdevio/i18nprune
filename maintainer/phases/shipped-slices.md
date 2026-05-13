@@ -17,5 +17,8 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 | **Translate policy** (classifier → schema → resolver → `runGenerate` → handoff → JSON `translateFailureOutcome` → partial-run **`onIncompleteRun`** / envelope) | Shipped (steps 1–10) | [`docs/config/translate.md`](../../docs/config/translate.md) |
 | **Translation providers + progress** (core progress types, CLI stderr bar, concurrency, pacing, routing, auto-fallback, provider defaults, route reporting, health monitor) | Shipped (Session A) | [`docs/config/translate.md`](../../docs/config/translate.md), [`docs/commands/generate`](../../docs/commands/generate/README.md) |
 | **Doctor** core migration (`runDoctor` in `core/src/doctor/run.ts`; CLI is thin host) | Shipped | [`examples/sdk/doctor`](../../examples/sdk/doctor/runDoctor.ts) |
+| **Report** core migration (`runReport` in `core/src/report/run.ts`) | Shipped | — |
+| **Locales** core migration (`runDynamic`, `runLocalesList`, `writeLocaleMetaEdit`, `deleteLocaleFiles`) | Shipped | — |
+| **Core-op architecture** — all ops migrated to core `runXxx` entries; CLI is thin host | Shipped (Session A.2) | — |
 
 Maintainer sequencing for **remaining** work: **[`V1-RELEASE.md`](./V1-RELEASE.md)**.

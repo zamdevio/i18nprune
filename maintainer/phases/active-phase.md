@@ -2,7 +2,7 @@
 
 **v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** (sessions A–H — use first for sequencing).
 
-**Narrative focus:** **Core-op migrations (Session A.2)** — `report`, then `locales` commands. After that: **extractor / false-positive hardening (Session C)** → patching backlog in **`docs/patching/README.md`**. Hub overview: **`maintainer/phases/README.md`**.
+**Narrative focus:** Core-op migrations (Session A.2) **shipped** — all ops now have core entries. Next: **extractor / false-positive hardening (Session C)** → patching backlog in **`docs/patching/README.md`**. Hub overview: **`maintainer/phases/README.md`**.
 
 ---
 
@@ -16,17 +16,17 @@
 
 ---
 
-## Core-op migrations (**Session A.2 — active**)
+## Core-op migrations (**Session A.2 — shipped**)
 
-**Focus:** Migrate remaining CLI-owned command orchestration to core `runXxx` entries per [`core-architecture.md`](./core-architecture.md) § 7.2.
+All CLI-owned command orchestration migrated to core `runXxx` entries.
 
 | # | command | status |
 |---|---------|--------|
 | 1 | `validate` → `runValidate` | **Shipped** |
-| 2 | `report` → `runReport` | **Next** |
+| 2 | `report` → `runReport` | **Shipped** |
 | 3 | `doctor` → `runDoctor` | **Shipped** |
-| 4 | `locales dynamic` | Pending |
-| 5 | `locales list`, `locales edit`, `locales delete` | Pending |
+| 4 | `locales dynamic` → `runDynamic` | **Shipped** |
+| 5 | `locales list/edit/delete` | **Shipped** |
 
 ---
 
@@ -53,7 +53,7 @@ Normative docs: **`docs/json/`**, **`docs/exports/`**.
 | Track | Status | Doc |
 |-------|--------|-----|
 | **v1 sessions (ordered)** | **Use first** | **[`V1-RELEASE.md`](./V1-RELEASE.md)** |
-| **Core-op migrations** | **Active — Session A.2** | [`core-architecture.md`](./core-architecture.md) § 7.2 |
+| **Core-op migrations** | **Shipped — Session A.2** | [`shipped-slices.md`](./shipped-slices.md) |
 | **Extractor / keySites follow-ups** | **Session C** | [`extractor.md`](./extractor.md), [`docs/regex/`](../../docs/regex/README.md) |
 | **Patching backlog** | **Session D** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel / Session E** | [`standard-toolkit.md`](./standard-toolkit.md) |

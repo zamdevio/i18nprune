@@ -31,7 +31,4 @@ This page maps command runtime lifecycle from invocation to final output.
 
 ## Current vs planned
 
-- **Current:** some command runtimes still own orchestration details.
-- **Planned:** runtime orchestration centers on core run-entries with thin command shells.
-
-See `maintainer/phases/core-architecture.md` for planned ownership changes.
+- **Shipped:** runtime orchestration centers on core `runXxx` entries with thin CLI command shells.
