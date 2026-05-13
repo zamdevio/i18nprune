@@ -73,7 +73,40 @@ Rationale:
 - Renaming `packages/core` / `@i18nprune/core` to `sdk` would create large codebase churn without improving the current API contract.
 - Public docs can explain this plainly: "The i18nprune SDK APIs are exported from `@i18nprune/core`."
 
-Planned shape:
+### Import naming convention (locked)
+
+There are two published packages with different import paths. Docs must never confuse them.
+
+**`@i18nprune/core`** (with `@`) — the standalone SDK package:
+
+```ts
+import { createCoreContext, runGenerate } from '@i18nprune/core';
+import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
+```
+
+- Installed via `npm install @i18nprune/core`.
+- Full SDK surface: all `runXxx` entries, context builders, runtime adapters, types.
+- Subpath exports per op (`/generate`, `/sync`, `/validate`, …) and per runtime (`/runtime/node`, `/runtime/web`, `/runtime/edge`).
+- **Use in:** SDK docs, programmatic usage pages, examples, architecture pages.
+
+**`i18nprune/core`** (without `@`) — subpath export bundled with the CLI:
+
+```ts
+import { defineConfig } from 'i18nprune/core';
+```
+
+- Available automatically when `i18nprune` (the CLI) is installed.
+- Subset surface: primarily `defineConfig` + types for `i18nprune.config.ts` files.
+- **Use in:** config docs only — when showing how to write `i18nprune.config.ts`.
+
+**Rules for docs:**
+
+- SDK pages → always `@i18nprune/core` (with `@`).
+- Config pages → `i18nprune/core` (without `@`) for `defineConfig` only.
+- Never mix both on the same page — pick one audience (SDK consumer vs CLI user).
+- Code examples must use the correct import path for their audience.
+
+### SDK docs planned shape
 
 - `docs/sdk/README.md` — official SDK entry page, with an index of sub-pages.
 - `docs/sdk/quickstart.md` — shortest path to `create*Context` + `run*`.
