@@ -14,7 +14,7 @@
 | **`systems/commands/`** | Operator sheets keyed by **`i18nprune help <op>`** — entrypoints, programmatic surfaces, envelopes, **`run.*` emitters**, pointers for parity |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
-Design rules (when useful for agents): **`maintainer/rules/agents/commands.md`** and **`maintainer/rules/agents/commands-system-sheets.md`**.
+Design rules: **`maintainer/agents/architecture.md`** and **`maintainer/agents/rules.md`**.
 
 ---
 
@@ -23,7 +23,7 @@ Design rules (when useful for agents): **`maintainer/rules/agents/commands.md`**
 Adding or changing **`systems/commands/<op>.md`** or **`systems/operations/`** MUST land as part of PRs touching `packages/*/src/**`.
 
 - Update **`maintainer/phases/active-phase.md`**, **`shipped-slices.md`**, or **`maintainer/phases/extension/*.md`** only when the PR is **actually** recording phase or extension planning (not for routine wiring-only changes).
-- Prefer updating **`maintainer/rules/agents/commands*.md`** when **agent authoring rules change**.
+- Prefer updating **`maintainer/agents/`** when **agent authoring rules change**.
 
 ---
 
@@ -54,7 +54,7 @@ Keep this tree truthful with `git`; don't maintain a brittle wall of filenames h
 | **Run/orchestration + `runSync`/`run*` table** | `maintainer/systems/operations/` and `packages/core/src/types/shared/run/` |
 | **Per-op maintainer truth** | `maintainer/systems/commands/<op>.md` |
 | **User docs** | `docs/commands/<op>/README.md` |
-| **Agent authoring rules** | `maintainer/rules/agents/commands*.md` |
+| **Agent authoring rules** | `maintainer/agents/` (architecture, rules, jsdoc, git) |
 
 ---
 
