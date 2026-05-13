@@ -261,6 +261,13 @@ export {
   buildValidateScanPayload,
   compareDottedPathDepth,
   computeMissingLiteralKeysFromResolvedKeys,
+  runValidate,
+} from './validate/index.js';
+export type {
+  ValidateHostHooks,
+  ValidateJsonPayload,
+  ValidateRunOptions,
+  ValidateRunResult,
 } from './validate/index.js';
 
 export * as missing from './namespaces/missing.js';

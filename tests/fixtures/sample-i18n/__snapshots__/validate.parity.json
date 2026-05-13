@@ -1,0 +1,33 @@
+{
+  "data": {
+    "count": 5,
+    "dynamic": {
+      "count": 3
+    },
+    "keyObservations": {
+      "count": 5
+    },
+    "missing": []
+  },
+  "issues": [
+    {
+      "code": "i18nprune.validate.dynamic_key_sites",
+      "docHref": "https://docs.i18nprune.dev/issues/validate#dynamic-key-sites",
+      "docPath": "docs/dynamic/README",
+      "message": "3 translation call site(s) use non-literal keys (not proven as static keys).",
+      "severity": "warning"
+    },
+    {
+      "code": "i18nprune.patching.file_locale_missing_config",
+      "docPath": "patching/loader.md",
+      "message": "patching: ../../locales/so.json exists but config has no \"so\" locale record",
+      "severity": "warning"
+    }
+  ],
+  "kind": "validate",
+  "meta": {
+    "apiVersion": "1",
+    "cwd": "<cwd>"
+  },
+  "ok": true
+}

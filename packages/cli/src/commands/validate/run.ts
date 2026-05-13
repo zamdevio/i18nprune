@@ -2,11 +2,11 @@ import { resolveContext } from '@/shared/context/index.js';
 import { getDisplaySourceLocaleCode } from '@/shared/locales/index.js';
 import { printCommandSummary } from '@/output/index.js';
 import { stringifyEnvelope } from '@i18nprune/core';
-import { runValidate } from './jsonEnvelope.js';
-import { buildValidateReportView } from '@i18nprune/core';
-import { buildValidateHumanView } from '@i18nprune/core';
+import { executeValidateCore } from './jsonEnvelope.js';
+import { buildValidateHumanView, buildValidateReportView } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
-import type { ValidateOptions } from '@/types/command/validate/index.js';
+import type { ValidateOptions, ValidateJsonOutput } from '@/types/command/validate/index.js';
+import type { CliJsonEnvelope } from '@i18nprune/core';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '@/constants/issueCodes.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
@@ -17,11 +17,10 @@ import { getCliGlobalOverrides } from '@/shared/context/globals.js';
 import { issuesFromPatchingDiagnostics, mergeIssues } from '@/shared/result/index.js';
 import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
-import { resolveValidateData } from './cacheData.js';
 
 function pushValidateReportEntriesFromEnvelope(
   ctx: { config: I18nPruneConfig },
-  envelope: ReturnType<typeof runValidate>,
+  envelope: CliJsonEnvelope<'validate', ValidateJsonOutput>,
   fullDynamicSites: DynamicKeySite[],
   fullKeyObservations: KeyObservation[],
 ): void {
@@ -53,11 +52,11 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
   try {
     const ctx = await resolveContext();
     const runId = String(Date.now());
-    let envelope: ReturnType<typeof runValidate>;
+    let envelope: CliJsonEnvelope<'validate', ValidateJsonOutput>;
     let fullDynamicSites: DynamicKeySite[] = [];
     let fullKeyObservations: KeyObservation[] = [];
 
-    const resolved = resolveValidateData(ctx, runId);
+    const resolved = executeValidateCore(ctx, { runId });
     envelope = resolved.envelope;
     fullDynamicSites = resolved.fullDynamicSites;
     fullKeyObservations = resolved.fullKeyObservations;
