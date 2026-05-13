@@ -25,7 +25,8 @@ import { canPrintWarn } from '@/utils/logger/policy.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
-import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
+import { resolveProjectAnalysis } from '@i18nprune/core';
+import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import type { DoctorFinding, DoctorJsonPayload } from '@i18nprune/core';
 import type { DoctorOptions } from '@/types/commands/doctor/index.js';
 
@@ -84,7 +85,9 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
     }
 
     const findings = resolveDoctorData(ctx, opts, runId).findings!;
-    const baseline = resolveExtractionBaselineCounts(ctx);
+    const coreCtx = createCliCoreContext(ctx);
+    const analysis = resolveProjectAnalysis(coreCtx, { op: 'doctor', runId });
+    const baseline = { dynamic: analysis.dynamicSites.length, keyObservations: analysis.keyObservations.length };
     const patchingAnalysis = await analyzePatchingState({
       command: 'sync',
       action: 'upsert_locales',

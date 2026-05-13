@@ -11,7 +11,6 @@ import type { ProjectReportDocument } from '@/types/command/report/index.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { CliJsonEnvelope } from '@i18nprune/core';
 import { runReportOperation } from '@/commands/report/buildEnvelope.js';
-import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
@@ -29,7 +28,8 @@ function printHumanReportSummary(
       counts: {
         filesScanned: sum.sourceFilesScannedCount ?? 0,
         missing: sum.missingKeysCount,
-        ...resolveExtractionBaselineCounts(ctx),
+        dynamic: sum.dynamicSitesCount ?? 0,
+        keyObservations: sum.keyObservationsCount ?? 0,
       },
       issues: envelope.issues,
     },

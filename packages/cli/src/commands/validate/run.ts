@@ -15,7 +15,6 @@ import { analyzePatchingState } from '@i18nprune/core';
 import { resolvePatchingProjectRoot } from '@/shared/patching/scaffoldI18nLayout.js';
 import { getCliGlobalOverrides } from '@/shared/context/globals.js';
 import { issuesFromPatchingDiagnostics, mergeIssues } from '@/shared/result/index.js';
-import { resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
@@ -102,7 +101,8 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
         durationMs: wall.elapsedMs(),
         counts: {
           missing: envelope.data.missing.length,
-          ...resolveExtractionBaselineCounts(ctx),
+          dynamic: fullDynamicSites.length,
+          keyObservations: fullKeyObservations.length,
         },
         issues: envelope.issues,
       },

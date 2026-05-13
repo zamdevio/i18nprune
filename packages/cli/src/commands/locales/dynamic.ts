@@ -20,7 +20,7 @@ import { I18nPruneError } from '@i18nprune/core';
 import type { LocalesDynamicJsonPayload } from '@/types/command/locales/json.js';
 import type { LocalesDynamicOptions } from '@/types/commands/locales/index.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
-import { resolveExtractionBaselineCounts, resolveLocalesDynamicSites } from '@/shared/cache/index.js';
+import { resolveLocalesDynamicSites, resolveKeyObservationsCount } from '@/shared/cache/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 
 /**
@@ -50,7 +50,7 @@ export async function localesDynamic(opts: LocalesDynamicOptions = {}, run?: Run
   };
   try {
     const sites = resolveLocalesDynamicSites(ctx);
-    const extractionBaseline = resolveExtractionBaselineCounts(ctx);
+    const extractionBaseline = { dynamic: sites.length, keyObservations: resolveKeyObservationsCount(ctx) };
     const sourceLocaleCode = ctx.paths.sourceLocale.split('/').at(-1)?.replace(/\.json$/, '') ?? 'unknown';
     const shownSites = sites.slice(0, window.limit);
     const payload: LocalesDynamicJsonPayload = {
