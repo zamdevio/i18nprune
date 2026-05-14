@@ -14,7 +14,8 @@ export const LICENSE_URL = `${GITHUB_REPO_URL}/blob/main/LICENSE` as const;
 export const DOCS_SITE_BASE = 'https://docs.i18nprune.dev' as const;
 
 /** GitHub metadata worker origin (Worker + custom domain). */
-export const GITHUB_API_URL = 'https://github.i18nprune.dev' as const;
+/** Public meta worker (GitHub + npm cached read models). */
+export const META_WORKER_URL = 'https://meta.i18nprune.dev' as const;
 
 /** Public report UI URL. */
 export const DEMO_REPORT_URL = 'https://report.i18nprune.dev' as const;

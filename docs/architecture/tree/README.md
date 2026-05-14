@@ -43,5 +43,5 @@ This page only documents the repository structure and component relationships.
 | `apps/landing` | Product landing app | app-local UI modules |
 | `apps/docs` | Primary docs site | root `docs/` content sync |
 | `apps/workers/i18nprune` | Main HTTP API worker | worker runtime + core contracts |
-| `apps/workers/github` | GitHub-focused worker | worker runtime |
+| `apps/workers/meta` | Public meta worker (GitHub + npm cache) | worker runtime |
 

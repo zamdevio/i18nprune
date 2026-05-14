@@ -41,7 +41,7 @@ export function formatGithubCount(value: number | null | undefined): string {
 }
 
 export async function fetchGithub(): Promise<GitHubRepoMeta> {
-  const workerUrl = `${LINKS.githubApi}/metadata`;
+  const workerUrl = `${LINKS.meta}/metadata`;
   const worker = await safeFetchJson<WorkerGithubPayload>(
     workerUrl,
     { headers: { Accept: "application/json" } },

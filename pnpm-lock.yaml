@@ -220,22 +220,6 @@ importers:
         specifier: ^6.0.3
         version: 6.4.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3)
 
-  apps/workers/github:
-    dependencies:
-      hono:
-        specifier: ^4.8.3
-        version: 4.12.12
-    devDependencies:
-      '@cloudflare/workers-types':
-        specifier: ^4.20260410.0
-        version: 4.20260414.1
-      typescript:
-        specifier: ^5.9.0
-        version: 5.9.3
-      wrangler:
-        specifier: ^4.54.0
-        version: 4.81.1(@cloudflare/workers-types@4.20260414.1)
-
   apps/workers/i18nprune:
     dependencies:
       '@hono/swagger-ui':
@@ -250,6 +234,22 @@ importers:
       fflate:
         specifier: ^0.8.2
         version: 0.8.2
+      hono:
+        specifier: ^4.8.3
+        version: 4.12.12
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260410.0
+        version: 4.20260414.1
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+      wrangler:
+        specifier: ^4.54.0
+        version: 4.81.1(@cloudflare/workers-types@4.20260414.1)
+
+  apps/workers/meta:
+    dependencies:
       hono:
         specifier: ^4.8.3
         version: 4.12.12

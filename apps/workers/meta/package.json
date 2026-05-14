@@ -1,5 +1,5 @@
 {
-  "name": "@i18nprune/worker-github",
+  "name": "@i18nprune/worker-meta",
   "private": true,
   "version": "0.1.0",
   "type": "module",

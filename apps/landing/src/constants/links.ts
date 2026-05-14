@@ -4,9 +4,9 @@
 import {
   DEMO_REPORT_URL,
   DOCS_SITE_BASE,
-  GITHUB_API_URL,
   GITHUB_REPO_URL,
   LICENSE_URL,
+  META_WORKER_URL,
   NPM_PACKAGE_URL,
 } from '@i18nprune/core';
 
@@ -15,7 +15,6 @@ export {
   DOCS_ISSUES_PAGE_PATH,
   DOCS_SITE_BASE,
   DOCS_SITE_ORIGIN,
-  GITHUB_API_URL,
   GITHUB_BASE,
   GITHUB_DOCS_BASE,
   GITHUB_DOCS_TREE_BASE,
@@ -23,6 +22,7 @@ export {
   GITHUB_REPO,
   GITHUB_REPO_URL,
   LICENSE_URL,
+  META_WORKER_URL,
   NPM_PACKAGE_NAME,
   NPM_PACKAGE_URL,
   docsCommandUrl,
@@ -35,7 +35,7 @@ export {
 export const LINKS = {
   docs: DOCS_SITE_BASE,
   github: GITHUB_REPO_URL,
-  githubApi: GITHUB_API_URL,
+  meta: META_WORKER_URL,
   npm: NPM_PACKAGE_URL,
   license: LICENSE_URL,
   demoReport: DEMO_REPORT_URL,
