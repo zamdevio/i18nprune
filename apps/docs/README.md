@@ -10,6 +10,8 @@ Default theme extensions live in **`.vitepress/theme/`** (`custom.css` + `index.
 
 Phase 2 in the same file: **code block + tab strip + callout radius**, **frosted local nav**, **desktop sidebar edge**, **thin scrollbars** (webkit + Firefox `scrollbar-width`).
 
+Phase 3: **fixed ambient background** (grid + mint glow + noise) injected for **all pages** via the theme `layout-top` slot (`index.ts` + `.i18n-docs-textures*` in `custom.css`). Tweak opacity in CSS if you want it calmer on long reads.
+
 ---
 
 # i18nprune docs2 (planned migration sandbox)

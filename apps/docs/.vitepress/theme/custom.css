@@ -172,3 +172,91 @@
 .custom-block {
   border-radius: var(--i18n-docs-radius);
 }
+
+/**
+ * Phase 3 — ambient background (grid + mint glow + noise), inspired by
+ * apps/landing `grid-texture`, `hero-glow`, `noise-overlay`.
+ * Injected via `layout-top` in `.vitepress/theme/index.ts` (all pages).
+ */
+
+.i18n-docs-textures {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.i18n-docs-textures__grid,
+.i18n-docs-textures__glow,
+.i18n-docs-textures__noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.i18n-docs-textures__grid {
+  opacity: 0.38;
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in hsl, hsl(170 20% 88%) 42%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in hsl, hsl(170 20% 88%) 42%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 90% 75% at 50% 32%, #000 6%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 32%, #000 6%, transparent 70%);
+}
+
+.dark .i18n-docs-textures__grid {
+  opacity: 0.45;
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in hsl, hsl(170 20% 35%) 38%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in hsl, hsl(170 20% 35%) 38%, transparent) 1px,
+      transparent 1px
+    );
+}
+
+.i18n-docs-textures__glow {
+  background: radial-gradient(
+    circle at 50% -5%,
+    hsl(160 100% 35% / 0.16) 0%,
+    transparent 58%
+  );
+}
+
+.dark .i18n-docs-textures__glow {
+  background: radial-gradient(
+    circle at 50% -5%,
+    hsl(160 100% 48% / 0.14) 0%,
+    transparent 58%
+  );
+}
+
+.i18n-docs-textures__noise {
+  opacity: 0.028;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.dark .i18n-docs-textures__noise {
+  opacity: 0.04;
+}
+
+/* Main column + footer above the texture stack (nav/sidebar use higher VP z-index) */
+.Layout .VPContent,
+.Layout .VPFooter {
+  position: relative;
+  z-index: 1;
+}

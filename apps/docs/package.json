@@ -14,5 +14,8 @@
   },
   "dependencies": {
     "vitepress": "next"
+  },
+  "devDependencies": {
+    "vue": "^3.5.27"
   }
 }
