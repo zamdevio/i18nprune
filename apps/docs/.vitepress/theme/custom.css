@@ -1,0 +1,86 @@
+/**
+ * Docs chrome aligned with apps/landing + apps/web HSL tokens
+ * (--background / --primary family). See apps/landing/src/index.css :root.
+ */
+
+:root {
+  /* Surfaces */
+  --vp-c-bg: hsl(170 20% 98%);
+  --vp-c-bg-alt: hsl(170 20% 96%);
+  --vp-c-bg-elv: hsl(0 0% 100%);
+  --vp-c-bg-soft: hsl(170 20% 94%);
+
+  /* Text */
+  --vp-c-text-1: hsl(170 40% 10%);
+  --vp-c-text-2: hsl(170 10% 45%);
+  --vp-c-text-3: hsl(170 10% 58%);
+
+  /* Chrome */
+  --vp-c-border: hsl(170 20% 82%);
+  --vp-c-divider: hsl(170 20% 88%);
+  --vp-c-gutter: hsl(170 20% 88%);
+
+  /* Brand (primary mint — landing --primary 160 100% 35%) */
+  --vp-c-brand-1: hsl(160 72% 26%);
+  --vp-c-brand-2: hsl(160 96% 31%);
+  --vp-c-brand-3: hsl(160 100% 35%);
+  --vp-c-brand-soft: hsl(160 100% 35% / 0.12);
+
+  --vp-nav-bg-color: color-mix(in hsl, hsl(170 20% 98%) 88%, transparent);
+  --vp-nav-screen-bg-color: var(--vp-c-bg);
+  --vp-local-nav-bg-color: color-mix(in hsl, hsl(170 20% 98%) 92%, transparent);
+  --vp-sidebar-bg-color: hsl(170 20% 96%);
+
+  /* Home hero title — teal gradient instead of default purple/cyan */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    135deg,
+    hsl(160 100% 32%) 0%,
+    hsl(170 45% 36%) 100%
+  );
+}
+
+.dark {
+  --vp-c-bg: hsl(170 30% 4%);
+  --vp-c-bg-alt: hsl(170 30% 6%);
+  --vp-c-bg-elv: hsl(170 30% 8%);
+  --vp-c-bg-soft: hsl(170 25% 10%);
+
+  --vp-c-text-1: hsl(170 10% 95%);
+  --vp-c-text-2: hsl(170 15% 65%);
+  --vp-c-text-3: hsl(170 12% 48%);
+
+  --vp-c-border: hsl(170 20% 18%);
+  --vp-c-divider: hsl(170 20% 12%);
+  --vp-c-gutter: hsl(170 25% 8%);
+
+  --vp-c-brand-1: hsl(160 80% 58%);
+  --vp-c-brand-2: hsl(160 95% 44%);
+  --vp-c-brand-3: hsl(160 100% 40%);
+  --vp-c-brand-soft: hsl(160 100% 50% / 0.14);
+
+  --vp-nav-bg-color: color-mix(in hsl, hsl(170 30% 4%) 86%, transparent);
+  --vp-nav-screen-bg-color: var(--vp-c-bg);
+  --vp-local-nav-bg-color: color-mix(in hsl, hsl(170 30% 4%) 90%, transparent);
+  --vp-sidebar-bg-color: hsl(170 30% 6%);
+
+  --vp-home-hero-name-background: linear-gradient(
+    135deg,
+    hsl(160 90% 52%) 0%,
+    hsl(170 40% 70%) 100%
+  );
+}
+
+/* Shell: frosted nav bar like apps/web runtime header */
+.VPNav {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+:root .VPNav {
+  border-bottom: 1px solid color-mix(in hsl, hsl(170 20% 88%) 65%, transparent);
+}
+
+.dark .VPNav {
+  border-bottom-color: color-mix(in hsl, hsl(170 20% 18%) 70%, transparent);
+}

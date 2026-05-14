@@ -4,6 +4,10 @@
 
 VitePress navigation is **manual** in **`apps/docs/.vitepress/sidebar.ts`**. Whenever you add, rename, or delete pages under the synced **`docs/`** tree, update the sidebar in the **same PR** so readers can browse new hubs (especially under **Issues reference**). See also **[docs/agents/README.md](../../docs/agents/README.md)**.
 
+## Theme
+
+Default theme extensions live in **`.vitepress/theme/`** (`custom.css` + `index.ts`). Palette matches **landing / web** (`apps/landing/src/index.css`, `apps/web/src/styles.css`); tweak there in spirit when rebranding.
+
 ---
 
 # i18nprune docs2 (planned migration sandbox)
