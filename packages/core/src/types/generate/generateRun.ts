@@ -47,6 +47,12 @@ export type CoreContext = {
   readonly adapters: RuntimeAdapters;
   readonly env: TranslatorEnv;
   readonly paths: CoreResolvedPaths;
+  /**
+   * When **`false`**, no **`i18nprune.config.*`** was found on disk (CLI: **`configExists()`**).
+   * Hosts omit this field when unknown; **`runProjectReadiness`** only enforces **`configFilePresent`**
+   * when **`configFileLoaded === false`**.
+   */
+  readonly configFileLoaded?: boolean;
   readonly run?: RunOptions;
   readonly cache?: {
     readonly state: CacheState;

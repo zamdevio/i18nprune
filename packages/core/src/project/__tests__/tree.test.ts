@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildProjectTreeFromPaths,
-  emptyDirectoryPathsFromZipKeys,
-  type ProjectTreeNode,
-} from '../buildProjectTree.js';
+import { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from '../tree.js';
+import type { ProjectTreeNode } from '../../types/project/tree.js';
 
 function fileMeta(over: Partial<{ size: number; ext: string; mimeGuess: string; textLike: boolean }> = {}) {
   return {

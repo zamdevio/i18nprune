@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="i18nprune SDK (@i18nprune/core) — runtime-neutral engines for validate, sync, generate, and more."
+    />
+    <meta name="theme-color" content="#04140f" />
+    <title>i18nprune SDK · playground</title>
+    <script>
+      (function () {
+        try {
+          var s = localStorage.getItem('i18nprune-sdk-theme');
+          var dark =
+            s === 'dark' ||
+            (!s && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.classList.toggle('dark', dark);
+        } catch (_) {}
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --background: 170 20% 98%;
+        --foreground: 170 40% 10%;
+        --card: 0 0% 100%;
+        --primary: 160 100% 35%;
+        --primary-fg: 0 0% 100%;
+        --muted: 170 10% 45%;
+        --border: 170 20% 88%;
+        --ring: 160 100% 35%;
+        --radius: 12px;
+      }
+      .dark {
+        --background: 170 30% 4%;
+        --foreground: 170 10% 95%;
+        --card: 170 30% 7%;
+        --primary: 160 100% 45%;
+        --primary-fg: 170 30% 4%;
+        --muted: 170 15% 65%;
+        --border: 170 20% 14%;
+        --ring: 160 100% 45%;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        font-family: 'IBM Plex Sans', system-ui, sans-serif;
+        background: hsl(var(--background));
+        color: hsl(var(--foreground));
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      .font-display {
+        font-family: 'Outfit', system-ui, sans-serif;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .skip {
+        position: absolute;
+        left: -9999px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+      .skip:focus {
+        left: 1rem;
+        top: 1rem;
+        width: auto;
+        height: auto;
+        padding: 0.5rem 0.75rem;
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 8px;
+        z-index: 100;
+      }
+      .noise {
+        pointer-events: none;
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        opacity: 0.035;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      }
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid hsl(var(--border) / 0.55);
+        background: hsl(var(--background) / 0.85);
+        backdrop-filter: blur(16px);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 700;
+        font-family: 'Outfit', system-ui, sans-serif;
+        font-size: 0.95rem;
+      }
+      .brand svg {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+      }
+      .nav {
+        display: none;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        align-items: center;
+      }
+      @media (min-width: 900px) {
+        .nav {
+          display: flex;
+        }
+      }
+      .nav a {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        color: hsl(var(--muted));
+        border: 1px solid transparent;
+      }
+      .nav a:hover {
+        color: hsl(var(--foreground));
+        background: hsl(var(--card) / 0.6);
+        border-color: hsl(var(--border) / 0.6);
+      }
+      .nav a.active {
+        color: hsl(var(--foreground));
+        background: hsl(var(--primary) / 0.14);
+        border-color: hsl(var(--primary) / 0.35);
+      }
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .btn-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 999px;
+        border: 1px solid hsl(var(--border) / 0.65);
+        background: hsl(var(--card) / 0.45);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        color: hsl(var(--muted));
+      }
+      .btn-icon:hover {
+        color: hsl(var(--foreground));
+        border-color: hsl(var(--primary) / 0.45);
+      }
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-fg));
+        border: none;
+        cursor: pointer;
+      }
+      .btn-primary:hover {
+        filter: brightness(1.06);
+      }
+      .wrap {
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 0 1.25rem 4rem;
+      }
+      section {
+        padding: 3.25rem 0;
+        border-top: 1px solid hsl(var(--border) / 0.45);
+      }
+      section:first-of-type {
+        border-top: none;
+      }
+      .eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: hsl(var(--primary));
+        opacity: 0.9;
+        margin-bottom: 0.65rem;
+      }
+      h1 {
+        font-family: 'Outfit', system-ui, sans-serif;
+        font-size: clamp(2rem, 5vw, 3rem);
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        margin: 0 0 1rem;
+      }
+      h2 {
+        font-family: 'Outfit', system-ui, sans-serif;
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+        margin: 0 0 0.75rem;
+        letter-spacing: -0.02em;
+      }
+      p.lead {
+        color: hsl(var(--muted));
+        max-width: 40rem;
+        font-size: 1.05rem;
+      }
+      .glass {
+        border: 1px solid hsl(var(--border) / 0.55);
+        background: hsl(var(--card) / 0.55);
+        backdrop-filter: blur(18px);
+        border-radius: var(--radius);
+        padding: 1.25rem 1.35rem;
+      }
+      .code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.78rem;
+        line-height: 1.65;
+        padding: 1rem 1.1rem;
+        border-radius: 10px;
+        border: 1px solid hsl(var(--border) / 0.6);
+        background: linear-gradient(180deg, hsl(170 25% 8% / 0.04), hsl(170 30% 4% / 0.06));
+        overflow-x: auto;
+      }
+      .dark .code {
+        background: linear-gradient(180deg, hsl(170 25% 10%), hsl(170 30% 5%));
+        color: hsl(170 10% 92%);
+      }
+      .muted {
+        color: hsl(var(--muted));
+      }
+      .grid-2 {
+        display: grid;
+        gap: 1rem;
+      }
+      @media (min-width: 720px) {
+        .grid-2 {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .tag {
+        display: inline-block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        padding: 0.2rem 0.45rem;
+        border-radius: 6px;
+        border: 1px solid hsl(var(--primary) / 0.35);
+        color: hsl(var(--primary));
+        background: hsl(var(--primary) / 0.1);
+      }
+      /* Right rail — mirrors landing “On this page” */
+      .rail-host {
+        display: none;
+      }
+      @media (min-width: 1280px) {
+        .rail-host {
+          display: block;
+          position: fixed;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 35;
+          pointer-events: none;
+        }
+        .rail-host.open {
+          right: 1rem;
+        }
+        /* Collapsed tab must not show alongside the open panel (some resets weaken [hidden]). */
+        .rail-host.open .rail-toggle {
+          display: none !important;
+          visibility: hidden;
+          pointer-events: none;
+        }
+      }
+      .rail-toggle {
+        pointer-events: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.65rem 0.5rem;
+        border: 1px solid hsl(var(--border) / 0.45);
+        border-right: none;
+        border-radius: 12px 0 0 12px;
+        background: hsl(var(--card) / 0.45);
+        backdrop-filter: blur(14px);
+        color: hsl(var(--muted));
+        cursor: pointer;
+        font: inherit;
+      }
+      .rail-toggle:hover {
+        color: hsl(var(--foreground));
+        border-color: hsl(var(--primary) / 0.4);
+      }
+      .rail-vlabel {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+      }
+      .rail-panel {
+        pointer-events: auto;
+        width: 11.5rem;
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: 0.65rem 0.5rem;
+        border-radius: 14px;
+        border: 1px solid hsl(var(--border) / 0.45);
+        background: hsl(var(--card) / 0.38);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 12px 40px hsl(0 0% 0% / 0.18);
+      }
+      .rail-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0.35rem 0.4rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: hsl(var(--muted));
+      }
+      .rail-close {
+        width: 1.35rem;
+        height: 1.35rem;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        color: hsl(var(--muted));
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+      }
+      .rail-close:hover {
+        color: hsl(var(--foreground));
+        background: hsl(var(--card) / 0.6);
+      }
+      .rail-nav a {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.35rem 0.45rem;
+        border-radius: 8px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10.5px;
+        color: hsl(var(--muted));
+      }
+      .rail-nav a:hover {
+        color: hsl(var(--foreground));
+      }
+      .rail-nav a.on {
+        color: hsl(var(--foreground));
+        background: hsl(var(--primary) / 0.1);
+      }
+      .rail-dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: hsl(var(--border));
+      }
+      .rail-nav a.on .rail-dot {
+        background: hsl(var(--primary));
+        box-shadow: 0 0 8px hsl(var(--primary));
+      }
+      .site-footer {
+        padding: 2.5rem 0 3rem;
+        border-top: 1px solid hsl(var(--border) / 0.45);
+        color: hsl(var(--muted));
+        font-size: 0.85rem;
+      }
+      .site-footer .footer-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.25rem;
+        margin: 0 0 1.25rem;
+        padding: 0;
+        list-style: none;
+      }
+      .site-footer .footer-nav a {
+        color: hsl(var(--foreground));
+        font-weight: 500;
+        text-decoration: none;
+        border-bottom: 1px solid hsl(var(--border) / 0.7);
+        padding-bottom: 0.1rem;
+      }
+      .site-footer .footer-nav a:hover {
+        color: hsl(var(--primary));
+        border-color: hsl(var(--primary) / 0.5);
+      }
+      .site-footer .footer-meta {
+        margin: 0;
+        font-size: 0.8rem;
+        line-height: 1.55;
+        max-width: 48rem;
+      }
+      .site-footer .footer-meta a {
+        color: hsl(var(--primary));
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      CodeSandbox / static hosting
+      ---------------------------
+      This file lives at sdk/index.html in the i18nprune-web repo. Many sandboxes expect
+      /index.html at the project root for the preview pane. Either:
+        • copy or symlink this file to ./index.html in the sandbox, or
+        • configure the sandbox static server entry to sdk/index.html
+      Preview error "Could not find entry file: /index.html" is resolved once the dev
+      server serves an index at the path it expects.
+    -->
+    <a class="skip" href="#main">Skip to content</a>
+    <div class="noise" aria-hidden="true"></div>
+
+    <header class="header">
+      <a class="brand" href="#top" id="top">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="hsl(172 66% 36%)" />
+          <g fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.2 8.8H9.2v14.4h3" stroke-width="2.2" />
+            <path d="M14.3 16.4l3.1 3.2 5.4-6.2" stroke-width="2.2" />
+          </g>
+        </svg>
+        <span>i18nprune <span class="muted" style="font-weight:500">SDK</span></span>
+      </a>
+      <nav class="nav" id="header-nav" aria-label="Primary">
+        <a href="#hero">Intro</a>
+        <a href="#overview">Overview</a>
+        <a href="#install">Install</a>
+        <a href="#runtimes">Runtimes</a>
+        <a href="#exports">Surface</a>
+      </nav>
+      <div class="header-actions">
+        <button type="button" class="btn-icon" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
+          <span id="theme-icon">◐</span>
+        </button>
+        <a class="btn-primary" href="https://i18nprune.dev" target="_blank" rel="noopener noreferrer">Marketing site →</a>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <section id="hero" aria-labelledby="hero-title">
+        <div class="eyebrow">@i18nprune / core</div>
+        <h1 id="hero-title" class="font-display">Runtime-neutral engines for production i18n</h1>
+        <p class="lead">
+          This preview is a minimal static page for the <strong>@i18nprune/core</strong> package on
+          <a href="https://codesandbox.io" target="_blank" rel="noopener noreferrer" style="color:hsl(var(--primary));text-decoration:underline">CodeSandbox</a>
+          so the workspace preview has a clear entry point. It is not the full product site; for narrative, diagrams,
+          and install flows, use
+          <a href="https://i18nprune.dev" target="_blank" rel="noopener noreferrer" style="color:hsl(var(--primary));text-decoration:underline">i18nprune.dev</a>.
+          Point the sandbox static server at this file (or copy it to <code class="font-mono" style="font-size:0.9em">index.html</code> at the project root if your host expects that path).
+        </p>
+        <div class="glass" style="margin-top:1.5rem">
+          <span class="tag">Node · CI · programmatic</span>
+          <p class="muted" style="margin:0.75rem 0 0;font-size:0.92rem">
+            Construct <code class="font-mono">RuntimeAdapters</code> with
+            <code class="font-mono">createNodeRuntimeAdapters</code> (or web / edge factories), build
+            <code class="font-mono">createCoreContext</code>, then call <code class="font-mono">runValidate</code>,
+            <code class="font-mono">runSync</code>, and friends — same algorithms as the CLI.
+          </p>
+        </div>
+      </section>
+
+      <section id="overview">
+        <div class="eyebrow">What you get</div>
+        <h2 class="font-display">One core, many hosts</h2>
+        <p class="muted" style="max-width:42rem;margin:0 0 1rem">
+          Tier A hosts analyze; Tier B hosts read and write locale JSON. The SDK stays data-only — clients handle UX and
+          exit codes.
+        </p>
+        <div class="grid-2">
+          <div class="glass">
+            <h3 class="font-display" style="margin:0 0 0.35rem;font-size:1.05rem">Validate &amp; scan</h3>
+            <p class="muted" style="margin:0;font-size:0.9rem">Literal keys, dynamic call sites, and structured payloads for CI.</p>
+          </div>
+          <div class="glass">
+            <h3 class="font-display" style="margin:0 0 0.35rem;font-size:1.05rem">Sync &amp; generate</h3>
+            <p class="muted" style="margin:0;font-size:0.9rem">Deterministic transforms and translator pipelines behind the same contracts.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="install">
+        <div class="eyebrow">Install</div>
+        <h2 class="font-display">Add the CLI (ships the SDK)</h2>
+        <pre class="code" tabindex="0"><span style="color:hsl(var(--muted))">$</span> npm i -D i18nprune
+<span style="color:hsl(var(--muted))">$</span> pnpm add -D i18nprune</pre>
+        <p class="muted" style="margin-top:1rem;max-width:40rem;font-size:0.92rem">
+          In app code, import from <code class="font-mono">@i18nprune/core</code> and the runtime entry that matches your host
+          (<code class="font-mono">@i18nprune/core/runtime/node</code>, <code class="font-mono">/web</code>, or
+          <code class="font-mono">/edge</code>).
+        </p>
+      </section>
+
+      <section id="runtimes">
+        <div class="eyebrow">Runtimes</div>
+        <h2 class="font-display">Pick adapters for the host</h2>
+        <pre class="code" tabindex="0"><span style="color:#c084fc">import</span> { createNodeRuntimeAdapters } <span style="color:#c084fc">from</span> <span style="color:#fbbf24">'@i18nprune/core/runtime/node'</span>;
+<span style="color:#c084fc">import</span> { createWebRuntimeAdapters } <span style="color:#c084fc">from</span> <span style="color:#fbbf24">'@i18nprune/core/runtime/web'</span>;
+<span style="color:#c084fc">import</span> { createEdgeRuntimeAdapters } <span style="color:#c084fc">from</span> <span style="color:#fbbf24">'@i18nprune/core/runtime/edge'</span>;</pre>
+      </section>
+
+      <section id="exports">
+        <div class="eyebrow">Surface</div>
+        <h2 class="font-display">Namespaces &amp; ops</h2>
+        <p class="muted" style="max-width:44rem;margin:0 0 1rem;font-size:0.92rem">
+          The published package exposes focused entry points (<code class="font-mono">/validate</code>,
+          <code class="font-mono">/sync</code>, <code class="font-mono">/generate</code>, …) plus runtime barrels. See the
+          monorepo <code class="font-mono">packages/core/package.json → exports</code> for the authoritative map.
+        </p>
+        <div class="glass">
+          <p style="margin:0;font-size:0.9rem">
+            <strong>Tip:</strong> keep <code class="font-mono">node:</code> imports out of web/worker bundles — only import
+            Node adapters from Node graphs.
+          </p>
+        </div>
+      </section>
+
+      <footer id="sdk-footer" class="site-footer">
+        <div class="eyebrow" style="margin-bottom:0.75rem">Resources</div>
+        <ul class="footer-nav" aria-label="External links">
+          <li><a href="https://docs.i18nprune.dev" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+          <li><a href="https://github.com/zamdevio/i18nprune" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+          <li><a href="https://www.npmjs.com/package/i18nprune" target="_blank" rel="noopener noreferrer">npm</a></li>
+          <li><a href="https://web.i18nprune.dev" target="_blank" rel="noopener noreferrer">Web demo</a></li>
+          <li><a href="https://worker.i18nprune.dev/docs" target="_blank" rel="noopener noreferrer">Worker API</a></li>
+        </ul>
+        <p class="footer-meta muted">
+          Theme preference: <code class="font-mono">i18nprune-sdk-theme</code> · “On this page” rail:
+          <code class="font-mono">i18nprune-sdk-rail</code> · Toggle rail with <kbd class="font-mono">Ctrl+B</kbd> or
+          <kbd class="font-mono">⌘B</kbd> at <code class="font-mono">xl</code> breakpoints and above.
+        </p>
+      </footer>
+    </main>
+
+    <div class="rail-host" id="rail-host" aria-label="On this page">
+      <button type="button" class="rail-toggle" id="rail-open" hidden title="Ctrl+B or ⌘B">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg>
+        <span class="rail-vlabel">On this page</span>
+      </button>
+      <div class="rail-panel" id="rail-panel" hidden>
+        <div class="rail-head">
+          <span>On this page</span>
+          <button type="button" class="rail-close" id="rail-close" title="Ctrl+B or ⌘B" aria-label="Collapse">›</button>
+        </div>
+        <nav class="rail-nav" id="rail-nav"></nav>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var THEME_KEY = 'i18nprune-sdk-theme';
+        var RAIL_KEY = 'i18nprune-sdk-rail';
+        var LINE = 88;
+        var HEADER_CLEAR = 56;
+
+        var navIds = ['hero', 'overview', 'install', 'runtimes', 'exports'];
+        var railIds = ['top', 'hero', 'overview', 'install', 'runtimes', 'exports'];
+
+        function docTop(el) {
+          var r = el.getBoundingClientRect();
+          return r.top + window.scrollY;
+        }
+
+        function pickActive(ids, scrollY, linePx) {
+          var lineY = scrollY + linePx;
+          var best = null;
+          var bestTop = -Infinity;
+          for (var i = 0; i < ids.length; i++) {
+            var el = document.getElementById(ids[i]);
+            if (!el) continue;
+            var t = docTop(el);
+            if (t <= lineY && t > bestTop) {
+              bestTop = t;
+              best = ids[i];
+            }
+          }
+          return best;
+        }
+
+        function inHeroBand(y) {
+          var hero = document.getElementById('hero');
+          if (!hero) return y < 120;
+          var h = hero.offsetHeight;
+          return y < Math.max(120, h * 0.36);
+        }
+
+        function headerActive() {
+          var y = window.scrollY;
+          if (y < HEADER_CLEAR) return null;
+          if (inHeroBand(y)) return null;
+          return pickActive(navIds, y, LINE);
+        }
+
+        function railActive() {
+          var y = window.scrollY;
+          if (inHeroBand(y)) return 'top';
+          return pickActive(railIds.filter(function (id) { return id !== 'top'; }), y, LINE);
+        }
+
+        function setHeaderNav(active) {
+          var links = document.querySelectorAll('#header-nav a');
+          links.forEach(function (a) {
+            var href = a.getAttribute('href') || '';
+            var id = href.slice(1);
+            a.classList.toggle('active', active === id);
+          });
+        }
+
+        function setRailNav(active) {
+          var links = document.querySelectorAll('#rail-nav a');
+          links.forEach(function (a) {
+            var id = a.getAttribute('data-id');
+            a.classList.toggle('on', id === active);
+          });
+        }
+
+        function onScroll() {
+          setHeaderNav(headerActive());
+          setRailNav(railActive());
+        }
+
+        /* Theme */
+        document.getElementById('theme-btn').addEventListener('click', function () {
+          document.documentElement.classList.toggle('dark');
+          try {
+            localStorage.setItem(THEME_KEY, document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+          } catch (_) {}
+          document.getElementById('theme-icon').textContent = document.documentElement.classList.contains('dark')
+            ? '☀'
+            : '◐';
+        });
+        document.getElementById('theme-icon').textContent = document.documentElement.classList.contains('dark')
+          ? '☀'
+          : '◐';
+
+        /* Rail */
+        var railHost = document.getElementById('rail-host');
+        var railOpen = document.getElementById('rail-open');
+        var railPanel = document.getElementById('rail-panel');
+        var railNav = document.getElementById('rail-nav');
+        var railClose = document.getElementById('rail-close');
+
+        var labels = { top: 'Intro', hero: 'Hero', overview: 'Overview', install: 'Install', runtimes: 'Runtimes', exports: 'Surface' };
+        railIds.forEach(function (id) {
+          var a = document.createElement('a');
+          a.href = '#' + (id === 'top' ? 'top' : id);
+          a.setAttribute('data-id', id);
+          a.innerHTML = '<span class="rail-dot" aria-hidden="true"></span><span>' + labels[id] + '</span>';
+          railNav.appendChild(a);
+        });
+
+        function mqXl() {
+          return window.matchMedia('(min-width: 1280px)').matches;
+        }
+
+        function setRailOpen(open) {
+          if (!mqXl()) return;
+          railHost.classList.toggle('open', open);
+          railOpen.hidden = open;
+          railPanel.hidden = !open;
+          try {
+            localStorage.setItem(RAIL_KEY, open ? '1' : '0');
+          } catch (_) {}
+        }
+
+        var initialOpen = false;
+        try {
+          var v = localStorage.getItem(RAIL_KEY);
+          if (v === '1') initialOpen = true;
+        } catch (_) {}
+        setRailOpen(initialOpen);
+
+        railOpen.addEventListener('click', function () {
+          setRailOpen(true);
+        });
+        railClose.addEventListener('click', function () {
+          setRailOpen(false);
+        });
+
+        function editableTarget(t) {
+          if (!t || !t.closest) return false;
+          return !!t.closest('input, textarea, select, [contenteditable="true"]');
+        }
+
+        document.addEventListener('keydown', function (e) {
+          if (!(e.ctrlKey || e.metaKey) || String(e.key).toLowerCase() !== 'b' || e.altKey || e.shiftKey) return;
+          if (editableTarget(e.target)) return;
+          if (!mqXl()) return;
+          e.preventDefault();
+          setRailOpen(railPanel.hidden);
+        });
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        onScroll();
+      })();
+    </script>
+  </body>
+</html>

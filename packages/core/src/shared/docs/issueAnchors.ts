@@ -15,6 +15,7 @@ const DOC_ISSUE_PARENT_SEGMENTS = new Set([
   'locales',
   'missing',
   'patching',
+  'project',
   'quality',
   'report',
   'scan',

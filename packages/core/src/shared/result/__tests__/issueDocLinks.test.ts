@@ -26,6 +26,7 @@ describe('issueDocLinks', () => {
     expect(resolveIssueCodeDocLink('i18nprune.generate.usage').sitePagePath).toBe('/issues/generate');
     expect(resolveIssueCodeDocLink('i18nprune.io.read_failed').anchor).toBe('read-failed');
     expect(resolveIssueCodeDocLink('i18nprune.config.missing').anchor).toBe('missing');
+    expect(resolveIssueCodeDocLink('i18nprune.project.config_file_missing').anchor).toBe('config-file-missing');
     expect(resolveIssueCodeDocLink('i18nprune.languages.unsupported_language_code').anchor).toBe(
       'unsupported-language-code',
     );

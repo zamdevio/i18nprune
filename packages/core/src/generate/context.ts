@@ -9,6 +9,7 @@ export function createCoreContext(input: {
   adapters: CoreContext['adapters'];
   env: CoreContext['env'];
   paths: CoreContext['paths'];
+  configFileLoaded?: CoreContext['configFileLoaded'];
   run?: CoreContext['run'];
   cache?: CoreContext['cache'];
 }): CoreContext {
@@ -17,6 +18,7 @@ export function createCoreContext(input: {
     adapters: input.adapters,
     env: input.env,
     paths: input.paths,
+    ...(input.configFileLoaded !== undefined ? { configFileLoaded: input.configFileLoaded } : {}),
     ...(input.run !== undefined ? { run: input.run } : {}),
     ...(input.cache !== undefined ? { cache: input.cache } : {}),
   };

@@ -7,6 +7,12 @@ export const ISSUE_CONTEXT_RESOLUTION_FAILED = 'i18nprune.context.resolution_fai
 export const ISSUE_VALIDATE_MISSING_LITERAL_KEYS = 'i18nprune.validate.missing_literal_keys' as const;
 export const ISSUE_VALIDATE_DYNAMIC_KEY_SITES = 'i18nprune.validate.dynamic_key_sites' as const;
 export const ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED = 'i18nprune.validate.source_locale_unreadable' as const;
+/** Shared workspace preflight: no `i18nprune.config.*` on disk — merged config is defaults + env/discovery/CLI only. */
+export const ISSUE_PROJECT_CONFIG_FILE_MISSING = 'i18nprune.project.config_file_missing' as const;
+/** Shared workspace preflight: source locale path missing, wrong type, unreadable, or not a JSON object when required. */
+export const ISSUE_PROJECT_SOURCE_LOCALE_UNAVAILABLE = 'i18nprune.project.source_locale_unavailable' as const;
+export const ISSUE_PROJECT_LOCALES_DIR_UNAVAILABLE = 'i18nprune.project.locales_dir_unavailable' as const;
+export const ISSUE_PROJECT_SRC_ROOT_UNAVAILABLE = 'i18nprune.project.src_root_unavailable' as const;
 export const ISSUE_SCAN_DYNAMIC_KEY_SITES = 'i18nprune.scan.dynamic_key_sites' as const;
 export const ISSUE_MISSING_PATHS_NOT_IN_SCAN = 'i18nprune.missing.paths_not_in_current_scan' as const;
 export const ISSUE_SYNC_LOCALE_FILE_NOT_FOUND = 'i18nprune.sync.locale_file_not_found' as const;

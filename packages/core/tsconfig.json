@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@i18nprune/core": ["./src/index.ts"],
+      "@i18nprune/core/types": ["./src/types/index.ts"],
+      "@i18nprune/core/shared": ["./src/shared/index.ts"],
+      "@i18nprune/core/config": ["./src/config/index.ts"],
+      "@i18nprune/core/generate": ["./src/generate/index.ts"],
+      "@i18nprune/core/init": ["./src/init/index.ts"],
+      "@i18nprune/core/sync": ["./src/sync/index.ts"],
+      "@i18nprune/core/validate": ["./src/validate/index.ts"],
+      "@i18nprune/core/missing": ["./src/missing/index.ts"],
+      "@i18nprune/core/cleanup": ["./src/cleanup/index.ts"],
+      "@i18nprune/core/quality": ["./src/quality/index.ts"],
+      "@i18nprune/core/runtime/node": ["./src/runtime/exports/node.ts"],
+      "@i18nprune/core/runtime/web": ["./src/runtime/exports/web.ts"],
+      "@i18nprune/core/runtime/edge": ["./src/runtime/exports/edge.ts"],
+      "@i18nprune/core/runtime/helpers/sync": ["./src/runtime/exports/helpers/sync.ts"],
+      "@i18nprune/core/*": ["./src/*", "./src/*/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "vitest.config.ts"]
+}

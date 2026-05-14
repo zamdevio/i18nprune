@@ -270,6 +270,18 @@ export type {
   ValidateRunResult,
 } from './validate/index.js';
 
+export {
+  runProjectReadiness,
+  resolveProjectReadinessChecks,
+  presetUsesValidateSourceIssueCode,
+} from './project/readiness/index.js';
+export type {
+  ProjectReadinessChecks,
+  ProjectReadinessCliPreset,
+  ProjectReadinessRequest,
+  ProjectReadinessResult,
+} from './types/project/index.js';
+
 export * as missing from './namespaces/missing.js';
 export {
   applyMissingPaths,
@@ -378,13 +390,13 @@ export type {
   ReviewRunResult,
 } from './namespaces/review.js';
 
-export { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from './project/buildProjectTree.js';
+export { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from './project/tree.js';
 export type {
   ProjectTreeDirMeta,
   ProjectTreeFileMeta,
   ProjectTreeNode,
   ProjectZipFileMetaForTree,
-} from './project/buildProjectTree.js';
+} from './types/project/index.js';
 
 export * as reference from './namespaces/reference.js';
 export {
@@ -734,6 +746,10 @@ export {
   ISSUE_PATCHING_CONFIG_SIZE_ANOMALY,
   ISSUE_PATCHING_CONFIG_TOO_LARGE,
   ISSUE_PATCHING_FILE_LOCALE_MISSING_CONFIG,
+  ISSUE_PROJECT_CONFIG_FILE_MISSING,
+  ISSUE_PROJECT_LOCALES_DIR_UNAVAILABLE,
+  ISSUE_PROJECT_SOURCE_LOCALE_UNAVAILABLE,
+  ISSUE_PROJECT_SRC_ROOT_UNAVAILABLE,
   ISSUE_QUALITY_ENGLISH_IDENTICAL_LEAVES,
   ISSUE_REPORT_INVALID_FORMAT,
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
