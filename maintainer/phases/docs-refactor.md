@@ -24,6 +24,7 @@ In scope:
 - Repository health documentation: public architecture-health page plus maintainer policy page for Knip/Madge tradeoffs.
 - Diagram workflow policy (maintainer source + published assets).
 - Release/readiness checks for docs structure quality.
+- **`docs/issues/**`:** shared catalog layout (`common.md` + topic pages), parity with **`issueCodes.ts`**, and per-code rewrite quality (see execution slice 8 below).
 
 Out of scope:
 
@@ -125,11 +126,17 @@ Migration rule:
 - Once `docs/sdk/**` is stable, retire `docs/exports/**` in a dedicated docs-only slice (delete or short redirect-style pointer, depending on docs-site link behavior).
 - Once SDK JSON/programmatic docs are stable, retire `docs/json/**` in a dedicated docs-only slice (delete or short redirect-style pointer, depending on docs-site link behavior).
 
+### Keep `docs/report/README.md` (report web app + cross-links)
+
+- **Do not delete** `docs/report/README.md`, and avoid relocating or renaming it during tree flattening unless every consumer is updated in the same change.
+- **Rationale:** **[report.i18nprune.dev](https://report.i18nprune.dev)** (`apps/report`) and embedded report flows treat this file as the canonical **Report UI** doc (SPA behavior, payload contract, troubleshooting). It is also linked from **`packages/report`**, **`apps/report`**, **`docs/commands/report/README.md`**, **`docs/report/payload.md`**, and workspace/landing doc URLs (`report/README`).
+- Treat it like command reference docs: improve in place rather than folding it away for “nav minimalism.”
+
 ## Docs tree minimization rules
 
 Use these rules during refactor; do not force all moves in one PR.
 
-1. If a directory contains only one `README.md` and no sibling pages/assets, consider flattening to `<topic>.md`.
+1. If a directory contains only one `README.md` and no sibling pages/assets, consider flattening to `<topic>.md` (**exception:** keep **`docs/report/README.md`** at this path — see the **Keep `docs/report/README.md`** subsection above).
 2. Keep directory `README.md` only when there are sibling sub-pages needing an index.
 3. Avoid adding new top-level folders unless they contain at least 2-3 durable pages.
 4. Prefer cross-links over duplicate prose.
@@ -238,6 +245,10 @@ Any move must preserve:
    - Add maintainer `maintainer/systems/repository-health.md` focused on Knip/Madge policy, ignores, barrels, examples, leaves/orphans, and future tightening.
 7. **Release validation**
    - run docs build and architecture graph checks.
+8. **`docs/issues/**` catalog and quality pass** (dedicated slice; can land after IA/SDK work)
+   - **Split shared vs command-specific codes:** add **`docs/issues/common.md`** as the home for cross-cutting issue codes (examples: `i18nprune.project.*` from workspace readiness, locales source/target patterns shared by multiple commands, and any other codes that are not tied to a single subcommand). Keep existing **`docs/issues/<topic>.md`** pages for codes that belong to one command or domain only; link from topic pages into **`common.md`** where a code is shared.
+   - **Inventory parity with `issueCodes.ts`:** before closing the slice, reconcile **`packages/core/src/shared/constants/issueCodes.ts`** (and the CLI mirror if present) with **`docs/issues/**`**. Every emitted code should either (a) be documented under **`docs/issues/**`** (including **`common.md`**), or (b) be removed from **`issueCodes.ts`** if it is genuinely dead and never emitted. Prefer documenting real codes over deleting; delete only after proving no emission path (core, CLI, tests, parity fixtures).
+   - **Rewrite standard per code:** each documented issue should have a consistent structure: what triggered it, **what to change and where** (config paths, files, flags), and—when applicable—**which `i18nprune` subcommands or flags** address or narrow the problem. For CLI-guided fixes, briefly state what running that command does (read-only vs writes, scope) so users can choose safely.
 
 ## Validation / release gates for this phase
 

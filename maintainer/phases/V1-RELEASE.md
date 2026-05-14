@@ -31,9 +31,9 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 ## Session C — Extractor hardening (**active**)
 
-**Docs:** [`extractor.md`](./extractor.md) (§0).
+**Docs:** [`extractor.md`](./extractor.md) (§0 — slices C.1.1–C.1.6).
 
-Bounded PR: prose false positives (`t (or vice versa)`-style) + tests. Pure logic work in `packages/core/src/extractor/`. Small scope, few commits.
+Two-phase work in `packages/core/src/extractor/`: **import binding resolution** (C.1.1–C.1.2) adds per-file alias-aware function expansion (regex-based, no AST parser), then **lexical hardening** (C.1.3–C.1.4) rejects prose false positives. Closes with edge-case inventory (C.1.5) and extractor methodology docs (C.1.6).
 
 ---
 
@@ -65,12 +65,14 @@ Update `apps/web` and `apps/workers/i18nprune` to work with the current core API
 
 Goal: **8–10 top-level nav categories** on the docs site, not 35. Group related content, flatten single-file dirs, remove noise.
 
+**Guardrail:** Do **not** delete or relocate **`docs/report/README.md`** as part of cleanup — **report.i18nprune.dev** and multiple repo links depend on that path; see [`docs-refactor.md`](./docs-refactor.md) § *Keep `docs/report/README.md`*.
+
 | Slice | What |
 |-------|------|
 | **D.1** | Root `README.md` rewrite — lead with the problem, not a feature table |
 | **D.2** | Docs nav trim — consolidate 35 top-level dirs to ~10 essential groups |
 | **D.3** | SDK quickstart — `docs/sdk/` with getting-started, runtime adapters, operations |
-| **D.4** | Tree flattening — single-file dirs become sibling files |
+| **D.4** | Tree flattening — single-file dirs become sibling files (**preserve `docs/report/README.md`** — report app + inbound links) |
 | **D.5** | Sidebar + VitePress build validation |
 
 **Essential docs nav (target):**

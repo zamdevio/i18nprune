@@ -2,7 +2,7 @@
 
 **v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** — use first for sequencing.
 
-**Narrative focus:** **Extractor hardening (Session C)** — false-positive reduction in `packages/core/src/extractor/`. After that: patching hardening (C.2) → apps rework (C.3) → docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
+**Narrative focus:** **Extractor hardening (Session C.1)** — import binding resolution + false-positive reduction in `packages/core/src/extractor/`. After that: patching hardening (C.2) → apps rework (C.3) → docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
 
 ---
 
@@ -16,11 +16,20 @@
 
 ---
 
-## Extractor hardening (**Session C — active**)
+## Extractor hardening (**Session C.1 — active**)
 
-**Docs:** [`extractor.md`](./extractor.md) (§0).
+**Docs:** [`extractor.md`](./extractor.md) (§0 — full slice plan C.1.1–C.1.6).
 
-Pure logic work: tighten call-site parsing to reject prose false positives while preserving real commented-call detection. Add regression tests.
+Two-phase work: first add **import binding resolution** (alias-aware per-file function expansion), then **lexical hardening** (prose false-positive rejection). Binding resolution comes first because it enriches the data flowing into call-site detection — all downstream analysis benefits from accurate function sets.
+
+| Slice | What | Status |
+|-------|------|--------|
+| **C.1.1** | Import binding resolution module (`extractor/bindings/`) | **next** |
+| **C.1.2** | Wire binding expansion into orchestrators | pending |
+| **C.1.3** | Call-site lexical hardening (prose rejection in `calls.ts`) | pending |
+| **C.1.4** | Commented-call parity tests | pending |
+| **C.1.5** | Edge-case inventory entries | pending |
+| **C.1.6** | Extractor methodology docs (user-facing + maintainer) | pending |
 
 ---
 
@@ -40,7 +49,7 @@ Update `apps/web` and `apps/workers/i18nprune` to work with current core API aft
 
 **Plan:** [`docs-refactor.md`](./docs-refactor.md) (scoped to v1-essential items).
 
-Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree flattening.
+Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree flattening. **Do not delete `docs/report/README.md`** — **report.i18nprune.dev** and cross-links rely on it (see docs-refactor § *Keep `docs/report/README.md`*).
 
 ---
 

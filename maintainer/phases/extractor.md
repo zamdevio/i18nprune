@@ -18,33 +18,88 @@ It is intentionally **planning-only** (no implementation is implied by its prese
 
 ## Medium-priority roadmap items
 
-### 0) False-positive hardening for comment prose (planned next)
+### 0) Extractor hardening — Session C.1
 
-**Goal:** avoid misclassifying prose text like `t (or vice versa)` as a translation call while preserving detection of real commented-out `t`-family calls.
+**Goal:** make the extractor's call-site detection reliable by adding import binding resolution (alias-aware detection) and then tightening lexical validation to reject prose false positives.
 
-**Why this is first:** this directly affects report/validate signal quality and creates noisy dynamic-site entries that are not real runtime key usage.
+**Why binding resolution comes first:** the current extractor matches configured function names (`functions: ['t']`) by regex. It cannot detect `import { t as newT } from '...'` — if a file aliases `t`, those calls are invisible. Adding per-file binding resolution enriches the function set flowing into `findTranslationCallSites`, making all downstream detection (keySites, dynamic, comment classification) more accurate. The false-positive hardening then operates on this richer input.
 
-**Implementation slices:**
+**Architecture — three-system model:**
 
-1. **Call-site lexical hardening**
-   - Tighten candidate parsing in `packages/core/src/extractor/calls.ts` so pseudo-calls from prose are rejected.
+The extractor uses three complementary systems (no AST parser, no dataflow analysis):
+
+| System | Responsibility | Module |
+|--------|----------------|--------|
+| **Import binding resolver** | Detect aliases (`t as newT`), namespace imports (`* as i18n`), CJS destructuring | `extractor/bindings/` (**new — C.1.1**) |
+| **Scope/const tracker** | Reconstruct `const NS = 'app'` for template substitution | `extractor/constmap/` (shipped) |
+| **Expression evaluator** | Rebuild `` `${NS}.title` `` → `app.title` | `extractor/dynamic/rebuild.ts` (shipped) |
+
+**Per-file pipeline (after C.1.1–C.1.2):**
+
+```
+config.functions ─────────────────────────────────┐
+                                                   ↓
+text = readFile(f) ──→ scanImportBindings(text) ──→ expandFunctionsWithBindings()
+                   ├─→ commentRangesForJsLikeText()        ↓
+                   ├─→ buildConstStringMap()          effectiveFunctions
+                   │                                       ↓
+                   └───────────────────────→ findTranslationCallSites(text, effectiveFunctions)
+                                                           ↓
+                                              ┌────────────┴────────────┐
+                                              ↓                        ↓
+                                      scanKeyObservations    findDynamicKeySitesRaw
+                                      (keySites pipeline)    (dynamic pipeline)
+```
+
+**Import patterns handled by binding resolution (all regex-feasible):**
+
+| Pattern | Example | Result |
+|---------|---------|--------|
+| Named import | `import { t } from '...'` | `t` confirmed as translation fn |
+| Named import with alias | `import { t as newT } from '...'` | `newT` added to effective set |
+| Default import | `import i18n from '...'` | `i18n.t` added when `t` is configured |
+| Namespace import | `import * as i18n from '...'` | `i18n.t` added when `t` is configured |
+| CJS destructuring | `const { t } = require('...')` | `t` confirmed |
+| CJS with rename | `const { t: newT } = require('...')` | `newT` added |
+
+**Patterns NOT handled (documented as known limits — no dataflow analysis):**
+
+| Pattern | Why skipped |
+|---------|-------------|
+| `const tt = t; tt('key')` | Requires variable tracking across statements |
+| `const fn = cond ? t : other` | Requires control-flow analysis |
+| `foo(t)` / higher-order passing | Requires understanding function signatures |
+| `const { t } = useTranslation()` | Runtime return value — needs framework-specific hook config (deferred) |
+
+**Implementation slices (Session C.1):**
+
+1. **C.1.1 — Import binding resolution module**
+   - New `packages/core/src/extractor/bindings/imports.ts`: regex-based scanner for ESM `import` and CJS `require` destructuring patterns.
+   - New `packages/core/src/extractor/bindings/expand.ts`: expand configured `functions[]` with per-file alias discoveries.
+   - Types: `ImportBinding` type in `packages/core/src/types/extractor/bindings/`.
+   - Tests: `packages/core/src/extractor/bindings/__tests__/imports.test.ts` — all six import patterns, negative cases.
+2. **C.1.2 — Wire binding expansion into orchestrators**
+   - `packages/core/src/extractor/keySites/orchestrate.ts`: call `scanImportBindings` + `expandFunctionsWithBindings` per file before `scanKeyObservations`.
+   - `packages/core/src/extractor/dynamic/orchestrate.ts`: same expansion before `findDynamicKeySitesForFile`.
+   - `packages/core/src/extractor/dynamic/providers/javascript.ts`: accept expanded functions.
+   - Tests: extend `keySites/__tests__/scan.test.ts` and `dynamic/__tests__/rebuild.test.ts` with alias scenarios.
+3. **C.1.3 — Call-site lexical hardening (false-positive rejection)**
+   - Tighten candidate parsing in `packages/core/src/extractor/calls.ts`: reject candidates where `firstArgRaw` matches prose patterns (consecutive lowercase words separated by whitespace, not valid JS expression starts).
    - Keep valid JS/TS expression starts accepted so real code-like calls (including commented-out code) remain detectable.
-2. **Commented behavior parity**
-   - Keep current semantics in `packages/core/src/extractor/dynamic/providers/javascript.ts`:
-     - real commented code calls are still emitted,
-     - marked with `isCommented` / `kind: commented`.
-3. **Regression tests**
-   - Add explicit tests for:
-     - prose false-positive rejection (`t (or vice versa)`-style),
-     - real commented call detection still working,
-     - unchanged behavior for normal active calls.
-4. **Deferred edge-case tracking**
-   - Add inventory entries in `docs/edge-cases/unsolved/inventory.md` for:
-     - comment prose false positives,
-     - translator function aliasing detection,
-     - related alias/wrapper edge cases.
+   - New `packages/core/src/extractor/__tests__/calls.test.ts`: prose rejection (`t (or vice versa)`-style), preserved detection for all valid call shapes.
+4. **C.1.4 — Commented-call parity tests**
+   - Verify that after C.1.3, real commented-out code calls are still detected with `isCommented: true` / `kind: 'commented'`.
+   - Tests in `packages/core/src/extractor/dynamic/__tests__/`: `// t('key')` detected + marked, `// t (or vice versa)` not detected.
+5. **C.1.5 — Edge-case inventory entries**
+   - Add entries to `docs/edge-cases/unsolved/inventory.md`:
+     - Comment prose false positives (what C.1.3 catches, what remains).
+     - Reassignment aliasing (`const tt = t` — skipped, why).
+     - Hook return destructuring (`useTranslation()` — deferred, approach).
+6. **C.1.6 — Extractor methodology documentation**
+   - **User-facing** `docs/extractor/README.md` (new): the three-system architecture, what patterns are detected, what patterns are NOT, best practices for `t()` usage, detection limits.
+   - **Maintainer** `maintainer/systems/README.md` update: extractor subsystem map with `bindings/` module, pipeline diagram.
 
-**Tracking note:** full execution plan lives at `/home/amf/.cursor/plans/extractor_false_positive_hardening_88836a77.plan.md`. 
+**Execution order:** C.1.1 → C.1.2 → C.1.3 → C.1.4 → C.1.5 → C.1.6. Binding resolution first (C.1.1–C.1.2), then hardening (C.1.3–C.1.4), then documentation (C.1.5–C.1.6).
 
 
 ### 1) Add non-JS/TS languages (deferred)
