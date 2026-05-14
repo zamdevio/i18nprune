@@ -218,12 +218,30 @@ These are candidates to evaluate during the phase, not mandatory immediate moves
 - `docs/exports/**` should be folded into `docs/sdk/**` once SDK docs are stable; keep it as a compatibility/source page until then.
 - small single-file directories across `docs/**` may be flattened where rule #1 applies.
 - topology links should be added to major command/config/behavior pages before any large folder moves.
+- **`docs/cli/cache.md`:** relocate and rewrite (see **Project disk cache documentation** below); do not leave long-lived cache engine prose under **`docs/cli/`** once core ownership is reflected in docs.
 
 Any move must preserve:
 
 - stable internal links,
 - docs site sidebar coherence,
 - migration notes for renamed paths.
+
+## Project disk cache documentation (planned)
+
+**Current gap:** `docs/cli/cache.md` is titled like CLI-only docs and cites **`packages/cli/src/shared/cache/paths.ts`** and **`packages/cli/src/shared/cache/dispatch.ts`**. The **authoritative** on-disk cache layout, validation, and report-cache orchestration live under **`packages/core/src/cache/**`**. The CLI still owns **user-facing flags** (`--no-cache`, `--debug-cache`), **logger diagnostics**, and **host wiring** into core — public docs should describe that boundary.
+
+**Planned work (see execution slice 9):**
+
+1. **Accuracy pass:** replace stale paths and symbols with the **current** tree (inventory during the slice: e.g. `packages/core/src/cache/dispatch.ts`, `setup/paths.ts`, `engine.ts`, `io/*`, `packages/core/src/types/cache/**`, plus any remaining thin CLI shims under `packages/cli/src/shared/cache/` that only delegate).
+2. **Relocate:** move the long-form page **out of `docs/cli/`**; keep **`docs/cli/README.md`** to a **one-line pointer** to the canonical page.
+3. **Canonical URL — TBD when implementing:** pick one home in the same PR as sidebar + link updates, for example:
+   - **`docs/cache/README.md`** — product-facing hub (layout under `~/.i18nprune/cache/`, clearing, relationship to **`report`**),
+   - **`docs/architecture/cache.md`** — layering (core engine vs CLI host),
+   - **`docs/behavior/cache.md`** — emphasize global flags and bypass semantics,
+   - **`docs/sdk/…`** — only if the primary audience is programmatic / adapter contracts.
+4. **Inbound link sweep:** `docs/cli/README.md`, **`docs/performance/**`**, **`docs/commands/report/**`**, versioning cross-refs, and any architecture pages that mention old cache paths.
+
+**Non-goals for this slice:** no on-disk format or runtime behavior changes — documentation and IA only.
 
 ## Execution slices (recommended)
 
@@ -249,6 +267,8 @@ Any move must preserve:
    - **Split shared vs command-specific codes:** add **`docs/issues/common.md`** as the home for cross-cutting issue codes (examples: `i18nprune.project.*` from workspace readiness, locales source/target patterns shared by multiple commands, and any other codes that are not tied to a single subcommand). Keep existing **`docs/issues/<topic>.md`** pages for codes that belong to one command or domain only; link from topic pages into **`common.md`** where a code is shared.
    - **Inventory parity with `issueCodes.ts`:** before closing the slice, reconcile **`packages/core/src/shared/constants/issueCodes.ts`** (and the CLI mirror if present) with **`docs/issues/**`**. Every emitted code should either (a) be documented under **`docs/issues/**`** (including **`common.md`**), or (b) be removed from **`issueCodes.ts`** if it is genuinely dead and never emitted. Prefer documenting real codes over deleting; delete only after proving no emission path (core, CLI, tests, parity fixtures).
    - **Rewrite standard per code:** each documented issue should have a consistent structure: what triggered it, **what to change and where** (config paths, files, flags), and—when applicable—**which `i18nprune` subcommands or flags** address or narrow the problem. For CLI-guided fixes, briefly state what running that command does (read-only vs writes, scope) so users can choose safely.
+9. **Project disk cache — relocate + refresh** (docs-only; standalone or batched with IA / navigation polish)
+   - Execute **Project disk cache documentation (planned)** above: rewrite for **`packages/core/src/cache/**`**, move off **`docs/cli/cache.md`**, choose **canonical path TBD** at slice time, update **`apps/docs/.vitepress/sidebar.ts`**, and fix inbound links.
 
 ## Validation / release gates for this phase
 

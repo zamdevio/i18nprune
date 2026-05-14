@@ -74,6 +74,7 @@ Goal: **8–10 top-level nav categories** on the docs site, not 35. Group relate
 | **D.3** | SDK quickstart — `docs/sdk/` with getting-started, runtime adapters, operations |
 | **D.4** | Tree flattening — single-file dirs become sibling files (**preserve `docs/report/README.md`** — report app + inbound links) |
 | **D.5** | Sidebar + VitePress build validation |
+| **D.6** | **Disk cache docs** — relocate + rewrite per [`docs-refactor.md`](./docs-refactor.md) § *Project disk cache documentation* (core-owned engine; canonical URL **TBD** at execution) |
 
 **Essential docs nav (target):**
 
