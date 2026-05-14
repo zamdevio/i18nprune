@@ -8,6 +8,8 @@ VitePress navigation is **manual** in **`apps/docs/.vitepress/sidebar.ts`**. Whe
 
 Default theme extensions live in **`.vitepress/theme/`** (`custom.css` + `index.ts`). Palette matches **landing / web** (`apps/landing/src/index.css`, `apps/web/src/styles.css`); tweak there in spirit when rebranding.
 
+Phase 2 in the same file: **code block + tab strip + callout radius**, **frosted local nav**, **desktop sidebar edge**, **thin scrollbars** (webkit + Firefox `scrollbar-width`).
+
 ---
 
 # i18nprune docs2 (planned migration sandbox)

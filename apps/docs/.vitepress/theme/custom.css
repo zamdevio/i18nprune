@@ -4,6 +4,9 @@
  */
 
 :root {
+  /* Match landing --radius (0.75rem) for code + panels */
+  --i18n-docs-radius: 0.75rem;
+
   /* Surfaces */
   --vp-c-bg: hsl(170 20% 98%);
   --vp-c-bg-alt: hsl(170 20% 96%);
@@ -83,4 +86,89 @@
 
 .dark .VPNav {
   border-bottom-color: color-mix(in hsl, hsl(170 20% 18%) 70%, transparent);
+}
+
+/* Local nav: same frosted bar + softer divider (mobile / tablet) */
+.VPLocalNav {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom-color: color-mix(in hsl, hsl(170 20% 88%) 55%, transparent);
+}
+
+.dark .VPLocalNav {
+  border-bottom-color: color-mix(in hsl, hsl(170 20% 18%) 55%, transparent);
+}
+
+/* Desktop sidebar: light edge vs main content */
+@media (min-width: 960px) {
+  .VPSidebar {
+    border-right: 1px solid color-mix(in hsl, hsl(170 20% 88%) 45%, transparent);
+  }
+
+  .dark .VPSidebar {
+    border-right-color: color-mix(in hsl, hsl(170 20% 18%) 50%, transparent);
+  }
+}
+
+/* Code: align radii with landing card radius */
+.vp-doc :not(pre) > code {
+  border-radius: var(--i18n-docs-radius);
+}
+
+@media (min-width: 640px) {
+  .vp-doc div[class*='language-'],
+  .vp-block {
+    border-radius: var(--i18n-docs-radius);
+  }
+
+  .vp-code-group .tabs {
+    border-radius: var(--i18n-docs-radius) var(--i18n-docs-radius) 0 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .vp-doc li div[class*='language-'] {
+    border-radius: var(--i18n-docs-radius) 0 0 var(--i18n-docs-radius);
+  }
+}
+
+/* Scrollbars (webkit + Firefox thin) — same spirit as apps/landing */
+* {
+  scrollbar-color: color-mix(in hsl, hsl(170 20% 72%) 55%, transparent) var(--vp-c-bg);
+  scrollbar-width: thin;
+}
+
+.dark * {
+  scrollbar-color: color-mix(in hsl, hsl(170 20% 35%) 50%, transparent) var(--vp-c-bg);
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--vp-c-bg);
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: color-mix(in hsl, hsl(170 20% 72%) 55%, transparent);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in hsl, hsl(170 20% 55%) 65%, transparent);
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background: color-mix(in hsl, hsl(170 20% 35%) 50%, transparent);
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in hsl, hsl(170 20% 48%) 55%, transparent);
+}
+
+/* Admonition / callout panels */
+.custom-block {
+  border-radius: var(--i18n-docs-radius);
 }
