@@ -6,7 +6,7 @@ Read-only **diagnostics** for local setup and CI.
 
 ## Data flow
 
-1. **`preAction`** sets **`RunOptions`** (including **`--json`**) and skips **`ensureConfig`** so `doctor` runs without writing a config.
+1. **`preAction`** sets **`RunOptions`** (including **`--json`**) and never writes a config file; **`doctor`** is read-only.
 2. **`doctor()`** (`packages/cli/src/commands/doctor/run.ts`) runs checks in order: **`runtime`** → **`tools`** → **`config`** → **`paths`**.
 3. Each check returns a **`DoctorFinding`**: **`id`**, **`severity`** (`ok` | `warn` | `error`), **`title`**, optional **`detail`**.
 4. **Human mode:** lines go through **`logger`**; **`printCommandSummary`** ends the session.

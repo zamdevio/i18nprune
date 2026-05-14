@@ -32,6 +32,7 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | [locales](./locales.md) | `locales` usage and target resolution |
 | [missing](./missing.md) | `missing` vs paths in the current scan |
 | [patching](./patching.md) | Patching analyzer findings |
+| [project](./project.md) | Workspace path preflight (`runProjectReadiness`, `i18nprune.project.*`) |
 | [quality](./quality.md) | Quality hints (e.g. identical English leaves) |
 | [report](./report.md) | Report format and payload errors |
 | [scan](./scan.md) | Dynamic key sites across pipelines |
@@ -43,6 +44,10 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 
 | `code` | Default severity | Emitted by |
 |--------|------------------|------------|
+| `i18nprune.project.config_file_missing` | `error` | **`runProjectReadiness`** when no `i18nprune.config.*` was discovered (CLI **`configFileLoaded: false`**) |
+| `i18nprune.project.source_locale_unavailable` | `error` | **`runProjectReadiness`** (CLI gates + SDK) |
+| `i18nprune.project.locales_dir_unavailable` | `error` | **`runProjectReadiness`** |
+| `i18nprune.project.src_root_unavailable` | `error` | **`runProjectReadiness`** |
 | `i18nprune.context.discovery_warning` | `warning` | Context resolution, **`tryResolveContext`** |
 | `i18nprune.context.resolution_failed` | `error` | **`tryResolveContext`** on failure |
 | `i18nprune.validate.missing_literal_keys` | `warning` | **`validate`**, **`runValidate`** |

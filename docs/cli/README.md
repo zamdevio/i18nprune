@@ -7,7 +7,7 @@
 1. **Argv** is passed through **`preprocessArgv`** (`packages/cli/src/argv/index.ts`) before Commander parses it.
 2. **`preAction`** on the root command:
    - Resolves **`setConfigPath`**, **`ensureConfigPathResolved`** (duplicate config files), **`setRunOptions`**, **`setCliGlobalOverrides`**, clears context cache.
-   - Skips **`ensureConfig`** for **`init`**, **`config`**, **`languages`**, **`help`**, **`review`**, **`doctor`** so those work without creating a config file first.
+   - Does **not** create a config file: use **`i18nprune init`** when **`i18nprune.project.config_file_missing`** applies.
 3. **`RunOptions`** (`json`, `quiet`, `silent`) is the **process-wide** verbosity contract; commands read it via **`getRunOptions()`** or **`resolveContext().run`**. There is **no** separate JSON envelope flag: when JSON is emitted, it **always** uses the envelope shape documented under [JSON output (`--json`)](../json/README.md).
 
 ## Subcommands

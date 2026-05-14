@@ -96,8 +96,6 @@ With global **`--yes`**, `generate` skips meta prompts and uses existing sidecar
 - **Missing target selector:** fail fast with a clear usage or configuration error; **exit code non-zero** (typically **1** or **2** for usage-class errors — see [Exit codes & behavior](../../behavior/README.md)).
 - **Target code not in the bundled catalog** (unknown or unsupported code after normalization): **fail fast** with an error that names the code and points you at **`i18nprune languages`** and the docs; **exit non-zero**.
 
-When a config file already exists, **`generate`** does **not** print the informational **`Config already exists …`** line (same **`silentIfExists`** behaviour as **`locales`** — see [Roadmap](../../roadmap/README.md)).
-
 See global **`--json`**, **`--quiet`**, **`--silent`**, and [JSON mode & long commands](../../behavior/json-long.md).
 
 ### JSON mode (primary envelope)
