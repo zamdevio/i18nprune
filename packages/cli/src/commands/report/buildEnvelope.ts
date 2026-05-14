@@ -8,7 +8,7 @@ import {
 import { projectReportDocumentSchema } from '@i18nprune/report';
 import { formatProjectReportDocument } from '@/commands/report/write.js';
 import { resolveReportOutputPath } from '@/utils/report/index.js';
-import { runReport as runReportCore } from '@i18nprune/core';
+import { runReport as runReportCore, runProjectReadiness } from '@i18nprune/core';
 import type { ReportHostHooks, ReportRunOptions } from '@i18nprune/core';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import type { Context } from '@/types/core/context/index.js';
@@ -77,6 +77,24 @@ export async function runReportOperation(
   const coreOpts: ReportRunOptions = opts.from
     ? { source: 'file', preloadedDocument: parseReportJsonFromFile(opts.from, ctx.adapters.fs) }
     : { source: 'project' };
+
+  if (!opts.from) {
+    const pr = runProjectReadiness(createCliCoreContext(ctx), { mode: 'preset', preset: 'report' });
+    if (!pr.ok) {
+      const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), pr.issues);
+      const envelope = buildCliJsonEnvelope(
+        'report',
+        {
+          kind: 'report' as const,
+          format: opts.format,
+          outputPath: null,
+          document: {} as import('@/types/command/report/index.js').ProjectReportDocument,
+        },
+        { ok: false, issues, cwd: ctx.adapters.system.cwd() },
+      );
+      return { envelope, wrotePath: null, dynamicSitesCount: 0, ctx };
+    }
+  }
 
   const coreCtx = createCliCoreContext(ctx);
   const result = runReportCore(coreCtx, coreOpts, host);

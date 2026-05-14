@@ -2,6 +2,7 @@ import { confirm } from '@inquirer/prompts';
 import { createCliCoreContext, resolveContext } from '@/shared/context/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import {
+  buildCliJsonEnvelope,
   createCleanupSourceWritePlan,
   emitCleanupAbortMessage,
   emitCleanupAskIgnoredMessage,
@@ -13,13 +14,15 @@ import {
   writeCleanupPlan,
 } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
-import { executeCore, runCleanupJsonEnvelope } from '@/commands/cleanup/jsonEnvelope.js';
+import { executeCore, runCleanupJsonEnvelope, emptyCleanupPayload } from '@/commands/cleanup/jsonEnvelope.js';
 import { canAsk, promptApprovedRemovalKeys } from '@/shared/ask/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import type { CleanupOptions } from '@/types/command/cleanup/index.js';
 import type { CleanupJsonOutput, CliJsonEnvelope, CoreContext } from '@i18nprune/core';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
+import { logger } from '@/utils/logger/index.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
 
 function createCleanupCoreContext(ctx: Awaited<ReturnType<typeof resolveContext>>): CoreContext {
   return createCliCoreContext(ctx);
@@ -30,6 +33,47 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
   try {
     const ctx = await resolveContext();
     const runId = String(Date.now());
+
+    const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'cleanup' });
+    if (readiness) {
+      if (ctx.run.json) {
+        const envelope = buildCliJsonEnvelope('cleanup', emptyCleanupPayload(), {
+          ok: false,
+          issues: readiness,
+          cwd: ctx.adapters.system.cwd(),
+        });
+        const durationMs = wall.elapsedMs();
+        const d = envelope.data;
+        const withSummary: CliJsonEnvelope<'cleanup', CleanupJsonOutput> = {
+          ...envelope,
+          data: {
+            ...d,
+            summary: {
+              durationMs,
+              command: 'cleanup',
+              ok: false,
+              counts: { remove: d.wouldRemove, dynamicKeySites: d.dynamicKeySites },
+            },
+          },
+        };
+        console.log(stringifyEnvelope(withSummary));
+        applyCliCiExitGate(false);
+        return;
+      }
+      if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
+      printCommandSummary(
+        {
+          command: 'cleanup',
+          ok: false,
+          durationMs: wall.elapsedMs(),
+          counts: { remove: 0, dynamic: 0, keyObservations: 0 },
+          issues: readiness,
+        },
+        ctx,
+      );
+      applyCliCiExitGate(false);
+      return;
+    }
 
     if (ctx.run.json) {
       const { envelope } = runCleanupJsonEnvelope(ctx, opts, { emit: noopRunEmitter, runId });

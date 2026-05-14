@@ -166,6 +166,7 @@ export async function resolveContext(cwd = process.cwd()): Promise<Context> {
       run,
       meta: {
         fieldSources: sources,
+        configFileLoaded: fileLoaded,
         warnings: discoveryWarnings,
         cache: cacheInit.state,
         cacheBaselineFiles,

@@ -16,6 +16,7 @@ function makeContext(): Context {
     run: { json: true, jsonPretty: true, quiet: false, silent: false, debugScan: false, debugCache: false },
     meta: {
       fieldSources: {},
+      configFileLoaded: true,
       warnings: [],
       cache: {
         enabled: false,

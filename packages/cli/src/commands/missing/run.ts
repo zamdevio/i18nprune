@@ -14,8 +14,8 @@ import {
   writeMissingPaths,
 } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@i18nprune/core';
-import { executeCore, runMissingJsonEnvelope } from '@/commands/missing/jsonEnvelope.js';
+import { stringifyEnvelope, buildCliJsonEnvelope } from '@i18nprune/core';
+import { executeCore, runMissingJsonEnvelope, emptyMissingPayload } from '@/commands/missing/jsonEnvelope.js';
 import { canAsk } from '@/shared/ask/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
@@ -23,6 +23,8 @@ import type { MissingOptions } from '@/types/command/missing/index.js';
 import type { MissingPathDisplayOpts } from '@/types/command/missing/summary.js';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
+import { logger } from '@/utils/logger/index.js';
 import type { RunEmitter } from '@i18nprune/core';
 
 function resolveMissingData(
@@ -42,6 +44,36 @@ export async function missing(opts: MissingOptions): Promise<void> {
     const { run } = ctx;
     const emit = createCliRunEmitter(run);
     const runtime = { emit, runId };
+
+    const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'missing' });
+    if (readiness) {
+      if (run.json) {
+        console.log(
+          stringifyEnvelope(
+            buildCliJsonEnvelope('missing', emptyMissingPayload(opts), {
+              ok: false,
+              issues: readiness,
+              cwd: ctx.adapters.system.cwd(),
+            }),
+          ),
+        );
+        applyCliCiExitGate(false);
+        return;
+      }
+      if (readiness[0]) logger.warn(readiness[0].message, run);
+      printCommandSummary(
+        {
+          command: 'missing',
+          ok: false,
+          durationMs: wall.elapsedMs(),
+          counts: { added: 0, targets: 0, skippedTargets: 0 },
+          issues: readiness,
+        },
+        ctx,
+      );
+      applyCliCiExitGate(false);
+      return;
+    }
 
     if (run.json) {
       const { envelope } = runMissingJsonEnvelope(ctx, opts, { emit: noopRunEmitter, runId }, {

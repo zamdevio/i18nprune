@@ -14,6 +14,8 @@ import type { LocalesListJsonPayload } from '@/types/command/locales/json.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
 
 function emptyListPayload(localesDir: string, sourceLocalePath: string, pathPort: { basename(p: string, ext?: string): string }): LocalesListJsonPayload {
   const sourceLocaleCode = pathPort.basename(sourceLocalePath, '.json');
@@ -32,6 +34,37 @@ export async function localesList(): Promise<void> {
   const wall = attachWallTimer();
   const ctx = await resolveContext();
   const { localesDir, sourceLocale } = ctx.paths;
+
+  const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'locales-list' });
+  if (readiness) {
+    if (ctx.run.json) {
+      console.log(
+        stringifyEnvelope(
+          buildCliJsonEnvelope('locales-list', emptyListPayload(localesDir, sourceLocale, ctx.adapters.path), {
+            ok: false,
+            issues: readiness,
+            cwd: ctx.adapters.system.cwd(),
+          }),
+        ),
+      );
+      applyCliCiExitGate(false);
+      return;
+    }
+    if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
+    printCommandSummary(
+      {
+        command: 'locales list',
+        ok: false,
+        durationMs: wall.elapsedMs(),
+        counts: { locales: 0, targets: 0 },
+        issues: readiness,
+      },
+      ctx,
+    );
+    applyCliCiExitGate(false);
+    return;
+  }
+
   try {
     const coreCtx = createCliCoreContext(ctx);
     const { payload } = runLocalesList(coreCtx);

@@ -32,6 +32,8 @@ import type { LocalesEditOptions } from '@/types/commands/locales/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
 type ResolvedEditTargets = {
   targets: string[];
@@ -112,6 +114,32 @@ export async function localesEdit(opts: LocalesEditOptions = {}): Promise<void> 
     rows: [],
     supportsAutoPatching: true,
   };
+  const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'locales-edit' });
+  if (readiness) {
+    const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), readiness);
+    if (ctx.run.json) {
+      console.log(
+        stringifyEnvelope(
+          buildCliJsonEnvelope('locales-edit', emptyPayload, {
+            ok: false,
+            issues,
+            cwd: process.cwd(),
+          }),
+        ),
+      );
+      applyCliCiExitGate(false);
+      wall.dispose();
+      return;
+    }
+    if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
+    printCommandSummary(
+      { command: 'locales edit', ok: false, durationMs: wall.elapsedMs(), issues },
+      ctx,
+    );
+    applyCliCiExitGate(false);
+    wall.dispose();
+    return;
+  }
   try {
     const absDir = ctx.paths.localesDir;
     assertHostDirectory(absDir, ctx.adapters.fs);

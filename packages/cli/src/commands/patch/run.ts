@@ -30,6 +30,8 @@ import { canAsk } from '@/shared/ask/index.js';
 import { duringPrompt } from '@/utils/timer/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import type { PatchCommandOptions } from '@/types/command/patch/index.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
+import { printCommandSummary } from '@/output/index.js';
 
 function warnForceWithoutInit(): void {
   const run = getRunOptions();
@@ -118,6 +120,24 @@ function tryReplacePatchingConfig(fileText: string, snippet: string): {
 export async function patch(opts: PatchCommandOptions): Promise<void> {
   const run = getRunOptions();
   const ctx = await resolveContext();
+
+  const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'patch' });
+  if (readiness) {
+    const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), readiness);
+    if (run.json) {
+      console.log(
+        stringifyEnvelope(
+          buildCliJsonEnvelope('patch', { kind: 'patch' }, { ok: false, issues, cwd: ctx.adapters.system.cwd() }),
+        ),
+      );
+      process.exitCode = 1;
+      return;
+    }
+    if (readiness[0]) logger.warn(readiness[0].message, run);
+    printCommandSummary({ command: 'patch', ok: false, issues }, ctx);
+    process.exitCode = 1;
+    return;
+  }
 
   if (opts.force && !opts.init) {
     warnForceWithoutInit();

@@ -8,6 +8,8 @@ export type ConfigSnapshot = {
   kind: 'i18nprune.config';
   cliVersion: string;
   configPath: string | null;
+  /** True when an `i18nprune.config.*` was found (or `--config` points at an existing file). */
+  configFileLoaded: boolean;
   config: unknown;
   resolvedPaths: Context['paths'];
   /** Which layer last wrote each config field (`file` = from config **file**, not “filesystem file”). */

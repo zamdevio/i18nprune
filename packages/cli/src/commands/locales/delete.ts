@@ -23,6 +23,8 @@ import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 import { existsRuntimeFsSync } from '@i18nprune/core';
+import { cliReadinessIssues } from '@/shared/project/index.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
 export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
   const wall = attachWallTimer();
@@ -35,6 +37,32 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
     aborted: false,
     supportsAutoPatching: false,
   };
+  const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'locales-delete' });
+  if (readiness) {
+    const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), readiness);
+    if (ctx.run.json) {
+      console.log(
+        stringifyEnvelope(
+          buildCliJsonEnvelope('locales-delete', emptyPayload, {
+            ok: false,
+            issues,
+            cwd: process.cwd(),
+          }),
+        ),
+      );
+      applyCliCiExitGate(false);
+      wall.dispose();
+      return;
+    }
+    if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
+    printCommandSummary(
+      { command: 'locales delete', ok: false, durationMs: wall.elapsedMs(), issues },
+      ctx,
+    );
+    applyCliCiExitGate(false);
+    wall.dispose();
+    return;
+  }
   try {
     const targets = await resolveLocalesTargetCodes(ctx, 'locales delete', opts.target, {
       promptWhenMissing: true,

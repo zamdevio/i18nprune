@@ -19,7 +19,13 @@ function printHumanReportSummary(
   envelope: CliJsonEnvelope<'report', ReportCliJsonPayload>,
   ctx: Context,
 ): void {
-  const sum = envelope.data.document.summary;
+  const sum = envelope.data.document.summary ?? {
+    missingKeysCount: 0,
+    dynamicSitesCount: 0,
+    keyObservationsCount: 0,
+    sourceFilesScannedCount: 0,
+    ok: false,
+  };
   printCommandSummary(
     {
       command: 'report',

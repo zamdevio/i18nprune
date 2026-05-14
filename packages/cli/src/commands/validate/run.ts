@@ -1,8 +1,9 @@
 import { resolveContext } from '@/shared/context/index.js';
 import { getDisplaySourceLocaleCode } from '@/shared/locales/index.js';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@i18nprune/core';
-import { executeValidateCore } from './jsonEnvelope.js';
+import { stringifyEnvelope, buildCliJsonEnvelope } from '@i18nprune/core';
+import { emptyValidateData, executeValidateCore } from './jsonEnvelope.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
 import { buildValidateHumanView, buildValidateReportView } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
 import type { ValidateOptions, ValidateJsonOutput } from '@/types/command/validate/index.js';
@@ -17,6 +18,7 @@ import { getCliGlobalOverrides } from '@/shared/context/globals.js';
 import { issuesFromPatchingDiagnostics, mergeIssues } from '@/shared/result/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
+import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 
 function pushValidateReportEntriesFromEnvelope(
   ctx: { config: I18nPruneConfig },
@@ -51,12 +53,44 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
   const wall = attachWallTimer();
   try {
     const ctx = await resolveContext();
+    const readinessIssues = cliReadinessIssues(ctx, { mode: 'preset', preset: 'validate' });
+    if (readinessIssues) {
+      if (ctx.run.json) {
+        console.log(
+          stringifyEnvelope(
+            buildCliJsonEnvelope('validate', emptyValidateData(), {
+              ok: false,
+              issues: readinessIssues,
+              cwd: ctx.adapters.system.cwd(),
+            }),
+          ),
+        );
+        applyCliCiExitGate(false);
+        return;
+      }
+      if (readinessIssues[0]) {
+        logger.warn(readinessIssues[0].message, ctx.run);
+      }
+      printCommandSummary(
+        {
+          command: 'validate',
+          ok: false,
+          durationMs: wall.elapsedMs(),
+          counts: { missing: 0, dynamic: 0, keyObservations: 0 },
+          issues: readinessIssues,
+        },
+        ctx,
+      );
+      applyCliCiExitGate(false);
+      return;
+    }
+
     const runId = String(Date.now());
     let envelope: CliJsonEnvelope<'validate', ValidateJsonOutput>;
     let fullDynamicSites: DynamicKeySite[] = [];
     let fullKeyObservations: KeyObservation[] = [];
 
-    const resolved = executeValidateCore(ctx, { runId });
+    const resolved = executeValidateCore(ctx, { runId, emit: createCliRunEmitter(ctx.run) });
     envelope = resolved.envelope;
     fullDynamicSites = resolved.fullDynamicSites;
     fullKeyObservations = resolved.fullKeyObservations;
@@ -84,10 +118,14 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
     }
 
     const humanView = buildValidateHumanView({ missing: envelope.data.missing, dynamicSites: fullDynamicSites });
+    const readFailed = envelope.issues.some((i) => i.code === ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED);
     if (humanView.dynamicWarning) {
       logger.warn(humanView.dynamicWarning, ctx.run);
     }
-    if (envelope.data.missing.length === 0) {
+    if (readFailed) {
+      const m = envelope.issues.find((i) => i.code === ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED)?.message;
+      if (m) logger.warn(m, ctx.run);
+    } else if (envelope.data.missing.length === 0) {
       logger.info(humanView.missingMessage, ctx.run);
     } else {
       logger.warn(humanView.missingMessage, ctx.run);

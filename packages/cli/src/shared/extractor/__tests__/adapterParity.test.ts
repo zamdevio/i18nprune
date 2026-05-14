@@ -31,6 +31,7 @@ function fixtureContext(): Context {
     meta: {
       warnings: [],
       fieldSources: {},
+      configFileLoaded: true,
       cache: {
         enabled: false,
         reason: 'default',

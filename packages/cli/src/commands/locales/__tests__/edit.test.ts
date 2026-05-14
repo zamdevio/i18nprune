@@ -54,6 +54,7 @@ function makeContext(root: string, run: Partial<Context['run']> = {}): Context {
     },
     meta: {
       fieldSources: {},
+      configFileLoaded: true,
       warnings: [],
       cache: {
         enabled: false,

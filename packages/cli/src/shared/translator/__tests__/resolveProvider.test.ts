@@ -40,6 +40,7 @@ function makeContext(overrides?: Partial<I18nPruneConfig>): Context {
     run: { json: false, jsonPretty: true, quiet: false, silent: false, debugScan: false, debugCache: false },
     meta: {
       fieldSources: {},
+      configFileLoaded: true,
       warnings: [],
       cache: {
         enabled: false,

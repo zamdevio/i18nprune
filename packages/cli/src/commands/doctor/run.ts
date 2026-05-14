@@ -24,9 +24,11 @@ import { logger } from '@/utils/logger/index.js';
 import { canPrintWarn } from '@/utils/logger/policy.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
+import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
 import { resolveProjectAnalysis } from '@i18nprune/core';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
 import type { DoctorFinding, DoctorJsonPayload } from '@i18nprune/core';
 import type { DoctorOptions } from '@/types/commands/doctor/index.js';
 
@@ -51,7 +53,11 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
 
     if (run.json) {
       try {
-        const envelope = resolveDoctorData(ctx, opts, runId).jsonEnvelope!;
+        let envelope = resolveDoctorData(ctx, opts, runId).jsonEnvelope!;
+        const readinessList = cliReadinessIssues(ctx, { mode: 'preset', preset: 'doctor' });
+        if (readinessList) {
+          envelope = { ...envelope, issues: mergeIssues(envelope.issues, readinessList), ok: false };
+        }
         const patchingAnalysis = await analyzePatchingState({
           command: 'sync',
           action: 'upsert_locales',
@@ -70,7 +76,9 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
         const code = doctorExitCode(findings, strict);
         console.log(stringifyEnvelope(envelopeWithPatching));
         applyCliCiExitGate(
-          code === 0 && patchingAnalysis.diagnostics.every((d) => d.severity !== 'error'),
+          code === 0 &&
+            !readinessList &&
+            patchingAnalysis.diagnostics.every((d) => d.severity !== 'error'),
         );
       } catch (err) {
         const empty: DoctorJsonPayload = {
@@ -85,9 +93,15 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
     }
 
     const findings = resolveDoctorData(ctx, opts, runId).findings!;
-    const coreCtx = createCliCoreContext(ctx);
-    const analysis = resolveProjectAnalysis(coreCtx, { op: 'doctor', runId });
-    const baseline = { dynamic: analysis.dynamicSites.length, keyObservations: analysis.keyObservations.length };
+    const readinessIssues = cliReadinessIssues(ctx, { mode: 'preset', preset: 'doctor' });
+    let baseline = { dynamic: 0, keyObservations: 0 };
+    if (!readinessIssues) {
+      const coreCtx = createCliCoreContext(ctx);
+      const analysis = resolveProjectAnalysis(coreCtx, { emit: createCliRunEmitter(run), op: 'doctor', runId });
+      baseline = { dynamic: analysis.dynamicSites.length, keyObservations: analysis.keyObservations.length };
+    } else if (readinessIssues[0]) {
+      logger.warn(readinessIssues[0].message, run);
+    }
     const patchingAnalysis = await analyzePatchingState({
       command: 'sync',
       action: 'upsert_locales',
@@ -133,7 +147,7 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
     printCommandSummary(
       {
         command: 'doctor',
-        ok: code === 0,
+        ok: code === 0 && !readinessIssues,
         durationMs: wall.elapsedMs(),
         counts: {
           checks: findings.length,
@@ -145,12 +159,17 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
           issuesFromDoctorFindings(findings),
           issuesFromPatchingDiagnostics(patchingAnalysis.diagnostics),
           issuesFromDynamicScanCount(baseline.dynamic),
+          readinessIssues ?? [],
         ),
       },
       { run },
     );
 
-    applyCliCiExitGate(code === 0 && patchingAnalysis.diagnostics.every((d) => d.severity !== 'error'));
+    applyCliCiExitGate(
+      code === 0 &&
+        !readinessIssues &&
+        patchingAnalysis.diagnostics.every((d) => d.severity !== 'error'),
+    );
   } finally {
     wall.dispose();
   }

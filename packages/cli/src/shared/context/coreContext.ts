@@ -8,6 +8,7 @@ export function createCliCoreContext(ctx: Context): CoreContext {
     adapters: ctx.adapters,
     env: process.env,
     paths: ctx.paths,
+    configFileLoaded: ctx.meta.configFileLoaded,
     run: ctx.run,
     cache: {
       state: ctx.meta.cache,

@@ -20,6 +20,9 @@ import type { LocalesDynamicJsonPayload } from '@/types/command/locales/json.js'
 import type { LocalesDynamicOptions } from '@/types/commands/locales/index.js';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
+import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
+import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
 
 /**
  * Read-only: list non-literal translation key sites (heuristic scan). No locale or source writes.
@@ -40,9 +43,44 @@ export async function localesDynamic(opts: LocalesDynamicOptions = {}, run?: Run
       sites: [],
     },
   };
+  const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'locales-dynamic' });
+  if (readiness) {
+    if (ctx.run.json) {
+      console.log(
+        stringifyEnvelope(
+          buildCliJsonEnvelope('locales-dynamic', emptyPayload, {
+            ok: false,
+            issues: readiness,
+            cwd: ctx.adapters.system.cwd(),
+          }),
+        ),
+      );
+      applyCliCiExitGate(false);
+      return;
+    }
+    if (readiness[0]) logger.warn(readiness[0].message, r);
+    printCommandSummary(
+      {
+        command: 'locales dynamic',
+        ok: false,
+        durationMs: wall.elapsedMs(),
+        counts: { dynamic: 0, keyObservations: 0 },
+        issues: readiness,
+      },
+      ctx,
+    );
+    applyCliCiExitGate(false);
+    return;
+  }
+
   try {
     const coreCtx = createCliCoreContext(ctx);
-    const result = runDynamic(coreCtx, { top: opts.top, full: opts.full });
+    const runId = String(Date.now());
+    const result = runDynamic(
+      coreCtx,
+      { top: opts.top, full: opts.full },
+      { emit: createCliRunEmitter(r), runId },
+    );
     const { payload, issues: coreIssues, allSites } = result;
 
     const summaryIssues = mergeIssues(

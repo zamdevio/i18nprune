@@ -10,21 +10,21 @@
  * web / worker hosts via the same **`GenerateHostHooks`** contract.
  */
 
-import { noopRunEmitter } from '@i18nprune/core';
+import { stringifyEnvelope, buildCliJsonEnvelope, noopRunEmitter } from '@i18nprune/core';
 
 import { refreshProjectReportCache, resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { resolveContext } from '@/shared/context/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
-import { stringifyEnvelope } from '@i18nprune/core';
 import { logTranslateFailureHelp } from '@/shared/translator/failureHelp.js';
 import { printCommandSummary } from '@/output/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
 
 import { mergeGenerateOptionsFromEnv } from '@/commands/generate/env.js';
-import { executeCore, runGenerateJsonEnvelope } from '@/commands/generate/jsonEnvelope.js';
+import { executeCore, runGenerateJsonEnvelope, emptyGeneratePayload } from '@/commands/generate/jsonEnvelope.js';
 
 import type { GenerateOptions } from '@/types/command/generate/index.js';
 import type { GenerateJsonPayload } from '@i18nprune/core';
@@ -41,6 +41,30 @@ export async function generate(opts: GenerateOptions): Promise<void> {
     const ctx = await resolveContext();
     const merged = mergeGenerateOptionsFromEnv(opts);
     const runId = String(Date.now());
+
+    const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'generate' });
+    if (readiness) {
+      if (ctx.run.json) {
+        console.log(
+          stringifyEnvelope(
+            buildCliJsonEnvelope('generate', emptyGeneratePayload(ctx, merged), {
+              ok: false,
+              issues: readiness,
+              cwd: ctx.adapters.system.cwd(),
+            }),
+          ),
+        );
+        applyCliCiExitGate(false);
+        return;
+      }
+      if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
+      printCommandSummary(
+        { command: 'generate', ok: false, durationMs: wall.elapsedMs(), issues: readiness },
+        ctx,
+      );
+      applyCliCiExitGate(false);
+      return;
+    }
 
     for (const w of ctx.meta.warnings) {
       logger.detail(w, ctx.run);

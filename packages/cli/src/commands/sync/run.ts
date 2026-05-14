@@ -1,7 +1,7 @@
 import { resolveContext } from '@/shared/context/index.js';
-import { executeCore, runSyncJsonEnvelope } from '@/commands/sync/jsonEnvelope.js';
+import { executeCore, runSyncJsonEnvelope, emptySyncPayload } from '@/commands/sync/jsonEnvelope.js';
 import { printCommandSummary } from '@/output/index.js';
-import { stringifyEnvelope } from '@i18nprune/core';
+import { stringifyEnvelope, buildCliJsonEnvelope } from '@i18nprune/core';
 import { emitSyncHumanMessages, noopRunEmitter } from '@i18nprune/core';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import type { SyncOptions } from '@/types/command/sync/index.js';
@@ -10,6 +10,8 @@ import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
+import { logger } from '@/utils/logger/index.js';
 import type { SyncRuntime } from '@/types/command/sync/index.js';
 
 function resolveSyncData(
@@ -25,6 +27,36 @@ export async function sync(opts: SyncOptions): Promise<void> {
   try {
     const ctx = await resolveContext();
     const runId = String(Date.now());
+
+    const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'sync' });
+    if (readiness) {
+      if (ctx.run.json) {
+        console.log(
+          stringifyEnvelope(
+            buildCliJsonEnvelope('sync', emptySyncPayload(ctx, opts), {
+              ok: false,
+              issues: readiness,
+              cwd: ctx.adapters.system.cwd(),
+            }),
+          ),
+        );
+        applyCliCiExitGate(false);
+        return;
+      }
+      if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
+      printCommandSummary(
+        {
+          command: 'sync',
+          ok: false,
+          durationMs: wall.elapsedMs(),
+          counts: { files: 0, dynamic: 0, keyObservations: 0, written: 0 },
+          issues: readiness,
+        },
+        ctx,
+      );
+      applyCliCiExitGate(false);
+      return;
+    }
 
     if (ctx.run.json) {
       const { envelope, result } = runSyncJsonEnvelope(ctx, opts, { emit: noopRunEmitter, runId });

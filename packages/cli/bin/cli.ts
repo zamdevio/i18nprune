@@ -38,7 +38,6 @@ import { report } from '@/commands/report/index.js';
 import { configureCliHelp } from '@/commands/help/index.js';
 import { CLI_NAME, CLI_ROOT_DESCRIPTION } from '@/constants/cli.js';
 import { maybePrintCommandBanner } from '@/utils/cli/banner.js';
-import { getCommandInvocationPath } from '@/utils/cli/path.js';
 import { parseCliPositiveIntTop } from '@/utils/cli/top.js';
 import { COMMANDS_WITH_JSON_OUTPUT } from '@/constants/jsonoutput.js';
 import {
@@ -219,29 +218,6 @@ program
     setCliYesFlag(Boolean(opts.yes));
     if (actionCommand.name() !== CLI_NAME) {
       maybePrintCommandBanner(actionCommand);
-    }
-    const inv = getCommandInvocationPath(actionCommand, CLI_NAME);
-    const skipEnsureConfig = [CLI_NAME, 'languages', 'help', 'init', 'config', 'providers', 'review', 'doctor', 'version'].includes(
-      actionCommand.name(),
-    );
-    if (!skipEnsureConfig) {
-      const silentIfExists =
-        inv === 'locales' ||
-        inv === 'locales list' ||
-        inv === 'locales edit' ||
-        inv === 'generate' ||
-        inv === 'sync' ||
-        inv === 'doctor' ||
-        inv === 'validate' ||
-        inv === 'missing' ||
-        inv === 'quality' ||
-        inv === 'review' ||
-        inv === 'cleanup' ||
-        inv === 'report' ||
-        inv === 'locales dynamic' ||
-        inv === 'locales delete' ||
-        inv === 'patch';
-      await ensureConfig({ yes: Boolean(opts.yes), silentIfExists });
     }
   });
 

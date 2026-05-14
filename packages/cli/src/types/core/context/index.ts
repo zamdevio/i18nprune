@@ -17,6 +17,8 @@ export type FieldSources = {
 /** Per-field provenance for debugging and verbose output. */
 export type ContextMeta = {
   fieldSources: FieldSources;
+  /** False when no `i18nprune.config.*` exists in cwd; merged config is built-in defaults plus env / discovery / CLI. */
+  configFileLoaded: boolean;
   warnings: string[];
   cache: CacheState;
   /** Pre-loaded `files.json` snapshot from before any dispatch. Shared by all dispatches for accurate delta. */

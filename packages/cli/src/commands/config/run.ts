@@ -8,7 +8,8 @@ import { logger } from '@/utils/logger/index.js';
 import { canPrintPrimary } from '@/utils/logger/policy.js';
 import { printCommandSummary } from '@/output/index.js';
 import { stringifyEnvelope } from '@i18nprune/core';
-import { issuesFromDiscoveryWarnings } from '@/shared/result/index.js';
+import { cliReadinessIssues } from '@/shared/project/index.js';
+import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/index.js';
 import type { ConfigSnapshot } from '@/types/commands/config/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 
@@ -31,6 +32,8 @@ export async function config(): Promise<void> {
     const run = getRunOptions();
     const resolved = resolveConfigData(ctx);
     const snap = resolved.snapshot;
+    const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'config' });
+    const pathIssues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), readiness ?? []);
 
     if (run.json) {
       try {
@@ -67,9 +70,8 @@ export async function config(): Promise<void> {
     printCommandSummary(
       {
         command: 'config',
-        ok: true,
         durationMs: wall.elapsedMs(),
-        issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
+        issues: pathIssues,
       },
       ctx,
     );

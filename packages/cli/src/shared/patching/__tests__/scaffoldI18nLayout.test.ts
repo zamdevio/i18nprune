@@ -32,6 +32,7 @@ function makeContext(root: string): Context {
     run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false, debugCache: false },
     meta: {
       fieldSources: {},
+      configFileLoaded: true,
       warnings: [],
       cache: {
         enabled: false,

@@ -32,6 +32,7 @@ function makeContext(): Context {
     run: makeRun(),
     meta: {
       fieldSources: {},
+      configFileLoaded: true,
       warnings: [],
       cache: {
         enabled: true,

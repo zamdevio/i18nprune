@@ -11,6 +11,7 @@ export function buildConfigSnapshot(ctx: Context): ConfigSnapshot {
     kind: 'i18nprune.config',
     cliVersion: CLI_VERSION,
     configPath: configPathForContext(),
+    configFileLoaded: ctx.meta.configFileLoaded,
     config: ctx.config,
     resolvedPaths: ctx.paths,
     fieldSources: ctx.meta.fieldSources,
