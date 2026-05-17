@@ -1,8 +1,8 @@
 # apps/extension — VS Code extension (workspace)
 
-**VS Code** extension sources will live here — **not** a browser extension.
+**VS Code** extension sources live here — **not** a browser extension.
 
-**Single phase doc:** **[`maintainer/phases/extension/README.md`](../../maintainer/phases/extension/README.md)** — positioning, gates (G1–G5), Tracks A–D, and non-goals. Read that before changing scope here.
+**Plans & sequencing:** **[`maintainer/phases/extension/README.md`](../../maintainer/phases/extension/README.md)** — philosophy, architectural rules, phase index, gates (G1–G5), Tracks A–D, init onboarding (I1–I3), and links to each phase doc. Read that before changing scope here.
 
 ## Prerequisites
 
@@ -10,9 +10,13 @@
 
 ## Current state
 
-- **`package.json`** — placeholder until manifest, activation events, and bundler land.
+- **`package.json`** — manifest, activation, and tooling as wired for this workspace.
 - Implementation follows **`maintainer/phases/extension/README.md`** (workspace settings, spawn-vs-core decision, tests before marketplace).
+
+## Quick index
+
+- **[TODO.md](TODO.md)** — short map into **`maintainer/phases/extension/`** (no duplicate long-form specs in this folder).
 
 ## Public site
 
-The [Open source](https://i18nprune.dev/opensource) page links to the same phase doc path as this README.
+The [Open source](https://i18nprune.dev/opensource) page should link to **`maintainer/phases/extension/README.md`** (same hub as above).

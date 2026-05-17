@@ -4,9 +4,9 @@
 
 **Locked vertical order (extractor → init → locales → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below (same file — no duplicate maintainer-root hub). **init** and **locales** are **planned** (`init.md`, `locales.md`); do not start locales core work before init alignment per [`init.md`](./init.md).
 
-**Narrative focus:** **Apps rework (Session C.3)** and follow-on verticals — **Extractor** and **auto-patching** are **shipped** (extractor methodology in `docs/extractor/README.md`; patching in `docs/patching/`). Then: docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
+**Narrative focus:** **Init (Session F)**, then **locales (Session H)** — **`@i18nprune/core`** owns project structure and normalized locale storage before **hosted apps** catch up. **Session C.3** (`apps/web`, `apps/workers/i18nprune`) is **explicitly after F + H** (deployed hosts are fine today; align once core/SDK contracts settle). Then **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)** · **`maintainer/phases/README.md`**.
 
-**Planned verticals (post-C.1 / cross-session):** **[`init.md`](./init.md)** (Session **F**) → **[`locales.md`](./locales.md)** (Session **H**) → extension consumes stable contracts (**[`extension/README.md`](./extension/README.md)**).
+**Planned verticals:** **[`init.md`](./init.md)** (Session **F**) → **[`locales.md`](./locales.md)** (Session **H**) → **apps catch-up (Session C.3)** → **docs (D)** — then extension consumes stable contracts per locked chain (**[`extension/README.md`](./extension/README.md)**).
 
 ---
 
@@ -81,9 +81,9 @@ Work delivered: **import binding resolution** (alias-aware per-file `functions` 
 
 ---
 
-## Apps rework (**Session C.3**)
+## Apps catch-up (**Session C.3 — after init + locales**)
 
-Update **`apps/web`** and **`apps/workers/i18nprune`** (`@i18nprune/worker-i18nprune`) to match the current **`@i18nprune/core`** API after Session A/A.2 migrations. **`apps/workers/meta`** is the **`@i18nprune/worker-meta`** service (no core dependency).
+**Defer** until **Session F** and **Session H** have landed — **`apps/web`** and **`apps/workers/i18nprune`** stay on Cloudflare as-is; refresh them against **`@i18nprune/core`** once project-structure and locale-storage contracts are stable. Full scope: **[`V1-RELEASE.md`](./V1-RELEASE.md)** (Session C.3).
 
 ---
 
@@ -104,7 +104,8 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **Core-op migrations** | **Shipped — Session A.2** | [`shipped-slices.md`](./shipped-slices.md) |
 | **Extractor hardening** | **Shipped — Session C.1** | [`extractor.md`](./extractor.md) |
 | **Init phase (onboarding)** | **Planned — Session F** | [`init.md`](./init.md) |
-| **Locales phase (multi-topology)** | **Planned — Session H** | [`locales.md`](./locales.md) |
+| **Locales phase (multi-topology)** | **Planned — Session H** (after F) | [`locales.md`](./locales.md) |
+| **Apps catch-up (web + worker-i18nprune)** | **Planned — Session C.3** (after F + H) | [`V1-RELEASE.md`](./V1-RELEASE.md) |
 | **Patching hardening** | **Shipped** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |
 

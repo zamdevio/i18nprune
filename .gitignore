@@ -40,6 +40,10 @@ apps/report/node_modules/
 apps/report/dist/
 apps/report/package-lock.json
 
+# VS Code extension — bundled host + nested lockfile (use repo root `pnpm install`)
+apps/extension/out/
+apps/extension/pnpm-lock.yaml
+
 # Maintainer scratch (never commit). Rest of `maintainer/` stays tracked for collaborators.
 # Do not gitignore all of `maintainer/` — see `maintainer/README.md`.
 maintainer/temp/

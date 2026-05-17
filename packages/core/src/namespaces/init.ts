@@ -1,7 +1,38 @@
 export {
+  DEFAULT_INIT_CONFIG_IMPORT_SPECIFIER,
+  formatInitPresetIdList,
+  INIT_PRESET_IDS,
+  INIT_PRESET_ORDER,
   buildInitConfigTemplate,
   configFileNameForFormat,
   defaultInitConfigFileName,
-  DEFAULT_INIT_CONFIG_IMPORT_SPECIFIER,
+  detectInitProject,
+  getInitPresetConfigFields,
+  initPackageDeclares,
+  isInitAutoAmbiguous,
+  isInitPresetId,
+  pickTopInitPreset,
+  readInitPackageJson,
+  readInitTopologySignals,
+  runInit,
+  scoreInitPresets,
 } from '../init/index.js';
-export type { BuildInitConfigTemplateOptions, InitConfigFormat } from '../init/index.js';
+export type {
+  InitFilesystemHost,
+  InitJsonPayload,
+  InitPackageJsonSignals,
+  InitPresetId,
+  InitPresetScore,
+  InitProjectSignals,
+  InitRunOptions,
+  InitRunResult,
+  InitScoreFactor,
+  InitTopologySignals,
+} from '../types/init/index.js';
+export type {
+  BuildInitConfigTemplateOptions,
+  InitConfigFormat,
+  InitDetectResult,
+  InitPresetConfigFields,
+  RunInitHostInput,
+} from '../init/index.js';

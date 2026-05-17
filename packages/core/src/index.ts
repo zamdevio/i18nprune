@@ -250,8 +250,37 @@ export {
   configFileNameForFormat,
   defaultInitConfigFileName,
   DEFAULT_INIT_CONFIG_IMPORT_SPECIFIER,
+  detectInitProject,
+  formatInitPresetIdList,
+  getInitPresetConfigFields,
+  initPackageDeclares,
+  INIT_PRESET_IDS,
+  INIT_PRESET_ORDER,
+  isInitAutoAmbiguous,
+  isInitPresetId,
+  pickTopInitPreset,
+  readInitPackageJson,
+  readInitTopologySignals,
+  runInit,
+  scoreInitPresets,
 } from './namespaces/init.js';
-export type { BuildInitConfigTemplateOptions, InitConfigFormat } from './namespaces/init.js';
+export type {
+  BuildInitConfigTemplateOptions,
+  InitConfigFormat,
+  InitDetectResult,
+  InitFilesystemHost,
+  InitJsonPayload,
+  InitPackageJsonSignals,
+  InitPresetConfigFields,
+  InitPresetId,
+  InitPresetScore,
+  InitProjectSignals,
+  InitRunOptions,
+  InitRunResult,
+  InitScoreFactor,
+  InitTopologySignals,
+  RunInitHostInput,
+} from './namespaces/init.js';
 
 export * as validate from './namespaces/validate.js';
 export {

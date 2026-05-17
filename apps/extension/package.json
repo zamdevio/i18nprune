@@ -1,11 +1,139 @@
 {
-  "name": "@i18nprune/extension",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Browser extension workspace for future editor integrations and in-repo i18n hints.",
+  "name": "i18nprune",
+  "displayName": "i18nprune",
+  "publisher": "zamdevio",
+  "private": false,
+  "version": "0.0.1",
+  "description": "Developer tooling to manage, validate, and explore i18n workspaces with i18nprune.",
+  "license": "MIT",
+  "keywords": [
+    "i18n",
+    "localization",
+    "translation",
+    "intl",
+    "i18nprune",
+    "workspace",
+    "validation"
+  ],
+  "icon": "media/i18nprune.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zamdevio/i18nprune"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Linters", "Visualization", "Other"],
+  "activationEvents": [
+    "onCommand:i18nprune.openDashboard",
+    "onCommand:i18nprune.showSideBar",
+    "onCommand:i18nprune.openDashboardPanel",
+    "onCommand:i18nprune.refreshProjectStatus",
+    "onCommand:i18nprune.selectProject",
+    "onView:i18nprune.sidebarQuickActions",
+    "onView:i18nprune.sidebarWorkspace",
+    "onView:i18nprune.panelDashboard",
+    "workspaceContains:**/i18nprune.config.ts",
+    "workspaceContains:**/i18nprune.config.js",
+    "workspaceContains:**/i18nprune.config.mts",
+    "workspaceContains:**/i18nprune.config.mjs",
+    "workspaceContains:**/i18nprune.config.cts",
+    "workspaceContains:**/i18nprune.config.cjs"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "i18nprune.openDashboard",
+        "title": "Open Dashboard in Editor",
+        "category": "i18nprune"
+      },
+      {
+        "command": "i18nprune.showSideBar",
+        "title": "Show Side Bar",
+        "category": "i18nprune"
+      },
+      {
+        "command": "i18nprune.openDashboardPanel",
+        "title": "Open Dashboard in Panel",
+        "category": "i18nprune"
+      },
+      {
+        "command": "i18nprune.refreshProjectStatus",
+        "title": "Refresh project validation",
+        "category": "i18nprune",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "i18nprune.selectProject",
+        "title": "Select i18nprune project…",
+        "category": "i18nprune"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "i18nprune.refreshProjectStatus",
+          "when": "view == i18nprune.sidebarWorkspace",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "i18nprune",
+          "title": "i18nprune",
+          "icon": "media/i18nprune.png"
+        }
+      ],
+      "panel": [
+        {
+          "id": "i18nprunePanel",
+          "title": "i18nprune",
+          "icon": "media/i18nprune.png"
+        }
+      ]
+    },
+    "views": {
+      "i18nprune": [
+        {
+          "id": "i18nprune.sidebarQuickActions",
+          "name": "Actions",
+          "contextualTitle": "i18nprune"
+        },
+        {
+          "id": "i18nprune.sidebarWorkspace",
+          "name": "Project",
+          "contextualTitle": "Workspace status"
+        }
+      ],
+      "i18nprunePanel": [
+        {
+          "type": "webview",
+          "id": "i18nprune.panelDashboard",
+          "name": "Dashboard",
+          "contextualTitle": "i18nprune Dashboard"
+        }
+      ]
+    }
+  },
   "scripts": {
-    "build": "node -e \"console.log('Extension build not wired yet. Add manifest + bundler when ready.')\"",
-    "lint": "node -e \"console.log('No lint targets yet.')\""
+    "build:webview": "pnpm --dir src/webview run build",
+    "compile": "esbuild src/extension/extension.ts --bundle --platform=node --target=node20 --external:vscode --outfile=out/extension.js --format=cjs --sourcemap",
+    "watch": "esbuild src/extension/extension.ts --bundle --platform=node --target=node20 --external:vscode --outfile=out/extension.js --format=cjs --sourcemap --watch",
+    "build": "pnpm run build:webview && pnpm run compile",
+    "vscode:prepublish": "pnpm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.25.0",
+    "typescript": "~5.8.2"
+  },
+  "dependencies": {
+    "@i18nprune/core": "workspace:*",
+    "jiti": "^2.6.1",
+    "zod": "^4.3.6"
   }
 }

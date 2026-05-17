@@ -18,6 +18,7 @@ describe('init core helpers', () => {
     expect(tpl).toContain('providers:');
     expect(tpl).toContain('policy:');
     expect(tpl).toContain('workers: 32');
+    expect(tpl).toContain('functions: ["t"]');
     expect(tpl).toContain('mymemory');
     expect(tpl).toContain('contactEmail');
     expect(configFileNameForFormat('i18nprune.config', 'mjs')).toBe('i18nprune.config.mjs');
@@ -40,6 +41,19 @@ describe('init core helpers', () => {
     expect(tpl).toContain('noLocaleMeta:');
     expect(tpl).toContain('output:');
     expect(tpl).toContain('satisfies Partial<I18nPruneConfig>');
+  });
+
+  it('next-intl preset targets messages/ + hook names', () => {
+    const tpl = buildInitConfigTemplate({ preset: 'next-intl' });
+    expect(tpl).toContain('messages/en.json');
+    expect(tpl).toContain('messages');
+    expect(tpl).toContain('"useTranslations"');
+    expect(tpl).toContain('"t"');
+  });
+
+  it('i18next preset adds i18n.t entrypoint', () => {
+    const tpl = buildInitConfigTemplate({ preset: 'i18next' });
+    expect(tpl).toContain('"i18n.t"');
   });
 
   it('allows custom import specifier', () => {

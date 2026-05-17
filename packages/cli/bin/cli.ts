@@ -98,7 +98,7 @@ program
   )
   .option(
     '--json',
-    'machine-readable output (only commands that support it; e.g. config, validate, generate, doctor — ignored for init/help)',
+    'machine-readable output (only commands that support it; e.g. config, init, validate, generate, doctor — ignored for help)',
     false,
   )
   .option(
@@ -224,11 +224,25 @@ program
 program
   .command('init')
   .description(
-    'Create i18nprune.config.ts (or .mts / .js) when missing — interactive unless --yes; --rich writes every supported namespace with defaults',
+    'Create i18nprune.config.ts (or .mts / .js) when missing — interactive unless --yes; --rich writes every supported namespace with defaults; --auto scores package.json + locale folders (use --yes or --json in CI)',
   )
   .option('--rich', 'write expanded starter config (all namespaces + safe defaults)', false)
-  .action(async (opts: { rich?: boolean }) => {
-    await ensureConfig({ yes: getCliYesFlag(), rich: Boolean(opts.rich) });
+  .option(
+    '--auto',
+    'pick a starter preset from project signals (ambiguous projects exit 1 unless --preset is set)',
+    false,
+  )
+  .option(
+    '--preset <id>',
+    'starter preset: generic | i18next | lingui | next-i18next | next-intl | react-intl',
+  )
+  .action(async (opts: { rich?: boolean; auto?: boolean; preset?: string }) => {
+    await ensureConfig({
+      yes: getCliYesFlag(),
+      rich: Boolean(opts.rich),
+      auto: Boolean(opts.auto),
+      preset: opts.preset,
+    });
   });
 
 program

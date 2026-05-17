@@ -13,6 +13,23 @@
 
 ---
 
+## Recommended v1 sequence (start here after shipped Session C)
+
+Ship the **core onboarding + storage vertical** before **hosted app** catch-up: **`@i18nprune/core`** must own project structure, presets, and normalized locale surfaces (**init → locales**) so SDK contracts stabilize. **`apps/web`** and **`apps/workers/i18nprune`** are already deployed and healthy; **defer Session C.3** until **F** and **H** have landed the core changes those hosts consume — then align imports/types to the new core surface. After that, run **docs (D)**, **landing (D.2)**, **release polish (E)**, and the **`final.md`** gate (**G**).
+
+| Step | Session | What |
+|------|---------|------|
+| **1** | **F — Init** | [`init.md`](./init.md) — core-owned detection, presets, generated config |
+| **2** | **H — Locales** | [`locales.md`](./locales.md) — reader/writer, multi-topology storage (**after** init schema) |
+| **3** | **C.3 — Apps** | `apps/web`, `apps/workers/i18nprune` — catch up to post-init/locales **`@i18nprune/core`** |
+| **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) — nav trim, SDK quickstart, tree flattening |
+| **5** | **D.2 — Landing** | `apps/landing` — lean onboarding + value proposition |
+| **6** | **E + G** | Release polish + execute / delete [`final.md`](./final.md) when tagging |
+
+The **locked dependency chain** (extractor → init → locales → extension) still governs **core** work — see [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain). **Extension** follows stabilized init/locales contracts; **C.3** is a **host** refresh, not a prerequisite for **F**/**H**.
+
+---
+
 ## Session A — Translation progress + providers (**shipped**)
 
 **Shipped.** Core architecture phases 1–3, translate-policy steps 1–10, `fill` → `generate --resume` collapse, provider orchestration. See [`shipped-slices.md`](./shipped-slices.md).
@@ -37,13 +54,7 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 **Patching / auto-patching.** **User docs:** [`docs/patching/README.md`](../../docs/patching/README.md). Maintainer map: [`maintainer/systems/patching.md`](../systems/patching.md). Delivered: integration tests (core chain + CLI **`patch --fix` → `--patch sync` → `--patch generate`**), shared CLI **`Context` → `runPatching`** wiring (`fromContext.ts`), resolver preservation tests, **`config.json`** injection-status docs, core patching types and barrel layout.
 
-**Next in this vertical:** Session **C.3** (apps rework) — see below.
-
----
-
-## Session C.3 — Apps rework
-
-Update **`apps/web`** and **`apps/workers/i18nprune`** (`@i18nprune/worker-i18nprune`, the worker that depends on **`@i18nprune/core`**) to match the current core API after Session A/A.2 migrations. Verify imports, types, and runtime adapter usage. **`apps/workers/meta`** (`@i18nprune/worker-meta`) is a separate HTTP surface (cache/metadata); keep its scripts and types aligned when you touch worker layout, but it is not a **`core`** consumer.
+**Next (core):** Session **F** (init), then **H** (locales) — see [Recommended v1 sequence](#recommended-v1-sequence-start-here-after-shipped-session-c). **Next (hosts):** Session **C.3** runs **after F + H** so apps track the settled core/SDK surface.
 
 ---
 
@@ -68,6 +79,14 @@ Update **`apps/web`** and **`apps/workers/i18nprune`** (`@i18nprune/worker-i18np
 **Dependencies:** **Session F (Init)** for stable **`locales`** config shape and presets.
 
 **Extension:** Release-grade editor work follows **stabilized** core contracts — see [`extension/README.md`](./extension/README.md) and [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain).
+
+---
+
+## Session C.3 — Apps rework (**planned — after F + H**)
+
+**When:** After **Session F (init)** and **Session H (locales)** have shipped the core project-structure and locale-storage contracts **`apps/web`** and **`apps/workers/i18nprune`** depend on. Hosted surfaces are already deployed and working; this session is **catch-up** to the new **`@i18nprune/core`** API, not a blocker for init/locales.
+
+**Scope:** Update **`apps/web`** and **`apps/workers/i18nprune`** (`@i18nprune/worker-i18nprune`) — imports, types, runtime adapter usage vs **`@i18nprune/core`**. **`apps/workers/meta`** (`@i18nprune/worker-meta`) is separate (cache/metadata; no **`core`** dependency); touch only if shared worker tooling changes.
 
 ---
 
@@ -125,7 +144,7 @@ Execute **[`final.md`](./final.md)** §§1–2 (phase hygiene + ADR polish). The
 
 | Item | Pointer |
 |------|---------|
-| **Init + locales + extension** verticals | [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain) · [`init.md`](./init.md) · [`locales.md`](./locales.md) · [`extension/README.md`](./extension/README.md) |
+| **Extension** roadmap (editor; post–init/locales stabilization) | [`extension/README.md`](./extension/README.md) · [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain) |
 | `translate.policy.routing: 'auto'` advanced posture | post-v1 optional tail |
 | Worker bundle `node:` CI | [`docs/runtime/README.md`](../../docs/runtime/README.md) |
 | VitePress `@next`, `docs/exports` → `docs/sdk` | post-v1 docs |

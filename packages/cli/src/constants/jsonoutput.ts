@@ -4,6 +4,7 @@
  */
 export const COMMANDS_WITH_JSON_OUTPUT = new Set([
   'config',
+  'init',
   'validate',
   'missing',
   'sync',

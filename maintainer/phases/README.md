@@ -8,7 +8,7 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 
 ## Start here — v1
 
-**→ [`V1-RELEASE.md`](./V1-RELEASE.md)**
+**→ [`V1-RELEASE.md`](./V1-RELEASE.md)** (includes **recommended order:** init **F** → locales **H** → apps **C.3** → docs **D** → …)
 
 **Locked vertical order:** [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain) (extractor → init → locales → extension)
 

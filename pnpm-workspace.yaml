@@ -2,3 +2,5 @@ packages:
   - packages/*
   - apps/*
   - apps/workers/*
+  # VS Code extension dashboard (Vite/React); separate package.json from extension host
+  - apps/extension/src/webview
