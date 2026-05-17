@@ -5,6 +5,15 @@ import { buildInconsistencyPreview } from '@/shared/patching/inconsistencyPrevie
 import { decideInconsistencyApply, formatPreviewLines } from '@/shared/patching/inconsistencyPolicy.js';
 import { logger } from '@/utils/logger/index.js';
 
+export type RepairPatchingConfigLocalesResult = {
+  detectedCount: number;
+  autofilledCount: number;
+  correctedCount: number;
+  skipped: boolean;
+  /** When set, `resolvePatchingConfigLocales` could not read the file — metadata repair is skipped. */
+  metadataRepairBlocked?: 'parse_error' | 'invalid_schema';
+};
+
 export async function repairPatchingConfigLocales(input: {
   config: I18nPruneConfig;
   configPath: string;
@@ -13,13 +22,21 @@ export async function repairPatchingConfigLocales(input: {
   top?: number;
   full?: boolean;
   fix?: boolean;
-}): Promise<{ detectedCount: number; autofilledCount: number; correctedCount: number; skipped: boolean }> {
+}): Promise<RepairPatchingConfigLocalesResult> {
   const { config, configPath, run, fs, top, full, fix } = input;
   if (!existsRuntimeFsSync(configPath, fs))
     return { detectedCount: 0, autofilledCount: 0, correctedCount: 0, skipped: false };
   const before = await Promise.resolve(fs.readText(configPath));
   const resolved = resolvePatchingConfigLocales(before, { applyCatalogMismatches: false });
-  if (!resolved.ok) return { detectedCount: 0, autofilledCount: 0, correctedCount: 0, skipped: false };
+  if (!resolved.ok) {
+    return {
+      detectedCount: 0,
+      autofilledCount: 0,
+      correctedCount: 0,
+      skipped: false,
+      metadataRepairBlocked: resolved.error,
+    };
+  }
 
   const pendingAutofillCount = resolved.autofilled.length;
   const pendingMismatchCount = resolved.mismatches.length;

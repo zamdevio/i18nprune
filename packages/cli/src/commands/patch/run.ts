@@ -386,6 +386,12 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
       full: opts.full,
       fix: opts.fix,
     });
+    if (opts.fix && configRepair.metadataRepairBlocked) {
+      logger.warn(
+        `patch --fix: cannot repair locale metadata in ${ctx.config.patching.configPath} while the file is not valid JSON (${configRepair.metadataRepairBlocked}). To rebuild that file and loaders.generated.ts from *.json locale files on disk plus catalog defaults, run: i18nprune patch --init --force`,
+        run,
+      );
+    }
     if (configRepair.detectedCount > 0) {
       logger.info(
         `patch: found ${String(configRepair.detectedCount)} locale metadata inconsistency(ies) in ${ctx.config.patching.configPath}.`,

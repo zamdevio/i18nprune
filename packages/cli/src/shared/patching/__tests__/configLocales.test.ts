@@ -92,4 +92,21 @@ describe('repairPatchingConfigLocales', () => {
     expect(out.detectedCount).toBeGreaterThan(0);
     expect(after).toContain('"direction": "rtl"');
   });
+
+  it('returns metadataRepairBlocked when config is not valid JSON', async () => {
+    const root = makeTempDir();
+    const configPath = path.join(root, 'config.json');
+    fs.writeFileSync(configPath, '{ not json', 'utf8');
+    const rt = createNodeRuntimeAdapters();
+    const out = await repairPatchingConfigLocales({
+      config: makeConfig(),
+      configPath,
+      run: { json: false, jsonPretty: false, quiet: false, silent: false, debugScan: false, debugCache: false },
+      fs: rt.fs,
+      fix: true,
+    });
+    expect(out.metadataRepairBlocked).toBe('parse_error');
+    expect(out.detectedCount).toBe(0);
+    expect(fs.readFileSync(configPath, 'utf8')).toBe('{ not json');
+  });
 });

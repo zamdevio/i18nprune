@@ -51,6 +51,8 @@ Use this workflow as the default operator path:
 - **`generate` / `sync` / `locales` says patching was skipped** — Patching is opt-in: set `patching.enabled: true` or pass **`--patch`** on that command. If the config lists `patching` but `configPath` or `loaderPath` is empty, the CLI warns and skips (fix the block, then retry).
 - **`patch --init` warns that `i18nprune.config.*` already has a patching block** — Scaffold files under `<src>/i18n` may still be created, but an existing `patching:` section is never silently overwritten on inject. Adjust paths by hand, remove the block and run `patch --init` again, or use **`patch --init --force`** to renew CLI-owned scaffold files (see the warning text for the exact case).
 - **`patch --fix` reports no changes** — There may be nothing auto-fixable; run **`i18nprune patch`** (no flags) to read diagnostics. Under **`patching.mode: 'strict'`**, invalid state can fail the command instead of warn-skip — see [config reference](./config.md#failure-and-mode-behavior).
+- **`src/i18n/config.json` is invalid JSON or not the expected shape** — **`patch --fix` cannot repair it** until the file parses (the tool must read `locales[]` before it can fill metadata or reconcile drift). Use **`patch --init --force`** to replace **only** `config.json` and `loaders.generated.ts` with a fresh scaffold from locale `*.json` files on disk and the bundled catalog (any hand-edited fields on locale rows are not preserved by that renewal).
+- **`generate` / `sync` with `--patch` while `config.json` is broken** — Post-command patching uses the same planner as `patch`; it skips (for example `no_changes` / parse diagnostics) until the file is valid or you run **`patch --init --force`**.
 
 ## Backlog (patching hardening)
 
