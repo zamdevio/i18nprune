@@ -681,6 +681,7 @@ export type { CompiledScanExclude } from './types/scanner/compile.js';
 export type { ScanProjectFilesystemInputBase } from './types/extractor/projectScanInput.js';
 export type { RunOptions } from './types/runtime/index.js';
 export type {
+  LocaleConfigMismatch,
   PatchingAction,
   PatchingAnalyzeOutput,
   PatchingCommandName,
@@ -695,6 +696,8 @@ export type {
   PatchingRunInput,
   PatchingRuntimePorts,
   PatchingSkipReason,
+  RepairPatchingConfigLocalesResult,
+  ResolvePatchingLocalesResult,
   ResolvedPatchingConfig,
 } from './types/patching/index.js';
 export type { TranslateTargetLanguage } from './types/languages/index.js';

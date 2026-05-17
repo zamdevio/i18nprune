@@ -58,11 +58,11 @@ Use this workflow as the default operator path:
 
 - **`patch --init`** — tighten messaging when config injection skips (`skipped_existing`). **Done:** clearer human warnings on first-time init and `--init --force`.
 - **Resolver** — tests: never mutate unknown fields; mismatch policy modes (`ask` / `auto` / `warn`). **Done:** resolver preserves unknown JSON; policy modes remain in CLI `repairPatchingConfigLocales`.
-- **Shared CLI orchestration** — one patching handler path for `patch`, `sync --patch`, `generate --patch`, `locales edit --patch`, `locales delete --patch` (centralize envelope + `canAsk` / `--yes` / `--json`). **Pending** (large refactor; `applyCommandPatching` already centralizes mutation commands).
-- **Core structure** — optional folder barrels under `packages/core/src/patching/*` (no behavior change). **Pending**
-- **Generated module contract** — doc + tests: no stale “public API” constants; default-locale preservation across mutation flows. **Partially covered** by existing `index.test.ts` loader cases; extend as needed.
+- **Shared CLI orchestration** — one patching handler path for `patch`, `sync --patch`, `generate --patch`, `locales edit --patch`, `locales delete --patch` (centralize envelope + `canAsk` / `--yes` / `--json`). **Partially done:** `applyCommandPatching` centralizes mutation commands; standalone `patch` keeps init/fix/envelope (see `maintainer/systems/patching.md`).
+- **Core structure** — optional folder barrels under `packages/core/src/patching/*` (no behavior change). **Done:** documented barrel roles + grouped `patching/index.ts` exports; `planning/` and `render/` remain sub-barrels.
+- **Generated module contract** — doc + tests: no stale “public API” constants; default-locale preservation across mutation flows. **Done:** maintainer map + `LOCALE_REGISTRY` order test in `index.test.ts`.
 - **Docs** — troubleshooting in this README; mismatch examples in `config.md`; command docs for `--init` injection statuses. **Done:** troubleshooting + injection status table in `config.md`.
-- **Tests** — resolver + loader variants; config injection status cases; optional integration `init → patch → sync --patch → generate`. **Partially done** resolver preservation / error-shape tests.
+- **Tests** — resolver + loader variants; config injection status cases; optional integration `init → patch → sync --patch → generate`. **Done:** resolver preservation tests; **`tests/integration/patching.analyzeAndRun.test.ts`** (analyze → `runPatching` file drift, no CLI).
 
 ## Implementation locations
 

@@ -83,6 +83,41 @@ export type PatchingLocaleRecord = {
   [extra: string]: unknown;
 };
 
+/** Catalog vs config row mismatch (resolver output). */
+export type LocaleConfigMismatch = {
+  code: string;
+  field: 'englishName' | 'nativeName' | 'direction';
+  current: string;
+  recommended: string;
+};
+
+/** Result of {@link resolvePatchingConfigLocales} (patching `config.json` locale metadata). */
+export type ResolvePatchingLocalesResult =
+  | {
+      ok: false;
+      error: 'parse_error' | 'invalid_schema';
+      message: string;
+    }
+  | {
+      ok: true;
+      nextConfigText: string;
+      autofilled: Array<{ code: string; field: 'englishName' | 'nativeName' | 'direction'; value: string }>;
+      mismatches: LocaleConfigMismatch[];
+      changed: boolean;
+    };
+
+/**
+ * Summary for hosts that apply locale-row metadata repair to patching `config.json`
+ * (CLI wraps with logging / prompts; values align with {@link resolvePatchingConfigLocales} failures).
+ */
+export type RepairPatchingConfigLocalesResult = {
+  detectedCount: number;
+  autofilledCount: number;
+  correctedCount: number;
+  skipped: boolean;
+  metadataRepairBlocked?: Extract<ResolvePatchingLocalesResult, { ok: false }>['error'];
+};
+
 export type PatchingAnalyzeOutput = {
   config: ResolvedPatchingConfig;
   localeRecords: PatchingLocaleRecord[];

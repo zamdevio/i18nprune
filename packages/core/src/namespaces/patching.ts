@@ -11,6 +11,7 @@ export {
   runPatching,
 } from '../patching/index.js';
 export type {
+  LocaleConfigMismatch,
   PatchingAction,
   PatchingAnalyzeOutput,
   PatchingCommandName,
@@ -25,5 +26,7 @@ export type {
   PatchingRunInput,
   PatchingRuntimePorts,
   PatchingSkipReason,
+  RepairPatchingConfigLocalesResult,
+  ResolvePatchingLocalesResult,
   ResolvedPatchingConfig,
 } from '../types/patching/index.js';

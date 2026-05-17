@@ -101,6 +101,10 @@ describe('patching engine', () => {
     expect(fr?.englishName).not.toBe('fr');
     expect(fr?.nativeName).not.toBe('fr');
     expect(nextConfig.extra.untouched).toBe(true);
+    const registryMatch = nextLoader.match(/const LOCALE_REGISTRY = (\[[\s\S]*?\])\s+as const;/);
+    expect(registryMatch).toBeTruthy();
+    const registry = JSON.parse(registryMatch![1]!) as Array<{ code: string }>;
+    expect(registry.map((r) => r.code)).toEqual(nextConfig.locales.map((r) => r.code));
   });
 
   it('builds and applies plan for loader_generated with user island preserved', async () => {

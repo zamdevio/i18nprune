@@ -1,18 +1,9 @@
 import { existsRuntimeFsSync, resolvePatchingConfigLocales } from '@i18nprune/core';
-import type { RuntimeFsPort, RunOptions } from '@i18nprune/core';
+import type { RepairPatchingConfigLocalesResult, RuntimeFsPort, RunOptions } from '@i18nprune/core';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
 import { buildInconsistencyPreview } from '@/shared/patching/inconsistencyPreview.js';
 import { decideInconsistencyApply, formatPreviewLines } from '@/shared/patching/inconsistencyPolicy.js';
 import { logger } from '@/utils/logger/index.js';
-
-export type RepairPatchingConfigLocalesResult = {
-  detectedCount: number;
-  autofilledCount: number;
-  correctedCount: number;
-  skipped: boolean;
-  /** When set, `resolvePatchingConfigLocales` could not read the file — metadata repair is skipped. */
-  metadataRepairBlocked?: 'parse_error' | 'invalid_schema';
-};
 
 export async function repairPatchingConfigLocales(input: {
   config: I18nPruneConfig;

@@ -3,31 +3,10 @@ import {
   generatedLanguageCatalog,
   getLanguageByCodeFromCatalog,
 } from '../shared/languages/catalog/index.js';
-import type { LocaleDirection } from '../types/patching/index.js';
+import type { LocaleConfigMismatch, LocaleDirection, ResolvePatchingLocalesResult } from '../types/patching/index.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { parseJsonText } from '../shared/json/parse.js';
 import { recommendedLocaleDirection } from './locales.js';
-
-export type LocaleConfigMismatch = {
-  code: string;
-  field: 'englishName' | 'nativeName' | 'direction';
-  current: string;
-  recommended: string;
-};
-
-export type ResolvePatchingLocalesResult =
-  | {
-      ok: false;
-      error: 'parse_error' | 'invalid_schema';
-      message: string;
-    }
-  | {
-      ok: true;
-      nextConfigText: string;
-      autofilled: Array<{ code: string; field: 'englishName' | 'nativeName' | 'direction'; value: string }>;
-      mismatches: LocaleConfigMismatch[];
-      changed: boolean;
-    };
 
 export function resolvePatchingConfigLocales(
   configText: string,
