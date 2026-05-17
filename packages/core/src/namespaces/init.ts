@@ -2,7 +2,6 @@ export {
   DEFAULT_INIT_CONFIG_IMPORT_SPECIFIER,
   formatInitPresetIdList,
   INIT_PRESET_IDS,
-  INIT_PRESET_ORDER,
   buildInitConfigTemplate,
   configFileNameForFormat,
   defaultInitConfigFileName,

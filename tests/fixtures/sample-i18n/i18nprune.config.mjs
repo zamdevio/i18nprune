@@ -3,8 +3,10 @@
  * Includes **`translate`** so **`generate`** parity / integration tests can run dry.
  */
 export default {
-  source: 'locales/en.json',
-  localesDir: 'locales',
+  locales: {
+    source: 'locales/en.json',
+    directory: 'locales',
+  },
   src: 'src',
   functions: ['t'],
   translate: {

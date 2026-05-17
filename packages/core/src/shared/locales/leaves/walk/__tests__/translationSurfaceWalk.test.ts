@@ -67,6 +67,41 @@ describe('collectTranslationSurfaceLeaves', () => {
     ).toBe(false);
   });
 
+  it('stamps every leaf when fileOrigin is passed', () => {
+    const origin = {
+      file: '/tmp/locales/en.json',
+      locale: 'en',
+      relativePath: 'en.json',
+    };
+    const rows = collectTranslationSurfaceLeaves({ a: { b: 'hello' } }, '', [], origin);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.fileOrigin).toEqual(origin);
+  });
+
+  it('stamps structured leaves with fileOrigin', () => {
+    const origin = {
+      file: '/tmp/locales/en.json',
+      locale: 'en',
+      relativePath: 'en.json',
+    };
+    const rows = collectTranslationSurfaceLeaves(
+      {
+        k: {
+          value: 'x',
+          status: 'translated',
+          confidence: 0.9,
+          needsReview: false,
+          source: 'manual',
+        },
+      },
+      '',
+      [],
+      origin,
+    );
+    expect(rows[0]?.fileOrigin).toEqual(origin);
+    expect(rows[0]?.source).toBe('manual');
+  });
+
   it('identifies structured leaf shape helper', () => {
     expect(isStructuredLocaleLeafNode({ value: 'z' })).toBe(true);
     expect(isStructuredLocaleLeafNode('z')).toBe(false);

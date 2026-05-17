@@ -168,8 +168,10 @@ describe('CLI against sample-i18n fixture', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-validate-missing-locale-'));
     tempDirs.push(dir);
     const cfg = `export default {
-  source: 'locales/en.json',
-  localesDir: 'locales',
+  locales: {
+    source: 'locales/en.json',
+    directory: 'locales',
+  },
   src: 'src',
   functions: ['t'],
   policies: { preserve: {}, parity: {} },

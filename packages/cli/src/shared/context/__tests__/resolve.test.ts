@@ -86,8 +86,10 @@ describe('resolveContext CLI scan exclude flags', () => {
     fs.writeFileSync(
       cfgPath,
       `export default {
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         exclude: { dirs: ['fixtures'], useDefaultSkip: true },
@@ -111,8 +113,10 @@ describe('resolveContext CLI scan exclude flags', () => {
     fs.writeFileSync(
       cfgPath,
       `export default {
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         exclude: { dirs: ['fixtures', 'bench'] },
@@ -134,8 +138,10 @@ describe('resolveContext CLI scan exclude flags', () => {
     fs.writeFileSync(
       cfgPath,
       `export default {
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
       }`,
@@ -158,8 +164,10 @@ describe('resolveContext CLI scan exclude flags', () => {
     fs.writeFileSync(
       cfgPath,
       `export default {
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
       }`,
@@ -179,8 +187,10 @@ describe('resolveContext CLI scan exclude flags', () => {
     fs.writeFileSync(
       cfgPath,
       `export default {
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         patching: {

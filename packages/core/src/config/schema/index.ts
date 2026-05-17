@@ -3,6 +3,7 @@ export { clampTranslateMaxWorkers, translateSchema } from './translate.js';
 export {
   configSchema,
   ConfigValidationError,
+  localesFilesystemSchema,
   parseI18nPruneConfig,
 } from './root.js';
 export type { I18nPruneConfigParsed } from './root.js';
@@ -10,6 +11,7 @@ export type {
   I18nPruneConfig,
   CacheConfig,
   LocaleLeavesConfig,
+  LocalesFilesystemConfig,
   MissingCommandConfig,
   OutputConfig,
   OutputListConfig,

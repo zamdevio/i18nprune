@@ -43,7 +43,7 @@ export async function buildLocalProjectFromZip(
   const normalized = normalizeConfig(snapshot.resolvedConfig);
   if (!normalized) {
     throw new Error(
-      'Config required. Pass configJson, include i18nprune.config.json, or use a parseable i18nprune.config.ts/js with source, src, localesDir, and functions[].',
+      'Config required. Pass configJson, include i18nprune.config.json, or use a parseable i18nprune.config.ts/js with locales.source, locales.directory, src, and functions[].',
     );
   }
 

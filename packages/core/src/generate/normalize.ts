@@ -2,12 +2,12 @@ import {
   applyLocaleLeafNormalization,
   resolveLocaleLeafMode,
   type ResolveLocaleLeafModeInput,
-} from '../shared/localeLeaves/index.js';
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
+} from '../shared/locales/leaves/index.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { buildTranslatedLocaleFromSourceLeaves } from './localeTranslate.js';
 import { ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
-import type { LocaleMetadataReport } from '../types/localeLeaves/index.js';
+import type { LocaleMetadataReport } from '../types/locales/leaves/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { ParityPolicy, PreservePolicy } from '../types/policies/index.js';
 import type { StringLeaf } from '../types/json/index.js';

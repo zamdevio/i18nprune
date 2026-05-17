@@ -1,7 +1,7 @@
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
 import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../shared/constants/issueCodes.js';
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import {
@@ -152,6 +152,7 @@ export function runReview(
     parity: ctx.config.policies?.parity,
     sourceLocaleJson: sourceRaw,
     targetLocaleJsonByFile,
+    path: ctx.adapters.path,
   });
   const scopeLabel = codes === undefined ? 'all non-source locales' : `locales: ${codes.join(', ')}`;
   emitReviewMessage(host, {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { aggregateReviewRows } from '../aggregate.js';
-import type { ReviewLeafRow } from '../../types/localeLeaves/index.js';
+import type { ReviewLeafRow } from '../../types/locales/leaves/index.js';
 
 describe('aggregateReviewRows', () => {
   it('counts legacy and structured leaves', () => {

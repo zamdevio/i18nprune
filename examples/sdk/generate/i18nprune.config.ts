@@ -11,8 +11,10 @@
 import { defineConfig } from '@i18nprune/core';
 
 export default defineConfig({
-  source: 'examples/sdk/generate/locales/en.json',
-  localesDir: 'examples/sdk/generate/locales',
+  locales: {
+    source: 'examples/sdk/generate/locales/en.json',
+    directory: 'examples/sdk/generate/locales',
+  },
   src: 'examples/sdk/generate/src',
   functions: ['t'],
   noLocaleMeta: true,

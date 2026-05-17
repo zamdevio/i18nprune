@@ -1,7 +1,9 @@
 /** Tiny fixture: source locale has no keys referenced in code — for `missing` CLI tests. */
 export default {
-  source: 'locales/en.json',
-  localesDir: 'locales',
+  locales: {
+    source: 'locales/en.json',
+    directory: 'locales',
+  },
   src: 'src',
   functions: ['t'],
 };

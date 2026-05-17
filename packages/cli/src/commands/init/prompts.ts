@@ -1,6 +1,6 @@
 import { confirm, select } from '@inquirer/prompts';
 import type { InitConfigFormat, InitPresetId } from '@i18nprune/core';
-import { INIT_PRESET_ORDER } from '@i18nprune/core';
+import { INIT_PRESET_IDS } from '@i18nprune/core';
 import type { RunOptions } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
 import { CLI_NAME, CONFIG_BASE_NAME } from '@/constants/cli.js';
@@ -42,7 +42,7 @@ export async function confirmWriteConfig(filePath: string): Promise<boolean> {
 /** After **`--auto`** is ambiguous, let the user pick a preset (**`generic` listed first**). */
 export async function promptInitPresetAfterAmbiguousAuto(run?: RunOptions): Promise<InitPresetId> {
   logger.decorative.dim('  Auto-detect could not pick a unique preset. Choose a starter bundle.', run);
-  const choices = INIT_PRESET_ORDER.map((value) => ({
+  const choices = INIT_PRESET_IDS.map((value) => ({
     value,
     name: INIT_PRESET_LABELS[value],
   }));

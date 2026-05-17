@@ -4,8 +4,10 @@ import type { I18nPruneConfig } from '@i18nprune/core/config';
 
 function makeConfig(): I18nPruneConfig {
   return {
-    source: './locales/en.json',
-    localesDir: './locales',
+    locales: {
+      source: './locales/en.json',
+      directory: './locales',
+    },
     src: './src',
     functions: ['t'],
   };

@@ -1,6 +1,6 @@
 import type { DynamicKeySite } from '../extractor/index.js';
 import type { Issue } from '../json/envelope/index.js';
-import type { LocaleMetadataReport } from '../localeLeaves/index.js';
+import type { LocaleMetadataReport } from '../locales/leaves/index.js';
 import type { SyncProgressEvent } from '../shared/run/index.js';
 import type { SyncHumanLeafSummary } from '../../sync/humanLeafSummary.js';
 import type { RunEmitter } from '../shared/run/index.js';

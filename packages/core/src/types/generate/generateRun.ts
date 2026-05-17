@@ -1,6 +1,6 @@
 import type { I18nPruneConfig } from '../../config/index.js';
 import type { Issue } from '../json/envelope/index.js';
-import type { LocaleMetadataReport } from '../localeLeaves/index.js';
+import type { LocaleMetadataReport } from '../locales/leaves/index.js';
 import type { RuntimeAdapters } from '../runtime/adapters.js';
 import type { RunOptions } from '../runtime/index.js';
 import type { CacheRuntime, CacheState } from '../cache/index.js';

@@ -42,7 +42,7 @@ Use a **single-line** subject, **imperative mood**, **type + scope**, and an **o
 |-------------|----------------------------|
 | New / updated command | `packages/cli/src/commands/...`, `packages/cli/src/types/command/...` if any, `packages/cli/bin/cli.ts` registration lines for that command, `docs/commands/.../README.md`, `packages/cli/src/utils/cli/banner.ts` / `@i18nprune/core` doc URL helpers if new slug |
 | Global CLI flag | `packages/cli/bin/cli.ts`, `packages/cli/src/core/context/*` or `packages/cli/src/core/runtime/*`, `docs/cli/*` or `docs/behavior/*` as appropriate |
-| Config field | `packages/cli/src/config/schema.ts`, `packages/cli/src/types/config/*`, `i18nprune.config.ts.example`, `docs/config/*` |
+| Config field | `packages/cli/src/config/schema.ts`, `packages/cli/src/types/config/*`, `docs/config/*` |
 | Report / output contract | `packages/cli/src/utils/report/*`, consumers, `docs/commands/report/README.md` |
 
 ## `packages/cli/bin/cli.ts`
@@ -70,7 +70,7 @@ Use this order after **`git init`** (or to **reconstruct** a clean history from 
 
 ### Layer 2 — Config & context
 
-4. **`feat(config): schema, load, resolve, and defineConfig export`** — `packages/cli/src/config/**`, `packages/cli/src/exports/config.ts`, `i18nprune.config.ts.example`.  
+4. **`feat(config): schema, load, resolve, and defineConfig export`** — `packages/cli/src/config/**`, `packages/cli/src/exports/config.ts`.
 5. **`feat(core): context, runtime options, errors, globals`** — `packages/cli/src/core/context/**`, `packages/cli/src/core/runtime/**`, `packages/cli/src/core/errors/**`, `packages/cli/src/core/context/globals.ts` (or equivalent).
 
 ### Layer 3 — Domain core (shared)

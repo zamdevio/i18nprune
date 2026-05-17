@@ -21,7 +21,6 @@ export {
   formatInitPresetIdList,
   getInitPresetConfigFields,
   INIT_PRESET_IDS,
-  INIT_PRESET_ORDER,
   isInitPresetId,
 } from './presets/fields.js';
 export type { InitPresetConfigFields } from './presets/fields.js';

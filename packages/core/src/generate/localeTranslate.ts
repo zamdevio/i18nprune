@@ -1,5 +1,5 @@
 import { getAtPath, setAtPath } from '../shared/json/index.js';
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { isParityExcluded } from '../policies/parity.js';
 import { isPreservePath } from '../policies/preserve.js';
 import { localeJsonValueFromTranslation, translateLeaf } from '../shared/translator/index.js';
@@ -14,7 +14,7 @@ import type { Translator } from '../types/translator/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
 import type { TranslationTickProgressFn } from '../types/progress/index.js';
 import type { TranslateStartRateLimit } from '../types/translator/rateLimit.js';
-import type { ReviewLeafRow } from '../types/localeLeaves/index.js';
+import type { ReviewLeafRow } from '../types/locales/leaves/index.js';
 import type { EffectiveReferenceConfig } from '../types/reference/index.js';
 import type { GenerateResumeRefContext } from '../types/generate/resumeCandidates.js';
 

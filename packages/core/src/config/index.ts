@@ -3,12 +3,14 @@ export {
   configSchema,
   ConfigValidationError,
   defineConfig,
+  localesFilesystemSchema,
   parseI18nPruneConfig,
 } from './schema/index.js';
 export type {
   I18nPruneConfig,
   CacheConfig,
   LocaleLeavesConfig,
+  LocalesFilesystemConfig,
   MissingCommandConfig,
   OutputConfig,
   OutputListConfig,

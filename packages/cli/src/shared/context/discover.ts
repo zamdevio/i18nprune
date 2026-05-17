@@ -11,15 +11,15 @@ export function runDiscovery(config: I18nPruneConfig, cwd = process.cwd(), fsPor
   const warnings: string[] = [];
   const patch: Partial<I18nPruneConfig> = {};
   const en = path.join(cwd, 'locales', 'en.json');
-  if (existsRuntimeFsSync(en, fsPort) && config.source === 'locales/en.json') {
+  if (existsRuntimeFsSync(en, fsPort) && config.locales.source === 'locales/en.json') {
     /* already aligned */
   }
   if (
-    !existsRuntimeFsSync(path.resolve(cwd, config.localesDir), fsPort) &&
+    !existsRuntimeFsSync(path.resolve(cwd, config.locales.directory), fsPort) &&
     existsRuntimeFsSync(path.join(cwd, 'locales'), fsPort)
   ) {
-    patch.localesDir = 'locales';
-    warnings.push(`localesDir "${config.localesDir}" missing; using "locales" if present`);
+    patch.locales = { ...config.locales, directory: 'locales' };
+    warnings.push(`locales.directory "${config.locales.directory}" missing; using "locales" if present`);
   }
   return { patch, warnings };
 }

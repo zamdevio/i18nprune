@@ -1,4 +1,4 @@
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/translationSurfaceWalk.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { computeMissingLiteralKeysFromResolvedKeys } from '../validate/index.js';
 import type { ResolveMissingPathsPlanInput } from '../types/missing/index.js';
 import { planMissingPathsFromReport } from './validateReport.js';

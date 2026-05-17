@@ -250,6 +250,29 @@ const localeLeavesSchema = z
   .optional()
   .describe('How sync and generate read/write JSON terminals.');
 
+/** Locale bundle paths and optional storage layout (flat files today; directory topologies later). */
+export const localesFilesystemSchema = z
+  .object({
+    source: z
+      .string()
+      .describe('Path to the source-of-truth locale JSON (e.g. locales/en.json), relative to the config file directory.'),
+    directory: z
+      .string()
+      .describe('Directory containing locale *.json files (and optional .meta.json sidecars), relative to the config file directory.'),
+    mode: z
+      .enum(['flat_file', 'locale_directory'])
+      .optional()
+      .describe('Filesystem layout: `flat_file` is one JSON file per locale code under `directory`.'),
+    structure: z
+      .enum(['locale_file', 'locale_per_dir', 'feature_bundle'])
+      .optional()
+      .describe('How multiple JSON files group into one logical locale.'),
+  })
+  .strict()
+  .describe('Locale files on disk: source document + bundle root, with optional topology hints.');
+
+export type LocalesFilesystemConfig = z.infer<typeof localesFilesystemSchema>;
+
 const patchingSchema = z
   .object({
     enabled: z.boolean().optional().describe('Master switch for loader / generated-file patching.'),
@@ -283,8 +306,7 @@ const patchingSchema = z
 
 export const configSchema = z
   .object({
-    source: z.string().describe('Path to the source-of-truth locale JSON (e.g. locales/en.json).'),
-    localesDir: z.string().describe('Directory containing locale *.json files (and optional .meta.json sidecars).'),
+    locales: localesFilesystemSchema,
     src: z.string().describe('Root directory scanned for translation helper calls.'),
     functions: z
       .array(z.string())
@@ -417,8 +439,7 @@ export type TranslateConfig = {
  * Fully merged i18nprune project config (file + defaults + parse normalization).
  */
 export type I18nPruneConfig = Omit<I18nPruneConfigParsed, 'reference' | 'translate' | 'policies'> & {
-  source: string;
-  localesDir: string;
+  locales: LocalesFilesystemConfig;
   src: string;
   functions: string[];
   noLocaleMeta?: boolean;

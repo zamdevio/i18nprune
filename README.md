@@ -82,7 +82,7 @@ i18nprune config --json
 i18nprune doctor --json
 ```
 
-Copy **`i18nprune.config.ts.example`** to **`i18nprune.config.ts`** (or `.mts` / `.js` / `.mjs`). Raw JSON config files are not supported for the main config.
+For a typed config file, run **`i18nprune init`** (use **`--yes`** to write **`i18nprune.config.ts`** without prompts). This repo keeps a root **`i18nprune.config.ts`** so CLI commands work from the workspace root. Raw JSON config files are not supported for the main config.
 
 ---
 

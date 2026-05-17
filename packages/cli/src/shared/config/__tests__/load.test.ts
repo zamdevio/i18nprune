@@ -26,7 +26,7 @@ describe('loadConfig', () => {
 
   it('returns defaults when no config file exists', async () => {
     const c = await loadConfig();
-    expect(c.source).toBe('locales/en.json');
+    expect(c.locales.source).toBe('locales/en.json');
     expect(c.functions).toEqual(['t']);
   });
 

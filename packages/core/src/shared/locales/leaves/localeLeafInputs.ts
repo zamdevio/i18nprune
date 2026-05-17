@@ -1,4 +1,4 @@
-import type { LocaleLeafMode } from '../../types/localeLeaves/index.js';
+import type { LocaleLeafMode } from '../../../types/locales/leaves/index.js';
 
 export type ApplyLocaleMetadataModeInput = {
   localeJson: unknown;

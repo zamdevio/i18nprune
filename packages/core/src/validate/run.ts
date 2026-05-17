@@ -3,11 +3,10 @@ import { resolveProjectAnalysis } from '../analysis/index.js';
 import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js';
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
-import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
+import { readFlatLocaleJsonSurface } from '../shared/locales/read/flatFileSurface.js';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
 import { emitRunEvent, nowMs } from '../shared/run/index.js';
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
 import {
   detectSourcePlaceholderLeaves,
   issuesFromSourcePlaceholderLeaves,
@@ -63,26 +62,32 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
     label: sourcePath,
   });
 
-  let raw: unknown;
-  try {
-    raw = readJsonFromRuntimeFsSync(sourcePath, ctx.adapters.fs);
-  } catch (err: unknown) {
-    const scanInput = {
-      srcRoot: ctx.paths.srcRoot,
-      functions: ctx.config.functions,
-      runtime: ctx.adapters,
-      exclude: ctx.config.exclude,
-    };
-    const keyObservations = scanProjectKeyObservations(scanInput);
-    const dynamicSites = scanProjectDynamicKeySites(scanInput);
+  const scanInputEarly = {
+    srcRoot: ctx.paths.srcRoot,
+    functions: ctx.config.functions,
+    runtime: ctx.adapters,
+    exclude: ctx.config.exclude,
+  };
+  const localeRead = readFlatLocaleJsonSurface({
+    fs: ctx.adapters.fs,
+    path: ctx.adapters.path,
+    absoluteFile: sourcePath,
+    localesDir: ctx.paths.localesDir,
+  });
+  if (!localeRead.ok) {
+    const keyObservations = scanProjectKeyObservations(scanInputEarly);
+    const dynamicSites = scanProjectDynamicKeySites(scanInputEarly);
     const analysis: ProjectAnalysis = {
       version: 1,
       keyObservations,
       dynamicSites,
       usage: literalKeyUsageFromObservations(keyObservations),
     };
-    return readFailureResult(ctx, err, analysis);
+    const message =
+      localeRead.diagnostics.map((d) => d.message).join(' · ') || 'failed to read source locale JSON';
+    return readFailureResult(ctx, new Error(message), analysis);
   }
+  const raw = localeRead.document;
 
   emitRunEvent(emit, { type: 'run.progress.validate', op: 'validate', runId, at: nowMs(), phase: 'scan_sources' });
   const analysis = resolveProjectAnalysis(ctx, { emit, op: 'validate', runId });
@@ -121,7 +126,7 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
     }),
     ...issuesFromSourcePlaceholderLeaves(
       detectSourcePlaceholderLeaves(
-        collectTranslationSurfaceLeaves(raw),
+        localeRead.leaves,
         sourcePlaceholderValues(ctx.config.missing?.placeholder),
       ),
     ),

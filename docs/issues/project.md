@@ -4,7 +4,7 @@ These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a smal
 
 **Not the same as `doctor`:** **`doctor`** adds Node version, **`rg`**, its own config-file row, and path summaries (`i18nprune.doctor.*`). **`project.*`** is the shared readiness layer used before heavy work; **`project.config_file_missing`** is distinct from **`i18nprune.config.missing`** (the latter is for **explicit** config path load failures in core **`tryLoadCoreConfigFromPath`**, not “no default-discovered config in cwd”).
 
-**Where paths come from:** With a config file, **`i18nprune.config.ts`** (or sibling) sets **`source`**, **`localesDir`**, and **`src`**. Without one, the engine still merges **built-in defaults** plus env / discovery / CLI — paths may look valid but not match your app. **`config --json`** includes **`configFileLoaded`** on the snapshot payload.
+**Where paths come from:** With a config file, **`i18nprune.config.ts`** (or sibling) sets **`locales.source`** (source locale JSON path), **`locales.directory`** (locale bundle root), and **`src`**. Without one, the engine still merges **built-in defaults** plus env / discovery / CLI — paths may look valid but not match your app. **`config --json`** includes **`configFileLoaded`** on the snapshot payload.
 
 ---
 
@@ -19,7 +19,7 @@ These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a smal
 
 1. Run **`i18nprune init`** in the project root to create **`i18nprune.config.ts`** (or another supported extension). **`--yes`** writes the default filename without prompts; **`--rich`** seeds a larger starter template with more namespaces and safe defaults.
 2. If a config already exists, **`init`** prints that it skipped creating a file and still runs post-init workspace guidance.
-3. Prefer **one config per app/repo** so **`source`**, **`localesDir`**, and **`src`** stay consistent with how i18nprune scans and writes locale JSON.
+3. Prefer **one config per app/repo** so **`locales.source`**, **`locales.directory`**, and **`src`** stay consistent with how i18nprune scans and writes locale JSON.
 
 **Related:** **`i18nprune.config.missing`** — load errors when a **specific** config path is requested; see [config](./config.md).
 

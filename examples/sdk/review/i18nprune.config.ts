@@ -4,8 +4,10 @@
 import { defineConfig } from '@i18nprune/core';
 
 export default defineConfig({
-  source: 'examples/sdk/review/locales/en.json',
-  localesDir: 'examples/sdk/review/locales',
+  locales: {
+    source: 'examples/sdk/review/locales/en.json',
+    directory: 'examples/sdk/review/locales',
+  },
   src: 'examples/sdk/review/src',
   functions: ['t'],
 });

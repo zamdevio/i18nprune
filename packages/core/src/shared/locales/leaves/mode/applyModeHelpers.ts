@@ -2,7 +2,7 @@ import type {
   LocaleLeafRuntimeKind,
   LocaleMetadataRepairReason,
   StructuredLocaleLeaf,
-} from '../../types/localeLeaves/index.js';
+} from '../../../../types/locales/leaves/index.js';
 
 export function isPlainObjectForLocaleLeaves(x: unknown): x is Record<string, unknown> {
   return typeof x === 'object' && x !== null && !Array.isArray(x);

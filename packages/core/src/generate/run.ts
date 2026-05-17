@@ -6,7 +6,7 @@
 import { buildLanguageCatalog, generatedLanguageCatalog, getLanguageByCodeFromCatalog } from '../shared/languages/catalog/index.js';
 import { languageOftenRtl } from '../shared/languages/rtlHint.js';
 import { deepClone } from '../shared/json/index.js';
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { targetLocaleCoversAllSourcePaths } from '../shared/json/targetCoverage.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';

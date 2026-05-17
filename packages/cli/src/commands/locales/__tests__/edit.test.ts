@@ -33,8 +33,10 @@ function makeContext(root: string, run: Partial<Context['run']> = {}): Context {
   }
   return {
     config: {
-      source: './locales/en.json',
-      localesDir: './locales',
+      locales: {
+        source: './locales/en.json',
+        directory: './locales',
+      },
       src: './src',
       functions: ['t'],
     },

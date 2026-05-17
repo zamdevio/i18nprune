@@ -1,3 +1,4 @@
+export type { LocaleLeafFileOrigin, LocaleLeafPathApi } from './fileOrigin.js';
 export type {
   ReviewLeafRow,
   ReviewLeafShape,

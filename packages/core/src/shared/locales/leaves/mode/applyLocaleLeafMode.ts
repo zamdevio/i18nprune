@@ -1,11 +1,11 @@
-import { getAtPath, setAtPath } from '../json/path.js';
+import { getAtPath, setAtPath } from '../../../json/path.js';
 import type {
   LocaleMetadataLeafDecision,
   LocaleMetadataPathChange,
   LocaleMetadataReport,
   LocaleMetadataRepairReason,
-} from '../../types/localeLeaves/index.js';
-import type { ApplyLocaleMetadataModeInput } from './localeLeafInputs.js';
+} from '../../../../types/locales/leaves/index.js';
+import type { ApplyLocaleMetadataModeInput } from '../localeLeafInputs.js';
 import {
   bump,
   classifyLeafRuntimeKind,

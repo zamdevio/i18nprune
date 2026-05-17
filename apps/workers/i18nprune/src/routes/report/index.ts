@@ -27,6 +27,24 @@ function stringFromConfig(config: Record<string, unknown> | null, key: string): 
   return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
+function sourceLocalePathFromConfig(config: Record<string, unknown> | null): string | null {
+  const loc = config?.locales;
+  if (loc && typeof loc === 'object' && !Array.isArray(loc)) {
+    const s = (loc as Record<string, unknown>).source;
+    if (typeof s === 'string' && s.length > 0) return s;
+  }
+  return stringFromConfig(config, 'source');
+}
+
+function localesDirFromConfig(config: Record<string, unknown> | null): string | null {
+  const loc = config?.locales;
+  if (loc && typeof loc === 'object' && !Array.isArray(loc)) {
+    const d = (loc as Record<string, unknown>).directory;
+    if (typeof d === 'string' && d.length > 0) return d;
+  }
+  return stringFromConfig(config, 'localesDir');
+}
+
 export function registerReportRoutes(app: Hono<WorkerEnv>): void {
   app.post('/v1/projects/:id/report', async (c) => {
     const stub = projectStore(c.env);
@@ -50,10 +68,10 @@ export function registerReportRoutes(app: Hono<WorkerEnv>): void {
 
     const extraction = project.snapshot.extraction;
     const sourceLocalePath =
-      extraction.sourceLocalePath || stringFromConfig(project.snapshot.resolvedConfig, 'source') || '-';
+      extraction.sourceLocalePath || sourceLocalePathFromConfig(project.snapshot.resolvedConfig) || '-';
     const srcRoot = extraction.srcRoot || stringFromConfig(project.snapshot.resolvedConfig, 'src') || '-';
     const localesDir =
-      extraction.localesDir || stringFromConfig(project.snapshot.resolvedConfig, 'localesDir') || '-';
+      extraction.localesDir || localesDirFromConfig(project.snapshot.resolvedConfig) || '-';
     const resolvedKeys = new Set(extraction.resolvedKeys);
     const missing = validate.computeMissingLiteralKeysFromResolvedKeys(project.snapshot.sourceLocaleJson, resolvedKeys);
     const document: ProjectReportDocument = {

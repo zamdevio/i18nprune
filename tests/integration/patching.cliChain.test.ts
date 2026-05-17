@@ -98,8 +98,10 @@ function writePatchingChainFixture(dir: string): void {
   fs.writeFileSync(
     path.join(dir, 'i18nprune.config.mjs'),
     `export default {
-  source: 'locales/en.json',
-  localesDir: 'locales',
+  locales: {
+    source: 'locales/en.json',
+    directory: 'locales',
+  },
   src: 'src',
   functions: ['t'],
   noLocaleMeta: true,

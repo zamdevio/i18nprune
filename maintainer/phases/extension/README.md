@@ -150,7 +150,7 @@ An extension that **does not fork** i18n semantics: diagnostics and commands mus
 
 ### Planned — Init / onboarding (editor host; after Session F)
 
-**Prerequisite:** stable **`@i18nprune/core`** init surface (`runInit`, `detectInitProject`, `INIT_PRESET_ORDER` / `formatInitPresetIdList`) and CLI **`init --json`** parity (same `CliJsonEnvelope`, issue codes, no duplicate heuristics in the host). See **[`../init.md`](../init.md)**. Phase detail: **[init-ui.md](./init-ui.md)**.
+**Prerequisite:** stable **`@i18nprune/core`** init surface (`runInit`, `detectInitProject`, `INIT_PRESET_IDS` / `formatInitPresetIdList`) and CLI **`init --json`** parity (same `CliJsonEnvelope`, issue codes, no duplicate heuristics in the host). See **[`../init.md`](../init.md)**. Phase detail: **[init-ui.md](./init-ui.md)**.
 
 **Placement:** after **Track A** smoke path is reliable (workspace `cwd`, JSON capture); can ship before full **Track B** diagnostics — onboarding is orthogonal to `validate` diagnostics.
 

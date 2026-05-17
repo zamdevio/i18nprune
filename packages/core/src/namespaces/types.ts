@@ -7,7 +7,7 @@ export type {
   LocaleMetadataRepairReason,
   LocaleMetadataReport,
   StructuredLocaleLeaf,
-} from '../types/localeLeaves/index.js';
+} from '../types/locales/leaves/index.js';
 export type { MaskedText } from '../types/placeholders/index.js';
 export type { PathSegment } from '../types/json/path/index.js';
 export type { StringLeaf } from '../types/json/index.js';
@@ -74,7 +74,7 @@ export type { DoctorCheckId, DoctorFinding } from '../types/doctor/index.js';
 export type { GenerateResumeCandidateLeafInput, GenerateResumeRefContext } from '../types/generate/resumeCandidates.js';
 export type { ProjectLiteralKeyUsage } from '../types/extractor/projectLiteralKeyUsage.js';
 export type { CleanupCandidateInput } from '../cleanup/candidates.js';
-export type { ReviewLeafRow, ReviewLeafShape } from '../types/localeLeaves/index.js';
+export type { ReviewLeafRow, ReviewLeafShape } from '../types/locales/leaves/index.js';
 export type {
   DynamicKeySite,
   DynamicKeySiteKind,

@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   loadCoreConfigFromPath,
+  parseI18nPruneConfig,
   resolveCoreConfig,
   resolveCoreConfigLayers,
   tryLoadCoreConfigFromPath,
 } from '../index.js';
+import { configSchema } from '../schema/index.js';
 
 describe('resolveCoreConfig', () => {
   it('resolves defaults via shared list window policy', () => {
@@ -79,5 +81,37 @@ describe('loadCoreConfigFromPath', () => {
       expect(res.issues[0]?.code).toBe('i18nprune.config.missing');
       expect(res.issues[0]?.docPath).toBe('issues/config');
     }
+  });
+});
+
+describe('locales filesystem config', () => {
+  it('parses required paths plus optional topology fields', () => {
+    const cfg = parseI18nPruneConfig({
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+        mode: 'flat_file',
+        structure: 'locale_file',
+      },
+      src: 'src',
+      functions: ['t'],
+    });
+    expect(cfg.locales.mode).toBe('flat_file');
+    expect(cfg.locales.structure).toBe('locale_file');
+  });
+
+  it('rejects unknown keys under locales', () => {
+    expect(() =>
+      configSchema.parse({
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+          mode: 'flat_file',
+          extra: true,
+        },
+        src: 'src',
+        functions: ['t'],
+      }),
+    ).toThrow();
   });
 });

@@ -72,8 +72,10 @@ export type TranslateHandoffMode = 'auto' | 'on' | 'off';
  * import { defineConfig } from 'i18nprune/core/config';
  *
  * export default defineConfig({
- *   source: 'locales/en.json',
- *   localesDir: 'locales',
+ *   locales: {
+ *     source: 'locales/en.json',
+ *     directory: 'locales',
+ *   },
  *   src: 'src',
  *   functions: ['t'],
  *   translate: {

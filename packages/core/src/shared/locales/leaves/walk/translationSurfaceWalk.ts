@@ -1,4 +1,5 @@
-import type { TranslationSurfaceLeaf } from '../../types/localeLeaves/translationSurface.js';
+import type { LocaleLeafFileOrigin } from '../../../../types/locales/leaves/fileOrigin.js';
+import type { TranslationSurfaceLeaf } from '../../../../types/locales/leaves/translationSurface.js';
 
 function isPlainObject(x: unknown): x is Record<string, unknown> {
   return typeof x === 'object' && x !== null && !Array.isArray(x);
@@ -54,7 +55,12 @@ export function isCompleteStructuredLocaleLeafMeta(node: unknown): boolean {
   return true;
 }
 
-function pushStructuredRow(out: TranslationSurfaceLeaf[], prefix: string, root: Record<string, unknown>): void {
+function pushStructuredRow(
+  out: TranslationSurfaceLeaf[],
+  prefix: string,
+  root: Record<string, unknown>,
+  fileOrigin: LocaleLeafFileOrigin | undefined,
+): void {
   const structuredMetaComplete = isCompleteStructuredLocaleLeafMeta(root);
   out.push({
     path: prefix,
@@ -66,6 +72,7 @@ function pushStructuredRow(out: TranslationSurfaceLeaf[], prefix: string, root: 
     needsTranslationAgain: readNeedsTranslationAgain(root),
     source: readOptionalSource(root),
     structuredMetaComplete,
+    ...(fileOrigin ? { fileOrigin } : {}),
   });
 }
 
@@ -74,11 +81,14 @@ function pushStructuredRow(out: TranslationSurfaceLeaf[], prefix: string, root: 
  * `{ value: string, … }` objects (no descent into structured leaf objects — paths align with the source locale).
  *
  * Replaces naive `collectStringLeaves` for locale parity, **quality**, **sync** coverage, etc.
+ *
+ * @param fileOrigin - When set, every emitted leaf includes this storage provenance (flat single-file layout today).
  */
 export function collectTranslationSurfaceLeaves(
   root: unknown,
   prefix = '',
   out: TranslationSurfaceLeaf[] = [],
+  fileOrigin?: LocaleLeafFileOrigin,
 ): TranslationSurfaceLeaf[] {
   if (typeof root === 'string') {
     if (prefix) {
@@ -88,20 +98,21 @@ export function collectTranslationSurfaceLeaves(
         shape: 'legacy_string',
         confidence: null,
         needsReview: null,
+        ...(fileOrigin ? { fileOrigin } : {}),
       });
     }
     return out;
   }
 
   if (isStructuredLocaleLeafNode(root)) {
-    if (prefix) pushStructuredRow(out, prefix, root);
+    if (prefix) pushStructuredRow(out, prefix, root, fileOrigin);
     return out;
   }
 
   if (Array.isArray(root)) {
     root.forEach((item, i) => {
       const p = prefix ? `${prefix}[${i}]` : `[${i}]`;
-      collectTranslationSurfaceLeaves(item, p, out);
+      collectTranslationSurfaceLeaves(item, p, out, fileOrigin);
     });
     return out;
   }
@@ -109,7 +120,7 @@ export function collectTranslationSurfaceLeaves(
   if (isPlainObject(root)) {
     for (const k of Object.keys(root)) {
       const p = prefix ? `${prefix}.${k}` : k;
-      collectTranslationSurfaceLeaves(root[k], p, out);
+      collectTranslationSurfaceLeaves(root[k], p, out, fileOrigin);
     }
   }
 

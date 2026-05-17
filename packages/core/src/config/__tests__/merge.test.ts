@@ -2,17 +2,21 @@ import { describe, expect, it } from 'vitest';
 import { mergePartialConfigIntoBase } from '../resolve/index.js';
 
 describe('mergePartialConfigIntoBase', () => {
-  it('overrides top-level scalars', () => {
-    const base = { source: 'locales/en.json', src: 'src', localesDir: 'locales', functions: ['t'] };
-    expect(mergePartialConfigIntoBase(base, { localesDir: 'localesA' }).localesDir).toBe('localesA');
-    expect(mergePartialConfigIntoBase(base, { localesDir: 'localesA' }).source).toBe('locales/en.json');
+  it('deep-merges nested `locales` object', () => {
+    const base = {
+      locales: { source: 'locales/en.json', directory: 'locales' },
+      src: 'src',
+      functions: ['t'],
+    };
+    const out = mergePartialConfigIntoBase(base, { locales: { directory: 'localesA' } });
+    expect((out.locales as { source: string; directory: string }).directory).toBe('localesA');
+    expect((out.locales as { source: string; directory: string }).source).toBe('locales/en.json');
   });
 
   it('deep-merges nested plain objects', () => {
     const base = {
-      source: 'a',
+      locales: { source: 'a', directory: 'l' },
       src: 's',
-      localesDir: 'l',
       functions: ['t'],
       exclude: { dirs: ['a'], useDefaultSkip: true },
     };

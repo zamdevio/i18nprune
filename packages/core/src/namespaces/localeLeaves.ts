@@ -4,7 +4,8 @@ export {
   collectTranslationSurfaceLeaves,
   isCompleteStructuredLocaleLeafMeta,
   isStructuredLocaleLeafNode,
+  localeLeafFileOriginForFlatLocaleJson,
   metadataModeEnabledFromConfig,
   resolveLocaleLeafMode,
-} from '../shared/localeLeaves/index.js';
-export type { ApplyLocaleMetadataModeInput, ResolveLocaleLeafModeInput } from '../shared/localeLeaves/index.js';
+} from '../shared/locales/leaves/index.js';
+export type { ApplyLocaleMetadataModeInput, ResolveLocaleLeafModeInput } from '../shared/locales/leaves/index.js';

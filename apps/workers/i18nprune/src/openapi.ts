@@ -146,7 +146,7 @@ export const openApiDocument = {
         tags: ['projects'],
         summary: 'Upload project archive (.zip only) and create/reuse a project snapshot',
         description:
-          'Builds upload-time cache (source locale parse + extraction outputs). Optional `configJson` overrides zip-detected config. Required config fields: `source` (project-relative path to the source locale JSON), `src`, `localesDir`, `functions`.',
+          'Builds upload-time cache (source locale parse + extraction outputs). Optional `configJson` overrides zip-detected config. Required config fields: `locales.source` (project-relative path to the source locale JSON), `locales.directory` (locale bundle root), `src`, `functions` (or legacy flat `source` + `localesDir` at top level).',
         requestBody: {
           required: true,
           content: {

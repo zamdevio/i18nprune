@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { StringLeaf } from '../../types/json/index.js';
-import { collectTranslationSurfaceLeaves } from '../../shared/localeLeaves/translationSurfaceWalk.js';
+import { collectTranslationSurfaceLeaves } from '../../shared/locales/leaves/index.js';
 import {
   canonicalTemplatePathForCollectedLeaf,
   readLeafDisplayString,

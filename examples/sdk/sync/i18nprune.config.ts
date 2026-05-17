@@ -7,8 +7,10 @@
 import { defineConfig } from '@i18nprune/core';
 
 export default defineConfig({
-  source: 'examples/sdk/sync/locales/en.json',
-  localesDir: 'examples/sdk/sync/locales',
+  locales: {
+    source: 'examples/sdk/sync/locales/en.json',
+    directory: 'examples/sdk/sync/locales',
+  },
   src: 'examples/sdk/sync/src',
   functions: ['t'],
 });

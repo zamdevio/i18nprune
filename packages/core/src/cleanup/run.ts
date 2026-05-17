@@ -3,7 +3,7 @@ import { computeCleanupCandidateKeys } from './candidates.js';
 import { resolveCleanupKeysWithStringPresencePolicy } from './stringPresence.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
 import { writeRuntimeJsonPretty } from '../generate/io/writeRuntimeJson.js';
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { buildKeyReferenceContextFromLiteralUsageAndDynamicSites } from '../shared/reference/context.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';

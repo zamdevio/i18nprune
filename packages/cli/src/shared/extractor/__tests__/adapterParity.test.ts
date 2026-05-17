@@ -21,8 +21,10 @@ function fixtureContext(): Context {
       localesDir: path.join(cwd, 'tests/fixtures/sample-i18n/locales'),
     },
     config: {
-      source: './locales/en.json',
-      localesDir: './locales',
+      locales: {
+        source: './locales/en.json',
+        directory: './locales',
+      },
       src: './src',
       functions: ['t'],
       reference: {},

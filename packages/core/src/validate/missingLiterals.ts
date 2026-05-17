@@ -1,4 +1,4 @@
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/translationSurfaceWalk.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { splitPath } from '../shared/json/path.js';
 
 /**

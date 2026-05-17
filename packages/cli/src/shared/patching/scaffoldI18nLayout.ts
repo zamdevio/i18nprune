@@ -48,7 +48,7 @@ export function patchingLocaleJsonImportBaseForProjectConfig(ctx: Context, confi
   if (rel && !rel.startsWith('..') && !ctx.adapters.path.isAbsolute(rel)) {
     return rel;
   }
-  return ctx.config.localesDir.replace(/\\/g, '/');
+  return ctx.config.locales.directory.replace(/\\/g, '/');
 }
 
 /** Directory that holds `i18nprune.config.*` — used as patching `projectRoot` for path resolution (same as cwd when the config sits in the repo root). */

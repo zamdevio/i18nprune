@@ -1,4 +1,5 @@
 {
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignore": [
     "tests/fixtures/**",
     "examples/sdk/**",
@@ -8,7 +9,33 @@
     "packages/core/src/runtime/guards/index.ts",
     "packages/core/src/runtime/index.ts",
     "packages/core/src/translator/errors/index.ts",
-    "packages/core/src/translator/index.ts"
+    "packages/core/src/translator/index.ts",
+    "apps/landing/functions/og.svg.ts"
   ],
-  "ignoreExportsUsedInFile": true
+  "ignoreExportsUsedInFile": true,
+  "ignoreIssues": {
+    "apps/landing/src/lib/shikiHighlighter.ts": ["dependencies", "unlisted"],
+    "apps/extension/src/webview/src/lib/i18npruneShiki.ts": ["dependencies", "unlisted"]
+  },
+  "workspaces": {
+    "apps/landing": {
+      "entry": ["src/**/*.{ts,tsx}", "vite.config.ts"],
+      "ignore": ["functions/og.svg.ts"],
+      "ignoreDependencies": ["@shikijs/langs", "@shikijs/themes", "shiki"]
+    },
+    "apps/extension": {
+      "entry": ["src/extension/extension.ts"],
+      "project": ["src/extension/**/*.ts"]
+    },
+    "apps/extension/src/webview": {
+      "entry": ["src/main.tsx", "vite.config.ts"],
+      "ignoreDependencies": [
+        "@shikijs/core",
+        "@shikijs/engine-javascript",
+        "@shikijs/langs",
+        "@shikijs/themes",
+        "shiki"
+      ]
+    }
+  }
 }

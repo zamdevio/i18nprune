@@ -7,8 +7,7 @@ export type ConfigLayer = 'default' | 'file' | 'env' | 'discovery' | 'cli';
 
 /** Which layer last wrote a field (highest priority wins). */
 export type FieldSources = {
-  source?: ConfigLayer;
-  localesDir?: ConfigLayer;
+  locales?: ConfigLayer;
   src?: ConfigLayer;
   functions?: ConfigLayer;
   policies?: ConfigLayer;

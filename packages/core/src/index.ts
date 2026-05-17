@@ -255,7 +255,6 @@ export {
   getInitPresetConfigFields,
   initPackageDeclares,
   INIT_PRESET_IDS,
-  INIT_PRESET_ORDER,
   isInitAutoAmbiguous,
   isInitPresetId,
   pickTopInitPreset,
@@ -381,7 +380,11 @@ export type {
 } from './namespaces/localesDynamic.js';
 
 export { runLocalesList } from './locales/list/index.js';
+export { readFlatLocaleJsonSurface } from './shared/locales/read/index.js';
+export { writeFlatLocaleJsonDocument } from './shared/locales/write/index.js';
 export type { ListJsonPayload, ListRunResult } from './locales/list/index.js';
+export type { ReadFlatLocaleJsonSurfaceResult } from './shared/locales/read/index.js';
+export type { WriteFlatLocaleJsonDocumentResult } from './shared/locales/write/index.js';
 
 export { resolveLocaleEditProfile, writeLocaleMetaEdit } from './locales/edit/index.js';
 export type {
@@ -551,6 +554,7 @@ export {
   loadCoreConfigFromPath,
   mergeCoreConfigInputs,
   mergePartialConfigIntoBase,
+  localesFilesystemSchema,
   parseI18nPruneConfig,
   REFERENCE_POLICY_SAFE_DEFAULTS,
   resolveCoreConfig,
@@ -563,6 +567,7 @@ export type {
   CoreConfigResolved,
   LoadCoreConfigFromPathInput,
   I18nPruneConfig,
+  LocalesFilesystemConfig,
   ResolvedTranslateConfig,
   ResolvedTranslateProviderRow,
   ResolveCoreConfigOptions,
@@ -665,6 +670,8 @@ export {
   stringifyEnvelope,
 } from './namespaces/result.js';
 export type {
+  LocaleLeafFileOrigin,
+  LocaleLeafPathApi,
   LocaleLeafDecisionAction,
   LocaleLeafMode,
   LocaleLeafRuntimeKind,
@@ -673,7 +680,8 @@ export type {
   LocaleMetadataRepairReason,
   LocaleMetadataReport,
   StructuredLocaleLeaf,
-} from './types/localeLeaves/index.js';
+} from './types/locales/leaves/index.js';
+export type { LocaleReadDiagnostic, LocaleReadDiagnosticLevel } from './types/locales/index.js';
 export type { MaskedText } from './types/placeholders/index.js';
 export type { TranslateRequest, Translator, TranslatorRetryOptions } from './types/translator/index.js';
 export { isTranslationProgressParallelPoolPhase } from './progress/translationTickPhase.js';

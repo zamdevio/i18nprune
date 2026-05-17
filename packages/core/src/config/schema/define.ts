@@ -16,8 +16,10 @@ import type { I18nPruneConfig } from './root.js';
  * import { defineConfig } from '@i18nprune/core';
  *
  * export default defineConfig({
- *   source: 'locales/en.json',
- *   localesDir: 'locales',
+ *   locales: {
+ *     source: 'locales/en.json',
+ *     directory: 'locales',
+ *   },
  *   src: 'src',
  *   functions: ['t'],
  *   translate: {
@@ -52,6 +54,7 @@ export function defineConfig(config: Partial<I18nPruneConfig>): I18nPruneConfig 
       commands: { ...refCmd, ...config.reference?.commands },
     },
     missing: { ...DEFAULT_CONFIG.missing, ...config.missing },
+    locales: { ...DEFAULT_CONFIG.locales, ...config.locales },
     translate:
       config.translate !== undefined
         ? {

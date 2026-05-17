@@ -5,6 +5,7 @@ export {
   DEFAULT_CONFIG,
   defineConfig,
   loadCoreConfigFromPath,
+  localesFilesystemSchema,
   mergeCoreConfigInputs,
   mergePartialConfigIntoBase,
   parseI18nPruneConfig,

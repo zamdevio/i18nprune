@@ -1,7 +1,7 @@
 /**
  * Types for **`generate --resume`** (review-leaf top-up); shared with resume translation helpers.
  */
-import type { ReviewLeafRow } from '../localeLeaves/index.js';
+import type { ReviewLeafRow } from '../locales/leaves/index.js';
 import type { ParityPolicy, PreservePolicy } from '../policies/index.js';
 import type { EffectiveReferenceConfig } from '../reference/index.js';
 

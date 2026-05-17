@@ -1,4 +1,4 @@
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';

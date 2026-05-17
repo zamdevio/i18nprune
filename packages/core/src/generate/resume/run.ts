@@ -3,7 +3,7 @@
  * write. Provider fallback retries provider-retryable failures only.
  */
 
-import { collectTranslationSurfaceLeaves } from '../../shared/localeLeaves/index.js';
+import { collectTranslationSurfaceLeaves } from '../../shared/locales/leaves/index.js';
 import {
   assertTranslationProviderCredentialsReady,
   resolveTranslationProviderOptionsForId,
@@ -22,7 +22,7 @@ import { IdentityAbortError } from '../../translator/identity/error.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
 import { ISSUE_LOCALE_TARGET_NOT_FOUND, ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT } from '../../shared/constants/issueCodes.js';
 import { I18nPruneError } from '../../shared/errors/index.js';
-import { applyLocaleLeafNormalization } from '../../shared/localeLeaves/index.js';
+import { applyLocaleLeafNormalization } from '../../shared/locales/leaves/index.js';
 import { emitRunMessage } from '../../shared/run/index.js';
 import { existsRuntimeFsSync } from '../../runtime/helpers/sync/fs.js';
 import { readJsonFromRuntimeFsSync } from '../../runtime/helpers/sync/readJson.js';
@@ -33,7 +33,7 @@ import type { TranslationProviderId } from '../../types/translator/providers.js'
 import type { CoreContext } from '../../types/generate/generateRun.js';
 import type { GenerateHostHooks, GenerateRunOptions } from '../../types/generate/index.js';
 import type { GenerateTargetJsonRow } from '../../types/generate/generateRun.js';
-import type { LocaleMetadataReport } from '../../types/localeLeaves/index.js';
+import type { LocaleMetadataReport } from '../../types/locales/leaves/index.js';
 import type { EffectiveReferenceConfig } from '../../types/reference/index.js';
 import type { GenerateResumeRefContext } from '../../types/generate/resumeCandidates.js';
 

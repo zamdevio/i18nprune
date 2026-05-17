@@ -11,7 +11,7 @@ import { MAX_MISSING_TARGET_SUGGESTIONS } from '../shared/constants/missing.js';
 import { I18nPruneError } from '../shared/errors/index.js';
 import { parseJsonText } from '../shared/json/parse.js';
 import { setAtPath } from '../shared/json/path.js';
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import {

@@ -56,8 +56,10 @@ function makeContext(config: Context['config']): Context {
 describe('applyCommandPatching', () => {
   it('returns undefined for empty locale list', async () => {
     const ctx = makeContext({
-      source: './locales/en.json',
-      localesDir: './locales',
+      locales: {
+        source: './locales/en.json',
+        directory: './locales',
+      },
       src: './src',
       functions: ['t'],
     });
@@ -74,8 +76,10 @@ describe('applyCommandPatching', () => {
     setCliGlobalOverrides({ patch: true });
     const root = makeTempDir();
     const ctx = makeContext({
-      source: './locales/en.json',
-      localesDir: './locales',
+      locales: {
+        source: './locales/en.json',
+        directory: './locales',
+      },
       src: './src',
       functions: ['t'],
       patching: {
@@ -99,8 +103,10 @@ describe('applyCommandPatching', () => {
   it('skips runPatching when --patch is set but patching paths are empty (incomplete section)', async () => {
     setCliGlobalOverrides({ patch: true });
     const ctx = makeContext({
-      source: './locales/en.json',
-      localesDir: './locales',
+      locales: {
+        source: './locales/en.json',
+        directory: './locales',
+      },
       src: './src',
       functions: ['t'],
       patching: {
@@ -122,8 +128,10 @@ describe('applyCommandPatching', () => {
   it('skips patch integration unless --patch flag is enabled', async () => {
     const root = makeTempDir();
     const ctx = makeContext({
-      source: './locales/en.json',
-      localesDir: './locales',
+      locales: {
+        source: './locales/en.json',
+        directory: './locales',
+      },
       src: './src',
       functions: ['t'],
       patching: {

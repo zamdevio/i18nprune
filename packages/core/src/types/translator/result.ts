@@ -1,4 +1,4 @@
-import type { StructuredLocaleLeaf } from '../localeLeaves/index.js';
+import type { StructuredLocaleLeaf } from '../locales/leaves/index.js';
 import type { TranslationProviderId } from './providers.js';
 
 /**

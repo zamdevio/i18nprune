@@ -5,7 +5,12 @@ import { ISSUE_PROJECT_CONFIG_FILE_MISSING, ISSUE_PROJECT_SRC_ROOT_UNAVAILABLE }
 
 function ctxWithFs(fs: CoreContext['adapters']['fs']): CoreContext {
   return {
-    config: { functions: [], exclude: [], source: 'en', localesDir: 'locales', src: 'src' } as CoreContext['config'],
+    config: {
+      functions: [],
+      exclude: [],
+      locales: { source: 'locales/en.json', directory: 'locales' },
+      src: 'src',
+    } as CoreContext['config'],
     adapters: {
       fs,
       path: { basename: (p: string, ext?: string) => (ext ? p.replace(ext, '') : p) } as CoreContext['adapters']['path'],

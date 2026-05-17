@@ -1,4 +1,4 @@
-import { collectTranslationSurfaceLeaves } from '../localeLeaves/translationSurfaceWalk.js';
+import { collectTranslationSurfaceLeaves } from '../locales/leaves/index.js';
 
 /** True when every source string path exists in `targetRaw`. */
 export function targetLocaleCoversAllSourcePaths(sourceRaw: unknown, targetRaw: unknown): boolean {

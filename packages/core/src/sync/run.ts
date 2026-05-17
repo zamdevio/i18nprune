@@ -1,5 +1,5 @@
-import { collectTranslationSurfaceLeaves } from '../shared/localeLeaves/index.js';
-import { applyLocaleLeafMode, resolveLocaleLeafMode } from '../shared/localeLeaves/index.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
+import { applyLocaleLeafMode, resolveLocaleLeafMode } from '../shared/locales/leaves/index.js';
 import { buildKeyReferenceContextFromReportDetails } from '../shared/reference/context.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
@@ -29,7 +29,7 @@ import { summarizeSyncLeavesForHumanLog } from './humanLeafSummary.js';
 import { resolveSyncTargetFiles } from './resolveTargets.js';
 import type { CoreContext } from '../types/generate/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
-import type { LocaleMetadataRepairReason, LocaleMetadataReport } from '../types/localeLeaves/index.js';
+import type { LocaleMetadataRepairReason, LocaleMetadataReport } from '../types/locales/leaves/index.js';
 import type { SyncHostHooks, SyncRunOptions, SyncRunResult } from '../types/sync/index.js';
 import type { LocalePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 

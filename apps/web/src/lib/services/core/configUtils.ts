@@ -24,9 +24,17 @@ export async function configHash(config: NormalizedConfig): Promise<string> {
 
 export function normalizeConfig(input: Record<string, unknown> | null): NormalizedConfig | null {
   if (!input) return null;
-  const source = typeof input.source === 'string' ? input.source : null;
+  const locales = input.locales;
+  let source: string | null = null;
+  let localesDir: string | null = null;
+  if (locales && typeof locales === 'object' && !Array.isArray(locales)) {
+    const lo = locales as Record<string, unknown>;
+    if (typeof lo.source === 'string') source = lo.source;
+    if (typeof lo.directory === 'string') localesDir = lo.directory;
+  }
+  if (!source) source = typeof input.source === 'string' ? input.source : null;
+  if (!localesDir) localesDir = typeof input.localesDir === 'string' ? input.localesDir : null;
   const src = typeof input.src === 'string' ? input.src : null;
-  const localesDir = typeof input.localesDir === 'string' ? input.localesDir : null;
   const functions = Array.isArray(input.functions)
     ? input.functions.filter((x): x is string => typeof x === 'string' && x.length > 0)
     : [];

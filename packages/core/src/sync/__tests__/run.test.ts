@@ -41,8 +41,10 @@ describe('runSync', () => {
       const rt = createNodeRuntimeAdapters();
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         missing: { placeholder: DEFAULT_MISSING_LEAF_PLACEHOLDER },
@@ -104,8 +106,10 @@ describe('runSync', () => {
       const rt = createNodeRuntimeAdapters();
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         missing: { placeholder: DEFAULT_MISSING_LEAF_PLACEHOLDER },

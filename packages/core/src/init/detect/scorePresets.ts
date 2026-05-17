@@ -1,6 +1,6 @@
 import type { InitPresetId } from '../../types/init/index.js';
 import type { InitPresetScore, InitProjectSignals, InitScoreFactor } from '../../types/init/index.js';
-import { INIT_PRESET_ORDER } from '../presets/fields.js';
+import { INIT_PRESET_IDS } from '../presets/fields.js';
 import { initPackageDeclares } from './packageJson.js';
 
 function sumContributions(factors: InitScoreFactor[]): number {
@@ -166,7 +166,7 @@ function applyConflictDampingInPlace(rows: InitPresetScore[]): void {
  * @remarks Pure — deterministic; callers handle ambiguity / host UX.
  */
 export function scoreInitPresets(signals: InitProjectSignals): InitPresetScore[] {
-  const rows: InitPresetScore[] = INIT_PRESET_ORDER.map((preset) => {
+  const rows: InitPresetScore[] = INIT_PRESET_IDS.map((preset) => {
     const factors = buildFactors(preset, signals);
     const rawScore = sumContributions(factors);
     return { preset, rawScore, score: 0, confidence: 0, factors };

@@ -9,8 +9,10 @@ const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
 
 const MINIMAL = `export default {
-  source: 'locales/en.json',
-  localesDir: 'locales',
+  locales: {
+    source: 'locales/en.json',
+    directory: 'locales',
+  },
   src: 'src',
   functions: ['t'],
 };

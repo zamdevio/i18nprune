@@ -1,4 +1,4 @@
-import { collectTranslationSurfaceLeaves } from '../localeLeaves/translationSurfaceWalk.js';
+import { collectTranslationSurfaceLeaves } from '../locales/leaves/index.js';
 
 /** Path → translated string value using the same logical paths as the source locale (`collectTranslationSurfaceLeaves`). */
 export function translationSurfacePathValueMap(localeJson: unknown): Map<string, string> {

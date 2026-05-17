@@ -11,7 +11,7 @@ export type * from './cache/index.js';
 export type * from './cleanup/index.js';
 export type * from './json/index.js';
 export type * from './languages/index.js';
-export type * from './localeLeaves/index.js';
+export type * from './locales/index.js';
 export type * from './missing/index.js';
 export type * from './patching/index.js';
 export type * from './placeholders/index.js';

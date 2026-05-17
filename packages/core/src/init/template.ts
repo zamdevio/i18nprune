@@ -13,7 +13,7 @@ export type BuildInitConfigTemplateOptions = {
   /** When true, include every supported top-level namespace with safe defaults (starting point for customization). */
   rich?: boolean;
   /**
-   * Curated starter bundle — seeds **`source`**, **`localesDir`**, **`src`**, and **`functions`**.
+   * Curated starter bundle — seeds **`locales.source`**, **`locales.directory`**, **`src`**, and **`functions`**.
    * Defaults to **`generic`**.
    */
   preset?: InitPresetId;
@@ -70,8 +70,12 @@ function formatFunctionsArray(functions: string[]): string {
 
 function formatPresetBody(preset: InitPresetId): string {
   const p = getInitPresetConfigFields(preset);
-  return `  source: '${p.source.replace(/'/g, "\\'")}',
-  localesDir: '${p.localesDir.replace(/'/g, "\\'")}',
+  const sf = p.locales.source.replace(/'/g, "\\'");
+  const dir = p.locales.directory.replace(/'/g, "\\'");
+  return `  locales: {
+    source: '${sf}',
+    directory: '${dir}',
+  },
   src: '${p.src.replace(/'/g, "\\'")}',
   functions: ${formatFunctionsArray(p.functions)},`;
 }

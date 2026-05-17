@@ -32,8 +32,13 @@ function parseFunctionsCsv(s: string): string[] {
 
 function applyCliToConfig(base: I18nPruneConfig, cli: CliGlobalOverrides): I18nPruneConfig {
   const out = { ...base };
-  if (cli.source !== undefined) out.source = cli.source;
-  if (cli.localesDir !== undefined) out.localesDir = cli.localesDir;
+  if (cli.source !== undefined || cli.localesDir !== undefined) {
+    out.locales = {
+      ...base.locales,
+      ...(cli.source !== undefined ? { source: cli.source } : {}),
+      ...(cli.localesDir !== undefined ? { directory: cli.localesDir } : {}),
+    };
+  }
   if (cli.src !== undefined) out.src = cli.src;
   if (cli.functions !== undefined && cli.functions.length > 0) {
     out.functions = parseFunctionsCsv(cli.functions);
@@ -77,8 +82,7 @@ function overlay(
   next: I18nPruneConfig,
   layer: Exclude<ConfigLayer, 'default' | 'file'>,
 ): void {
-  if (prev.source !== next.source) sources.source = layer;
-  if (prev.localesDir !== next.localesDir) sources.localesDir = layer;
+  if (JSON.stringify(prev.locales) !== JSON.stringify(next.locales)) sources.locales = layer;
   if (prev.src !== next.src) sources.src = layer;
   if (JSON.stringify(prev.functions) !== JSON.stringify(next.functions)) sources.functions = layer;
   if (JSON.stringify(prev.policies) !== JSON.stringify(next.policies)) sources.policies = layer;
@@ -87,8 +91,7 @@ function overlay(
 function initFieldSources(fileLoaded: boolean): FieldSources {
   const layer: ConfigLayer = fileLoaded ? 'file' : 'default';
   return {
-    source: layer,
-    localesDir: layer,
+    locales: layer,
     src: layer,
     functions: layer,
     ...(layer === 'file' ? { policies: 'file' as const } : {}),
@@ -136,8 +139,8 @@ export async function resolveContext(cwd = process.cwd()): Promise<Context> {
 
     const run = getRunOptions();
     const paths = {
-      sourceLocale: resolveFromCwd(merged.source, projectRoot),
-      localesDir: resolveFromCwd(merged.localesDir, projectRoot),
+      sourceLocale: resolveFromCwd(merged.locales.source, projectRoot),
+      localesDir: resolveFromCwd(merged.locales.directory, projectRoot),
       srcRoot: resolveFromCwd(merged.src, projectRoot),
     };
 

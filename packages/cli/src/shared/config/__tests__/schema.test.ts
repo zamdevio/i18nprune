@@ -4,19 +4,23 @@ import { parseI18nPruneConfig, ConfigValidationError } from '@i18nprune/core/con
 describe('parseI18nPruneConfig', () => {
   it('parses minimal valid config', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
     });
-    expect(c.source).toBe('locales/en.json');
+    expect(c.locales.source).toBe('locales/en.json');
     expect(c.functions).toEqual(['t']);
   });
 
   it('accepts optional noLocaleMeta', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
       noLocaleMeta: true,
@@ -27,8 +31,10 @@ describe('parseI18nPruneConfig', () => {
   it('rejects empty functions', () => {
     expect(() =>
       parseI18nPruneConfig({
-        source: 'a',
-        localesDir: 'b',
+        locales: {
+          source: 'a',
+          directory: 'b',
+        },
         src: 'c',
         functions: [],
       }),
@@ -37,8 +43,10 @@ describe('parseI18nPruneConfig', () => {
 
   it('accepts scanner config object', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
       scanner: {
@@ -54,8 +62,10 @@ describe('parseI18nPruneConfig', () => {
 
   it('accepts exclude with preset, dirs, extensions, patterns, and useDefaultSkip', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
       exclude: {
@@ -75,8 +85,10 @@ describe('parseI18nPruneConfig', () => {
 
   it('accepts missing command namespace', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
       missing: { placeholder: '[NEW]' },
@@ -87,8 +99,10 @@ describe('parseI18nPruneConfig', () => {
   it('rejects translate.workers object shape (number only)', () => {
     expect(() =>
       parseI18nPruneConfig({
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         translate: {
@@ -103,8 +117,10 @@ describe('parseI18nPruneConfig', () => {
   it('rejects translate.concurrency (removed)', () => {
     expect(() =>
       parseI18nPruneConfig({
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         translate: {
@@ -118,8 +134,10 @@ describe('parseI18nPruneConfig', () => {
 
   it('accepts reference namespace', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
       reference: {
@@ -133,8 +151,10 @@ describe('parseI18nPruneConfig', () => {
 
   it('accepts unknown keys under reference.commands (passthrough forward compatibility)', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
       reference: {
@@ -152,8 +172,10 @@ describe('parseI18nPruneConfig', () => {
   it('rejects unknown keys under missing (strict)', () => {
     expect(() =>
       parseI18nPruneConfig({
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         missing: { typo: 1 },
@@ -168,8 +190,10 @@ describe('parseI18nPruneConfig', () => {
 
   it('accepts translate.providers + primary (llm row)', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
       translate: {
@@ -193,8 +217,10 @@ describe('parseI18nPruneConfig', () => {
   it('rejects duplicate translate.providers id values', () => {
     expect(() =>
       parseI18nPruneConfig({
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         translate: {
@@ -208,8 +234,10 @@ describe('parseI18nPruneConfig', () => {
   it('rejects primary with no enabled matching row', () => {
     expect(() =>
       parseI18nPruneConfig({
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         translate: {
@@ -222,8 +250,10 @@ describe('parseI18nPruneConfig', () => {
 
   it('defaults translate.workers when workers key omitted', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
       translate: minimalGoogleTranslate,
@@ -233,8 +263,10 @@ describe('parseI18nPruneConfig', () => {
 
   it('accepts translate.workers as a bare positive int', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
       translate: { ...minimalGoogleTranslate, workers: 8 },
@@ -244,8 +276,10 @@ describe('parseI18nPruneConfig', () => {
 
   it('accepts translate.policy.routing auto at parse time (resolver rejects until implemented)', () => {
     const c = parseI18nPruneConfig({
-      source: 'locales/en.json',
-      localesDir: 'locales',
+      locales: {
+        source: 'locales/en.json',
+        directory: 'locales',
+      },
       src: 'src',
       functions: ['t'],
       translate: {
@@ -260,8 +294,10 @@ describe('parseI18nPruneConfig', () => {
   it('rejects stray keys on google row', () => {
     expect(() =>
       parseI18nPruneConfig({
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         translate: {
@@ -280,8 +316,10 @@ describe('parseI18nPruneConfig', () => {
 
     it('applies all defaults when policy is omitted', () => {
       const c = parseI18nPruneConfig({
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         translate: baseTranslate,
@@ -301,8 +339,10 @@ describe('parseI18nPruneConfig', () => {
 
     it('defaults maxAttempts to providers.length when omitted', () => {
       const c = parseI18nPruneConfig({
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         translate: baseTranslate,
@@ -312,8 +352,10 @@ describe('parseI18nPruneConfig', () => {
 
     it('keeps an explicit maxAttempts over the providers.length default', () => {
       const c = parseI18nPruneConfig({
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         translate: { ...baseTranslate, policy: { maxAttempts: 7 } },
@@ -323,8 +365,10 @@ describe('parseI18nPruneConfig', () => {
 
     it('accepts every locked verb across all on* keys', () => {
       const c = parseI18nPruneConfig({
-        source: 'locales/en.json',
-        localesDir: 'locales',
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
         src: 'src',
         functions: ['t'],
         translate: {
@@ -360,8 +404,10 @@ describe('parseI18nPruneConfig', () => {
     it('rejects unknown verbs (e.g. legacy "fail")', () => {
       expect(() =>
         parseI18nPruneConfig({
-          source: 'locales/en.json',
-          localesDir: 'locales',
+          locales: {
+            source: 'locales/en.json',
+            directory: 'locales',
+          },
           src: 'src',
           functions: ['t'],
           translate: {
@@ -375,8 +421,10 @@ describe('parseI18nPruneConfig', () => {
     it('rejects legacy onRateLimitResponse key (renamed to onRateLimit)', () => {
       expect(() =>
         parseI18nPruneConfig({
-          source: 'locales/en.json',
-          localesDir: 'locales',
+          locales: {
+            source: 'locales/en.json',
+            directory: 'locales',
+          },
           src: 'src',
           functions: ['t'],
           translate: {
@@ -390,8 +438,10 @@ describe('parseI18nPruneConfig', () => {
     it('rejects unknown policy keys via .strict()', () => {
       expect(() =>
         parseI18nPruneConfig({
-          source: 'locales/en.json',
-          localesDir: 'locales',
+          locales: {
+            source: 'locales/en.json',
+            directory: 'locales',
+          },
           src: 'src',
           functions: ['t'],
           translate: {
@@ -405,8 +455,10 @@ describe('parseI18nPruneConfig', () => {
     it('rejects non-positive maxAttempts', () => {
       expect(() =>
         parseI18nPruneConfig({
-          source: 'locales/en.json',
-          localesDir: 'locales',
+          locales: {
+            source: 'locales/en.json',
+            directory: 'locales',
+          },
           src: 'src',
           functions: ['t'],
           translate: {

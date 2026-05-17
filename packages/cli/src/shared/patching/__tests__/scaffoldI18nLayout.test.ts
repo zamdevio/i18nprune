@@ -23,7 +23,11 @@ afterEach(() => {
 function makeContext(root: string): Context {
   const adapters = createNodeRuntimeAdapters();
   return {
-    config: { source: './locales/en.json', localesDir: './locales', src: './src', functions: ['t'] },
+    config: {
+      locales: { source: './locales/en.json', directory: './locales' },
+      src: './src',
+      functions: ['t'],
+    },
     paths: {
       sourceLocale: path.join(root, 'locales', 'en.json'),
       localesDir: path.join(root, 'locales'),

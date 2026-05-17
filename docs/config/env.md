@@ -8,8 +8,8 @@ Merged **after** defaults and the config **file**, **before** discovery and CLI 
 
 | Variable | Effect |
 |----------|--------|
-| **`I18NPRUNE_SOURCE`** | Override **`config.source`** (path to source locale JSON). |
-| **`I18NPRUNE_LOCALES_DIR`** | Override **`config.localesDir`**. |
+| **`I18NPRUNE_SOURCE`** | Override **`config.locales.source`** (path to source locale JSON). |
+| **`I18NPRUNE_LOCALES_DIR`** | Override **`config.locales.directory`**. |
 | **`I18NPRUNE_SRC`** | Override **`config.src`** (scan root). |
 | **`I18NPRUNE_FUNCTIONS`** | Comma-separated list overriding **`config.functions`**. |
 | **`I18NPRUNE_NO_DISCOVERY`** | When truthy (`1`, `true`, `yes`), skip discovery layer where applicable. |
