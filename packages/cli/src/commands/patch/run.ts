@@ -561,9 +561,34 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
     }
     if (hasFixableWarnings) {
       logger.info('patch: detected fixable inconsistencies. Run "i18nprune patch --fix" to apply automatic corrections.', run);
-    }
-    if (analysis.diagnostics.length === 0) {
-      logger.info('patch: no inconsistencies detected.', run);
+    } else if (!analysis.hasError) {
+      const hasWarnOrErr = analysis.diagnostics.some((d) => d.severity === 'error' || d.severity === 'warn');
+      if (!hasWarnOrErr) {
+        if (!analysis.config.enabled) {
+          logger.info(
+            'patch: patching is disabled — nothing to reconcile. Turn on `patching.enabled` or pass `--patch` on generate/sync/locales to refresh loaders after edits.',
+            run,
+          );
+        } else {
+          const n = analysis.localeRecords.length;
+          const recipe = analysis.config.recipe;
+          if (n === 0) {
+            logger.info(
+              `patch: patching is on (recipe "${recipe}") but the patching config lists no locales yet. Add locale rows to your i18n config.json, then re-run patch.`,
+              run,
+            );
+          } else {
+            logger.info(
+              `patch: ${String(n)} configured locale(s) — no config ↔ locale file drift and no catalog metadata mismatches. (Recipe: ${recipe}.)`,
+              run,
+            );
+            logger.detail(
+              'Tip: pass `--patch` on generate/sync/locales (or set patching.enabled) so the generated loader stays aligned after mutations.',
+              run,
+            );
+          }
+        }
+      }
     }
     process.exitCode = analysis.hasError ? 1 : 0;
   }

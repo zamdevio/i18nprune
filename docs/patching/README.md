@@ -64,5 +64,5 @@ Use this workflow as the default operator path:
 
 ## Implementation locations
 
-- Core engine/contracts: `packages/core/src/patching/index.ts`, `packages/core/src/types/patching/index.ts`
-- CLI command host and guidance: `packages/cli/src/commands/patch/run.ts`, `packages/cli/src/shared/patching/apply.ts`
+- Core engine/contracts: `packages/core/src/patching/index.ts`, `packages/core/src/types/patching/index.ts` — **data only** (diagnostics, plans, results); **no human log lines** and no `console.*`.
+- CLI command host and guidance: `packages/cli/src/commands/patch/run.ts`, `packages/cli/src/shared/patching/apply.ts` — **all `[i18nprune]` patch messages** are emitted here via the CLI logger.
