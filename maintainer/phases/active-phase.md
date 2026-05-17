@@ -6,7 +6,7 @@
 
 **Narrative focus:** **Locales (Session H)** is the active core vertical after **Init (Session F)** shipped (core + CLI). **`@i18nprune/core`** owns normalized locale storage next; **hosted apps** catch up after **H**. **Session C.3** (`apps/web`, `apps/workers/i18nprune`) is **explicitly after F + H** (deployed hosts are fine today; align once core/SDK contracts settle). Then **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)** · **`maintainer/phases/README.md`**.
 
-**Verticals:** **[`init.md`](./init.md)** (Session **F** — **shipped** core + CLI) → **[`locales.md`](./locales.md)** (Session **H** — **next**) → **apps catch-up (Session C.3)** → **docs (D)** — extension consumes stable contracts per locked chain (**[`extension/README.md`](./extension/README.md)**); extension init UI remains planned.
+**Verticals:** **[`init.md`](./init.md)** (Session **F** — **shipped** core + CLI) → **[`locales.md`](./locales.md)** (Session **H** — **next**) → **[`translate-cache.md`](./translate-cache.md)** (**H.1**, after **H**) → **apps catch-up (Session C.3)** → **docs (D)** — extension consumes stable contracts per locked chain (**[`extension/README.md`](./extension/README.md)**); extension init UI remains planned.
 
 ---
 
@@ -23,6 +23,8 @@ init
     ↓
 locales
     ↓
+translate-cache   (after locales; see translate-cache.md)
+    ↓
 extension
 ```
 
@@ -31,6 +33,7 @@ extension
 | **extractor** | Strengthens key detection and runtime-facing signals (bindings, call sites, dynamic classification). **Session C.1 shipped** — contracts are stable for **init** / **locales** / **extension**; downstream phases **must respect** extractor contracts and must not fork parallel detection “truth”. | [`extractor.md`](./extractor.md) |
 | **init** | Best-in-class onboarding: **core-owned** detection + preset/config generation; **CLI and extension are hosts only**. **Session F shipped** (core + CLI); extension init UI remains planned. **Config schema** + preset model are the contract **locales** builds on. | [`init.md`](./init.md) |
 | **locales** | Multi-topology locale **storage** via **reader/writer** abstraction; **normalized locale surface** for all existing ops. **Next** after **init** (Session **F** shipped for core + CLI; honor preset + schema contract in [`init.md`](./init.md)). | [`locales.md`](./locales.md) |
+| **translate-cache** | Provider translation result cache: per-run memo + per-project **`translations.json`** beside **`snapshot.json`**; same **`config.cache`** / **`--no-cache`** as project cache. **After locales** (Session **H.1**). | [`translate-cache.md`](./translate-cache.md) |
 | **extension** | Consumes **stabilized core** APIs and payloads — **no parallel scanning/indexing truth**. May prototype early, but **release-grade** behavior assumes **init + locales** contracts are stable. | [`extension/README.md`](./extension/README.md) |
 
 ### Responsibilities (one sentence each)
@@ -38,6 +41,7 @@ extension
 - **Extractor:** what the code *says* (calls, keys, dynamic sites, bindings-derived function sets).
 - **Init:** what the project *is* (framework, topology candidates, preset, generated config) — **scored heuristics**, not ad-hoc `if (lib)` trees in hosts.
 - **Locales:** where strings *live* on disk (flat file vs directory trees) and how reads/writes map to the **same logical keys** ops already understand.
+- **Translate-cache:** reuses provider results for **`generate`** (in-memory + disk beside project snapshot); **does not** replace locale JSON or **`--resume`**.
 - **Extension:** surfaces core intelligence (hovers, diagnostics, wizards) — **hosts** only.
 
 ### Explicit boundaries
@@ -105,6 +109,7 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **Extractor hardening** | **Shipped — Session C.1** | [`extractor.md`](./extractor.md) |
 | **Init phase (onboarding)** | **Shipped — Session F** (core + CLI; extension host I1–I3 in [`extension/README.md`](./extension/README.md)) | [`init.md`](./init.md) |
 | **Locales phase (multi-topology)** | **Planned — Session H** (**next**; after init contract in [`init.md`](./init.md)) | [`locales.md`](./locales.md) |
+| **Translate cache** | **Planned — Session H.1** (after **H**; same `config.cache` policy) | [`translate-cache.md`](./translate-cache.md) |
 | **Apps catch-up (web + worker-i18nprune)** | **Planned — Session C.3** (after **H**; **F** shipped) | [`V1-RELEASE.md`](./V1-RELEASE.md) |
 | **Patching hardening** | **Shipped** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |

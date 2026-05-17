@@ -1,7 +1,7 @@
 import { applyCleanupKeysToLocaleJson } from './apply.js';
 import { computeCleanupCandidateKeys } from './candidates.js';
 import { resolveCleanupKeysWithStringPresencePolicy } from './stringPresence.js';
-import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
+import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { buildKeyReferenceContextFromLiteralUsageAndDynamicSites } from '../shared/reference/context.js';
@@ -12,7 +12,7 @@ import {
   ISSUE_CLEANUP_UNCERTAIN_PATHS_EXCLUDED,
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
 } from '../shared/constants/issueCodes.js';
-import type { CoreContext } from '../types/generate/index.js';
+import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type {
   CleanupHostHooks,

@@ -74,7 +74,7 @@ export type { DoctorCheckId, DoctorFinding } from '../types/doctor/index.js';
 export type { GenerateResumeCandidateLeafInput, GenerateResumeRefContext } from '../types/generate/resumeCandidates.js';
 export type { ProjectLiteralKeyUsage } from '../types/extractor/projectLiteralKeyUsage.js';
 export type { CleanupCandidateInput } from '../cleanup/candidates.js';
-export type { ReviewLeafRow, ReviewLeafShape } from '../types/locales/leaves/index.js';
+export type { TranslationSurfaceLeaf, TranslationSurfaceShape } from '../types/locales/leaves/index.js';
 export type {
   DynamicKeySite,
   DynamicKeySiteKind,

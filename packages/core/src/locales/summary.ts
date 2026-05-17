@@ -1,5 +1,6 @@
-import type { CoreContext } from '../types/generate/index.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
+import type { CoreContext } from '../types/context/index.js';
+import { isLocalesLayoutSupported, resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
 import { translationSurfacePathValueMap } from '../shared/projects/localeSurfaceMap.js';
 
 export type LocaleListRow = {
@@ -15,6 +16,9 @@ function basenameWithoutJson(fileName: string): string {
 }
 
 function toLeafMap(ctx: CoreContext, absoluteFile: string): Map<string, string> {
+  if (!isLocalesLayoutSupported(resolveLocalesLayoutFromContext(ctx))) {
+    return new Map();
+  }
   return translationSurfacePathValueMap(readLocaleJsonFromContextSync(ctx, absoluteFile));
 }
 

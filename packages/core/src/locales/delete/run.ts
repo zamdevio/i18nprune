@@ -1,5 +1,5 @@
 import { existsRuntimeFsSync } from '../../runtime/helpers/sync/fs.js';
-import type { CoreContext } from '../../types/generate/index.js';
+import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 
 export type DeleteTargetResult = {

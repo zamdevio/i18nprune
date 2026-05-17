@@ -4,7 +4,7 @@ import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js'
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
 import { emitRunEvent, nowMs } from '../shared/run/index.js';
@@ -13,7 +13,7 @@ import {
   issuesFromSourcePlaceholderLeaves,
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
-import type { CoreContext } from '../types/generate/index.js';
+import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { ValidateHostHooks, ValidateRunOptions, ValidateRunResult } from '../types/validate/index.js';
 import { buildValidateIssues } from './issues.js';

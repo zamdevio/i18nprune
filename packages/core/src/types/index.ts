@@ -2,6 +2,7 @@
  * Public type barrels for `@i18nprune/core`.
  * Rule: **no loose `types/<name>.ts` files** — each domain is a folder with `index.ts` (+ topic splits).
  */
+export type * from './context/index.js';
 export type * from './doctor/index.js';
 export type * from './errors/index.js';
 export type * from './extractor/index.js';

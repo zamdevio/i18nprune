@@ -14,7 +14,7 @@ import type { Translator } from '../types/translator/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
 import type { TranslationTickProgressFn } from '../types/progress/index.js';
 import type { TranslateStartRateLimit } from '../types/translator/rateLimit.js';
-import type { ReviewLeafRow } from '../types/locales/leaves/index.js';
+import type { TranslationSurfaceLeaf } from '../types/locales/leaves/index.js';
 import type { EffectiveReferenceConfig } from '../types/reference/index.js';
 import type { GenerateResumeRefContext } from '../types/generate/resumeCandidates.js';
 
@@ -401,7 +401,7 @@ export function localeJsonHasKeyPath(data: unknown, keyPath: string): boolean {
 export type ResumeTranslationJob = { leafIndex: number; path: string; value: string };
 
 export type ListResumeTranslationJobsInput = {
-  tLeaves: readonly ReviewLeafRow[];
+  tLeaves: readonly TranslationSurfaceLeaf[];
   next: unknown;
   sourceMap: Map<string, string>;
   refCtx: GenerateResumeRefContext;
@@ -470,7 +470,7 @@ function applyCompletedResumeJobs(input: {
  * **`generate --resume`**: walk review leaves, translate candidates that still match source, update JSON.
  */
 export async function translateResumeCandidateLeaves(input: {
-  tLeaves: readonly ReviewLeafRow[];
+  tLeaves: readonly TranslationSurfaceLeaf[];
   next: unknown;
   sourceMap: Map<string, string>;
   refCtx: GenerateResumeRefContext;

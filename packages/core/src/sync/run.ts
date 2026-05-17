@@ -6,7 +6,7 @@ import { resolveProjectAnalysis } from '../analysis/index.js';
 import { parseSyncLangSelection } from '../locales/targets.js';
 import { assertNotSourceTargetLocale } from '../locales/source.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
-import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
+import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
 import { setAtPath } from '../shared/json/path.js';
 import {
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
@@ -26,7 +26,7 @@ import { emitRunMessage } from '../shared/run/index.js';
 import { computeSyncedLocaleJson } from './apply.js';
 import { summarizeSyncLeavesForHumanLog } from './humanLeafSummary.js';
 import { resolveSyncTargetFiles } from './resolveTargets.js';
-import type { CoreContext } from '../types/generate/index.js';
+import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocaleMetadataRepairReason, LocaleMetadataReport } from '../types/locales/leaves/index.js';
 import type { SyncHostHooks, SyncRunOptions, SyncRunResult } from '../types/sync/index.js';

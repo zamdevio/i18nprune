@@ -1,5 +1,5 @@
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
 import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../shared/constants/issueCodes.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
@@ -15,7 +15,7 @@ import {
 import { formatCountMap } from './aggregate.js';
 import { buildReviewJsonData } from './report.js';
 import { filterLocaleFilesForReview, parseReviewTargetCodes } from './targetScope.js';
-import type { CoreContext } from '../types/generate/index.js';
+import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 import type { ReviewHostHooks, ReviewLocaleStats, ReviewRunOptions, ReviewRunResult } from '../types/review/index.js';

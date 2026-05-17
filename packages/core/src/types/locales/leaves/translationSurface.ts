@@ -6,9 +6,6 @@ import type { LocaleLeafFileOrigin } from './fileOrigin.js';
  */
 export type TranslationSurfaceShape = 'legacy_string' | 'structured';
 
-/** @alias {@link TranslationSurfaceLeaf} — kept for existing imports / issue copy. */
-export type ReviewLeafShape = TranslationSurfaceShape;
-
 export type TranslationSurfaceLeaf = {
   path: string;
   value: string;
@@ -29,6 +26,3 @@ export type TranslationSurfaceLeaf = {
    */
   structuredMetaComplete?: boolean;
 };
-
-/** @alias {@link TranslationSurfaceLeaf} — kept for review / resume typings. */
-export type ReviewLeafRow = TranslationSurfaceLeaf;

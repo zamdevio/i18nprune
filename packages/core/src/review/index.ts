@@ -1,7 +1,7 @@
 export { aggregateReviewRows, formatCountMap } from './aggregate.js';
 export { buildReviewJsonData } from './report.js';
 export { runReview } from './run.js';
-export type { ReviewLeafRow, ReviewLeafShape } from '../types/locales/leaves/index.js';
+export type { TranslationSurfaceLeaf, TranslationSurfaceShape } from '../types/locales/leaves/index.js';
 export {
   collectTranslationSurfaceLeaves,
   isCompleteStructuredLocaleLeafMeta,

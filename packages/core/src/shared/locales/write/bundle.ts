@@ -1,5 +1,8 @@
-import { isLocalesLayoutSupported } from '../layout/resolveLayout.js';
+import { ISSUE_IO_READ_FAILED } from '../../constants/issueCodes.js';
+import { I18nPruneError } from '../../errors/index.js';
+import { isLocalesLayoutSupported, resolveLocalesLayoutFromContext } from '../layout/resolveLayout.js';
 import type { ResolvedLocalesLayout } from '../../../types/locales/layout.js';
+import type { CoreContext } from '../../../types/context/index.js';
 import { writeFlatLocaleJsonDocument } from './flatFileLocaleJson.js';
 import type { WriteFlatLocaleJsonDocumentResult } from './flatFileLocaleJson.js';
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/fileOrigin.js';
@@ -44,4 +47,19 @@ export function writeLocaleBundle(input: {
     indent: input.indent,
     onDiagnostic: input.onDiagnostic,
   });
+}
+
+/** Persist one locale JSON file via {@link writeLocaleBundle} and {@link CoreContext} layout. */
+export function writeLocaleJsonFromContextSync(ctx: CoreContext, absoluteFile: string, data: unknown): void {
+  const result = writeLocaleBundle({
+    layout: resolveLocalesLayoutFromContext(ctx),
+    fs: ctx.adapters.fs,
+    path: ctx.adapters.path,
+    absoluteFile,
+    data,
+  });
+  if (!result.ok) {
+    const message = result.diagnostics.map((d) => d.message).join(' · ') || 'failed to write locale JSON';
+    throw new I18nPruneError(message, 'IO', { issueCode: ISSUE_IO_READ_FAILED });
+  }
 }

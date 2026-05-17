@@ -12,8 +12,8 @@ export {
 export type {
   ReviewHostHooks,
   ReviewJsonData,
-  ReviewLeafRow,
-  ReviewLeafShape,
+  TranslationSurfaceLeaf,
+  TranslationSurfaceShape,
   ReviewLocaleStats,
   ReviewRunOptions,
   ReviewRunResult,

@@ -1,14 +1,14 @@
 import { isParityExcluded } from '../policies/parity.js';
 import type { ReviewLocaleStats } from '../types/review/index.js';
 import type { ParityPolicy } from '../types/policies/index.js';
-import type { ReviewLeafRow } from '../types/locales/leaves/index.js';
+import type { TranslationSurfaceLeaf } from '../types/locales/leaves/index.js';
 
 function bump(m: Record<string, number>, key: string): void {
   m[key] = (m[key] ?? 0) + 1;
 }
 
 export function aggregateReviewRows(
-  rows: ReviewLeafRow[],
+  rows: TranslationSurfaceLeaf[],
   sourceMap: Map<string, string>,
   parity?: ParityPolicy,
 ): ReviewLocaleStats {

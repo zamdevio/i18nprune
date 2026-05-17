@@ -1,6 +1,6 @@
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import {
   ISSUE_QUALITY_ENGLISH_IDENTICAL_LEAVES,
@@ -17,7 +17,7 @@ import {
 } from '../shared/sourcePlaceholders/index.js';
 import { computeEnglishIdenticalCounts } from './englishIdentical.js';
 import { buildQualityJsonData } from './payload.js';
-import type { CoreContext } from '../types/generate/index.js';
+import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 import type { QualityHostHooks, QualityRunOptions, QualityRunResult } from '../types/quality/index.js';

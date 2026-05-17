@@ -10,7 +10,7 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 
 **→ [`V1-RELEASE.md`](./V1-RELEASE.md)** (includes **recommended order:** init **F** (**shipped** core + CLI) → locales **H** → apps **C.3** → docs **D** → …)
 
-**Locked vertical order:** [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain) (extractor → init → locales → extension)
+**Locked vertical order:** [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain) (extractor → init → locales → translate-cache → extension)
 
 **Active sprint tweaks:** [`active-phase.md`](./active-phase.md)
 
@@ -28,7 +28,8 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 |-----|--------|
 | [`extractor.md`](./extractor.md) | **Active** — JS/TS extractor improvement plan (false-positive hardening, future languages) |
 | [`init.md`](./init.md) | **Shipped (Session F — core + CLI)** — presets, `runInit`, `init --json`; extension host follow-ups in [`extension/README.md`](./extension/README.md) |
-| [`locales.md`](./locales.md) | **Planned** — reader/writer locale storage; multi-topology; depends on init contract (**F** shipped) |
+| [`locales.md`](./locales.md) | **In progress** — reader/writer locale storage; multi-topology; depends on init contract (**F** shipped) |
+| [`translate-cache.md`](./translate-cache.md) | **Planned** — L1 in-memory + L2 `translations.json` beside `snapshot.json`; **after** locales (**H.1**); same `config.cache` policy |
 | [`jsdoc.md`](./jsdoc.md) | **Active** — JSDoc enforcement tiers |
 | [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |
 | [`final.md`](./final.md) | **Gate** — one-time pre-publish checklist (delete after release) |

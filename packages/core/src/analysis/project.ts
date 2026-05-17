@@ -6,7 +6,7 @@ import type { DynamicKeySite } from '../types/extractor/dynamic/index.js';
 import type { KeyObservation } from '../types/extractor/keySites/index.js';
 import type { ProjectLiteralKeyUsage } from '../types/extractor/projectLiteralKeyUsage.js';
 import type { CacheDispatchInfo } from '../types/cache/index.js';
-import type { CoreContext } from '../types/generate/index.js';
+import type { CoreContext } from '../types/context/index.js';
 import type { OperationId, RunEmitter } from '../types/shared/run/index.js';
 
 export type ProjectAnalysisCacheData = {

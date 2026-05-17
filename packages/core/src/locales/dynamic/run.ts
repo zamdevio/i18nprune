@@ -2,7 +2,7 @@ import { resolveProjectAnalysis } from '../../analysis/index.js';
 import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
 import { resolveListWindow, applyListWindow } from '../../shared/options/listWindow.js';
-import type { CoreContext } from '../../types/generate/index.js';
+import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { DynamicKeySite } from '../../types/extractor/dynamic/index.js';
 import type { RunEmitter, OperationId } from '../../types/shared/run/index.js';

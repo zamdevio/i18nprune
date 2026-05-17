@@ -1,5 +1,5 @@
 import type { LocalesFilesystemConfig } from '../../../config/schema/root.js';
-import type { CoreContext } from '../../../types/generate/index.js';
+import type { CoreContext } from '../../../types/context/index.js';
 import type { LocalesLayoutMode, LocalesLayoutStructure, ResolvedLocalesLayout } from '../../../types/locales/layout.js';
 
 function defaultStructureForMode(mode: LocalesLayoutMode): LocalesLayoutStructure {

@@ -1,5 +1,5 @@
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/index.js';
-import type { CoreContext } from '../types/generate/index.js';
+import type { CoreContext } from '../types/context/index.js';
 import type { DoctorHostHooks, DoctorJsonPayload, DoctorRunOptions, DoctorRunResult } from '../types/doctor/index.js';
 import { collectDoctorFindingsFromInputs, doctorExitCode } from './findings.js';
 

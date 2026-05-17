@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { aggregateReviewRows } from '../aggregate.js';
-import type { ReviewLeafRow } from '../../types/locales/leaves/index.js';
+import type { TranslationSurfaceLeaf } from '../../types/locales/leaves/index.js';
 
 describe('aggregateReviewRows', () => {
   it('counts legacy and structured leaves', () => {
-    const rows: ReviewLeafRow[] = [
+    const rows: TranslationSurfaceLeaf[] = [
       { path: 'a', shape: 'legacy_string', value: 'A', confidence: null, needsReview: null },
       {
         path: 'b',
@@ -29,7 +29,7 @@ describe('aggregateReviewRows', () => {
   });
 
   it('tracks missing needsReview/confidence for structured leaves', () => {
-    const rows: ReviewLeafRow[] = [
+    const rows: TranslationSurfaceLeaf[] = [
       {
         path: 'k',
         shape: 'structured',

@@ -11,9 +11,8 @@ export { translateAndNormalizeGenerateLocale } from './normalize.js';
 export { TranslateRunInterruptedError } from '../translator/errors/interrupted.js';
 export type { TranslateRunPartialStats } from '../types/translator/runStats.js';
 export { isResumeCandidateLeaf, leafMatchesSourceForResume, translateResumeCandidateLeaves } from './resume/index.js';
+export type { CoreContext, CoreResolvedPaths } from '../types/context/index.js';
 export type {
-  CoreContext,
-  CoreResolvedPaths,
   GenerateHostHooks,
   GenerateJsonPayload,
   GenerateRunHooks,

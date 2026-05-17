@@ -1,7 +1,7 @@
 /**
  * Types for **`generate --resume`** (review-leaf top-up); shared with resume translation helpers.
  */
-import type { ReviewLeafRow } from '../locales/leaves/index.js';
+import type { TranslationSurfaceLeaf } from '../locales/leaves/index.js';
 import type { ParityPolicy, PreservePolicy } from '../policies/index.js';
 import type { EffectiveReferenceConfig } from '../reference/index.js';
 
@@ -12,7 +12,7 @@ export type GenerateResumeRefContext = {
 
 /** Inputs for {@link import('../../generate/resume/eligibleResumeLeaves.js').isResumeCandidateLeaf}. */
 export type GenerateResumeCandidateLeafInput = {
-  leaf: ReviewLeafRow;
+  leaf: TranslationSurfaceLeaf;
   sourceMap: ReadonlyMap<string, string>;
   refCtx: GenerateResumeRefContext;
   eff: EffectiveReferenceConfig;

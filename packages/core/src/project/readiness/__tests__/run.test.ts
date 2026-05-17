@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { runProjectReadiness } from '../run.js';
-import type { CoreContext } from '../../../types/generate/index.js';
+import type { CoreContext } from '../../../types/context/index.js';
 import { ISSUE_PROJECT_CONFIG_FILE_MISSING, ISSUE_PROJECT_SRC_ROOT_UNAVAILABLE } from '../../../shared/constants/issueCodes.js';
 
 function ctxWithFs(fs: CoreContext['adapters']['fs']): CoreContext {

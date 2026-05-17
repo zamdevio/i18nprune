@@ -1,4 +1,4 @@
-import type { CoreContext } from '../../types/generate/index.js';
+import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { ProjectReadinessChecks, ProjectReadinessRequest, ProjectReadinessResult } from '../../types/project/index.js';
 import type { RuntimeFsPort } from '../../types/runtime/fs.js';

@@ -9,7 +9,7 @@ import { deepClone } from '../shared/json/index.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { targetLocaleCoversAllSourcePaths } from '../shared/json/targetCoverage.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
-import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
+import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
 import { assertGenerateTargetCodes } from '../locales/generateTargets.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
@@ -55,8 +55,8 @@ import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
+import type { CoreContext } from '../types/context/index.js';
 import type {
-  CoreContext,
   GenerateHostHooks,
   GenerateJsonPayload,
   GenerateRunOptions,

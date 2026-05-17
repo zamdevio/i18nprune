@@ -15,12 +15,13 @@
 
 ## Recommended v1 sequence (start here after shipped Session C)
 
-Ship the **core onboarding + storage vertical** before **hosted app** catch-up: **`@i18nprune/core`** must own project structure, presets, and normalized locale surfaces (**init → locales**) so SDK contracts stabilize. **`apps/web`** and **`apps/workers/i18nprune`** are already deployed and healthy; **defer Session C.3** until **H** has landed the remaining core locale-storage work those hosts consume (**F** is **shipped** for core + CLI) — then align imports/types to the new core surface. After that, run **docs (D)**, **landing (D.2)**, **release polish (E)**, and the **`final.md`** gate (**G**).
+Ship the **core onboarding + storage vertical** before **hosted app** catch-up: **`@i18nprune/core`** must own project structure, presets, and normalized locale surfaces (**init → locales**), then optional **translate-cache** (**H.1**) after locale segment fingerprints, so SDK contracts stabilize. **`apps/web`** and **`apps/workers/i18nprune`** are already deployed and healthy; **defer Session C.3** until **H** has landed the remaining core locale-storage work those hosts consume (**F** is **shipped** for core + CLI) — then align imports/types to the new core surface. After that, run **docs (D)**, **landing (D.2)**, **release polish (E)**, and the **`final.md`** gate (**G**).
 
 | Step | Session | What |
 |------|---------|------|
 | **1** | **F — Init** (**shipped** — core + CLI) | [`init.md`](./init.md) — core-owned detection, presets, generated config |
 | **2** | **H — Locales** | [`locales.md`](./locales.md) — reader/writer, multi-topology storage (**after** init schema) |
+| **2b** | **H.1 — Translate cache** | [`translate-cache.md`](./translate-cache.md) — L1 in-memory + L2 `translations.json` beside `snapshot.json`; **after H** |
 | **3** | **C.3 — Apps** | `apps/web`, `apps/workers/i18nprune` — catch up to post-init/locales **`@i18nprune/core`** |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) — nav trim, SDK quickstart, tree flattening |
 | **5** | **D.2 — Landing** | `apps/landing` — lean onboarding + value proposition |
@@ -81,6 +82,20 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 **Dependencies:** **Session F (Init)** for stable **`locales`** config shape and presets.
 
 **Extension:** Release-grade editor work follows **stabilized** core contracts — see [`extension/README.md`](./extension/README.md) and [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain).
+
+---
+
+## Session H.1 — Translate cache (**planned — after H**)
+
+**Docs:** [`translate-cache.md`](./translate-cache.md)
+
+**Goal:** Speed **`generate`** by caching provider translation results: **L1** per-run in-memory dedupe + **L2** per-project **`translations.json`** beside **`snapshot.json`** under the existing project cache dir.
+
+**Policy:** Reuse **`config.cache`** (`enabled`, `dir`, `mode`) and CLI **`--no-cache`** — no separate translation-cache config in v1.
+
+**Dependencies:** **Session H** segment-aware locale files in **`files.json`** (locales tracker row **10**).
+
+**Does not block:** Session **H** implementation; start **H.1** only after locales reader/write-back and cache fingerprints are landed.
 
 ---
 

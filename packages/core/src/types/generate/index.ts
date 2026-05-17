@@ -3,8 +3,6 @@
  * runtime implementations live under `packages/core/src/generate/`.
  */
 export type {
-  CoreContext,
-  CoreResolvedPaths,
   GenerateFinalizeSummaryInput,
   GenerateHostHooks,
   GenerateHostSession,

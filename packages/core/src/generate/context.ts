@@ -1,8 +1,6 @@
 import { I18nPruneError } from '../shared/errors/index.js';
 import { createTranslateContext, type TranslateContext } from '../translator/context.js';
-import type { CoreContext } from '../types/generate/generateRun.js';
-
-export type { CoreContext, CoreResolvedPaths } from '../types/generate/generateRun.js';
+import type { CoreContext } from '../types/context/index.js';
 
 export function createCoreContext(input: {
   config: CoreContext['config'];

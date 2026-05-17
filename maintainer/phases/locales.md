@@ -21,7 +21,7 @@ Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#l
 | 1c | Ops on façade: `validate`, `missing` (read path) | **Done** |
 | 1d | `readLocaleJsonFromContextSync` / `writeLocaleJsonFromContextSync`; all locale JSON ops on façade | **Done** |
 | 1e | Layout types in `types/locales/layout.ts` (not under `shared/`) | **Done** |
-| 2 | `listLocaleCodes` / segment path resolution | **Todo** |
+| 2 | `listLocaleCodes` / segment path resolution | **Done** |
 | 3 | `structure`: `locale_per_dir` reader + fixtures | **Todo** |
 | 4 | `structure`: `feature_bundle` + structural parity diagnostics | **Todo** |
 | 5 | `mode`: `locale_directory` layout | **Todo** |
@@ -29,8 +29,52 @@ Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#l
 | 7 | Migrate ops: list → sync → generate/missing write → quality/review → cleanup → locales edit/delete | **Todo** |
 | 8 | Web/worker extraction use same enumeration as CLI | **Todo** |
 | 9 | User docs: one example per topology | **Todo** |
+| 10 | Segment-aware `files.json` for project cache (all locale segments, not only `sourceLocale`) | **Todo** |
+| — | **Translate cache** ([`translate-cache.md`](./translate-cache.md)) — **after H** | **Deferred** |
 
 **PR slice discipline:** one row (or tight pair like 1a+1b) per PR; parity tests after each op migration.
+
+**Next phase after H:** **[`translate-cache.md`](./translate-cache.md)** — in-memory + per-project `translations.json` beside `snapshot.json`; same `config.cache` / `--no-cache` policy. **Not started until locales tracker 3–7 + row 10 are Done** (or row 10 explicitly shipped early for cache dispatch).
+
+---
+
+## Locked design (agreed — implement during H)
+
+### Leaf provenance (`source` on disk)
+
+**Planned rename (Phase 3+):** `fileOrigin` → **`source`** (`LocaleSegmentSource`); structured JSON `"source"` → **`catalogSource`** on the leaf API.
+
+```ts
+source?: {
+  file: string;           // absolute segment JSON path
+  locale: string;
+  relativePath: string;   // bundle-root–relative, POSIX `/`
+};
+```
+
+Structured JSON metadata field `"source": "manual"` on disk → leaf API field **`catalogSource?: string`** (avoids clashing with disk `source` object).
+
+### Leaf identity (no cross-file merge)
+
+| Concept | Rule |
+|---------|------|
+| Canonical identity | `(segmentRelativePath, logicalPath)` |
+| Same logical path in **different** segment files | **Two leaves** (e.g. `en/auth.json` vs `en/feature/auth.json`) |
+| List / dashboard UI | Deterministic **`leafId`** — 8 hex chars from digest of segment + logical path |
+| List payload shape | Sorted **array** of rows; each row includes `leafId`, `logicalPath`, `segmentRelativePath`, `value`, `source` |
+
+No cross-file dedup or “collision errors” for duplicate logical paths across segments.
+
+### Config-driven read (all locales)
+
+- Only ingest paths valid for configured **`locales.mode`** + **`structure`**.
+- **`flat_file`:** implicit `locale_file` — only `locales.directory/*.json` at bundle root (no `structure` required).
+- Extra langs, wrong topology, depth &gt; **16** → **`locale_read_path_layout_mismatch`**: warn, skip, continue (source, `--target` locales, missing, etc.).
+- Constant: **`MAX_LOCALE_SEGMENT_TREE_DEPTH = 16`** (walker + docs).
+
+### Landing (Session D.2)
+
+Architecture-adjacent section in `apps/landing` (no `PRIMARY_NAV` entry): modes, structures, nested dirs, depth limit, warn-skip behavior.
 
 ---
 
@@ -153,22 +197,9 @@ Core **operations** stay **topology-agnostic** — they emit **logical** patches
 
 ## Enriched locale leaves
 
-The reader **may attach** provenance to normalized rows. **Intent** (exact fields TBD):
+The reader **attaches** disk provenance on every normalized row as **`source`** (see [Locked design](#locked-design-agreed--implement-during-h)). Structured locale JSON keeps its on-disk `"source"` string; the leaf API exposes that as **`catalogSource`**.
 
-```ts
-// Illustrative only
-{
-  path: 'billing.invoice.title', // logical key (same as today)
-  value: '…',
-  source?: {
-    file: string;           // absolute or project-relative — decide at impl
-    locale: string;       // locale code
-    relativePath: string; // path within locale bundle
-  };
-}
-```
-
-**Purpose:** enable `key → source locale file` for **sync**, **generate**, **missing**, and **extension** hovers/navigation without re-walking raw disks in each op.
+**Purpose:** enable `key → segment file` for **sync**, **generate**, **missing**, and **extension** hovers/navigation; writer uses **`source`**, not ad-hoc rediscovery.
 
 ---
 
@@ -197,9 +228,9 @@ Instead:
 
 ## Risks
 
-- **Merge key collisions** across segment files — require deterministic error surfaces + tests.  
-- **Generate** write-back is the **hardest** op — needs a clear **split strategy** from normalized tree → files.  
-- **Disk cache** fingerprinting must include **all** segment files in a locale bundle — not only a single `sourceLocale` path.
+- **Generate** write-back is the **hardest** op — split normalized edits back to segment files using each leaf’s **`source`**.  
+- **Disk cache** fingerprinting must include **all** segment files in a locale bundle — not only a single `sourceLocale` path (tracker row **10**; prerequisite for [`translate-cache.md`](./translate-cache.md) L2).  
+- Cross-segment duplicate **logical** paths are **allowed** (separate leaves); do not treat as merge collisions.
 
 ---
 

@@ -117,9 +117,8 @@ export type {
 
 export { createCoreContext, translateContextFromCore } from './generate/context.js';
 export { runGenerate, resolveGenerateDirectionDefault } from './generate/run.js';
+export type { CoreContext, CoreResolvedPaths } from './types/context/index.js';
 export type {
-  CoreContext,
-  CoreResolvedPaths,
   GenerateHostHooks,
   GenerateJsonPayload,
   GenerateRunHooks,
@@ -390,6 +389,12 @@ export {
   resolveLocalesLayout,
   resolveLocalesLayoutFromContext,
   isLocalesLayoutSupported,
+  listLocaleCodes,
+  listLocaleCodesFromContext,
+  listLocaleSegments,
+  listLocaleSegmentsFromContext,
+  resolveLocaleSegmentAbsolutePath,
+  localeSegmentRefFromAbsolute,
 } from './shared/locales/index.js';
 export type { ListJsonPayload, ListRunResult } from './locales/list/index.js';
 export type {
@@ -399,6 +404,9 @@ export type {
   ResolvedLocalesLayout,
   LocalesLayoutMode,
   LocalesLayoutStructure,
+  LocaleSegmentRef,
+  ListLocaleCodesResult,
+  ListLocaleSegmentsResult,
 } from './shared/locales/index.js';
 
 export { resolveLocaleEditProfile, writeLocaleMetaEdit } from './locales/edit/index.js';

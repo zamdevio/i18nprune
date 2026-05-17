@@ -1,5 +1,5 @@
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
-import { writeLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
+import { writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
 import { isAllLocaleToken, parseLocaleCodesList } from '../locales/targets.js';
 import {
   buildLanguageCatalog,
@@ -12,7 +12,7 @@ import { I18nPruneError } from '../shared/errors/index.js';
 import { setAtPath } from '../shared/json/path.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
-import { readLocaleBundle } from '../shared/locales/read/bundle.js';
+import { readLocaleBundle } from '../shared/locales/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import {
@@ -30,7 +30,7 @@ import {
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
 } from '../shared/constants/issueCodes.js';
 import { resolveMissingPathsPlan } from './resolvePaths.js';
-import type { CoreContext } from '../types/generate/index.js';
+import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 import type { RunMessageLevel } from '../types/shared/run/index.js';
