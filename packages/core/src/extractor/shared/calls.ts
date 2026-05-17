@@ -1,6 +1,7 @@
 import { buildFunctionsPattern, escapeRegex } from './pattern.js';
 import type { TranslationCallSite } from '../../types/extractor/calls/index.js';
 
+/** Scans for configured helper names followed by `(`, parses the first argument span, and drops obvious prose false positives (ASCII lowercase words only, whitespace-separated). */
 export function findTranslationCallSites(text: string, functions: string[]): TranslationCallSite[] {
   const out: TranslationCallSite[] = [];
   if (functions.length === 0) return out;
@@ -20,6 +21,9 @@ export function findTranslationCallSites(text: string, functions: string[]): Tra
     const closeParenIndex = findMatchingCloseParen(text, openParenIndex);
     if (closeParenIndex === -1) continue;
     const first = parseFirstArgument(text, openParenIndex, closeParenIndex);
+    if (!first.empty && firstArgLooksLikeAsciiLowercaseProse(first.raw)) {
+      continue;
+    }
     out.push({
       functionName,
       matchIndex,
@@ -33,6 +37,23 @@ export function findTranslationCallSites(text: string, functions: string[]): Tra
     });
   }
   return out;
+}
+
+/**
+ * Rejects first arguments that look like English prose: two or more ASCII-lowercase
+ * "words" with only whitespace between them (e.g. `or vice versa`), which are not plausible
+ * translation keys or JS expressions. Single-token arguments are never classified as prose here.
+ */
+function firstArgLooksLikeAsciiLowercaseProse(raw: string): boolean {
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) return false;
+  if (!/\s/.test(trimmed)) return false;
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+  if (parts.length < 2) return false;
+  for (const p of parts) {
+    if (!/^[a-z]+$/.test(p)) return false;
+  }
+  return true;
 }
 
 function findMatchingCloseParen(text: string, openParenIndex: number): number {
