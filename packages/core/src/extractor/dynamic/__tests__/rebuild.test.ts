@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { expandFunctionsWithBindings, scanImportBindings } from '../../bindings/index.js';
 import { findDynamicKeySitesInJavascriptMergedText } from '../providers/javascript.js';
 import { tryResolveTemplatePrefixBeforeUnknown } from '../rebuild.js';
 
@@ -15,6 +16,13 @@ describe('pre-dynamic rebuild (template + const map)', () => {
   it('still reports dynamic when placeholder cannot be resolved', () => {
     const text = 't(`foo.${unknownId}.bar`);';
     const sites = findDynamicKeySitesInJavascriptMergedText(text, ['t']);
+    expect(sites.some((s) => s.kind === 'template_interpolation')).toBe(true);
+  });
+
+  it('detects template interpolation when t is imported under an alias', () => {
+    const text = `import { t as tr } from 'x';\ntr(\`foo.\${unknownId}.bar\`);`;
+    const eff = expandFunctionsWithBindings(['t'], scanImportBindings(text));
+    const sites = findDynamicKeySitesInJavascriptMergedText(text, eff);
     expect(sites.some((s) => s.kind === 'template_interpolation')).toBe(true);
   });
 

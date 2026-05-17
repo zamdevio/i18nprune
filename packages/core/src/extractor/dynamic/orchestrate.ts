@@ -1,3 +1,4 @@
+import { expandFunctionsWithBindings, scanImportBindings } from '../bindings/index.js';
 import { scanProjectSourceFiles } from '../shared/projectScan.js';
 import { findDynamicKeySitesForFile } from './providers/index.js';
 import { findDynamicKeySitesInJavascriptMergedText } from './providers/javascript.js';
@@ -13,7 +14,8 @@ export type ScanProjectDynamicKeySitesInput = ScanProjectFilesystemInputBase & {
  * Per-file fields are omitted; comment detection is not applied across merged blobs.
  */
 export function analyzeDynamicKeysFromSourceText(text: string, functions: string[]): DynamicKeySite[] {
-  return findDynamicKeySitesInJavascriptMergedText(text, functions);
+  const effective = expandFunctionsWithBindings(functions, scanImportBindings(text));
+  return findDynamicKeySitesInJavascriptMergedText(text, effective);
 }
 
 /** Project-wide dynamic-site scan with per-file path metadata. */
@@ -27,7 +29,8 @@ export function scanProjectDynamicKeySites(input: ScanProjectDynamicKeySitesInpu
     listFiles: input.listFiles,
     exclude: input.exclude,
     scanFile: ({ filePath, displayPath, text }) => {
-      const sites = findDynamicKeySitesForFile(filePath, text, input.functions);
+      const functions = expandFunctionsWithBindings(input.functions, scanImportBindings(text));
+      const sites = findDynamicKeySitesForFile(filePath, text, functions);
       return sites.map((site) => ({ ...site, filePath: displayPath }));
     },
   });
