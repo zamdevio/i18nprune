@@ -11,8 +11,9 @@ import {
 } from '../../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
 import { assertSyncPortResult } from '../../runtime/helpers/sync/assert.js';
-import { existsRuntimeFsSync, listRuntimeFsDirSync, readRuntimeFsTextSync } from '../../runtime/helpers/sync/index.js';
-import { tryParseJsonText } from '../../shared/json/parse.js';
+import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../../runtime/helpers/sync/index.js';
+import { resolveLocalesLayoutFromContext } from '../../shared/locales/layout/resolveLayout.js';
+import { readLocaleBundle } from '../../shared/locales/read/bundle.js';
 import { presetUsesValidateSourceIssueCode, resolveProjectReadinessChecks } from './presets.js';
 
 function statKindSync(path: string, fs: RuntimeFsPort) {
@@ -78,11 +79,14 @@ function checkSourceLocale(ctx: CoreContext, checks: ProjectReadinessChecks, req
     };
   }
 
-  let text: string;
-  try {
-    text = readRuntimeFsTextSync(path, fs);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
+  const localeRead = readLocaleBundle({
+    layout: resolveLocalesLayoutFromContext(ctx),
+    fs,
+    path: ctx.adapters.path,
+    absoluteFile: path,
+  });
+  if (!localeRead.ok) {
+    const message = localeRead.diagnostics.map((d) => d.message).join(' · ') || 'failed to read source locale JSON';
     return {
       severity: 'error',
       code,
@@ -92,19 +96,8 @@ function checkSourceLocale(ctx: CoreContext, checks: ProjectReadinessChecks, req
     };
   }
 
-  const parsed = tryParseJsonText(text, { filePath: path, code: 'IO' });
-  if (!parsed.ok) {
-    return {
-      severity: 'error',
-      code,
-      message: parsed.error.message,
-      path,
-      docPath,
-    };
-  }
-
   if (requireObject) {
-    const v = parsed.data;
+    const v = localeRead.document;
     if (v === null || typeof v !== 'object' || Array.isArray(v)) {
       return {
         severity: 'error',

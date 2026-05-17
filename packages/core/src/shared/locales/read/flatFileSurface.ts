@@ -8,7 +8,7 @@ import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
 
 export type ReadFlatLocaleJsonSurfaceResult =
-  | { ok: true; document: unknown; leaves: TranslationSurfaceLeaf[]; diagnostics: LocaleReadDiagnostic[] }
+  | { ok: true; document: unknown; leaves: TranslationSurfaceLeaf[]; text: string; diagnostics: LocaleReadDiagnostic[] }
   | { ok: false; leaves: []; diagnostics: LocaleReadDiagnostic[] };
 
 /**
@@ -57,7 +57,7 @@ export function readFlatLocaleJsonSurface(input: {
       localesDir: input.localesDir,
     });
     const leaves = collectTranslationSurfaceLeaves(json, '', [], fileOrigin);
-    return { ok: true, document: json, leaves, diagnostics };
+    return { ok: true, document: json, leaves, text, diagnostics };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     emit({

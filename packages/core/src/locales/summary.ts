@@ -1,5 +1,5 @@
-import type { ProjectFilesystemRuntime } from '../types/runtime/capabilities.js';
-import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/index.js';
+import type { CoreContext } from '../types/generate/index.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
 import { translationSurfacePathValueMap } from '../shared/projects/localeSurfaceMap.js';
 
 export type LocaleListRow = {
@@ -14,25 +14,21 @@ function basenameWithoutJson(fileName: string): string {
   return fileName.endsWith('.json') ? fileName.slice(0, -'.json'.length) : fileName;
 }
 
-function toLeafMap(value: unknown): Map<string, string> {
-  return translationSurfacePathValueMap(value);
+function toLeafMap(ctx: CoreContext, absoluteFile: string): Map<string, string> {
+  return translationSurfacePathValueMap(readLocaleJsonFromContextSync(ctx, absoluteFile));
 }
 
-export function buildLocaleListRows(
-  runtime: ProjectFilesystemRuntime,
-  localesDir: string,
-  localeFiles: string[],
-  sourceLocalePath: string,
-): LocaleListRow[] {
-  const { path } = runtime;
-  const sourceMap = toLeafMap(readJsonFromRuntimeFsSync(sourceLocalePath, runtime.fs));
+export function buildLocaleListRows(ctx: CoreContext, localeFiles: string[]): LocaleListRow[] {
+  const { localesDir, sourceLocale } = ctx.paths;
+  const pathApi = ctx.adapters.path;
+  const sourceMap = toLeafMap(ctx, sourceLocale);
   return localeFiles
     .slice()
     .sort((a, b) => a.localeCompare(b))
     .map((fileName) => {
-      const localePath = path.join(localesDir, fileName);
-      const localeMap = toLeafMap(readJsonFromRuntimeFsSync(localePath, runtime.fs));
-      const isSourceLocale = path.resolve(localePath) === path.resolve(sourceLocalePath);
+      const localePath = pathApi.join(localesDir, fileName);
+      const localeMap = toLeafMap(ctx, localePath);
+      const isSourceLocale = pathApi.resolve(localePath) === pathApi.resolve(sourceLocale);
       let englishIdenticalLeafCount: number | null = null;
       if (!isSourceLocale) {
         let identical = 0;

@@ -35,12 +35,7 @@ export function runLocalesList(ctx: CoreContext): ListRunResult {
     .map((e) => e.name)
     .sort((a, b) => a.localeCompare(b));
 
-  const rows = buildLocaleListRows(
-    { fs: ctx.adapters.fs, path: ctx.adapters.path },
-    localesDir,
-    files,
-    sourceLocale,
-  );
+  const rows = buildLocaleListRows(ctx, files);
 
   const sourceLocaleCode = ctx.adapters.path.basename(sourceLocale, '.json');
 

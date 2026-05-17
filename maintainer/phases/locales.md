@@ -1,10 +1,36 @@
-# Locales phase — multi-topology storage (**planned**)
+# Locales phase — multi-topology storage (**in progress**)
 
-**Status:** Planning — **no implementation implied** by this document.  
-**Dependency:** **Init** phase ([`init.md`](./init.md)) — stable **config schema** and **preset** model must land first so locale topology is declarative, not guessed per op.  
-**Upstream:** **Extractor** ([`extractor.md`](./extractor.md)) — unchanged ownership; locales work **does not** subsume extractor concerns.
+**Status:** **In progress** — config + shared I/O façade (Phase 1) landed; directory / multi-file topologies not yet.  
+**Dependency:** **Init** ([`init.md`](./init.md)) — **shipped** (`locales.source`, `locales.directory`, optional `mode` / `structure`).  
+**Upstream:** **Extractor** ([`extractor.md`](./extractor.md)) — unchanged ownership.
 
 Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain)**.
+
+---
+
+## Implementation tracker
+
+| # | Task | Status |
+|---|------|--------|
+| 0 | Config: nested `locales: { source, directory, mode?, structure? }` | **Done** |
+| 0 | Types under `types/locales/`; leaves under `shared/locales/leaves/{walk,fileOrigin,mode}/` | **Done** |
+| 0 | Flat helpers: `readFlatLocaleJsonSurface`, `writeFlatLocaleJsonDocument` | **Done** |
+| 0 | Web + worker upload: nested config only (no legacy flat `source` / `localesDir`) | **Done** |
+| 1a | `resolveLocalesLayout` + `isLocalesLayoutSupported` (`shared/locales/layout/`) | **Done** |
+| 1b | `readLocaleBundle` / `writeLocaleBundle` façade (flat `locale_file` only) | **Done** |
+| 1c | Ops on façade: `validate`, `missing` (read path) | **Done** |
+| 1d | `readLocaleJsonFromContextSync` / `writeLocaleJsonFromContextSync`; all locale JSON ops on façade | **Done** |
+| 1e | Layout types in `types/locales/layout.ts` (not under `shared/`) | **Done** |
+| 2 | `listLocaleCodes` / segment path resolution | **Todo** |
+| 3 | `structure`: `locale_per_dir` reader + fixtures | **Todo** |
+| 4 | `structure`: `feature_bundle` + structural parity diagnostics | **Todo** |
+| 5 | `mode`: `locale_directory` layout | **Todo** |
+| 6 | Init preset / discovery emit `mode` / `structure` when confident | **Todo** |
+| 7 | Migrate ops: list → sync → generate/missing write → quality/review → cleanup → locales edit/delete | **Todo** |
+| 8 | Web/worker extraction use same enumeration as CLI | **Todo** |
+| 9 | User docs: one example per topology | **Todo** |
+
+**PR slice discipline:** one row (or tight pair like 1a+1b) per PR; parity tests after each op migration.
 
 ---
 
@@ -185,14 +211,16 @@ Extension phase doc: [`extension/README.md`](./extension/README.md).
 
 ---
 
-## Implementation sequencing (suggested)
+## Implementation sequencing (locked order)
 
-1. **Types:** `TranslationSurfaceLeaf` (or successor) provenance fields + version bump strategy.  
-2. **Reader:** `flat_file` parity with today (no behavior change) — prove abstraction.  
-3. **Reader + writer:** `locale_directory` + `locale_per_dir` minimal e2e on fixtures.  
-4. **`feature_bundle`** + cross-locale **structural parity** diagnostics (missing/extra segment files).  
-5. Wire **generate / missing / sync** through writer grouping — **generate last** where possible to reduce rework.  
-6. **Report / doctor** payloads gain optional file provenance where useful.
+See **Implementation tracker** above. High-level phases:
+
+1. **Façade** — layout resolver + `readLocaleBundle` / `writeLocaleBundle` (flat only); migrate ops incrementally.  
+2. **Enumeration** — list locale codes and segment files per layout.  
+3. **`structure`** — multi-file per locale (`locale_per_dir`, then `feature_bundle`).  
+4. **`mode`** — `locale_directory` bundle root semantics.  
+5. **Ops migration** — generate write-back last among mutating ops.  
+6. **Hosts + docs** — web/worker + VitePress examples per topology.
 
 ---
 

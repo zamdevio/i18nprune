@@ -1,7 +1,7 @@
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import { computeMissingLiteralKeysFromResolvedKeys } from '../validate/missingLiterals.js';
 import { listSourceFiles } from '../shared/scanner/files.js';
-import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
 import type { CoreContext } from '../types/generate/index.js';
 import type { ReportEnvironmentSnapshot } from '../types/report/index.js';
 import type { RunEmitter, OperationId } from '../types/shared/run/index.js';
@@ -29,7 +29,7 @@ export function buildReportDocument(
   ctx: CoreContext,
   input: BuildReportDocumentInput,
 ): { document: Record<string, unknown>; dynamicSitesCount: number } {
-  const raw = readJsonFromRuntimeFsSync(ctx.paths.sourceLocale, ctx.adapters.fs);
+  const raw = readLocaleJsonFromContextSync(ctx, ctx.paths.sourceLocale);
   const analysis = resolveProjectAnalysis(ctx, {
     emit: input.emit,
     op: REPORT_OP,

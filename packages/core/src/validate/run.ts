@@ -3,7 +3,8 @@ import { resolveProjectAnalysis } from '../analysis/index.js';
 import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js';
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
-import { readFlatLocaleJsonSurface } from '../shared/locales/read/flatFileSurface.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
 import { emitRunEvent, nowMs } from '../shared/run/index.js';
@@ -68,13 +69,10 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
     runtime: ctx.adapters,
     exclude: ctx.config.exclude,
   };
-  const localeRead = readFlatLocaleJsonSurface({
-    fs: ctx.adapters.fs,
-    path: ctx.adapters.path,
-    absoluteFile: sourcePath,
-    localesDir: ctx.paths.localesDir,
-  });
-  if (!localeRead.ok) {
+  let raw: unknown;
+  try {
+    raw = readLocaleJsonFromContextSync(ctx, sourcePath);
+  } catch (err: unknown) {
     const keyObservations = scanProjectKeyObservations(scanInputEarly);
     const dynamicSites = scanProjectDynamicKeySites(scanInputEarly);
     const analysis: ProjectAnalysis = {
@@ -83,11 +81,8 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
       dynamicSites,
       usage: literalKeyUsageFromObservations(keyObservations),
     };
-    const message =
-      localeRead.diagnostics.map((d) => d.message).join(' · ') || 'failed to read source locale JSON';
-    return readFailureResult(ctx, new Error(message), analysis);
+    return readFailureResult(ctx, err, analysis);
   }
-  const raw = localeRead.document;
 
   emitRunEvent(emit, { type: 'run.progress.validate', op: 'validate', runId, at: nowMs(), phase: 'scan_sources' });
   const analysis = resolveProjectAnalysis(ctx, { emit, op: 'validate', runId });
@@ -126,7 +121,7 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
     }),
     ...issuesFromSourcePlaceholderLeaves(
       detectSourcePlaceholderLeaves(
-        localeRead.leaves,
+        collectTranslationSurfaceLeaves(raw),
         sourcePlaceholderValues(ctx.config.missing?.placeholder),
       ),
     ),

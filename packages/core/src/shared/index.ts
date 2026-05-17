@@ -10,6 +10,7 @@ export * as scanner from './scanner/index.js';
 export * as placeholders from './placeholders/index.js';
 export * as translator from './translator/index.js';
 export * as localeLeaves from './locales/leaves/index.js';
+export * as localesLayout from './locales/layout/index.js';
 export * as localesRead from './locales/read/index.js';
 export * as localesWrite from './locales/write/index.js';
 export * as projects from './projects/index.js';
@@ -23,9 +24,7 @@ export * as constants from './constants/index.js';
 
 /** Flat re-exports of all `shared/**` modules (consumers may import symbols without nested paths). */
 export * from './json/index.js';
-export * from './locales/leaves/index.js';
-export * from './locales/read/index.js';
-export * from './locales/write/index.js';
+export * from './locales/index.js';
 export * from './projects/index.js';
 export * from './translator/index.js';
 export * from './placeholders/index.js';

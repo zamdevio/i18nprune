@@ -25,7 +25,7 @@ import { I18nPruneError } from '../../shared/errors/index.js';
 import { applyLocaleLeafNormalization } from '../../shared/locales/leaves/index.js';
 import { emitRunMessage } from '../../shared/run/index.js';
 import { existsRuntimeFsSync } from '../../runtime/helpers/sync/fs.js';
-import { readJsonFromRuntimeFsSync } from '../../runtime/helpers/sync/readJson.js';
+import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../../shared/locales/io/contextSync.js';
 import { writeRuntimeJsonPretty } from '../io/writeRuntimeJson.js';
 import { listResumeTranslationJobs, translateResumeCandidateLeaves } from '../localeTranslate.js';
 import type { Issue } from '../../types/json/envelope/index.js';
@@ -70,7 +70,7 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
       issueCode: ISSUE_LOCALE_TARGET_NOT_FOUND,
     });
   }
-  const targetRaw = readJsonFromRuntimeFsSync(targetPath, fs);
+  const targetRaw = readLocaleJsonFromContextSync(ctx, targetPath);
   const tLeaves = collectTranslationSurfaceLeaves(targetRaw);
   const translateCfg = ctx.config.translate;
   if (!translateCfg) {
@@ -212,7 +212,7 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
 
       if (!opts.dryRun && localeWouldChange) {
         emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: targetPath });
-        writeRuntimeJsonPretty(targetPath, next, ctx.adapters);
+        writeLocaleJsonFromContextSync(ctx, targetPath, next);
         if (metaPath !== null) {
           emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: metaPath });
           writeRuntimeJsonPretty(metaPath, { lang: target, englishName, nativeName, direction }, ctx.adapters);

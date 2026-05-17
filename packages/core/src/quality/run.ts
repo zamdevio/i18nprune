@@ -1,6 +1,6 @@
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
-import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import {
   ISSUE_QUALITY_ENGLISH_IDENTICAL_LEAVES,
@@ -62,7 +62,7 @@ export function runQuality(
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'quality', runId: host.runId });
   const dynamicKeySites = analysis.dynamicSites.length;
   const sourcePath = ctx.paths.sourceLocale;
-  const sourceRaw = readJsonFromRuntimeFsSync(sourcePath, ctx.adapters.fs);
+  const sourceRaw = readLocaleJsonFromContextSync(ctx, sourcePath);
   const sourceLeaves = collectTranslationSurfaceLeaves(sourceRaw);
   const sourceBase = ctx.adapters.path.basename(sourcePath, '.json');
   const placeholderValues = sourcePlaceholderValues(ctx.config.missing?.placeholder);
@@ -83,7 +83,7 @@ export function runQuality(
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
   const targets = filtered.map((file) => {
     const full = ctx.adapters.path.join(dir, file);
-    const targetRaw = readJsonFromRuntimeFsSync(full, ctx.adapters.fs);
+    const targetRaw = readLocaleJsonFromContextSync(ctx, full);
     const leaves = collectTranslationSurfaceLeaves(targetRaw);
     const code = ctx.adapters.path.basename(file, '.json');
     targetPlaceholderLeaves.push(

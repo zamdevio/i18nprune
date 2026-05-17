@@ -380,11 +380,26 @@ export type {
 } from './namespaces/localesDynamic.js';
 
 export { runLocalesList } from './locales/list/index.js';
-export { readFlatLocaleJsonSurface } from './shared/locales/read/index.js';
-export { writeFlatLocaleJsonDocument } from './shared/locales/write/index.js';
+export {
+  readFlatLocaleJsonSurface,
+  readLocaleBundle,
+  readLocaleJsonFromContextSync,
+  writeFlatLocaleJsonDocument,
+  writeLocaleBundle,
+  writeLocaleJsonFromContextSync,
+  resolveLocalesLayout,
+  resolveLocalesLayoutFromContext,
+  isLocalesLayoutSupported,
+} from './shared/locales/index.js';
 export type { ListJsonPayload, ListRunResult } from './locales/list/index.js';
-export type { ReadFlatLocaleJsonSurfaceResult } from './shared/locales/read/index.js';
-export type { WriteFlatLocaleJsonDocumentResult } from './shared/locales/write/index.js';
+export type {
+  ReadFlatLocaleJsonSurfaceResult,
+  ReadLocaleBundleResult,
+  WriteFlatLocaleJsonDocumentResult,
+  ResolvedLocalesLayout,
+  LocalesLayoutMode,
+  LocalesLayoutStructure,
+} from './shared/locales/index.js';
 
 export { resolveLocaleEditProfile, writeLocaleMetaEdit } from './locales/edit/index.js';
 export type {

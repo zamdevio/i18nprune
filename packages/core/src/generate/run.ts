@@ -9,6 +9,7 @@ import { deepClone } from '../shared/json/index.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { targetLocaleCoversAllSourcePaths } from '../shared/json/targetCoverage.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
+import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
 import { assertGenerateTargetCodes } from '../locales/generateTargets.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
@@ -129,7 +130,7 @@ export async function runGenerate(
     raw = opts.preloadedRaw;
   } else {
     emitProgress({ type: 'run.progress.generate', phase: 'read_source', label: sourcePath });
-    raw = readJsonFromRuntimeFsSync(sourcePath, ctx.adapters.fs);
+    raw = readLocaleJsonFromContextSync(ctx, sourcePath);
   }
   const sourceLeaves = collectTranslationSurfaceLeaves(raw);
   const sourceMap = new Map(sourceLeaves.map((leaf) => [leaf.path, leaf.value]));
@@ -248,7 +249,7 @@ export async function runGenerate(
       direction = meta.direction;
     }
 
-    const existingRaw = targetJsonExists ? readJsonFromRuntimeFsSync(targetPath, ctx.adapters.fs) : null;
+    const existingRaw = targetJsonExists ? readLocaleJsonFromContextSync(ctx, targetPath) : null;
     let forceTarget = Boolean(opts.force);
     let forceReason: 'flag' | 'prompt' | undefined = forceTarget ? 'flag' : undefined;
 
@@ -726,7 +727,7 @@ export async function runGenerate(
 
     if (!opts.dryRun) {
       emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: targetPath });
-      writeRuntimeJsonPretty(targetPath, working, ctx.adapters);
+      writeLocaleJsonFromContextSync(ctx, targetPath, working);
       if (metaPath !== null) {
         emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: metaPath });
         writeRuntimeJsonPretty(metaPath, { lang: target, englishName, nativeName, direction }, ctx.adapters);

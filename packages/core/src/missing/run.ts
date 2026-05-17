@@ -1,5 +1,5 @@
-import { existsRuntimeFsSync, listRuntimeFsDirSync, readRuntimeFsTextSync } from '../runtime/helpers/sync/fs.js';
-import { writeRuntimeJsonPretty } from '../generate/io/writeRuntimeJson.js';
+import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
+import { writeLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
 import { isAllLocaleToken, parseLocaleCodesList } from '../locales/targets.js';
 import {
   buildLanguageCatalog,
@@ -9,9 +9,10 @@ import {
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { MAX_MISSING_TARGET_SUGGESTIONS } from '../shared/constants/missing.js';
 import { I18nPruneError } from '../shared/errors/index.js';
-import { parseJsonText } from '../shared/json/parse.js';
 import { setAtPath } from '../shared/json/path.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
+import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
+import { readLocaleBundle } from '../shared/locales/read/bundle.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import {
@@ -126,13 +127,18 @@ function readTargetState(
   targetKind: MissingTargetState['targetKind'],
   selectedLocaleCode?: string,
 ): MissingTargetState {
-  const fs = ctx.adapters.fs;
-  const localeText = readRuntimeFsTextSync(targetPath, fs);
-  const localeJson = parseJsonText(localeText, {
-    filePath: targetPath,
-    code: 'IO',
-    issueCode: ISSUE_IO_READ_FAILED,
+  const read = readLocaleBundle({
+    layout: resolveLocalesLayoutFromContext(ctx),
+    fs: ctx.adapters.fs,
+    path: ctx.adapters.path,
+    absoluteFile: targetPath,
   });
+  if (!read.ok) {
+    const message = read.diagnostics.map((d) => d.message).join(' · ') || 'failed to read locale JSON';
+    throw new I18nPruneError(message, 'IO', { issueCode: ISSUE_IO_READ_FAILED });
+  }
+  const localeText = read.text;
+  const localeJson = read.document;
   return {
     targetPath,
     targetKind,
@@ -417,7 +423,7 @@ export function applyMissingPaths(input: Omit<MissingWriteInput, 'targetPath'>):
 
 export function writeMissingPaths(ctx: CoreContext, input: MissingWriteInput): void {
   const next = applyMissingPaths(input);
-  writeRuntimeJsonPretty(input.targetPath, next, ctx.adapters);
+  writeLocaleJsonFromContextSync(ctx, input.targetPath, next);
 }
 
 export function runMissing(

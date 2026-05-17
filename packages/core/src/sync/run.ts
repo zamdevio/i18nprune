@@ -6,8 +6,7 @@ import { resolveProjectAnalysis } from '../analysis/index.js';
 import { parseSyncLangSelection } from '../locales/targets.js';
 import { assertNotSourceTargetLocale } from '../locales/source.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
-import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
-import { writeRuntimeJsonPretty } from '../generate/io/writeRuntimeJson.js';
+import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
 import { setAtPath } from '../shared/json/path.js';
 import {
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
@@ -275,7 +274,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
 
   const sourcePath = ctx.paths.sourceLocale;
   host.emitProgress({ type: 'run.progress.sync', phase: 'read_source', label: sourcePath });
-  const template = readJsonFromRuntimeFsSync(sourcePath, ctx.adapters.fs);
+  const template = readLocaleJsonFromContextSync(ctx, sourcePath);
   const sourceBase = ctx.adapters.path.basename(sourcePath, '.json');
   const dir = ctx.paths.localesDir;
   const localeJsonBasenames = listLocaleJsonBasenames(dir, ctx);
@@ -329,7 +328,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       current: i + 1,
       total: targets.length,
     });
-    const cur = readJsonFromRuntimeFsSync(full, ctx.adapters.fs);
+    const cur = readLocaleJsonFromContextSync(ctx, full);
     const targetCode = ctx.adapters.path.basename(file, '.json');
     const targetPlaceholdersForFile = detectLocalePlaceholderLeaves({
       leaves: collectTranslationSurfaceLeaves(cur),
@@ -391,7 +390,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
         target: file,
         label: full,
       });
-      writeRuntimeJsonPretty(full, finalNext, ctx.adapters);
+      writeLocaleJsonFromContextSync(ctx, full, finalNext);
       updated += 1;
     }
     fileLines.push({ path: full, changed: finalWouldChange });

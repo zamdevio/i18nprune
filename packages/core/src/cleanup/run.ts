@@ -1,8 +1,7 @@
 import { applyCleanupKeysToLocaleJson } from './apply.js';
 import { computeCleanupCandidateKeys } from './candidates.js';
 import { resolveCleanupKeysWithStringPresencePolicy } from './stringPresence.js';
-import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
-import { writeRuntimeJsonPretty } from '../generate/io/writeRuntimeJson.js';
+import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { buildKeyReferenceContextFromLiteralUsageAndDynamicSites } from '../shared/reference/context.js';
@@ -79,7 +78,7 @@ export function createCleanupSourceWritePlan(
   keysToRemove: readonly string[],
 ): CleanupWritePlan {
   const sourcePath = ctx.paths.sourceLocale;
-  const sourceJson = readJsonFromRuntimeFsSync(sourcePath, ctx.adapters.fs);
+  const sourceJson = readLocaleJsonFromContextSync(ctx, sourcePath);
   const applied = applyCleanupKeysToLocaleJson(sourceJson, keysToRemove);
   return {
     sourcePath,
@@ -91,7 +90,7 @@ export function createCleanupSourceWritePlan(
 
 export function writeCleanupPlan(ctx: CoreContext, plan: CleanupWritePlan): void {
   if (plan.removedPaths.length === 0) return;
-  writeRuntimeJsonPretty(plan.sourcePath, plan.nextSourceJson, ctx.adapters);
+  writeLocaleJsonFromContextSync(ctx, plan.sourcePath, plan.nextSourceJson);
 }
 
 export function emitCleanupCheckOnlyMessage(
@@ -168,7 +167,7 @@ export function runCleanup(
     eff,
   );
   const sourcePath = ctx.paths.sourceLocale;
-  const sourceRaw = readJsonFromRuntimeFsSync(sourcePath, ctx.adapters.fs);
+  const sourceRaw = readLocaleJsonFromContextSync(ctx, sourcePath);
   const leaves = collectTranslationSurfaceLeaves(sourceRaw);
   const filterUncertain = eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only';
   const { allKeyPaths, candidates, excludedUncertain } = computeCleanupCandidateKeys({

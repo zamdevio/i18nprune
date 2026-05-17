@@ -1,5 +1,5 @@
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
-import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/io/contextSync.js';
 import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../shared/constants/issueCodes.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
@@ -113,7 +113,7 @@ export function runReview(
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'review', runId: host.runId });
   const dynamicKeySites = analysis.dynamicSites.length;
   const sourcePath = ctx.paths.sourceLocale;
-  const sourceRaw = readJsonFromRuntimeFsSync(sourcePath, ctx.adapters.fs);
+  const sourceRaw = readLocaleJsonFromContextSync(ctx, sourcePath);
   const sourceBase = ctx.adapters.path.basename(sourcePath, '.json');
   const placeholderValues = sourcePlaceholderValues(ctx.config.missing?.placeholder);
   const sourcePlaceholderLeaves: SourcePlaceholderLeaf[] = detectLocalePlaceholderLeaves({
@@ -132,7 +132,7 @@ export function runReview(
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
   for (const file of filtered) {
     const full = ctx.adapters.path.join(dir, file);
-    const targetRaw = readJsonFromRuntimeFsSync(full, ctx.adapters.fs);
+    const targetRaw = readLocaleJsonFromContextSync(ctx, full);
     targetLocaleJsonByFile[file] = targetRaw;
     targetPlaceholderLeaves.push(
       ...detectLocalePlaceholderLeaves({
