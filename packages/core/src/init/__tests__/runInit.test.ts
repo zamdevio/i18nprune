@@ -21,6 +21,23 @@ describe('runInit', () => {
     }
   });
 
+  it('infers mode and structure from preset paths when bundle tree is empty', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-init-'));
+    try {
+      const adapters = createNodeRuntimeAdapters();
+      const r = runInit(
+        { fs: adapters.fs, path: adapters.path, projectRoot: dir, skippedExistingConfig: false },
+        { preset: 'next-intl' },
+      );
+      expect(r.exitCode).toBe(0);
+      expect(r.payload.proposedConfigSource).toContain("mode: 'flat_file'");
+      expect(r.payload.proposedConfigSource).toContain("structure: 'locale_file'");
+      expect(r.payload.detection?.localeLayout?.mode).toBe('flat_file');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('emits mode and structure when locale segments agree under preset directory', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-init-'));
     try {

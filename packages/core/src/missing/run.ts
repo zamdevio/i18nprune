@@ -1,4 +1,4 @@
-import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
+import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
 import { writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
 import { isAllLocaleToken, parseLocaleCodesList } from '../locales/targets.js';
 import {
@@ -13,6 +13,12 @@ import { setAtPath } from '../shared/json/path.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
 import { readLocaleBundle } from '../shared/locales/index.js';
+import {
+  primarySegmentForLocale,
+  segmentsForLocaleCode,
+  sourceLocaleCodeFromContext,
+  targetLocaleCodesFromContext,
+} from '../shared/locales/targets/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import {
@@ -47,14 +53,6 @@ import type {
   MissingWriteInput,
 } from '../types/missing/index.js';
 
-function listLocaleJsonBasenames(ctx: CoreContext, dirPath: string): string[] {
-  const fs = ctx.adapters.fs;
-  if (!existsRuntimeFsSync(dirPath, fs)) return [];
-  return listRuntimeFsDirSync(dirPath, fs)
-    .filter((e) => e.kind === 'file' && e.name.endsWith('.json') && !e.name.endsWith('.meta.json'))
-    .map((e) => e.name);
-}
-
 function emitMissingMessage(
   host: Pick<MissingHostHooks, 'emit' | 'runId'>,
   input: {
@@ -66,10 +64,6 @@ function emitMissingMessage(
   },
 ): void {
   emitRunMessage(host.emit, { op: 'missing', runId: host.runId, ...input });
-}
-
-function sourceLocaleCode(ctx: CoreContext): string {
-  return normalizeLanguageCode(ctx.adapters.path.basename(ctx.paths.sourceLocale, '.json'));
 }
 
 function compactLocaleCode(code: string): string {
@@ -168,30 +162,25 @@ function resolveLocaleTargetStates(ctx: CoreContext, rawTarget: string): {
     throw new I18nPruneError(`locales directory not found: ${localesDir}`, 'USAGE');
   }
 
-  const sourceCode = sourceLocaleCode(ctx);
-  const localeFiles = listLocaleJsonBasenames(ctx, localesDir);
-  const existingByCode = new Map(
-    localeFiles.map((file) => [normalizeLanguageCode(ctx.adapters.path.basename(file, '.json')), file]),
-  );
-  const targetCodes = [...existingByCode.keys()].filter((code) => code !== sourceCode);
+  const sourceCode = sourceLocaleCodeFromContext(ctx);
+  const targetCodes = targetLocaleCodesFromContext(ctx);
   const requestedCodes = [
     ...new Set(
-      isAllLocaleToken(rawTarget)
-        ? [...existingByCode.keys()].filter((code) => code !== sourceCode)
-        : parseLocaleCodesList(rawTarget),
+      isAllLocaleToken(rawTarget) ? targetCodes : parseLocaleCodesList(rawTarget).map((c) => normalizeLanguageCode(c)),
     ),
   ];
   const targets: MissingTargetState[] = [];
   const skippedTargets: MissingSkippedTarget[] = [];
 
   for (const code of requestedCodes) {
-    const targetPath = ctx.adapters.path.join(localesDir, `${code}.json`);
+    const primary = primarySegmentForLocale(ctx, code);
+    const targetPath = primary?.absolutePath ?? ctx.adapters.path.join(localesDir, `${code}.json`);
     if (code === sourceCode) {
       skippedTargets.push({ localeCode: code, targetPath, reason: 'source_locale' });
       continue;
     }
-    const file = existingByCode.get(code);
-    if (file === undefined) {
+    const segments = segmentsForLocaleCode(ctx, code);
+    if (segments.length === 0) {
       const suggestions = suggestExistingLocaleTargets(code, targetCodes);
       skippedTargets.push({
         localeCode: code,
@@ -201,7 +190,7 @@ function resolveLocaleTargetStates(ctx: CoreContext, rawTarget: string): {
       });
       continue;
     }
-    targets.push(readTargetState(ctx, ctx.adapters.path.join(localesDir, file), 'locale', code));
+    targets.push(readTargetState(ctx, targetPath, 'locale', code));
   }
 
   return { targets, skippedTargets };
@@ -432,7 +421,7 @@ export function runMissing(
   host: MissingHostHooks,
 ): MissingRunResult {
   const { targets: targetStates, skippedTargets } = resolveMissingTargetStates(ctx, opts);
-  const sourceCode = sourceLocaleCode(ctx);
+  const sourceCode = sourceLocaleCodeFromContext(ctx);
   const sourceTargetState =
     targetStates.find((target) => target.targetKind === 'source') ?? resolveSourceTargetState(ctx);
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'missing', runId: host.runId });

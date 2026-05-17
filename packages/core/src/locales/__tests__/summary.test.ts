@@ -28,7 +28,7 @@ describe('buildLocaleListRows', () => {
         env: {},
         paths: { sourceLocale: sourcePath, localesDir, srcRoot: path.join(root, 'src') },
       });
-      const rows = buildLocaleListRows(ctx, ['fr.json', 'en.json']);
+      const rows = buildLocaleListRows(ctx, ['fr', 'en']);
       expect(rows.map((r) => r.code).sort()).toEqual(['en', 'fr']);
       const fr = rows.find((r) => r.code === 'fr');
       expect(fr?.englishIdenticalLeafCount).toBe(1);

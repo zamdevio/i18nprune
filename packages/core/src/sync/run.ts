@@ -5,8 +5,8 @@ import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import { parseSyncLangSelection } from '../locales/targets.js';
 import { assertNotSourceTargetLocale } from '../locales/source.js';
-import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
+import { resolveLocaleSegmentTargets } from '../shared/locales/targets/index.js';
 import { setAtPath } from '../shared/json/path.js';
 import {
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
@@ -25,20 +25,11 @@ import {
 import { emitRunMessage } from '../shared/run/index.js';
 import { computeSyncedLocaleJson } from './apply.js';
 import { summarizeSyncLeavesForHumanLog } from './humanLeafSummary.js';
-import { resolveSyncTargetFiles } from './resolveTargets.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocaleMetadataRepairReason, LocaleMetadataReport } from '../types/locales/leaves/index.js';
 import type { SyncHostHooks, SyncRunOptions, SyncRunResult } from '../types/sync/index.js';
 import type { LocalePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
-
-function listLocaleJsonBasenames(dirPath: string, ctx: CoreContext): string[] {
-  const fs = ctx.adapters.fs;
-  if (!existsRuntimeFsSync(dirPath, fs)) return [];
-  return listRuntimeFsDirSync(dirPath, fs)
-    .filter((e) => e.kind === 'file' && e.name.endsWith('.json') && !e.name.endsWith('.meta.json'))
-    .map((e) => e.name);
-}
 
 function zeroByReason(): Record<LocaleMetadataRepairReason, number> {
   return {
@@ -275,9 +266,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
   const sourcePath = ctx.paths.sourceLocale;
   host.emitProgress({ type: 'run.progress.sync', phase: 'read_source', label: sourcePath });
   const template = readLocaleJsonFromContextSync(ctx, sourcePath);
-  const sourceBase = ctx.adapters.path.basename(sourcePath, '.json');
   const dir = ctx.paths.localesDir;
-  const localeJsonBasenames = listLocaleJsonBasenames(dir, ctx);
   const sel = parseSyncLangSelection(opts.target);
   if (sel.mode === 'codes') {
     for (const code of sel.codes) {
@@ -287,11 +276,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       });
     }
   }
-  const { targetFiles: targets, missingLocaleCodes } = resolveSyncTargetFiles({
-    localeJsonBasenames,
-    sourceJsonBasename: `${sourceBase}.json`,
-    selection: sel,
-  });
+  const { segments: targets, missingLocaleCodes } = resolveLocaleSegmentTargets(ctx, { selection: sel });
   host.emitProgress({
     type: 'run.progress.sync',
     phase: 'resolve_targets',
@@ -319,8 +304,9 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
 
   for (let i = 0; i < targets.length; i++) {
-    const file = targets[i]!;
-    const full = ctx.adapters.path.join(dir, file);
+    const segment = targets[i]!;
+    const file = segment.reportKey;
+    const full = segment.absolutePath;
     host.emitProgress({
       type: 'run.progress.sync',
       phase: 'build_target',
@@ -329,7 +315,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       total: targets.length,
     });
     const cur = readLocaleJsonFromContextSync(ctx, full);
-    const targetCode = ctx.adapters.path.basename(file, '.json');
+    const targetCode = segment.locale;
     const targetPlaceholdersForFile = detectLocalePlaceholderLeaves({
       leaves: collectTranslationSurfaceLeaves(cur),
       placeholderValues: sourcePlaceholderValues(ctx.config.missing?.placeholder),
@@ -426,7 +412,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     payload,
     issues,
     fileLines,
-    targets,
+    targets: targets.map((s) => s.reportKey),
     updated,
     dynamicSites,
     keyObservationsCount: observations.length,

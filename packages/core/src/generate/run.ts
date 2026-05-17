@@ -10,6 +10,7 @@ import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.
 import { targetLocaleCoversAllSourcePaths } from '../shared/json/targetCoverage.js';
 import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
+import { primarySegmentForLocale } from '../shared/locales/targets/index.js';
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
 import { assertGenerateTargetCodes } from '../locales/generateTargets.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
@@ -220,7 +221,9 @@ export async function runGenerate(
       }
     }
 
-    const targetPath = ctx.adapters.path.join(ctx.paths.localesDir, `${target}.json`);
+    const targetPath =
+      primarySegmentForLocale(ctx, target)?.absolutePath ??
+      ctx.adapters.path.join(ctx.paths.localesDir, `${target}.json`);
     const metaPath = skipLocaleMetaSidecar ? null : ctx.adapters.path.join(ctx.paths.localesDir, `${target}.meta.json`);
     const targetJsonExists = existsRuntimeFsSync(targetPath, ctx.adapters.fs);
     const metaSidecarExists = metaPath !== null && existsRuntimeFsSync(metaPath, ctx.adapters.fs);

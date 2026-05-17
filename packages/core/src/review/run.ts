@@ -1,5 +1,6 @@
-import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
 import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
+import { listLocaleSegmentTargets, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
+import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../shared/constants/issueCodes.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
@@ -14,20 +15,12 @@ import {
 } from '../shared/sourcePlaceholders/index.js';
 import { formatCountMap } from './aggregate.js';
 import { buildReviewJsonData } from './report.js';
-import { filterLocaleFilesForReview, parseReviewTargetCodes } from './targetScope.js';
+import { parseReviewTargetCodes } from './targetScope.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 import type { ReviewHostHooks, ReviewLocaleStats, ReviewRunOptions, ReviewRunResult } from '../types/review/index.js';
 import type { RunMessageLevel } from '../types/shared/run/index.js';
-
-function listLocaleJsonBasenames(ctx: CoreContext, dirPath: string): string[] {
-  const fs = ctx.adapters.fs;
-  if (!existsRuntimeFsSync(dirPath, fs)) return [];
-  return listRuntimeFsDirSync(dirPath, fs)
-    .filter((e) => e.kind === 'file' && e.name.endsWith('.json') && !e.name.endsWith('.meta.json'))
-    .map((e) => e.name);
-}
 
 function issuesFromDynamicScanCount(count: number): Issue[] {
   if (count <= 0) return [];
@@ -114,24 +107,30 @@ export function runReview(
   const dynamicKeySites = analysis.dynamicSites.length;
   const sourcePath = ctx.paths.sourceLocale;
   const sourceRaw = readLocaleJsonFromContextSync(ctx, sourcePath);
-  const sourceBase = ctx.adapters.path.basename(sourcePath, '.json');
+  const sourceCode = sourceLocaleCodeFromContext(ctx);
   const placeholderValues = sourcePlaceholderValues(ctx.config.missing?.placeholder);
   const sourcePlaceholderLeaves: SourcePlaceholderLeaf[] = detectLocalePlaceholderLeaves({
     leaves: collectTranslationSurfaceLeaves(sourceRaw),
     placeholderValues,
     localeRole: 'source',
-    localeCode: sourceBase,
+    localeCode: sourceCode,
     localePath: sourcePath,
   }).map((leaf) => ({ path: leaf.path, value: leaf.value }));
-  const dir = ctx.paths.localesDir;
-  const files = listLocaleJsonBasenames(ctx, dir).filter((f) => f !== `${sourceBase}.json`);
+
   const codes = parseReviewTargetCodes(opts.target);
-  const filtered = filterLocaleFilesForReview(ctx.adapters.path, files, codes);
+  let segments = listLocaleSegmentTargets(ctx).filter(
+    (s) => normalizeLanguageCode(s.locale) !== sourceCode,
+  );
+  if (codes !== undefined) {
+    const want = new Set(codes.map((c) => normalizeLanguageCode(c)));
+    segments = segments.filter((s) => want.has(normalizeLanguageCode(s.locale)));
+  }
 
   const targetLocaleJsonByFile: Record<string, unknown> = {};
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
-  for (const file of filtered) {
-    const full = ctx.adapters.path.join(dir, file);
+  for (const segment of segments) {
+    const file = segment.reportKey;
+    const full = segment.absolutePath;
     const targetRaw = readLocaleJsonFromContextSync(ctx, full);
     targetLocaleJsonByFile[file] = targetRaw;
     targetPlaceholderLeaves.push(
@@ -139,7 +138,7 @@ export function runReview(
         leaves: collectTranslationSurfaceLeaves(targetRaw),
         placeholderValues,
         localeRole: 'target',
-        localeCode: ctx.adapters.path.basename(file, '.json'),
+        localeCode: segment.locale,
         localePath: full,
       }),
     );
@@ -181,7 +180,7 @@ export function runReview(
         count: sourcePlaceholderLeaves.length,
         samplePaths: sourcePlaceholderLeaves.slice(0, 5).map((leaf) => leaf.path),
       }),
-      target: sourceBase,
+      target: sourceCode,
       data: { sourcePlaceholderLeaves: sourcePlaceholderLeaves.length },
     });
   }

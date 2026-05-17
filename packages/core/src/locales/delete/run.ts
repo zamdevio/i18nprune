@@ -1,4 +1,6 @@
 import { existsRuntimeFsSync } from '../../runtime/helpers/sync/fs.js';
+import { segmentsForLocaleCode } from '../../shared/locales/targets/index.js';
+import { normalizeLanguageCode } from '../../shared/languages/normalize.js';
 import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 
@@ -40,19 +42,33 @@ export async function deleteLocaleFiles(
   let deletedMeta = 0;
 
   for (const target of targets) {
-    const jsonPath = ctx.adapters.path.join(dir, `${target}.json`);
-    const metaPath = ctx.adapters.path.join(dir, `${target}.meta.json`);
+    const code = normalizeLanguageCode(target);
+    const segments = segmentsForLocaleCode(ctx, code);
+    const paths =
+      segments.length > 0
+        ? segments.map((s) => s.absolutePath)
+        : [ctx.adapters.path.join(dir, `${code}.json`)];
+    const metaPath = ctx.adapters.path.join(dir, `${code}.meta.json`);
     const hadMeta = existsRuntimeFsSync(metaPath, ctx.adapters.fs);
 
-    await Promise.resolve(ctx.adapters.fs.deleteFile(jsonPath));
-    deletedJson += 1;
+    for (const jsonPath of paths) {
+      if (existsRuntimeFsSync(jsonPath, ctx.adapters.fs)) {
+        await Promise.resolve(ctx.adapters.fs.deleteFile(jsonPath));
+        deletedJson += 1;
+      }
+    }
 
     if (hadMeta) {
       await Promise.resolve(ctx.adapters.fs.deleteFile(metaPath));
       deletedMeta += 1;
     }
 
-    deletedTargets.push({ target, jsonPath, metaPath, hadMeta });
+    deletedTargets.push({
+      target,
+      jsonPath: paths[0] ?? ctx.adapters.path.join(dir, `${code}.json`),
+      metaPath,
+      hadMeta,
+    });
   }
 
   const payload: DeleteJsonPayload = {

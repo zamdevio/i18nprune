@@ -1,6 +1,10 @@
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
-import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/fs.js';
 import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
+import {
+  listLocaleSegmentTargets,
+  sourceLocaleCodeFromContext,
+} from '../shared/locales/targets/index.js';
+import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import {
   ISSUE_QUALITY_ENGLISH_IDENTICAL_LEAVES,
@@ -21,14 +25,6 @@ import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 import type { QualityHostHooks, QualityRunOptions, QualityRunResult } from '../types/quality/index.js';
-
-function listLocaleJsonBasenames(ctx: CoreContext, dirPath: string): string[] {
-  const fs = ctx.adapters.fs;
-  if (!existsRuntimeFsSync(dirPath, fs)) return [];
-  return listRuntimeFsDirSync(dirPath, fs)
-    .filter((e) => e.kind === 'file' && e.name.endsWith('.json') && !e.name.endsWith('.meta.json'))
-    .map((e) => e.name);
-}
 
 function issuesFromDynamicScanCount(count: number): Issue[] {
   if (count <= 0) return [];
@@ -64,38 +60,38 @@ export function runQuality(
   const sourcePath = ctx.paths.sourceLocale;
   const sourceRaw = readLocaleJsonFromContextSync(ctx, sourcePath);
   const sourceLeaves = collectTranslationSurfaceLeaves(sourceRaw);
-  const sourceBase = ctx.adapters.path.basename(sourcePath, '.json');
+  const sourceCode = sourceLocaleCodeFromContext(ctx);
   const placeholderValues = sourcePlaceholderValues(ctx.config.missing?.placeholder);
   const sourcePlaceholderLeaves: SourcePlaceholderLeaf[] = detectLocalePlaceholderLeaves({
     leaves: sourceLeaves,
     placeholderValues,
     localeRole: 'source',
-    localeCode: sourceBase,
+    localeCode: sourceCode,
     localePath: sourcePath,
   }).map((leaf) => ({ path: leaf.path, value: leaf.value }));
-  const dir = ctx.paths.localesDir;
-  const allFiles = listLocaleJsonBasenames(ctx, dir).sort((a, b) => a.localeCompare(b));
-  const targetFiles = allFiles.filter((f) => f !== `${sourceBase}.json`);
-  const filtered = opts.target
-    ? targetFiles.filter((f) => ctx.adapters.path.basename(f, '.json') === opts.target)
-    : targetFiles;
+
+  let segmentTargets = listLocaleSegmentTargets(ctx).filter(
+    (s) => normalizeLanguageCode(s.locale) !== sourceCode,
+  );
+  if (opts.target) {
+    const want = normalizeLanguageCode(opts.target);
+    segmentTargets = segmentTargets.filter((s) => normalizeLanguageCode(s.locale) === want);
+  }
 
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
-  const targets = filtered.map((file) => {
-    const full = ctx.adapters.path.join(dir, file);
-    const targetRaw = readLocaleJsonFromContextSync(ctx, full);
+  const targets = segmentTargets.map((segment) => {
+    const targetRaw = readLocaleJsonFromContextSync(ctx, segment.absolutePath);
     const leaves = collectTranslationSurfaceLeaves(targetRaw);
-    const code = ctx.adapters.path.basename(file, '.json');
     targetPlaceholderLeaves.push(
       ...detectLocalePlaceholderLeaves({
         leaves,
         placeholderValues,
         localeRole: 'target',
-        localeCode: code,
-        localePath: full,
+        localeCode: segment.locale,
+        localePath: segment.absolutePath,
       }),
     );
-    return { fileBasename: file, leaves };
+    return { fileBasename: segment.reportKey, locale: segment.locale, leaves };
   });
 
   const { total, perFile } = computeEnglishIdenticalCounts({
@@ -105,14 +101,14 @@ export function runQuality(
   });
   const files = [
     {
-      code: sourceBase,
-      file: `${sourceBase}.json`,
+      code: sourceCode,
+      file: ctx.adapters.path.basename(sourcePath),
       leafCount: sourceLeaves.length,
       isSourceLocale: true,
       sourceIdenticalLeafCount: null,
     },
     ...targets.map((target) => ({
-      code: ctx.adapters.path.basename(target.fileBasename, '.json'),
+      code: normalizeLanguageCode(target.locale),
       file: target.fileBasename,
       leafCount: target.leaves.length,
       isSourceLocale: false,
@@ -123,8 +119,8 @@ export function runQuality(
     total,
     perFile,
     dynamicKeySites,
-    sourceLocale: sourceBase,
-    localesDir: dir,
+    sourceLocale: sourceCode,
+    localesDir: ctx.paths.localesDir,
     localeCount: files.length,
     targetLocaleCount: targets.length,
     files,
@@ -174,7 +170,7 @@ export function runQuality(
         count: sourcePlaceholderLeaves.length,
         samplePaths: sourcePlaceholderLeaves.slice(0, 5).map((leaf) => leaf.path),
       }),
-      target: sourceBase,
+      target: sourceCode,
       data: { sourcePlaceholderLeaves: sourcePlaceholderLeaves.length },
     });
   }

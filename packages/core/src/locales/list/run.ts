@@ -1,8 +1,7 @@
-import { listLocaleSegmentsFromContext } from '../../shared/locales/enumerate/fromContext.js';
+import { localeCodesFromContext, sourceLocaleCodeFromContext } from '../../shared/locales/targets/index.js';
 import { buildLocaleListRows } from '../summary.js';
 import type { LocaleListRow } from '../summary.js';
 import type { CoreContext } from '../../types/context/index.js';
-import type { LocaleSegmentRef } from '../../types/locales/enumerate.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 
 export type ListJsonPayload = {
@@ -27,34 +26,11 @@ export type ListRunResult = {
  * (leaf counts, source-identical counts), and returns a structured payload.
  * No `process.*` access, no file writes.
  */
-function primarySegmentRelativePath(
-  segments: readonly LocaleSegmentRef[],
-  localeCode: string,
-  sourceLocale: string,
-  pathApi: CoreContext['adapters']['path'],
-): string | undefined {
-  const forLocale = segments.filter((s) => s.locale === localeCode);
-  if (forLocale.length === 0) return undefined;
-  const sourceMatch = forLocale.find(
-    (s) => pathApi.resolve(s.absolutePath) === pathApi.resolve(sourceLocale),
-  );
-  const pick = sourceMatch ?? forLocale.slice().sort((a, b) => a.relativePath.localeCompare(b.relativePath))[0];
-  return pick?.relativePath;
-}
-
 export function runLocalesList(ctx: CoreContext): ListRunResult {
   const { localesDir, sourceLocale } = ctx.paths;
-  const pathApi = ctx.adapters.path;
-
-  const { segments } = listLocaleSegmentsFromContext(ctx);
-  const localeCodes = [...new Set(segments.map((s) => s.locale))].sort((a, b) => a.localeCompare(b));
-  const files = localeCodes
-    .map((code) => primarySegmentRelativePath(segments, code, sourceLocale, pathApi))
-    .filter((rel): rel is string => rel !== undefined);
-
-  const rows = buildLocaleListRows(ctx, files);
-
-  const sourceLocaleCode = ctx.adapters.path.basename(sourceLocale, '.json');
+  const localeCodes = localeCodesFromContext(ctx);
+  const rows = buildLocaleListRows(ctx, localeCodes);
+  const sourceLocaleCode = sourceLocaleCodeFromContext(ctx);
 
   const payload: ListJsonPayload = {
     kind: 'locales-list',

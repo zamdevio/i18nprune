@@ -10,6 +10,7 @@ import { buildInitConfigTemplate, defaultInitConfigFileName } from './template.j
 import {
   detectInitProject,
   detectLocaleFilesystemLayout,
+  inferLocaleLayoutFromConfigPaths,
   isInitAutoAmbiguous,
   pickTopInitPreset,
 } from './detect/index.js';
@@ -73,7 +74,9 @@ export function runInit(host: RunInitHostInput, opts: InitRunOptions = {}): Init
   }
 
   const presetFields = getInitPresetConfigFields(preset);
-  const localeLayout = detectLocaleFilesystemLayout(host, host.projectRoot, presetFields.locales.directory);
+  const localeLayout =
+    detectLocaleFilesystemLayout(host, host.projectRoot, presetFields.locales.directory) ??
+    inferLocaleLayoutFromConfigPaths(presetFields.locales.directory, presetFields.locales.source);
 
   const detection = {
     signals,
