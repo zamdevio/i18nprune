@@ -21,6 +21,28 @@ describe('runInit', () => {
     }
   });
 
+  it('emits mode and structure when locale segments agree under preset directory', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-init-'));
+    try {
+      const messages = path.join(dir, 'messages');
+      fs.mkdirSync(path.join(messages, 'en'), { recursive: true });
+      fs.mkdirSync(path.join(messages, 'fr'), { recursive: true });
+      fs.writeFileSync(path.join(messages, 'en', 'common.json'), '{"a":"A"}', 'utf8');
+      fs.writeFileSync(path.join(messages, 'fr', 'common.json'), '{"a":"A"}', 'utf8');
+      const adapters = createNodeRuntimeAdapters();
+      const r = runInit(
+        { fs: adapters.fs, path: adapters.path, projectRoot: dir, skippedExistingConfig: false },
+        { preset: 'next-intl' },
+      );
+      expect(r.exitCode).toBe(0);
+      expect(r.payload.proposedConfigSource).toContain("mode: 'locale_directory'");
+      expect(r.payload.proposedConfigSource).toContain("structure: 'locale_per_dir'");
+      expect(r.payload.detection?.localeLayout?.structure).toBe('locale_per_dir');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('next-intl package + messages directory picks next-intl under --auto', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-init-'));
     try {

@@ -1,5 +1,6 @@
 export { readInitPackageJson, initPackageDeclares } from './packageJson.js';
 export { readInitTopologySignals } from './localeTopology.js';
+export { detectLocaleFilesystemLayout } from './localeFilesystemLayout.js';
 export {
   scoreInitPresets,
   pickTopInitPreset,

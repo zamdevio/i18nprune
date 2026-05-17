@@ -1,4 +1,4 @@
-import type { InitPresetId } from '../types/init/index.js';
+import type { InitLocaleLayoutHint, InitPresetId } from '../types/init/index.js';
 import { DEFAULT_PROVIDER_RATE_LIMITS } from '../shared/translator/utils/orchestration.js';
 import { getInitPresetConfigFields } from './presets/fields.js';
 
@@ -17,6 +17,8 @@ export type BuildInitConfigTemplateOptions = {
    * Defaults to **`generic`**.
    */
   preset?: InitPresetId;
+  /** When set, emitted into the `locales` block (from on-disk segment classification). */
+  localeLayout?: InitLocaleLayoutHint | null;
 };
 
 /** Comment lines after **`{ id: 'google' }`** — uncomment one backend, enable it, align **`translate.primary`**, configure fields or env. */
@@ -68,20 +70,32 @@ function formatFunctionsArray(functions: string[]): string {
   return JSON.stringify(functions);
 }
 
-function formatPresetBody(preset: InitPresetId): string {
+function formatLocaleLayoutLines(layout: InitLocaleLayoutHint | null | undefined): string {
+  if (!layout) return '';
+  return `
+    mode: '${layout.mode}',
+    structure: '${layout.structure}',`;
+}
+
+function formatPresetBody(preset: InitPresetId, localeLayout?: InitLocaleLayoutHint | null): string {
   const p = getInitPresetConfigFields(preset);
   const sf = p.locales.source.replace(/'/g, "\\'");
   const dir = p.locales.directory.replace(/'/g, "\\'");
+  const layoutLines = formatLocaleLayoutLines(localeLayout);
   return `  locales: {
     source: '${sf}',
-    directory: '${dir}',
+    directory: '${dir}',${layoutLines}
   },
   src: '${p.src.replace(/'/g, "\\'")}',
   functions: ${formatFunctionsArray(p.functions)},`;
 }
 
-function buildMinimalInitConfigTemplate(importSpecifier: string, preset: InitPresetId): string {
-  const body = formatPresetBody(preset);
+function buildMinimalInitConfigTemplate(
+  importSpecifier: string,
+  preset: InitPresetId,
+  localeLayout?: InitLocaleLayoutHint | null,
+): string {
+  const body = formatPresetBody(preset, localeLayout);
   return `import { defineConfig, type I18nPruneConfig } from '${importSpecifier}';
 
 export default defineConfig({
@@ -114,8 +128,12 @@ ${body}
 `;
 }
 
-function buildRichInitConfigTemplate(importSpecifier: string, preset: InitPresetId): string {
-  const body = formatPresetBody(preset);
+function buildRichInitConfigTemplate(
+  importSpecifier: string,
+  preset: InitPresetId,
+  localeLayout?: InitLocaleLayoutHint | null,
+): string {
+  const body = formatPresetBody(preset, localeLayout);
   return `import { defineConfig, type I18nPruneConfig } from '${importSpecifier}';
 
 export default defineConfig({
@@ -237,7 +255,10 @@ export function buildInitConfigTemplate(importSpecifierOrOpts?: string | BuildIn
   const opts = importSpecifierOrOpts ?? {};
   const importSpecifier = opts.importSpecifier ?? DEFAULT_INIT_CONFIG_IMPORT_SPECIFIER;
   const preset = opts.preset ?? 'generic';
-  return opts.rich ? buildRichInitConfigTemplate(importSpecifier, preset) : buildMinimalInitConfigTemplate(importSpecifier, preset);
+  const layout = opts.localeLayout;
+  return opts.rich
+    ? buildRichInitConfigTemplate(importSpecifier, preset, layout)
+    : buildMinimalInitConfigTemplate(importSpecifier, preset, layout);
 }
 
 export function configFileNameForFormat(baseName: string, format: InitConfigFormat): string {

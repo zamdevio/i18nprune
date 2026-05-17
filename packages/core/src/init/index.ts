@@ -9,6 +9,7 @@ export { runInit } from './run.js';
 export type { RunInitHostInput } from './run.js';
 export {
   detectInitProject,
+  detectLocaleFilesystemLayout,
   initPackageDeclares,
   isInitAutoAmbiguous,
   pickTopInitPreset,

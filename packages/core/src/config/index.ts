@@ -5,6 +5,7 @@ export {
   defineConfig,
   localesFilesystemSchema,
   parseI18nPruneConfig,
+  collectLocalesFilesystemConfigWarnings,
 } from './schema/index.js';
 export type {
   I18nPruneConfig,

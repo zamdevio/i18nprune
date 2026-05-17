@@ -1,6 +1,7 @@
 export type {
   InitFilesystemHost,
   InitJsonPayload,
+  InitLocaleLayoutHint,
   InitPackageJsonSignals,
   InitPresetId,
   InitPresetScore,

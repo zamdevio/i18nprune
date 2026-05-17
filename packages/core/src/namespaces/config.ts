@@ -8,6 +8,7 @@ export {
   localesFilesystemSchema,
   mergeCoreConfigInputs,
   mergePartialConfigIntoBase,
+  collectLocalesFilesystemConfigWarnings,
   parseI18nPruneConfig,
   REFERENCE_POLICY_SAFE_DEFAULTS,
   resolveCoreConfig,

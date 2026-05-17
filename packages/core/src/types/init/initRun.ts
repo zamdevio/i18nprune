@@ -39,6 +39,16 @@ export type InitPackageJsonSignals = {
   devDependencies: Record<string, string>;
 };
 
+/** Confident `locales.mode` / `locales.structure` inferred from on-disk JSON segments. */
+export type InitLocaleLayoutHint = {
+  mode: 'flat_file' | 'locale_directory';
+  structure: 'locale_file' | 'locale_per_dir' | 'feature_bundle';
+  /** Normalized confidence (1 when all segments agree). */
+  confidence: number;
+  /** Number of JSON segment files that contributed to the hint. */
+  segmentCount: number;
+};
+
 /** Filesystem hints under **`projectRoot`** (locale roots, framework markers). */
 export type InitTopologySignals = {
   /** Project-relative directory roots that exist and look like locale containers. */
@@ -93,6 +103,8 @@ export type InitJsonPayload = {
     signals: InitProjectSignals;
     scores: InitPresetScore[];
     ambiguous: boolean;
+    /** Present when segment paths under the preset `locales.directory` agree on one layout. */
+    localeLayout?: InitLocaleLayoutHint | null;
   };
 };
 

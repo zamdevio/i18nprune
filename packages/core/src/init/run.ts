@@ -7,8 +7,13 @@ import type {
   InitPresetId,
 } from '../types/init/index.js';
 import { buildInitConfigTemplate, defaultInitConfigFileName } from './template.js';
-import { detectInitProject, isInitAutoAmbiguous, pickTopInitPreset } from './detect/index.js';
-import { formatInitPresetIdList, isInitPresetId } from './presets/fields.js';
+import {
+  detectInitProject,
+  detectLocaleFilesystemLayout,
+  isInitAutoAmbiguous,
+  pickTopInitPreset,
+} from './detect/index.js';
+import { formatInitPresetIdList, getInitPresetConfigFields, isInitPresetId } from './presets/fields.js';
 
 export type RunInitHostInput = InitFilesystemHost & {
   /** Absolute project directory (the directory where a config file would be written). */
@@ -59,11 +64,6 @@ export function runInit(host: RunInitHostInput, opts: InitRunOptions = {}): Init
 
   const { signals, scores } = detectInitProject(host, host.projectRoot);
   const ambiguous = Boolean(opts.auto) && presetArg === undefined && isInitAutoAmbiguous(scores);
-  const detection = {
-    signals,
-    scores,
-    ambiguous,
-  };
 
   let preset: InitPresetId = 'generic';
   if (presetArg !== undefined) {
@@ -71,6 +71,16 @@ export function runInit(host: RunInitHostInput, opts: InitRunOptions = {}): Init
   } else if (opts.auto) {
     preset = pickTopInitPreset(scores);
   }
+
+  const presetFields = getInitPresetConfigFields(preset);
+  const localeLayout = detectLocaleFilesystemLayout(host, host.projectRoot, presetFields.locales.directory);
+
+  const detection = {
+    signals,
+    scores,
+    ambiguous,
+    localeLayout,
+  };
 
   const issues: Issue[] = [];
   let exitCode = 0;
@@ -90,6 +100,7 @@ export function runInit(host: RunInitHostInput, opts: InitRunOptions = {}): Init
           importSpecifier: opts.importSpecifier,
           rich: opts.rich,
           preset,
+          localeLayout,
         });
 
   const payload: InitJsonPayload = {

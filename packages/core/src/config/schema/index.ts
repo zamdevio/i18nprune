@@ -1,5 +1,6 @@
 export { defineConfig } from './define.js';
 export { clampTranslateMaxWorkers, translateSchema } from './translate.js';
+export { collectLocalesFilesystemConfigWarnings } from './localesCompat.js';
 export {
   configSchema,
   ConfigValidationError,

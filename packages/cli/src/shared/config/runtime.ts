@@ -1,4 +1,8 @@
-import { buildPatchingSectionIncompleteDiagnostic, resolveMissingLeafPlaceholder } from '@i18nprune/core';
+import {
+  buildPatchingSectionIncompleteDiagnostic,
+  collectLocalesFilesystemConfigWarnings,
+  resolveMissingLeafPlaceholder,
+} from '@i18nprune/core';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
 
 /**
@@ -7,6 +11,10 @@ import type { I18nPruneConfig } from '@i18nprune/core/config';
  */
 export function normalizeConfigRuntimeFields(config: I18nPruneConfig, outWarnings: string[]): I18nPruneConfig {
   let next = config;
+
+  for (const w of collectLocalesFilesystemConfigWarnings(config.locales)) {
+    outWarnings.push(`config.locales: ${w}`);
+  }
 
   const missing = config.missing;
   if (missing?.placeholder !== undefined) {
