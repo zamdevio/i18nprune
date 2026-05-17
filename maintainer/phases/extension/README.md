@@ -59,7 +59,7 @@ Status values: **planned** | **in progress** | **done** | **blocked** | **deferr
 
 | Phase | Document | Status | Depends on (conceptual) |
 |-------|----------|--------|-------------------------|
-| Monorepo home | [monorepo-home.md](./monorepo-home.md) | **done** | Extension sources under **`apps/extension/`** |
+| Monorepo home | [apps/extension/README.md](../../../apps/extension/README.md) | **done** | Extension sources under **`apps/extension/`** |
 | Foundation | [foundation.md](./foundation.md) | planned | Minimal stable core surface for project binding; core **extractor** trajectory |
 | Core integration | [core-integration.md](./core-integration.md) | planned | Foundation; documented core entrypoints + `CoreContext` / paths story |
 | Workspace intelligence | [workspace-intelligence.md](./workspace-intelligence.md) | planned | Foundation; **core integration** checklist; core **locales** + normalized project model |
@@ -85,7 +85,23 @@ Status values: **planned** | **in progress** | **done** | **blocked** | **deferr
 3. Align any new core requirement with **Upstream dependency** before coding the extension.  
 4. Update the **phase index** table when a phase truly moves (keep honest).
 
-Short index for day-to-day pointers: **[`apps/extension/TODO.md`](../../../apps/extension/TODO.md)** — it links here; detailed specs stay under **`maintainer/phases/extension/`**, not duplicated in app code.
+**Build from repo root** (delegates to **`apps/extension/package.json`** scripts): `pnpm ext:web:dev`, `pnpm ext:web:build`, `pnpm ext:compile`, `pnpm ext:watch`, `pnpm ext:build`.
+
+### Topic quick map
+
+| Topic | Phase doc |
+|-------|-----------|
+| Source-of-truth core paths, SDK `runGenerate` example, API shape (`GenerateHostHooks` required) | [core-integration.md](./core-integration.md) |
+| Checklist before tightening `@i18nprune/core` (paths, cancellation, envelopes, multi-root, tests, release) | [core-integration.md](./core-integration.md) |
+| Generate dashboard tab, IPC, host hooks, implementation slices, non-goals | [generate.md](./generate.md) |
+| Interactive diff, multi-language editor, project breadcrumbs | [post-mvp.md](./post-mvp.md) (deferred) |
+| Architecture / hover / diagnostics / completions / performance / foundation / dashboard / init UI | Matching sibling `*.md` in this folder |
+
+### When you implement
+
+1. Open the relevant **`maintainer/phases/extension/<name>.md`**.  
+2. Align with **[core-integration.md](./core-integration.md)** for any core call.  
+3. Bump status in the **phase index** table above and in that phase file when work moves.
 
 ---
 

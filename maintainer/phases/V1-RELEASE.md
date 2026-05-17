@@ -15,11 +15,11 @@
 
 ## Recommended v1 sequence (start here after shipped Session C)
 
-Ship the **core onboarding + storage vertical** before **hosted app** catch-up: **`@i18nprune/core`** must own project structure, presets, and normalized locale surfaces (**init → locales**) so SDK contracts stabilize. **`apps/web`** and **`apps/workers/i18nprune`** are already deployed and healthy; **defer Session C.3** until **F** and **H** have landed the core changes those hosts consume — then align imports/types to the new core surface. After that, run **docs (D)**, **landing (D.2)**, **release polish (E)**, and the **`final.md`** gate (**G**).
+Ship the **core onboarding + storage vertical** before **hosted app** catch-up: **`@i18nprune/core`** must own project structure, presets, and normalized locale surfaces (**init → locales**) so SDK contracts stabilize. **`apps/web`** and **`apps/workers/i18nprune`** are already deployed and healthy; **defer Session C.3** until **H** has landed the remaining core locale-storage work those hosts consume (**F** is **shipped** for core + CLI) — then align imports/types to the new core surface. After that, run **docs (D)**, **landing (D.2)**, **release polish (E)**, and the **`final.md`** gate (**G**).
 
 | Step | Session | What |
 |------|---------|------|
-| **1** | **F — Init** | [`init.md`](./init.md) — core-owned detection, presets, generated config |
+| **1** | **F — Init** (**shipped** — core + CLI) | [`init.md`](./init.md) — core-owned detection, presets, generated config |
 | **2** | **H — Locales** | [`locales.md`](./locales.md) — reader/writer, multi-topology storage (**after** init schema) |
 | **3** | **C.3 — Apps** | `apps/web`, `apps/workers/i18nprune` — catch up to post-init/locales **`@i18nprune/core`** |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) — nav trim, SDK quickstart, tree flattening |
@@ -54,15 +54,17 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 **Patching / auto-patching.** **User docs:** [`docs/patching/README.md`](../../docs/patching/README.md). Maintainer map: [`maintainer/systems/patching.md`](../systems/patching.md). Delivered: integration tests (core chain + CLI **`patch --fix` → `--patch sync` → `--patch generate`**), shared CLI **`Context` → `runPatching`** wiring (`fromContext.ts`), resolver preservation tests, **`config.json`** injection-status docs, core patching types and barrel layout.
 
-**Next (core):** Session **F** (init), then **H** (locales) — see [Recommended v1 sequence](#recommended-v1-sequence-start-here-after-shipped-session-c). **Next (hosts):** Session **C.3** runs **after F + H** so apps track the settled core/SDK surface.
+**Next (core):** Session **H** (locales) — Session **F** (init) is **shipped** for core + CLI; see [Recommended v1 sequence](#recommended-v1-sequence-start-here-after-shipped-session-c). **Next (hosts):** Session **C.3** runs **after F + H** so apps track the settled core/SDK surface.
 
 ---
 
-## Session F — Init phase (**planned**)
+## Session F — Init phase (**shipped — core + CLI**)
 
 **Docs:** [`init.md`](./init.md)
 
 **Goal:** Best-in-class onboarding — **core-owned** detection, scoring, and config/preset generation; CLI and extension remain **hosts** only (**one intelligence layer, many hosts**).
+
+**Delivered:** Core **`runInit`** surface, preset detection/scoring, config template generation, CLI **`init`** (`--auto`, `--preset`, `--json`) with parity tests. **Extension** onboarding UI (I1–I3) remains planned in [`extension/README.md`](./extension/README.md).
 
 **Dependencies:** **Extractor** (Session **C.1**, shipped) remains the authoritative usage/call-site signal layer; init **consumes** extractor capabilities where runtime evidence is required — no duplicate detection engines in hosts.
 

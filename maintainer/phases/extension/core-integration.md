@@ -3,7 +3,7 @@
 **Status:** planned  
 **Goal:** Pin and document how this extension **binds to `@i18nprune/core`** — contracts, paths, cancellation, payloads — **before** shipping heavier features (Generate tab, tighter WI coupling).
 
-This phase is **cross-cutting**: it supports Foundation, Generate, and later Workspace intelligence without duplicating TODO.md in two places.
+This phase is **cross-cutting**: it supports Foundation, Generate, and later Workspace intelligence without duplicating the extension planning hub ([README.md](./README.md)) in ad-hoc notes.
 
 ---
 

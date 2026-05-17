@@ -2,11 +2,11 @@
 
 **v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** — use first for sequencing.
 
-**Locked vertical order (extractor → init → locales → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below (same file — no duplicate maintainer-root hub). **init** and **locales** are **planned** (`init.md`, `locales.md`); do not start locales core work before init alignment per [`init.md`](./init.md).
+**Locked vertical order (extractor → init → locales → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below (same file — no duplicate maintainer-root hub). **init** (Session **F**) is **shipped** for core + CLI (`init.md`); **locales** remains **planned** (`locales.md`) — start **H** per [`locales.md`](./locales.md) and the init contract note in [`init.md`](./init.md).
 
-**Narrative focus:** **Init (Session F)**, then **locales (Session H)** — **`@i18nprune/core`** owns project structure and normalized locale storage before **hosted apps** catch up. **Session C.3** (`apps/web`, `apps/workers/i18nprune`) is **explicitly after F + H** (deployed hosts are fine today; align once core/SDK contracts settle). Then **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)** · **`maintainer/phases/README.md`**.
+**Narrative focus:** **Locales (Session H)** is the active core vertical after **Init (Session F)** shipped (core + CLI). **`@i18nprune/core`** owns normalized locale storage next; **hosted apps** catch up after **H**. **Session C.3** (`apps/web`, `apps/workers/i18nprune`) is **explicitly after F + H** (deployed hosts are fine today; align once core/SDK contracts settle). Then **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)** · **`maintainer/phases/README.md`**.
 
-**Planned verticals:** **[`init.md`](./init.md)** (Session **F**) → **[`locales.md`](./locales.md)** (Session **H**) → **apps catch-up (Session C.3)** → **docs (D)** — then extension consumes stable contracts per locked chain (**[`extension/README.md`](./extension/README.md)**).
+**Verticals:** **[`init.md`](./init.md)** (Session **F** — **shipped** core + CLI) → **[`locales.md`](./locales.md)** (Session **H** — **next**) → **apps catch-up (Session C.3)** → **docs (D)** — extension consumes stable contracts per locked chain (**[`extension/README.md`](./extension/README.md)**); extension init UI remains planned.
 
 ---
 
@@ -30,7 +30,7 @@ extension
 |-------|------|----------------|
 | **extractor** | Strengthens key detection and runtime-facing signals (bindings, call sites, dynamic classification). **Session C.1 shipped** — contracts are stable for **init** / **locales** / **extension**; downstream phases **must respect** extractor contracts and must not fork parallel detection “truth”. | [`extractor.md`](./extractor.md) |
 | **init** | Best-in-class onboarding: **core-owned** detection + preset/config generation; **CLI and extension are hosts only**. Depends on stable **config schema** and preset model so locales can hang configuration cleanly. | [`init.md`](./init.md) |
-| **locales** | Multi-topology locale **storage** via **reader/writer** abstraction; **normalized locale surface** for all existing ops. **Must not start** until **init** is aligned (schema + presets). | [`locales.md`](./locales.md) |
+| **locales** | Multi-topology locale **storage** via **reader/writer** abstraction; **normalized locale surface** for all existing ops. **Next** after **init** (Session **F** shipped for core + CLI; honor preset + schema contract in [`init.md`](./init.md)). | [`locales.md`](./locales.md) |
 | **extension** | Consumes **stabilized core** APIs and payloads — **no parallel scanning/indexing truth**. May prototype early, but **release-grade** behavior assumes **init + locales** contracts are stable. | [`extension/README.md`](./extension/README.md) |
 
 ### Responsibilities (one sentence each)

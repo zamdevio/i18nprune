@@ -22,5 +22,6 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 | **Core-op architecture** — all ops migrated to core `runXxx` entries; CLI is thin host | Shipped (Session A.2) | — |
 | **Extractor hardening** (Session C.1 — bindings, orchestrator expansion, prose filter, parity tests, inventory, methodology) | Shipped | [`docs/extractor/README.md`](../../docs/extractor/README.md), [`edge-case inventory`](../../docs/edge-cases/unsolved/inventory.md) |
 | **Patching hardening** (integration tests, shared CLI run wiring, resolver/tests, user docs, core types/barrels) | Shipped | [`docs/patching/README.md`](../../docs/patching/README.md) |
+| **Init / onboarding (Session F)** — `runInit`, presets + scoring, config template, CLI **`init`** (`--auto`, `--preset`, `--json`) | Shipped (core + CLI) | [`init.md`](./init.md) · extension host: [`extension/README.md`](./extension/README.md) (I1–I3 planned) |
 
 Maintainer sequencing for **remaining** work: **[`V1-RELEASE.md`](./V1-RELEASE.md)**.

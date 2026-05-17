@@ -1,6 +1,7 @@
-# Init phase — onboarding intelligence (**planned**)
+# Init phase — onboarding intelligence
 
-**Status:** Planning — **no implementation implied** by this document.  
+**Status:** **Session F — shipped (core + CLI).** `runInit`, preset registry + scoring, `buildInitConfigTemplate`, and **`i18nprune init`** (`--auto`, `--preset`, `--json`, TTY flows) ship from **`packages/core`** + **`packages/cli`**. **Extension** host tasks (I1–I3 in [`extension/README.md`](./extension/README.md)) and deeper **extractor-first** detection signals (per §Implementation sequencing) are **follow-ups**, not blockers for starting **Session H** on the agreed config/locale contract surface.
+
 **Dependency:** **Extractor** phase remains upstream for call-site and runtime-usage signals; init **delegates** to extractor where detection needs usage evidence ([`extractor.md`](./extractor.md)).  
 **Blocks:** **Locales** phase ([`locales.md`](./locales.md)) — locales work assumes **stable config schema** and **preset** vocabulary from init.
 

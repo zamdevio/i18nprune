@@ -13,9 +13,9 @@
 - **`package.json`** — manifest, activation, and tooling as wired for this workspace.
 - Implementation follows **`maintainer/phases/extension/README.md`** (workspace settings, spawn-vs-core decision, tests before marketplace).
 
-## Quick index
+## Scripts (also at repo root)
 
-- **[TODO.md](TODO.md)** — short map into **`maintainer/phases/extension/`** (no duplicate long-form specs in this folder).
+From the monorepo root: **`pnpm ext:web:dev`**, **`pnpm ext:web:build`**, **`pnpm ext:compile`**, **`pnpm ext:watch`**, **`pnpm ext:build`** — same as `pnpm --dir apps/extension …` calling the scripts in this package’s **`package.json`**.
 
 ## Public site
 

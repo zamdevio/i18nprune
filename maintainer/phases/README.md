@@ -8,7 +8,7 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 
 ## Start here — v1
 
-**→ [`V1-RELEASE.md`](./V1-RELEASE.md)** (includes **recommended order:** init **F** → locales **H** → apps **C.3** → docs **D** → …)
+**→ [`V1-RELEASE.md`](./V1-RELEASE.md)** (includes **recommended order:** init **F** (**shipped** core + CLI) → locales **H** → apps **C.3** → docs **D** → …)
 
 **Locked vertical order:** [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain) (extractor → init → locales → extension)
 
@@ -27,8 +27,8 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 | Doc | Status |
 |-----|--------|
 | [`extractor.md`](./extractor.md) | **Active** — JS/TS extractor improvement plan (false-positive hardening, future languages) |
-| [`init.md`](./init.md) | **Planned** — core-owned onboarding, presets, `--auto`, confidence scoring |
-| [`locales.md`](./locales.md) | **Planned** — reader/writer locale storage; multi-topology; depends on init |
+| [`init.md`](./init.md) | **Shipped (Session F — core + CLI)** — presets, `runInit`, `init --json`; extension host follow-ups in [`extension/README.md`](./extension/README.md) |
+| [`locales.md`](./locales.md) | **Planned** — reader/writer locale storage; multi-topology; depends on init contract (**F** shipped) |
 | [`jsdoc.md`](./jsdoc.md) | **Active** — JSDoc enforcement tiers |
 | [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |
 | [`final.md`](./final.md) | **Gate** — one-time pre-publish checklist (delete after release) |
