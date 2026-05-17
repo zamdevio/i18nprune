@@ -76,8 +76,8 @@ Two-phase work: first add **import binding resolution** (alias-aware per-file fu
 | **C.1.2** | Wire binding expansion into orchestrators | **Shipped** |
 | **C.1.3** | Call-site lexical hardening (prose rejection in `shared/calls.ts`) | **Shipped** |
 | **C.1.4** | Commented-call parity tests | **Shipped** |
-| **C.1.5** | Edge-case inventory entries | **Next** |
-| **C.1.6** | Extractor methodology docs (user-facing + maintainer) | **Partial** (`docs/extractor/README.md`, `maintainer/systems/extractor.md`, systems hub links) |
+| **C.1.5** | Edge-case inventory entries | **Shipped** |
+| **C.1.6** | Extractor methodology docs (user-facing + maintainer) | **Next** (finish gaps vs `extractor.md` § C.1.6 checklist) |
 
 ---
 
