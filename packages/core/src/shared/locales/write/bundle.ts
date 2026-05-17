@@ -1,5 +1,6 @@
 import { ISSUE_IO_READ_FAILED } from '../../constants/issueCodes.js';
 import { I18nPruneError } from '../../errors/index.js';
+import { localeSegmentRefFromAbsolute } from '../enumerate/resolveSegmentPath.js';
 import { isLocalesLayoutWriteSupported, resolveLocalesLayoutFromContext } from '../layout/resolveLayout.js';
 import type { ResolvedLocalesLayout } from '../../../types/locales/layout.js';
 import type { CoreContext } from '../../../types/context/index.js';
@@ -12,7 +13,7 @@ import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
 /**
  * Persist one locale segment file using {@link ResolvedLocalesLayout}.
  *
- * @remarks Phase 1 delegates to {@link writeFlatLocaleJsonDocument} for `flat_file` + `locale_file` only.
+ * @remarks Delegates to {@link writeFlatLocaleJsonDocument} after layout path validation.
  */
 export function writeLocaleBundle(input: {
   layout: ResolvedLocalesLayout;
@@ -34,6 +35,21 @@ export function writeLocaleBundle(input: {
       level: 'error',
       code: 'locale_layout_unsupported',
       message: `locale write is not implemented for mode=${input.layout.mode} structure=${input.layout.structure}`,
+      path: input.absoluteFile,
+    });
+    return { ok: false, diagnostics };
+  }
+
+  const segmentRef = localeSegmentRefFromAbsolute({
+    layout: input.layout,
+    path: input.path,
+    absolutePath: input.absoluteFile,
+  });
+  if (segmentRef === null) {
+    emit({
+      level: 'warn',
+      code: 'locale_write_path_layout_mismatch',
+      message: `path does not match configured layout mode=${input.layout.mode} structure=${input.layout.structure}`,
       path: input.absoluteFile,
     });
     return { ok: false, diagnostics };
