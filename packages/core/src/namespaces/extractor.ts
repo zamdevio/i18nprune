@@ -1,8 +1,4 @@
-export { exactLiteralKeys } from '../extractor/literals.js';
-export { usedRootsFromText } from '../extractor/roots.js';
-export { buildFunctionsPattern, escapeRegex } from '../extractor/pattern.js';
-export { templateKeyRoot } from '../extractor/template.js';
-export { findTranslationCallSites } from '../extractor/calls.js';
+export { exactLiteralKeys, usedRootsFromText, buildFunctionsPattern, escapeRegex, templateKeyRoot, findTranslationCallSites } from '../extractor/shared/index.js';
 
 export * as constmap from '../extractor/constmap/index.js';
 export * as dynamic from '../extractor/dynamic/index.js';
@@ -38,7 +34,7 @@ export type { ScanKeyObservationsOptions } from '../extractor/keySites/scan.js';
 export type { ScanProjectKeyObservationsInput } from '../extractor/keySites/orchestrate.js';
 export type { ScanProjectLiteralKeyUsageInput } from '../extractor/keySites/projectUsage.js';
 
-export type { ProjectLiteralKeyUsage } from '../extractor/projectLiteralKeyUsage.js';
+export type { ProjectLiteralKeyUsage } from '../types/extractor/projectLiteralKeyUsage.js';
 export type { ResolveKeyPlaceholdersTraceResult } from '../types/extractor/constmap/index.js';
 export type { TranslationCallSite } from '../types/extractor/calls/index.js';
 export type { DynamicKeySite, DynamicKeySiteKind } from '../types/extractor/dynamic/index.js';

@@ -1,7 +1,7 @@
 import { buildConstStringMap } from '../../constmap/build.js';
-import { findTranslationCallSites } from '../../calls.js';
+import { findTranslationCallSites } from '../../shared/calls.js';
 import type { DynamicKeySite } from '../../../types/extractor/dynamic/index.js';
-import { commentRangesForJsLikeText, offsetInCommentRanges } from '../comment.js';
+import { commentRangesForJsLikeText, offsetInCommentRanges } from '../../shared/jslikeTextRanges.js';
 import { offsetToLineColumn, snippetRange } from '../helpers.js';
 import {
   tryRebuildTemplateKeyFromConsts,

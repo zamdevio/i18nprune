@@ -84,9 +84,9 @@ text = readFile(f) ──→ scanImportBindings(text) ──→ expandFunctionsW
    - `packages/core/src/extractor/dynamic/providers/javascript.ts`: accept expanded functions.
    - Tests: extend `keySites/__tests__/scan.test.ts` and `dynamic/__tests__/rebuild.test.ts` with alias scenarios.
 3. **C.1.3 — Call-site lexical hardening (false-positive rejection)**
-   - Tighten candidate parsing in `packages/core/src/extractor/calls.ts`: reject candidates where `firstArgRaw` matches prose patterns (consecutive lowercase words separated by whitespace, not valid JS expression starts).
+   - Tighten candidate parsing in `packages/core/src/extractor/shared/calls.ts`: reject candidates where `firstArgRaw` matches prose patterns (consecutive lowercase words separated by whitespace, not valid JS expression starts).
    - Keep valid JS/TS expression starts accepted so real code-like calls (including commented-out code) remain detectable.
-   - New `packages/core/src/extractor/__tests__/calls.test.ts`: prose rejection (`t (or vice versa)`-style), preserved detection for all valid call shapes.
+   - New `packages/core/src/extractor/shared/__tests__/calls.test.ts`: prose rejection (`t (or vice versa)`-style), preserved detection for all valid call shapes.
 4. **C.1.4 — Commented-call parity tests**
    - Verify that after C.1.3, real commented-out code calls are still detected with `isCommented: true` / `kind: 'commented'`.
    - Tests in `packages/core/src/extractor/dynamic/__tests__/`: `// t('key')` detected + marked, `// t (or vice versa)` not detected.

@@ -20,7 +20,7 @@ For **`i18nprune.config.*`**, import **`defineConfig`** and **`I18nPruneConfig`*
 We **fully support** both styles **for the same symbols**:
 
 - **Flat** — `import { resolveContext, scanProjectLiteralKeyUsage } from 'i18nprune/core'`  
-  Fine for small scripts, snippets, and existing code. **Not deprecated.**
+  Fine for small scripts, snippets, and existing code. **Fully supported.**
 
 - **Namespaced** — `import { context, extractor } from 'i18nprune/core'`  
   **Recommended for new integrations and larger tools:** clearer grouping, easier discovery in the IDE, and a stable mental model that mirrors `core/` domains.

@@ -2,7 +2,7 @@ import { isPreservePath } from '../policies/preserve.js';
 import { pathUnderAnyUncertainPrefix } from '../shared/reference/paths.js';
 import type { StringLeaf } from '../types/json/index.js';
 import type { PreservePolicy } from '../types/policies/index.js';
-import type { ProjectLiteralKeyUsage } from '../extractor/projectLiteralKeyUsage.js';
+import type { ProjectLiteralKeyUsage } from '../types/extractor/projectLiteralKeyUsage.js';
 
 /** True when `key` is the root path or nested under a root in `usedRoots` (array segment `[` counts as root). */
 export function pathUnderRoot(key: string, roots: ReadonlySet<string>): boolean {

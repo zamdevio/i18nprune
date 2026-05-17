@@ -1,0 +1,61 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`scanImportBindings kitchen sink > matches snapshot of normalized bindings 1`] = `
+[
+  {
+    "imported": "Foo",
+    "isTypeOnly": true,
+    "kind": "named",
+    "local": "Foo",
+    "source": "esm",
+  },
+  {
+    "kind": "module",
+    "local": "i18n",
+    "moduleKind": "namespace",
+    "source": "esm",
+  },
+  {
+    "imported": "t",
+    "kind": "named",
+    "local": "translate",
+    "source": "esm",
+  },
+  {
+    "kind": "module",
+    "local": "i18n2",
+    "moduleKind": "default",
+    "source": "esm",
+  },
+  {
+    "imported": "t",
+    "kind": "named",
+    "local": "t",
+    "source": "esm",
+  },
+  {
+    "imported": "t",
+    "kind": "named",
+    "local": "cjsT",
+    "source": "cjs_require",
+  },
+  {
+    "kind": "module",
+    "local": "mod",
+    "moduleKind": "default",
+    "source": "cjs_require",
+  },
+  {
+    "imported": "t",
+    "kind": "named",
+    "local": "dynT",
+    "source": "dynamic_import",
+  },
+  {
+    "kind": "module",
+    "local": "dyn",
+    "moduleKind": "default",
+    "source": "dynamic_import",
+  },
+]
+`;

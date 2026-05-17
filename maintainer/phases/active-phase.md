@@ -72,12 +72,12 @@ Two-phase work: first add **import binding resolution** (alias-aware per-file fu
 
 | Slice | What | Status |
 |-------|------|--------|
-| **C.1.1** | Import binding resolution module (`extractor/bindings/`) | **next** |
-| **C.1.2** | Wire binding expansion into orchestrators | pending |
-| **C.1.3** | Call-site lexical hardening (prose rejection in `calls.ts`) | pending |
-| **C.1.4** | Commented-call parity tests | pending |
-| **C.1.5** | Edge-case inventory entries | pending |
-| **C.1.6** | Extractor methodology docs (user-facing + maintainer) | pending |
+| **C.1.1** | Import binding resolution module (`extractor/bindings/`) | **Shipped** |
+| **C.1.2** | Wire binding expansion into orchestrators | **Next** |
+| **C.1.3** | Call-site lexical hardening (prose rejection in `shared/calls.ts`) | Pending |
+| **C.1.4** | Commented-call parity tests | Pending |
+| **C.1.5** | Edge-case inventory entries | Pending |
+| **C.1.6** | Extractor methodology docs (user-facing + maintainer) | **Partial** (`docs/extractor/README.md`, `maintainer/systems/extractor.md`, systems hub links) |
 
 ---
 

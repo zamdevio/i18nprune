@@ -72,7 +72,7 @@ export type {
 } from '../types/quality/index.js';
 export type { DoctorCheckId, DoctorFinding } from '../types/doctor/index.js';
 export type { GenerateResumeCandidateLeafInput, GenerateResumeRefContext } from '../types/generate/resumeCandidates.js';
-export type { ProjectLiteralKeyUsage } from '../extractor/projectLiteralKeyUsage.js';
+export type { ProjectLiteralKeyUsage } from '../types/extractor/projectLiteralKeyUsage.js';
 export type { CleanupCandidateInput } from '../cleanup/candidates.js';
 export type { ReviewLeafRow, ReviewLeafShape } from '../types/localeLeaves/index.js';
 export type {

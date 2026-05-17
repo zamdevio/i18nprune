@@ -1,7 +1,7 @@
 import { resolveKeyPlaceholdersWithTrace } from '../constmap/resolve.js';
 import { tryResolveTemplatePrefixBeforeUnknown } from '../dynamic/rebuild.js';
-import { findTranslationCallSites } from '../calls.js';
-import { offsetInCommentRanges } from '../dynamic/comment.js';
+import { findTranslationCallSites } from '../shared/calls.js';
+import { offsetInCommentRanges } from '../shared/jslikeTextRanges.js';
 import type { KeyObservation, SourceSpan } from '../../types/extractor/keySites/index.js';
 import { lineNumberAtIndex } from './line.js';
 
@@ -26,7 +26,7 @@ export type ScanKeyObservationsOptions = {
 
 /**
  * Scan source text for translation call patterns; emit structured observations.
- * Matches {@link import('../literals.js').exactLiteralKeys} resolution rules (quoted literals + backtick templates).
+ * Matches {@link import('../shared/literals.js').exactLiteralKeys} resolution rules (quoted literals + backtick templates).
  */
 export function scanKeyObservations(
   text: string,
@@ -89,7 +89,7 @@ export function scanKeyObservations(
   return out;
 }
 
-/** Resolved dotted keys suitable for sets / parity with {@link import('../literals.js').exactLiteralKeys}. */
+/** Resolved dotted keys suitable for sets / parity with {@link import('../shared/literals.js').exactLiteralKeys}. */
 export function resolvedKeysFromObservations(observations: KeyObservation[]): Set<string> {
   const keys = new Set<string>();
   for (const o of observations) {

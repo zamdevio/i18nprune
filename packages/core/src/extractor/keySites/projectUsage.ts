@@ -1,7 +1,7 @@
 import type { KeyObservation } from '../../types/extractor/keySites/index.js';
 import { scanProjectKeyObservations } from './orchestrate.js';
 import type { ScanProjectFilesystemInputBase } from '../../types/extractor/projectScanInput.js';
-import type { ProjectLiteralKeyUsage } from '../projectLiteralKeyUsage.js';
+import type { ProjectLiteralKeyUsage } from '../../types/extractor/projectLiteralKeyUsage.js';
 
 function topPathSegment(path: string): string | null {
   const first = path.split(/[.[\]]/).find(Boolean);

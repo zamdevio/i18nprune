@@ -1,5 +1,3 @@
-import type { ProjectLiteralKeyUsage } from '../../../extractor/projectLiteralKeyUsage.js';
-
 /**
  * Rich observations for literal and template-resolved translation keys (keySites phase).
  * Heuristic dynamic sites stay under `types/extractor/dynamic`.
@@ -63,6 +61,4 @@ export type TemplatePartialKeyObservation = {
 };
 
 export type KeyObservation = LiteralKeyObservation | TemplateResolvedKeyObservation | TemplatePartialKeyObservation;
-
-export type { ProjectLiteralKeyUsage };
 

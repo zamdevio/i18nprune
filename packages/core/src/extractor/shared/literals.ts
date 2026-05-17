@@ -1,4 +1,4 @@
-import { resolvedKeysFromObservations, scanKeyObservations } from './keySites/scan.js';
+import { resolvedKeysFromObservations, scanKeyObservations } from '../keySites/scan.js';
 
 /**
  * Collect exact literal translation keys from source text (quoted and simple templates).

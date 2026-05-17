@@ -6,13 +6,13 @@
 
 Configured **`functions`** (e.g. `["t"]`) are turned into a regex alternation of **identifier-safe** names and matched with a **word boundary** so names like `toast` do not match `t`.
 
-Implementation: `packages/cli/src/core/extractor/pattern.ts` (`buildFunctionsPattern`, `escapeRegex`).
+Implementation: `packages/core/src/extractor/shared/pattern.ts` (`buildFunctionsPattern`, `escapeRegex`).
 
 ## Call sites
 
 `findTranslationCallSites` scans source for `name(` after a match, finds the closing `)`, and parses the **first argument** substring (`firstArgRaw`). It skips strings and comments while scanning so parentheses inside literals do not break pairing.
 
-Implementation: `packages/cli/src/core/extractor/calls.ts`.
+Implementation: `packages/core/src/extractor/shared/calls.ts`.
 
 ## First argument shapes
 

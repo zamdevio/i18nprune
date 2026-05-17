@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { exactLiteralKeys } from '../../literals.js';
+import { exactLiteralKeys } from '../../shared/literals.js';
 import { resolvedKeysFromObservations, scanKeyObservations } from '../scan.js';
 
 describe('scanKeyObservations', () => {

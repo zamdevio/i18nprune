@@ -4,6 +4,7 @@
 node_modules/
 dist/
 *.log
+*.tsbuildinfo
 .env
 .env.*
 .DS_Store
@@ -28,7 +29,6 @@ apps/docs/.vitepress/.temp/
 apps/docs/.vitepress/cache/
 apps/docs/.vitepress/dist/
 apps/docs/package-lock.json
-apps/docs/tsconfig.tsbuildinfo
 
 # Landing site (Vite + React — install deps inside apps/web/)
 apps/web/node_modules/

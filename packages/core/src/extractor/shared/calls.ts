@@ -1,5 +1,5 @@
 import { buildFunctionsPattern, escapeRegex } from './pattern.js';
-import type { TranslationCallSite } from '../types/extractor/calls/index.js';
+import type { TranslationCallSite } from '../../types/extractor/calls/index.js';
 
 export function findTranslationCallSites(text: string, functions: string[]): TranslationCallSite[] {
   const out: TranslationCallSite[] = [];

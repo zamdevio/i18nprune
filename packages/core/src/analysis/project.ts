@@ -4,7 +4,7 @@ import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUs
 import { ANALYSIS_CACHE_KEY, emitCacheDispatchMessages, getOrBuildCachedProjectData } from '../cache/index.js';
 import type { DynamicKeySite } from '../types/extractor/dynamic/index.js';
 import type { KeyObservation } from '../types/extractor/keySites/index.js';
-import type { ProjectLiteralKeyUsage } from '../extractor/projectLiteralKeyUsage.js';
+import type { ProjectLiteralKeyUsage } from '../types/extractor/projectLiteralKeyUsage.js';
 import type { CacheDispatchInfo } from '../types/cache/index.js';
 import type { CoreContext } from '../types/generate/index.js';
 import type { OperationId, RunEmitter } from '../types/shared/run/index.js';

@@ -12,6 +12,7 @@
 | :--- | :--- |
 | **`systems/operations/`** | Run/orchestration model, **canonical `runXxx` wiring table**, event contracts (see also `packages/core/src/types/shared/run/`) |
 | **`systems/commands/`** | Operator sheets keyed by **`i18nprune help <op>`** — entrypoints, programmatic surfaces, envelopes, **`run.*` emitters**, pointers for parity |
+| **`systems/extractor.md`** | Extractor subsystem map: bindings, call sites, in/out of scope vs `docs/extractor/README.md` |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
 Design rules: **`maintainer/agents/architecture.md`** and **`maintainer/agents/rules.md`**.
@@ -33,6 +34,7 @@ Adding or changing **`systems/commands/<op>.md`** or **`systems/operations/`** M
 maintainer/systems/
 ├── README.md (this hub)
 ├── TEMPLATE.md
+├── extractor.md
 ├── operations/
 │   ├── README.md
 │   └── flows-and-entrypoints.md
@@ -54,6 +56,8 @@ Keep this tree truthful with `git`; don't maintain a brittle wall of filenames h
 | **Run/orchestration + `runSync`/`run*` table** | `maintainer/systems/operations/` and `packages/core/src/types/shared/run/` |
 | **Per-op maintainer truth** | `maintainer/systems/commands/<op>.md` |
 | **User docs** | `docs/commands/<op>/README.md` |
+| **Extractor (user)** | `docs/extractor/README.md` |
+| **Extractor (maintainer)** | `maintainer/systems/extractor.md` |
 | **Agent authoring rules** | `maintainer/agents/` (architecture, rules, jsdoc, git) |
 
 ---

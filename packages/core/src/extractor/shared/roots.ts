@@ -1,5 +1,5 @@
 import { buildFunctionsPattern } from './pattern.js';
-import { resolveKeyPlaceholdersWithTrace } from './constmap/resolve.js';
+import { resolveKeyPlaceholdersWithTrace } from '../constmap/resolve.js';
 
 /** Prefix roots from template calls when full key cannot be resolved. */
 export function usedRootsFromText(text: string, functions: string[], constMap: Record<string, string>): Set<string> {
