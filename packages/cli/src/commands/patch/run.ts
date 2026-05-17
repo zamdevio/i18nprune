@@ -2,12 +2,10 @@ import { resolveContext } from '@/shared/context/index.js';
 import { resolveConfigFilePath } from '@/shared/config/index.js';
 import { confirm } from '@inquirer/prompts';
 import {
-  analyzePatchingState,
   buildPatchingSectionIncompleteDiagnostic,
   patchingBlockPresent,
   existsRuntimeFsSync,
   getRunOptions,
-  runPatching,
 } from '@i18nprune/core';
 import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import {
@@ -15,14 +13,13 @@ import {
   issuesFromPatchingDiagnostics,
   mergeIssues,
 } from '@/shared/result/index.js';
-import { getDisplaySourceLocaleCode } from '@/shared/locales/index.js';
 import { logger } from '@/utils/logger/index.js';
 import {
   buildScaffoldFileContents,
   patchingLocaleJsonImportBaseForProjectConfig,
   resolvePatchScaffoldPaths,
-  resolvePatchingProjectRoot,
 } from '@/shared/patching/scaffoldI18nLayout.js';
+import { analyzePatchingStateFromContext, runPatchingFromContext } from '@/shared/patching/fromContext.js';
 import { repairPatchingConfigLocales } from '@/shared/patching/configLocales.js';
 import { replaceStartBeforePropertyKey } from '@/shared/patching/replaceConfigPatchingBlock.js';
 import { PATCH_RENEW_CLI_FILES } from '@/shared/patching/guidance.js';
@@ -374,8 +371,6 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
     );
   }
 
-  const patchingProjectRoot = resolvePatchingProjectRoot(ctx);
-
   if (ctx.config.patching?.enabled && ctx.config.patching.configPath) {
     const configRepair = await repairPatchingConfigLocales({
       config: ctx.config,
@@ -422,28 +417,20 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
     }
   }
 
-  let analysis = await analyzePatchingState({
+  let analysis = await analyzePatchingStateFromContext(ctx, {
     command: 'sync',
     action: 'upsert_locales',
     changedLocaleCodes: [],
-    sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
-    config: ctx.config.patching,
-    runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
-    projectRoot: patchingProjectRoot,
   });
 
   if (opts.fix && ctx.config.patching?.enabled && (analysis.fileOnlyCodes.length > 0 || analysis.configOnlyCodes.length > 0)) {
     const changedFiles = new Set<string>();
     let appliedChanges = 0;
     if (analysis.fileOnlyCodes.length > 0) {
-      const upsert = await runPatching({
+      const upsert = await runPatchingFromContext(ctx, {
         command: 'sync',
         action: 'upsert_locales',
         changedLocaleCodes: analysis.fileOnlyCodes,
-        sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
-        config: ctx.config.patching,
-        runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
-        projectRoot: patchingProjectRoot,
       });
       if (upsert.applied) {
         appliedChanges += analysis.fileOnlyCodes.length;
@@ -451,14 +438,10 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
       }
     }
     if (analysis.configOnlyCodes.length > 0) {
-      const del = await runPatching({
+      const del = await runPatchingFromContext(ctx, {
         command: 'locales-delete',
         action: 'delete_locales',
         changedLocaleCodes: analysis.configOnlyCodes,
-        sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
-        config: ctx.config.patching,
-        runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
-        projectRoot: patchingProjectRoot,
       });
       if (del.applied) {
         appliedChanges += analysis.configOnlyCodes.length;
@@ -469,26 +452,18 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
       `patch --fix summary: ${String(appliedChanges)} config/file drift locale correction(s) applied; ${String(changedFiles.size)} file(s) updated.`,
       run,
     );
-    analysis = await analyzePatchingState({
+    analysis = await analyzePatchingStateFromContext(ctx, {
       command: 'sync',
       action: 'upsert_locales',
       changedLocaleCodes: [],
-      sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
-      config: ctx.config.patching,
-      runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
-      projectRoot: patchingProjectRoot,
     });
   }
 
   if (opts.fix && ctx.config.patching?.enabled && analysis.canAutoPatch) {
-    const regen = await runPatching({
+    const regen = await runPatchingFromContext(ctx, {
       command: 'sync',
       action: 'upsert_locales',
       changedLocaleCodes: [],
-      sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
-      config: ctx.config.patching,
-      runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
-      projectRoot: patchingProjectRoot,
     });
     if (regen.applied) {
       logger.info(
@@ -496,14 +471,10 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
         run,
       );
     }
-    analysis = await analyzePatchingState({
+    analysis = await analyzePatchingStateFromContext(ctx, {
       command: 'sync',
       action: 'upsert_locales',
       changedLocaleCodes: [],
-      sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
-      config: ctx.config.patching,
-      runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
-      projectRoot: patchingProjectRoot,
     });
   }
 

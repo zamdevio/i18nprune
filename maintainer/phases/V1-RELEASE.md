@@ -31,35 +31,19 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 ---
 
-## Session C — Extractor hardening (**shipped** — Session C.1)
+## Session C — Extractor & patching (**shipped**)
 
-**Docs:** [`extractor.md`](./extractor.md) (§0 — design reference; slices C.1.1–C.1.6 **shipped**). User methodology: [`docs/extractor/README.md`](../../docs/extractor/README.md). Maintainer map: [`maintainer/systems/extractor.md`](../systems/extractor.md).
+**Extractor hardening.** **Docs:** [`extractor.md`](./extractor.md) (§0 — design reference). User methodology: [`docs/extractor/README.md`](../../docs/extractor/README.md). Maintainer map: [`maintainer/systems/extractor.md`](../systems/extractor.md). Delivered: import binding resolution, lexical hardening + commented-call parity tests, edge-case inventory, methodology.
 
-Delivered in `packages/core/src/extractor/`: **import binding resolution** (C.1.1–C.1.2, per-file alias-aware `functions` expansion, regex-based), **lexical hardening** (C.1.3–C.1.4, prose false-positive rejection + commented-call parity tests), **edge-case inventory** (C.1.5), **methodology docs** (C.1.6).
+**Patching / auto-patching.** **User docs:** [`docs/patching/README.md`](../../docs/patching/README.md). Maintainer map: [`maintainer/systems/patching.md`](../systems/patching.md). Delivered: integration tests (core chain + CLI **`patch --fix` → `--patch sync` → `--patch generate`**), shared CLI **`Context` → `runPatching`** wiring (`fromContext.ts`), resolver preservation tests, **`config.json`** injection-status docs, core patching types and barrel layout.
 
-**Next in this vertical:** Session **C.2** (patching hardening) — see below.
-
----
-
-## Session C.2 — Patching hardening
-
-**Refs:** [`docs/patching/README.md`](../../docs/patching/README.md) (backlog section).
-
-Patching is already implemented and working. This session hardens it:
-
-| Slice | What |
-|-------|------|
-| Tests | Resolver + loader variants, config injection status cases, optional integration (`init → patch → sync --patch → generate`) |
-| Shared orchestration | One patching handler path for `patch`, `sync --patch`, `generate --patch`, `locales edit --patch`, `locales delete --patch` — centralize envelope + `canAsk` / `--yes` / `--json` |
-| Messaging | Tighten `patch --init` messaging when config injection skips (`skipped_existing`) |
-| Core structure | Optional folder barrels under `packages/core/src/patching/*` (no behavior change) |
-| Docs | Troubleshooting in patching README; mismatch examples in `config.md`; command docs for `--init` injection statuses |
+**Next in this vertical:** Session **C.3** (apps rework) — see below.
 
 ---
 
 ## Session C.3 — Apps rework
 
-Update `apps/web` and `apps/workers/i18nprune` to work with the current core API after heavy Session A/A.2 migrations. Verify imports, types, and runtime adapter usage are current.
+Update **`apps/web`** and **`apps/workers/i18nprune`** (`@i18nprune/worker-i18nprune`, the worker that depends on **`@i18nprune/core`**) to match the current core API after Session A/A.2 migrations. Verify imports, types, and runtime adapter usage. **`apps/workers/meta`** (`@i18nprune/worker-meta`) is a separate HTTP surface (cache/metadata); keep its scripts and types aligned when you touch worker layout, but it is not a **`core`** consumer.
 
 ---
 

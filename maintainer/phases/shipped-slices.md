@@ -21,5 +21,6 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 | **Locales** core migration (`runDynamic`, `runLocalesList`, `writeLocaleMetaEdit`, `deleteLocaleFiles`) | Shipped | — |
 | **Core-op architecture** — all ops migrated to core `runXxx` entries; CLI is thin host | Shipped (Session A.2) | — |
 | **Extractor hardening** (Session C.1 — bindings, orchestrator expansion, prose filter, parity tests, inventory, methodology) | Shipped | [`docs/extractor/README.md`](../../docs/extractor/README.md), [`edge-case inventory`](../../docs/edge-cases/unsolved/inventory.md) |
+| **Patching hardening** (integration tests, shared CLI run wiring, resolver/tests, user docs, core types/barrels) | Shipped | [`docs/patching/README.md`](../../docs/patching/README.md) |
 
 Maintainer sequencing for **remaining** work: **[`V1-RELEASE.md`](./V1-RELEASE.md)**.

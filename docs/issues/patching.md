@@ -29,7 +29,7 @@ The headings below exist so **`docHref`** anchors (e.g. `#config-parse-failed`) 
 ## `config_section_incomplete` {#config-section-incomplete}
 
 **Severity:** `warning`  
-**When:** Your **`i18nprune`** config defines a **`patching`** object, but **`patching.enabled`** is **`false`** (or implied off) while **`configPath`** and/or **`loaderPath`** is empty — so **`--patch`**, **`generate --patch`**, and **`i18nprune patch`** cannot run loader-generated updates. The CLI suppresses **`--patch`** until these fields are set (see **`i18nprune patch --init`**).  
+**When:** Your **`i18nprune`** config defines a **`patching`** object, but **`patching.enabled`** is **`false`** (or implied off) while **`configPath`** and/or **`loaderPath`** is empty — so **`i18nprune --patch …`**, **`i18nprune patch`**, and mutation commands with **`--patch`** cannot run loader-generated updates. The CLI suppresses **`--patch`** until these fields are set (see **`i18nprune patch --init`**).  
 **Who:** **doctor** / **validate** (via **`analyzePatchingState`** with **`--patch`**), **`patch`** analyze path, and **`applyCommandPatching`** when **`--patch`** is passed.  
 **What to do:** Add non-empty **`configPath`** (app **`config.json`**) and **`loaderPath`** (**`loaders.generated.ts`**) under **`patching`**, or remove the stub **`patching`** block until you adopt the recipe.
 

@@ -14,7 +14,8 @@ This page only documents the repository structure and component relationships.
 │   ├── web/                   # Vite + React runtime web console
 │   └── workers/
 │       ├── github/            # Cloudflare Worker: GitHub integration/cache
-│       └── i18nprune/         # Cloudflare Worker: main i18nprune API
+│       ├── i18nprune/         # Cloudflare Worker: project API (uses @i18nprune/core)
+│       └── meta/              # Cloudflare Worker: meta.i18nprune.dev (npm/GitHub/extension cache; no core)
 ├── docs/                      # Authoritative markdown source
 ├── packages/
 │   ├── cli/                   # CLI package
@@ -42,6 +43,6 @@ This page only documents the repository structure and component relationships.
 | `apps/report` | Report UI viewer | `@i18nprune/report` |
 | `apps/landing` | Product landing app | app-local UI modules |
 | `apps/docs` | Primary docs site | root `docs/` content sync |
-| `apps/workers/i18nprune` | Main HTTP API worker | worker runtime + core contracts |
-| `apps/workers/meta` | Public meta worker (GitHub + npm cache) | worker runtime |
+| `apps/workers/i18nprune` | Project / workspace API worker (`@i18nprune/worker-i18nprune`) | `@i18nprune/core`, `@i18nprune/report`, worker runtime |
+| `apps/workers/meta` | Public meta API (`@i18nprune/worker-meta`, meta.i18nprune.dev) | worker runtime only |
 

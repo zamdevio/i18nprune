@@ -9,7 +9,7 @@
 
 - **Types** live in `packages/core/src/types/patching/index.ts` (including `PatchingRunInput`, `PatchingResult`, `ResolvePatchingLocalesResult`, `RepairPatchingConfigLocalesResult`, …). Hosts import these from `@i18nprune/core` / `patching` namespace — **not** from CLI packages.
 - **Engine** (`packages/core/src/patching/`): analyze → plan → apply; **no `console.*`**, no human wording — only `diagnostics` / structured results.
-- **CLI glue:** `packages/cli/src/commands/patch/run.ts` (analyze / `--fix` / `--init`), `packages/cli/src/shared/patching/apply.ts` (`applyCommandPatching` for `generate` / `sync` / `locales edit|delete` with `--patch`), `configLocales.ts` (metadata repair preview + `resolvePatchingConfigLocales`).
+- **CLI glue:** `packages/cli/src/commands/patch/run.ts` (analyze / `--fix` / `--init`), `packages/cli/src/shared/patching/apply.ts` (`applyCommandPatching` for `generate` / `sync` / `locales edit|delete` with `--patch`), `packages/cli/src/shared/patching/fromContext.ts` (shared **`PatchingRunInput`** base from **`Context`** for **`runPatching` / `analyzePatchingState`**), `configLocales.ts` (metadata repair preview + `resolvePatchingConfigLocales`).
 
 ---
 
@@ -26,9 +26,9 @@ Further physical splits are optional; the important surface for hosts is **`@i18
 
 ---
 
-## Orchestration note (Session C.2 backlog)
+## Orchestration (CLI)
 
-**Mutation commands** share **`applyCommandPatching`** (one path for `--patch` + `runPatching` + incomplete-section warnings). The standalone **`patch`** command keeps its own flow for **`--init`**, **`--fix`** drift orchestration, and human/JSON envelopes. Full deduplication of `patch` vs `applyCommandPatching` internals is optional follow-up if envelope parity ever drifts.
+**Mutation commands** share **`applyCommandPatching`** (one path for **`--patch`** + **`runPatching`** + incomplete-section warnings). **`patch`** and **`applyCommandPatching`** both build **`PatchingRunInput`** via **`packages/cli/src/shared/patching/fromContext.ts`** (`runPatchingFromContext` / `analyzePatchingStateFromContext`) so **`sourceLocaleCode`**, **`config`**, **`runtime`**, and **`projectRoot`** stay aligned. The standalone **`patch`** command still owns **`--init`**, **`--fix`** drift orchestration, and human/JSON envelopes.
 
 ---
 
@@ -41,5 +41,5 @@ Further physical splits are optional; the important surface for hosts is **`@i18
 
 ## Cross-links
 
-- Phase backlog: `docs/patching/README.md` § Backlog, `maintainer/phases/active-phase.md` (Session C.2).
+- Phase backlog: `docs/patching/README.md`. Integration tests: `tests/integration/patching.analyzeAndRun.test.ts`, `tests/integration/patching.cliChain.test.ts`.
 - Issue codes: `ISSUE_PATCHING_*` in `packages/core/src/shared/constants/issueCodes.js`.

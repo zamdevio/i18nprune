@@ -4,7 +4,7 @@
 
 **Locked vertical order (extractor → init → locales → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below (same file — no duplicate maintainer-root hub). **init** and **locales** are **planned** (`init.md`, `locales.md`); do not start locales core work before init alignment per [`init.md`](./init.md).
 
-**Narrative focus:** **Patching hardening (Session C.2)** and follow-on verticals — **Extractor hardening (Session C.1)** is **shipped** (bindings, orchestrator wiring, call-site prose filter, parity tests, edge-case inventory, methodology in `docs/extractor/README.md`). Then: apps rework (C.3) → docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
+**Narrative focus:** **Apps rework (Session C.3)** and follow-on verticals — **Extractor** and **auto-patching** are **shipped** (extractor methodology in `docs/extractor/README.md`; patching in `docs/patching/`). Then: docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
 
 **Planned verticals (post-C.1 / cross-session):** **[`init.md`](./init.md)** (Session **F**) → **[`locales.md`](./locales.md)** (Session **H**) → extension consumes stable contracts (**[`extension/README.md`](./extension/README.md)**).
 
@@ -81,17 +81,9 @@ Work delivered: **import binding resolution** (alias-aware per-file `functions` 
 
 ---
 
-## Patching hardening (**Session C.2**)
-
-Harden existing patching: tests, shared orchestration, messaging, core barrels. See [`docs/patching/README.md`](../../docs/patching/README.md) backlog (items marked **Done** / **Pending**).
-
-**Progress:** clearer `patch --init` / `--init --force` warnings when `i18nprune.config.*` injection is `skipped_existing`; resolver regression tests (parse errors + unknown JSON preservation); troubleshooting + injection-status table in patching docs; VitePress nav link to `/extractor/`; **core-owned patching types** (`ResolvePatchingLocalesResult`, `RepairPatchingConfigLocalesResult`, …); **`maintainer/systems/patching.md`**; grouped **`patching/index.ts`** facade; **`LOCALE_REGISTRY`** contract assertion + **`tests/integration/patching.analyzeAndRun.test.ts`**.
-
----
-
 ## Apps rework (**Session C.3**)
 
-Update `apps/web` and `apps/workers/i18nprune` to work with current core API after Session A/A.2 migrations.
+Update **`apps/web`** and **`apps/workers/i18nprune`** (`@i18nprune/worker-i18nprune`) to match the current **`@i18nprune/core`** API after Session A/A.2 migrations. **`apps/workers/meta`** is the **`@i18nprune/worker-meta`** service (no core dependency).
 
 ---
 
@@ -113,7 +105,7 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **Extractor hardening** | **Shipped — Session C.1** | [`extractor.md`](./extractor.md) |
 | **Init phase (onboarding)** | **Planned — Session F** | [`init.md`](./init.md) |
 | **Locales phase (multi-topology)** | **Planned — Session H** | [`locales.md`](./locales.md) |
-| **Patching hardening** | **Session C.2** | [`docs/patching/README.md`](../../docs/patching/README.md) |
+| **Patching hardening** | **Shipped** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |
 
 ---
@@ -131,3 +123,4 @@ Baseline CLI slices + exports parity: **[`shipped-slices.md`](./shipped-slices.m
 - **Cache:** Sub-folder reorganization (`io/`, `setup/`), circular dependency elimination, `baselineFiles` mechanism.
 - **Agents:** Reconstructed `maintainer/agents/` — `architecture.md`, `jsdoc.md`, `rules.md`, `git.md`.
 - **Extractor hardening (Session C.1):** `extractor/bindings/`, orchestrator `functions` expansion, prose first-arg filter in `shared/calls.ts`, dynamic commented-call parity tests, inventory rows — methodology in [`docs/extractor/README.md`](../../docs/extractor/README.md).
+- **Auto-patching hardening:** user-facing [`docs/patching/`](../../docs/patching/README.md); CLI `fromContext` run wiring; integration tests `patching.analyzeAndRun` + `patching.cliChain`; maintainer map [`maintainer/systems/patching.md`](../systems/patching.md).

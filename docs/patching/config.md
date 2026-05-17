@@ -87,11 +87,11 @@ Typical causes:
 
 ## CLI interactions
 
-- `--patch` enables patching for the current mutation command run (overriding config default off for that run).
-- `i18nprune patch` inspects patching health.
-- `i18nprune patch --fix` applies automatic fixable corrections.
-- `i18nprune patch --init` creates missing scaffold files.
-- `i18nprune patch --init --force` renews only CLI-owned files (`config.json`, `loaders.generated.ts`) and resets the patching config block to defaults (add your own integration module next to them if you want — see [loader.md](./loader.md)).
+- **`--patch`** is a **global** flag: place it **before** the subcommand, e.g. **`i18nprune --patch sync`**. It enables patching for that mutation run (overriding **`patching.enabled: false`** for that process).
+- **`i18nprune patch`** inspects patching health.
+- **`i18nprune patch --fix`** applies automatic fixable corrections.
+- **`i18nprune patch --init`** creates missing scaffold files.
+- **`i18nprune patch --init --force`** renews only CLI-owned files (`config.json`, `loaders.generated.ts`) and resets the patching config block to defaults (add your own integration module next to them if you want — see [loader.md](./loader.md)).
 
 ## `patch --init` and `i18nprune.config.*` injection
 

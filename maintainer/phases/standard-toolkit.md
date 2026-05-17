@@ -111,4 +111,4 @@ These goals translate "become the standard" into execution policy:
 - Start-in-60-seconds path: drafted (`docs/onboarding/README.md`) and linked from home hero CTA.
 - Unsolved inventory: scaffolded (`docs/edge-cases/unsolved/inventory.md`).
 - Parity checklist: drafted (`docs/release/parity-checklist/README.md`).
-- Next execution center: `generate`/`fill` hardening, then opt-in patching integration.
+- Next execution center: **Session C.3** (apps rework) per **[`V1-RELEASE.md`](./V1-RELEASE.md)**; **init** / **locales** verticals per hub.

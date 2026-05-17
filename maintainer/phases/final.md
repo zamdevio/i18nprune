@@ -24,9 +24,10 @@
 
 ---
 
-## 3 — App surfaces (**`apps/web`**, **`apps/workers/i18nprune`**)
+## 3 — App surfaces (**`apps/web`**, **`apps/workers/i18nprune`** / **`@i18nprune/worker-i18nprune`**)
 
-- [ ] Quick pass: confirm workspace UI, worker routes, and API typings still match the shipped CLI JSON contracts (validate, locales, report, etc.); fix any drift you find.
+- [ ] Quick pass: confirm workspace UI, **`i18nprune`** worker routes, and API typings still match the shipped CLI JSON contracts (validate, locales, report, etc.); fix any drift you find.
+- [ ] **`apps/workers/meta`** (`@i18nprune/worker-meta`): smoke **`pnpm meta:build`** / route list if you change shared worker tooling.
 
 ---
 

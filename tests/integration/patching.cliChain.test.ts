@@ -1,0 +1,195 @@
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { afterEach, describe, expect, it } from 'vitest';
+
+/**
+ * Spawns **`dist/cli.js`** (requires **`pnpm build`** / CI build). **`generate`** hits the public
+ * MyMemory HTTP API — use **`{ retry, timeout }`** for transient quota; air‑gapped CI may need to
+ * exclude this file from the suite if the job cannot reach the network.
+ */
+const repoRoot = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
+const cliJs = path.join(repoRoot, 'dist/cli.js');
+const tempDirs: string[] = [];
+
+afterEach(() => {
+  for (const dir of tempDirs.splice(0)) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+function mkTemp(): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-patch-cli-'));
+  tempDirs.push(dir);
+  return dir;
+}
+
+/** Combined stdout + stderr (`logger.info` uses **`console.log`** → stdout). */
+function runCliCapture(args: string[], cwd: string): { status: number | null; out: string } {
+  const r = spawnSync(process.execPath, [cliJs, ...args], {
+    cwd,
+    encoding: 'utf8',
+    env: { ...process.env, CI: '1', FORCE_COLOR: '0' },
+  });
+  return { status: r.status, out: `${r.stdout ?? ''}${r.stderr ?? ''}` };
+}
+
+function readLocaleRegistryCodes(loaderPath: string): string[] {
+  const gen = fs.readFileSync(loaderPath, 'utf8');
+  const m = gen.match(/const LOCALE_REGISTRY = (\[[\s\S]*?\])\s+as const;/);
+  expect(m).toBeTruthy();
+  const rows = JSON.parse(m![1]!) as Array<{ code: string }>;
+  return rows.map((r) => r.code);
+}
+
+/**
+ * Minimal project: **`en` + `ar` + `fr`** locale JSON on disk, **`config.json`** lists **`en` only**
+ * (file-only drift). **`patch --fix`** aligns config + loader; **`--patch sync`** and **`--patch generate`**
+ * exercise **`applyCommandPatching`** after real writes.
+ */
+function writePatchingChainFixture(dir: string): void {
+  const i18nDir = path.join(dir, 'src', 'i18n');
+  const localesDir = path.join(dir, 'locales');
+  fs.mkdirSync(i18nDir, { recursive: true });
+  fs.mkdirSync(localesDir, { recursive: true });
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+
+  fs.writeFileSync(
+    path.join(dir, 'locales', 'en.json'),
+    `${JSON.stringify({ k1: 'Hello', k2: 'initial', k3: 'Translate me' }, null, 2)}\n`,
+    'utf8',
+  );
+  fs.writeFileSync(path.join(dir, 'locales', 'fr.json'), '{}\n', 'utf8');
+  fs.writeFileSync(path.join(dir, 'locales', 'ar.json'), '{}\n', 'utf8');
+
+  fs.writeFileSync(
+    path.join(i18nDir, 'config.json'),
+    `${JSON.stringify(
+      {
+        locales: [
+          {
+            code: 'en',
+            englishName: 'English',
+            nativeName: 'English',
+            direction: 'ltr',
+          },
+        ],
+      },
+      null,
+      2,
+    )}\n`,
+    'utf8',
+  );
+  fs.writeFileSync(path.join(i18nDir, 'loaders.generated.ts'), '', 'utf8');
+
+  fs.writeFileSync(
+    path.join(dir, 'src', 'i18n.ts'),
+    `/** Minimal stub — translation calls live in main.ts. */\nfunction translate(key: string): string {\n  return key;\n}\nexport const t = translate;\n`,
+    'utf8',
+  );
+  fs.writeFileSync(
+    path.join(dir, 'src', 'main.ts'),
+    `import { t } from './i18n.js';\nexport const a = () => t('k1');\nexport const b = () => t('k3');\n`,
+    'utf8',
+  );
+
+  fs.writeFileSync(
+    path.join(dir, 'i18nprune.config.mjs'),
+    `export default {
+  source: 'locales/en.json',
+  localesDir: 'locales',
+  src: 'src',
+  functions: ['t'],
+  noLocaleMeta: true,
+  cache: { enabled: false },
+  localeLeaves: { mode: 'legacy_string' },
+  translate: {
+    primary: 'mymemory',
+    workers: 2,
+    providers: [
+      {
+        id: 'mymemory',
+        enabled: true,
+        rateLimit: { maxConcurrency: 2, rpm: 30, rps: 0.5, intervalMs: 500 },
+      },
+    ],
+    policy: {
+      routing: 'single',
+      onRateLimit: 'backoff',
+      onTransientFailure: 'retry',
+      onQuotaExceeded: 'fallback',
+      onAuthFailure: 'abort',
+      onProviderUnavailable: 'fallback',
+      onIdentityOutput: 'flag',
+      onIncompleteRun: 'confirm',
+      handoff: 'auto',
+    },
+  },
+  patching: {
+    enabled: true,
+    recipe: 'loader_generated',
+    mode: 'warn_skip',
+    loaderPath: 'src/i18n/loaders.generated.ts',
+    configPath: 'src/i18n/config.json',
+    localeJsonImportBase: 'locales',
+  },
+};
+`,
+    'utf8',
+  );
+}
+
+describe('patching CLI chain (patch --fix → --patch sync → --patch generate)', () => {
+  it(
+    'runs patch --fix, then --patch sync, then --patch generate with MyMemory (public API)',
+    { retry: 2, timeout: 120_000 },
+    () => {
+      const dir = mkTemp();
+      writePatchingChainFixture(dir);
+
+      const fix = runCliCapture(['patch', '--fix', '--yes'], dir);
+      expect(fix.status).toBe(0);
+
+      const configPath = path.join(dir, 'src', 'i18n', 'config.json');
+      const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8')) as { locales: Array<{ code: string }> };
+      const codes = cfg.locales.map((r) => r.code).sort();
+      expect(codes).toEqual(['ar', 'en', 'fr'].sort());
+
+      const loaderPath = path.join(dir, 'src', 'i18n', 'loaders.generated.ts');
+      expect(readLocaleRegistryCodes(loaderPath).sort()).toEqual(codes);
+
+      const enPath = path.join(dir, 'locales', 'en.json');
+      const en = JSON.parse(fs.readFileSync(enPath, 'utf8')) as Record<string, string>;
+      en.k2 = 'synced-value';
+      fs.writeFileSync(enPath, `${JSON.stringify(en, null, 2)}\n`, 'utf8');
+
+      const sync = runCliCapture(['--patch', 'sync', '--yes', '--target', 'fr'], dir);
+      expect(sync.status).toBe(0);
+      expect(sync.out).toMatch(/patching \(sync\)/);
+
+      const frAfterSync = JSON.parse(fs.readFileSync(path.join(dir, 'locales', 'fr.json'), 'utf8')) as Record<
+        string,
+        unknown
+      >;
+      expect(frAfterSync.k2).toBeDefined();
+
+      const gen = spawnSync(process.execPath, [cliJs, '--patch', 'generate', '--yes', '--target', 'fr'], {
+        cwd: dir,
+        encoding: 'utf8',
+        env: { ...process.env, CI: '1', FORCE_COLOR: '0' },
+      });
+      expect(gen.status).toBe(0);
+      const genOut = `${gen.stdout ?? ''}${gen.stderr ?? ''}`;
+      expect(genOut).toMatch(/patching \(generate\)/);
+
+      const frAfterGen = JSON.parse(fs.readFileSync(path.join(dir, 'locales', 'fr.json'), 'utf8')) as Record<
+        string,
+        unknown
+      >;
+      expect(frAfterGen.k3).toBeDefined();
+      expect(typeof frAfterGen.k3 === 'string' || (frAfterGen.k3 && typeof frAfterGen.k3 === 'object')).toBe(true);
+    },
+  );
+});

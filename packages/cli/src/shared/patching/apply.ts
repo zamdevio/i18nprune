@@ -1,9 +1,8 @@
-import { buildPatchingSectionIncompleteDiagnostic, runPatching } from '@i18nprune/core';
+import { buildPatchingSectionIncompleteDiagnostic } from '@i18nprune/core';
 import type { PatchingAction, PatchingCommandName, PatchingLocaleRecord, PatchingResult } from '@i18nprune/core';
-import { getDisplaySourceLocaleCode } from '@/shared/locales/index.js';
 import { getCliGlobalOverrides } from '@/shared/context/globals.js';
 import { patchingNotAppliedMessage, PATCH_INSPECT_THEN_FIX } from '@/shared/patching/guidance.js';
-import { resolvePatchingProjectRoot } from '@/shared/patching/scaffoldI18nLayout.js';
+import { runPatchingFromContext } from '@/shared/patching/fromContext.js';
 import { logger } from '@/utils/logger/index.js';
 import type { Context } from '@/types/core/context/index.js';
 
@@ -40,15 +39,11 @@ export async function applyCommandPatching(input: ApplyCommandPatchingInput): Pr
     return undefined;
   }
 
-  const out = await runPatching({
+  const out = await runPatchingFromContext(ctx, {
     command,
     action,
     changedLocaleCodes: localeCodes,
     upsertLocaleRecords,
-    sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
-    config: ctx.config.patching,
-    runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
-    projectRoot: resolvePatchingProjectRoot(ctx),
   });
   for (const msg of asWarnMessages(out)) {
     ctx.meta.warnings.push(msg);
