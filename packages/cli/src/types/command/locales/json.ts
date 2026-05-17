@@ -1,13 +1,5 @@
 import type { DynamicKeySite } from '@i18nprune/core';
 
-export type LocalesEditJsonRow = {
-  target: string;
-  profileSource: 'meta' | 'catalog';
-  before: { englishName: string; nativeName: string; direction: 'ltr' | 'rtl' };
-  after: { englishName: string; nativeName: string; direction: 'ltr' | 'rtl' };
-  metaPath: string;
-};
-
 export type LocalesListJsonRow = {
   code: string;
   localePath: string;
@@ -24,21 +16,6 @@ export type LocalesListJsonPayload = {
   localeCount: number;
   targetLocaleCount: number;
   rows: LocalesListJsonRow[];
-};
-
-export type LocalesEditJsonPayload = {
-  kind: 'locales-edit';
-  target: string | null;
-  targets: string[];
-  skippedTargets: string[];
-  updated: number;
-  mode: 'meta_updated';
-  profileSource: 'meta' | 'catalog';
-  before: { englishName: string; nativeName: string; direction: 'ltr' | 'rtl' } | null;
-  after: { englishName: string; nativeName: string; direction: 'ltr' | 'rtl' } | null;
-  metaPath: string | null;
-  rows: LocalesEditJsonRow[];
-  supportsAutoPatching: true;
 };
 
 export type LocalesDynamicJsonPayload = {
@@ -58,7 +35,6 @@ export type LocalesDeleteJsonPayload = {
   kind: 'locales-delete';
   targets: string[];
   deletedJson: number;
-  deletedMeta: number;
   aborted: boolean;
   supportsAutoPatching: false;
 };

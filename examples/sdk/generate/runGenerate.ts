@@ -123,7 +123,6 @@ const host: GenerateHostHooks = {
   shouldSkipInteractivePrompts: () => true,
   canAskInteractive: () => false,
 
-  promptMetaLocaleDetails: async (defaults) => defaults,
   promptFullRetranslate: async () => false,
 
   printPreserveParityReport: () => {},

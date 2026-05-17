@@ -8,7 +8,6 @@ import { languageOftenRtl } from '../shared/languages/rtlHint.js';
 import { deepClone } from '../shared/json/index.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { targetLocaleCoversAllSourcePaths } from '../shared/json/targetCoverage.js';
-import { readJsonFromRuntimeFsSync } from '../runtime/helpers/sync/readJson.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
 import { primarySegmentForLocale } from '../shared/locales/targets/index.js';
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
@@ -50,7 +49,6 @@ import { TRANSLATE_POLICY_DEFAULTS } from '../types/translator/policy.js';
 import { createProviderHealthMonitor } from '../shared/translator/utils/providerHealth.js';
 import { IdentityAbortError } from '../translator/identity/error.js';
 import type { IdentityStreakGuard } from '../translator/identity/guard.js';
-import { writeRuntimeJsonPretty } from './io/writeRuntimeJson.js';
 import { runGenerateResumeLocale } from './resume/run.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { emitRunMessage } from '../shared/run/index.js';
@@ -82,10 +80,6 @@ function resolveGenerateSourcePath(ctx: CoreContext, sourceOverride: string | un
   return ctx.adapters.path.isAbsolute(sourceOverride)
     ? sourceOverride
     : ctx.adapters.path.resolve(cwd, sourceOverride);
-}
-
-function shouldSkipLocaleMetaSidecar(opts: { noLocaleMeta?: boolean }, config: { noLocaleMeta?: boolean }): boolean {
-  return opts.noLocaleMeta === true || config.noLocaleMeta === true;
 }
 
 /**
@@ -158,7 +152,6 @@ export async function runGenerate(
     path: ctx.adapters.path,
   });
 
-  const skipLocaleMetaSidecar = shouldSkipLocaleMetaSidecar(opts, ctx.config);
   const translateCfg = ctx.config.translate;
   if (!translateCfg) {
     throw new I18nPruneError('config.translate is required for generate', 'USAGE');
@@ -224,33 +217,7 @@ export async function runGenerate(
     const targetPath =
       primarySegmentForLocale(ctx, target)?.absolutePath ??
       ctx.adapters.path.join(ctx.paths.localesDir, `${target}.json`);
-    const metaPath = skipLocaleMetaSidecar ? null : ctx.adapters.path.join(ctx.paths.localesDir, `${target}.meta.json`);
     const targetJsonExists = existsRuntimeFsSync(targetPath, ctx.adapters.fs);
-    const metaSidecarExists = metaPath !== null && existsRuntimeFsSync(metaPath, ctx.adapters.fs);
-
-    if (metaSidecarExists) {
-      const prev = readJsonFromRuntimeFsSync(metaPath, ctx.adapters.fs);
-      if (prev && typeof prev === 'object') {
-        const p = prev as { englishName?: unknown; nativeName?: unknown; direction?: unknown };
-        if (typeof p.englishName === 'string' && p.englishName.trim() !== '') englishName = p.englishName;
-        if (typeof p.nativeName === 'string' && p.nativeName.trim() !== '') nativeName = p.nativeName;
-        if (p.direction === 'ltr' || p.direction === 'rtl') direction = p.direction;
-      }
-    }
-
-    if (
-      !opts.resume &&
-      opts.ask === true &&
-      !opts.force &&
-      !host.shouldSkipInteractivePrompts() &&
-      host.canAskInteractive() &&
-      metaPath !== null
-    ) {
-      const meta = await host.promptMetaLocaleDetails({ englishName, nativeName, direction });
-      englishName = meta.englishName;
-      nativeName = meta.nativeName;
-      direction = meta.direction;
-    }
 
     const existingRaw = targetJsonExists ? readLocaleJsonFromContextSync(ctx, targetPath) : null;
     let forceTarget = Boolean(opts.force);
@@ -300,10 +267,6 @@ export async function runGenerate(
         eff,
         refCtx: opts.resumeReference!,
         targetPath,
-        metaPath,
-        englishName,
-        nativeName,
-        direction,
         targetStarted,
       });
       streakIssues.push(...resumeIssues);
@@ -316,9 +279,7 @@ export async function runGenerate(
         nativeName,
         direction,
         targetPath,
-        metaPath,
         leafCount: row.progress?.processedLeafCount ?? 0,
-        showMeta: true,
         dryRun: opts.dryRun,
       });
       continue;
@@ -731,10 +692,6 @@ export async function runGenerate(
     if (!opts.dryRun) {
       emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: targetPath });
       writeLocaleJsonFromContextSync(ctx, targetPath, working);
-      if (metaPath !== null) {
-        emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: metaPath });
-        writeRuntimeJsonPretty(metaPath, { lang: target, englishName, nativeName, direction }, ctx.adapters);
-      }
     }
 
     host.printPreserveParityReport(preserveCount, paritySkip);
@@ -744,9 +701,7 @@ export async function runGenerate(
       nativeName,
       direction,
       targetPath,
-      metaPath,
       leafCount: sourceLeaves.length,
-      showMeta: true,
       dryRun: opts.dryRun,
     });
 
@@ -777,7 +732,7 @@ export async function runGenerate(
       winnerProviderId,
       fallbackCount: Math.max(0, (providerAttempts?.length ?? 0) - 1),
       markedForReview: translateResult.markedForReview,
-      paths: { localeJson: targetPath, metaJson: metaPath },
+      paths: { localeJson: targetPath },
       localeMetadata: normalizedReport,
       ...(targetHadPartialWrite ? { partial: true } : {}),
     });

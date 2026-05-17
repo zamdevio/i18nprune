@@ -15,17 +15,19 @@ describe('parseI18nPruneConfig', () => {
     expect(c.functions).toEqual(['t']);
   });
 
-  it('accepts optional noLocaleMeta', () => {
+  it('accepts optional locales mode and structure', () => {
     const c = parseI18nPruneConfig({
       locales: {
-        source: 'locales/en.json',
-        directory: 'locales',
+        source: 'messages/en/common.json',
+        directory: 'messages',
+        mode: 'locale_directory',
+        structure: 'feature_bundle',
       },
       src: 'src',
       functions: ['t'],
-      noLocaleMeta: true,
     });
-    expect(c.noLocaleMeta).toBe(true);
+    expect(c.locales.mode).toBe('locale_directory');
+    expect(c.locales.structure).toBe('feature_bundle');
   });
 
   it('rejects empty functions', () => {

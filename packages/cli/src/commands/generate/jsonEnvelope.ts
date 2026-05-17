@@ -201,7 +201,6 @@ export async function executeCore(
       force: merged.force,
       dryRun: merged.dryRun,
       metadata: merged.metadata,
-      noLocaleMeta: merged.noLocaleMeta,
       ask: merged.ask,
       resume: merged.resume === true ? true : undefined,
       resumeReference,

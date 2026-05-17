@@ -1,4 +1,4 @@
-import { extractor, mergePartialConfigIntoBase } from '@i18nprune/core';
+import { buildLocaleJsonByTagFromArchive, extractor, mergePartialConfigIntoBase } from '@i18nprune/core';
 import { edgePathRuntime } from '@i18nprune/core/runtime/edge';
 import type { Hono } from 'hono';
 import type { ProjectStoreRow } from '../../lib/do';
@@ -6,7 +6,7 @@ import { hex16Id, parseZipToSnapshot, sha256Hex } from '../../lib/project';
 import { ApiResponse } from '../../response';
 import { projectStore } from '../shared/store';
 import type { WorkerEnv } from '../types';
-import { basenameNoExt, configHash, normalizeConfig, parseUploadFailure, relativeProjectPath } from './shared';
+import { configHash, normalizeConfig, parseUploadFailure, relativeProjectPath } from './shared';
 
 export function uploadRoute(app: Hono<WorkerEnv>): void {
   app.post('/v1/projects', async (c) => {
@@ -122,24 +122,20 @@ export function uploadRoute(app: Hono<WorkerEnv>): void {
 
     snapshot.sourceLocaleJson = sourceLocaleJson as Record<string, unknown>;
     const localesRootAbs = edgePathRuntime.resolve('/project', normalized.localesDir);
-    const localesRootPrefix = localesRootAbs.endsWith('/') ? localesRootAbs : `${localesRootAbs}/`;
-    const localeJsonByTag: Record<string, Record<string, unknown>> = {};
-    for (const relPath of Object.keys(parsedUpload.textFiles)) {
-      if (!relPath.endsWith('.json')) continue;
-      const absPath = edgePathRuntime.resolve('/project', relPath);
-      if (absPath !== localesRootAbs && !absPath.startsWith(localesRootPrefix)) continue;
-      const raw = parsedUpload.textFiles[relPath];
-      if (typeof raw !== 'string') continue;
-      try {
-        const parsed = JSON.parse(raw) as unknown;
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) continue;
-        const tag = basenameNoExt(relPath);
-        localeJsonByTag[tag] = parsed as Record<string, unknown>;
-      } catch {
-        /* ignore invalid locale json; route-level operations can still use available valid locales */
-      }
-    }
-    snapshot.localeJsonByTag = localeJsonByTag;
+    snapshot.localeJsonByTag = buildLocaleJsonByTagFromArchive({
+      localesDirAbsolute: localesRootAbs,
+      sourceLocaleAbsolute: sourceAbs,
+      archiveRelPaths: Object.keys(parsedUpload.textFiles),
+      resolveArchiveAbsolute: (rel) => edgePathRuntime.resolve('/project', rel),
+      path: edgePathRuntime,
+      locales: {
+        source: normalized.source,
+        directory: normalized.localesDir,
+        mode: normalized.localesMode,
+        structure: normalized.localesStructure,
+      },
+      readText: (rel) => parsedUpload.textFiles[rel],
+    });
     snapshot.extraction = {
       configHash: await configHash(normalized),
       sourceLocalePath: normalized.source,

@@ -10,9 +10,9 @@ export type GenerateOptions = {
   source?: string;
   /** Preferred alias for locale targets (single code or comma-separated list). */
   target?: string;
-  /** English UI label in `.meta.json`; default from the languages catalog for `--target` when omitted. */
+  /** English display label override; default from the languages catalog for `--target` when omitted. */
   englishName?: string;
-  /** Native endonym in `.meta.json`; default from the languages catalog for `--target` when omitted. */
+  /** Native endonym override; default from the languages catalog for `--target` when omitted. */
   nativeName?: string;
   /** Layout direction for consumers (`document.dir`); default `ltr`. */
   direction?: 'ltr' | 'rtl';
@@ -22,13 +22,11 @@ export type GenerateOptions = {
   dryRun?: boolean;
   /** Write/repair structured locale leaves (`{ value, status, confidence, needsReview, source }`). */
   metadata?: boolean;
-  /** Skip writing **`<lang>.meta.json`** (merged with **`config.noLocaleMeta`**; either **`true`** skips). */
-  noLocaleMeta?: boolean;
   /** Top-up existing locale JSON. Use CLI **`--resume`** only. */
   resume?: boolean;
   /** With **`resume`**: process all non-source locales under **`localesDir`**. */
   all?: boolean;
-  /** Normal generate: ask to edit locale meta defaults. With **`resume`**: confirm before processing. */
+  /** With **`resume`**: confirm before processing targets. */
   ask?: boolean;
 };
 

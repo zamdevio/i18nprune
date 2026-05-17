@@ -73,7 +73,6 @@ type WebviewMessage = {
   force?: boolean;
   provider?: string;
   workers?: number;
-  noLocaleMeta?: boolean;
   source?: string;
   configOverrides?: unknown;
   /** See {@link requestConfigPreview} from webview Settings. */
@@ -352,7 +351,6 @@ export function attachDashboardWebview(
           force: raw.force,
           provider: raw.provider,
           workers: raw.workers,
-          noLocaleMeta: raw.noLocaleMeta,
           source: raw.source,
           configOverrides: raw.configOverrides,
         },

@@ -52,16 +52,8 @@ export type GenerateFinalizeSummaryInput = {
   nativeName: string;
   direction: 'ltr' | 'rtl';
   targetPath: string;
-  metaPath: string | null;
   leafCount: number;
-  showMeta: boolean;
   dryRun?: boolean;
-};
-
-export type MetaLocaleDefaults = {
-  englishName: string;
-  nativeName: string;
-  direction: 'ltr' | 'rtl';
 };
 
 /**
@@ -92,7 +84,6 @@ export type GenerateHostHooks = {
   shouldSkipInteractivePrompts: () => boolean;
   canAskInteractive: () => boolean;
 
-  promptMetaLocaleDetails: (defaults: MetaLocaleDefaults) => Promise<MetaLocaleDefaults>;
   promptFullRetranslate: () => Promise<boolean>;
 
   printPreserveParityReport: (preserveCount: number, paritySkip: number) => void;
@@ -128,7 +119,7 @@ export type GenerateTargetJsonRow = {
   winnerProviderId?: TranslationProviderId;
   fallbackCount?: number;
   markedForReview?: number;
-  paths?: { localeJson: string; metaJson: string | null };
+  paths?: { localeJson: string };
   localeMetadata?: LocaleMetadataReport;
 };
 
@@ -166,8 +157,7 @@ export type GenerateRunOptions = {
   readonly force?: boolean;
   readonly dryRun?: boolean;
   readonly metadata?: boolean;
-  readonly noLocaleMeta?: boolean;
-  /** With normal **`generate`** only: ask for editable locale meta defaults (English/native/direction). */
+  /** With **`--resume`**: confirm before processing targets. */
   readonly ask?: boolean;
   /**
    * Top-up existing locale JSON (review-eligible leaves only). Requires existing **`&lt;target&gt;.json`**.

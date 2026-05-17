@@ -44,7 +44,6 @@ export function defineConfig(config: Partial<I18nPruneConfig>): I18nPruneConfig 
   const merged = {
     ...DEFAULT_CONFIG,
     ...config,
-    noLocaleMeta: config.noLocaleMeta ?? DEFAULT_CONFIG.noLocaleMeta,
     functions: config.functions?.length ? config.functions : DEFAULT_CONFIG.functions,
     policies: { ...DEFAULT_CONFIG.policies, ...config.policies },
     reference: {

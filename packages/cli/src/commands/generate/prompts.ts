@@ -13,45 +13,6 @@ export async function promptLanguageCodeOnly(run?: RunOptions): Promise<string> 
   );
 }
 
-export async function promptMetaLocaleDetails(
-  defaults: { englishName: string; nativeName: string; direction: 'ltr' | 'rtl' },
-  run?: RunOptions,
-): Promise<{
-  englishName: string;
-  nativeName: string;
-  direction: 'ltr' | 'rtl';
-}> {
-  logger.decorative.dim(
-    '  English label, native endonym, and text direction for .meta.json (Enter = catalog defaults).',
-    run,
-  );
-  const englishName = await duringPrompt(() =>
-    input({
-      message: 'English name',
-      default: defaults.englishName,
-      validate: (v) => (v.trim() ? true : 'Required'),
-    }),
-  );
-  const nativeName = await duringPrompt(() =>
-    input({
-      message: 'Native name',
-      default: defaults.nativeName,
-      validate: (v) => (v.trim() ? true : 'Required'),
-    }),
-  );
-  const direction = await duringPrompt(() =>
-    select({
-      message: 'Direction',
-      choices: [
-        { value: 'ltr' as const, name: 'ltr — left-to-right' },
-        { value: 'rtl' as const, name: 'rtl — right-to-left' },
-      ],
-      default: defaults.direction,
-    }),
-  );
-  return { englishName, nativeName, direction };
-}
-
 export async function promptFullRetranslate(): Promise<boolean> {
   return duringPrompt(() =>
     confirm({

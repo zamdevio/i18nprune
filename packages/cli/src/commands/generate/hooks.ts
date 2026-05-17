@@ -18,10 +18,7 @@ import {
   logIdentityStreakAbortNoWriteNotice,
 } from '@/shared/translator/identity.js';
 
-import {
-  promptFullRetranslate,
-  promptMetaLocaleDetails,
-} from '@/commands/generate/prompts.js';
+import { promptFullRetranslate } from '@/commands/generate/prompts.js';
 import {
   printGenerateFinalizeSummary,
   printPreserveParityReport,
@@ -57,7 +54,6 @@ export function buildGenerateHostHooks(ctx: Context, runtime: GenerateRuntime): 
     shouldSkipInteractivePrompts: () => getCliYesFlag(),
     canAskInteractive: () => canAsk(ctx.run),
 
-    promptMetaLocaleDetails: (defaults) => promptMetaLocaleDetails(defaults, ctx.run),
     promptFullRetranslate,
 
     printPreserveParityReport: (preserve, parity) =>

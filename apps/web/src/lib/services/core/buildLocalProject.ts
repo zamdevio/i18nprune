@@ -1,4 +1,11 @@
-import { buildReviewJsonData, extractor, mergePartialConfigIntoBase, resolveMissingPathsPlan, validate } from '@i18nprune/core';
+import {
+  buildLocaleJsonByTagFromArchive,
+  buildReviewJsonData,
+  extractor,
+  mergePartialConfigIntoBase,
+  resolveMissingPathsPlan,
+  validate,
+} from '@i18nprune/core';
 import { webPathRuntime } from '@i18nprune/core/runtime/web';
 import {
   PROJECT_REPORT_KIND,
@@ -99,24 +106,20 @@ export async function buildLocalProjectFromZip(
 
   snapshot.sourceLocaleJson = sourceLocaleJson as Record<string, unknown>;
   const localesRootAbs = webPathRuntime.resolve('/project', normalized.localesDir);
-  const localesRootPrefix = localesRootAbs.endsWith('/') ? localesRootAbs : `${localesRootAbs}/`;
-  const localeJsonByTag: Record<string, Record<string, unknown>> = {};
-  for (const relPath of Object.keys(parsedUpload.textFiles)) {
-    if (!relPath.endsWith('.json')) continue;
-    const absPath = webPathRuntime.resolve('/project', relPath);
-    if (absPath !== localesRootAbs && !absPath.startsWith(localesRootPrefix)) continue;
-    const raw = parsedUpload.textFiles[relPath];
-    if (typeof raw !== 'string') continue;
-    try {
-      const parsed = JSON.parse(raw) as unknown;
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) continue;
-      const tag = basenameNoExt(relPath);
-      localeJsonByTag[tag] = parsed as Record<string, unknown>;
-    } catch {
-      /* ignore */
-    }
-  }
-  snapshot.localeJsonByTag = localeJsonByTag;
+  snapshot.localeJsonByTag = buildLocaleJsonByTagFromArchive({
+    localesDirAbsolute: localesRootAbs,
+    sourceLocaleAbsolute: sourceAbs,
+    archiveRelPaths: Object.keys(parsedUpload.textFiles),
+    resolveArchiveAbsolute: (rel) => webPathRuntime.resolve('/project', rel),
+    path: webPathRuntime,
+    locales: {
+      source: normalized.source,
+      directory: normalized.localesDir,
+      mode: normalized.localesMode,
+      structure: normalized.localesStructure,
+    },
+    readText: (rel) => parsedUpload.textFiles[rel],
+  });
   snapshot.extraction = {
     configHash: await configHash(normalized),
     sourceLocalePath: normalized.source,

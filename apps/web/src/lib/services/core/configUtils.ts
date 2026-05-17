@@ -5,6 +5,8 @@ export type NormalizedConfig = {
   source: string;
   src: string;
   localesDir: string;
+  localesMode?: 'flat_file' | 'locale_directory';
+  localesStructure?: 'locale_file' | 'locale_per_dir' | 'feature_bundle';
   functions: string[];
   exclude?: ScanExcludeConfig;
 };
@@ -29,6 +31,11 @@ export function normalizeConfig(input: Record<string, unknown> | null): Normaliz
   const lo = locales as Record<string, unknown>;
   const source = typeof lo.source === 'string' ? lo.source : null;
   const localesDir = typeof lo.directory === 'string' ? lo.directory : null;
+  const localesMode = lo.mode === 'flat_file' || lo.mode === 'locale_directory' ? lo.mode : undefined;
+  const localesStructure =
+    lo.structure === 'locale_file' || lo.structure === 'locale_per_dir' || lo.structure === 'feature_bundle'
+      ? lo.structure
+      : undefined;
   const src = typeof input.src === 'string' ? input.src : null;
   const functions = Array.isArray(input.functions)
     ? input.functions.filter((x): x is string => typeof x === 'string' && x.length > 0)
@@ -38,6 +45,8 @@ export function normalizeConfig(input: Record<string, unknown> | null): Normaliz
     source,
     src,
     localesDir,
+    localesMode,
+    localesStructure,
     functions,
     exclude: (input.exclude ?? undefined) as ScanExcludeConfig | undefined,
   };

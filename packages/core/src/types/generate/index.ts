@@ -12,7 +12,6 @@ export type {
   GenerateRunResult,
   GenerateTargetJsonRow,
   GenerateTargetProgressSummary,
-  MetaLocaleDefaults,
   ProviderAttemptReportJson,
 } from './generateRun.js';
 

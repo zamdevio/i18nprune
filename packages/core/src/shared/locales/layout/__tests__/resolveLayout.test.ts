@@ -16,15 +16,13 @@ describe('resolveLocalesLayout', () => {
     expect(layout.directoryAbsolute).toBe('/proj/locales');
   });
 
-  it('defaults structure locale_per_dir for locale_directory mode', () => {
-    const layout = resolveLocalesLayout(
-      { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory' },
-      '/proj/messages',
-    );
-    expect(layout.mode).toBe('locale_directory');
-    expect(layout.structure).toBe('locale_per_dir');
-    expect(isLocalesLayoutWriteSupported(layout)).toBe(true);
-    expect(isLocalesLayoutReadSupported(layout)).toBe(true);
+  it('throws when locale_directory mode omits structure', () => {
+    expect(() =>
+      resolveLocalesLayout(
+        { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory' },
+        '/proj/messages',
+      ),
+    ).toThrow(/locales\.structure is required/);
   });
 
   it('supports flat_file + locale_file for read and write', () => {

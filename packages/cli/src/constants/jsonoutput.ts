@@ -19,7 +19,6 @@ export const COMMANDS_WITH_JSON_OUTPUT = new Set([
   'report',
   // `locales` subcommands use these leaf command names in Commander.
   'list',
-  'edit',
   'dynamic',
   'delete',
 ]);

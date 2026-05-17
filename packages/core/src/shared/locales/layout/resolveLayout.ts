@@ -1,17 +1,14 @@
 import type { LocalesFilesystemConfig } from '../../../config/schema/root.js';
 import type { CoreContext } from '../../../types/context/index.js';
-import type { LocalesLayoutMode, LocalesLayoutStructure, ResolvedLocalesLayout } from '../../../types/locales/layout.js';
-
-function defaultStructureForMode(mode: LocalesLayoutMode): LocalesLayoutStructure {
-  return mode === 'flat_file' ? 'locale_file' : 'locale_per_dir';
-}
+import type { LocalesLayoutMode, ResolvedLocalesLayout } from '../../../types/locales/layout.js';
+import { localesMode, resolveLocalesStructure } from './requireStructure.js';
 
 export function resolveLocalesLayout(
   config: LocalesFilesystemConfig,
   directoryAbsolute: string,
 ): ResolvedLocalesLayout {
-  const mode: LocalesLayoutMode = config.mode ?? 'flat_file';
-  const structure: LocalesLayoutStructure = config.structure ?? defaultStructureForMode(mode);
+  const mode: LocalesLayoutMode = localesMode(config);
+  const structure = resolveLocalesStructure(config);
   return { mode, structure, directoryAbsolute, config };
 }
 

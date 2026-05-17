@@ -13,6 +13,9 @@ export const ISSUE_PROJECT_CONFIG_FILE_MISSING = 'i18nprune.project.config_file_
 export const ISSUE_PROJECT_SOURCE_LOCALE_UNAVAILABLE = 'i18nprune.project.source_locale_unavailable' as const;
 export const ISSUE_PROJECT_LOCALES_DIR_UNAVAILABLE = 'i18nprune.project.locales_dir_unavailable' as const;
 export const ISSUE_PROJECT_SRC_ROOT_UNAVAILABLE = 'i18nprune.project.src_root_unavailable' as const;
+/** `locales.mode` is `locale_directory` but `locales.structure` is missing (required — no implicit guess). */
+export const ISSUE_PROJECT_LOCALES_STRUCTURE_REQUIRED =
+  'i18nprune.project.locales_structure_required' as const;
 export const ISSUE_SCAN_DYNAMIC_KEY_SITES = 'i18nprune.scan.dynamic_key_sites' as const;
 export const ISSUE_MISSING_PATHS_NOT_IN_SCAN = 'i18nprune.missing.paths_not_in_current_scan' as const;
 export const ISSUE_SYNC_LOCALE_FILE_NOT_FOUND = 'i18nprune.sync.locale_file_not_found' as const;

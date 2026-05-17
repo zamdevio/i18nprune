@@ -50,7 +50,6 @@ export type {
   ResolvedPatchingConfig,
 } from '../types/patching/index.js';
 export type { LocaleListRow } from '../locales/summary.js';
-export type { LocaleMetaProfile } from '../locales/metaProfile.js';
 export type { ResolveLocaleTargetCodesInput } from '../locales/targets.js';
 export type { ResolveResumeTargetCodesFromRawInput } from '../locales/resumeTargets.js';
 export type { AssertGenerateTargetCodesInput } from '../locales/generateTargets.js';

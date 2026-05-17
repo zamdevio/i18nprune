@@ -63,7 +63,6 @@ type GenerateProgressMsg = {
 type ConfirmRow = {
   target: string;
   localeJson?: string;
-  metaJson: string | null | undefined;
 };
 
 function parseConfirmRows(m: GenerateFinishedMsg): ConfirmRow[] {
@@ -72,12 +71,11 @@ function parseConfirmRows(m: GenerateFinishedMsg): ConfirmRow[] {
   return raw.map((row) => {
     const r = row as {
       target?: string;
-      paths?: { localeJson?: string; metaJson?: string | null };
+      paths?: { localeJson?: string };
     };
     return {
       target: typeof r.target === 'string' ? r.target : '?',
       localeJson: r.paths?.localeJson,
-      metaJson: r.paths?.metaJson,
     };
   });
 }
@@ -86,7 +84,6 @@ function uniquePaths(rows: ConfirmRow[]): string[] {
   const out: string[] = [];
   for (const r of rows) {
     if (r.localeJson) out.push(r.localeJson);
-    if (r.metaJson) out.push(r.metaJson);
   }
   return [...new Set(out)];
 }
@@ -108,7 +105,6 @@ export default function GeneratePage({
   const [metadata, setMetadata] = useState(true);
   const [resume, setResume] = useState(false);
   const [force, setForce] = useState(false);
-  const [noLocaleMeta, setNoLocaleMeta] = useState(false);
   const [providerPin, setProviderPin] = useState('');
   const [workers, setWorkers] = useState('');
   const [sourceOverride, setSourceOverride] = useState('');
@@ -258,7 +254,6 @@ export default function GeneratePage({
       metadata,
       resume,
       force,
-      noLocaleMeta,
       source: sourceOverride.trim() || undefined,
       configOverrides,
       provider: providerPin || undefined,
@@ -270,7 +265,6 @@ export default function GeneratePage({
     metadata,
     resume,
     force,
-    noLocaleMeta,
     sourceOverride,
     configOverridesJson,
     providerPin,
@@ -428,11 +422,6 @@ export default function GeneratePage({
         <ToggleRow label="Metadata sidecars" checked={metadata} onChange={setMetadata} />
         <ToggleRow label="Resume / top-up" checked={resume} onChange={setResume} />
         <ToggleRow label="Force" checked={force} onChange={setForce} />
-        <ToggleRow
-          label="Skip locale meta files (noLocaleMeta)"
-          checked={noLocaleMeta}
-          onChange={setNoLocaleMeta}
-        />
       </section>
 
       <section className="rounded border border-vsc-border bg-vsc-sidebar/40 p-4 space-y-3">
@@ -564,11 +553,6 @@ export default function GeneratePage({
                       {r.localeJson ? (
                         <div className="font-mono text-[10px] text-vsc-text break-all">locale: {r.localeJson}</div>
                       ) : null}
-                      {r.metaJson ? (
-                        <div className="font-mono text-[10px] text-vsc-text-muted break-all">meta: {r.metaJson}</div>
-                      ) : (
-                        <div className="text-[10px] text-vsc-text-muted italic">meta: (none)</div>
-                      )}
                     </li>
                   ))}
                 </ul>

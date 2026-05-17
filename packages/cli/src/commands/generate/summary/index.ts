@@ -26,9 +26,7 @@ export function printGenerateFinalizeSummary(
     nativeName: string;
     direction: 'ltr' | 'rtl';
     targetPath: string;
-    metaPath: string | null;
     leafCount: number;
-    showMeta: boolean;
     dryRun?: boolean;
   },
   run?: RunOptions,
@@ -41,15 +39,9 @@ export function printGenerateFinalizeSummary(
       `dry-run: no locale files written — would write ${opts.targetPath} (${String(opts.leafCount)} leaves).`,
       r,
     );
-    if (opts.showMeta && opts.metaPath) {
-      logger.info(`dry-run: would write ${opts.metaPath}`, r);
-    }
     logger.info(sub, r);
     return;
   }
   logger.info(sub, r);
   logger.info(`Wrote ${opts.targetPath} (${String(opts.leafCount)} leaves).`, r);
-  if (opts.showMeta && opts.metaPath) {
-    logger.info(`Meta: ${opts.metaPath}`, r);
-  }
 }

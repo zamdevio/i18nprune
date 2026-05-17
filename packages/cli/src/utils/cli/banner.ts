@@ -30,7 +30,6 @@ export const COMMAND_BANNER_LABELS: Record<string, CommandBannerSpec> = {
   patch: { subtitle: 'analyze patching · --init scaffold' },
   locales: { subtitle: 'list + edit under localesDir' },
   'locales list': { subtitle: 'files and key counts under localesDir' },
-  'locales edit': { subtitle: 'existing locale JSON + app i18n loader' },
   'locales dynamic': { subtitle: 'non-literal translation keys (read-only)' },
   'locales delete': { subtitle: 'remove locale JSON (+ meta); future loader patches' },
   report: { subtitle: 'project report SPA (html) · json/csv/text' },

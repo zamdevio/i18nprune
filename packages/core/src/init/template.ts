@@ -240,9 +240,6 @@ ${body}
     // sizeLimitBytes: 524288,
   },
 
-  // When \`true\`, \`generate\` skips **\`<lang>.meta.json\`** (same effect as CLI \`--no-locale-meta\`; either skips).
-  noLocaleMeta: false,
-
 } satisfies Partial<I18nPruneConfig>);
 `;
 }

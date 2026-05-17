@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { runProjectReadiness } from '../run.js';
 import type { CoreContext } from '../../../types/context/index.js';
-import { ISSUE_PROJECT_CONFIG_FILE_MISSING, ISSUE_PROJECT_SRC_ROOT_UNAVAILABLE } from '../../../shared/constants/issueCodes.js';
+import {
+  ISSUE_PROJECT_CONFIG_FILE_MISSING,
+  ISSUE_PROJECT_LOCALES_STRUCTURE_REQUIRED,
+  ISSUE_PROJECT_SRC_ROOT_UNAVAILABLE,
+} from '../../../shared/constants/issueCodes.js';
 
 function ctxWithFs(fs: CoreContext['adapters']['fs']): CoreContext {
   return {
@@ -57,6 +61,30 @@ describe('runProjectReadiness', () => {
     const out = runProjectReadiness(ctxWithFs(fs), { mode: 'preset', preset: 'validate' });
     expect(out.ok).toBe(false);
     expect(out.issues[0]?.code).toBe('i18nprune.validate.source_locale_unreadable');
+  });
+
+  it('emits locales_structure_required when locale_directory omits structure', () => {
+    const fs = {
+      exists: () => true,
+      readText: () => '{}',
+      statKind: () => 'directory' as const,
+      listDir: () => [],
+      writeText: () => {},
+      deleteFile: () => {},
+      mkdirp: () => {},
+    };
+    const ctx = {
+      ...ctxWithFs(fs),
+      config: {
+        functions: ['t'],
+        exclude: [],
+        locales: { source: 'messages/en/x.json', directory: 'messages', mode: 'locale_directory' },
+        src: 'src',
+      },
+    } as CoreContext;
+    const out = runProjectReadiness(ctx, { mode: 'preset', preset: 'generate' });
+    expect(out.ok).toBe(false);
+    expect(out.issues.some((i) => i.code === ISSUE_PROJECT_LOCALES_STRUCTURE_REQUIRED)).toBe(true);
   });
 
   it('emits project config_file_missing when configFileLoaded is false and check enabled', () => {

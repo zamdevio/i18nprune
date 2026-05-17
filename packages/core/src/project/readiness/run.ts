@@ -7,8 +7,10 @@ import {
   ISSUE_PROJECT_LOCALES_DIR_UNAVAILABLE,
   ISSUE_PROJECT_SOURCE_LOCALE_UNAVAILABLE,
   ISSUE_PROJECT_SRC_ROOT_UNAVAILABLE,
+  ISSUE_PROJECT_LOCALES_STRUCTURE_REQUIRED,
   ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED,
 } from '../../shared/constants/issueCodes.js';
+import { isLocalesStructureRequired } from '../../shared/locales/layout/requireStructure.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
 import { assertSyncPortResult } from '../../runtime/helpers/sync/assert.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../../runtime/helpers/sync/index.js';
@@ -152,6 +154,22 @@ function checkLocalesDir(ctx: CoreContext): Issue | null {
   return null;
 }
 
+function checkLocalesStructureRequired(ctx: CoreContext): Issue | null {
+  if (!isLocalesStructureRequired(ctx.config.locales)) {
+    return null;
+  }
+  const code = ISSUE_PROJECT_LOCALES_STRUCTURE_REQUIRED;
+  const docPath = issueCodeRepoDocPathForIssueCode(code);
+  return {
+    severity: 'error',
+    code,
+    message:
+      'locales.mode is "locale_directory" but locales.structure is missing — set "locale_per_dir" or "feature_bundle" in i18nprune config (layout resolution does not guess structure).',
+    path: ctx.paths.localesDir,
+    docPath,
+  };
+}
+
 function checkSrcRoot(ctx: CoreContext): Issue | null {
   const path = ctx.paths.srcRoot;
   const fs = ctx.adapters.fs;
@@ -186,6 +204,7 @@ function hasAnyCheck(c: ProjectReadinessChecks): boolean {
       c.sourceLocaleJsonReadable ||
       c.sourceLocaleJsonObject ||
       c.localesDirectoryAccessible ||
+      c.localesStructureRequired ||
       c.srcRootDirectory,
   );
 }
@@ -214,6 +233,11 @@ export function runProjectReadiness(ctx: CoreContext, request: ProjectReadinessR
   if (checks.localesDirectoryAccessible) {
     const locIssue = checkLocalesDir(ctx);
     if (locIssue) issues.push(locIssue);
+  }
+
+  if (checks.localesStructureRequired) {
+    const layoutIssue = checkLocalesStructureRequired(ctx);
+    if (layoutIssue) issues.push(layoutIssue);
   }
 
   if (checks.srcRootDirectory) {

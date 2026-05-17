@@ -1,7 +1,7 @@
 import { confirm } from '@inquirer/prompts';
 import { resolveContext } from '@/shared/context/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
-import { I18nPruneError, deleteLocaleFiles } from '@i18nprune/core';
+import { I18nPruneError, deleteLocaleFiles, segmentsForLocaleCode } from '@i18nprune/core';
 import { resolveLocalesTargetCodes } from '@/shared/locales/index.js';
 import { canAsk } from '@/shared/ask/index.js';
 import { logger } from '@/utils/logger/index.js';
@@ -33,7 +33,6 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
     kind: 'locales-delete',
     targets: [],
     deletedJson: 0,
-    deletedMeta: 0,
     aborted: false,
     supportsAutoPatching: false,
   };
@@ -71,9 +70,14 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
     const coreCtx = createCliCoreContext(ctx);
 
     for (const target of targets) {
-      const jsonPath = ctx.adapters.path.join(dir, `${target}.json`);
-      if (!existsRuntimeFsSync(jsonPath, ctx.adapters.fs)) {
-        throw new I18nPruneError(`locales delete: file not found: ${jsonPath}`, 'USAGE');
+      const segments = segmentsForLocaleCode(coreCtx, target);
+      const paths =
+        segments.length > 0
+          ? segments.map((s) => s.absolutePath)
+          : [ctx.adapters.path.join(dir, `${target}.json`)];
+      const anyExists = paths.some((p) => existsRuntimeFsSync(p, ctx.adapters.fs));
+      if (!anyExists) {
+        throw new I18nPruneError(`locales delete: no locale files found for ${target}`, 'USAGE');
       }
     }
 
@@ -89,7 +93,6 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           kind: 'locales-delete',
           targets,
           deletedJson: 0,
-          deletedMeta: 0,
           aborted: true,
           supportsAutoPatching: false,
         };
@@ -171,7 +174,6 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
       if (canPrintInfo(ctx.run)) {
         for (const row of deletedTargets) {
           logger.info(`Removed ${row.jsonPath}`, ctx.run);
-          if (row.hadMeta) logger.info(`Removed ${row.metaPath}`, ctx.run);
         }
       }
       printCommandSummary(
@@ -179,7 +181,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           command: 'locales delete',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { deletedJson: payload.deletedJson, deletedMeta: payload.deletedMeta },
+          counts: { deletedJson: payload.deletedJson },
           issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
         },
         ctx,

@@ -398,6 +398,10 @@ export {
   localeSegmentRefFromAbsolute,
 } from './shared/locales/index.js';
 export type { ListJsonPayload, ListRunResult } from './locales/list/index.js';
+export {
+  buildLocaleJsonByTagFromArchive,
+  segmentsForLocaleCode,
+} from './shared/locales/index.js';
 export type {
   ReadFlatLocaleJsonSurfaceResult,
   ReadLocaleBundleResult,
@@ -409,14 +413,6 @@ export type {
   ListLocaleCodesResult,
   ListLocaleSegmentsResult,
 } from './shared/locales/index.js';
-
-export { resolveLocaleEditProfile, writeLocaleMetaEdit } from './locales/edit/index.js';
-export type {
-  EditTargetFields,
-  EditResultRow,
-  EditJsonPayload,
-  EditRunResult,
-} from './locales/edit/index.js';
 
 export { deleteLocaleFiles } from './locales/delete/index.js';
 export type {
@@ -665,7 +661,6 @@ export {
   parseSyncLangSelection,
   parseLocaleCodesList,
   pickTargetSelector,
-  resolveLocaleMetaProfile,
   resolveLocaleTargetCodes,
   resolveTargetLocaleSlugs,
   isAllLocaleToken,
@@ -677,7 +672,6 @@ export {
 export type {
   AssertGenerateTargetCodesInput,
   LocaleListRow,
-  LocaleMetaProfile,
   ResolveResumeTargetCodesFromRawInput,
   ResolveLocaleTargetCodesInput,
   SourceLocaleContext,

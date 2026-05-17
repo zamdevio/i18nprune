@@ -162,7 +162,7 @@ describe('patching engine', () => {
     expect(gen).toContain('// user');
   });
 
-  it('updates generated loader metadata for locales edit', async () => {
+  it('updates generated loader metadata via patch upsert_locales', async () => {
     const root = makeTempDir();
     const i18nDir = path.join(root, 'i18n');
     const configPath = path.join(i18nDir, 'config.json');
@@ -182,7 +182,7 @@ describe('patching engine', () => {
 
     const rt = createNodeRuntimeAdapters();
     const planned = await buildPatchPlan({
-      command: 'locales-edit',
+      command: 'generate',
       action: 'upsert_locales',
       changedLocaleCodes: ['ja'],
       upsertLocaleRecords: [

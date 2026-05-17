@@ -35,7 +35,6 @@ export type ExtensionGenerateUiOptions = {
   force?: boolean;
   provider?: string;
   workers?: number;
-  noLocaleMeta?: boolean;
   /** Relative override for source locale path (CLI `--source`). */
   source?: string;
   /** Deep partial overrides merged into parsed config before `createCoreContext`. */
@@ -84,8 +83,8 @@ export async function runGenerateForActiveProject(
 
   const { projectRoot: cfgRoot } = loaded;
   const paths = {
-    sourceLocale: resolveFromRoot(mergedConfig.source, cfgRoot),
-    localesDir: resolveFromRoot(mergedConfig.localesDir, cfgRoot),
+    sourceLocale: resolveFromRoot(mergedConfig.locales.source, cfgRoot),
+    localesDir: resolveFromRoot(mergedConfig.locales.directory, cfgRoot),
     srcRoot: resolveFromRoot(mergedConfig.src, cfgRoot),
   };
 
@@ -105,6 +104,7 @@ export async function runGenerateForActiveProject(
     quiet: false,
     silent: false,
     debugScan: false,
+    debugCache: false,
   };
 
   const generateOpts: GenerateRunOptions = {
@@ -116,7 +116,6 @@ export async function runGenerateForActiveProject(
     force: ui.force,
     dryRun: ui.dryRun,
     metadata: ui.metadata,
-    noLocaleMeta: ui.noLocaleMeta,
     resume: ui.resume,
   };
 
@@ -173,19 +172,11 @@ export async function runGenerateForActiveProject(
       };
     },
 
-    log: {
-      info: (msg) => emit({ type: 'generate.log', level: 'info', message: msg }),
-      notice: (msg) => emit({ type: 'generate.log', level: 'notice', message: msg }),
-      warn: (msg) => emit({ type: 'generate.log', level: 'warn', message: msg }),
-    },
-
     shouldSkipInteractivePrompts: () => true,
     canAskInteractive: () => false,
 
-    promptMetaLocaleDetails: async (defaults) => defaults,
     promptFullRetranslate: async () => false,
 
-    printSessionBanner: () => {},
     printPreserveParityReport: () => {},
     printFinalizeSummary: () => {},
 

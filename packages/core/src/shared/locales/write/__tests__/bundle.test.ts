@@ -63,7 +63,7 @@ describe('writeLocaleBundle', () => {
 
   it('writes locale_directory + locale_per_dir segment paths', () => {
     const layout = resolveLocalesLayout(
-      { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory' },
+      { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
       '/proj/messages',
     );
     const absoluteFile = '/proj/messages/fr/auth.json';

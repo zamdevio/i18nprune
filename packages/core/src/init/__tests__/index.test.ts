@@ -38,7 +38,7 @@ describe('init core helpers', () => {
     expect(tpl).toContain('Per-command overrides');
     expect(tpl).toContain('policy:');
     expect(tpl).toContain('routing:');
-    expect(tpl).toContain('noLocaleMeta:');
+    expect(tpl).not.toContain('noLocaleMeta:');
     expect(tpl).toContain('output:');
     expect(tpl).toContain('satisfies Partial<I18nPruneConfig>');
   });

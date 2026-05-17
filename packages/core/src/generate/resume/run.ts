@@ -26,7 +26,6 @@ import { applyLocaleLeafNormalization } from '../../shared/locales/leaves/index.
 import { emitRunMessage } from '../../shared/run/index.js';
 import { existsRuntimeFsSync } from '../../runtime/helpers/sync/fs.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../../shared/locales/index.js';
-import { writeRuntimeJsonPretty } from '../io/writeRuntimeJson.js';
 import { listResumeTranslationJobs, translateResumeCandidateLeaves } from '../localeTranslate.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../../types/translator/providers.js';
@@ -45,10 +44,6 @@ export type RunGenerateResumeLocaleInput = {
   eff: EffectiveReferenceConfig;
   refCtx: GenerateResumeRefContext;
   targetPath: string;
-  metaPath: string | null;
-  englishName: string;
-  nativeName: string;
-  direction: 'ltr' | 'rtl';
   targetStarted: number;
 };
 
@@ -61,8 +56,7 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
   issues: Issue[];
   leavesProcessed: number;
 }> {
-  const { ctx, opts, host, target, sourceMap, eff, refCtx, targetPath, metaPath, englishName, nativeName, direction } =
-    input;
+  const { ctx, opts, host, target, sourceMap, eff, refCtx, targetPath } = input;
   const { fs } = ctx.adapters;
   if (!existsRuntimeFsSync(targetPath, fs)) {
     throw new I18nPruneError(`generate: locale file missing for --resume: ${targetPath}`, 'USAGE', {
@@ -212,10 +206,6 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
       if (!opts.dryRun && localeWouldChange) {
         emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: targetPath });
         writeLocaleJsonFromContextSync(ctx, targetPath, next);
-        if (metaPath !== null) {
-          emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: metaPath });
-          writeRuntimeJsonPretty(metaPath, { lang: target, englishName, nativeName, direction }, ctx.adapters);
-        }
       }
 
       providerAttempts?.push({ providerId, outcome: 'success' });
@@ -326,7 +316,7 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
     winnerProviderId,
     fallbackCount: Math.max(0, (providerAttempts?.length ?? 0) - 1),
     markedForReview: result.markedForReview,
-    paths: { localeJson: targetPath, metaJson: metaPath },
+    paths: { localeJson: targetPath },
     localeMetadata: result.localeMetadata,
   };
 

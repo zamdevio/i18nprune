@@ -104,7 +104,6 @@ function writePatchingChainFixture(dir: string): void {
   },
   src: 'src',
   functions: ['t'],
-  noLocaleMeta: true,
   cache: { enabled: false },
   localeLeaves: { mode: 'legacy_string' },
   translate: {

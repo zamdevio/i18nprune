@@ -305,7 +305,6 @@ export type GenerateUiPayload = {
   force?: boolean;
   provider?: string;
   workers?: number;
-  noLocaleMeta?: boolean;
   source?: string;
   configOverrides?: unknown;
 };

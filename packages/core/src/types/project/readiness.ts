@@ -16,7 +16,6 @@ export type ProjectReadinessCliPreset =
   | 'locales-list'
   | 'locales-dynamic'
   | 'locales-delete'
-  | 'locales-edit'
   | 'config'
   | 'patch'
   | 'init'
@@ -37,6 +36,11 @@ export type ProjectReadinessChecks = {
   localesDirectoryAccessible?: boolean;
   /** `paths.srcRoot` exists and is a directory. */
   srcRootDirectory?: boolean;
+  /**
+   * When `locales.mode` is `locale_directory`, require explicit `locales.structure`
+   * (`locale_per_dir` or `feature_bundle`) — layout resolution does not guess.
+   */
+  localesStructureRequired?: boolean;
 };
 
 export type ProjectReadinessRequest =

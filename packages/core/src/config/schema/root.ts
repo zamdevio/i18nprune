@@ -258,7 +258,7 @@ export const localesFilesystemSchema = z
       .describe('Path to the source-of-truth locale JSON (e.g. locales/en.json), relative to the config file directory.'),
     directory: z
       .string()
-      .describe('Directory containing locale *.json files (and optional .meta.json sidecars), relative to the config file directory.'),
+      .describe('Directory containing locale JSON segment files, relative to the config file directory.'),
     mode: z
       .enum(['flat_file', 'locale_directory'])
       .optional()
@@ -312,10 +312,6 @@ export const configSchema = z
       .array(z.string())
       .min(1)
       .describe('Function names treated as translation entry points (e.g. t).'),
-    noLocaleMeta: z
-      .boolean()
-      .optional()
-      .describe('When true, generate skips writing <lang>.meta.json sidecars.'),
     exclude: excludeSchema,
     output: outputSchema,
     scanner: scannerSchema,
@@ -442,7 +438,6 @@ export type I18nPruneConfig = Omit<I18nPruneConfigParsed, 'reference' | 'transla
   locales: LocalesFilesystemConfig;
   src: string;
   functions: string[];
-  noLocaleMeta?: boolean;
   output?: OutputConfig;
   cache?: CacheConfig;
   exclude?: ScanExcludeConfig;

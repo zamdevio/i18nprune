@@ -22,7 +22,6 @@ export const DEFAULT_CONFIG: I18nPruneConfigParsed = {
   },
   src: 'src',
   functions: ['t'],
-  noLocaleMeta: false,
   exclude: { useDefaultSkip: true },
   output: {
     list: {},

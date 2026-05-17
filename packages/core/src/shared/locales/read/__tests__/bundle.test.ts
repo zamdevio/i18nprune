@@ -98,7 +98,7 @@ describe('readLocaleBundle', () => {
 
   it('reads locale_directory segments via flat reader when path matches', () => {
     const dirLayout = resolveLocalesLayout(
-      { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory' },
+      { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
       '/proj/messages',
     );
     const absoluteFile = '/proj/messages/en/auth.json';
@@ -143,7 +143,7 @@ describe('readLocaleBundle feature_bundle', () => {
 describe('readLocalePerDirLocaleSurface', () => {
   it('merges leaves across segments for one locale code', () => {
     const layout = resolveLocalesLayout(
-      { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory' },
+      { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
       '/proj/messages',
     );
     const root = '/proj/messages';

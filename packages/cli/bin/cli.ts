@@ -33,7 +33,7 @@ import { config } from '@/commands/config/index.js';
 import { review } from '@/commands/review/index.js';
 import { doctor } from '@/commands/doctor/index.js';
 import { patch } from '@/commands/patch/index.js';
-import { localesList, localesEdit, localesDynamic, localesDelete } from '@/commands/locales/index.js';
+import { localesList, localesDynamic, localesDelete } from '@/commands/locales/index.js';
 import { report } from '@/commands/report/index.js';
 import { configureCliHelp } from '@/commands/help/index.js';
 import { CLI_NAME, CLI_ROOT_DESCRIPTION } from '@/constants/cli.js';
@@ -315,25 +315,14 @@ program
   )
   .option('--source <path>', 'source JSON path (defaults to resolved config / context)')
   .option('--target <codes>', 'target locale code(s): one code or comma-separated list (e.g. ja,ar,id)')
-  .option(
-    '--english-name <name>',
-    'English label in <lang>.meta.json (default: catalog for --target)',
-  )
-  .option(
-    '--native-name <name>',
-    'Native endonym in <lang>.meta.json (default: catalog for --target)',
-  )
-  .option('--direction <ltr|rtl>', 'layout direction for .meta.json (default ltr)')
+  .option('--english-name <name>', 'English display label override (default: language catalog)')
+  .option('--native-name <name>', 'Native endonym override (default: language catalog)')
+  .option('--direction <ltr|rtl>', 'layout direction override (default from catalog / heuristics)')
   .option('--force', 're-translate even if target already has every source string path', false)
   .option('--dry-run', 'do not call translator or write files', false)
   .option(
     '--metadata',
     'write/repair structured locale leaves (`{ value, status, confidence, needsReview, source }`)',
-    false,
-  )
-  .option(
-    '--no-locale-meta',
-    'do not write or update <lang>.meta.json (merged with config noLocaleMeta; either true skips)',
     false,
   )
   .option(
@@ -352,7 +341,7 @@ program
   .option('--all', 'with --resume: process every non-source locale under localesDir', false)
   .option(
     '--ask',
-    'normal generate: ask to edit locale meta defaults; with --resume: confirm before processing targets',
+    'with --resume: confirm before processing targets',
     false,
   )
   .action(
@@ -365,7 +354,6 @@ program
       force?: boolean;
       dryRun?: boolean;
       metadata?: boolean;
-      noLocaleMeta?: boolean;
       provider?: string;
       workers?: string;
       resume?: boolean;
@@ -383,7 +371,6 @@ program
         force: opts.force === true ? true : undefined,
         dryRun: Boolean(opts.dryRun),
         metadata: opts.metadata === true ? true : undefined,
-        noLocaleMeta: opts.noLocaleMeta === true ? true : undefined,
         provider: opts.provider,
         workers: parseOptionalTranslateParallelFlag(opts.workers, 'generate: --workers'),
         resume: opts.resume === true ? true : undefined,
@@ -477,24 +464,6 @@ localesCmd
   .description('List locale files and key/path counts under localesDir (implementation in progress).')
   .action(async () => {
     await localesList();
-  });
-
-localesCmd
-  .command('edit')
-  .description(
-    'Edit existing locale metadata; pass global --patch to update supported app i18n loader wiring.',
-  )
-  .option('--target <code>', 'locale basename (e.g. ja) — must match a *.json in localesDir; prompts if omitted in a TTY')
-  .option('--english-name <name>', 'value for englishName in <lang>.meta.json')
-  .option('--native-name <name>', 'value for nativeName in <lang>.meta.json')
-  .option('--direction <ltr|rtl>', 'value for direction in <lang>.meta.json')
-  .action(async (opts: { target?: string; englishName?: string; nativeName?: string; direction?: string }) => {
-    await localesEdit({
-      target: opts.target,
-      englishName: opts.englishName,
-      nativeName: opts.nativeName,
-      directionRaw: opts.direction,
-    });
   });
 
 localesCmd

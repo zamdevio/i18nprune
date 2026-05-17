@@ -17,7 +17,6 @@ export default defineConfig({
   },
   src: 'examples/sdk/generate/src',
   functions: ['t'],
-  noLocaleMeta: true,
   translate: {
     primary: 'google',
     providers: [{ id: 'google' }],

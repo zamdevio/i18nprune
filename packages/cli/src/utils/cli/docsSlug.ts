@@ -10,7 +10,6 @@ import { getCommandInvocationPath } from '@/utils/cli/path.js';
 export function docsSlugForCommand(cmd: Command): string {
   const path = getCommandInvocationPath(cmd, CLI_NAME);
   if (path === 'locales list') return 'locales/list';
-  if (path === 'locales edit') return 'locales/edit';
   if (path === 'locales dynamic') return 'locales/dynamic';
   if (path === 'locales delete') return 'locales/delete';
   if (path.startsWith('locales ')) return 'locales';
