@@ -223,7 +223,7 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
               value={configJson}
               onChange={(e) => setConfigJson(e.target.value)}
               disabled={busy}
-              placeholder='{"localesDir":"locales"} or full config — merged with i18nprune.config from the zip'
+              placeholder='{"locales":{"source":"locales/en.json","directory":"locales"}} — merged with i18nprune.config from the zip'
             />
           </label>
         </div>

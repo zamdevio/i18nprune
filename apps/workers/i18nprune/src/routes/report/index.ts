@@ -29,20 +29,16 @@ function stringFromConfig(config: Record<string, unknown> | null, key: string): 
 
 function sourceLocalePathFromConfig(config: Record<string, unknown> | null): string | null {
   const loc = config?.locales;
-  if (loc && typeof loc === 'object' && !Array.isArray(loc)) {
-    const s = (loc as Record<string, unknown>).source;
-    if (typeof s === 'string' && s.length > 0) return s;
-  }
-  return stringFromConfig(config, 'source');
+  if (!loc || typeof loc !== 'object' || Array.isArray(loc)) return null;
+  const s = (loc as Record<string, unknown>).source;
+  return typeof s === 'string' && s.length > 0 ? s : null;
 }
 
 function localesDirFromConfig(config: Record<string, unknown> | null): string | null {
   const loc = config?.locales;
-  if (loc && typeof loc === 'object' && !Array.isArray(loc)) {
-    const d = (loc as Record<string, unknown>).directory;
-    if (typeof d === 'string' && d.length > 0) return d;
-  }
-  return stringFromConfig(config, 'localesDir');
+  if (!loc || typeof loc !== 'object' || Array.isArray(loc)) return null;
+  const d = (loc as Record<string, unknown>).directory;
+  return typeof d === 'string' && d.length > 0 ? d : null;
 }
 
 export function registerReportRoutes(app: Hono<WorkerEnv>): void {

@@ -69,19 +69,19 @@ function parseFunctionsArray(raw: string): string[] {
 
 function tryParseConfigObjectFromTsOrJs(raw: string): Record<string, unknown> | null {
   const compact = raw.replace(/\r\n/g, '\n');
-  const nestedSource =
+  const source =
     compact.match(/\blocales\s*:\s*\{[\s\S]*?\bsource\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
-  const nestedDirectory =
+  const directory =
     compact.match(/\blocales\s*:\s*\{[\s\S]*?\bdirectory\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
-  const flatSource = compact.match(/\bsource\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
   const src = compact.match(/\bsrc\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
-  const flatLocalesDir = compact.match(/\blocalesDir\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
   const functionsRaw = compact.match(/\bfunctions\s*:\s*\[([\s\S]*?)\]/)?.[1] ?? null;
   const functions = functionsRaw ? parseFunctionsArray(functionsRaw) : [];
-  const source = nestedSource && nestedDirectory ? nestedSource : flatSource;
-  const localesDir = nestedSource && nestedDirectory ? nestedDirectory : flatLocalesDir;
-  if (!source || !src || !localesDir || functions.length === 0) return null;
-  return { source, src, localesDir, functions };
+  if (!source || !directory || !src || functions.length === 0) return null;
+  return {
+    locales: { source, directory },
+    src,
+    functions,
+  };
 }
 
 function extOf(filePath: string): string {

@@ -18,7 +18,8 @@ export function mergeConfigJsonOntoZipBase(
     if (!normalizeConfig(zipBase ?? {})) {
       return {
         ok: false,
-        message: 'Zip has no usable i18nprune config and no configJson override was provided (need source, src, localesDir, functions[]).',
+        message:
+          'Zip has no usable i18nprune config and no configJson override was provided (need locales.source, locales.directory, src, functions[]).',
       };
     }
     return { ok: true, merged: zipBase ?? {}, zipBase };
@@ -38,7 +39,7 @@ export function mergeConfigJsonOntoZipBase(
     return {
       ok: false,
       message:
-        'After merging configJson with the zip config, required fields are still missing: source, src, localesDir, functions[].',
+        'After merging configJson with the zip config, required fields are still missing: locales.source, locales.directory, src, functions[].',
     };
   }
   return { ok: true, merged, zipBase };

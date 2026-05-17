@@ -36,7 +36,7 @@ export function Config({
           <textarea
             value={configJson}
             onChange={(e) => onConfigJsonChange(e.target.value)}
-            placeholder='{"localesDir":"locales"} — merged with i18nprune.config from the zip; leave empty to use zip only'
+            placeholder='{"locales":{"source":"locales/en.json","directory":"locales"}} — merged with zip config; leave empty to use zip only'
           />
         </label>
       </div>
