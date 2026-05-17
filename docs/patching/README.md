@@ -46,15 +46,21 @@ Use this workflow as the default operator path:
 - [ADR 004 — Opt-in auto-patching](../architecture/decisions/004-auto-patch.md)
 - [ADR 003 — User-project i18n loader integration](../architecture/decisions/003-user-i18n-loader-integration.md)
 
+## Troubleshooting
+
+- **`generate` / `sync` / `locales` says patching was skipped** — Patching is opt-in: set `patching.enabled: true` or pass **`--patch`** on that command. If the config lists `patching` but `configPath` or `loaderPath` is empty, the CLI warns and skips (fix the block, then retry).
+- **`patch --init` warns that `i18nprune.config.*` already has a patching block** — Scaffold files under `<src>/i18n` may still be created, but an existing `patching:` section is never silently overwritten on inject. Adjust paths by hand, remove the block and run `patch --init` again, or use **`patch --init --force`** to renew CLI-owned scaffold files (see the warning text for the exact case).
+- **`patch --fix` reports no changes** — There may be nothing auto-fixable; run **`i18nprune patch`** (no flags) to read diagnostics. Under **`patching.mode: 'strict'`**, invalid state can fail the command instead of warn-skip — see [config reference](./config.md#failure-and-mode-behavior).
+
 ## Backlog (patching hardening)
 
-- **`patch --init`** — tighten messaging when config injection skips (`skipped_existing`).
-- **Resolver** — tests: never mutate unknown fields; mismatch policy modes (`ask` / `auto` / `warn`).
-- **Shared CLI orchestration** — one patching handler path for `patch`, `sync --patch`, `generate --patch`, `locales edit --patch`, `locales delete --patch` (centralize envelope + `canAsk` / `--yes` / `--json`).
-- **Core structure** — optional folder barrels under `packages/core/src/patching/*` (no behavior change).
-- **Generated module contract** — doc + tests: no stale “public API” constants; default-locale preservation across mutation flows.
-- **Docs** — troubleshooting in this README; mismatch examples in `config.md`; command docs for `--init` injection statuses.
-- **Tests** — resolver + loader variants; config injection status cases; optional integration `init → patch → sync --patch → generate`.
+- **`patch --init`** — tighten messaging when config injection skips (`skipped_existing`). **Done:** clearer human warnings on first-time init and `--init --force`.
+- **Resolver** — tests: never mutate unknown fields; mismatch policy modes (`ask` / `auto` / `warn`). **Done:** resolver preserves unknown JSON; policy modes remain in CLI `repairPatchingConfigLocales`.
+- **Shared CLI orchestration** — one patching handler path for `patch`, `sync --patch`, `generate --patch`, `locales edit --patch`, `locales delete --patch` (centralize envelope + `canAsk` / `--yes` / `--json`). **Pending** (large refactor; `applyCommandPatching` already centralizes mutation commands).
+- **Core structure** — optional folder barrels under `packages/core/src/patching/*` (no behavior change). **Pending**
+- **Generated module contract** — doc + tests: no stale “public API” constants; default-locale preservation across mutation flows. **Partially covered** by existing `index.test.ts` loader cases; extend as needed.
+- **Docs** — troubleshooting in this README; mismatch examples in `config.md`; command docs for `--init` injection statuses. **Done:** troubleshooting + injection status table in `config.md`.
+- **Tests** — resolver + loader variants; config injection status cases; optional integration `init → patch → sync --patch → generate`. **Partially done** resolver preservation / error-shape tests.
 
 ## Implementation locations
 

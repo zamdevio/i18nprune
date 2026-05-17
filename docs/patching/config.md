@@ -93,6 +93,17 @@ Typical causes:
 - `i18nprune patch --init` creates missing scaffold files.
 - `i18nprune patch --init --force` renews only CLI-owned files (`config.json`, `loaders.generated.ts`) and resets the patching config block to defaults (add your own integration module next to them if you want — see [loader.md](./loader.md)).
 
+## `patch --init` and `i18nprune.config.*` injection
+
+When scaffold files are created or renewed, the CLI may **inject** a `patching: { … }` snippet into `i18nprune.config.ts` / `.mts` / `.cts` / `.js` / `.mjs` / `.cjs` (if that file exists). JSON envelopes include `configInjection` where applicable. Human runs print a **warning** when injection is skipped because a block already exists.
+
+| Injection result | Meaning |
+| ---------------- | ------- |
+| **`updated`** | A new `patching` block was inserted, or an existing block was replaced with the generated snippet. |
+| **`skipped_existing`** | The config file already contains a `patching:` key — the CLI does not overwrite it automatically (scaffold files may still be written). Edit paths manually, remove the block to allow a clean inject, or use `patch --init --force` for the scaffold-renewal path (see CLI warning). |
+| **`skipped_unrecognized`** | Inject could not find `export default defineConfig({` (or replace could not parse the `patching { … }` region). Add the `patching` block by hand using [Minimum recommended shape](#configuration-shape). |
+| **`skipped_missing`** | (Replace path only.) No `patching:` block found to replace — inject is attempted next. |
+
 Related:
 
 - [Auto-patching overview](./README.md)

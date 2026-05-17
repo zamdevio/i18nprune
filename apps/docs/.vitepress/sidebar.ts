@@ -80,6 +80,7 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
       text: 'Understanding extraction',
       collapsed: true,
       items: [
+        { text: 'Extractor overview', link: '/extractor/' },
         { text: 'Dynamic keys', link: '/dynamic/' },
         { text: 'Regex & limits', link: '/regex/' },
         { text: 'Key sites & dynamic', link: '/regex/key-sites-and-dynamic' },

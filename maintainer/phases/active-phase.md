@@ -83,7 +83,9 @@ Work delivered: **import binding resolution** (alias-aware per-file `functions` 
 
 ## Patching hardening (**Session C.2**)
 
-Harden existing patching: tests, shared orchestration, messaging, core barrels. See [`docs/patching/README.md`](../../docs/patching/README.md) backlog.
+Harden existing patching: tests, shared orchestration, messaging, core barrels. See [`docs/patching/README.md`](../../docs/patching/README.md) backlog (items marked **Done** / **Pending**).
+
+**Progress:** clearer `patch --init` / `--init --force` warnings when `i18nprune.config.*` injection is `skipped_existing`; resolver regression tests (parse errors + unknown JSON preservation); troubleshooting + injection-status table in patching docs; VitePress nav link to `/extractor/`.
 
 ---
 

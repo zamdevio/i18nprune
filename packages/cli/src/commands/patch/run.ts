@@ -197,6 +197,12 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
       ]
         .filter(Boolean)
         .join(' ');
+      if (configInjectStatus === 'skipped_existing' && !run.json) {
+        logger.warn(
+          `patch --init --force: scaffold files under ${paths.i18nDir} were renewed, but i18nprune.config.* already has a patching block — it was left unchanged. Edit paths in that block if they are wrong, or remove it and run patch --init again for a clean inject.`,
+          run,
+        );
+      }
       if (run.json) {
         const envelope = buildCliJsonEnvelope(
           'patch',
@@ -313,7 +319,7 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
 
     if (configInjectStatus === 'skipped_existing') {
       logger.warn(
-        'patch --init: patching section already exists in i18nprune.config.*; left unchanged. Run `patch --init --force` to reset it to defaults, or edit manually.',
+        'patch --init: i18nprune.config.* already has a patching block — it was not modified (new scaffold files were still written if they were missing). To reset that block to current defaults while renewing CLI-owned scaffold files, run patch --init --force. To inject when no block exists, remove the old patching section first, then run patch --init again.',
         run,
       );
     }

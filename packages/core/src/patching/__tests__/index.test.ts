@@ -473,4 +473,46 @@ describe('patching engine', () => {
     });
     expect(analyzed.diagnostics.some((d) => d.code === ISSUE_PATCHING_CONFIG_SECTION_INCOMPLETE)).toBe(true);
   });
+
+  it('resolvePatchingConfigLocales returns parse_error for invalid JSON', () => {
+    const out = resolvePatchingConfigLocales('{ not json', { applyCatalogMismatches: false });
+    expect(out.ok).toBe(false);
+    if (out.ok) return;
+    expect(out.error).toBe('parse_error');
+  });
+
+  it('resolvePatchingConfigLocales returns invalid_schema when root is not an object', () => {
+    const out = resolvePatchingConfigLocales('[]', { applyCatalogMismatches: false });
+    expect(out.ok).toBe(false);
+    if (out.ok) return;
+    expect(out.error).toBe('invalid_schema');
+  });
+
+  it('resolvePatchingConfigLocales preserves unknown top-level keys and per-locale fields', () => {
+    const raw = JSON.stringify(
+      {
+        locales: [
+          {
+            code: 'en',
+            englishName: 'English',
+            nativeName: 'English',
+            direction: 'ltr',
+            customVendorField: { keep: true },
+          },
+        ],
+        extraTop: { untouched: 1 },
+      },
+      null,
+      2,
+    );
+    const out = resolvePatchingConfigLocales(raw, { applyCatalogMismatches: false });
+    expect(out.ok).toBe(true);
+    if (!out.ok) return;
+    const round = JSON.parse(out.nextConfigText) as {
+      extraTop: { untouched: number };
+      locales: Array<{ customVendorField?: { keep: boolean } }>;
+    };
+    expect(round.extraTop).toEqual({ untouched: 1 });
+    expect(round.locales[0]?.customVendorField).toEqual({ keep: true });
+  });
 });
