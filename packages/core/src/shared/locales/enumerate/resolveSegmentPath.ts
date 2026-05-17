@@ -1,5 +1,5 @@
 import type { ResolvedLocalesLayout } from '../../../types/locales/layout.js';
-import type { LocaleLeafPathApi } from '../../../types/locales/leaves/fileOrigin.js';
+import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { LocaleSegmentRef } from '../../../types/locales/enumerate.js';
 import { localeCodeForSegment } from './parseSegmentLocale.js';
 

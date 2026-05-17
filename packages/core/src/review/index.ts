@@ -8,7 +8,7 @@ export {
   isStructuredLocaleLeafNode,
 } from '../shared/locales/leaves/index.js';
 export { filterLocaleFilesForReview, parseReviewTargetCodes } from './targetScope.js';
-export type { BuildReviewJsonDataInput, ReviewJsonDataCore } from './report.js';
+export type { BuildReviewJsonDataInput } from './report.js';
 export type {
   ReviewHostHooks,
   ReviewJsonData,

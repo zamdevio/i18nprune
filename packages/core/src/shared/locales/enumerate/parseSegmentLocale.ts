@@ -1,5 +1,5 @@
 import type { LocalesLayoutStructure } from '../../../types/locales/layout.js';
-import type { LocaleLeafPathApi } from '../../../types/locales/leaves/fileOrigin.js';
+import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { WalkedJsonSegment } from './walkJsonTree.js';
 
 /**

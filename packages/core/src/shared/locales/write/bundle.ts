@@ -1,11 +1,11 @@
 import { ISSUE_IO_READ_FAILED } from '../../constants/issueCodes.js';
 import { I18nPruneError } from '../../errors/index.js';
-import { isLocalesLayoutSupported, resolveLocalesLayoutFromContext } from '../layout/resolveLayout.js';
+import { isLocalesLayoutWriteSupported, resolveLocalesLayoutFromContext } from '../layout/resolveLayout.js';
 import type { ResolvedLocalesLayout } from '../../../types/locales/layout.js';
 import type { CoreContext } from '../../../types/context/index.js';
 import { writeFlatLocaleJsonDocument } from './flatFileLocaleJson.js';
 import type { WriteFlatLocaleJsonDocumentResult } from './flatFileLocaleJson.js';
-import type { LocaleLeafPathApi } from '../../../types/locales/leaves/fileOrigin.js';
+import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
 
@@ -29,7 +29,7 @@ export function writeLocaleBundle(input: {
     input.onDiagnostic?.(d);
   };
 
-  if (!isLocalesLayoutSupported(input.layout)) {
+  if (!isLocalesLayoutWriteSupported(input.layout)) {
     emit({
       level: 'error',
       code: 'locale_layout_unsupported',

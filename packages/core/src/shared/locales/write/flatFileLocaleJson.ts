@@ -1,4 +1,4 @@
-import type { LocaleLeafPathApi } from '../../../types/locales/leaves/fileOrigin.js';
+import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
 

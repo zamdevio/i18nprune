@@ -1,6 +1,6 @@
-import { collectTranslationSurfaceLeaves, localeLeafFileOriginForFlatLocaleJson } from '../shared/locales/leaves/index.js';
+import { collectTranslationSurfaceLeaves, localeSegmentSourceForFile } from '../shared/locales/leaves/index.js';
 import type { ParityPolicy } from '../types/policies/index.js';
-import type { LocaleLeafPathApi } from '../types/locales/leaves/fileOrigin.js';
+import type { LocaleLeafPathApi } from '../types/locales/leaves/segmentSource.js';
 import type { ReviewJsonData } from '../types/review/index.js';
 import { aggregateReviewRows } from './aggregate.js';
 
@@ -23,39 +23,38 @@ export type BuildReviewJsonDataInput = {
   sourceLocaleJson: unknown;
   targetLocaleJsonByFile: Readonly<Record<string, unknown>>;
   /**
-   * When set, leaf collection attaches `fileOrigin` for each logical row (flat per-locale JSON layout); review JSON
-   * aggregates stay unchanged.
+   * When set, leaf collection attaches segment `source` for each logical row; review JSON aggregates stay unchanged.
    */
   path?: LocaleLeafPathApi;
 };
 
-export type ReviewJsonDataCore = ReviewJsonData;
-
 /** Pure review payload builder from already-loaded locale JSON inputs. */
-export function buildReviewJsonData(input: BuildReviewJsonDataInput): ReviewJsonDataCore {
+export function buildReviewJsonData(input: BuildReviewJsonDataInput): ReviewJsonData {
   const pathApi = input.path;
   const sourceOrigin =
     pathApi !== undefined
-      ? localeLeafFileOriginForFlatLocaleJson({
+      ? localeSegmentSourceForFile({
           path: pathApi,
           absoluteFile: input.sourceLocalePath,
           localesDir: input.localesDir,
-        })
+          structure: 'locale_file',
+        }) ?? undefined
       : undefined;
   const sourceLeaves = collectTranslationSurfaceLeaves(input.sourceLocaleJson, '', [], sourceOrigin);
   const sourceMap = new Map(sourceLeaves.map((l) => [l.path, l.value]));
   const sourceBase = basenameNoExt(input.sourceLocalePath);
-  const locales: ReviewJsonDataCore['locales'] = {};
+  const locales: ReviewJsonData['locales'] = {};
 
   for (const [file, raw] of Object.entries(input.targetLocaleJsonByFile)) {
     if (file === `${sourceBase}.json`) continue;
     const targetOrigin =
       pathApi !== undefined
-        ? localeLeafFileOriginForFlatLocaleJson({
+        ? localeSegmentSourceForFile({
             path: pathApi,
             absoluteFile: pathApi.join(input.localesDir, file),
             localesDir: input.localesDir,
-          })
+            structure: 'locale_file',
+          }) ?? undefined
         : undefined;
     const rows = collectTranslationSurfaceLeaves(raw, '', [], targetOrigin);
     locales[file] = aggregateReviewRows(rows, sourceMap, input.parity);

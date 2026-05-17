@@ -73,9 +73,9 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 ---
 
-## Session H — Locales phase (**planned**)
+## Session H — Locales phase (**in progress**)
 
-**Docs:** [`locales.md`](./locales.md)
+**Docs:** [`locales.md`](./locales.md) — tracker rows **0–3** shipped (façade, enumeration, **`locale_per_dir` read**); **next:** row **4** (`feature_bundle`).
 
 **Goal:** Multi-topology locale **storage** (`flat_file`, `locale_directory`, structures `locale_file` / `locale_per_dir` / `feature_bundle`) via **reader/writer** abstraction; ops keep consuming **normalized locale surfaces**.
 

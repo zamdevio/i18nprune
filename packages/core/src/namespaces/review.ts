@@ -18,4 +18,4 @@ export type {
   ReviewRunOptions,
   ReviewRunResult,
 } from '../review/index.js';
-export type { BuildReviewJsonDataInput, ReviewJsonDataCore } from '../review/index.js';
+export type { BuildReviewJsonDataInput } from '../review/index.js';

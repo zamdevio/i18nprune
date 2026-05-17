@@ -1,5 +1,5 @@
 import type { CoreContext } from '../types/context/index.js';
-import { isLocalesLayoutSupported, resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
+import { isLocalesLayoutReadSupported, resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
 import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
 import { translationSurfacePathValueMap } from '../shared/projects/localeSurfaceMap.js';
 
@@ -16,7 +16,7 @@ function basenameWithoutJson(fileName: string): string {
 }
 
 function toLeafMap(ctx: CoreContext, absoluteFile: string): Map<string, string> {
-  if (!isLocalesLayoutSupported(resolveLocalesLayoutFromContext(ctx))) {
+  if (!isLocalesLayoutReadSupported(resolveLocalesLayoutFromContext(ctx))) {
     return new Map();
   }
   return translationSurfacePathValueMap(readLocaleJsonFromContextSync(ctx, absoluteFile));

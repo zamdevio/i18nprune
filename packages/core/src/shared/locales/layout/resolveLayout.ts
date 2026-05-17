@@ -6,29 +6,26 @@ function defaultStructureForMode(mode: LocalesLayoutMode): LocalesLayoutStructur
   return mode === 'flat_file' ? 'locale_file' : 'locale_per_dir';
 }
 
-/**
- * Apply schema defaults for optional `mode` / `structure` and bind the absolute bundle root.
- */
 export function resolveLocalesLayout(
   config: LocalesFilesystemConfig,
   directoryAbsolute: string,
 ): ResolvedLocalesLayout {
   const mode: LocalesLayoutMode = config.mode ?? 'flat_file';
   const structure: LocalesLayoutStructure = config.structure ?? defaultStructureForMode(mode);
-  return {
-    mode,
-    structure,
-    directoryAbsolute,
-    config,
-  };
+  return { mode, structure, directoryAbsolute, config };
 }
 
-/** {@link resolveLocalesLayout} using {@link CoreContext.config.locales} and {@link CoreContext.paths.localesDir}. */
 export function resolveLocalesLayoutFromContext(ctx: CoreContext): ResolvedLocalesLayout {
   return resolveLocalesLayout(ctx.config.locales, ctx.paths.localesDir);
 }
 
-/** True when the shared bundle reader/writer can handle this layout today (Phase 1: flat file only). */
-export function isLocalesLayoutSupported(layout: ResolvedLocalesLayout): boolean {
+export function isLocalesLayoutReadSupported(layout: ResolvedLocalesLayout): boolean {
+  return (
+    (layout.mode === 'flat_file' && layout.structure === 'locale_file') ||
+    (layout.mode === 'locale_directory' && layout.structure === 'locale_per_dir')
+  );
+}
+
+export function isLocalesLayoutWriteSupported(layout: ResolvedLocalesLayout): boolean {
   return layout.mode === 'flat_file' && layout.structure === 'locale_file';
 }

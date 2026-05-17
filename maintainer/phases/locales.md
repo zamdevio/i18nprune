@@ -1,6 +1,6 @@
 # Locales phase — multi-topology storage (**in progress**)
 
-**Status:** **In progress** — config + shared I/O façade (Phase 1) landed; directory / multi-file topologies not yet.  
+**Status:** **In progress** — Phases 1–2 + **row 3** (`locale_per_dir` **read**) shipped; **write** still flat `locale_file` only; rows **4–10** remain.  
 **Dependency:** **Init** ([`init.md`](./init.md)) — **shipped** (`locales.source`, `locales.directory`, optional `mode` / `structure`).  
 **Upstream:** **Extractor** ([`extractor.md`](./extractor.md)) — unchanged ownership.
 
@@ -13,16 +13,16 @@ Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#l
 | # | Task | Status |
 |---|------|--------|
 | 0 | Config: nested `locales: { source, directory, mode?, structure? }` | **Done** |
-| 0 | Types under `types/locales/`; leaves under `shared/locales/leaves/{walk,fileOrigin,mode}/` | **Done** |
+| 0 | Types under `types/locales/`; leaves under `shared/locales/leaves/{walk,segmentSource,mode}/` | **Done** |
 | 0 | Flat helpers: `readFlatLocaleJsonSurface`, `writeFlatLocaleJsonDocument` | **Done** |
 | 0 | Web + worker upload: nested config only (no legacy flat `source` / `localesDir`) | **Done** |
-| 1a | `resolveLocalesLayout` + `isLocalesLayoutSupported` (`shared/locales/layout/`) | **Done** |
+| 1a | `resolveLocalesLayout` + `isLocalesLayoutReadSupported` / `isLocalesLayoutWriteSupported` (`shared/locales/layout/`) | **Done** |
 | 1b | `readLocaleBundle` / `writeLocaleBundle` façade (flat `locale_file` only) | **Done** |
 | 1c | Ops on façade: `validate`, `missing` (read path) | **Done** |
 | 1d | `readLocaleJsonFromContextSync` / `writeLocaleJsonFromContextSync`; all locale JSON ops on façade | **Done** |
 | 1e | Layout types in `types/locales/layout.ts` (not under `shared/`) | **Done** |
 | 2 | `listLocaleCodes` / segment path resolution | **Done** |
-| 3 | `structure`: `locale_per_dir` reader + fixtures | **Todo** |
+| 3 | `structure`: `locale_per_dir` reader + fixtures | **Done** |
 | 4 | `structure`: `feature_bundle` + structural parity diagnostics | **Todo** |
 | 5 | `mode`: `locale_directory` layout | **Todo** |
 | 6 | Init preset / discovery emit `mode` / `structure` when confident | **Todo** |
@@ -40,9 +40,9 @@ Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#l
 
 ## Locked design (agreed — implement during H)
 
-### Leaf provenance (`source` on disk)
+### Leaf provenance (shipped row 3)
 
-**Planned rename (Phase 3+):** `fileOrigin` → **`source`** (`LocaleSegmentSource`); structured JSON `"source"` → **`catalogSource`** on the leaf API.
+**Leaf API (in-memory):** segment provenance **`source?: LocaleSegmentSource`**; structured JSON metadata string on disk → **`catalogSource?: string`**.
 
 ```ts
 source?: {

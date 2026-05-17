@@ -1,4 +1,4 @@
-import type { LocaleLeafFileOrigin } from './fileOrigin.js';
+import type { LocaleSegmentSource } from './segmentSource.js';
 
 /**
  * Canonical **translation surface** for locale JSON: one row per logical key path
@@ -10,19 +10,13 @@ export type TranslationSurfaceLeaf = {
   path: string;
   value: string;
   shape: TranslationSurfaceShape;
-  /** Present when `shape === 'structured'` and the field exists. */
   status?: string;
   confidence: number | null;
   needsReview: boolean | null;
-  /** Present when `shape === 'structured'` and the field exists. */
   needsTranslationAgain?: boolean | null;
-  /** Structured-locale JSON field: upstream / catalog reference — not on-disk file provenance. */
-  source?: string;
-  /** Optional segment file that produced this row; omitted when unknown or not applicable. */
-  fileOrigin?: LocaleLeafFileOrigin;
-  /**
-   * When `shape === 'structured'`, true iff the JSON node has every canonical metadata field
-   * with valid types (see {@link isCompleteStructuredLocaleLeafMeta}).
-   */
+  /** Structured-locale JSON `source` field (`manual`, provider id, …) — written to disk; not segment provenance. */
+  catalogSource?: string;
+  /** In-memory segment provenance for multi-file layouts; never persisted as this object. */
+  source?: LocaleSegmentSource;
   structuredMetaComplete?: boolean;
 };

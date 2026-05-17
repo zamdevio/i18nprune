@@ -1,8 +1,7 @@
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../../../runtime/helpers/sync/fs.js';
 
-/** Maximum directory depth under `locales.directory` when walking locale JSON segments. */
-const MAX_LOCALE_SEGMENT_TREE_DEPTH = 16;
-import type { LocaleLeafPathApi } from '../../../types/locales/leaves/fileOrigin.js';
+import { MAX_LOCALE_SEGMENT_TREE_DEPTH } from '../../constants/locales.js';
+import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
 
 export type WalkedJsonSegment = {

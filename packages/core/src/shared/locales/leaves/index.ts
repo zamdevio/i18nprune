@@ -5,7 +5,7 @@ export {
   metadataModeEnabledFromConfig,
   resolveLocaleLeafMode,
 } from './mode/modeResolve.js';
-export { localeLeafFileOriginForFlatLocaleJson } from './fileOrigin/localeLeafFileOriginFlat.js';
+export { localeSegmentSourceForFile } from './segmentSource/localeSegmentSourceForFile.js';
 export {
   collectTranslationSurfaceLeaves,
   isCompleteStructuredLocaleLeafMeta,

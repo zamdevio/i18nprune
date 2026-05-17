@@ -1,5 +1,5 @@
 import type { ResolvedLocalesLayout } from '../../../types/locales/layout.js';
-import type { LocaleLeafPathApi } from '../../../types/locales/leaves/fileOrigin.js';
+import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { ListLocaleSegmentsResult, LocaleSegmentRef } from '../../../types/locales/enumerate.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';

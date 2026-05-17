@@ -1,4 +1,4 @@
-export type { LocaleLeafFileOrigin, LocaleLeafPathApi } from './fileOrigin.js';
+export type { LocaleSegmentSource, LocaleLeafPathApi, LocaleLeafFileOrigin } from './segmentSource.js';
 export type {
   TranslationSurfaceLeaf,
   TranslationSurfaceShape,
@@ -11,7 +11,6 @@ export type StructuredLocaleLeaf = {
   status?: string;
   confidence?: number | null;
   needsReview?: boolean;
-  /** When true, hosts should re-run translation for this path (e.g. identity / empty output). */
   needsTranslationAgain?: boolean;
   source?: string;
 };
@@ -25,7 +24,6 @@ export type LocaleMetadataRepairReason =
   | 'invalid_needs_review'
   | 'invalid_needs_translation_again'
   | 'invalid_source'
-  /** Valid `{ value }` subtree was missing canonical optional fields we materialize (`confidence`, reviews, …). */
   | 'canonical_metadata_materialized';
 
 export type LocaleMetadataPathChange = {
@@ -62,7 +60,6 @@ export type LocaleMetadataReport = {
   mode: LocaleLeafMode;
   totalSourceLeafPaths: number;
   unchangedLeaves: number;
-  /** In structured mode: template paths where the locale leaf was **written** (promote / repair / hydrate), not merely visited. */
   structuredLeavesWritten: number;
   promotedLegacyLeaves: number;
   repairedCorruptLeaves: number;
@@ -70,6 +67,5 @@ export type LocaleMetadataReport = {
   missingPathsHydratedFromSource: number;
   byReason: Record<LocaleMetadataRepairReason, number>;
   changedPathsSample: LocaleMetadataPathChange[];
-  /** Full per-leaf decision list in source-path order (useful for dry-run simulation/reporting). */
   leafDecisions: LocaleMetadataLeafDecision[];
 };

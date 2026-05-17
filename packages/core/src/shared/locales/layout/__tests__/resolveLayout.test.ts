@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { isLocalesLayoutSupported, resolveLocalesLayout } from '../resolveLayout.js';
+import {
+  isLocalesLayoutReadSupported,
+  isLocalesLayoutWriteSupported,
+  resolveLocalesLayout,
+} from '../resolveLayout.js';
 
 describe('resolveLocalesLayout', () => {
   it('defaults mode flat_file and structure locale_file', () => {
@@ -19,14 +23,16 @@ describe('resolveLocalesLayout', () => {
     );
     expect(layout.mode).toBe('locale_directory');
     expect(layout.structure).toBe('locale_per_dir');
-    expect(isLocalesLayoutSupported(layout)).toBe(false);
+    expect(isLocalesLayoutWriteSupported(layout)).toBe(false);
+    expect(isLocalesLayoutReadSupported(layout)).toBe(true);
   });
 
-  it('supports flat_file + locale_file only in phase 1', () => {
+  it('supports flat_file + locale_file for read and write', () => {
     const layout = resolveLocalesLayout(
       { source: 'locales/en.json', directory: 'locales', mode: 'flat_file', structure: 'locale_file' },
       '/proj/locales',
     );
-    expect(isLocalesLayoutSupported(layout)).toBe(true);
+    expect(isLocalesLayoutWriteSupported(layout)).toBe(true);
+    expect(isLocalesLayoutReadSupported(layout)).toBe(true);
   });
 });

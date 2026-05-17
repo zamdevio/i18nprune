@@ -28,12 +28,13 @@ describe('readFlatLocaleJsonSurface', () => {
       path,
       absoluteFile,
       localesDir,
+      structure: 'locale_file',
     });
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     expect(res.leaves).toHaveLength(1);
     expect(res.leaves[0]?.path).toBe('a.b');
-    expect(res.leaves[0]?.fileOrigin?.relativePath).toBe('en.json');
+    expect(res.leaves[0]?.source?.relativePath).toBe('en.json');
     expect(res.document).toEqual({ a: { b: 'hi' } });
     expect(res.text).toBe(JSON.stringify({ a: { b: 'hi' } }));
     expect(res.diagnostics).toHaveLength(0);
@@ -46,6 +47,7 @@ describe('readFlatLocaleJsonSurface', () => {
       path,
       absoluteFile: '/nope/en.json',
       localesDir: '/nope',
+      structure: 'locale_file',
       onDiagnostic,
     });
     expect(res.ok).toBe(false);
@@ -58,7 +60,7 @@ describe('readFlatLocaleJsonSurface', () => {
     const localesDir = '/proj/locales';
     const absoluteFile = path.join(localesDir, 'en.json');
     const fs = memFs({ [absoluteFile]: '{ not json' });
-    const res = readFlatLocaleJsonSurface({ fs, path, absoluteFile, localesDir });
+    const res = readFlatLocaleJsonSurface({ fs, path, absoluteFile, localesDir, structure: 'locale_file' });
     expect(res.ok).toBe(false);
     expect(res.diagnostics[0]?.code).toBe('locale_json_parse_failed');
   });
