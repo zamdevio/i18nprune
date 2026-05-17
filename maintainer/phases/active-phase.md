@@ -29,7 +29,7 @@ extension
 | Phase | Role | Maintainer doc |
 |-------|------|----------------|
 | **extractor** | Strengthens key detection and runtime-facing signals (bindings, call sites, dynamic classification). **Session C.1 shipped** — contracts are stable for **init** / **locales** / **extension**; downstream phases **must respect** extractor contracts and must not fork parallel detection “truth”. | [`extractor.md`](./extractor.md) |
-| **init** | Best-in-class onboarding: **core-owned** detection + preset/config generation; **CLI and extension are hosts only**. Depends on stable **config schema** and preset model so locales can hang configuration cleanly. | [`init.md`](./init.md) |
+| **init** | Best-in-class onboarding: **core-owned** detection + preset/config generation; **CLI and extension are hosts only**. **Session F shipped** (core + CLI); extension init UI remains planned. **Config schema** + preset model are the contract **locales** builds on. | [`init.md`](./init.md) |
 | **locales** | Multi-topology locale **storage** via **reader/writer** abstraction; **normalized locale surface** for all existing ops. **Next** after **init** (Session **F** shipped for core + CLI; honor preset + schema contract in [`init.md`](./init.md)). | [`locales.md`](./locales.md) |
 | **extension** | Consumes **stabilized core** APIs and payloads — **no parallel scanning/indexing truth**. May prototype early, but **release-grade** behavior assumes **init + locales** contracts are stable. | [`extension/README.md`](./extension/README.md) |
 
@@ -48,7 +48,7 @@ extension
 
 ### Risk notes
 
-- Skipping **init** before **locales** risks churn in `CoreResolvedPaths` / config shape and double-migration pain.
+- **Locales** work that ignores the **init** preset + schema contract (see [`init.md`](./init.md)) risks churn in `CoreResolvedPaths` / config shape and double-migration pain.
 - Letting **`if (mode === …)`** leak into every op **bypasses** the reader/writer contract — high regression risk; keep ops on **normalized surfaces** ([`locales.md`](./locales.md)).
 - Extension shipping **before** locales stabilization invites **duplicated** filesystem intelligence in the host — explicitly **out of scope** for the agreed model.
 
@@ -83,7 +83,7 @@ Work delivered: **import binding resolution** (alias-aware per-file `functions` 
 
 ## Apps catch-up (**Session C.3 — after init + locales**)
 
-**Defer** until **Session F** and **Session H** have landed — **`apps/web`** and **`apps/workers/i18nprune`** stay on Cloudflare as-is; refresh them against **`@i18nprune/core`** once project-structure and locale-storage contracts are stable. Full scope: **[`V1-RELEASE.md`](./V1-RELEASE.md)** (Session C.3).
+**Defer** until **Session H** has landed (**Session F** init is **shipped** for core + CLI) — **`apps/web`** and **`apps/workers/i18nprune`** stay on Cloudflare as-is; refresh them against **`@i18nprune/core`** once locale-storage contracts are stable. Full scope: **[`V1-RELEASE.md`](./V1-RELEASE.md)** (Session C.3).
 
 ---
 
@@ -103,9 +103,9 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **Phase dependency chain** | **Locked** | **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** (this file) |
 | **Core-op migrations** | **Shipped — Session A.2** | [`shipped-slices.md`](./shipped-slices.md) |
 | **Extractor hardening** | **Shipped — Session C.1** | [`extractor.md`](./extractor.md) |
-| **Init phase (onboarding)** | **Planned — Session F** | [`init.md`](./init.md) |
-| **Locales phase (multi-topology)** | **Planned — Session H** (after F) | [`locales.md`](./locales.md) |
-| **Apps catch-up (web + worker-i18nprune)** | **Planned — Session C.3** (after F + H) | [`V1-RELEASE.md`](./V1-RELEASE.md) |
+| **Init phase (onboarding)** | **Shipped — Session F** (core + CLI; extension host I1–I3 in [`extension/README.md`](./extension/README.md)) | [`init.md`](./init.md) |
+| **Locales phase (multi-topology)** | **Planned — Session H** (**next**; after init contract in [`init.md`](./init.md)) | [`locales.md`](./locales.md) |
+| **Apps catch-up (web + worker-i18nprune)** | **Planned — Session C.3** (after **H**; **F** shipped) | [`V1-RELEASE.md`](./V1-RELEASE.md) |
 | **Patching hardening** | **Shipped** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |
 
