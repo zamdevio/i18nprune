@@ -1,4 +1,28 @@
-export type GitHubRepoPayload = {
+/** API contract revision (matches URL prefix /v1/). */
+export type ApiVersion = 1;
+
+export type CacheSliceV1 = {
+  stale: boolean;
+  updatedAtUnix: number;
+  expiresAtUnix: number;
+};
+
+export type NpmRowV1 = {
+  name: string;
+  version: string | null;
+  lastPublishUnix: number | null;
+  error: string | null;
+};
+
+export type ExtensionRowV1 = {
+  publisher: string;
+  name: string;
+  version: string | null;
+  lastPublishUnix: number | null;
+  error: string | null;
+};
+
+export type GitHubRepoV1 = {
   owner: string;
   repo: string;
   stars: number | null;
@@ -6,54 +30,58 @@ export type GitHubRepoPayload = {
   openIssues: number | null;
   watchers: number | null;
   contributors: number | null;
-  apiError: string | null;
+  error: string | null;
 };
 
-/** One row from registry.npmjs.org …/latest (or error). */
-export type NpmPackageInfo = {
-  /** Registry name, e.g. i18nprune or @i18nprune/core */
-  name: string;
-  version: string | null;
-  /** npm "time.modified" of the resolved dist-tag when available */
-  lastPublishUnix: number | null;
-  registryError: string | null;
+export type MetaV1Body = {
+  ok: true;
+  version: ApiVersion;
+  generatedAtUnix: number;
+  cache: {
+    github: CacheSliceV1;
+    npm: CacheSliceV1;
+    extension: CacheSliceV1;
+  };
+  links: Record<string, string>;
+  github: GitHubRepoV1;
+  npm: {
+    cli: NpmRowV1;
+    core: NpmRowV1;
+  };
+  extension: ExtensionRowV1;
 };
 
-export type NpmBundlePayload = {
-  cli: NpmPackageInfo;
-  core: NpmPackageInfo;
-  extension: NpmPackageInfo;
+export type MetaV1ErrorBody = {
+  ok: false;
+  version: ApiVersion;
+  generatedAtUnix: number;
+  error: {
+    code: string;
+    message: string;
+  };
 };
-
-export type NpmBundleCacheEnvelope = {
-  source: "cache" | "live" | "stale-cache";
-  stale: boolean;
-  fetchedAtUnix: number;
-  expiresAtUnix: number;
-  nextRefreshUnix: number;
-  packages: NpmBundlePayload;
-};
-
-export type CachedGitHubPayload = {
-  ok: boolean;
-  source: "cache" | "live" | "stale-cache";
-  stale: boolean;
-  fetchedAtUnix: number;
-  expiresAtUnix: number;
-  nextRefreshUnix: number;
-  data: GitHubRepoPayload;
-  /** Present on GET /metadata, /repo, /contributors when npm bundle was resolved. */
-  npm?: NpmBundleCacheEnvelope;
-};
-
-export type CachedNpmPayload = { ok: boolean } & NpmBundleCacheEnvelope;
 
 export type WorkerEnv = {
   GITHUB_TOKEN?: string;
-  /** Override default i18nprune */
   NPM_CLI_PACKAGE?: string;
-  /** Override default @i18nprune/core */
   NPM_CORE_PACKAGE?: string;
-  /** Override default @i18nprune/extension (often unpublished until you ship) */
-  NPM_EXTENSION_PACKAGE?: string;
+};
+
+/** Internal DO storage rows (before mapping to public `error` field). */
+export type GitHubCacheRecord = {
+  fetchedAtUnix: number;
+  expiresAtUnix: number;
+  data: GitHubRepoV1;
+};
+
+export type NpmCacheRecord = {
+  fetchedAtUnix: number;
+  expiresAtUnix: number;
+  data: { cli: NpmRowV1; core: NpmRowV1 };
+};
+
+export type ExtensionCacheRecord = {
+  fetchedAtUnix: number;
+  expiresAtUnix: number;
+  data: ExtensionRowV1;
 };

@@ -3,6 +3,8 @@
 **Single hub:** Ordered **sessions** below.  
 **Sprint tweaks:** [`active-phase.md`](./active-phase.md).
 
+**Locked vertical order (extractor → init → locales → extension):** [`active-phase.md` § Locked cross-phase dependency chain](./active-phase.md#locked-cross-phase-dependency-chain)
+
 **Shipped (do not reopen):** [`shipped-slices.md`](./shipped-slices.md)
 
 **Location:** Maintainer-only under **`maintainer/`**. **`phases/`** detail is **not** mirrored to **`apps/docs`** (`pnpm docs:sync` reads only **`docs/**`**).
@@ -56,6 +58,30 @@ Patching is already implemented and working. This session hardens it:
 ## Session C.3 — Apps rework
 
 Update `apps/web` and `apps/workers/i18nprune` to work with the current core API after heavy Session A/A.2 migrations. Verify imports, types, and runtime adapter usage are current.
+
+---
+
+## Session F — Init phase (**planned**)
+
+**Docs:** [`init.md`](./init.md)
+
+**Goal:** Best-in-class onboarding — **core-owned** detection, scoring, and config/preset generation; CLI and extension remain **hosts** only (**one intelligence layer, many hosts**).
+
+**Dependencies:** **Extractor** (Session **C.1**) remains the authoritative usage/call-site signal layer; init **consumes** extractor capabilities where runtime evidence is required — no duplicate detection engines in hosts.
+
+**Blocks:** **Session H (Locales)** must not ship core storage work until init **schema + preset** alignment from [`init.md`](./init.md) is in place.
+
+---
+
+## Session H — Locales phase (**planned**)
+
+**Docs:** [`locales.md`](./locales.md)
+
+**Goal:** Multi-topology locale **storage** (`flat_file`, `locale_directory`, structures `locale_file` / `locale_per_dir` / `feature_bundle`) via **reader/writer** abstraction; ops keep consuming **normalized locale surfaces**.
+
+**Dependencies:** **Session F (Init)** for stable **`locales`** config shape and presets.
+
+**Extension:** Release-grade editor work follows **stabilized** core contracts — see [`extension/README.md`](./extension/README.md) and [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain).
 
 ---
 
@@ -113,6 +139,7 @@ Execute **[`final.md`](./final.md)** §§1–2 (phase hygiene + ADR polish). The
 
 | Item | Pointer |
 |------|---------|
+| **Init + locales + extension** verticals | [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain) · [`init.md`](./init.md) · [`locales.md`](./locales.md) · [`extension/README.md`](./extension/README.md) |
 | `translate.policy.routing: 'auto'` advanced posture | post-v1 optional tail |
 | Worker bundle `node:` CI | [`docs/runtime/README.md`](../../docs/runtime/README.md) |
 | VitePress `@next`, `docs/exports` → `docs/sdk` | post-v1 docs |

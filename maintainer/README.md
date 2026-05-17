@@ -14,7 +14,8 @@ Ignoring all of **`maintainer/`** would strand clones without sequencing context
 | Doc | Role |
 |-----|------|
 | [**`phases/V1-RELEASE.md`**](phases/V1-RELEASE.md) | Ordered v1 **sessions** (code + docs work) |
+| [**`phases/active-phase.md`**](phases/active-phase.md) | Active sprint + **locked** dependency chain (extractor → init → locales → extension) |
 | [**`phases/final.md`**](phases/final.md) | **One-time pre-publish checklist** (includes ADR polish + repo hygiene); **delete after completion** |
 | [**`systems/README.md`**](systems/README.md) | **Internal** tree: **`systems/operations/`**, **`systems/commands/`** — entrypoints, flows, per-op sheets (not user docs) |
 
-**Phase narrative:** [`phases/README.md`](phases/README.md) · **scratch:** **`maintainer/temp/`** only.
+**Phase narrative:** [`phases/README.md`](phases/README.md) · **onboarding / locales (planned):** [`phases/init.md`](phases/init.md), [`phases/locales.md`](phases/locales.md) · **scratch:** **`maintainer/temp/`** only.

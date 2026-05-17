@@ -2,7 +2,55 @@
 
 **v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** — use first for sequencing.
 
+**Locked vertical order (extractor → init → locales → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below (same file — no duplicate maintainer-root hub). **init** and **locales** are **planned** (`init.md`, `locales.md`); do not start locales core work before init alignment per [`init.md`](./init.md).
+
 **Narrative focus:** **Extractor hardening (Session C.1)** — import binding resolution + false-positive reduction in `packages/core/src/extractor/`. After that: patching hardening (C.2) → apps rework (C.3) → docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
+
+**Planned verticals (post-C.1 / cross-session):** **[`init.md`](./init.md)** (Session **F**) → **[`locales.md`](./locales.md)** (Session **H**) → extension consumes stable contracts (**[`extension/README.md`](./extension/README.md)**).
+
+---
+
+## Locked cross-phase dependency chain
+
+**Canonical ordering** for major verticals (v1+). Session ordering and shipped history: **[`V1-RELEASE.md`](./V1-RELEASE.md)**.
+
+### Locked chain
+
+```txt
+extractor
+    ↓
+init
+    ↓
+locales
+    ↓
+extension
+```
+
+| Phase | Role | Maintainer doc |
+|-------|------|----------------|
+| **extractor** | Strengthens key detection and runtime-facing signals (bindings, call sites, dynamic classification). **Active work** — downstream phases **must respect** extractor contracts and must not fork parallel detection “truth”. | [`extractor.md`](./extractor.md) |
+| **init** | Best-in-class onboarding: **core-owned** detection + preset/config generation; **CLI and extension are hosts only**. Depends on stable **config schema** and preset model so locales can hang configuration cleanly. | [`init.md`](./init.md) |
+| **locales** | Multi-topology locale **storage** via **reader/writer** abstraction; **normalized locale surface** for all existing ops. **Must not start** until **init** is aligned (schema + presets). | [`locales.md`](./locales.md) |
+| **extension** | Consumes **stabilized core** APIs and payloads — **no parallel scanning/indexing truth**. May prototype early, but **release-grade** behavior assumes **init + locales** contracts are stable. | [`extension/README.md`](./extension/README.md) |
+
+### Responsibilities (one sentence each)
+
+- **Extractor:** what the code *says* (calls, keys, dynamic sites, bindings-derived function sets).
+- **Init:** what the project *is* (framework, topology candidates, preset, generated config) — **scored heuristics**, not ad-hoc `if (lib)` trees in hosts.
+- **Locales:** where strings *live* on disk (flat file vs directory trees) and how reads/writes map to the **same logical keys** ops already understand.
+- **Extension:** surfaces core intelligence (hovers, diagnostics, wizards) — **hosts** only.
+
+### Explicit boundaries
+
+- **Preset ≠ locale mode:** presets bundle *opinionated defaults* (paths, patterns, locale layout hints, extractor defaults). Locale **mode/structure** remain explicit config concerns; see [`init.md`](./init.md) and [`locales.md`](./locales.md).
+- **Locales config does not own extractor behavior:** reader/writer handle **storage**; extractor stays separate.
+- **Missing-key file placement** is **not** a new config surface in v1 of this plan — **core-owned suggestions** inside the **`missing`** operation; hosts handle UX only ([`locales.md`](./locales.md) § Missing key placement).
+
+### Risk notes
+
+- Skipping **init** before **locales** risks churn in `CoreResolvedPaths` / config shape and double-migration pain.
+- Letting **`if (mode === …)`** leak into every op **bypasses** the reader/writer contract — high regression risk; keep ops on **normalized surfaces** ([`locales.md`](./locales.md)).
+- Extension shipping **before** locales stabilization invites **duplicated** filesystem intelligence in the host — explicitly **out of scope** for the agreed model.
 
 ---
 
@@ -58,8 +106,11 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | Track | Status | Doc |
 |-------|--------|-----|
 | **v1 sessions (ordered)** | **Use first** | **[`V1-RELEASE.md`](./V1-RELEASE.md)** |
+| **Phase dependency chain** | **Locked** | **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** (this file) |
 | **Core-op migrations** | **Shipped — Session A.2** | [`shipped-slices.md`](./shipped-slices.md) |
 | **Extractor hardening** | **Active — Session C** | [`extractor.md`](./extractor.md) |
+| **Init phase (onboarding)** | **Planned — Session F** | [`init.md`](./init.md) |
+| **Locales phase (multi-topology)** | **Planned — Session H** | [`locales.md`](./locales.md) |
 | **Patching hardening** | **Session C.2** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |
 

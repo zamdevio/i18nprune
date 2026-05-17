@@ -1,29 +1,25 @@
 import { GITHUB_OWNER, GITHUB_REPO } from "../constants/github";
-import { fetchNpmBundle } from "./npm";
+import { fetchExtensionRow } from "../services/extension";
+import { fetchGithubRepo } from "../services/github";
+import { fetchNpmCliCore } from "../services/npm";
+import { buildLinks } from "../services/links";
+import { sliceMetaV1 } from "../services/meta";
 import type {
-  CachedGitHubPayload,
-  CachedNpmPayload,
-  GitHubRepoPayload,
-  NpmBundleCacheEnvelope,
-  NpmBundlePayload,
+  ExtensionCacheRecord,
+  ExtensionRowV1,
+  GitHubCacheRecord,
+  MetaV1Body,
+  MetaV1ErrorBody,
+  NpmCacheRecord,
   WorkerEnv,
 } from "../types";
 
-const GITHUB_TTL_SECONDS = 120;
-const NPM_TTL_SECONDS = 600;
-const NPM_BUNDLE_STORAGE_KEY = "npm:bundle:v1";
+const GITHUB_TTL = 120;
+const NPM_TTL = 600;
+const EXTENSION_TTL = 900;
 
-type GitHubCacheRecord = {
-  fetchedAtUnix: number;
-  expiresAtUnix: number;
-  data: GitHubRepoPayload;
-};
-
-type NpmCacheRecord = {
-  fetchedAtUnix: number;
-  expiresAtUnix: number;
-  data: NpmBundlePayload;
-};
+const NPM_KEY = "v1:npm:cli-core";
+const EXT_KEY = "v1:extension:marketplace";
 
 function nowUnix(): number {
   return Math.floor(Date.now() / 1000);
@@ -39,75 +35,6 @@ function json(data: unknown, init?: ResponseInit): Response {
   });
 }
 
-async function fetchGitHub(owner: string, repo: string, token?: string): Promise<GitHubRepoPayload> {
-  const headers: Record<string, string> = {
-    Accept: "application/vnd.github+json",
-    "User-Agent": "i18nprune-meta-worker",
-  };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  try {
-    const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
-    if (!repoRes.ok) {
-      return {
-        owner,
-        repo,
-        stars: null,
-        forks: null,
-        openIssues: null,
-        watchers: null,
-        contributors: null,
-        apiError: `GitHub repo HTTP ${repoRes.status}`,
-      };
-    }
-
-    const repoJson = (await repoRes.json()) as {
-      stargazers_count?: unknown;
-      forks_count?: unknown;
-      open_issues_count?: unknown;
-      subscribers_count?: unknown;
-    };
-
-    let contributors: number | null = null;
-    const contributorsRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contributors?per_page=100&anon=true`,
-      { headers },
-    );
-    if (contributorsRes.ok) {
-      const arr = (await contributorsRes.json()) as unknown;
-      contributors = Array.isArray(arr) ? arr.length : null;
-    }
-
-    return {
-      owner,
-      repo,
-      stars: typeof repoJson.stargazers_count === "number" ? repoJson.stargazers_count : null,
-      forks: typeof repoJson.forks_count === "number" ? repoJson.forks_count : null,
-      openIssues: typeof repoJson.open_issues_count === "number" ? repoJson.open_issues_count : null,
-      watchers: typeof repoJson.subscribers_count === "number" ? repoJson.subscribers_count : null,
-      contributors,
-      apiError: null,
-    };
-  } catch (error) {
-    return {
-      owner,
-      repo,
-      stars: null,
-      forks: null,
-      openIssues: null,
-      watchers: null,
-      contributors: null,
-      apiError: error instanceof Error ? error.message : String(error),
-    };
-  }
-}
-
-function isNpmPath(pathname: string): boolean {
-  return pathname === "/npm" || pathname.startsWith("/npm/");
-}
-
 export class MetaCacheDO {
   private readonly state: DurableObjectState;
   private readonly env: WorkerEnv;
@@ -117,135 +44,146 @@ export class MetaCacheDO {
     this.env = env;
   }
 
-  /** Cached npm bundle + optional stale fallback (same pattern as GitHub). */
-  private async getNpmEnvelope(force: boolean): Promise<NpmBundleCacheEnvelope> {
-    const record = await this.state.storage.get<NpmCacheRecord>(NPM_BUNDLE_STORAGE_KEY);
-    const now = nowUnix();
-
-    if (!force && record && record.expiresAtUnix > now) {
-      return {
-        source: "cache",
-        stale: false,
-        fetchedAtUnix: record.fetchedAtUnix,
-        expiresAtUnix: record.expiresAtUnix,
-        nextRefreshUnix: record.expiresAtUnix,
-        packages: record.data,
-      };
-    }
-
-    const live = await fetchNpmBundle(this.env);
-    const fetchedAtUnix = now;
-    const expiresAtUnix = now + NPM_TTL_SECONDS;
-
-    const nextRecord: NpmCacheRecord = {
-      fetchedAtUnix,
-      expiresAtUnix,
-      data: live,
-    };
-    await this.state.storage.put(NPM_BUNDLE_STORAGE_KEY, nextRecord);
-
-    return {
-      source: "live",
-      stale: false,
-      fetchedAtUnix,
-      expiresAtUnix,
-      nextRefreshUnix: expiresAtUnix,
-      packages: live,
-    };
-  }
-
-  private async respondNpm(force: boolean): Promise<Response> {
-    const envelope = await this.getNpmEnvelope(force);
-    const body: CachedNpmPayload = { ok: true, ...envelope };
-    return json(body);
-  }
-
-  private async respondGitHubWithNpm(
-    pathname: string,
+  private async resolveGithub(
     owner: string,
     repo: string,
     force: boolean,
-  ): Promise<Response> {
+    now: number,
+  ): Promise<{ data: GitHubCacheRecord["data"]; slice: MetaV1Body["cache"]["github"] }> {
     const key = `${owner}/${repo}`;
     const record = await this.state.storage.get<GitHubCacheRecord>(key);
-    const now = nowUnix();
-
-    const attachNpm = ["/metadata", "/repo", "/contributors"].includes(pathname);
-
-    let githubPayload: CachedGitHubPayload;
 
     if (!force && record && record.expiresAtUnix > now) {
-      githubPayload = {
-        ok: true,
-        source: "cache",
-        stale: false,
-        fetchedAtUnix: record.fetchedAtUnix,
-        expiresAtUnix: record.expiresAtUnix,
-        nextRefreshUnix: record.expiresAtUnix,
+      return {
         data: record.data,
+        slice: { stale: false, updatedAtUnix: record.fetchedAtUnix, expiresAtUnix: record.expiresAtUnix },
       };
-    } else {
-      const live = await fetchGitHub(owner, repo, this.env.GITHUB_TOKEN);
-      const fetchedAtUnix = now;
-      const expiresAtUnix = now + GITHUB_TTL_SECONDS;
+    }
 
-      if (live.apiError && record) {
-        githubPayload = {
-          ok: true,
-          source: "stale-cache",
+    const live = await fetchGithubRepo(owner, repo, this.env.GITHUB_TOKEN);
+    const fetchedAtUnix = now;
+    const expiresAtUnix = now + GITHUB_TTL;
+
+    if (live.error && record) {
+      return {
+        data: record.data,
+        slice: {
           stale: true,
-          fetchedAtUnix: record.fetchedAtUnix,
+          updatedAtUnix: record.fetchedAtUnix,
           expiresAtUnix: record.expiresAtUnix,
-          nextRefreshUnix: now + GITHUB_TTL_SECONDS,
-          data: record.data,
-        };
-      } else {
-        const nextRecord: GitHubCacheRecord = {
-          fetchedAtUnix,
-          expiresAtUnix,
-          data: live,
-        };
-        await this.state.storage.put(key, nextRecord);
-        githubPayload = {
-          ok: true,
-          source: "live",
-          stale: false,
-          fetchedAtUnix,
-          expiresAtUnix,
-          nextRefreshUnix: expiresAtUnix,
-          data: live,
-        };
-      }
+        },
+      };
     }
 
-    if (attachNpm) {
-      const npm = await this.getNpmEnvelope(force);
-      return json({ ...githubPayload, npm } satisfies CachedGitHubPayload);
+    const next: GitHubCacheRecord = { fetchedAtUnix, expiresAtUnix, data: live };
+    await this.state.storage.put(key, next);
+    return {
+      data: live,
+      slice: { stale: false, updatedAtUnix: fetchedAtUnix, expiresAtUnix },
+    };
+  }
+
+  private async resolveNpm(
+    force: boolean,
+    now: number,
+  ): Promise<{ data: NpmCacheRecord["data"]; slice: MetaV1Body["cache"]["npm"] }> {
+    const record = await this.state.storage.get<NpmCacheRecord>(NPM_KEY);
+
+    if (!force && record && record.expiresAtUnix > now) {
+      return {
+        data: record.data,
+        slice: { stale: false, updatedAtUnix: record.fetchedAtUnix, expiresAtUnix: record.expiresAtUnix },
+      };
     }
 
-    return json(githubPayload);
+    const live = await fetchNpmCliCore(this.env);
+    const fetchedAtUnix = now;
+    const expiresAtUnix = now + NPM_TTL;
+    const next: NpmCacheRecord = { fetchedAtUnix, expiresAtUnix, data: live };
+    await this.state.storage.put(NPM_KEY, next);
+    return {
+      data: live,
+      slice: { stale: false, updatedAtUnix: fetchedAtUnix, expiresAtUnix },
+    };
+  }
+
+  private async resolveExtension(
+    force: boolean,
+    now: number,
+  ): Promise<{ data: ExtensionRowV1; slice: MetaV1Body["cache"]["extension"] }> {
+    const record = await this.state.storage.get<ExtensionCacheRecord>(EXT_KEY);
+
+    if (!force && record && record.expiresAtUnix > now) {
+      return {
+        data: record.data,
+        slice: { stale: false, updatedAtUnix: record.fetchedAtUnix, expiresAtUnix: record.expiresAtUnix },
+      };
+    }
+
+    const live = await fetchExtensionRow();
+    const fetchedAtUnix = now;
+    const expiresAtUnix = now + EXTENSION_TTL;
+    const next: ExtensionCacheRecord = { fetchedAtUnix, expiresAtUnix, data: live };
+    await this.state.storage.put(EXT_KEY, next);
+    return {
+      data: live,
+      slice: { stale: false, updatedAtUnix: fetchedAtUnix, expiresAtUnix },
+    };
+  }
+
+  private async buildMetaV1(force: boolean): Promise<MetaV1Body> {
+    const owner = GITHUB_OWNER;
+    const repo = GITHUB_REPO;
+    const now = nowUnix();
+
+    const [gh, npm, ext] = await Promise.all([
+      this.resolveGithub(owner, repo, force, now),
+      this.resolveNpm(force, now),
+      this.resolveExtension(force, now),
+    ]);
+
+    const links = buildLinks(this.env);
+
+    return {
+      ok: true,
+      version: 1,
+      generatedAtUnix: nowUnix(),
+      cache: {
+        github: gh.slice,
+        npm: npm.slice,
+        extension: ext.slice,
+      },
+      links,
+      github: gh.data,
+      npm: npm.data,
+      extension: ext.data,
+    };
   }
 
   async fetch(req: Request): Promise<Response> {
     const url = new URL(req.url);
-    if (url.pathname === "/health") {
+    const path = url.pathname;
+
+    if (path === "/health") {
       return json({ ok: true, durableObject: true, nowUnix: nowUnix() });
     }
 
     const force = url.searchParams.get("force") === "1";
-    const pathname = url.pathname === "" ? "/" : url.pathname;
+    const full = await this.buildMetaV1(force);
 
-    if (isNpmPath(pathname)) {
-      return this.respondNpm(force);
-    }
+    if (path === "/v1/meta") return json(full);
+    if (path === "/v1/github") return json(sliceMetaV1(full, "github"));
+    if (path === "/v1/npm") return json(sliceMetaV1(full, "npm"));
+    if (path === "/v1/extension") return json(sliceMetaV1(full, "extension"));
 
-    const owner = GITHUB_OWNER;
-    const repo = GITHUB_REPO;
-    const githubPath =
-      pathname === "/metadata" || pathname === "/repo" || pathname === "/contributors"
-        ? pathname
-        : "/metadata";
-
-    return this.respondGitHubWithNpm(githubPath, owner, repo, force);
+    return json(
+      {
+        ok: false,
+        version: 1,
+        generatedAtUnix: nowUnix(),
+        error: { code: "NOT_FOUND", message: `unknown DO path: ${path}` },
+      } satisfies MetaV1ErrorBody,
+      { status: 404 },
+    );
   }
 }

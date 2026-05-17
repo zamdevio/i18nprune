@@ -1,5 +1,4 @@
-import { LINKS } from "../constants/links";
-import { safeFetchJson } from "./http";
+import { fetchMetaV1, type MetaV1Ok } from "./meta";
 
 export type GitHubRepoMeta = {
   stars: number | null;
@@ -8,67 +7,44 @@ export type GitHubRepoMeta = {
   watchers: number | null;
   contributors: number | null;
   apiError: string | null;
-  fetchedAtUnix?: number;
-  expiresAtUnix?: number;
-  nextRefreshUnix?: number;
-  source?: "cache" | "live" | "stale-cache";
-  stale?: boolean;
 };
 
-type WorkerGithubPayload = {
-  data?: {
-    stars?: number | null;
-    forks?: number | null;
-    openIssues?: number | null;
-    watchers?: number | null;
-    contributors?: number | null;
-    apiError?: string | null;
+function asNum(v: unknown): number | null {
+  return typeof v === "number" && Number.isFinite(v) ? v : null;
+}
+
+export function githubPayloadToRepoMeta(github: MetaV1Ok["github"]): GitHubRepoMeta {
+  return {
+    stars: asNum(github.stars),
+    forks: asNum(github.forks),
+    openIssues: asNum(github.openIssues),
+    watchers: asNum(github.watchers),
+    contributors: asNum(github.contributors),
+    apiError: typeof github.error === "string" ? github.error : null,
   };
-  fetchedAtUnix?: number;
-  expiresAtUnix?: number;
-  nextRefreshUnix?: number;
-  source?: "cache" | "live" | "stale-cache";
-  stale?: boolean;
-};
-
-function asNumberOrNull(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-export function formatGithubCount(value: number | null | undefined): string {
-  if (value == null || Number.isNaN(value)) return "-";
-  return value.toLocaleString("en-US");
-}
-
-export async function fetchGithub(): Promise<GitHubRepoMeta> {
-  const workerUrl = `${LINKS.meta}/metadata`;
-  const worker = await safeFetchJson<WorkerGithubPayload>(
-    workerUrl,
-    { headers: { Accept: "application/json" } },
-    7000,
-  );
-  if (worker.ok && worker.data?.data) {
-    const payload = worker.data.data;
-    return {
-      stars: asNumberOrNull(payload.stars),
-      forks: asNumberOrNull(payload.forks),
-      openIssues: asNumberOrNull(payload.openIssues),
-      watchers: asNumberOrNull(payload.watchers),
-      contributors: asNumberOrNull(payload.contributors),
-      apiError: typeof payload.apiError === "string" ? payload.apiError : null,
-      fetchedAtUnix: asNumberOrNull(worker.data.fetchedAtUnix) ?? undefined,
-      expiresAtUnix: asNumberOrNull(worker.data.expiresAtUnix) ?? undefined,
-      nextRefreshUnix: asNumberOrNull(worker.data.nextRefreshUnix) ?? undefined,
-      source: worker.data.source,
-      stale: typeof worker.data.stale === "boolean" ? worker.data.stale : undefined,
-    };
-  }
+export function emptyGitHubMeta(message: string): GitHubRepoMeta {
   return {
     stars: null,
     forks: null,
     openIssues: null,
     watchers: null,
     contributors: null,
-    apiError: worker.error ?? "GitHub metadata worker unavailable",
+    apiError: message,
   };
+}
+
+export function formatCount(v: number | null | undefined): string {
+  if (v == null || Number.isNaN(v)) return "—";
+  if (v >= 1000) return `${(v / 1000).toFixed(1)}k`;
+  return v.toLocaleString("en-US");
+}
+
+export async function fetchGitHubMeta(): Promise<GitHubRepoMeta> {
+  const snap = await fetchMetaV1();
+  if (snap?.ok === true && snap.github) {
+    return githubPayloadToRepoMeta(snap.github);
+  }
+  return emptyGitHubMeta("Meta worker unavailable");
 }

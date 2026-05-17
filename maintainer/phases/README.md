@@ -10,6 +10,8 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 
 **→ [`V1-RELEASE.md`](./V1-RELEASE.md)**
 
+**Locked vertical order:** [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain) (extractor → init → locales → extension)
+
 **Active sprint tweaks:** [`active-phase.md`](./active-phase.md)
 
 ---
@@ -25,6 +27,8 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 | Doc | Status |
 |-----|--------|
 | [`extractor.md`](./extractor.md) | **Active** — JS/TS extractor improvement plan (false-positive hardening, future languages) |
+| [`init.md`](./init.md) | **Planned** — core-owned onboarding, presets, `--auto`, confidence scoring |
+| [`locales.md`](./locales.md) | **Planned** — reader/writer locale storage; multi-topology; depends on init |
 | [`jsdoc.md`](./jsdoc.md) | **Active** — JSDoc enforcement tiers |
 | [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |
 | [`final.md`](./final.md) | **Gate** — one-time pre-publish checklist (delete after release) |
@@ -35,6 +39,6 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 
 ## Lifecycle
 
-1. Prefer **one hub** (**[`V1-RELEASE.md`](./V1-RELEASE.md)**) for sequencing; **`active-phase.md`** for sprint narrative.
+1. Prefer **one hub** (**[`V1-RELEASE.md`](./V1-RELEASE.md)**) for sequencing; **`active-phase.md`** for sprint narrative **and** the **locked** extractor → init → locales → extension chain (**[§ Locked cross-phase dependency chain](./active-phase.md#locked-cross-phase-dependency-chain)**).
 2. When closing a slice, update or stub the topic file here; duplicate long histories in **`docs/`** user pages is discouraged.
 3. Session noise → **`maintainer/temp/`** only (never commit).

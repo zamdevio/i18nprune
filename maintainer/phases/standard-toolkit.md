@@ -101,7 +101,7 @@ These goals translate "become the standard" into execution policy:
 
 ## Immediate next actions
 
-1. Finish examples coverage through **[`../V1-RELEASE.md`](../V1-RELEASE.md)** Session **H** (see **`../final.md`** for ADR rename + pre-publish polish).
+1. Finish examples coverage through **[`V1-RELEASE.md`](./V1-RELEASE.md)** Session **H** (see **[`final.md`](./final.md)** for ADR rename + pre-publish polish).
 2. Add Start-in-60-seconds draft.
 3. Build unsolved-edge-case inventory and map to owners/commands.
 4. Add parity checklist section to release/pre-merge docs.
