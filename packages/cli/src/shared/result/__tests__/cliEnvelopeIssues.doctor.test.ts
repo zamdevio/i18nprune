@@ -5,7 +5,7 @@ import {
   ISSUE_DOCTOR_PATHS_SOURCE_LOCALE_MISSING,
   ISSUE_DOCTOR_RUNTIME_UNSUPPORTED_NODE,
   ISSUE_DOCTOR_TOOLS_RG_NOT_ON_PATH,
-} from '@/constants/issueCodes.js';
+} from '@i18nprune/core';
 import { issuesFromDoctorFindings } from '@/shared/result/index.js';
 import type { DoctorFinding } from '@i18nprune/core';
 

@@ -16,7 +16,7 @@ import { normalizeUnknownError } from '@/shared/errors/normalize.js';
 import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { ValidateJsonOutput, ValidateJsonRunResult, ValidateRuntime } from '@/types/command/validate/index.js';
-import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '@/constants/issueCodes.js';
+import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '@i18nprune/core';
 
 export function emptyValidateData(): ValidateJsonOutput {
   return {

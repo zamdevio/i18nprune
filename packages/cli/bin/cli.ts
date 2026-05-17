@@ -43,7 +43,7 @@ import { COMMANDS_WITH_JSON_OUTPUT } from '@/constants/jsonoutput.js';
 import {
   ISSUE_CLI_INVALID_JSON_PRETTY,
   ISSUE_REPORT_INVALID_FORMAT,
-} from '@/constants/issueCodes.js';
+} from '@i18nprune/core';
 import type { ReportCommandFormat } from '@/types/command/report/index.js';
 import type { ReportCliJsonPayload } from '@/types/command/report/json.js';
 import type { ProjectReportDocument } from '@/types/command/report/index.js';

@@ -6,5 +6,4 @@
 export * from './cli.js';
 export * from './env.js';
 export * from './jsonoutput.js';
-export * from './links.js';
 export * from './update.js';

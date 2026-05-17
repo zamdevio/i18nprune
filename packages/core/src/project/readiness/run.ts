@@ -81,6 +81,10 @@ function checkSourceLocale(ctx: CoreContext, checks: ProjectReadinessChecks, req
     };
   }
 
+  if (isLocalesStructureRequired(ctx.config.locales)) {
+    return null;
+  }
+
   const localeRead = readLocaleBundle({
     layout: resolveLocalesLayoutFromContext(ctx),
     fs,
@@ -227,17 +231,17 @@ export function runProjectReadiness(ctx: CoreContext, request: ProjectReadinessR
     if (cfgIssue) issues.push(cfgIssue);
   }
 
+  if (checks.localesStructureRequired) {
+    const layoutIssue = checkLocalesStructureRequired(ctx);
+    if (layoutIssue) issues.push(layoutIssue);
+  }
+
   const srcIssue = checkSourceLocale(ctx, checks, request);
   if (srcIssue) issues.push(srcIssue);
 
   if (checks.localesDirectoryAccessible) {
     const locIssue = checkLocalesDir(ctx);
     if (locIssue) issues.push(locIssue);
-  }
-
-  if (checks.localesStructureRequired) {
-    const layoutIssue = checkLocalesStructureRequired(ctx);
-    if (layoutIssue) issues.push(layoutIssue);
   }
 
   if (checks.srcRootDirectory) {

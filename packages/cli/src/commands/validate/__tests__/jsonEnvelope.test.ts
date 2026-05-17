@@ -8,7 +8,7 @@ import { runValidate } from '../jsonEnvelope.js';
 import {
   ISSUE_VALIDATE_DYNAMIC_KEY_SITES,
   ISSUE_VALIDATE_MISSING_LITERAL_KEYS,
-} from '@/constants/issueCodes.js';
+} from '@i18nprune/core';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** `commands/validate/__tests__` -> repo root (6 levels). */

@@ -15,7 +15,7 @@
   "ignoreExportsUsedInFile": true,
   "ignoreIssues": {
     "apps/landing/src/lib/shikiHighlighter.ts": ["dependencies", "unlisted"],
-    "apps/extension/src/webview/src/lib/i18npruneShiki.ts": ["dependencies", "unlisted"]
+    "apps/extension/src/webview/src/lib/shiki.ts": ["dependencies", "unlisted"]
   },
   "workspaces": {
     "apps/landing": {

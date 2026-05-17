@@ -4,7 +4,7 @@ import { logger } from '@/utils/logger/index.js';
 import {
   ISSUE_GENERATE_TRANSLATE_NETWORK_ERROR,
   ISSUE_GENERATE_TRANSLATE_RATE_LIMITED,
-} from '@/constants/issueCodes.js';
+} from '@i18nprune/core';
 import type { Context } from '@/types/core/context/index.js';
 
 function extractMyMemoryWaitHint(issues: readonly Issue[]): string | null {

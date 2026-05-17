@@ -3,7 +3,7 @@ import { resolveContext } from './resolve.js';
 import {
   ISSUE_CONTEXT_DISCOVERY_WARNING,
   ISSUE_CONTEXT_RESOLUTION_FAILED,
-} from '@/constants/issueCodes.js';
+} from '@i18nprune/core';
 import { enrichIssuesWithDocHrefs } from '@/shared/result/index.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { Issue, Result } from '@i18nprune/core';

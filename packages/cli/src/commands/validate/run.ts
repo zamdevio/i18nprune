@@ -8,7 +8,7 @@ import { buildValidateHumanView, buildValidateReportView } from '@i18nprune/core
 import { logger } from '@/utils/logger/index.js';
 import type { ValidateOptions, ValidateJsonOutput } from '@/types/command/validate/index.js';
 import type { CliJsonEnvelope } from '@i18nprune/core';
-import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '@/constants/issueCodes.js';
+import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '@i18nprune/core';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
 import type { DynamicKeySite, KeyObservation } from '@i18nprune/core';
