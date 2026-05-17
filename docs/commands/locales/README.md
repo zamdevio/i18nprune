@@ -6,10 +6,11 @@ Work with **existing locale JSON** under your configured **`localesDir`**. Subco
 
 | Subcommand | Role |
 |------------|------|
-| **[`locales list`](./list/README.md)** | Enumerate `*.json` under **`localesDir`**, leaf counts, source-identical hints vs source. |
-| **[`locales edit`](./edit/README.md)** | Update **`<lang>.meta.json`** (`englishName`, `nativeName`, `direction`) for one, many, or all existing target locales; global **`--patch`** updates supported loader wiring. |
+| **[`locales list`](./list/README.md)** | Enumerate locale JSON segments under **`localesDir`** (layout-aware), leaf counts, source-identical hints vs source. |
 | **[`locales dynamic`](./dynamic/README.md)** | Read-only scan for non-literal translation call sites (same dynamic model as **`validate`**). |
-| **[`locales delete`](./delete/README.md)** | Remove target **`*.json`** / **`*.meta.json`** (multi-target supported). |
+| **[`locales delete`](./delete/README.md)** | Remove target locale JSON segment files (multi-target supported). |
+
+Locale display metadata (`englishName`, `nativeName`, `direction`) belongs in **`src/i18n/config.json`** — use **`i18nprune patch`** to sync loader wiring. See [Locale filesystem layouts](../../locales/layouts.md).
 
 ```bash
 i18nprune locales --help

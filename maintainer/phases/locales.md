@@ -1,6 +1,6 @@
 # Locales phase — multi-topology storage (**in progress**)
 
-**Status:** **In progress** — Phases 1–3 + **row 4** (`feature_bundle` **read**, structural parity diagnostics) shipped; **write** still flat `locale_file` only; rows **5–10** remain.  
+**Status:** **In progress** — Phases 1–6 + **row 7** (ops on layout-aware segment targets) shipped; rows **8–10** remain.  
 **Dependency:** **Init** ([`init.md`](./init.md)) — **shipped** (`locales.source`, `locales.directory`, optional `mode` / `structure`).  
 **Upstream:** **Extractor** ([`extractor.md`](./extractor.md)) — unchanged ownership.
 
@@ -24,12 +24,14 @@ Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#l
 | 2 | `listLocaleCodes` / segment path resolution | **Done** |
 | 3 | `structure`: `locale_per_dir` reader + fixtures | **Done** |
 | 4 | `structure`: `feature_bundle` + structural parity diagnostics | **Done** |
-| 5 | `mode`: `locale_directory` layout | **Todo** |
-| 6 | Init preset / discovery emit `mode` / `structure` when confident | **Todo** |
-| 7 | Migrate ops: list → sync → generate/missing write → quality/review → cleanup → locales edit/delete | **Todo** |
-| 8 | Web/worker extraction use same enumeration as CLI | **Todo** |
-| 9 | User docs: one example per topology | **Todo** |
+| 5 | `mode`: `locale_directory` layout | **Done** |
+| 6 | Init preset / discovery emit `mode` / `structure` when confident | **Done** |
+| 7 | Migrate ops: list → sync → generate/missing write → quality/review → cleanup → locales edit/delete | **Done** |
+| 8 | Web/worker extraction use same enumeration as CLI | **Done** |
+| 9 | User docs: one example per topology | **Done** |
 | 10 | Segment-aware `files.json` for project cache (all locale segments, not only `sourceLocale`) | **Todo** |
+| — | Layout fixtures under `tests/fixtures/layout-*` + `tests/integration/layout.fixtures.test.ts` | **Done** |
+| — | Post-H: Knip with `ignoreExportsUsedInFile: false` (see `locales.md` § Knip follow-up) | **Todo** |
 | — | **Translate cache** ([`translate-cache.md`](./translate-cache.md)) — **after H** | **Deferred** |
 
 **PR slice discipline:** one row (or tight pair like 1a+1b) per PR; parity tests after each op migration.
@@ -259,3 +261,16 @@ See **Implementation tracker** above. High-level phases:
 
 - New topologies = **new enum values + reader/writer pair**, not new `switch` arms in `runQuality`.  
 - Preserve **byte-stable** `--json` contracts per repo parity rules when extending payloads (additive fields preferred).
+
+---
+
+## Knip follow-up (post-H)
+
+After locales tracker rows **8–9** (and ideally **10**), flip **`knip.json`** → **`ignoreExportsUsedInFile: false`** and burn down findings in passes:
+
+1. **Barrel trims** — remove dead re-exports from `packages/core/src/index.ts` and namespace barrels; import from defining modules at call sites.
+2. **CLI** — delete remaining pass-through modules (e.g. removed `constants/issueCodes.ts` / `constants/links.ts`); keep `constants/env.ts` only where CLI adds keys not in core.
+3. **Apps** — extension webview entry graph vs `project` globs; landing shiki allowlist vs real imports.
+4. **CI gate** — `pnpm knip` in CI once clean; keep `tests/fixtures/**` ignored.
+
+Until then, leave **`ignoreExportsUsedInFile: true`** to avoid noise mid-H.

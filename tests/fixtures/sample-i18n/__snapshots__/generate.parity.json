@@ -731,8 +731,7 @@
         "markedForReview": 0,
         "paritySkip": 0,
         "paths": {
-          "localeJson": "<fixture>/locales/ar.json",
-          "metaJson": "<fixture>/locales/ar.meta.json"
+          "localeJson": "<fixture>/locales/ar.json"
         },
         "preserveCount": 0,
         "progress": {

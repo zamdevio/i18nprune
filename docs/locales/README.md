@@ -1,4 +1,10 @@
-# Locales Data Model
+# Locales
+
+## Filesystem layouts
+
+How locale JSON is arranged on disk (`flat_file`, `locale_directory`, `locale_per_dir`, `feature_bundle`) is documented in **[Locale filesystem layouts](./layouts.md)**. When **`mode`** is **`locale_directory`**, **`structure`** is required.
+
+## Data model (leaf modes)
 
 The locale writer commands (`sync`, **`generate`**, **`generate --resume`**) can write leaves in two modes:
 

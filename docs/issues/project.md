@@ -37,7 +37,7 @@ These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a smal
 3. Run **`i18nprune validate`** after the file exists: **`validate`** uses **`i18nprune.validate.source_locale_unreadable`** for the same class of source problems (stable code for that command only); other commands use **`project.source_locale_unavailable`**.
 4. Run **`i18nprune doctor`** for a wider check (Node, **`rg`**, config, paths).
 
-**Commands that gate on this (non-exhaustive):** **`quality`**, **`sync`**, **`missing`**, **`review`**, **`report`**, **`cleanup`**, **`generate`**, **`locales dynamic`**, **`locales delete`**, **`patch`**, **`init`** (post-config guidance), **`doctor`**, and **`config --json`** when paths are broken. **`locales edit`** gates on source + **`localesDir`** only (see **`locales_dir_unavailable`** above).
+**Commands that gate on this (non-exhaustive):** **`quality`**, **`sync`**, **`missing`**, **`review`**, **`report`**, **`cleanup`**, **`generate`**, **`locales dynamic`**, **`locales delete`**, **`patch`**, **`init`** (post-config guidance), **`doctor`**, and **`config --json`** when paths are broken.
 
 ---
 
@@ -54,7 +54,7 @@ These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a smal
 2. Ensure config **`localesDir`** (or env **`I18NPRUNE_LOCALES_DIR`**) matches where your `*.json` locale files live.
 3. **`i18nprune locales list`** lists files under **`localesDir`** once it exists; **`patch --init`** also expects this directory to exist so scaffolded **`config.json`** can list locale codes.
 
-**Commands:** Same family as above; **`locales list`** only checks this directory (not source **`src`**). **`locales edit`** runs source + locales checks only (it does not require **`srcRoot`** for metadata edits).
+**Commands:** Same family as above; **`locales list`** only checks this directory (not source **`src`**).
 
 ---
 
@@ -71,7 +71,24 @@ These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a smal
 2. Create that directory if you are scaffolding a new app layout.
 3. **`patch --init`** writes under **`<src>/i18n/`**; without a valid **`srcRoot`**, scaffold paths are wrong.
 
-**Commands:** Any preset that includes **`srcRootDirectory`** (most pipeline commands, **`locales delete`**, **`patch`**, **`init`**, **`config --json`**, …). **`locales edit`** does **not** require **`srcRoot`** in its readiness preset.
+**Commands:** Any preset that includes **`srcRootDirectory`** (most pipeline commands, **`locales delete`**, **`patch`**, **`init`**, **`config --json`**, …).
+
+---
+
+## `locales_structure_required`
+
+**Code:** `i18nprune.project.locales_structure_required`  
+**Severity:** `error`  
+**When:** Config has **`locales.mode: "locale_directory"`** but **`locales.structure`** is omitted. Layout resolution does not guess **`locale_per_dir`** vs **`feature_bundle`**.  
+**Who:** **`runProjectReadiness`** (`localesStructureRequired`).
+
+**What to do:**
+
+1. Set **`locales.structure`** to **`locale_per_dir`** (one folder per locale, e.g. `messages/en/common.json`) or **`feature_bundle`** (feature folders with `en.json` basenames, e.g. `messages/auth/en.json`).
+2. Run **`i18nprune init`** on an existing tree if you want detection hints, or copy a layout example from [Locale filesystem layouts](../locales/layouts.md).
+3. Repo fixtures: **`tests/fixtures/layout-locale-per-dir`**, **`tests/fixtures/layout-feature-bundle`**.
+
+**Commands:** Any preset that includes **`localesStructureRequired`** (e.g. **`generate`**, **`sync`**, **`locales list`**, **`validate`**, …).
 
 ---
 
