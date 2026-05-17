@@ -1,6 +1,6 @@
 # Locales phase — multi-topology storage (**in progress**)
 
-**Status:** **In progress** — Phases 1–2 + **row 3** (`locale_per_dir` **read**) shipped; **write** still flat `locale_file` only; rows **4–10** remain.  
+**Status:** **In progress** — Phases 1–3 + **row 4** (`feature_bundle` **read**, structural parity diagnostics) shipped; **write** still flat `locale_file` only; rows **5–10** remain.  
 **Dependency:** **Init** ([`init.md`](./init.md)) — **shipped** (`locales.source`, `locales.directory`, optional `mode` / `structure`).  
 **Upstream:** **Extractor** ([`extractor.md`](./extractor.md)) — unchanged ownership.
 
@@ -23,7 +23,7 @@ Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#l
 | 1e | Layout types in `types/locales/layout.ts` (not under `shared/`) | **Done** |
 | 2 | `listLocaleCodes` / segment path resolution | **Done** |
 | 3 | `structure`: `locale_per_dir` reader + fixtures | **Done** |
-| 4 | `structure`: `feature_bundle` + structural parity diagnostics | **Todo** |
+| 4 | `structure`: `feature_bundle` + structural parity diagnostics | **Done** |
 | 5 | `mode`: `locale_directory` layout | **Todo** |
 | 6 | Init preset / discovery emit `mode` / `structure` when confident | **Todo** |
 | 7 | Migrate ops: list → sync → generate/missing write → quality/review → cleanup → locales edit/delete | **Todo** |
@@ -40,19 +40,19 @@ Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#l
 
 ## Locked design (agreed — implement during H)
 
-### Leaf provenance (shipped row 3)
+### Leaf provenance (shipped naming)
 
-**Leaf API (in-memory):** segment provenance **`source?: LocaleSegmentSource`**; structured JSON metadata string on disk → **`catalogSource?: string`**.
+**Leaf API (in-memory):** segment file provenance **`fileOrigin?: LocaleSegmentSource`**; structured JSON metadata string on disk → **`source?: string`** (same field name as on-disk JSON).
 
 ```ts
-source?: {
+fileOrigin?: {
   file: string;           // absolute segment JSON path
   locale: string;
   relativePath: string;   // bundle-root–relative, POSIX `/`
 };
 ```
 
-Structured JSON metadata field `"source": "manual"` on disk → leaf API field **`catalogSource?: string`** (avoids clashing with disk `source` object).
+Structured JSON metadata field `"source": "manual"` on disk → leaf API field **`source?: string`** (`manual`, provider id, `sync`, …).
 
 ### Leaf identity (no cross-file merge)
 
@@ -197,9 +197,9 @@ Core **operations** stay **topology-agnostic** — they emit **logical** patches
 
 ## Enriched locale leaves
 
-The reader **attaches** disk provenance on every normalized row as **`source`** (see [Locked design](#locked-design-agreed--implement-during-h)). Structured locale JSON keeps its on-disk `"source"` string; the leaf API exposes that as **`catalogSource`**.
+The reader **attaches** segment file provenance on every normalized row as **`fileOrigin`** (see [Locked design](#locked-design-agreed--implement-during-h)). Structured locale JSON keeps its on-disk `"source"` string on the leaf as **`source`**.
 
-**Purpose:** enable `key → segment file` for **sync**, **generate**, **missing**, and **extension** hovers/navigation; writer uses **`source`**, not ad-hoc rediscovery.
+**Purpose:** enable `key → segment file` for **sync**, **generate**, **missing**, and **extension** hovers/navigation; writer uses **`fileOrigin`**, not ad-hoc rediscovery.
 
 ---
 

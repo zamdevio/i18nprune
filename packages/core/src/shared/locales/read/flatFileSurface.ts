@@ -42,13 +42,13 @@ export function readFlatLocaleJsonSurface(input: {
       return { ok: false, leaves: [], diagnostics };
     }
 
-    const segmentSource = localeSegmentSourceForFile({
+    const fileOrigin = localeSegmentSourceForFile({
       path: input.path,
       absoluteFile: input.absoluteFile,
       localesDir: input.localesDir,
       structure: input.structure,
     });
-    const leaves = collectTranslationSurfaceLeaves(json, '', [], segmentSource ?? undefined);
+    const leaves = collectTranslationSurfaceLeaves(json, '', [], fileOrigin ?? undefined);
     return { ok: true, document: json, leaves, text, diagnostics };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

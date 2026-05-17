@@ -15,7 +15,7 @@ function readOptionalStatus(o: Record<string, unknown>): string | undefined {
   return s;
 }
 
-function readOptionalCatalogSource(o: Record<string, unknown>): string | undefined {
+function readOptionalLeafSource(o: Record<string, unknown>): string | undefined {
   const s = o.source;
   if (typeof s !== 'string' || !s.trim()) return undefined;
   return s;
@@ -54,7 +54,7 @@ function pushStructuredRow(
   out: TranslationSurfaceLeaf[],
   prefix: string,
   root: Record<string, unknown>,
-  segmentSource: LocaleSegmentSource | undefined,
+  fileOrigin: LocaleSegmentSource | undefined,
 ): void {
   out.push({
     path: prefix,
@@ -64,9 +64,9 @@ function pushStructuredRow(
     confidence: readConfidence(root),
     needsReview: readNeedsReview(root),
     needsTranslationAgain: readNeedsTranslationAgain(root),
-    catalogSource: readOptionalCatalogSource(root),
+    source: readOptionalLeafSource(root),
     structuredMetaComplete: isCompleteStructuredLocaleLeafMeta(root),
-    ...(segmentSource ? { source: segmentSource } : {}),
+    ...(fileOrigin ? { fileOrigin } : {}),
   });
 }
 
@@ -74,7 +74,7 @@ export function collectTranslationSurfaceLeaves(
   root: unknown,
   prefix = '',
   out: TranslationSurfaceLeaf[] = [],
-  segmentSource?: LocaleSegmentSource,
+  fileOrigin?: LocaleSegmentSource,
 ): TranslationSurfaceLeaf[] {
   if (typeof root === 'string') {
     if (prefix) {
@@ -84,21 +84,21 @@ export function collectTranslationSurfaceLeaves(
         shape: 'legacy_string',
         confidence: null,
         needsReview: null,
-        ...(segmentSource ? { source: segmentSource } : {}),
+        ...(fileOrigin ? { fileOrigin } : {}),
       });
     }
     return out;
   }
 
   if (isStructuredLocaleLeafNode(root)) {
-    if (prefix) pushStructuredRow(out, prefix, root, segmentSource);
+    if (prefix) pushStructuredRow(out, prefix, root, fileOrigin);
     return out;
   }
 
   if (Array.isArray(root)) {
     root.forEach((item, i) => {
       const p = prefix ? `${prefix}[${i}]` : `[${i}]`;
-      collectTranslationSurfaceLeaves(item, p, out, segmentSource);
+      collectTranslationSurfaceLeaves(item, p, out, fileOrigin);
     });
     return out;
   }
@@ -106,7 +106,7 @@ export function collectTranslationSurfaceLeaves(
   if (isPlainObject(root)) {
     for (const k of Object.keys(root)) {
       const p = prefix ? `${prefix}.${k}` : k;
-      collectTranslationSurfaceLeaves(root[k], p, out, segmentSource);
+      collectTranslationSurfaceLeaves(root[k], p, out, fileOrigin);
     }
   }
 

@@ -7,6 +7,9 @@ import { listLocaleSegments } from '../enumerate/listLocaleSegments.js';
 import { readFlatLocaleJsonSurface } from './flatFileSurface.js';
 import type { ReadFlatLocaleJsonSurfaceResult } from './flatFileSurface.js';
 
+/**
+ * Read and merge all JSON segments for one locale code (`locale_per_dir` or `feature_bundle`).
+ */
 export function readLocalePerDirLocaleSurface(input: {
   layout: ResolvedLocalesLayout;
   fs: RuntimeFsPort;
@@ -20,7 +23,12 @@ export function readLocalePerDirLocaleSurface(input: {
     input.onDiagnostic?.(d);
   };
 
-  const { segments } = listLocaleSegments({ layout: input.layout, fs: input.fs, path: input.path });
+  const { segments, diagnostics: listDiagnostics } = listLocaleSegments({
+    layout: input.layout,
+    fs: input.fs,
+    path: input.path,
+  });
+  diagnostics.push(...listDiagnostics);
   const forLocale = segments.filter((s) => s.locale === input.localeCode);
   if (forLocale.length === 0) {
     emit({

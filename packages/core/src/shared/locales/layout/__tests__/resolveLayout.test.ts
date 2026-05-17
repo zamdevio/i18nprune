@@ -35,4 +35,18 @@ describe('resolveLocalesLayout', () => {
     expect(isLocalesLayoutWriteSupported(layout)).toBe(true);
     expect(isLocalesLayoutReadSupported(layout)).toBe(true);
   });
+
+  it('supports locale_directory + feature_bundle for read only', () => {
+    const layout = resolveLocalesLayout(
+      {
+        source: 'locales/auth/en.json',
+        directory: 'locales',
+        mode: 'locale_directory',
+        structure: 'feature_bundle',
+      },
+      '/proj/locales',
+    );
+    expect(isLocalesLayoutReadSupported(layout)).toBe(true);
+    expect(isLocalesLayoutWriteSupported(layout)).toBe(false);
+  });
 });

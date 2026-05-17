@@ -22,7 +22,8 @@ export function resolveLocalesLayoutFromContext(ctx: CoreContext): ResolvedLocal
 export function isLocalesLayoutReadSupported(layout: ResolvedLocalesLayout): boolean {
   return (
     (layout.mode === 'flat_file' && layout.structure === 'locale_file') ||
-    (layout.mode === 'locale_directory' && layout.structure === 'locale_per_dir')
+    (layout.mode === 'locale_directory' &&
+      (layout.structure === 'locale_per_dir' || layout.structure === 'feature_bundle'))
   );
 }
 

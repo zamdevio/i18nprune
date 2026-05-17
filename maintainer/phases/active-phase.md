@@ -108,7 +108,7 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **Core-op migrations** | **Shipped — Session A.2** | [`shipped-slices.md`](./shipped-slices.md) |
 | **Extractor hardening** | **Shipped — Session C.1** | [`extractor.md`](./extractor.md) |
 | **Init phase (onboarding)** | **Shipped — Session F** (core + CLI; extension host I1–I3 in [`extension/README.md`](./extension/README.md)) | [`init.md`](./init.md) |
-| **Locales phase (multi-topology)** | **In progress — Session H** (rows 0–3 shipped; **next:** row **4** `feature_bundle`) | [`locales.md`](./locales.md) |
+| **Locales phase (multi-topology)** | **In progress — Session H** (rows 0–4 shipped; **next:** row **5** `locale_directory` write) | [`locales.md`](./locales.md) |
 | **Translate cache** | **Planned — Session H.1** (after **H**; same `config.cache` policy) | [`translate-cache.md`](./translate-cache.md) |
 | **Apps catch-up (web + worker-i18nprune)** | **Planned — Session C.3** (after **H**; **F** shipped) | [`V1-RELEASE.md`](./V1-RELEASE.md) |
 | **Patching hardening** | **Shipped** | [`docs/patching/README.md`](../../docs/patching/README.md) |

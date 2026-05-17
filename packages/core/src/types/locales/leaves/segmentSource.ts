@@ -12,7 +12,7 @@ export type LocaleLeafPathApi = {
 /**
  * On-disk locale JSON segment that contributed a normalized translation row.
  *
- * @remarks Distinct from {@link TranslationSurfaceLeaf.catalogSource} (structured JSON metadata on disk).
+ * @remarks Distinct from {@link TranslationSurfaceLeaf.source} (structured JSON metadata on disk).
  */
 export type LocaleSegmentSource = {
   file: string;

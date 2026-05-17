@@ -3,6 +3,7 @@ import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSou
 import type { ListLocaleSegmentsResult, LocaleSegmentRef } from '../../../types/locales/enumerate.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
+import { collectLocaleStructuralParityDiagnostics } from '../diagnostics/structuralParity.js';
 import { localeCodeForSegment } from './parseSegmentLocale.js';
 import { walkLocaleJsonSegments } from './walkJsonTree.js';
 
@@ -40,6 +41,13 @@ export function listLocaleSegments(input: {
     if (byLocale !== 0) return byLocale;
     return a.relativePath.localeCompare(b.relativePath);
   });
+
+  diagnostics.push(
+    ...collectLocaleStructuralParityDiagnostics({
+      structure: layout.structure,
+      segments,
+    }),
+  );
 
   return { segments, diagnostics };
 }

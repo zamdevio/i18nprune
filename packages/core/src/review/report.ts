@@ -23,7 +23,7 @@ export type BuildReviewJsonDataInput = {
   sourceLocaleJson: unknown;
   targetLocaleJsonByFile: Readonly<Record<string, unknown>>;
   /**
-   * When set, leaf collection attaches segment `source` for each logical row; review JSON aggregates stay unchanged.
+   * When set, leaf collection attaches segment `fileOrigin` for each logical row; review JSON aggregates stay unchanged.
    */
   path?: LocaleLeafPathApi;
 };

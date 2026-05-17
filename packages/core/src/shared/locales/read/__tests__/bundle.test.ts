@@ -81,7 +81,7 @@ describe('readLocaleBundle', () => {
     if (!res.ok) return;
     expect(res.text).toBe(body);
     expect(res.leaves).toHaveLength(1);
-    expect(res.leaves[0]?.source?.relativePath).toBe('en.json');
+    expect(res.leaves[0]?.fileOrigin?.relativePath).toBe('en.json');
   });
 
   it('warn-skips on layout path mismatch', () => {
@@ -111,7 +111,32 @@ describe('readLocaleBundle', () => {
     });
     expect(res.ok).toBe(true);
     if (!res.ok) return;
-    expect(res.leaves[0]?.source?.relativePath).toBe('en/auth.json');
+    expect(res.leaves[0]?.fileOrigin?.relativePath).toBe('en/auth.json');
+  });
+});
+
+describe('readLocaleBundle feature_bundle', () => {
+  it('reads feature_bundle segment paths', () => {
+    const layout = resolveLocalesLayout(
+      {
+        source: 'locales/auth/en.json',
+        directory: 'locales',
+        mode: 'locale_directory',
+        structure: 'feature_bundle',
+      },
+      '/proj/locales',
+    );
+    const absoluteFile = '/proj/locales/auth/en.json';
+    const body = JSON.stringify({ title: 'Auth' });
+    const res = readLocaleBundle({
+      layout,
+      fs: createMemFs({ [absoluteFile]: body }),
+      path,
+      absoluteFile,
+    });
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(res.leaves[0]?.fileOrigin?.relativePath).toBe('auth/en.json');
   });
 });
 
@@ -136,5 +161,34 @@ describe('readLocalePerDirLocaleSurface', () => {
     if (!res.ok) return;
     const paths = res.leaves.map((l) => l.path).sort();
     expect(paths).toEqual(['a', 'b']);
+  });
+
+  it('merges feature_bundle segments and surfaces structural parity warnings', () => {
+    const layout = resolveLocalesLayout(
+      {
+        source: 'locales/auth/en.json',
+        directory: 'locales',
+        mode: 'locale_directory',
+        structure: 'feature_bundle',
+      },
+      '/proj/locales',
+    );
+    const root = '/proj/locales';
+    const fs = createMemFs({
+      [`${root}/auth/en.json`]: JSON.stringify({ a: 'A' }),
+      [`${root}/dashboard/en.json`]: JSON.stringify({ b: 'B' }),
+      [`${root}/auth/fr.json`]: JSON.stringify({ a: 'A-fr' }),
+    });
+    const res = readLocalePerDirLocaleSurface({
+      layout,
+      fs,
+      path,
+      localeCode: 'en',
+    });
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(res.leaves.map((l) => l.path).sort()).toEqual(['a', 'b']);
+    const parityCodes = res.diagnostics.map((d) => d.code);
+    expect(parityCodes).toContain('locale_structure_slot_missing');
   });
 });

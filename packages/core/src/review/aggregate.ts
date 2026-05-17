@@ -34,7 +34,7 @@ export function aggregateReviewRows(
     } else {
       structuredLeaves += 1;
       bump(byStatus, row.status ?? 'unset');
-      bump(bySource, row.catalogSource ?? 'unset');
+      bump(bySource, row.source ?? 'unset');
 
       if (row.needsReview === true) needsReviewTrue += 1;
       else if (row.needsReview === false) needsReviewFalse += 1;

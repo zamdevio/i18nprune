@@ -36,7 +36,7 @@ describe('collectTranslationSurfaceLeaves', () => {
       status: 'translated',
       confidence: 0.9,
       needsReview: false,
-      catalogSource: 'manual',
+      source: 'manual',
       structuredMetaComplete: false,
     });
   });
@@ -75,10 +75,10 @@ describe('collectTranslationSurfaceLeaves', () => {
     };
     const rows = collectTranslationSurfaceLeaves({ a: { b: 'hello' } }, '', [], origin);
     expect(rows).toHaveLength(1);
-    expect(rows[0]?.source).toEqual(origin);
+    expect(rows[0]?.fileOrigin).toEqual(origin);
   });
 
-  it('stamps structured leaves with segment source and catalogSource', () => {
+  it('stamps structured leaves with fileOrigin and source', () => {
     const origin = {
       file: '/tmp/locales/en.json',
       locale: 'en',
@@ -98,8 +98,8 @@ describe('collectTranslationSurfaceLeaves', () => {
       [],
       origin,
     );
-    expect(rows[0]?.source).toEqual(origin);
-    expect(rows[0]?.catalogSource).toBe('manual');
+    expect(rows[0]?.fileOrigin).toEqual(origin);
+    expect(rows[0]?.source).toBe('manual');
   });
 
   it('identifies structured leaf shape helper', () => {

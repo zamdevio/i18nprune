@@ -14,9 +14,9 @@ export type TranslationSurfaceLeaf = {
   confidence: number | null;
   needsReview: boolean | null;
   needsTranslationAgain?: boolean | null;
-  /** Structured-locale JSON `source` field (`manual`, provider id, …) — written to disk; not segment provenance. */
-  catalogSource?: string;
-  /** In-memory segment provenance for multi-file layouts; never persisted as this object. */
-  source?: LocaleSegmentSource;
+  /** Structured-locale JSON `source` field (`manual`, provider id, …) — same name as on-disk JSON. */
+  source?: string;
+  /** In-memory segment file provenance for multi-file layouts; never persisted as this object. */
+  fileOrigin?: LocaleSegmentSource;
   structuredMetaComplete?: boolean;
 };

@@ -34,7 +34,7 @@ describe('readFlatLocaleJsonSurface', () => {
     if (!res.ok) return;
     expect(res.leaves).toHaveLength(1);
     expect(res.leaves[0]?.path).toBe('a.b');
-    expect(res.leaves[0]?.source?.relativePath).toBe('en.json');
+    expect(res.leaves[0]?.fileOrigin?.relativePath).toBe('en.json');
     expect(res.document).toEqual({ a: { b: 'hi' } });
     expect(res.text).toBe(JSON.stringify({ a: { b: 'hi' } }));
     expect(res.diagnostics).toHaveLength(0);
