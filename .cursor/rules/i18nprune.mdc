@@ -38,3 +38,4 @@ alwaysApply: true
 - Decisions in the plan docs are LOCKED unless surfaced first with file:line evidence.
 - If a doc is ambiguous, ASK. Do not guess.
 - Maintainer-only: `maintainer/**` is not mirrored to user-facing docs (`apps/docs/`); keep that boundary.
+- **`docs/**` (VitePress):** public, user-facing copy. Do not embed maintainer phase/session plans, sprint status, or `maintainer/` cross-links unless unavoidable; use plain language and `docs/` links. Contributor depth belongs in `maintainer/systems/` and `maintainer/phases/` (see `maintainer/agents/README.md` § Docs site).

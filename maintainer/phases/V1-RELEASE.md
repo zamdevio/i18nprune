@@ -31,11 +31,13 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 ---
 
-## Session C — Extractor hardening (**active**)
+## Session C — Extractor hardening (**shipped** — Session C.1)
 
-**Docs:** [`extractor.md`](./extractor.md) (§0 — slices C.1.1–C.1.6).
+**Docs:** [`extractor.md`](./extractor.md) (§0 — design reference; slices C.1.1–C.1.6 **shipped**). User methodology: [`docs/extractor/README.md`](../../docs/extractor/README.md). Maintainer map: [`maintainer/systems/extractor.md`](../systems/extractor.md).
 
-Two-phase work in `packages/core/src/extractor/`: **import binding resolution** (C.1.1–C.1.2) adds per-file alias-aware function expansion (regex-based, no AST parser), then **lexical hardening** (C.1.3–C.1.4) rejects prose false positives. Closes with edge-case inventory (C.1.5) and extractor methodology docs (C.1.6).
+Delivered in `packages/core/src/extractor/`: **import binding resolution** (C.1.1–C.1.2, per-file alias-aware `functions` expansion, regex-based), **lexical hardening** (C.1.3–C.1.4, prose false-positive rejection + commented-call parity tests), **edge-case inventory** (C.1.5), **methodology docs** (C.1.6).
+
+**Next in this vertical:** Session **C.2** (patching hardening) — see below.
 
 ---
 
@@ -67,7 +69,7 @@ Update `apps/web` and `apps/workers/i18nprune` to work with the current core API
 
 **Goal:** Best-in-class onboarding — **core-owned** detection, scoring, and config/preset generation; CLI and extension remain **hosts** only (**one intelligence layer, many hosts**).
 
-**Dependencies:** **Extractor** (Session **C.1**) remains the authoritative usage/call-site signal layer; init **consumes** extractor capabilities where runtime evidence is required — no duplicate detection engines in hosts.
+**Dependencies:** **Extractor** (Session **C.1**, shipped) remains the authoritative usage/call-site signal layer; init **consumes** extractor capabilities where runtime evidence is required — no duplicate detection engines in hosts.
 
 **Blocks:** **Session H (Locales)** must not ship core storage work until init **schema + preset** alignment from [`init.md`](./init.md) is in place.
 

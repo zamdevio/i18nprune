@@ -21,6 +21,8 @@ Guides for humans and coding agents working in this repo.
 
 `docs/` is synced into `apps/docs/content/`. When adding, renaming, or removing a markdown page that should appear in the nav, update `apps/docs/.vitepress/sidebar.ts` in the same change.
 
+**Audience and tone:** treat `docs/**` as **end-user documentation** (public site). Prefer plain language, config- and behavior-focused explanations, and links to other `docs/` pages. Avoid maintainer roadmap language (sessions, phases, “shipped” checklists), avoid `maintainer/` paths in prose unless there is no user-safe alternative, and avoid deep internal file paths unless they genuinely help readers (otherwise point contributors to `maintainer/systems/` or the repo). Roadmaps, subsystem maps, and agent-only checklists belong under `maintainer/`.
+
 ## Where things live
 
 | Need | Location |

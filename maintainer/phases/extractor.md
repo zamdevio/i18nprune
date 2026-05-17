@@ -1,7 +1,7 @@
 # Extractor Improvement Plan (JS/TS-first)
 
 This document captures the agreed extractor direction **after** the initial core extraction/migration work.
-It is intentionally **planning-only** (no implementation is implied by its presence).
+It is intentionally **planning-first**: Session **C.1.1–C.1.6** are **implemented and shipped** in core, but this file stays the **authoritative design narrative** and slice checklist for future work (see also `docs/edge-cases/unsolved/inventory.md`).
 
 ## Decisions (locked for now)
 
@@ -13,7 +13,8 @@ It is intentionally **planning-only** (no implementation is implied by its prese
 
 ## Current state (as of this doc)
 
-- Pure extraction primitives live under `packages/core/src/extractor/**` (constmap, keySites scan, dynamic JS-like analysis, etc.)
+- **Session C.1 (shipped):** import binding scan + per-orchestrator `functions` expansion, prose first-arg filter, commented-call dynamic parity tests, edge-case inventory, and methodology docs (`docs/extractor/README.md`, `maintainer/systems/extractor.md`).
+- Pure extraction primitives live under `packages/core/src/extractor/**` (bindings, shared, constmap, keySites, dynamic, …).
 - Project-level orchestration that depends on CLI `Context` + filesystem (walking the tree, reading files) may remain in the CLI until we decide to migrate `Context` or define a “host runner” contract.
 
 ## Medium-priority roadmap items
@@ -30,7 +31,7 @@ The extractor uses three complementary systems (no AST parser, no dataflow analy
 
 | System | Responsibility | Module |
 |--------|----------------|--------|
-| **Import binding resolver** | Detect aliases (`t as newT`), namespace imports (`* as i18n`), CJS destructuring | `extractor/bindings/` (**new — C.1.1**) |
+| **Import binding resolver** | Detect aliases (`t as newT`), namespace imports (`* as i18n`), CJS destructuring | `extractor/bindings/` (Session C.1.1 — **shipped**) |
 | **Scope/const tracker** | Reconstruct `const NS = 'app'` for template substitution | `extractor/constmap/` (shipped) |
 | **Expression evaluator** | Rebuild `` `${NS}.title` `` → `app.title` | `extractor/dynamic/rebuild.ts` (shipped) |
 
@@ -71,35 +72,32 @@ text = readFile(f) ──→ scanImportBindings(text) ──→ expandFunctionsW
 | `foo(t)` / higher-order passing | Requires understanding function signatures |
 | `const { t } = useTranslation()` | Runtime return value — needs framework-specific hook config (deferred) |
 
-**Implementation slices (Session C.1):**
+**Implementation slices (Session C.1) — all shipped:**
 
-1. **C.1.1 — Import binding resolution module**
-   - New `packages/core/src/extractor/bindings/imports.ts`: regex-based scanner for ESM `import` and CJS `require` destructuring patterns.
-   - New `packages/core/src/extractor/bindings/expand.ts`: expand configured `functions[]` with per-file alias discoveries.
-   - Types: `ImportBinding` type in `packages/core/src/types/extractor/bindings/`.
-   - Tests: `packages/core/src/extractor/bindings/__tests__/imports.test.ts` — all six import patterns, negative cases.
-2. **C.1.2 — Wire binding expansion into orchestrators**
-   - `packages/core/src/extractor/keySites/orchestrate.ts`: call `scanImportBindings` + `expandFunctionsWithBindings` per file before `scanKeyObservations`.
-   - `packages/core/src/extractor/dynamic/orchestrate.ts`: same expansion before `findDynamicKeySitesForFile`.
-   - `packages/core/src/extractor/dynamic/providers/javascript.ts`: accept expanded functions.
-   - Tests: extend `keySites/__tests__/scan.test.ts` and `dynamic/__tests__/rebuild.test.ts` with alias scenarios.
-3. **C.1.3 — Call-site lexical hardening (false-positive rejection)**
-   - Tighten candidate parsing in `packages/core/src/extractor/shared/calls.ts`: reject candidates where `firstArgRaw` matches prose patterns (consecutive lowercase words separated by whitespace, not valid JS expression starts).
-   - Keep valid JS/TS expression starts accepted so real code-like calls (including commented-out code) remain detectable.
-   - New `packages/core/src/extractor/shared/__tests__/calls.test.ts`: prose rejection (`t (or vice versa)`-style), preserved detection for all valid call shapes.
-4. **C.1.4 — Commented-call parity tests**
-   - Verify that after C.1.3, real commented-out code calls are still detected with `isCommented: true` / `kind: 'commented'`.
-   - Tests in `packages/core/src/extractor/dynamic/__tests__/`: `// t('key')` detected + marked, `// t (or vice versa)` not detected.
-5. **C.1.5 — Edge-case inventory entries**
-   - Add entries to `docs/edge-cases/unsolved/inventory.md`:
-     - Comment prose false positives (what C.1.3 catches, what remains).
-     - Reassignment aliasing (`const tt = t` — skipped, why).
-     - Hook return destructuring (`useTranslation()` — deferred, approach).
-6. **C.1.6 — Extractor methodology documentation**
-   - **User-facing** `docs/extractor/README.md` (new): the three-system architecture, what patterns are detected, what patterns are NOT, best practices for `t()` usage, detection limits.
-   - **Maintainer** `maintainer/systems/README.md` update: extractor subsystem map with `bindings/` module, pipeline diagram.
+1. ✅ **C.1.1 — Import binding resolution module**
+   - `packages/core/src/extractor/bindings/imports.ts`: regex-based scanner for ESM `import` and CJS `require` destructuring patterns.
+   - `packages/core/src/extractor/bindings/expand.ts`: expand configured `functions[]` with per-file alias discoveries.
+   - Types: `packages/core/src/types/extractor/bindings/`.
+   - Tests: `packages/core/src/extractor/bindings/__tests__/imports.test.ts` — all six import patterns, negative cases, kitchen-sink snapshot.
+2. ✅ **C.1.2 — Wire binding expansion into orchestrators**
+   - `packages/core/src/extractor/keySites/orchestrate.ts`: `scanImportBindings` + `expandFunctionsWithBindings` per file before `scanKeyObservations`.
+   - `packages/core/src/extractor/dynamic/orchestrate.ts`: same expansion before `findDynamicKeySitesForFile` (including merged-text entrypoint).
+   - `packages/core/src/extractor/dynamic/providers/javascript.ts`: receives expanded `functions` from orchestrators.
+   - Tests: `keySites/__tests__/orchestrateBindings.test.ts`, `dynamic/__tests__/orchestrateBindings.test.ts`, `dynamic/__tests__/rebuild.test.ts` alias coverage.
+3. ✅ **C.1.3 — Call-site lexical hardening (false-positive rejection)**
+   - Candidate parsing in `packages/core/src/extractor/shared/calls.ts`: reject `firstArgRaw` that matches prose patterns (consecutive lowercase words separated by whitespace, not valid JS expression starts).
+   - Valid JS/TS expression starts remain accepted so real code-like calls (including commented-out code) stay detectable.
+   - `packages/core/src/extractor/shared/__tests__/calls.test.ts`: prose rejection (`t (or vice versa)`-style), preserved detection for common valid call shapes.
+4. ✅ **C.1.4 — Commented-call parity tests**
+   - Dynamic per-file: commented non-literal / template calls → `kind: 'commented'`, `isCommented: true`; prose in comments omitted.
+   - `// t('literal')` does **not** emit a dynamic site (literal skipped in raw scan — see `dynamic/__tests__/commentedCallParity.test.ts`).
+5. ✅ **C.1.5 — Edge-case inventory entries**
+   - `docs/edge-cases/unsolved/inventory.md`: prose filter scope, reassignment alias gap, hook destructuring (`extractor-prose-first-arg-filter`, `extractor-reassignment-alias`, `extractor-hook-return-destructuring`).
+6. ✅ **C.1.6 — Extractor methodology documentation**
+   - **User-facing** `docs/extractor/README.md`: three-system model, per-file pipeline, limits, best practices, links to inventory and this phase doc.
+   - **Maintainer** `maintainer/systems/extractor.md`: subsystem map + Session C.1 pointer + inventory link; `maintainer/systems/README.md` row for `bindings/`.
 
-**Execution order:** C.1.1 → C.1.2 → C.1.3 → C.1.4 → C.1.5 → C.1.6. Binding resolution first (C.1.1–C.1.2), then hardening (C.1.3–C.1.4), then documentation (C.1.5–C.1.6).
+**Execution order (historical):** C.1.1 → C.1.2 → C.1.3 → C.1.4 → C.1.5 → C.1.6. **Session C.1 is complete**; unresolved behavior stays triaged in `docs/edge-cases/unsolved/inventory.md`.
 
 
 ### 1) Add non-JS/TS languages (deferred)

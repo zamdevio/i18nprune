@@ -4,7 +4,7 @@
 
 **Locked vertical order (extractor → init → locales → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below (same file — no duplicate maintainer-root hub). **init** and **locales** are **planned** (`init.md`, `locales.md`); do not start locales core work before init alignment per [`init.md`](./init.md).
 
-**Narrative focus:** **Extractor hardening (Session C.1)** — import binding resolution + false-positive reduction in `packages/core/src/extractor/`. After that: patching hardening (C.2) → apps rework (C.3) → docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
+**Narrative focus:** **Patching hardening (Session C.2)** and follow-on verticals — **Extractor hardening (Session C.1)** is **shipped** (bindings, orchestrator wiring, call-site prose filter, parity tests, edge-case inventory, methodology in `docs/extractor/README.md`). Then: apps rework (C.3) → docs (D) → landing (D.2) → release polish (E). Hub overview: **`maintainer/phases/README.md`**.
 
 **Planned verticals (post-C.1 / cross-session):** **[`init.md`](./init.md)** (Session **F**) → **[`locales.md`](./locales.md)** (Session **H**) → extension consumes stable contracts (**[`extension/README.md`](./extension/README.md)**).
 
@@ -28,7 +28,7 @@ extension
 
 | Phase | Role | Maintainer doc |
 |-------|------|----------------|
-| **extractor** | Strengthens key detection and runtime-facing signals (bindings, call sites, dynamic classification). **Active work** — downstream phases **must respect** extractor contracts and must not fork parallel detection “truth”. | [`extractor.md`](./extractor.md) |
+| **extractor** | Strengthens key detection and runtime-facing signals (bindings, call sites, dynamic classification). **Session C.1 shipped** — contracts are stable for **init** / **locales** / **extension**; downstream phases **must respect** extractor contracts and must not fork parallel detection “truth”. | [`extractor.md`](./extractor.md) |
 | **init** | Best-in-class onboarding: **core-owned** detection + preset/config generation; **CLI and extension are hosts only**. Depends on stable **config schema** and preset model so locales can hang configuration cleanly. | [`init.md`](./init.md) |
 | **locales** | Multi-topology locale **storage** via **reader/writer** abstraction; **normalized locale surface** for all existing ops. **Must not start** until **init** is aligned (schema + presets). | [`locales.md`](./locales.md) |
 | **extension** | Consumes **stabilized core** APIs and payloads — **no parallel scanning/indexing truth**. May prototype early, but **release-grade** behavior assumes **init + locales** contracts are stable. | [`extension/README.md`](./extension/README.md) |
@@ -64,11 +64,11 @@ extension
 
 ---
 
-## Extractor hardening (**Session C.1 — active**)
+## Extractor hardening (**Session C.1 — shipped**)
 
-**Docs:** [`extractor.md`](./extractor.md) (§0 — full slice plan C.1.1–C.1.6).
+**Docs:** [`extractor.md`](./extractor.md) (§0 — design reference + shipped slice checklist C.1.1–C.1.6). User-facing methodology: [`docs/extractor/README.md`](../../docs/extractor/README.md). Unresolved tradeoffs: [`docs/edge-cases/unsolved/inventory.md`](../../docs/edge-cases/unsolved/inventory.md).
 
-Two-phase work: first add **import binding resolution** (alias-aware per-file function expansion), then **lexical hardening** (prose false-positive rejection). Binding resolution comes first because it enriches the data flowing into call-site detection — all downstream analysis benefits from accurate function sets.
+Work delivered: **import binding resolution** (alias-aware per-file `functions` expansion), **lexical hardening** (prose false-positive rejection in `shared/calls.ts`), **dynamic commented-call parity tests**, **inventory entries**, and **methodology** (`docs/extractor/README.md`, `maintainer/systems/extractor.md`).
 
 | Slice | What | Status |
 |-------|------|--------|
@@ -77,7 +77,7 @@ Two-phase work: first add **import binding resolution** (alias-aware per-file fu
 | **C.1.3** | Call-site lexical hardening (prose rejection in `shared/calls.ts`) | **Shipped** |
 | **C.1.4** | Commented-call parity tests | **Shipped** |
 | **C.1.5** | Edge-case inventory entries | **Shipped** |
-| **C.1.6** | Extractor methodology docs (user-facing + maintainer) | **Next** (finish gaps vs `extractor.md` § C.1.6 checklist) |
+| **C.1.6** | Extractor methodology docs (user-facing + maintainer) | **Shipped** |
 
 ---
 
@@ -108,7 +108,7 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **v1 sessions (ordered)** | **Use first** | **[`V1-RELEASE.md`](./V1-RELEASE.md)** |
 | **Phase dependency chain** | **Locked** | **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** (this file) |
 | **Core-op migrations** | **Shipped — Session A.2** | [`shipped-slices.md`](./shipped-slices.md) |
-| **Extractor hardening** | **Active — Session C** | [`extractor.md`](./extractor.md) |
+| **Extractor hardening** | **Shipped — Session C.1** | [`extractor.md`](./extractor.md) |
 | **Init phase (onboarding)** | **Planned — Session F** | [`init.md`](./init.md) |
 | **Locales phase (multi-topology)** | **Planned — Session H** | [`locales.md`](./locales.md) |
 | **Patching hardening** | **Session C.2** | [`docs/patching/README.md`](../../docs/patching/README.md) |
@@ -128,3 +128,4 @@ Baseline CLI slices + exports parity: **[`shipped-slices.md`](./shipped-slices.m
 - **Locales:** `runDynamic`, `runLocalesList`, `writeLocaleMetaEdit`, `deleteLocaleFiles`.
 - **Cache:** Sub-folder reorganization (`io/`, `setup/`), circular dependency elimination, `baselineFiles` mechanism.
 - **Agents:** Reconstructed `maintainer/agents/` — `architecture.md`, `jsdoc.md`, `rules.md`, `git.md`.
+- **Extractor hardening (Session C.1):** `extractor/bindings/`, orchestrator `functions` expansion, prose first-arg filter in `shared/calls.ts`, dynamic commented-call parity tests, inventory rows — methodology in [`docs/extractor/README.md`](../../docs/extractor/README.md).

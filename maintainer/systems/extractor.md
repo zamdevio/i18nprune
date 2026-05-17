@@ -2,13 +2,29 @@
 
 **Audience:** Maintainers and agents changing `packages/core/src/extractor/**` or call-site behavior.  
 **User-facing mirror:** `docs/extractor/README.md` (behavior, limits, examples).  
-**Phase sequencing:** `maintainer/phases/extractor.md` (Session C.1+).
+**Phase sequencing:** `maintainer/phases/extractor.md` (design reference; Session **C.1** shipped).
 
 ---
 
 ## Responsibility
 
 The extractor answers: **what the source text suggests** about translation helpers (literal keys, template keys, dynamic sites, import bindings). It is **regex-first** — no AST, no whole-program dataflow.
+
+**Session C.1 (shipped):** bindings scan + `functions` expansion in `keySites` / `dynamic` orchestrators, prose first-arg filter in `shared/calls.ts`, commented-call parity tests, edge-case rows in `docs/edge-cases/unsolved/inventory.md`, and this page + `docs/extractor/README.md`.
+
+---
+
+## Per-file pipeline (post–C.1.2)
+
+```txt
+config.functions ────────────────────────────────┐
+                                                  ↓
+readFile → scanImportBindings → expandFunctionsWithBindings → effectiveFunctions
+         ├ commentRanges / const map (orchestrator-specific)
+         └ findTranslationCallSites(text, effectiveFunctions)
+                    ├─→ keySites (scanKeyObservations, …)
+                    └─→ dynamic (findDynamicKeySitesRaw / providers, …)
+```
 
 ---
 
@@ -42,5 +58,6 @@ The extractor answers: **what the source text suggests** about translation helpe
 
 ## Cross-links
 
-- Types: `packages/core/src/types/extractor/bindings/index.js` (`ImportBinding`, `ImportBindingSource`).
-- Blank ranges used before binding scan: `importBindingScanBlankRanges` in `packages/core/src/extractor/shared/jslikeTextRanges.js`.
+- Types: `packages/core/src/types/extractor/bindings/index.ts` (`ImportBinding`, `ImportBindingSource`).
+- Blank ranges used before binding scan: `importBindingScanBlankRanges` in `packages/core/src/extractor/shared/jslikeTextRanges.ts`.
+- Unresolved / deferred behavior: `docs/edge-cases/unsolved/inventory.md` (filter scope, reassignment aliases, hook destructuring).
