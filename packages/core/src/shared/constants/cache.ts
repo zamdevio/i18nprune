@@ -1,5 +1,29 @@
+import type { CacheProfileDefaults, CacheProfileId } from '../../types/cache/profile.js';
+
 /** Envelope version stamped into every on-disk cache JSON file. */
 export const CACHE_SCHEMA_VERSION = 1 as const;
+
+/** Default `cache.profile` when omitted (balanced). */
+export const DEFAULT_CACHE_PROFILE_ID: CacheProfileId = 'balanced';
+
+/** Locked profile bundles — keep in sync with docs/cli/cache.md. */
+export const CACHE_PROFILE_DEFAULTS: Record<CacheProfileId, CacheProfileDefaults> = {
+  safe: {
+    rebuild: 'full',
+    fullRescanThresholdPercent: 10,
+    mode: 'readWrite',
+  },
+  balanced: {
+    rebuild: 'partial',
+    fullRescanThresholdPercent: 40,
+    mode: 'readWrite',
+  },
+  fast: {
+    rebuild: 'partial',
+    fullRescanThresholdPercent: 70,
+    mode: 'readWrite',
+  },
+};
 
 /** On-disk project scan cache (`analysis.json`). */
 export const ANALYSIS_BASENAME = 'analysis.json';

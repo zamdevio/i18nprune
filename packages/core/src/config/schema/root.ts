@@ -218,17 +218,23 @@ const cacheSchema = z
       .string()
       .optional()
       .describe('Cache root directory. Relative paths resolve from the project root; omit to use the host default.'),
+    profile: z
+      .enum(['safe', 'balanced', 'fast'])
+      .optional()
+      .describe(
+        "Named preset for cache rebuild policy. Default 'balanced' when omitted. Explicit rebuild, threshold, or mode below override the profile when set.",
+      ),
     mode: z
       .enum(['readWrite', 'readOnly'])
       .optional()
       .describe(
-        'readWrite (default): cache may persist hits and misses. readOnly: reuse valid cache on disk but skip all cache writes (meta, files index, snapshots).',
+        'readWrite (default): cache may persist hits and misses. readOnly: reuse valid cache on disk but skip all cache writes (meta, files index, snapshots). Overrides cache.profile when set.',
       ),
     rebuild: z
       .enum(['partial', 'full'])
       .optional()
       .describe(
-        "How to rebuild analysis.json on cache miss when files.json reports changes. 'partial' (default): patch from delta when safe. 'full': always run a full project scan.",
+        "How to rebuild analysis.json on cache miss. Overrides cache.profile when set. 'partial': patch from delta when safe. 'full': always run a full project scan.",
       ),
     fullRescanThresholdPercent: z
       .number()
@@ -236,7 +242,7 @@ const cacheSchema = z
       .max(100)
       .optional()
       .describe(
-        "When rebuild is 'partial', fall back to a full src scan if (added+changed+deleted) src files reach this percent of tracked src files. Default 40. Ignored when rebuild is 'full'.",
+        "When rebuild is 'partial', fall back to a full src scan if (added+changed+deleted) src files reach this percent of tracked src files. Overrides cache.profile when set. Ignored when rebuild is 'full'.",
       ),
   })
   .strict()

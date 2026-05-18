@@ -5,6 +5,8 @@ import type { ScanExcludeConfig } from '../scanner/index.js';
 import type { AnalysisRebuildDecision, CacheProducerContext, CacheRebuildConfig } from './rebuild.js';
 import type { FilesIndexStatus } from './filesIndex.js';
 
+export type { CacheProfileDefaults, CacheProfileId } from './profile.js';
+export type { CacheConfigSource, ResolvedCacheConfig } from './resolve.js';
 export type { FilesIndexStatus } from './filesIndex.js';
 export { filesIndexIsUsable } from './filesIndex.js';
 export type {

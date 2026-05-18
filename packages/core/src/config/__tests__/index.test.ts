@@ -36,6 +36,22 @@ describe('resolveCoreConfig', () => {
     expect(cfg.scanner.effectiveConcurrency).toBe(16);
   });
 
+  it('resolves cache profile with explicit overrides', () => {
+    const balanced = resolveCoreConfig({ cache: { profile: 'balanced' } });
+    expect(balanced.cache.profile).toBe('balanced');
+    expect(balanced.cache.rebuild).toBe('partial');
+    expect(balanced.cache.fullRescanThresholdPercent).toBe(40);
+
+    const safe = resolveCoreConfig({ cache: { profile: 'safe' } });
+    expect(safe.cache.rebuild).toBe('full');
+
+    const override = resolveCoreConfig({
+      cache: { profile: 'safe', rebuild: 'partial', fullRescanThresholdPercent: 99 },
+    });
+    expect(override.cache.rebuild).toBe('partial');
+    expect(override.cache.fullRescanThresholdPercent).toBe(99);
+  });
+
   it('applies scanner mode and clamp rules', () => {
     const concurrent = resolveCoreConfig({ scanner: { mode: 'concurrent', concurrency: 128, hardCap: 24 } });
     expect(concurrent.scanner.hardCap).toBe(24);

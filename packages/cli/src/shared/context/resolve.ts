@@ -50,6 +50,9 @@ function applyCliToConfig(base: I18nPruneConfig, cli: CliGlobalOverrides): I18nP
       out.patching = { ...(out.patching ?? {}), enabled: true };
     }
   }
+  if (cli.cacheProfile !== undefined) {
+    out.cache = { ...(out.cache ?? {}), profile: cli.cacheProfile };
+  }
   return mergeScanExcludeCli(out, cli);
 }
 

@@ -41,15 +41,18 @@ export {
 export { classifyCacheFileDelta, countSrcDeltaAffected, srcDeltaIsEmpty } from './deltaClassify.js';
 export { resolveFilesIndexStatus } from './filesIndexStatus.js';
 export {
-  decideAnalysisRebuild,
-  DEFAULT_CACHE_REBUILD_CONFIG,
+  resolveCacheConfig,
   resolveCacheRebuildConfig,
-} from './rebuildPolicy.js';
+} from './resolveConfig.js';
+export type { CacheConfigSource, ResolvedCacheConfig } from './resolveConfig.js';
+export { decideAnalysisRebuild } from './rebuildPolicy.js';
 export { getOrBuildCachedProjectData } from './dispatch.js';
 export { emitCacheDispatchMessages, emitCacheMemoryHitMessage } from './events.js';
 export {
   ANALYSIS_BASENAME,
+  CACHE_PROFILE_DEFAULTS,
   CACHE_SCHEMA_VERSION,
+  DEFAULT_CACHE_PROFILE_ID,
   MAX_ANALYSIS_BYTES,
   MAX_PROJECT_FILES_BYTES,
   MAX_PROJECTS_INDEX_BYTES,
@@ -67,6 +70,8 @@ export type {
   CacheProducerContext,
   CacheRebuildConfig,
   CacheRebuildMode,
+  CacheProfileId,
+  CacheProfileDefaults,
   ClassifiedCacheFileDelta,
   ClassifiedSrcDelta,
   AnalysisRebuildDecision,

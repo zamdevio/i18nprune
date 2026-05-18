@@ -159,6 +159,30 @@ describe('resolveContext CLI scan exclude flags', () => {
     expect(ctx.meta.cache.readOnly).toBe(false);
   });
 
+  it('applies --cache-profile via cli globals', async () => {
+    const cfgPath = path.join(dir, 'i18nprune.config.ts');
+    fs.writeFileSync(
+      cfgPath,
+      `export default {
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
+        src: 'src',
+        functions: ['t'],
+        cache: { profile: 'balanced', rebuild: 'partial' },
+      }`,
+      'utf8',
+    );
+    process.chdir(dir);
+    setConfigPath(cfgPath);
+    await ensureConfigPathResolved(dir);
+    setCliGlobalOverrides({ cacheProfile: 'safe' });
+    const ctx = await resolveContext(dir);
+    expect(ctx.config.cache?.profile).toBe('safe');
+    expect(ctx.config.cache?.rebuild).toBe('partial');
+  });
+
   it('honors --no-cache via cli globals', async () => {
     const cfgPath = path.join(dir, 'i18nprune.config.ts');
     fs.writeFileSync(

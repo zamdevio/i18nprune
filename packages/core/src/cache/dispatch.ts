@@ -1,6 +1,7 @@
 import { classifyCacheFileDelta } from './deltaClassify.js';
 import { resolveFilesIndexStatus } from './filesIndexStatus.js';
-import { decideAnalysisRebuild, DEFAULT_CACHE_REBUILD_CONFIG, resolveCacheRebuildConfig } from './rebuildPolicy.js';
+import { decideAnalysisRebuild } from './rebuildPolicy.js';
+import { resolveCacheRebuildConfig } from './resolveConfig.js';
 import { layoutMatches, resolveCachedLocalesLayout } from './localesLayout.js';
 import {
   buildTrackedProjectFilesCurrent,
@@ -84,7 +85,7 @@ function buildProducerContext<T>(input: {
     currentLayout: input.tracked.localesLayout,
     filesIndexStatus: input.filesIndexStatus,
   });
-  const rebuildConfig = input.input.rebuildConfig ?? DEFAULT_CACHE_REBUILD_CONFIG;
+  const rebuildConfig = input.input.rebuildConfig ?? resolveCacheRebuildConfig({ profile: 'balanced' });
   const trackedSrcCount = currentSrcFileKeys.size;
   const analysisRebuild = {
     ...decideAnalysisRebuild({
@@ -137,7 +138,7 @@ export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): Ca
     analysis: state.analysisPath,
     projectDir: state.projectDir,
   };
-  const rebuildConfig = input.rebuildConfig ?? resolveCacheRebuildConfig(undefined);
+  const rebuildConfig = input.rebuildConfig ?? resolveCacheRebuildConfig({ profile: 'balanced' });
   if (!state.enabled) {
     return {
       data: input.producer(),

@@ -4,6 +4,7 @@ import {
   configFileNameForFormat,
   defaultInitConfigFileName,
 } from '../index.js';
+import { getDocsUrl } from '../../shared/docs/urls.js';
 
 describe('init core helpers', () => {
   it('builds config template and file names', () => {
@@ -31,8 +32,11 @@ describe('init core helpers', () => {
     expect(tpl).toContain('enabled: false');
     expect(tpl).toContain('scanner:');
     expect(tpl).toContain('cache:');
-    expect(tpl).toContain("rebuild: 'partial'");
-    expect(tpl).toContain('fullRescanThresholdPercent: 40');
+    expect(tpl).toContain("profile: 'balanced'");
+    expect(tpl).toContain(getDocsUrl('cli/cache'));
+    expect(tpl).toContain('Optional overrides');
+    expect(tpl).toContain('// rebuild:');
+    expect(tpl).toContain('// fullRescanThresholdPercent: 40');
     expect(tpl).toContain('localeLeaves:');
     expect(tpl).toContain('missing:');
     expect(tpl).toContain('placeholder:');

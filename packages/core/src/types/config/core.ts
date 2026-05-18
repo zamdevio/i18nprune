@@ -16,6 +16,7 @@ export type CoreConfigInput = {
   cache?: {
     enabled?: boolean;
     dir?: string;
+    profile?: import('../cache/profile.js').CacheProfileId;
     mode?: 'readWrite' | 'readOnly';
     rebuild?: 'partial' | 'full';
     fullRescanThresholdPercent?: number;
@@ -29,6 +30,7 @@ export type CoreConfigResolved = {
   scanner: ScannerConfigResolved;
   cache: {
     enabled: boolean;
+    profile: import('../cache/profile.js').CacheProfileId;
     dir?: string;
     mode: 'readWrite' | 'readOnly';
     rebuild: 'partial' | 'full';

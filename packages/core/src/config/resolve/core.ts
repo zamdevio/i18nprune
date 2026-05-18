@@ -1,3 +1,4 @@
+import { resolveCacheConfig } from '../../cache/resolveConfig.js';
 import { resolveListWindow } from '../../shared/options/index.js';
 import { resolveScannerConfig } from '../../shared/scanner/config.js';
 import type { CoreConfigInput, CoreConfigResolved, ResolveCoreConfigOptions } from '../../types/config/index.js';
@@ -44,13 +45,7 @@ export function resolveCoreConfig(
       ),
     },
     scanner: resolveScannerConfig(input?.scanner, options?.scanner),
-    cache: {
-      enabled: input?.cache?.enabled ?? true,
-      mode: input?.cache?.mode === 'readOnly' ? 'readOnly' : 'readWrite',
-      rebuild: input?.cache?.rebuild === 'full' ? 'full' : 'partial',
-      fullRescanThresholdPercent: input?.cache?.fullRescanThresholdPercent ?? 40,
-      ...(input?.cache?.dir !== undefined ? { dir: input.cache.dir } : {}),
-    },
+    cache: resolveCacheConfig(input?.cache),
   };
 }
 

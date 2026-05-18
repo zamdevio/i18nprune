@@ -1,5 +1,5 @@
 import type { I18nPruneConfig } from '@i18nprune/core/config';
-import type { RunOptions } from '@i18nprune/core';
+import type { RunOptions, CacheProfileId } from '@i18nprune/core';
 import type { CacheProjectFileRecord, CacheState } from '@i18nprune/core';
 import type { RuntimeAdapters } from '@i18nprune/core';
 
@@ -51,6 +51,8 @@ export type CliGlobalOverrides = {
   noDefaultScanSkip?: boolean;
   /** Per-run cache bypass (`--no-cache`). */
   noCache?: boolean;
+  /** Per-run `cache.profile` override (`--cache-profile`). */
+  cacheProfile?: CacheProfileId;
   /** Per-run patching override (`--patch`) to force patching enabled regardless of config file default. */
   patch?: boolean;
 };

@@ -1,4 +1,10 @@
 export {
+  CACHE_PROFILE_DEFAULTS,
+  DEFAULT_CACHE_PROFILE_ID,
+  resolveCacheConfig,
+  resolveCacheRebuildConfig,
+} from '../cache/index.js';
+export {
   ANALYSIS_BASENAME,
   CACHE_SCHEMA_VERSION,
   MAX_ANALYSIS_BYTES,
@@ -52,6 +58,10 @@ export type {
   CacheProducerContext,
   CacheRebuildConfig,
   CacheRebuildMode,
+  CacheProfileId,
+  CacheProfileDefaults,
+  CacheConfigSource,
+  ResolvedCacheConfig,
   ClassifiedCacheFileDelta,
   ClassifiedSrcDelta,
   CacheHashText,

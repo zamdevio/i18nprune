@@ -68,6 +68,13 @@ function parseExcludeDirsCsv(s: string | undefined): string[] | undefined {
   return parts.length > 0 ? parts : undefined;
 }
 
+function parseCacheProfileOption(value: string | undefined): 'safe' | 'balanced' | 'fast' | undefined {
+  if (value === undefined) return undefined;
+  const x = value.trim().toLowerCase();
+  if (x === 'safe' || x === 'balanced' || x === 'fast') return x;
+  throw new Error(`Invalid --cache-profile: expected safe, balanced, or fast (got ${value})`);
+}
+
 function parseBooleanOption(name: string, value: string | undefined, fallback: boolean): boolean {
   if (value === undefined) return fallback;
   const x = value.trim().toLowerCase();
@@ -122,6 +129,10 @@ program
   .option('--patch', 'enable patching for this run (overrides config patching.enabled=false)', false)
   .option('--no-cache', 'disable CLI cache for this run only')
   .option(
+    '--cache-profile <id>',
+    'override cache.profile for this run (safe | balanced | fast); explicit cache.rebuild / fullRescanThresholdPercent / mode in config still win',
+  )
+  .option(
     '--debug-scan',
     'log source scan skip decisions to stderr (built-in skips, exclude rules, non-scanned extensions)',
     false,
@@ -152,6 +163,7 @@ program
       silent?: boolean;
       debugScan?: boolean;
       debugCache?: boolean;
+      cacheProfile?: string;
     }>();
     setConfigPath(opts.config);
     clearContextCache();
@@ -206,6 +218,7 @@ program
     setCliListFullFlag(jsonOutput ? false : Boolean(opts.full));
     await ensureUpdateCacheRefreshed({ jsonOutput });
     const excludeDirs = parseExcludeDirsCsv(opts.exclude);
+    const cacheProfile = parseCacheProfileOption(opts.cacheProfile);
     setCliGlobalOverrides({
       ...(opts.source !== undefined ? { source: opts.source } : {}),
       ...(opts.localesDir !== undefined ? { localesDir: opts.localesDir } : {}),
@@ -214,6 +227,7 @@ program
       ...(excludeDirs ? { scanExcludeDirNames: excludeDirs } : {}),
       ...(opts.patch === true ? { patch: true } : {}),
       ...(opts.cache === false ? { noCache: true } : {}),
+      ...(cacheProfile !== undefined ? { cacheProfile } : {}),
     });
     setCliYesFlag(Boolean(opts.yes));
     if (actionCommand.name() !== CLI_NAME) {

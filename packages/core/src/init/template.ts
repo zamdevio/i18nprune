@@ -1,6 +1,10 @@
 import type { InitLocaleLayoutHint, InitPresetId } from '../types/init/index.js';
 import { DEFAULT_PROVIDER_RATE_LIMITS } from '../shared/translator/utils/orchestration.js';
+import { getDocsUrl } from '../shared/docs/urls.js';
 import { getInitPresetConfigFields } from './presets/fields.js';
+
+const CACHE_PROFILE_DOCS_URL = getDocsUrl('cli/cache');
+const REFERENCE_DOCS_URL = getDocsUrl('reference');
 
 export type InitConfigFormat = 'ts' | 'mts' | 'js' | 'mjs';
 
@@ -189,9 +193,8 @@ ${body}
       stringPresenceMaxHitsPerKey: 5,
       respectPreserve: true,
     },
-    // Per-command overrides: add \`commands: { cleanup?: {…}, sync?: {…}, generate?: {…} }\` using the SAME field keys as \`defaults\`.
-    // Each block shallow-merges over \`defaults\` when that command runs (documented keys only; omit \`commands\` until you need a divergence).
-    // See repo \`docs/reference/\` and types \`ReferenceConfig\` via \`i18nprune/core/config\`.
+    // Per-command overrides: add \`commands: { cleanup?: {…}, sync?: {…}, generate?: {…} }\` with the same keys as \`defaults\`.
+    // Each block shallow-merges over \`defaults\` when that command runs. Docs: ${REFERENCE_DOCS_URL}
   },
 
   localeLeaves: {
@@ -204,7 +207,7 @@ ${body}
   },
 
   missing: {
-    // Omit \`placeholder\` → core default __I18NPRUNE_MISSING__; set any string you want merged at new paths (grep-friendly sentinel recommended).
+    // Omit \`placeholder\` to use the SDK default sentinel; set any string merged at new paths (grep-friendly recommended).
     placeholder: '__I18NPRUNE_MISSING__',
   },
   output: {
@@ -223,17 +226,15 @@ ${body}
   },
 
   cache: {
-    // Core-owned project analysis cache. Omit \`dir\` to use the host default (CLI: ~/.i18nprune/cache).
+    // Preset: safe | balanced | fast (default when omitted: balanced). ${CACHE_PROFILE_DOCS_URL}
+    profile: 'balanced',
+    // On-disk scan cache for faster repeat runs. Omit \`dir\` for the CLI default (~/.i18nprune/cache).
     enabled: true,
+    // --- Optional overrides (uncomment to replace the profile value for that field only) ---
     // dir: '.i18nprune/cache',
-    // mode: 'readWrite', // 'readOnly' skips all cache writes (useful for CI audit runs).
-    // How to rebuild \`analysis.json\` when \`files.json\` reports changes:
-    // - \`partial\` (default): patch src scan arrays when safe; see \`fullRescanThresholdPercent\`.
-    // - \`full\`: always run a full project scan on every analysis miss.
-    rebuild: 'partial',
-    // When \`rebuild\` is \`partial\`, fall back to a full src scan if
-    // (added + changed + deleted) src files reach this percent of tracked src files. Default 40.
-    fullRescanThresholdPercent: 40,
+    // mode: 'readWrite', // or 'readOnly' (CI: read cache, never write)
+    // rebuild: 'partial', // or 'full' — always full scan on analysis miss
+    // fullRescanThresholdPercent: 40, // partial only: full scan when this % of src files change
   },
 
   patching: {

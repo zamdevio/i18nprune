@@ -77,19 +77,47 @@ Otherwise the command recomputes the scan and writes fresh JSON.
 
 Global **`--no-cache`** disables cache for that process.
 
+## Cache profiles
+
+Set a single preset, then override only what you need. The SDK resolves the final policy (CLI merges config + flags, then applies the profile).
+
+```ts
+cache: {
+  profile: 'balanced', // safe | balanced | fast — default: balanced when omitted
+  enabled: true,
+  // Optional overrides (only when set; they replace the profile value for that field):
+  // rebuild: 'full',
+  // fullRescanThresholdPercent: 40,
+  // mode: 'readOnly',
+}
+```
+
+| Profile | `rebuild` | `fullRescanThresholdPercent` | `mode` | Typical use |
+|---------|-----------|------------------------------|--------|-------------|
+| **`safe`** | `full` | `10` | `readWrite` | Prefer correctness; always full analysis scan on miss (`10` applies only if you switch to `partial`). |
+| **`balanced`** (default) | `partial` | `40` | `readWrite` | Default shipped behavior. |
+| **`fast`** | `partial` | `70` | `readWrite` | Large repos; tolerate more partial work before a full src scan. |
+
+**Override rule:** `profile` supplies defaults. Any **explicit** `rebuild`, `fullRescanThresholdPercent`, or `mode` in config wins over the profile. Omitted fields use the profile. `enabled` and `dir` are independent of the profile.
+
+**CLI:** `--cache-profile <safe|balanced|fast>` sets `cache.profile` for that run (same override rules: explicit `rebuild`, `fullRescanThresholdPercent`, or `mode` in the config file still win over the profile).
+
+`i18nprune init --rich` emits `profile: 'balanced'` with commented override lines.
+
 ## Incremental analysis rebuild
 
-When **`files.json`** reports changes and a valid **`analysis.json`** exists, core may **patch** scan arrays instead of walking all of `src/**`:
+When **`files.json`** reports changes and a valid **`analysis.json`** exists, the SDK may **patch** scan arrays instead of walking all of `src/**` (when resolved `rebuild` is `partial`):
 
-| Config | Default | Effect |
-|--------|---------|--------|
-| **`cache.rebuild`** | `partial` | Patch from the file delta when safe; see threshold below. |
-| **`cache.rebuild`** | `full` | Always run a full project scan on every analysis miss (opt-out of partial rebuild). |
-| **`cache.fullRescanThresholdPercent`** | `40` | When `rebuild` is `partial`, if changed/added/deleted **src** files reach this percent of tracked src files, fall back to a full src scan. Applies to **src** only, not locale segments. |
+| Field | Effect |
+|-------|--------|
+| **`cache.rebuild`** | `partial`: patch from the file delta when safe. `full`: always run a full project scan on every analysis miss. |
+| **`cache.fullRescanThresholdPercent`** | When `rebuild` is `partial`, if changed/added/deleted **src** files reach this percent of tracked src files, fall back to a full src scan. Applies to **src** only, not locale segments. |
+
+Resolved values come from **`cache.profile`** unless you override those fields explicitly (see table above).
 
 Partial rebuild today covers **src file** changes only (delete rows for removed paths, rescan changed/added files, recompute `missingKeys` from the unchanged source locale). Locale-only or layout changes still trigger a full scan until later cache phases add finer-grained locale patching.
 
-If **`files.json`** is missing, invalid, or empty but **`analysis.json`** is still valid and the project fingerprint (`inputFilesEpoch`) matches, core **rebuilds only the files index** and reuses analysis (fast path; `--debug-cache` shows `files_index_recovered`). If the project changed on disk since the last analysis write, a full scan runs with an explicit reason (`files.json missing`, `invalid`, or `project files changed`).
+If **`files.json`** is missing, invalid, or empty but **`analysis.json`** is still valid and the project fingerprint (`inputFilesEpoch`) matches, the SDK **rebuilds only the files index** and reuses analysis (fast path; `--debug-cache` shows `files_index_recovered`). If the project changed on disk since the last analysis write, a full scan runs with an explicit reason (`files.json missing`, `invalid`, or `project files changed`).
 
 ## `--debug-cache`
 

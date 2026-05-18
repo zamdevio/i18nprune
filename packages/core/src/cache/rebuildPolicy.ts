@@ -4,25 +4,12 @@ import type {
   AnalysisRebuildDecision,
   AnalysisRebuildReason,
   CacheRebuildConfig,
-  CacheRebuildMode,
   ClassifiedCacheFileDelta,
   FilesIndexStatus,
 } from '../types/cache/index.js';
 
-export const DEFAULT_CACHE_REBUILD_CONFIG: CacheRebuildConfig = {
-  rebuild: 'partial',
-  fullRescanThresholdPercent: 40,
-};
-
-export function resolveCacheRebuildConfig(
-  cache: { rebuild?: CacheRebuildMode; fullRescanThresholdPercent?: number } | undefined,
-): CacheRebuildConfig {
-  return {
-    rebuild: cache?.rebuild ?? DEFAULT_CACHE_REBUILD_CONFIG.rebuild,
-    fullRescanThresholdPercent:
-      cache?.fullRescanThresholdPercent ?? DEFAULT_CACHE_REBUILD_CONFIG.fullRescanThresholdPercent,
-  };
-}
+export { resolveCacheConfig, resolveCacheRebuildConfig } from './resolveConfig.js';
+export type { CacheConfigSource, ResolvedCacheConfig } from './resolveConfig.js';
 
 function filesIndexRebuildReason(status: FilesIndexStatus): AnalysisRebuildReason {
   switch (status.kind) {
