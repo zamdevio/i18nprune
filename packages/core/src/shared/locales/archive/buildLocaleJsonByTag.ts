@@ -26,7 +26,7 @@ export function buildLocaleJsonByTagFromArchive(input: {
   const segments: Segment[] = [];
 
   for (const archiveRelPath of archiveRelPaths) {
-    if (!archiveRelPath.endsWith('.json') || archiveRelPath.endsWith('.meta.json')) continue;
+    if (!archiveRelPath.endsWith('.json')) continue;
     const absolutePath = resolveArchiveAbsolute(archiveRelPath);
     const relativePath = path.relative(localesDirAbsolute, absolutePath);
     if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) continue;

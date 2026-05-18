@@ -1,5 +1,5 @@
-import type { ProjectAnalysis } from '../analysis/project.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
+import type { ProjectAnalysis } from '../types/analysis/index.js';
 import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js';
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
@@ -79,6 +79,13 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
       version: 1,
       keyObservations,
       dynamicSites,
+      missingKeys: [],
+      counts: {
+        keyObservations: keyObservations.length,
+        dynamicSites: dynamicSites.length,
+        sourceFilesScanned: 0,
+        missingKeys: 0,
+      },
       usage: literalKeyUsageFromObservations(keyObservations),
     };
     return readFailureResult(ctx, err, analysis);

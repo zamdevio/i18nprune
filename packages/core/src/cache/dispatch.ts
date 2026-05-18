@@ -1,47 +1,63 @@
-import { listSourceFiles } from '../shared/scanner/files.js';
-import { readRuntimeFsTextSync } from '../runtime/helpers/sync/index.js';
-import { computeCacheContentHash, textByteLength, loadProjectFilesState, loadProjectRunState, saveProjectFilesState, saveProjectRunState } from './io/index.js';
+import { layoutMatches, resolveCachedLocalesLayout } from './localesLayout.js';
+import {
+  buildTrackedProjectFilesCurrent,
+  mergeTrackedFileMaps,
+  omitSyntheticSourceKey,
+  type TrackedProjectFilesCurrent,
+} from './trackedFiles.js';
 import { computeInputFilesEpoch, diffProjectFiles } from './engine.js';
+import { loadProjectFilesState, loadProjectRunState, saveProjectFilesState, saveProjectRunState } from './io/index.js';
 import { prepareCacheForRun } from './setup/index.js';
 import type {
   CacheDispatchResult,
   CacheInputFilesEpochDebug,
   CacheProjectFileRecord,
+  CacheProjectFilesState,
   CachedProjectInput,
   CacheDispatchReason,
   CacheWarning,
 } from '../types/cache/index.js';
 
-function buildCurrentFileRecords<T>(input: CachedProjectInput<T>): Record<string, CacheProjectFileRecord> {
-  const files = listSourceFiles(
-    { fs: input.runtime.fs, path: input.runtime.path },
-    input.srcRoot,
-    input.exclude,
-  );
-  const all = [input.sourceLocalePath, ...files];
-  const now = new Date(input.runtime.system.now()).toISOString();
-  const out: Record<string, CacheProjectFileRecord> = {};
-  for (const absPath of all) {
-    const content = readRuntimeFsTextSync(absPath, input.runtime.fs);
-    const rel = input.runtime.path.relative(input.srcRoot, absPath).replace(/\\/g, '/');
-    const key = absPath === input.sourceLocalePath ? '__source_locale__' : rel;
-    out[key] = {
-      hash: computeCacheContentHash(content, input.runtime.hashText),
-      size: textByteLength(content, input.runtime),
-      mtimeMs: 0,
-      updatedAt: now,
-    };
+function assertLocalesInput(input: CachedProjectInput<unknown>): asserts input is CachedProjectInput<unknown> & {
+  localesDir: string;
+  locales: NonNullable<CachedProjectInput<unknown>['locales']>;
+} {
+  if (input.localesDir === undefined || input.locales === undefined) {
+    throw new Error('cache dispatch requires localesDir and locales');
   }
-  return out;
+}
+
+function baselineMergedFromDisk(prev: CacheProjectFilesState): Record<string, CacheProjectFileRecord> {
+  return mergeTrackedFileMaps(omitSyntheticSourceKey(prev.files), prev.localeSegments ?? {});
+}
+
+function resolveTrackedCurrent<T>(
+  input: CachedProjectInput<T>,
+  prev: CacheProjectFilesState,
+): TrackedProjectFilesCurrent {
+  assertLocalesInput(input);
+  const locales = input.locales;
+  const localesDir = input.localesDir;
+  const hasCachedLayout = prev.localesLayout !== undefined;
+  const layoutMatch = layoutMatches(prev.localesLayout, resolveCachedLocalesLayout(locales));
+  const scanSrc = !hasCachedLayout || layoutMatch;
+
+  return buildTrackedProjectFilesCurrent({
+    runtime: input.runtime,
+    srcRoot: input.srcRoot,
+    exclude: input.exclude,
+    localesDir,
+    locales,
+    scanSrc,
+    ...(scanSrc ? {} : { reuseSrcFiles: omitSyntheticSourceKey(prev.files) }),
+  });
 }
 
 /**
- * Check-or-produce entry point for project cache slots.
+ * Check-or-produce entry point for `analysis.json`.
  *
- * Scans the current source files, computes a delta against the baseline, and returns
- * cached data on a hit or calls `input.producer()` and persists the result on a miss.
- * When `baselineFiles` is provided (recommended), all dispatches in a run share the
- * same pre-run snapshot so sibling writes cannot mask real file changes.
+ * Scans tracked project files, computes a delta against the baseline, and returns
+ * cached analysis on a hit or calls `input.producer()` and persists on a miss.
  */
 export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): CacheDispatchResult<T> {
   const warnings: CacheWarning[] = [];
@@ -49,7 +65,6 @@ export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): Ca
   const paths = {
     meta: state.metaPath,
     files: state.filesPath,
-    snapshot: state.snapshotPath,
     analysis: state.analysisPath,
     projectDir: state.projectDir,
   };
@@ -68,14 +83,17 @@ export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): Ca
   const prepared = prepareCacheForRun(state, input.runtime);
   warnings.push(...prepared.warnings);
 
-  const currentFiles = buildCurrentFileRecords(input);
   const prevFiles = loadProjectFilesState(state, input.runtime);
   warnings.push(...prevFiles.warnings);
-  const baseline = input.baselineFiles ?? prevFiles.files.files;
+  const prev = prevFiles.files;
+
+  const tracked = resolveTrackedCurrent(input, prev);
+  const currentFiles = tracked.merged;
+  const baseline = input.baselineFiles ?? baselineMergedFromDisk(prev);
   const delta = diffProjectFiles(baseline, currentFiles);
   const hasFileChanges = delta.added.length + delta.changed.length + delta.deleted.length > 0;
 
-  const prevRun = loadProjectRunState(state, input.runtime, input.cacheKey);
+  const prevRun = loadProjectRunState(state, input.runtime);
   warnings.push(...prevRun.warnings);
   let missReason: CacheDispatchReason = hasFileChanges ? 'files_changed' : 'run_missing';
   let inputFilesEpochDebug: CacheInputFilesEpochDebug | undefined;
@@ -105,10 +123,17 @@ export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): Ca
   }
 
   const fresh = input.producer();
-  const saveFilesWarn = saveProjectFilesState(state, { ...prevFiles.files, files: currentFiles }, input.runtime);
+  const nextIndex: CacheProjectFilesState = {
+    ...prev,
+    files: tracked.files,
+    localeSegments: tracked.localeSegments,
+    localesLayout: tracked.localesLayout,
+  };
+
+  const saveFilesWarn = saveProjectFilesState(state, nextIndex, input.runtime);
   if (saveFilesWarn) warnings.push(saveFilesWarn);
   const inputFilesEpoch = computeInputFilesEpoch(currentFiles, input.runtime.hashText);
-  const saveRunWarn = saveProjectRunState(state, input.runtime, input.cacheKey, {
+  const saveRunWarn = saveProjectRunState(state, input.runtime, {
     data: fresh,
     inputFilesEpoch,
   });

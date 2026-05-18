@@ -7,13 +7,7 @@ import type {
   CacheWarning,
 } from '../../types/cache/index.js';
 import { nowIso, readJsonFileWithLimit, writeJsonAtomic } from './helpers.js';
-import {
-  cacheSlotReadPaths,
-  isProjectCacheWritable,
-  loadProjectRunEnvelopeFromCandidates,
-  resolveCacheSlotPath,
-  validateProjectFilesPayload,
-} from '../setup/policy.js';
+import { isProjectCacheWritable, loadProjectRunEnvelope, validateProjectFilesPayload } from '../setup/policy.js';
 
 /** Empty files-state baseline used when no `files.json` exists on disk yet. */
 export function defaultProjectFilesState(runtime?: Pick<CacheRuntime, 'system'>): CacheProjectFilesState {
@@ -66,35 +60,27 @@ export function saveProjectFilesState(
   return writeJsonAtomic(state.filesPath, { ...files, updatedAt: nowIso(runtime), version: CACHE_SCHEMA_VERSION }, runtime);
 }
 
-/**
- * Loads the run envelope (snapshot or analysis payload) for a cache slot.
- *
- * Tries canonical then legacy file names via `cacheSlotReadPaths`; validates
- * the envelope shape so corrupt JSON does not propagate to consumers.
- */
+/** Loads the `analysis.json` run envelope. */
 export function loadProjectRunState(
   state: CacheState,
   runtime: CacheRuntime,
-  cacheKey?: string,
 ): { run?: CacheProjectRunState; warnings: CacheWarning[] } {
   if (!state.enabled) return { warnings: [] };
-  const paths = cacheSlotReadPaths(state, runtime, cacheKey);
-  return loadProjectRunEnvelopeFromCandidates(paths, runtime);
+  return loadProjectRunEnvelope(state, runtime);
 }
 
-/** Persists a run envelope to the appropriate cache slot; returns a warning instead of throwing. */
+/** Persists the `analysis.json` run envelope; returns a warning instead of throwing. */
 export function saveProjectRunState(
   state: CacheState,
   runtime: CacheRuntime,
-  cacheKey: string | undefined,
   input: { data: unknown; inputFilesEpoch?: string },
 ): CacheWarning | undefined {
   if (!state.enabled) return undefined;
   if (!isProjectCacheWritable(state)) {
     return {
       code: 'cache_read_only',
-      message: 'cache is read-only; skipped persisting run envelope',
-      path: resolveCacheSlotPath(state, runtime, cacheKey),
+      message: 'cache is read-only; skipped persisting analysis cache',
+      path: state.analysisPath,
     };
   }
   const payload: CacheProjectRunState = {
@@ -104,6 +90,5 @@ export function saveProjectRunState(
     data: input.data,
     ...(input.inputFilesEpoch !== undefined ? { inputFilesEpoch: input.inputFilesEpoch } : {}),
   };
-  const targetPath = resolveCacheSlotPath(state, runtime, cacheKey);
-  return writeJsonAtomic(targetPath, payload, runtime);
+  return writeJsonAtomic(state.analysisPath, payload, runtime);
 }

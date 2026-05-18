@@ -35,7 +35,7 @@ export function localeSegmentRefFromAbsolute(input: {
     return null;
   }
   relativePath = relativePath.replace(/\\/g, '/');
-  if (!relativePath.endsWith('.json') || relativePath.endsWith('.meta.json')) {
+  if (!relativePath.endsWith('.json')) {
     return null;
   }
   const locale = localeCodeForSegment(layout.structure, path, { absolutePath, relativePath });

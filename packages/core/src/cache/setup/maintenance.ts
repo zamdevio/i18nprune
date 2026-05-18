@@ -1,9 +1,8 @@
 import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
-import { ANALYSIS_CACHE_KEY } from '../../shared/constants/cache.js';
 import type { CacheProjectsIndex, CacheRuntime, CacheState, CacheWarning } from '../../types/cache/index.js';
 import { loadProjectsIndex, maybeHealCacheIndex, saveProjectsIndex, touchProjectIndex } from '../io/projects.js';
 import { loadProjectFilesState, loadProjectRunState } from '../io/state.js';
-import { cacheSlotReadPaths, tryDeleteCacheFile } from './policy.js';
+import { tryDeleteCacheFile } from './policy.js';
 
 /**
  * Per-run cache maintenance: touches the project mapping in meta, runs periodic
@@ -41,12 +40,10 @@ export function prepareCacheForRun(
 
   const fileState = loadProjectFilesState(state, runtime);
   warnings.push(...fileState.warnings);
-  const snapshotState = loadProjectRunState(state, runtime, undefined);
-  const analysisState = loadProjectRunState(state, runtime, ANALYSIS_CACHE_KEY);
-  warnings.push(...snapshotState.warnings, ...analysisState.warnings);
+  const analysisState = loadProjectRunState(state, runtime);
+  warnings.push(...analysisState.warnings);
 
   const hasInvalidFiles = fileState.warnings.some((w) => w.code === 'cache_malformed' || w.code === 'cache_oversize');
-  const hasInvalidSnapshot = snapshotState.warnings.some((w) => w.code === 'cache_malformed' || w.code === 'cache_oversize');
   const hasInvalidAnalysis = analysisState.warnings.some((w) => w.code === 'cache_malformed' || w.code === 'cache_oversize');
   if (hasInvalidFiles) {
     try {
@@ -55,15 +52,8 @@ export function prepareCacheForRun(
       // best-effort only
     }
   }
-  if (hasInvalidSnapshot) {
-    for (const p of cacheSlotReadPaths(state, runtime, undefined)) {
-      tryDeleteCacheFile(runtime, p);
-    }
-  }
   if (hasInvalidAnalysis) {
-    for (const p of cacheSlotReadPaths(state, runtime, ANALYSIS_CACHE_KEY)) {
-      tryDeleteCacheFile(runtime, p);
-    }
+    tryDeleteCacheFile(runtime, state.analysisPath);
   }
 
   try {

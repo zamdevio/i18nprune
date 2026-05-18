@@ -126,6 +126,6 @@ export function listLocaleFilesFromDir(runtime: PatchingRunInput['runtime'], loc
   const kind = runtime.fs.statKind(localesDir);
   const entries = kind === 'directory' ? runtime.fs.listDir(localesDir) : [];
   return (Array.isArray(entries) ? entries : [])
-    .filter((e) => e.kind === 'file' && e.name.endsWith('.json') && !e.name.endsWith('.meta.json'))
+    .filter((e) => e.kind === 'file' && e.name.endsWith('.json'))
     .map((e) => e.name.slice(0, -5));
 }

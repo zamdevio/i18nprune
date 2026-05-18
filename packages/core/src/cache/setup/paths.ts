@@ -1,4 +1,5 @@
 import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
+import { ANALYSIS_BASENAME } from '../../shared/constants/cache.js';
 import { computeCacheProjectId } from '../io/hash.js';
 import type { CacheState, CacheStateInput, CacheWarning } from '../../types/cache/index.js';
 
@@ -22,8 +23,7 @@ export function resolveCacheState(input: CacheStateInput): CacheState {
     projectRoot,
     projectDir,
     filesPath: input.runtime.path.join(projectDir, 'files.json'),
-    snapshotPath: input.runtime.path.join(projectDir, 'snapshot.json'),
-    analysisPath: input.runtime.path.join(projectDir, 'analysis.json'),
+    analysisPath: input.runtime.path.join(projectDir, ANALYSIS_BASENAME),
     readOnly,
   };
 }

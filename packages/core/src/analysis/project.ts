@@ -1,45 +1,53 @@
 import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js';
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
-import { ANALYSIS_CACHE_KEY, emitCacheDispatchMessages, getOrBuildCachedProjectData } from '../cache/index.js';
-import type { DynamicKeySite } from '../types/extractor/dynamic/index.js';
-import type { KeyObservation } from '../types/extractor/keySites/index.js';
-import type { ProjectLiteralKeyUsage } from '../types/extractor/projectLiteralKeyUsage.js';
-import type { CacheDispatchInfo } from '../types/cache/index.js';
+import { emitCacheDispatchMessages, getOrBuildCachedProjectData } from '../cache/index.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
+import { listSourceFiles } from '../shared/scanner/files.js';
+import { computeMissingLiteralKeysFromResolvedKeys } from '../validate/missingLiterals.js';
+import type {
+  ProjectAnalysis,
+  ProjectAnalysisCacheData,
+  ProjectAnalysisCounts,
+  ProjectAnalysisResolveOptions,
+} from '../types/analysis/index.js';
 import type { CoreContext } from '../types/context/index.js';
-import type { OperationId, RunEmitter } from '../types/shared/run/index.js';
 
-export type ProjectAnalysisCacheData = {
-  version: 1;
-  keyObservations: KeyObservation[];
-  dynamicSites: DynamicKeySite[];
-};
-
-export type ProjectAnalysis = ProjectAnalysisCacheData & {
-  usage: ProjectLiteralKeyUsage;
-  cache?: CacheDispatchInfo;
-};
-
-export type ProjectAnalysisResolveOptions = {
-  emit?: RunEmitter;
-  op?: OperationId;
-  runId?: string;
-};
+export type {
+  ProjectAnalysis,
+  ProjectAnalysisCacheData,
+  ProjectAnalysisCounts,
+  ProjectAnalysisResolveOptions,
+} from '../types/analysis/index.js';
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null;
+}
+
+function isAnalysisCounts(v: unknown): v is ProjectAnalysisCounts {
+  if (!isRecord(v)) return false;
+  return (
+    typeof v.keyObservations === 'number' &&
+    typeof v.dynamicSites === 'number' &&
+    typeof v.sourceFilesScanned === 'number' &&
+    typeof v.missingKeys === 'number'
+  );
 }
 
 function parseProjectAnalysisCacheData(data: unknown): { ok: true; data: ProjectAnalysisCacheData } | { ok: false } {
   if (!isRecord(data)) return { ok: false };
   if (data.version !== 1) return { ok: false };
   if (!Array.isArray(data.keyObservations) || !Array.isArray(data.dynamicSites)) return { ok: false };
+  if (!Array.isArray(data.missingKeys)) return { ok: false };
+  if (!isAnalysisCounts(data.counts)) return { ok: false };
   return {
     ok: true,
     data: {
       version: 1,
-      keyObservations: data.keyObservations as KeyObservation[],
-      dynamicSites: data.dynamicSites as DynamicKeySite[],
+      keyObservations: data.keyObservations as ProjectAnalysisCacheData['keyObservations'],
+      dynamicSites: data.dynamicSites as ProjectAnalysisCacheData['dynamicSites'],
+      missingKeys: data.missingKeys as string[],
+      counts: data.counts,
     },
   };
 }
@@ -51,14 +59,29 @@ function scanProjectAnalysis(ctx: CoreContext): ProjectAnalysisCacheData {
     runtime: ctx.adapters,
     exclude: ctx.config.exclude,
   };
+  const keyObservations = scanProjectKeyObservations(scanInput);
+  const dynamicSites = scanProjectDynamicKeySites(scanInput);
+  const usage = literalKeyUsageFromObservations(keyObservations);
+  const sourceLocaleJson = readLocaleJsonFromContextSync(ctx, ctx.paths.sourceLocale);
+  const missingKeys = computeMissingLiteralKeysFromResolvedKeys(sourceLocaleJson, usage.resolvedKeys);
+  const projectFs = { fs: ctx.adapters.fs, path: ctx.adapters.path };
+  const sourceFilesScanned = listSourceFiles(projectFs, ctx.paths.srcRoot, ctx.config.exclude).length;
+
   return {
     version: 1,
-    keyObservations: scanProjectKeyObservations(scanInput),
-    dynamicSites: scanProjectDynamicKeySites(scanInput),
+    keyObservations,
+    dynamicSites,
+    missingKeys,
+    counts: {
+      keyObservations: keyObservations.length,
+      dynamicSites: dynamicSites.length,
+      sourceFilesScanned,
+      missingKeys: missingKeys.length,
+    },
   };
 }
 
-function withDerivedUsage(data: ProjectAnalysisCacheData, cache?: CacheDispatchInfo): ProjectAnalysis {
+function withDerivedUsage(data: ProjectAnalysisCacheData, cache?: ProjectAnalysis['cache']): ProjectAnalysis {
   return {
     ...data,
     usage: literalKeyUsageFromObservations(data.keyObservations),
@@ -73,11 +96,12 @@ export function resolveProjectAnalysis(ctx: CoreContext, opts: ProjectAnalysisRe
   }
 
   const result = getOrBuildCachedProjectData<ProjectAnalysisCacheData>({
-    cacheKey: ANALYSIS_CACHE_KEY,
     state: cacheCtx.state,
     runtime: cacheCtx.runtime,
     sourceLocalePath: ctx.paths.sourceLocale,
     srcRoot: ctx.paths.srcRoot,
+    localesDir: ctx.paths.localesDir,
+    locales: ctx.config.locales,
     exclude: ctx.config.exclude,
     producer: () => scanProjectAnalysis(ctx),
     parseCachedData: parseProjectAnalysisCacheData,
@@ -95,14 +119,18 @@ export function resolveProjectAnalysis(ctx: CoreContext, opts: ProjectAnalysisRe
   return withDerivedUsage(result.data, result.cache);
 }
 
-export function resolveProjectDynamicSites(ctx: CoreContext, opts: ProjectAnalysisResolveOptions = {}): DynamicKeySite[] {
+export function resolveProjectDynamicSites(ctx: CoreContext, opts: ProjectAnalysisResolveOptions = {}) {
   return resolveProjectAnalysis(ctx, opts).dynamicSites;
 }
 
-export function resolveProjectDynamicSitesCount(ctx: CoreContext, opts: ProjectAnalysisResolveOptions = {}): number {
-  return resolveProjectAnalysis(ctx, opts).dynamicSites.length;
+export function resolveProjectDynamicSitesCount(ctx: CoreContext, opts: ProjectAnalysisResolveOptions = {}) {
+  return resolveProjectAnalysis(ctx, opts).counts.dynamicSites;
 }
 
-export function resolveProjectResolvedKeys(ctx: CoreContext, opts: ProjectAnalysisResolveOptions = {}): ReadonlySet<string> {
+export function resolveProjectResolvedKeys(ctx: CoreContext, opts: ProjectAnalysisResolveOptions = {}) {
   return resolveProjectAnalysis(ctx, opts).usage.resolvedKeys;
+}
+
+export function resolveProjectMissingKeys(ctx: CoreContext, opts: ProjectAnalysisResolveOptions = {}) {
+  return resolveProjectAnalysis(ctx, opts).missingKeys;
 }

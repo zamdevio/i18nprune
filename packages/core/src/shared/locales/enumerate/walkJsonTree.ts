@@ -18,7 +18,7 @@ function posixRelative(pathApi: LocaleLeafPathApi, root: string, absolute: strin
 }
 
 /**
- * Collect `*.json` segment files under `rootAbsolute` (skips `*.meta.json`).
+ * Collect `*.json` files under `rootAbsolute` (any basename ending in `.json`).
  *
  * @param recursive — When false, only immediate children of `rootAbsolute` are scanned.
  */
@@ -38,7 +38,7 @@ export function walkLocaleJsonSegments(input: {
     const entries = listRuntimeFsDirSync(dirAbsolute, fs);
     for (const entry of entries) {
       const childAbsolute = path.join(dirAbsolute, entry.name);
-      if (entry.kind === 'file' && entry.name.endsWith('.json') && !entry.name.endsWith('.meta.json')) {
+      if (entry.kind === 'file' && entry.name.endsWith('.json')) {
         out.push({
           absolutePath: childAbsolute,
           relativePath: posixRelative(path, rootAbsolute, childAbsolute),

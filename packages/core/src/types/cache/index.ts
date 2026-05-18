@@ -1,5 +1,15 @@
+import type { LocalesFilesystemConfig } from '../../config/schema/root.js';
+import type { LocalesLayoutMode, LocalesLayoutStructure } from '../locales/layout.js';
 import type { RuntimeFsPort, RuntimePathPort, RuntimeSystemPort } from '../runtime/index.js';
 import type { ScanExcludeConfig } from '../scanner/index.js';
+
+/** Layout fingerprint stored in `files.json` (`mode` + `structure` + config paths). */
+export type CachedLocalesLayout = {
+  mode: LocalesLayoutMode;
+  structure: LocalesLayoutStructure;
+  directory: string;
+  source: string;
+};
 
 /** Why the cache was disabled for this run (or `'default'` when enabled normally). */
 export type CacheDisableReason =
@@ -23,9 +33,7 @@ export type CacheState = {
   projectRoot: string;
   projectDir: string;
   filesPath: string;
-  /** Project report / snapshot payload (`snapshot.json`). */
-  snapshotPath: string;
-  /** Key-site + dynamic scan payload (`analysis.json`). */
+  /** Project scan payload (`analysis.json`). */
   analysisPath: string;
   /** When true, cache reads are allowed but project cache files are not written. */
   readOnly: boolean;
@@ -61,6 +69,9 @@ export type CacheProjectFilesState = {
   version: number;
   updatedAt: string;
   files: Record<string, CacheProjectFileRecord>;
+  /** Bundle-relative locale segment paths allowed by `localesLayout`. */
+  localeSegments?: Record<string, CacheProjectFileRecord>;
+  localesLayout?: CachedLocalesLayout;
 };
 
 export type CacheProjectRunState = {
@@ -69,8 +80,8 @@ export type CacheProjectRunState = {
   projectId: string;
   data: unknown;
   /**
-   * Digest of the tracked `files.json` map when `data` was produced. Compared on cache hit so a
-   * sibling cache writer (e.g. project-analysis) cannot leave `snapshot.json` bound to an older index.
+   * Digest of the tracked `files.json` map when `data` was produced. Compared on cache hit so an
+   * older `analysis.json` cannot serve after `files.json` was refreshed.
    */
   inputFilesEpoch?: string;
 };
@@ -83,7 +94,6 @@ export type CacheDispatchReason =
   | 'cache_unavailable'
   | 'run_missing'
   | 'files_changed'
-  // snapshot envelope exists but inputFilesEpoch !== current digest (e.g. sibling cache refreshed files.json)
   | 'run_binding_stale'
   | 'producer_succeeded'
   | 'run_invalid';
@@ -123,7 +133,6 @@ export type CacheStateInput = {
 export type CacheDispatchPaths = {
   meta: string;
   files: string;
-  snapshot: string;
   analysis: string;
   projectDir: string;
 };
@@ -153,19 +162,16 @@ export type CacheDispatchResult<T> = {
 export type CachedProjectInput<T> = {
   state: CacheState;
   runtime: CacheRuntime;
-  /**
-   * Optional cache slot. Omit for the default **snapshot** slot (`snapshot.json`). Use **`"analysis"`**
-   * for the scan payload (`analysis.json`). Any other key is sanitized and stored as a sibling JSON file.
-   */
-  cacheKey?: string;
   sourceLocalePath: string;
   srcRoot: string;
+  localesDir: string;
+  locales: LocalesFilesystemConfig;
   exclude?: ScanExcludeConfig;
   producer: () => T;
   parseCachedData?: (data: unknown) => { ok: true; data: T } | { ok: false };
   /**
    * Pre-loaded `files.json` baseline from before any dispatch in this run. When provided, the
-   * delta is computed against these records so sibling cache writes don't mask real file changes.
+   * delta is computed against these records so writes during the run do not mask real file changes.
    */
   baselineFiles?: Record<string, CacheProjectFileRecord>;
 };

@@ -18,30 +18,37 @@ export {
   writeJsonAtomic,
 } from './io/index.js';
 export {
-  cacheSlotReadPaths,
   initializeCacheState,
   isProjectCacheWritable,
-  loadProjectRunEnvelopeFromCandidates,
+  loadProjectRunEnvelope,
   prepareCacheForRun,
-  resolveCacheSlotPath,
+  resolveAnalysisCachePath,
   resolveCacheState,
   tryDeleteCacheFile,
   validateProjectFilesPayload,
   validateProjectRunEnvelope,
 } from './setup/index.js';
 export { diffProjectFiles, computeInputFilesEpoch } from './engine.js';
+export { invalidateProjectAnalysisCache } from './invalidate.js';
+export { layoutMatches, resolveCachedLocalesLayout } from './localesLayout.js';
+export {
+  buildLocaleSegmentRecords,
+  buildSrcFileRecords,
+  buildTrackedProjectFilesCurrent,
+  mergeTrackedFileMaps,
+  omitSyntheticSourceKey,
+} from './trackedFiles.js';
 export { getOrBuildCachedProjectData } from './dispatch.js';
 export { emitCacheDispatchMessages, emitCacheMemoryHitMessage } from './events.js';
 export {
-  ANALYSIS_CACHE_KEY,
+  ANALYSIS_BASENAME,
   CACHE_SCHEMA_VERSION,
-  LEGACY_ANALYSIS_BASENAME,
-  LEGACY_SNAPSHOT_BASENAME,
+  MAX_ANALYSIS_BYTES,
   MAX_PROJECT_FILES_BYTES,
   MAX_PROJECTS_INDEX_BYTES,
-  MAX_SNAPSHOT_BYTES,
 } from '../shared/constants/cache.js';
 export type {
+  CachedLocalesLayout,
   CachedProjectInput,
   CacheDisableReason,
   CacheDispatchInfo,

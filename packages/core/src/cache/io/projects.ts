@@ -29,11 +29,6 @@ export function loadProjectsIndex(
   if (!state.enabled) return { index: defaultProjectsIndex(runtime), warnings };
   const { data, warning } = readJsonFileWithLimit<CacheProjectsIndex>(state.metaPath, MAX_PROJECTS_INDEX_BYTES, runtime);
   if (warning) warnings.push(warning);
-  if (!data && assertSyncPortResult(runtime.fs.exists(runtime.path.join(state.rootDir, 'projects.json')), 'fs.exists', state.rootDir)) {
-    const migrated = migrateLegacyProjectsIndex(state, runtime);
-    warnings.push(...migrated.warnings);
-    return { index: migrated.index, warnings };
-  }
   if (
     !data ||
     typeof data !== 'object' ||
@@ -45,48 +40,6 @@ export function loadProjectsIndex(
     return { index: defaultProjectsIndex(runtime), warnings };
   }
   return { index: data, warnings };
-}
-
-function migrateLegacyProjectsIndex(
-  state: CacheState,
-  runtime: CacheRuntime,
-): { index: CacheProjectsIndex; warnings: CacheWarning[] } {
-  const warnings: CacheWarning[] = [];
-  const legacyPath = runtime.path.join(state.rootDir, 'projects.json');
-  const { data, warning } = readJsonFileWithLimit<{ projects?: Record<string, unknown> }>(
-    legacyPath,
-    MAX_PROJECTS_INDEX_BYTES,
-    runtime,
-  );
-  if (warning) warnings.push(warning);
-  const next = defaultProjectsIndex(runtime);
-  const map = data?.projects;
-  if (map && typeof map === 'object') {
-    for (const [k, v] of Object.entries(map)) {
-      if (typeof v === 'string') {
-        next.projects[normalizeProjectRootKey(k)] = v;
-        continue;
-      }
-      if (
-        v &&
-        typeof v === 'object' &&
-        typeof (v as { root?: unknown }).root === 'string' &&
-        typeof (v as { id?: unknown }).id === 'string'
-      ) {
-        const root = (v as { root: string }).root;
-        const id = (v as { id: string }).id;
-        next.projects[normalizeProjectRootKey(root)] = id;
-      }
-    }
-  }
-  const saveWarn = saveProjectsIndex(state, next, runtime);
-  if (saveWarn) warnings.push(saveWarn);
-  try {
-    assertSyncPortResult(runtime.fs.deleteFile(legacyPath), 'fs.deleteFile', legacyPath);
-  } catch {
-    // best-effort migration cleanup only
-  }
-  return { index: next, warnings };
 }
 
 /** Persists the meta index; skips (with warning) when cache is read-only. */

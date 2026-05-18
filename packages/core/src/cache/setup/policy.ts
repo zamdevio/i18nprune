@@ -1,12 +1,7 @@
 import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
-import {
-  ANALYSIS_CACHE_KEY,
-  CACHE_SCHEMA_VERSION,
-  LEGACY_ANALYSIS_BASENAME,
-  LEGACY_SNAPSHOT_BASENAME,
-  MAX_SNAPSHOT_BYTES,
-} from '../../shared/constants/cache.js';
+import { CACHE_SCHEMA_VERSION, MAX_ANALYSIS_BYTES } from '../../shared/constants/cache.js';
 import type {
+  CacheProjectFileRecord,
   CacheProjectFilesState,
   CacheProjectRunState,
   CacheRuntime,
@@ -15,34 +10,18 @@ import type {
 } from '../../types/cache/index.js';
 import { readJsonFileWithLimit } from '../io/helpers.js';
 
-/**
- * Absolute path for a cache slot under the project cache dir.
- * Omit `cacheKey` for the default **snapshot** (project report) slot.
- */
-export function resolveCacheSlotPath(state: CacheState, runtime: CacheRuntime, cacheKey?: string): string {
-  const k = cacheKey?.trim();
-  if (!k) return state.snapshotPath;
-  if (k === ANALYSIS_CACHE_KEY) return state.analysisPath;
-  const safe = k.replace(/[^A-Za-z0-9._-]/g, '_');
-  return runtime.path.join(state.projectDir, `${safe}.json`);
-}
-
-/** Read order: canonical path first, then pre-rename legacy file (migration only). */
-export function cacheSlotReadPaths(state: CacheState, runtime: CacheRuntime, cacheKey?: string): readonly string[] {
-  const primary = resolveCacheSlotPath(state, runtime, cacheKey);
-  const k = cacheKey?.trim();
-  if (!k) {
-    return [primary, runtime.path.join(state.projectDir, LEGACY_SNAPSHOT_BASENAME)];
-  }
-  if (k === ANALYSIS_CACHE_KEY) {
-    return [primary, runtime.path.join(state.projectDir, LEGACY_ANALYSIS_BASENAME)];
-  }
-  return [primary];
+/** Absolute path for the project `analysis.json` cache file. */
+export function resolveAnalysisCachePath(state: CacheState): string {
+  return state.analysisPath;
 }
 
 /** Whether the cache is enabled and writable (not read-only mode). */
 export function isProjectCacheWritable(state: CacheState): boolean {
   return state.enabled && !state.readOnly;
+}
+
+function isFileRecordMap(value: unknown): value is Record<string, CacheProjectFileRecord> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /** Validates the shape of a `files.json` payload without full schema parsing. */
@@ -54,8 +33,24 @@ export function validateProjectFilesPayload(
     return { ok: false, message: 'root is not an object' };
   }
   const o = data as Record<string, unknown>;
-  if (typeof o.files !== 'object' || o.files === null || Array.isArray(o.files)) {
+  if (!isFileRecordMap(o.files)) {
     return { ok: false, message: 'missing or invalid field: files' };
+  }
+  if (o.localeSegments !== undefined && !isFileRecordMap(o.localeSegments)) {
+    return { ok: false, message: 'invalid field: localeSegments' };
+  }
+  if (o.localesLayout !== undefined) {
+    const layout = o.localesLayout;
+    if (
+      !layout ||
+      typeof layout !== 'object' ||
+      typeof (layout as Record<string, unknown>).mode !== 'string' ||
+      typeof (layout as Record<string, unknown>).structure !== 'string' ||
+      typeof (layout as Record<string, unknown>).directory !== 'string' ||
+      typeof (layout as Record<string, unknown>).source !== 'string'
+    ) {
+      return { ok: false, message: 'invalid field: localesLayout' };
+    }
   }
   if (o.version !== undefined && o.version !== CACHE_SCHEMA_VERSION) {
     return { ok: false, message: `unsupported cache schema version: ${String(o.version)}` };
@@ -63,7 +58,7 @@ export function validateProjectFilesPayload(
   return { ok: true, files: data as CacheProjectFilesState };
 }
 
-/** Validates the shape of a run envelope (snapshot or analysis payload). */
+/** Validates the shape of an `analysis.json` run envelope. */
 export function validateProjectRunEnvelope(
   data: unknown,
   _filePath: string,
@@ -82,34 +77,32 @@ export function validateProjectRunEnvelope(
 }
 
 /**
- * Reads the first valid run envelope from a list of candidate paths (canonical first, legacy second).
+ * Loads the `analysis.json` run envelope.
  *
  * @remarks Malformed files accumulate warnings; missing files are skipped silently.
  */
-export function loadProjectRunEnvelopeFromCandidates(
-  paths: readonly string[],
+export function loadProjectRunEnvelope(
+  state: CacheState,
   runtime: CacheRuntime,
 ): { run?: CacheProjectRunState; warnings: CacheWarning[] } {
   const warnings: CacheWarning[] = [];
-  for (const filePath of paths) {
-    const { data, warning } = readJsonFileWithLimit<unknown>(filePath, MAX_SNAPSHOT_BYTES, runtime);
-    if (warning) {
-      warnings.push({ ...warning, path: filePath });
-      continue;
-    }
-    if (data === undefined) continue;
-    const validated = validateProjectRunEnvelope(data, filePath);
-    if (!validated.ok) {
-      warnings.push({
-        code: 'cache_malformed',
-        message: `cache run envelope invalid (${validated.message})`,
-        path: filePath,
-      });
-      continue;
-    }
-    return { run: validated.run, warnings };
+  const filePath = state.analysisPath;
+  const { data, warning } = readJsonFileWithLimit<unknown>(filePath, MAX_ANALYSIS_BYTES, runtime);
+  if (warning) {
+    warnings.push({ ...warning, path: filePath });
+    return { warnings };
   }
-  return { warnings };
+  if (data === undefined) return { warnings };
+  const validated = validateProjectRunEnvelope(data, filePath);
+  if (!validated.ok) {
+    warnings.push({
+      code: 'cache_malformed',
+      message: `cache analysis envelope invalid (${validated.message})`,
+      path: filePath,
+    });
+    return { warnings };
+  }
+  return { run: validated.run, warnings };
 }
 
 /** Best-effort delete (corrupt file cleanup); ignores missing paths. */

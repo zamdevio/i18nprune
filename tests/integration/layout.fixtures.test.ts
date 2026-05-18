@@ -37,6 +37,18 @@ describe('CLI layout fixtures', () => {
     }
   });
 
+  it('layout-flat-file: locales list discovers en and fr at bundle root', () => {
+    const cwd = path.join(fixturesRoot, 'layout-flat-file');
+    const out = runCli(['locales', 'list', '--json'], cwd);
+    const j = parseEnvelope(out);
+    const rows = j.data.rows as { code: string; localePath: string }[];
+    const codes = new Set(rows.map((r) => r.code));
+    expect(codes.has('en')).toBe(true);
+    expect(codes.has('fr')).toBe(true);
+    expect(rows.some((r) => r.localePath.endsWith('/en.json'))).toBe(true);
+    expect(rows.some((r) => r.localePath.endsWith('/fr.json'))).toBe(true);
+  });
+
   it('layout-locale-per-dir: locales list discovers en and fr segment rows', () => {
     const cwd = path.join(fixturesRoot, 'layout-locale-per-dir');
     const out = runCli(['locales', 'list', '--json'], cwd);

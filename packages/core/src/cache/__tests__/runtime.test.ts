@@ -138,11 +138,14 @@ describe('core cache runtime', () => {
     const rt = runtime(fs);
     const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
     let builds = 0;
+    const locales = { source: 'locales/en.json', directory: 'locales' };
     const input: CachedProjectInput<{ builds: number }> = {
       state,
       runtime: rt,
       sourceLocalePath: '/project/locales/en.json',
       srcRoot: '/project/src',
+      localesDir: '/project/locales',
+      locales,
       producer: () => ({ builds: (builds += 1) }),
       parseCachedData: (data: unknown) =>
         typeof data === 'object' && data !== null && typeof (data as { builds?: unknown }).builds === 'number'
@@ -161,16 +164,19 @@ describe('core cache runtime', () => {
     expect(changed.data.builds).toBe(2);
   });
 
-  it('misses when snapshot payload exists but inputFilesEpoch binding is missing (legacy)', () => {
+  it('misses when analysis envelope exists but inputFilesEpoch binding is missing', () => {
     const fs = memoryFs({ '/project/src/app.ts': 't("app.title")', '/project/locales/en.json': '{"app":{"title":"Title"}}' });
     const rt = runtime(fs);
     const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
     let builds = 0;
+    const locales = { source: 'locales/en.json', directory: 'locales' };
     const input: CachedProjectInput<{ builds: number }> = {
       state,
       runtime: rt,
       sourceLocalePath: '/project/locales/en.json',
       srcRoot: '/project/src',
+      localesDir: '/project/locales',
+      locales,
       producer: () => ({ builds: (builds += 1) }),
       parseCachedData: (data: unknown) =>
         typeof data === 'object' && data !== null && typeof (data as { builds?: unknown }).builds === 'number'
@@ -182,14 +188,155 @@ describe('core cache runtime', () => {
     const hit = getOrBuildCachedProjectData(input);
     expect(hit.cache.status).toBe('hit');
 
-    const raw = JSON.parse(fs.readText(state.snapshotPath) as string) as { inputFilesEpoch?: string };
+    const raw = JSON.parse(fs.readText(state.analysisPath) as string) as { inputFilesEpoch?: string };
     delete raw.inputFilesEpoch;
-    fs.writeText(state.snapshotPath, JSON.stringify(raw));
+    fs.writeText(state.analysisPath, JSON.stringify(raw));
 
     const stale = getOrBuildCachedProjectData(input);
     expect(stale.cache.status).toBe('miss');
     expect(stale.cache.reason).toBe('run_binding_stale');
     expect(stale.cache.inputFilesEpochDebug?.current).toBeDefined();
     expect(stale.data.builds).toBe(2);
+  });
+
+  it('indexes locale segments in files.json and misses when a target locale changes', () => {
+    const fs = memoryFs({
+      '/project/src/app.ts': 't("app.title")',
+      '/project/locales/en.json': '{"app":{"title":"Title"}}',
+      '/project/locales/fr.json': '{"app":{"title":"Titre"}}',
+    });
+    const rt = runtime(fs);
+    const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
+    let builds = 0;
+    const locales = { source: 'locales/en.json', directory: 'locales' };
+    const input: CachedProjectInput<{ builds: number }> = {
+      state,
+      runtime: rt,
+      sourceLocalePath: '/project/locales/en.json',
+      srcRoot: '/project/src',
+      localesDir: '/project/locales',
+      locales,
+      producer: () => ({ builds: (builds += 1) }),
+    };
+
+    expect(getOrBuildCachedProjectData(input).cache.status).toBe('miss');
+    const index = JSON.parse(fs.readText(state.filesPath) as string) as {
+      files: Record<string, unknown>;
+      localeSegments: Record<string, unknown>;
+      localesLayout: { mode: string; structure: string };
+    };
+    expect(index.localesLayout).toEqual({
+      mode: 'flat_file',
+      structure: 'locale_file',
+      directory: 'locales',
+      source: 'locales/en.json',
+    });
+    expect(index.localeSegments).toHaveProperty('en.json');
+    expect(index.localeSegments).toHaveProperty('fr.json');
+    expect(index.files).not.toHaveProperty('__source_locale__');
+
+    const hit = getOrBuildCachedProjectData(input);
+    expect(hit.cache.status).toBe('hit');
+
+    fs.writeText('/project/locales/fr.json', '{"app":{"title":"Titre!"}}');
+    const localeChanged = getOrBuildCachedProjectData(input);
+    expect(localeChanged.cache.reason).toBe('files_changed');
+    expect(localeChanged.data.builds).toBe(2);
+  });
+
+  it('rescans locale segments only when localesLayout changes (reuses src file index)', () => {
+    const fs = memoryFs({
+      '/project/src/app.ts': 't("app.title")',
+      '/project/locales/en.json': '{"app":{"title":"Title"}}',
+    });
+    const rt = runtime(fs);
+    const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
+    let builds = 0;
+    const flatLocales = { source: 'locales/en.json', directory: 'locales' };
+    const inputFlat: CachedProjectInput<{ builds: number }> = {
+      state,
+      runtime: rt,
+      sourceLocalePath: '/project/locales/en.json',
+      srcRoot: '/project/src',
+      localesDir: '/project/locales',
+      locales: flatLocales,
+      producer: () => ({ builds: (builds += 1) }),
+    };
+
+    getOrBuildCachedProjectData(inputFlat);
+    const srcHashBefore = (
+      JSON.parse(fs.readText(state.filesPath) as string) as { files: Record<string, { hash: string }> }
+    ).files['app.ts']!.hash;
+
+    fs.writeText('/project/src/app.ts', 't("app.title")');
+    const dirLocales = {
+      source: 'messages/en/common.json',
+      directory: 'messages',
+      mode: 'locale_directory' as const,
+      structure: 'locale_per_dir' as const,
+    };
+    fs.mkdirp('/project/messages/en');
+    fs.writeText('/project/messages/en/common.json', '{"app":{"title":"Title"}}');
+
+    const inputDir: CachedProjectInput<{ builds: number }> = {
+      ...inputFlat,
+      sourceLocalePath: '/project/messages/en/common.json',
+      localesDir: '/project/messages',
+      locales: dirLocales,
+    };
+
+    const layoutChanged = getOrBuildCachedProjectData(inputDir);
+    expect(layoutChanged.cache.reason).toBe('files_changed');
+    const index = JSON.parse(fs.readText(state.filesPath) as string) as {
+      files: Record<string, { hash: string }>;
+      localeSegments: Record<string, unknown>;
+      localesLayout: { mode: string; structure: string };
+    };
+    expect(index.localesLayout.mode).toBe('locale_directory');
+    expect(index.localeSegments).toHaveProperty('en/common.json');
+    expect(index.files['app.ts']!.hash).toBe(srcHashBefore);
+  });
+
+  it('persists enriched analysis payload with counts and missingKeys', () => {
+    const fs = memoryFs({
+      '/project/src/app.ts': 't("app.title")',
+      '/project/locales/en.json': '{"app":{"title":"Title"},"other":"x"}',
+    });
+    const rt = runtime(fs);
+    const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
+    const locales = { source: 'locales/en.json', directory: 'locales' };
+    type Payload = {
+      version: 1;
+      keyObservations: unknown[];
+      dynamicSites: unknown[];
+      missingKeys: string[];
+      counts: { keyObservations: number; dynamicSites: number; sourceFilesScanned: number; missingKeys: number };
+    };
+    const payload: Payload = {
+      version: 1,
+      keyObservations: [{ path: 'app.title' }],
+      dynamicSites: [],
+      missingKeys: [],
+      counts: { keyObservations: 1, dynamicSites: 0, sourceFilesScanned: 1, missingKeys: 0 },
+    };
+    const input: CachedProjectInput<Payload> = {
+      state,
+      runtime: rt,
+      sourceLocalePath: '/project/locales/en.json',
+      srcRoot: '/project/src',
+      localesDir: '/project/locales',
+      locales,
+      producer: () => payload,
+      parseCachedData: (data: unknown) =>
+        typeof data === 'object' && data !== null && (data as Payload).version === 1
+          ? { ok: true as const, data: data as Payload }
+          : { ok: false as const },
+    };
+
+    getOrBuildCachedProjectData(input);
+    const envelope = JSON.parse(fs.readText(state.analysisPath) as string) as { data: Payload };
+    expect(envelope.data.counts).toEqual(payload.counts);
+    expect(envelope.data.missingKeys).toEqual([]);
+    expect(envelope.data.keyObservations).toHaveLength(1);
   });
 });

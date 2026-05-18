@@ -78,8 +78,8 @@ describe('listLocaleSegments / listLocaleCodes', () => {
       [`${root}/en.meta.json`]: '{}',
     });
     const { segments } = listLocaleSegments({ layout, fs, path });
-    expect(segments.map((s) => s.relativePath)).toEqual(['en.json', 'fr.json']);
-    expect(listLocaleCodes({ layout, fs, path }).codes).toEqual(['en', 'fr']);
+    expect(segments.map((s) => s.relativePath)).toEqual(['en.json', 'en.meta.json', 'fr.json']);
+    expect(listLocaleCodes({ layout, fs, path }).codes).toEqual(['en', 'en.meta', 'fr']);
   });
 
   it('locale_directory + locale_per_dir lists nested segments per locale dir', () => {

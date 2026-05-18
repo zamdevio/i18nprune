@@ -376,7 +376,7 @@ describe('patching engine', () => {
     expect(analyzed.configOnlyCodes).toEqual([]);
   });
 
-  it('ignores locale meta json files in config-vs-file drift analysis', async () => {
+  it('treats locale meta json as a normal root json file in drift analysis', async () => {
     const root = makeTempDir();
     const i18nDir = path.join(root, 'src', 'i18n');
     const localesDir = path.join(root, 'locales');
@@ -412,8 +412,7 @@ describe('patching engine', () => {
       projectRoot: root,
       runtime: { fs: rt.fs, path: rt.path },
     });
-    expect(analyzed.fileOnlyCodes).toEqual([]);
-    expect(analyzed.diagnostics.some((d) => d.message.includes('ar.meta'))).toBe(false);
+    expect(analyzed.fileOnlyCodes).toEqual(['ar.meta']);
   });
 
   it('does not emit catalog direction mismatch with undefined recommended value', () => {

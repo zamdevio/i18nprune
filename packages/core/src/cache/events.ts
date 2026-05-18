@@ -78,7 +78,6 @@ export function emitCacheDispatchMessages(input: {
     emitCacheDetail({ ...input, message: `  meta: ${input.cache.paths.meta}` });
     emitCacheDetail({ ...input, message: `  project: ${input.cache.paths.projectDir}` });
     emitCacheDetail({ ...input, message: `  files: ${input.cache.paths.files}` });
-    emitCacheDetail({ ...input, message: `  snapshot: ${input.cache.paths.snapshot}` });
     emitCacheDetail({ ...input, message: `  analysis: ${input.cache.paths.analysis}` });
   }
   if (input.cache.delta) {

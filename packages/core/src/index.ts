@@ -232,7 +232,12 @@ export {
   resolveProjectDynamicSitesCount,
   resolveProjectResolvedKeys,
 } from './namespaces/analysis.js';
-export type { ProjectAnalysis, ProjectAnalysisCacheData, ProjectAnalysisResolveOptions } from './namespaces/analysis.js';
+export type {
+  ProjectAnalysis,
+  ProjectAnalysisCacheData,
+  ProjectAnalysisCounts,
+  ProjectAnalysisResolveOptions,
+} from './namespaces/analysis.js';
 
 export * as generate from './namespaces/generate.js';
 export {
@@ -510,14 +515,11 @@ export type {
 
 export * as cache from './namespaces/cache.js';
 export {
-  ANALYSIS_CACHE_KEY,
+  ANALYSIS_BASENAME,
   CACHE_SCHEMA_VERSION,
-  LEGACY_ANALYSIS_BASENAME,
-  LEGACY_SNAPSHOT_BASENAME,
+  MAX_ANALYSIS_BYTES,
   MAX_PROJECT_FILES_BYTES,
   MAX_PROJECTS_INDEX_BYTES,
-  MAX_SNAPSHOT_BYTES,
-  cacheSlotReadPaths,
   computeCacheContentHash,
   computeCacheProjectId,
   computeInputFilesEpoch,
@@ -528,17 +530,22 @@ export {
   emitCacheMemoryHitMessage,
   getOrBuildCachedProjectData,
   initializeCacheState,
+  invalidateProjectAnalysisCache,
   isProjectCacheWritable,
+  layoutMatches,
   loadProjectFilesState,
   loadProjectRunState,
   loadProjectsIndex,
   maybeHealCacheIndex,
+  mergeTrackedFileMaps,
   normalizeProjectRootKey,
+  omitSyntheticSourceKey,
   nowIso,
   prepareCacheForRun,
   readJsonFileWithLimit,
+  resolveAnalysisCachePath,
+  resolveCachedLocalesLayout,
   resolveCacheState,
-  resolveCacheSlotPath,
   saveProjectFilesState,
   saveProjectRunState,
   saveProjectsIndex,
@@ -547,6 +554,7 @@ export {
   writeJsonAtomic,
 } from './namespaces/cache.js';
 export type {
+  CachedLocalesLayout,
   CachedProjectInput,
   CacheDisableReason,
   CacheDispatchInfo,

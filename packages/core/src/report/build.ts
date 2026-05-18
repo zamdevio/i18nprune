@@ -1,6 +1,4 @@
 import { resolveProjectAnalysis } from '../analysis/index.js';
-import { computeMissingLiteralKeysFromResolvedKeys } from '../validate/missingLiterals.js';
-import { listSourceFiles } from '../shared/scanner/files.js';
 import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { ReportEnvironmentSnapshot } from '../types/report/index.js';
@@ -21,24 +19,20 @@ const PROJECT_REPORT_SCHEMA_VERSION = 1 as const;
 /**
  * Build a `ProjectReportDocument` from live project analysis.
  *
- * Pure orchestration over core primitives (`resolveProjectAnalysis`,
- * `computeMissingLiteralKeysFromResolvedKeys`, `listSourceFiles`).
- * Environment facts come from `input` — no `process.*` or `os.*` access.
+ * Scan payloads come from `analysis.json` (via {@link resolveProjectAnalysis}).
+ * Host metadata (`environment`, `cwd`, `toolVersion`, `generatedAt`) is applied per run only.
  */
 export function buildReportDocument(
   ctx: CoreContext,
   input: BuildReportDocumentInput,
 ): { document: Record<string, unknown>; dynamicSitesCount: number } {
-  const raw = readLocaleJsonFromContextSync(ctx, ctx.paths.sourceLocale);
+  readLocaleJsonFromContextSync(ctx, ctx.paths.sourceLocale);
   const analysis = resolveProjectAnalysis(ctx, {
     emit: input.emit,
     op: REPORT_OP,
     runId: input.runId,
   });
-  const { keyObservations, dynamicSites, usage } = analysis;
-  const missing = computeMissingLiteralKeysFromResolvedKeys(raw, usage.resolvedKeys);
-  const projectFs = { fs: ctx.adapters.fs, path: ctx.adapters.path };
-  const sourceFilesScannedCount = listSourceFiles(projectFs, ctx.paths.srcRoot, ctx.config.exclude).length;
+  const { keyObservations, dynamicSites, missingKeys, counts } = analysis;
   const sourceLocaleTag = ctx.adapters.path.basename(ctx.paths.sourceLocale, '.json');
 
   const document: Record<string, unknown> = {
@@ -65,14 +59,14 @@ export function buildReportDocument(
       },
     },
     summary: {
-      missingKeysCount: missing.length,
-      dynamicSitesCount: dynamicSites.length,
-      keyObservationsCount: keyObservations.length,
-      sourceFilesScannedCount,
-      ok: missing.length === 0,
+      missingKeysCount: counts.missingKeys,
+      dynamicSitesCount: counts.dynamicSites,
+      keyObservationsCount: counts.keyObservations,
+      sourceFilesScannedCount: counts.sourceFilesScanned,
+      ok: counts.missingKeys === 0,
     },
     details: {
-      missingKeys: missing,
+      missingKeys,
       dynamicSites: dynamicSites as unknown[],
       keyObservations: keyObservations as unknown[],
     },
