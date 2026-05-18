@@ -5,7 +5,7 @@ import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
  * Grammars aligned with `@i18nprune/core` default source scan (`tsx?|jsx?|mjs|cjs|vue|svelte`)
  * plus JSON / JSONC for locale files.
  */
-export type I18npruneShikiLang =
+export type ShikiLang =
   | 'javascript'
   | 'typescript'
   | 'tsx'
@@ -17,7 +17,7 @@ export type I18npruneShikiLang =
 
 const THEMES = ['vitesse-dark', 'vitesse-light'] as const;
 
-const LANGS: I18npruneShikiLang[] = [
+const LANGS: ShikiLang[] = [
   'javascript',
   'typescript',
   'tsx',
@@ -56,7 +56,7 @@ export function getI18npruneHighlighter() {
   return highlighterPromise;
 }
 
-export function fileNameToShikiLang(fileName: string): I18npruneShikiLang {
+export function fileNameToShikiLang(fileName: string): ShikiLang {
   const lower = fileName.toLowerCase();
   if (lower.endsWith('.json')) return 'json';
   if (lower.endsWith('.jsonc')) return 'jsonc';

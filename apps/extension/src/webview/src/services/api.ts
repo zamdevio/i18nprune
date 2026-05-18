@@ -4,7 +4,6 @@ import {
   ReviewLocaleStats,
   PruneResult,
   DoctorCheck,
-  I18nConfig,
   type DashboardSnapshotV1,
 } from '../types';
 
@@ -279,11 +278,6 @@ export const pruneKeys = async (ids: string[]): Promise<PruneResult> => {
     success: true,
     keysRemoved: ids.length,
   };
-};
-
-export const saveConfig = async (config: I18nConfig): Promise<boolean> => {
-  await sleep(1000);
-  return true;
 };
 
 export const runDoctor = async (): Promise<DoctorCheck[]> => {

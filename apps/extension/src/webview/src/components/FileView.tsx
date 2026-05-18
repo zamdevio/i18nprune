@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FileCode, Image, Loader2, ShieldCheck, Zap } from 'lucide-react';
-import { fileNameToShikiLang, getI18npruneHighlighter, themeForMode } from '../lib/i18npruneShiki';
+import { fileNameToShikiLang, getI18npruneHighlighter, themeForMode } from '../lib/shiki';
 import { isVsCodeWebview, readWorkspaceFile } from '../services/api';
 
 interface FileViewProps {

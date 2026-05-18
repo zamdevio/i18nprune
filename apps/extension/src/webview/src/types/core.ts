@@ -1,16 +1,5 @@
 // src/types/core.ts
 
-/** 
- * Represents a translation value in the target JSON file. 
- * i18nprune supports both plain strings (legacy_string) and rich metadata objects (structured).
- */
-export type LocaleLeafValue = string | {
-  value: string;
-  status?: string;
-  needsReview?: boolean;
-  confidence?: number;
-};
-
 /** Exact location in the user's source code where a key was found */
 export interface SourceSpan {
   filePath?: string;

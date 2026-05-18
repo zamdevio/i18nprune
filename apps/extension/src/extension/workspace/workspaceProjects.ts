@@ -91,10 +91,6 @@ export function getActiveProjectRoot(): string | undefined {
   return implicitFallbackRoot;
 }
 
-export function getActiveConfigPath(): string | null {
-  return activeConfigPath;
-}
-
 export function listProjectsForUi(): ProjectBroadcast[] {
   const rows: ProjectBroadcast[] = discoveryCache.map((p) => ({
     id: p.id,

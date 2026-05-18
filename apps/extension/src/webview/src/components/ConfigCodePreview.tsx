@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import { fileNameToShikiLang, getI18npruneHighlighter, themeForMode } from '../lib/i18npruneShiki';
+import { fileNameToShikiLang, getI18npruneHighlighter, themeForMode } from '../lib/shiki';
 
 type Props = {
   /** Virtual filename for grammar selection (e.g. `i18nprune.config.ts`). */
