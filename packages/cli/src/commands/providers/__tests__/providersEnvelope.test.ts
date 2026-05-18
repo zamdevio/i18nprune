@@ -27,7 +27,6 @@ function makeContext(): Context {
         projectRoot: '/tmp',
         projectDir: '',
         filesPath: '',
-        snapshotPath: '',
         analysisPath: '',
         readOnly: false,
       },

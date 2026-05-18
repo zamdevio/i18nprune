@@ -12,7 +12,7 @@
 
 import { stringifyEnvelope, buildCliJsonEnvelope, noopRunEmitter } from '@i18nprune/core';
 
-import { refreshProjectReportCache, resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
+import { invalidateProjectAnalysisCacheForContext, resolveExtractionBaselineCounts } from '@/shared/cache/index.js';
 import { resolveContext } from '@/shared/context/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { logTranslateFailureHelp } from '@/shared/translator/failureHelp.js';
@@ -88,7 +88,7 @@ export async function generate(opts: GenerateOptions): Promise<void> {
           action: 'upsert_locales',
           localeCodes: writtenTargets,
         });
-        refreshProjectReportCache(ctx);
+        invalidateProjectAnalysisCacheForContext(ctx);
       }
       return;
     }
@@ -125,7 +125,7 @@ export async function generate(opts: GenerateOptions): Promise<void> {
         action: 'upsert_locales',
         localeCodes: writtenTargets,
       });
-      refreshProjectReportCache(ctx);
+      invalidateProjectAnalysisCacheForContext(ctx);
     }
 
     const needsReview = payload.targetResults.reduce((n, row) => n + (row.markedForReview ?? 0), 0);

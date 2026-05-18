@@ -10,7 +10,6 @@ export {
   issuesFromDynamicScanCount,
   issuesFromLanguagesFilter,
   issuesFromLocaleTargetMissing,
-  issuesFromLocaleTargetsSkipped,
   issuesFromLocalesUsage,
   issuesFromPatchingDiagnostics,
   issuesFromQualityEnglishIdentical,

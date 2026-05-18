@@ -143,17 +143,6 @@ export function issuesFromLocaleTargetMissing(message: string): Issue[] {
   ];
 }
 
-export function issuesFromLocaleTargetsSkipped(message: string): Issue[] {
-  return [
-    {
-      severity: 'warning',
-      code: ISSUE_LOCALE_TARGET_NOT_FOUND,
-      message,
-      docPath: issueCodeRepoDocPathForIssueCode(ISSUE_LOCALE_TARGET_NOT_FOUND),
-    },
-  ];
-}
-
 /** Merge issue arrays (dedupe not applied — callers compose). */
 export function mergeIssues(...groups: Issue[][]): Issue[] {
   return groups.flat();

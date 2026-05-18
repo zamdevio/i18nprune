@@ -29,7 +29,7 @@ import type { RunEvent } from '@i18nprune/core';
 import { canAsk } from '@/shared/ask/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import { createCliCoreContext } from '@/shared/context/index.js';
-import { resolveLocalesDynamicSites } from '@/shared/cache/index.js';
+import { resolveProjectAnalysisFromContext } from '@/shared/cache/index.js';
 import { readHostJsonUnknown } from '@/shared/io/hostJson.js';
 import {
   issuesFromDiscoveryWarnings,
@@ -93,7 +93,7 @@ export async function executeCore(
   };
 
   emitProgress({ type: 'run.progress.generate', phase: 'scan_dynamic_sites' });
-  const dynamicSites = resolveLocalesDynamicSites(ctx);
+  const dynamicSites = resolveProjectAnalysisFromContext(ctx).dynamicSites;
   if (dynamicSites.length > 0 && canPrintWarn(ctx.run)) {
     logger.warn(
       `${String(dynamicSites.length)} translation call(s) use a non-literal key — generation follows source JSON paths only; computed keys are not enumerated here.`,

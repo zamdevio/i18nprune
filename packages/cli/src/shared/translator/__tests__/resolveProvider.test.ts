@@ -51,7 +51,6 @@ function makeContext(overrides?: Partial<I18nPruneConfig>): Context {
         projectRoot: '/tmp',
         projectDir: '',
         filesPath: '',
-        snapshotPath: '',
         analysisPath: '',
         readOnly: false,
       },

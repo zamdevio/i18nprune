@@ -43,7 +43,6 @@ function fixtureContext(): Context {
         projectRoot: cwd,
         projectDir: '',
         filesPath: '',
-        snapshotPath: '',
         analysisPath: '',
         readOnly: false,
       },

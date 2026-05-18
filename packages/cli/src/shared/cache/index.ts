@@ -1,10 +1,8 @@
 export { initializeCliCacheState, resolveCliCacheState } from './paths.js';
-export { getOrBuildProjectReportWithCache } from './dispatch.js';
-export { resolveProjectReportData, refreshProjectReportCache } from './reportData.js';
+export { invalidateProjectAnalysisCacheForContext } from './invalidate.js';
 export {
-  resolveCachedProjectReportDocument,
-  resolveLocalesDynamicSites,
   resolveDynamicSitesCount,
   resolveExtractionBaselineCounts,
   resolveKeyObservationsCount,
+  resolveProjectAnalysisFromContext,
 } from './resolve.js';

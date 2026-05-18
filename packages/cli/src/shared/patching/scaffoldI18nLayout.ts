@@ -61,7 +61,7 @@ export function resolvePatchingProjectRoot(ctx: Context): string {
 export function collectLocaleCodesFromDisk(ctx: Context): string[] {
   const entries = listRuntimeFsDirSync(ctx.paths.localesDir, ctx.adapters.fs);
   const codes = entries
-    .filter((e) => e.kind === 'file' && e.name.endsWith('.json') && !e.name.endsWith('.meta.json'))
+    .filter((e) => e.kind === 'file' && e.name.endsWith('.json'))
     .map((e) => e.name.slice(0, -5));
   return [...new Set(codes)].sort();
 }

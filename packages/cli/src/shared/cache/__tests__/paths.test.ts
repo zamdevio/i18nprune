@@ -20,7 +20,6 @@ describe('shared/cache/paths', () => {
     expect(state.projectRoot).toBe(path.resolve(root));
     expect(state.metaPath.endsWith(path.join('.cache', 'meta.json'))).toBe(true);
     expect(state.filesPath.endsWith(path.join('projects', state.projectId, 'files.json'))).toBe(true);
-    expect(state.snapshotPath.endsWith(path.join('projects', state.projectId, 'snapshot.json'))).toBe(true);
     expect(state.analysisPath.endsWith(path.join('projects', state.projectId, 'analysis.json'))).toBe(true);
     expect(state.readOnly).toBe(false);
   });

@@ -5,7 +5,7 @@ import { stringifyEnvelope, buildCliJsonEnvelope } from '@i18nprune/core';
 import { emitSyncHumanMessages, noopRunEmitter } from '@i18nprune/core';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import type { SyncOptions } from '@/types/command/sync/index.js';
-import { refreshProjectReportCache } from '@/shared/cache/index.js';
+import { invalidateProjectAnalysisCacheForContext } from '@/shared/cache/index.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
@@ -72,7 +72,7 @@ export async function sync(opts: SyncOptions): Promise<void> {
             action: 'upsert_locales',
             localeCodes: changedLocaleCodes,
           });
-          refreshProjectReportCache(ctx);
+          invalidateProjectAnalysisCacheForContext(ctx);
         }
       }
       console.log(stringifyEnvelope(envelope));
@@ -130,7 +130,7 @@ export async function sync(opts: SyncOptions): Promise<void> {
         action: 'upsert_locales',
         localeCodes: changedLocaleCodes,
       });
-      refreshProjectReportCache(ctx);
+      invalidateProjectAnalysisCacheForContext(ctx);
     }
 
     printCommandSummary(

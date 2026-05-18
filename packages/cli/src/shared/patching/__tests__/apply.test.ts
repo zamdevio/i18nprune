@@ -44,7 +44,6 @@ function makeContext(config: Context['config']): Context {
         projectRoot: '/tmp',
         projectDir: '',
         filesPath: '',
-        snapshotPath: '',
         analysisPath: '',
         readOnly: false,
       },
