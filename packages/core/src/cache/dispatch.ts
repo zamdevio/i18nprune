@@ -250,6 +250,39 @@ export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): Ca
     previous,
     filesIndexStatus,
   });
+
+  if (
+    previous !== undefined &&
+    producerCtx.analysisRebuild?.strategy === 'reuse' &&
+    producerCtx.analysisRebuild.reason === 'target_locale_only'
+  ) {
+    const nextIndex: CacheProjectFilesState = {
+      ...prev,
+      files: tracked.files,
+      localeSegments: tracked.localeSegments,
+      localesLayout: tracked.localesLayout,
+    };
+    persistFilesAndRunState({
+      state,
+      runtime: input.runtime,
+      nextIndex,
+      data: previous,
+      inputFilesEpoch,
+      warnings,
+    });
+    return {
+      data: previous,
+      cache: {
+        status: 'miss',
+        reason: missReason,
+        warnings,
+        delta,
+        paths,
+        analysisRebuild: producerCtx.analysisRebuild,
+      },
+    };
+  }
+
   const fresh = input.producer(producerCtx);
   const nextIndex: CacheProjectFilesState = {
     ...prev,

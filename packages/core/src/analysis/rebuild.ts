@@ -2,8 +2,8 @@ import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js'
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
 import { readRuntimeFsTextSync } from '../runtime/helpers/sync/index.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
-import { computeMissingLiteralKeysFromResolvedKeys } from '../validate/missingLiterals.js';
+import { readSourceLocaleLeavesForMissing } from './sourceLocaleLeaves.js';
+import { computeMissingLiteralKeysFromLeaves } from '../validate/missingLiterals.js';
 import type { ClassifiedSrcDelta } from '../types/cache/index.js';
 import type { ProjectAnalysisCacheData } from '../types/analysis/index.js';
 import type { CoreContext } from '../types/context/index.js';
@@ -93,8 +93,8 @@ export function patchProjectAnalysisFromSrcDelta(
   ];
 
   const usage = literalKeyUsageFromObservations(keyObservations);
-  const sourceLocaleJson = readLocaleJsonFromContextSync(ctx, ctx.paths.sourceLocale);
-  const missingKeys = computeMissingLiteralKeysFromResolvedKeys(sourceLocaleJson, usage.resolvedKeys);
+  const sourceLeaves = readSourceLocaleLeavesForMissing(ctx);
+  const missingKeys = computeMissingLiteralKeysFromLeaves(sourceLeaves, usage.resolvedKeys);
   const sourceFilesScanned = previous.counts.sourceFilesScanned + srcDelta.added.length - srcDelta.deleted.length;
 
   return {
@@ -106,6 +106,28 @@ export function patchProjectAnalysisFromSrcDelta(
       keyObservations: keyObservations.length,
       dynamicSites: dynamicSites.length,
       sourceFilesScanned: Math.max(0, sourceFilesScanned),
+      missingKeys: missingKeys.length,
+    },
+  };
+}
+
+/**
+ * Recompute `missingKeys` from the current source locale when only locale segments changed.
+ * Scan arrays (`keyObservations`, `dynamicSites`) are unchanged.
+ */
+export function patchProjectAnalysisFromSourceLocaleDelta(
+  ctx: CoreContext,
+  previous: ProjectAnalysisCacheData,
+): ProjectAnalysisCacheData {
+  const usage = literalKeyUsageFromObservations(previous.keyObservations);
+  const sourceLeaves = readSourceLocaleLeavesForMissing(ctx);
+  const missingKeys = computeMissingLiteralKeysFromLeaves(sourceLeaves, usage.resolvedKeys);
+
+  return {
+    ...previous,
+    missingKeys,
+    counts: {
+      ...previous.counts,
       missingKeys: missingKeys.length,
     },
   };

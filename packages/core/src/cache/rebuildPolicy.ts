@@ -47,10 +47,18 @@ export function decideAnalysisRebuild(input: {
     return { strategy: 'full', reason: 'layout_changed' };
   }
   if (input.classified.sourceLocale.length > 0) {
+    const sourceOnly =
+      input.classified.targetLocale.length === 0 && srcDeltaIsEmpty(input.classified.src);
+    if (sourceOnly) {
+      return { strategy: 'partial', reason: 'source_locale_partial' };
+    }
     return { strategy: 'full', reason: 'source_locale_changed' };
   }
-  if (input.classified.targetLocale.length > 0) {
-    return { strategy: 'full', reason: 'locale_or_non_src_changed' };
+  if (
+    input.classified.targetLocale.length > 0 &&
+    srcDeltaIsEmpty(input.classified.src)
+  ) {
+    return { strategy: 'reuse', reason: 'target_locale_only' };
   }
   if (srcDeltaIsEmpty(input.classified.src)) {
     return { strategy: 'full', reason: 'locale_or_non_src_changed' };

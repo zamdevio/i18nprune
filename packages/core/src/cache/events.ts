@@ -95,16 +95,24 @@ export function emitCacheDispatchMessages(input: {
   if (input.cache.analysisRebuild) {
     const r = input.cache.analysisRebuild;
     if (r.strategy === 'reuse') {
-      emitCacheDetail({ ...input, message: '  analysis rebuild: skipped (reusing analysis.json)' });
+      const detail =
+        r.reason === 'target_locale_only'
+          ? 'target locale only (reusing analysis.json)'
+          : 'reusing analysis.json';
+      emitCacheDetail({ ...input, message: `  analysis rebuild: skipped (${detail})` });
     } else if (r.strategy === 'partial') {
-      const src = r.srcDelta;
-      const changed = src?.changed.length ?? 0;
-      const added = src?.added.length ?? 0;
-      const deleted = src?.deleted.length ?? 0;
-      emitCacheDetail({
-        ...input,
-        message: `  analysis rebuild: partial (${String(changed)} changed, ${String(added)} added, ${String(deleted)} deleted)`,
-      });
+      if (r.reason === 'source_locale_partial') {
+        emitCacheDetail({ ...input, message: '  analysis rebuild: partial (source locale only, missingKeys updated)' });
+      } else {
+        const src = r.srcDelta;
+        const changed = src?.changed.length ?? 0;
+        const added = src?.added.length ?? 0;
+        const deleted = src?.deleted.length ?? 0;
+        emitCacheDetail({
+          ...input,
+          message: `  analysis rebuild: partial (${String(changed)} changed, ${String(added)} added, ${String(deleted)} deleted)`,
+        });
+      }
     } else {
       let detail = 'config rebuild=full';
       if (r.reason === 'src_threshold') {
@@ -115,7 +123,7 @@ export function emitCacheDispatchMessages(input: {
       } else if (r.reason === 'layout_changed') {
         detail = 'layout changed';
       } else if (r.reason === 'source_locale_changed') {
-        detail = 'source locale changed';
+        detail = 'source locale changed (with other deltas)';
       } else if (r.reason === 'locale_or_non_src_changed') {
         detail = 'locale or non-src delta';
       } else if (r.reason === 'no_previous_cache') {

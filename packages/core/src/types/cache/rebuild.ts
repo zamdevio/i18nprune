@@ -28,6 +28,8 @@ export type AnalysisRebuildReason =
   | 'config_rebuild_full'
   | 'layout_changed'
   | 'source_locale_changed'
+  | 'source_locale_partial'
+  | 'target_locale_only'
   | 'locale_or_non_src_changed'
   | 'no_previous_cache'
   | 'src_threshold'

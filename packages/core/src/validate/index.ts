@@ -2,7 +2,13 @@
  * Validate engine: compare resolved literal keys to string leaves in source locale JSON.
  * Subpath: `@i18nprune/core/validate`. CLI wraps {@link runValidate} in a `CliJsonEnvelope` for `--json`.
  */
-export { compareDottedPathDepth, computeMissingLiteralKeysFromResolvedKeys } from './missingLiterals.js';
+export {
+  compareDottedPathDepth,
+  computeMissingLiteralKeysFromLeaves,
+  computeMissingLiteralKeysFromResolvedKeys,
+  encodeLocaleLeafIdentity,
+  logicalPathsFromSourceLeaves,
+} from './missingLiterals.js';
 export { buildValidateScanPayload } from './buildPayload.js';
 export { buildValidateIssues } from './issues.js';
 export { buildValidateHumanView } from './human.js';

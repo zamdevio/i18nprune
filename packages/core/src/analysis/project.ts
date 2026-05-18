@@ -3,10 +3,10 @@ import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
 import { emitCacheDispatchMessages, getOrBuildCachedProjectData } from '../cache/index.js';
 import { resolveCacheRebuildConfig } from '../cache/rebuildPolicy.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
 import { listSourceFiles } from '../shared/scanner/files.js';
-import { computeMissingLiteralKeysFromResolvedKeys } from '../validate/missingLiterals.js';
-import { patchProjectAnalysisFromSrcDelta } from './rebuild.js';
+import { computeMissingLiteralKeysFromLeaves } from '../validate/missingLiterals.js';
+import { readSourceLocaleLeavesForMissing } from './sourceLocaleLeaves.js';
+import { patchProjectAnalysisFromSourceLocaleDelta, patchProjectAnalysisFromSrcDelta } from './rebuild.js';
 import type { CacheProducerContext } from '../types/cache/index.js';
 import type {
   ProjectAnalysis,
@@ -65,8 +65,8 @@ function scanProjectAnalysis(ctx: CoreContext): ProjectAnalysisCacheData {
   const keyObservations = scanProjectKeyObservations(scanInput);
   const dynamicSites = scanProjectDynamicKeySites(scanInput);
   const usage = literalKeyUsageFromObservations(keyObservations);
-  const sourceLocaleJson = readLocaleJsonFromContextSync(ctx, ctx.paths.sourceLocale);
-  const missingKeys = computeMissingLiteralKeysFromResolvedKeys(sourceLocaleJson, usage.resolvedKeys);
+  const sourceLeaves = readSourceLocaleLeavesForMissing(ctx);
+  const missingKeys = computeMissingLiteralKeysFromLeaves(sourceLeaves, usage.resolvedKeys);
   const projectFs = { fs: ctx.adapters.fs, path: ctx.adapters.path };
   const sourceFilesScanned = listSourceFiles(projectFs, ctx.paths.srcRoot, ctx.config.exclude).length;
 
@@ -88,7 +88,13 @@ function produceProjectAnalysis(
   ctx: CoreContext,
   rebuild?: CacheProducerContext<ProjectAnalysisCacheData>,
 ): ProjectAnalysisCacheData {
+  if (rebuild?.previous !== undefined && rebuild.analysisRebuild?.strategy === 'reuse') {
+    return rebuild.previous;
+  }
   if (rebuild?.previous !== undefined && rebuild.analysisRebuild?.strategy === 'partial') {
+    if (rebuild.analysisRebuild.reason === 'source_locale_partial') {
+      return patchProjectAnalysisFromSourceLocaleDelta(ctx, rebuild.previous);
+    }
     return patchProjectAnalysisFromSrcDelta(ctx, rebuild.previous, rebuild.classified.src);
   }
   return scanProjectAnalysis(ctx);

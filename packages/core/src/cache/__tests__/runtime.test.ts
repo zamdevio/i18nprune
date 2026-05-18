@@ -217,6 +217,7 @@ describe('core cache runtime', () => {
       localesDir: '/project/locales',
       locales,
       producer: () => ({ builds: (builds += 1) }),
+      parseCachedData: (data) => ({ ok: true, data: data as { builds: number } }),
     };
 
     expect(getOrBuildCachedProjectData(input).cache.status).toBe('miss');
@@ -241,7 +242,9 @@ describe('core cache runtime', () => {
     fs.writeText('/project/locales/fr.json', '{"app":{"title":"Titre!"}}');
     const localeChanged = getOrBuildCachedProjectData(input);
     expect(localeChanged.cache.reason).toBe('files_changed');
-    expect(localeChanged.data.builds).toBe(2);
+    expect(localeChanged.cache.analysisRebuild?.strategy).toBe('reuse');
+    expect(localeChanged.cache.analysisRebuild?.reason).toBe('target_locale_only');
+    expect(localeChanged.data.builds).toBe(1);
   });
 
   it('rescans locale segments only when localesLayout changes (reuses src file index)', () => {

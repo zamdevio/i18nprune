@@ -86,14 +86,36 @@ describe('decideAnalysisRebuild', () => {
     expect(d.reason).toBe('files_index_stale');
   });
 
-  it('full when target locale changes (phase 1)', () => {
+  it('reuses analysis when only target locale segments change', () => {
     const d = decideAnalysisRebuild({
       config: partialConfig,
       classified: classified({ targetLocale: ['fr.json'] }),
       hasPrevious: true,
       trackedSrcCount: 5,
     });
+    expect(d.strategy).toBe('reuse');
+    expect(d.reason).toBe('target_locale_only');
+  });
+
+  it('partial missingKeys refresh when only source locale changes', () => {
+    const d = decideAnalysisRebuild({
+      config: partialConfig,
+      classified: classified({ sourceLocale: ['en.json'] }),
+      hasPrevious: true,
+      trackedSrcCount: 5,
+    });
+    expect(d.strategy).toBe('partial');
+    expect(d.reason).toBe('source_locale_partial');
+  });
+
+  it('full when source and target locale both change', () => {
+    const d = decideAnalysisRebuild({
+      config: partialConfig,
+      classified: classified({ sourceLocale: ['en.json'], targetLocale: ['fr.json'] }),
+      hasPrevious: true,
+      trackedSrcCount: 5,
+    });
     expect(d.strategy).toBe('full');
-    expect(d.reason).toBe('locale_or_non_src_changed');
+    expect(d.reason).toBe('source_locale_changed');
   });
 });

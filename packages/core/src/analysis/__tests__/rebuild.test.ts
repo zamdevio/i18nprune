@@ -10,7 +10,7 @@ import { createNodeRuntimeAdapters } from '../../runtime/exports/node.js';
 import crypto from 'node:crypto';
 import type { CacheRuntime } from '../../types/cache/index.js';
 import { resolveProjectAnalysis } from '../project.js';
-import { patchProjectAnalysisFromSrcDelta } from '../rebuild.js';
+import { patchProjectAnalysisFromSourceLocaleDelta, patchProjectAnalysisFromSrcDelta } from '../rebuild.js';
 
 function nodeCacheRuntime(adapters: ReturnType<typeof createNodeRuntimeAdapters>): CacheRuntime {
   return {
@@ -130,6 +130,90 @@ describe('analysis incremental rebuild', () => {
       expect(partialCalls.length).toBeGreaterThan(0);
       expect(partialCalls[0]![0].listFiles!(srcRoot)).toHaveLength(1);
       expect(result.keyObservations.some((o) => o.kind === 'literal' && o.resolvedKey === 'app.new')).toBe(true);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('source locale edit updates missingKeys without rescanning src', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-analysis-source-locale-'));
+    const cacheRoot = path.join(root, '.cache');
+    fs.mkdirSync(cacheRoot);
+    try {
+      const { srcRoot, localesDir, sourcePath } = writeFixture(
+        root,
+        'export const x = () => t("app.title"); t("app.missing");',
+      );
+      const adapters = createNodeRuntimeAdapters();
+      const config = parseI18nPruneConfig({
+        ...DEFAULT_CONFIG,
+        locales: { source: 'locales/en.json', directory: 'locales' },
+        src: 'src',
+        functions: ['t'],
+        cache: { fullRescanThresholdPercent: 40 },
+      });
+      const cacheRuntime = nodeCacheRuntime(adapters);
+      const { state } = initializeCacheState({
+        projectRoot: root,
+        cacheRootDir: cacheRoot,
+        runtime: cacheRuntime,
+      });
+      const ctx = createCoreContext({
+        config,
+        adapters,
+        env: {},
+        paths: { sourceLocale: sourcePath, localesDir, srcRoot },
+        cache: { state, runtime: cacheRuntime },
+      });
+
+      const before = resolveProjectAnalysis(ctx);
+      expect(before.missingKeys).toContain('app.missing');
+
+      fs.writeFileSync(
+        sourcePath,
+        JSON.stringify({ app: { title: 'Title', missing: 'filled' } }),
+      );
+      const obsSpy = vi.spyOn(keySitesOrchestrate, 'scanProjectKeyObservations');
+      const after = resolveProjectAnalysis(ctx);
+      obsSpy.mockRestore();
+
+      expect(after.cache?.analysisRebuild?.strategy).toBe('partial');
+      expect(after.cache?.analysisRebuild?.reason).toBe('source_locale_partial');
+      expect(after.keyObservations.length).toBe(before.keyObservations.length);
+      expect(after.missingKeys).not.toContain('app.missing');
+      expect(obsSpy.mock.calls.filter((call) => call[0].listFiles !== undefined)).toHaveLength(0);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('patch(source locale) matches full scan for missingKeys', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-analysis-source-patch-'));
+    try {
+      const { srcRoot, localesDir, sourcePath } = writeFixture(
+        root,
+        'export const x = () => t("app.title"); t("app.new");',
+      );
+      const adapters = createNodeRuntimeAdapters();
+      const config = parseI18nPruneConfig({
+        ...DEFAULT_CONFIG,
+        locales: { source: 'locales/en.json', directory: 'locales' },
+        src: 'src',
+        functions: ['t'],
+      });
+      const ctx = createCoreContext({
+        config,
+        adapters,
+        env: {},
+        paths: { sourceLocale: sourcePath, localesDir, srcRoot },
+      });
+
+      const before = resolveProjectAnalysis(ctx);
+      fs.writeFileSync(sourcePath, JSON.stringify({ app: { title: 'Title' } }));
+      const fullAfter = resolveProjectAnalysis(ctx);
+      const patched = patchProjectAnalysisFromSourceLocaleDelta(ctx, before);
+      expect(patched.missingKeys).toEqual(fullAfter.missingKeys);
+      expect(patched.keyObservations).toBe(before.keyObservations);
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }

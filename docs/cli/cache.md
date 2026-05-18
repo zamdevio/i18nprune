@@ -115,7 +115,14 @@ When **`files.json`** reports changes and a valid **`analysis.json`** exists, th
 
 Resolved values come from **`cache.profile`** unless you override those fields explicitly (see table above).
 
-Partial rebuild today covers **src file** changes only (delete rows for removed paths, rescan changed/added files, recompute `missingKeys` from the unchanged source locale). Locale-only or layout changes still trigger a full scan until later cache phases add finer-grained locale patching.
+| Change | Behavior |
+|--------|----------|
+| **Target locale only** (e.g. `fr.json`, `*.meta.json`) | Reuse cached scan arrays; refresh **`files.json`** fingerprints only (`--debug-cache`: `analysis rebuild: skipped (target locale only)`). |
+| **Source locale only** | Re-read source locale segment(s) and recompute **`missingKeys`**; no `src/**` walk. |
+| **Src files only** | Patch `keyObservations` / `dynamicSites` for the delta; recompute **`missingKeys`**. |
+| **Layout fingerprint** | Full project scan (safe default). |
+
+Under **`locale_directory`**, source locale reads merge every source segment; **`missingKeys`** compare code keys to logical paths present in any source segment file.
 
 If **`files.json`** is missing, invalid, or empty but **`analysis.json`** is still valid and the project fingerprint (`inputFilesEpoch`) matches, the SDK **rebuilds only the files index** and reuses analysis (fast path; `--debug-cache` shows `files_index_recovered`). If the project changed on disk since the last analysis write, a full scan runs with an explicit reason (`files.json missing`, `invalid`, or `project files changed`).
 
