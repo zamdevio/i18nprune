@@ -36,7 +36,7 @@ locales/
   de.json
 ```
 
-**Fixture:** `tests/fixtures/sample-i18n` in the i18nprune repo.
+**Fixture:** `tests/fixtures/layout-flat-file` (minimal). `tests/fixtures/sample-i18n` also uses this layout for parity and broader CLI drills.
 
 ## Locale directory + locale per dir
 
@@ -98,7 +98,7 @@ messages/
 
 ## Locale metadata (display names, direction)
 
-Locale **display metadata** (`englishName`, `nativeName`, `direction`) for app loaders lives in **`src/i18n/config.json`** and generated loader modules — not in **`<lang>.meta.json`** sidecars. Use **`i18nprune patch`** (or **`generate --patch`**) to keep loader wiring aligned when locales change.
+Locale **display metadata** (`englishName`, `nativeName`, `direction`) for app loaders lives in **`src/i18n/config.json`** and generated loader modules — not in **`<lang>.meta.json`** sidecars (the tool does not create those files). Any **`*.meta.json`** already on disk is a normal **`*.json`** file under the active layout rules. Use **`i18nprune patch`** (or **`generate --patch`**) to keep loader wiring aligned when locales change.
 
 ## Init and detection
 
