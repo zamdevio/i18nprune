@@ -45,7 +45,7 @@ analysis.json  → EXPENSIVE derived state (code scan + missingKeys vs source)
 | Layer | Partial rebuild today? | On miss today |
 |-------|------------------------|---------------|
 | **`files.json`** | **Yes (limited):** layout-only change can reuse cached `src/**` index and rescan locale segments only (`packages/core/src/cache/dispatch.ts` → `resolveTrackedCurrent`). | Rewrite index from scan. |
-| **`analysis.json`** | **No.** Any `files_changed` (including locale-only) runs full `scanProjectAnalysis()`. | Full src walk + source locale read + `missingKeys`. |
+| **`analysis.json`** | **Partial (src):** single-file src edits patch cached arrays when `cache.rebuild` is `partial` and under threshold. Locale-only / layout / source-locale deltas still full-scan. | Full src walk + source locale read + `missingKeys`. |
 
 **This phase** closes the gap: **patch `analysis.json` from classified delta** when policy allows.
 
@@ -67,7 +67,7 @@ analysis.json  → EXPENSIVE derived state (code scan + missingKeys vs source)
 
 ## Planned config (`cache` block)
 
-Extend existing Zod `cacheSchema` in `packages/core/src/config/schema/root.ts` ( **not shipped** until incremental slice lands).
+Extend existing Zod `cacheSchema` in `packages/core/src/config/schema/root.ts` (**shipped** for `rebuild` + `fullRescanThresholdPercent`).
 
 ```ts
 cache?: {
@@ -285,10 +285,10 @@ flowchart TD
 | Segment-aware `files.json` (locales row 10) | **Done** |
 | Single `analysis.json` (no snapshot slot) | **Done** |
 | Types in `packages/core/src/types/analysis/` | **Done** |
-| Phase 0 — path canonical + dispatch hook | **Todo** |
-| Phase 1 — src incremental | **Todo** |
+| Phase 0 — path canonical + dispatch hook | **Done** |
+| Phase 1 — src incremental | **Done** |
 | Phase 2 — locale source/target classification | **Todo** |
-| Phase 3 — `cache.rebuild` + threshold config | **Todo** |
+| Phase 3 — `cache.rebuild` + threshold config | **Done** |
 | Phase 4 — invalidate cleanup | **Todo** |
 | Phase 5 — worker/web + translate-cache | **Deferred** |
 

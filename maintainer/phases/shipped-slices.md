@@ -25,5 +25,6 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 | **Init / onboarding (Session F)** — `runInit`, presets + scoring, config template, CLI **`init`** (`--auto`, `--preset`, `--json`) | Shipped (core + CLI) | [`init.md`](./init.md) · extension host: [`extension/README.md`](./extension/README.md) (I1–I3 planned) |
 | **Locales multi-topology (Session H)** — reader/writer, `flat_file` / `locale_directory`, ops on segment targets, layout fixtures | Shipped (core + CLI) | [`locales.md`](./locales.md) |
 | **Cache index (locales row 10)** — `localeSegments` + `localesLayout` in `files.json`; single `analysis.json`; drop `snapshot.json` / CLI report-doc cache | Shipped (core + CLI) | [`cache.md`](./cache.md) § Shipped baseline · [`docs/cli/cache.md`](../../docs/cli/cache.md) |
+| **Cache incremental analysis (Phase 0–1 + 3)** — srcRoot-relative scan paths, src delta patch, `cache.rebuild` / `fullRescanThresholdPercent`, `--debug-cache` rebuild lines | Shipped (core) | [`cache.md`](./cache.md) · [`docs/cli/cache.md`](../../docs/cli/cache.md) § Incremental analysis rebuild |
 
-Maintainer sequencing for **remaining** work: **[`cache.md`](./cache.md)** (incremental analysis) → **[`V1-RELEASE.md`](./V1-RELEASE.md)**.
+Maintainer sequencing for **remaining** work: **[`cache.md`](./cache.md)** (Phase 2 locale patch, Phase 4 invalidate) → **[`V1-RELEASE.md`](./V1-RELEASE.md)**.

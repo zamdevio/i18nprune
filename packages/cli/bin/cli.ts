@@ -133,13 +133,13 @@ program
     'override cache.profile for this run (safe | balanced | fast); explicit cache.rebuild / fullRescanThresholdPercent / mode in config still win',
   )
   .option(
-    '--debug-scan',
-    'log source scan skip decisions to stderr (built-in skips, exclude rules, non-scanned extensions)',
+    '--debug-cache',
+    'log report-cache dispatch, invalidation, and per-file delta decisions',
     false,
   )
   .option(
-    '--debug-cache',
-    'log report-cache dispatch, invalidation, and per-file delta decisions',
+    '--debug-scan',
+    'log source scan skip decisions to stderr (built-in skips, exclude rules, non-scanned extensions)',
     false,
   )
   .option('--top <n>', 'global list limit override for human/list outputs')
