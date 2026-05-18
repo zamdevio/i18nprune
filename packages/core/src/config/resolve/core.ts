@@ -47,6 +47,8 @@ export function resolveCoreConfig(
     cache: {
       enabled: input?.cache?.enabled ?? true,
       mode: input?.cache?.mode === 'readOnly' ? 'readOnly' : 'readWrite',
+      rebuild: input?.cache?.rebuild === 'full' ? 'full' : 'partial',
+      fullRescanThresholdPercent: input?.cache?.fullRescanThresholdPercent ?? 40,
       ...(input?.cache?.dir !== undefined ? { dir: input.cache.dir } : {}),
     },
   };

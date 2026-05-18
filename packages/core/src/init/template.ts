@@ -227,6 +227,13 @@ ${body}
     enabled: true,
     // dir: '.i18nprune/cache',
     // mode: 'readWrite', // 'readOnly' skips all cache writes (useful for CI audit runs).
+    // How to rebuild \`analysis.json\` when \`files.json\` reports changes:
+    // - \`partial\` (default): patch src scan arrays when safe; see \`fullRescanThresholdPercent\`.
+    // - \`full\`: always run a full project scan on every analysis miss.
+    rebuild: 'partial',
+    // When \`rebuild\` is \`partial\`, fall back to a full src scan if
+    // (added + changed + deleted) src files reach this percent of tracked src files. Default 40.
+    fullRescanThresholdPercent: 40,
   },
 
   patching: {

@@ -74,8 +74,14 @@ export function scanProjectSourceFiles<T>(input: ScanProjectSourceFilesInput<T>)
     } catch {
       continue;
     }
-    const rel = pathPort.relative(cwd, filePath);
-    const displayPath = rel && !rel.startsWith('..') ? rel : filePath;
+    const relFromSrc = pathPort.relative(input.srcRoot, filePath).replace(/\\/g, '/');
+    const displayPath =
+      relFromSrc && !relFromSrc.startsWith('..')
+        ? relFromSrc
+        : (() => {
+            const relCwd = pathPort.relative(cwd, filePath);
+            return relCwd && !relCwd.startsWith('..') ? relCwd.replace(/\\/g, '/') : filePath;
+          })();
     const rows = input.scanFile({ filePath, displayPath, text });
     out.push(...rows);
   }

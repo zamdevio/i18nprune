@@ -5,7 +5,7 @@ import { scanProjectSourceFiles } from '../projectScan.js';
 describe('scanProjectSourceFiles', () => {
   const rt = createNodeRuntimeAdapters();
 
-  it('uses relative displayPath when file is under cwd', () => {
+  it('uses srcRoot-relative displayPath when file is under srcRoot', () => {
     const rows = scanProjectSourceFiles({
       srcRoot: '/repo/src',
       cwd: '/repo',
@@ -14,19 +14,19 @@ describe('scanProjectSourceFiles', () => {
       readFile: () => 'const x = 1;',
       scanFile: ({ displayPath }) => [{ displayPath }],
     });
-    expect(rows).toEqual([{ displayPath: 'src/a.ts' }]);
+    expect(rows).toEqual([{ displayPath: 'a.ts' }]);
   });
 
-  it('falls back to absolute displayPath when file is outside cwd', () => {
+  it('falls back to cwd-relative displayPath when file is outside srcRoot', () => {
     const rows = scanProjectSourceFiles({
       srcRoot: '/repo/src',
-      cwd: '/other',
+      cwd: '/repo',
       path: rt.path,
-      listFiles: () => ['/repo/src/a.ts'],
+      listFiles: () => ['/repo/lib/a.ts'],
       readFile: () => 'const x = 1;',
       scanFile: ({ displayPath }) => [{ displayPath }],
     });
-    expect(rows).toEqual([{ displayPath: '/repo/src/a.ts' }]);
+    expect(rows).toEqual([{ displayPath: 'lib/a.ts' }]);
   });
 
   it('skips unreadable files and continues scanning', () => {
@@ -41,6 +41,6 @@ describe('scanProjectSourceFiles', () => {
       },
       scanFile: ({ displayPath }) => [{ displayPath }],
     });
-    expect(rows).toEqual([{ displayPath: 'src/b.ts' }]);
+    expect(rows).toEqual([{ displayPath: 'b.ts' }]);
   });
 });

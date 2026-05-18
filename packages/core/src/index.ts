@@ -554,6 +554,7 @@ export {
   writeJsonAtomic,
 } from './namespaces/cache.js';
 export type {
+  AnalysisRebuildDecision,
   CachedLocalesLayout,
   CachedProjectInput,
   CacheDisableReason,
@@ -562,6 +563,11 @@ export type {
   CacheDispatchResult,
   CacheDispatchStatus,
   CacheFileDelta,
+  CacheProducerContext,
+  CacheRebuildConfig,
+  CacheRebuildMode,
+  ClassifiedCacheFileDelta,
+  ClassifiedSrcDelta,
   CacheHashText,
   CacheInputFilesEpochDebug,
   CacheProjectFileRecord,

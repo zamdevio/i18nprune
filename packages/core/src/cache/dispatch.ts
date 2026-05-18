@@ -1,3 +1,6 @@
+import { classifyCacheFileDelta } from './deltaClassify.js';
+import { resolveFilesIndexStatus } from './filesIndexStatus.js';
+import { decideAnalysisRebuild, DEFAULT_CACHE_REBUILD_CONFIG, resolveCacheRebuildConfig } from './rebuildPolicy.js';
 import { layoutMatches, resolveCachedLocalesLayout } from './localesLayout.js';
 import {
   buildTrackedProjectFilesCurrent,
@@ -8,19 +11,21 @@ import {
 import { computeInputFilesEpoch, diffProjectFiles } from './engine.js';
 import { loadProjectFilesState, loadProjectRunState, saveProjectFilesState, saveProjectRunState } from './io/index.js';
 import { prepareCacheForRun } from './setup/index.js';
+import { filesIndexIsUsable } from '../types/cache/filesIndex.js';
 import type {
   CacheDispatchResult,
-  CacheInputFilesEpochDebug,
   CacheProjectFileRecord,
   CacheProjectFilesState,
   CachedProjectInput,
   CacheDispatchReason,
+  CacheProducerContext,
   CacheWarning,
+  FilesIndexStatus,
 } from '../types/cache/index.js';
 
-function assertLocalesInput(input: CachedProjectInput<unknown>): asserts input is CachedProjectInput<unknown> & {
+function assertLocalesInput<T>(input: CachedProjectInput<T>): asserts input is CachedProjectInput<T> & {
   localesDir: string;
-  locales: NonNullable<CachedProjectInput<unknown>['locales']>;
+  locales: NonNullable<CachedProjectInput<T>['locales']>;
 } {
   if (input.localesDir === undefined || input.locales === undefined) {
     throw new Error('cache dispatch requires localesDir and locales');
@@ -32,10 +37,9 @@ function baselineMergedFromDisk(prev: CacheProjectFilesState): Record<string, Ca
 }
 
 function resolveTrackedCurrent<T>(
-  input: CachedProjectInput<T>,
+  input: CachedProjectInput<T> & { localesDir: string; locales: NonNullable<CachedProjectInput<T>['locales']> },
   prev: CacheProjectFilesState,
 ): TrackedProjectFilesCurrent {
-  assertLocalesInput(input);
   const locales = input.locales;
   const localesDir = input.localesDir;
   const hasCachedLayout = prev.localesLayout !== undefined;
@@ -53,6 +57,71 @@ function resolveTrackedCurrent<T>(
   });
 }
 
+function sourceLocaleSegmentKey<T>(input: CachedProjectInput<T>): string {
+  return input.runtime.path.relative(input.localesDir, input.sourceLocalePath).replace(/\\/g, '/');
+}
+
+function buildProducerContext<T>(input: {
+  input: CachedProjectInput<T>;
+  delta: CacheProducerContext<T>['delta'];
+  tracked: TrackedProjectFilesCurrent;
+  prev: CacheProjectFilesState;
+  previous?: T;
+  filesIndexStatus: FilesIndexStatus;
+}): CacheProducerContext<T> {
+  const currentSrcFileKeys = new Set(Object.keys(omitSyntheticSourceKey(input.tracked.files)));
+  const baselineSrcFileKeys = new Set(Object.keys(omitSyntheticSourceKey(input.prev.files)));
+  const currentLocaleSegmentKeys = new Set(Object.keys(input.tracked.localeSegments));
+  const baselineLocaleSegmentKeys = new Set(Object.keys(input.prev.localeSegments ?? {}));
+  const classified = classifyCacheFileDelta({
+    delta: input.delta,
+    currentSrcFileKeys,
+    baselineSrcFileKeys,
+    currentLocaleSegmentKeys,
+    baselineLocaleSegmentKeys,
+    sourceLocaleSegmentKey: sourceLocaleSegmentKey(input.input),
+    previousLayout: input.prev.localesLayout,
+    currentLayout: input.tracked.localesLayout,
+    filesIndexStatus: input.filesIndexStatus,
+  });
+  const rebuildConfig = input.input.rebuildConfig ?? DEFAULT_CACHE_REBUILD_CONFIG;
+  const trackedSrcCount = currentSrcFileKeys.size;
+  const analysisRebuild = {
+    ...decideAnalysisRebuild({
+      config: rebuildConfig,
+      classified,
+      hasPrevious: input.previous !== undefined,
+      trackedSrcCount,
+    }),
+    srcDelta: classified.src,
+  };
+  return {
+    delta: input.delta,
+    classified,
+    previous: input.previous,
+    trackedSrcCount,
+    rebuildConfig,
+    analysisRebuild,
+  };
+}
+
+function persistFilesAndRunState<T>(input: {
+  state: CachedProjectInput<T>['state'];
+  runtime: CachedProjectInput<T>['runtime'];
+  nextIndex: CacheProjectFilesState;
+  data: T;
+  inputFilesEpoch: string;
+  warnings: CacheWarning[];
+}): void {
+  const saveFilesWarn = saveProjectFilesState(input.state, input.nextIndex, input.runtime);
+  if (saveFilesWarn) input.warnings.push(saveFilesWarn);
+  const saveRunWarn = saveProjectRunState(input.state, input.runtime, {
+    data: input.data,
+    inputFilesEpoch: input.inputFilesEpoch,
+  });
+  if (saveRunWarn) input.warnings.push(saveRunWarn);
+}
+
 /**
  * Check-or-produce entry point for `analysis.json`.
  *
@@ -68,6 +137,7 @@ export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): Ca
     analysis: state.analysisPath,
     projectDir: state.projectDir,
   };
+  const rebuildConfig = input.rebuildConfig ?? resolveCacheRebuildConfig(undefined);
   if (!state.enabled) {
     return {
       data: input.producer(),
@@ -86,22 +156,71 @@ export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): Ca
   const prevFiles = loadProjectFilesState(state, input.runtime);
   warnings.push(...prevFiles.warnings);
   const prev = prevFiles.files;
+  const filesIndexStatus = resolveFilesIndexStatus({
+    prev,
+    warnings: prevFiles.warnings,
+    filesPath: state.filesPath,
+    runtime: input.runtime,
+  });
 
+  assertLocalesInput(input);
   const tracked = resolveTrackedCurrent(input, prev);
   const currentFiles = tracked.merged;
   const baseline = input.baselineFiles ?? baselineMergedFromDisk(prev);
   const delta = diffProjectFiles(baseline, currentFiles);
   const hasFileChanges = delta.added.length + delta.changed.length + delta.deleted.length > 0;
+  const inputFilesEpoch = computeInputFilesEpoch(currentFiles, input.runtime.hashText);
 
   const prevRun = loadProjectRunState(state, input.runtime);
   warnings.push(...prevRun.warnings);
+
+  let previous: T | undefined;
+  if (prevRun.run?.data !== undefined && input.parseCachedData) {
+    const parsedPrevious = input.parseCachedData(prevRun.run.data);
+    if (parsedPrevious.ok) previous = parsedPrevious.data;
+  }
+
+  const filesIndexRecoverable =
+    !filesIndexIsUsable(filesIndexStatus) &&
+    hasFileChanges &&
+    previous !== undefined &&
+    prevRun.run?.inputFilesEpoch === inputFilesEpoch;
+
+  if (filesIndexRecoverable && previous !== undefined) {
+    const nextIndex: CacheProjectFilesState = {
+      ...prev,
+      files: tracked.files,
+      localeSegments: tracked.localeSegments,
+      localesLayout: tracked.localesLayout,
+    };
+    persistFilesAndRunState({
+      state,
+      runtime: input.runtime,
+      nextIndex,
+      data: previous,
+      inputFilesEpoch,
+      warnings,
+    });
+    return {
+      data: previous,
+      cache: {
+        status: 'hit',
+        reason: 'files_index_recovered',
+        warnings,
+        delta,
+        paths,
+        analysisRebuild: { strategy: 'reuse', reason: 'files_index_recovered' },
+        filesIndexStatus,
+      },
+    };
+  }
+
   let missReason: CacheDispatchReason = hasFileChanges ? 'files_changed' : 'run_missing';
-  let inputFilesEpochDebug: CacheInputFilesEpochDebug | undefined;
+  let inputFilesEpochDebug: import('../types/cache/index.js').CacheInputFilesEpochDebug | undefined;
   if (!hasFileChanges && prevRun.run?.data !== undefined) {
-    const epochNow = computeInputFilesEpoch(currentFiles, input.runtime.hashText);
-    if (prevRun.run.inputFilesEpoch !== epochNow) {
+    if (prevRun.run.inputFilesEpoch !== inputFilesEpoch) {
       missReason = 'run_binding_stale';
-      inputFilesEpochDebug = { cached: prevRun.run.inputFilesEpoch, current: epochNow };
+      inputFilesEpochDebug = { cached: prevRun.run.inputFilesEpoch, current: inputFilesEpoch };
     } else {
       const parsed = input.parseCachedData
         ? input.parseCachedData(prevRun.run.data)
@@ -122,7 +241,15 @@ export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): Ca
     }
   }
 
-  const fresh = input.producer();
+  const producerCtx = buildProducerContext({
+    input: { ...input, rebuildConfig },
+    delta,
+    tracked,
+    prev,
+    previous,
+    filesIndexStatus,
+  });
+  const fresh = input.producer(producerCtx);
   const nextIndex: CacheProjectFilesState = {
     ...prev,
     files: tracked.files,
@@ -130,14 +257,14 @@ export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): Ca
     localesLayout: tracked.localesLayout,
   };
 
-  const saveFilesWarn = saveProjectFilesState(state, nextIndex, input.runtime);
-  if (saveFilesWarn) warnings.push(saveFilesWarn);
-  const inputFilesEpoch = computeInputFilesEpoch(currentFiles, input.runtime.hashText);
-  const saveRunWarn = saveProjectRunState(state, input.runtime, {
+  persistFilesAndRunState({
+    state,
+    runtime: input.runtime,
+    nextIndex,
     data: fresh,
     inputFilesEpoch,
+    warnings,
   });
-  if (saveRunWarn) warnings.push(saveRunWarn);
 
   return {
     data: fresh,
@@ -147,6 +274,8 @@ export function getOrBuildCachedProjectData<T>(input: CachedProjectInput<T>): Ca
       warnings,
       delta,
       paths,
+      analysisRebuild: producerCtx.analysisRebuild,
+      filesIndexStatus: filesIndexIsUsable(filesIndexStatus) ? undefined : filesIndexStatus,
       ...(inputFilesEpochDebug !== undefined ? { inputFilesEpochDebug } : {}),
     },
   };

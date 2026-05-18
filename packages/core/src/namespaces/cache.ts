@@ -39,6 +39,7 @@ export {
   writeJsonAtomic,
 } from '../cache/index.js';
 export type {
+  AnalysisRebuildDecision,
   CachedLocalesLayout,
   CachedProjectInput,
   CacheDisableReason,
@@ -48,6 +49,11 @@ export type {
   CacheDispatchResult,
   CacheDispatchStatus,
   CacheFileDelta,
+  CacheProducerContext,
+  CacheRebuildConfig,
+  CacheRebuildMode,
+  ClassifiedCacheFileDelta,
+  ClassifiedSrcDelta,
   CacheHashText,
   CacheInputFilesEpochDebug,
   CacheProjectFileRecord,
@@ -58,4 +64,4 @@ export type {
   CacheState,
   CacheStateInput,
   CacheWarning,
-} from '../cache/index.js';
+} from '../types/cache/index.js';

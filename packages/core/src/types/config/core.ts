@@ -17,6 +17,8 @@ export type CoreConfigInput = {
     enabled?: boolean;
     dir?: string;
     mode?: 'readWrite' | 'readOnly';
+    rebuild?: 'partial' | 'full';
+    fullRescanThresholdPercent?: number;
   };
 };
 
@@ -29,6 +31,8 @@ export type CoreConfigResolved = {
     enabled: boolean;
     dir?: string;
     mode: 'readWrite' | 'readOnly';
+    rebuild: 'partial' | 'full';
+    fullRescanThresholdPercent: number;
   };
 };
 

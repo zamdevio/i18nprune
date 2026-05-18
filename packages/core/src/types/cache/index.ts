@@ -2,6 +2,21 @@ import type { LocalesFilesystemConfig } from '../../config/schema/root.js';
 import type { LocalesLayoutMode, LocalesLayoutStructure } from '../locales/layout.js';
 import type { RuntimeFsPort, RuntimePathPort, RuntimeSystemPort } from '../runtime/index.js';
 import type { ScanExcludeConfig } from '../scanner/index.js';
+import type { AnalysisRebuildDecision, CacheProducerContext, CacheRebuildConfig } from './rebuild.js';
+import type { FilesIndexStatus } from './filesIndex.js';
+
+export type { FilesIndexStatus } from './filesIndex.js';
+export { filesIndexIsUsable } from './filesIndex.js';
+export type {
+  AnalysisRebuildDecision,
+  AnalysisRebuildReason,
+  AnalysisRebuildStrategy,
+  CacheProducerContext,
+  CacheRebuildConfig,
+  CacheRebuildMode,
+  ClassifiedCacheFileDelta,
+  ClassifiedSrcDelta,
+} from './rebuild.js';
 
 /** Layout fingerprint stored in `files.json` (`mode` + `structure` + config paths). */
 export type CachedLocalesLayout = {
@@ -94,6 +109,7 @@ export type CacheDispatchReason =
   | 'cache_unavailable'
   | 'run_missing'
   | 'files_changed'
+  | 'files_index_recovered'
   | 'run_binding_stale'
   | 'producer_succeeded'
   | 'run_invalid';
@@ -151,6 +167,10 @@ export type CacheDispatchInfo = {
   delta?: CacheFileDelta;
   paths?: CacheDispatchPaths;
   inputFilesEpochDebug?: CacheInputFilesEpochDebug;
+  /** Set when analysis was rebuilt on miss (`--debug-cache` surfaces strategy). */
+  analysisRebuild?: AnalysisRebuildDecision;
+  /** Set when `files.json` was missing, malformed, or empty on load. */
+  filesIndexStatus?: FilesIndexStatus;
 };
 
 export type CacheDispatchResult<T> = {
@@ -167,8 +187,9 @@ export type CachedProjectInput<T> = {
   localesDir: string;
   locales: LocalesFilesystemConfig;
   exclude?: ScanExcludeConfig;
-  producer: () => T;
+  producer: (ctx?: CacheProducerContext<T>) => T;
   parseCachedData?: (data: unknown) => { ok: true; data: T } | { ok: false };
+  rebuildConfig?: CacheRebuildConfig;
   /**
    * Pre-loaded `files.json` baseline from before any dispatch in this run. When provided, the
    * delta is computed against these records so writes during the run do not mask real file changes.

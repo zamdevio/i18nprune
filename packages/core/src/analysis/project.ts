@@ -2,9 +2,12 @@ import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js'
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
 import { emitCacheDispatchMessages, getOrBuildCachedProjectData } from '../cache/index.js';
+import { resolveCacheRebuildConfig } from '../cache/rebuildPolicy.js';
 import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
 import { listSourceFiles } from '../shared/scanner/files.js';
 import { computeMissingLiteralKeysFromResolvedKeys } from '../validate/missingLiterals.js';
+import { patchProjectAnalysisFromSrcDelta } from './rebuild.js';
+import type { CacheProducerContext } from '../types/cache/index.js';
 import type {
   ProjectAnalysis,
   ProjectAnalysisCacheData,
@@ -81,6 +84,16 @@ function scanProjectAnalysis(ctx: CoreContext): ProjectAnalysisCacheData {
   };
 }
 
+function produceProjectAnalysis(
+  ctx: CoreContext,
+  rebuild?: CacheProducerContext<ProjectAnalysisCacheData>,
+): ProjectAnalysisCacheData {
+  if (rebuild?.previous !== undefined && rebuild.analysisRebuild?.strategy === 'partial') {
+    return patchProjectAnalysisFromSrcDelta(ctx, rebuild.previous, rebuild.classified.src);
+  }
+  return scanProjectAnalysis(ctx);
+}
+
 function withDerivedUsage(data: ProjectAnalysisCacheData, cache?: ProjectAnalysis['cache']): ProjectAnalysis {
   return {
     ...data,
@@ -95,6 +108,7 @@ export function resolveProjectAnalysis(ctx: CoreContext, opts: ProjectAnalysisRe
     return withDerivedUsage(scanProjectAnalysis(ctx));
   }
 
+  const rebuildConfig = resolveCacheRebuildConfig(ctx.config.cache);
   const result = getOrBuildCachedProjectData<ProjectAnalysisCacheData>({
     state: cacheCtx.state,
     runtime: cacheCtx.runtime,
@@ -103,7 +117,8 @@ export function resolveProjectAnalysis(ctx: CoreContext, opts: ProjectAnalysisRe
     localesDir: ctx.paths.localesDir,
     locales: ctx.config.locales,
     exclude: ctx.config.exclude,
-    producer: () => scanProjectAnalysis(ctx),
+    rebuildConfig,
+    producer: (rebuild) => produceProjectAnalysis(ctx, rebuild),
     parseCachedData: parseProjectAnalysisCacheData,
     baselineFiles: cacheCtx.baselineFiles,
   });

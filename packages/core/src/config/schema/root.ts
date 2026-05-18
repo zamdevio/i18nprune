@@ -224,6 +224,20 @@ const cacheSchema = z
       .describe(
         'readWrite (default): cache may persist hits and misses. readOnly: reuse valid cache on disk but skip all cache writes (meta, files index, snapshots).',
       ),
+    rebuild: z
+      .enum(['partial', 'full'])
+      .optional()
+      .describe(
+        "How to rebuild analysis.json on cache miss when files.json reports changes. 'partial' (default): patch from delta when safe. 'full': always run a full project scan.",
+      ),
+    fullRescanThresholdPercent: z
+      .number()
+      .min(0)
+      .max(100)
+      .optional()
+      .describe(
+        "When rebuild is 'partial', fall back to a full src scan if (added+changed+deleted) src files reach this percent of tracked src files. Default 40. Ignored when rebuild is 'full'.",
+      ),
   })
   .strict()
   .optional()

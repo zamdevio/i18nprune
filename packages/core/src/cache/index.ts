@@ -38,6 +38,13 @@ export {
   mergeTrackedFileMaps,
   omitSyntheticSourceKey,
 } from './trackedFiles.js';
+export { classifyCacheFileDelta, countSrcDeltaAffected, srcDeltaIsEmpty } from './deltaClassify.js';
+export { resolveFilesIndexStatus } from './filesIndexStatus.js';
+export {
+  decideAnalysisRebuild,
+  DEFAULT_CACHE_REBUILD_CONFIG,
+  resolveCacheRebuildConfig,
+} from './rebuildPolicy.js';
 export { getOrBuildCachedProjectData } from './dispatch.js';
 export { emitCacheDispatchMessages, emitCacheMemoryHitMessage } from './events.js';
 export {
@@ -57,6 +64,15 @@ export type {
   CacheDispatchResult,
   CacheDispatchStatus,
   CacheFileDelta,
+  CacheProducerContext,
+  CacheRebuildConfig,
+  CacheRebuildMode,
+  ClassifiedCacheFileDelta,
+  ClassifiedSrcDelta,
+  AnalysisRebuildDecision,
+  AnalysisRebuildReason,
+  AnalysisRebuildStrategy,
+  FilesIndexStatus,
   CacheHashText,
   CacheInputFilesEpochDebug,
   CacheProjectFileRecord,
@@ -68,3 +84,4 @@ export type {
   CacheStateInput,
   CacheWarning,
 } from '../types/cache/index.js';
+export { filesIndexIsUsable } from '../types/cache/filesIndex.js';

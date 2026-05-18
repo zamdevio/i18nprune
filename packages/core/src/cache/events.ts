@@ -6,6 +6,8 @@ function describeCacheInvalidation(reason: CacheDispatchReason): string | undefi
   switch (reason) {
     case 'files_changed':
       return 'source files changed';
+    case 'files_index_recovered':
+      return 'files index rebuilt; analysis reused (project files unchanged)';
     case 'run_binding_stale':
       return 'stale (source files changed since last cache write)';
     case 'run_invalid':
@@ -89,6 +91,56 @@ export function emitCacheDispatchMessages(input: {
     emitCacheDeltaFiles({ ...input, kind: 'added', files: d.added });
     emitCacheDeltaFiles({ ...input, kind: 'changed', files: d.changed });
     emitCacheDeltaFiles({ ...input, kind: 'deleted', files: d.deleted });
+  }
+  if (input.cache.analysisRebuild) {
+    const r = input.cache.analysisRebuild;
+    if (r.strategy === 'reuse') {
+      emitCacheDetail({ ...input, message: '  analysis rebuild: skipped (reusing analysis.json)' });
+    } else if (r.strategy === 'partial') {
+      const src = r.srcDelta;
+      const changed = src?.changed.length ?? 0;
+      const added = src?.added.length ?? 0;
+      const deleted = src?.deleted.length ?? 0;
+      emitCacheDetail({
+        ...input,
+        message: `  analysis rebuild: partial (${String(changed)} changed, ${String(added)} added, ${String(deleted)} deleted)`,
+      });
+    } else {
+      let detail = 'config rebuild=full';
+      if (r.reason === 'src_threshold') {
+        const pct = r.trackedSrcCount && r.trackedSrcCount > 0
+          ? Math.round(((r.srcAffected ?? 0) / r.trackedSrcCount) * 100)
+          : 100;
+        detail = `threshold ${String(pct)}% (limit ${String(r.thresholdPercent ?? 40)}%)`;
+      } else if (r.reason === 'layout_changed') {
+        detail = 'layout changed';
+      } else if (r.reason === 'source_locale_changed') {
+        detail = 'source locale changed';
+      } else if (r.reason === 'locale_or_non_src_changed') {
+        detail = 'locale or non-src delta';
+      } else if (r.reason === 'no_previous_cache') {
+        detail = 'no previous analysis cache';
+      } else if (r.reason === 'files_index_missing') {
+        detail = 'files.json missing';
+      } else if (r.reason === 'files_index_malformed') {
+        detail = 'files.json invalid or oversized';
+      } else if (r.reason === 'files_index_empty') {
+        detail = 'files.json empty';
+      } else if (r.reason === 'files_index_stale') {
+        detail = 'files index unusable and project files changed since last analysis';
+      }
+      emitCacheDetail({ ...input, message: `  analysis rebuild: full (${detail})` });
+    }
+  }
+  if (input.cache.filesIndexStatus !== undefined && input.cache.filesIndexStatus.kind !== 'ok') {
+    const kind = input.cache.filesIndexStatus.kind;
+    const note =
+      kind === 'missing'
+        ? 'files.json missing — rebuilding fingerprints from disk'
+        : kind === 'malformed'
+          ? 'files.json invalid or oversized — rebuilding fingerprints from disk'
+          : 'files.json empty — rebuilding fingerprints from disk';
+    emitCacheDetail({ ...input, message: `  files index: ${note}` });
   }
   for (const warn of input.cache.warnings) {
     const path = warn.path ? ` (${warn.path})` : '';

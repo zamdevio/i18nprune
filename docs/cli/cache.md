@@ -77,11 +77,25 @@ Otherwise the command recomputes the scan and writes fresh JSON.
 
 Global **`--no-cache`** disables cache for that process.
 
+## Incremental analysis rebuild
+
+When **`files.json`** reports changes and a valid **`analysis.json`** exists, core may **patch** scan arrays instead of walking all of `src/**`:
+
+| Config | Default | Effect |
+|--------|---------|--------|
+| **`cache.rebuild`** | `partial` | Patch from the file delta when safe; see threshold below. |
+| **`cache.rebuild`** | `full` | Always run a full project scan on every analysis miss (opt-out of partial rebuild). |
+| **`cache.fullRescanThresholdPercent`** | `40` | When `rebuild` is `partial`, if changed/added/deleted **src** files reach this percent of tracked src files, fall back to a full src scan. Applies to **src** only, not locale segments. |
+
+Partial rebuild today covers **src file** changes only (delete rows for removed paths, rescan changed/added files, recompute `missingKeys` from the unchanged source locale). Locale-only or layout changes still trigger a full scan until later cache phases add finer-grained locale patching.
+
+If **`files.json`** is missing, invalid, or empty but **`analysis.json`** is still valid and the project fingerprint (`inputFilesEpoch`) matches, core **rebuilds only the files index** and reuses analysis (fast path; `--debug-cache` shows `files_index_recovered`). If the project changed on disk since the last analysis write, a full scan runs with an explicit reason (`files.json missing`, `invalid`, or `project files changed`).
+
 ## `--debug-cache`
 
 Prints cache diagnostics with the **`[i18nprune] [cache]`** channel (suppressed in **`--json`**, **`--quiet`**, **`--silent`**).
 
-Includes dispatch status, paths (`meta`, `files`, `analysis`), and per-file fingerprint deltas on misses.
+Includes dispatch status, paths (`meta`, `files`, `analysis`), per-file fingerprint deltas on misses, and **`analysis rebuild: partial (...)`** vs **`analysis rebuild: full (...)`** when analysis is recomputed.
 
 ## Clearing data
 
