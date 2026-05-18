@@ -14,10 +14,10 @@ Ignoring all of **`maintainer/`** would strand clones without sequencing context
 | Doc | Role |
 |-----|------|
 | [**`phases/V1-RELEASE.md`**](phases/V1-RELEASE.md) | Ordered v1 **sessions** (code + docs work) |
-| [**`phases/active-phase.md`**](phases/active-phase.md) | Active sprint + **locked** dependency chain (extractor → init → locales → extension) |
+| [**`phases/active-phase.md`**](phases/active-phase.md) | Active sprint + **locked** chain (extractor → init → locales → **cache** → translate-cache → extension) |
 | [**`phases/final.md`**](phases/final.md) | **One-time pre-publish checklist** (includes ADR polish + repo hygiene); **delete after completion** |
 | [**`systems/README.md`**](systems/README.md) | **Internal** tree: **`systems/operations/`**, **`systems/commands/`** — entrypoints, flows, per-op sheets (not user docs) |
 
-**Execution order (v1, after shipped Session C):** **init (F)** (**shipped** core + CLI) → **locales (H)** (**next**) → **apps catch-up (C.3)** (`apps/web`, `apps/workers/i18nprune`) → **docs (D)** → **landing (D.2)** → **release (E)** + **`final.md` (G)**. Hosted apps are **deferred** until **H** lands locale-storage contracts on **`@i18nprune/core`** — see **[`phases/V1-RELEASE.md` § Recommended sequence](phases/V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
+**Execution order (v1):** **init (F)** (**shipped**) → **locales (H)** (**shipped**) → **cache (H-cache — active)** → **translate-cache (H.1)** → **apps (C.3)** → **docs (D)** → **landing (D.2)** → **release (E)** + **`final.md` (G)**. See **[`phases/V1-RELEASE.md` § Recommended sequence](phases/V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
 
-**Phase narrative:** [`phases/README.md`](phases/README.md) · **onboarding (F — shipped):** [`phases/init.md`](phases/init.md) · **locales (H — planned):** [`phases/locales.md`](phases/locales.md) · **scratch:** **`maintainer/temp/`** only.
+**Phase narrative:** [`phases/README.md`](phases/README.md) · **active:** [`phases/cache.md`](phases/cache.md) · **locales reference (H — shipped):** [`phases/locales.md`](phases/locales.md) · **scratch:** **`maintainer/temp/`** only.

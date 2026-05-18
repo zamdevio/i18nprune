@@ -66,7 +66,7 @@ Status values: **planned** | **in progress** | **done** | **blocked** | **deferr
 | Generate (dashboard) | [generate.md](./generate.md) | planned | Foundation; **core integration**; stable **`runGenerate`** + host hooks (can parallel early WI if context-only) |
 | Hover | [hover.md](./hover.md) | planned | Workspace intelligence |
 | Diagnostics | [diagnostics.md](./diagnostics.md) | planned | Workspace intelligence; **after** hover patterns prove noise levels |
-| Init UI | [init-ui.md](./init-ui.md) | planned | Foundation; core **init** APIs (`runInit`, `--json` parity) |
+| Init UI | [init-ui.md](./init-ui.md) | planned | Foundation; core **init** shipped; **auto-show webview when no `i18nprune.config.*` in opened workspace folder** (see init-ui.md) |
 | Completions | [completions.md](./completions.md) | planned | Workspace intelligence |
 | Dashboard | [dashboard.md](./dashboard.md) | planned | Workspace intelligence; **Generate** tab in [generate.md](./generate.md) |
 | Performance | [performance.md](./performance.md) | planned | Diagnostics + real usage data (informs budgets) |

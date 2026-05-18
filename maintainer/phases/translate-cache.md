@@ -1,8 +1,8 @@
 # Translate cache phase — provider result reuse (**planned**)
 
-**Status:** **Planned** — implement **after** **[`locales.md`](./locales.md)** (Session **H**) ships segment-aware locale I/O and project **`files.json`** tracking for all locale segments.  
-**Dependency:** **Locales** ([`locales.md`](./locales.md)) — enumeration, reader/writer, `source` provenance on leaves, segment-aware cache fingerprints.  
-**Does not block:** Locales work may continue; this phase starts only when Session **H** tracker rows **3–7** (minimum: reader + op migration through generate write-back) are **Done** or explicitly deferred with segment fingerprints landed.
+**Status:** **Planned** — implement **after** **[`cache.md`](./cache.md)** (Session **H-cache**) incremental analysis rebuild lands (Phases 0–3 minimum).  
+**Dependency:** **Locales (H)** — **shipped** (segment-aware **`files.json`**, row **10**). **Cache** — [`cache.md`](./cache.md) (stable `analysis.json` + dispatch policy).  
+**Does not block:** Cache incremental work; start **H.1** when [`cache.md`](./cache.md) tracker marks config policy **Done** or explicitly deferred.
 
 Canonical ordering: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)** · locked chain update in **[`active-phase.md`](./active-phase.md#locked-cross-phase-dependency-chain)**.
 
@@ -23,19 +23,18 @@ Two layers:
 
 ---
 
-## On-disk layout (beside project snapshot)
+## On-disk layout (beside project analysis cache)
 
 Existing project cache dir (core: `packages/core/src/cache/setup/paths.ts`):
 
 ```txt
 ~/.i18nprune/cache/projects/<projectId>/
 ├── files.json          # input fingerprint index (must include all locale segments after H)
-├── snapshot.json       # project report slot (existing)
 ├── analysis.json       # key-site scan slot (existing)
 └── translations.json   # NEW — L2 translation result store (this phase)
 ```
 
-**Rule:** `translations.json` is a **sibling** of `snapshot.json` under the same `projectDir`, governed by the same project cache enablement and invalidation epoch as other slots.
+**Rule:** `translations.json` is a **sibling** of `analysis.json` under the same `projectDir`, governed by the same project cache enablement and invalidation epoch as other slots. See **[`cache.md`](./cache.md)** for analysis rebuild policy (`cache.rebuild`, partial patch).
 
 Optional future: shard `translations/` directory if payload size exceeds **`cache` oversize** guards — v1 may start with a single `translations.json` and split only if needed.
 
@@ -139,7 +138,7 @@ See [`locales.md` § Risks](./locales.md#risks) — disk cache fingerprinting it
 | # | Task | Status |
 |---|------|--------|
 | 0 | Locales phase: segment-aware `files.json` / `buildCurrentFileRecords` | **Todo** (locales **H**) |
-| 1 | `CacheState.translationsPath` + path resolution beside `snapshot.json` | **Todo** |
+| 1 | `CacheState.translationsPath` + path resolution beside `analysis.json` | **Todo** |
 | 2 | `translateConfigEpoch` helper + unit tests | **Todo** |
 | 3 | L1 per-run memo in generate translation pool | **Todo** |
 | 4 | L2 `translations.json` load/save + invalidation vs `files.json` epoch | **Todo** |

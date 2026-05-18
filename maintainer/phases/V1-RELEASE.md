@@ -15,14 +15,15 @@
 
 ## Recommended v1 sequence (start here after shipped Session C)
 
-Ship the **core onboarding + storage vertical** before **hosted app** catch-up: **`@i18nprune/core`** must own project structure, presets, and normalized locale surfaces (**init → locales**), then optional **translate-cache** (**H.1**) after locale segment fingerprints, so SDK contracts stabilize. **`apps/web`** and **`apps/workers/i18nprune`** are already deployed and healthy; **defer Session C.3** until **H** has landed the remaining core locale-storage work those hosts consume (**F** is **shipped** for core + CLI) — then align imports/types to the new core surface. After that, run **docs (D)**, **landing (D.2)**, **release polish (E)**, and the **`final.md`** gate (**G**).
+Ship **init → locales → cache** on **`@i18nprune/core`** before **translate-cache** and **hosted app** catch-up. **F** and **H** are **shipped**; **active:** incremental **`analysis.json`** rebuild ([`cache.md`](./cache.md)). **`apps/web`** and **`apps/workers/i18nprune`** stay deployed; **defer C.3** until cache Phase 1–2 land (optional worker segment-index follow-up in cache Phase 5). Then **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**.
 
 | Step | Session | What |
 |------|---------|------|
 | **1** | **F — Init** (**shipped** — core + CLI) | [`init.md`](./init.md) — core-owned detection, presets, generated config |
-| **2** | **H — Locales** | [`locales.md`](./locales.md) — reader/writer, multi-topology storage (**after** init schema) |
-| **2b** | **H.1 — Translate cache** | [`translate-cache.md`](./translate-cache.md) — L1 in-memory + L2 `translations.json` beside `snapshot.json`; **after H** |
-| **3** | **C.3 — Apps** | `apps/web`, `apps/workers/i18nprune` — catch up to post-init/locales **`@i18nprune/core`** |
+| **2** | **H — Locales** (**shipped** — core + CLI) | [`locales.md`](./locales.md) — reader/writer, multi-topology storage |
+| **2a** | **H-cache — Project cache** (**active**) | [`cache.md`](./cache.md) — segment `files.json`, single `analysis.json`, incremental rebuild policy |
+| **2b** | **H.1 — Translate cache** | [`translate-cache.md`](./translate-cache.md) — L1 + L2 `translations.json`; **after cache incremental** |
+| **3** | **C.3 — Apps** | `apps/web`, `apps/workers/i18nprune` — catch up to post-init/locales/cache **`@i18nprune/core`** |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) — nav trim, SDK quickstart, tree flattening |
 | **5** | **D.2 — Landing** | `apps/landing` — lean onboarding + value proposition |
 | **6** | **E + G** | Release polish + execute / delete [`final.md`](./final.md) when tagging |
@@ -55,7 +56,7 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 **Patching / auto-patching.** **User docs:** [`docs/patching/README.md`](../../docs/patching/README.md). Maintainer map: [`maintainer/systems/patching.md`](../systems/patching.md). Delivered: integration tests (core chain + CLI **`patch --fix` → `--patch sync` → `--patch generate`**), shared CLI **`Context` → `runPatching`** wiring (`fromContext.ts`), resolver preservation tests, **`config.json`** injection-status docs, core patching types and barrel layout.
 
-**Next (core):** Session **H** (locales) — Session **F** (init) is **shipped** for core + CLI; see [Recommended v1 sequence](#recommended-v1-sequence-start-here-after-shipped-session-c). **Next (hosts):** Session **C.3** runs **after F + H** so apps track the settled core/SDK surface.
+**Next (core):** Session **H-cache** ([`cache.md`](./cache.md)) — incremental analysis rebuild. **Locales (H)** and **Init (F)** are **shipped**. **Next (hosts):** **C.3** after cache Phase 1–2 (or in parallel if only import alignment).
 
 ---
 
@@ -73,29 +74,39 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 ---
 
-## Session H — Locales phase (**in progress**)
+## Session H — Locales phase (**shipped**)
 
-**Docs:** [`locales.md`](./locales.md) — tracker rows **0–3** shipped (façade, enumeration, **`locale_per_dir` read**); **next:** row **4** (`feature_bundle`).
+**Docs:** [`locales.md`](./locales.md) — tracker rows **0–10** done (reader/writer, op migration, web/worker enumeration, docs, segment-aware **`files.json`** index).
 
-**Goal:** Multi-topology locale **storage** (`flat_file`, `locale_directory`, structures `locale_file` / `locale_per_dir` / `feature_bundle`) via **reader/writer** abstraction; ops keep consuming **normalized locale surfaces**.
+**Goal:** Multi-topology locale **storage** via **reader/writer**; ops consume **normalized locale surfaces**.
 
-**Dependencies:** **Session F (Init)** for stable **`locales`** config shape and presets.
+**Dependencies:** **Session F (Init)** — **shipped**.
 
-**Extension:** Release-grade editor work follows **stabilized** core contracts — see [`extension/README.md`](./extension/README.md) and [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain).
+**Keep doc:** [`locales.md`](./locales.md) is the **design reference** (leaf identity, modes) — do not delete.
 
 ---
 
-## Session H.1 — Translate cache (**planned — after H**)
+## Session H-cache — Project cache incremental (**active**)
+
+**Docs:** [`cache.md`](./cache.md)
+
+**Goal:** **`files.json`** fingerprints (src + locale segments + layout) + single **`analysis.json`**; **partial vs full** rebuild from file delta; **`cache.rebuild`** / threshold config. **Core owns** logic; CLI/IDE are hosts.
+
+**Shipped already (baseline):** segment-aware `files.json`, enriched `analysis.json`, removed CLI report-doc / `snapshot.json` slot — see [`cache.md` § Shipped baseline](./cache.md#shipped-baseline-do-not-regress).
+
+**Dependencies:** **Session H** row **10** — **shipped**.
+
+---
+
+## Session H.1 — Translate cache (**planned — after H-cache**)
 
 **Docs:** [`translate-cache.md`](./translate-cache.md)
 
-**Goal:** Speed **`generate`** by caching provider translation results: **L1** per-run in-memory dedupe + **L2** per-project **`translations.json`** beside **`snapshot.json`** under the existing project cache dir.
+**Goal:** Speed **`generate`**: **L1** in-memory dedupe + **L2** **`translations.json`** beside **`analysis.json`**.
 
-**Policy:** Reuse **`config.cache`** (`enabled`, `dir`, `mode`) and CLI **`--no-cache`** — no separate translation-cache config in v1.
+**Policy:** Reuse **`config.cache`** and CLI **`--no-cache`**.
 
-**Dependencies:** **Session H** segment-aware locale files in **`files.json`** (locales tracker row **10**).
-
-**Does not block:** Session **H** implementation; start **H.1** only after locales reader/write-back and cache fingerprints are landed.
+**Dependencies:** **Session H-cache** incremental analysis + stable **`files.json`** epoch — start **H.1** after [`cache.md`](./cache.md) Phase 3 (config policy) or explicit defer.
 
 ---
 
@@ -142,7 +153,21 @@ Goal: **8–10 top-level nav categories** on the docs site, not 35. Group relate
 
 ## Session D.2 — Landing page (`apps/landing`)
 
-Reduce extra pages. Remove excessive terminal/code blocks. Focus on onboarding flow and value proposition.
+**When:** After **Session H (locales)** and **Session D (docs)** — same slot as [`active-phase.md`](./active-phase.md) narrative (hosted apps catch-up is **C.3**, not this slice).
+
+**Scope:** One **architecture-adjacent** section in **`apps/landing`** — **no** `PRIMARY_NAV` entry (discoverable from architecture / deep links, not a top-level marketing page).
+
+**Content (locked):**
+
+| Topic | What to explain |
+|-------|-----------------|
+| **Locale modes** | `flat_file` vs `locale_directory` — when each fits |
+| **Structures** | `locale_file`, `locale_per_dir`, `feature_bundle` — how files group under `locales.directory` |
+| **Nested segments** | Per-locale directories and multi-file segments (e.g. `messages/en/auth.json`) |
+| **Depth limit** | `MAX_LOCALE_SEGMENT_TREE_DEPTH = 16` under the configured locales root |
+| **Read behavior** | Paths that do not match configured `mode` + `structure` → **`locale_read_path_layout_mismatch`**: **warn**, **skip**, **continue** (config is authority; no hard fail for stray files) |
+
+**Non-goals:** Duplicating full command reference (that stays in **`docs/`**); replacing the docs site nav trim (**Session D** table row **D.2** — docs nav is a separate slice in [`docs-refactor.md`](./docs-refactor.md)).
 
 ---
 

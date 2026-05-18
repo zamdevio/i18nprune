@@ -1,7 +1,7 @@
-# Locales phase — multi-topology storage (**in progress**)
+# Locales phase — multi-topology storage (**shipped — Session H**)
 
-**Status:** **In progress** — Phases 1–6 + **row 7** (ops on layout-aware segment targets) shipped; rows **8–10** remain.  
-**Dependency:** **Init** ([`init.md`](./init.md)) — **shipped** (`locales.source`, `locales.directory`, optional `mode` / `structure`).  
+**Status:** **Shipped (core + CLI)** — tracker rows **0–10** done. **Do not delete this file** — it remains the design reference (leaf identity, reader/writer contract, layout modes). **Active work** moved to **[`cache.md`](./cache.md)** (incremental `analysis.json` rebuild).  
+**Dependency:** **Init** ([`init.md`](./init.md)) — **shipped**.  
 **Upstream:** **Extractor** ([`extractor.md`](./extractor.md)) — unchanged ownership.
 
 Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain)**.
@@ -29,14 +29,15 @@ Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#l
 | 7 | Migrate ops: list → sync → generate/missing write → quality/review → cleanup → locales edit/delete | **Done** |
 | 8 | Web/worker extraction use same enumeration as CLI | **Done** |
 | 9 | User docs: one example per topology | **Done** |
-| 10 | Segment-aware `files.json` for project cache (all locale segments, not only `sourceLocale`) | **Todo** |
+| 10 | Segment-aware `files.json` for project cache (all locale segments, not only `sourceLocale`) | **Done** — see [Row 10 plan](#row-10-filesjson-plan) (shipped in cache/locales slice; details in [`cache.md`](./cache.md)) |
 | — | Layout fixtures under `tests/fixtures/layout-*` + `tests/integration/layout.fixtures.test.ts` | **Done** |
-| — | Post-H: Knip with `ignoreExportsUsedInFile: false` (see `locales.md` § Knip follow-up) | **Todo** |
-| — | **Translate cache** ([`translate-cache.md`](./translate-cache.md)) — **after H** | **Deferred** |
+| — | Post-H: Knip with `ignoreExportsUsedInFile: false` (see `locales.md` § Knip follow-up) | **Todo** (hygiene; not blocking cache) |
+| — | **Project cache incremental analysis** | **Moved** → **[`cache.md`](./cache.md)** (active) |
+| — | **Translate cache** ([`translate-cache.md`](./translate-cache.md)) | **Deferred** — **after** [`cache.md`](./cache.md) incremental rebuild |
 
 **PR slice discipline:** one row (or tight pair like 1a+1b) per PR; parity tests after each op migration.
 
-**Next phase after H:** **[`translate-cache.md`](./translate-cache.md)** — in-memory + per-project `translations.json` beside `snapshot.json`; same `config.cache` / `--no-cache` policy. **Not started until locales tracker 3–7 + row 10 are Done** (or row 10 explicitly shipped early for cache dispatch).
+**Next core vertical:** **[`cache.md`](./cache.md)** — partial vs full `analysis.json` rebuild, `cache.rebuild` policy. **Then** **[`translate-cache.md`](./translate-cache.md)** (H.1).
 
 ---
 
@@ -261,6 +262,130 @@ See **Implementation tracker** above. High-level phases:
 
 - New topologies = **new enum values + reader/writer pair**, not new `switch` arms in `runQuality`.  
 - Preserve **byte-stable** `--json` contracts per repo parity rules when extending payloads (additive fields preferred).
+
+---
+
+## Row 10 — `files.json` plan
+
+**Problem (resolved — row 10 shipped):** Previously `dispatch` fingerprinted only `src/**` plus one synthetic source entry. **Now:** `localeSegments` + `localesLayout` in `files.json`; merged diff invalidates `analysis.json` on segment edits. Incremental analysis patch → [`cache.md`](./cache.md).
+
+**Schema version:** stay at **`version: 1`** (`CACHE_SCHEMA_VERSION` is already `1`; pre-v1 — no migration story for old on-disk caches required). Extend the v1 shape in place; missing `localeSegments` on load → treat as `{}` (legacy CLI caches keep working until next miss).
+
+**One layout per `files.json` (LOCKED)**
+
+Each on-disk index is bound to **exactly one** resolved layout. **Layout** = `mode` + `structure` + bundle root + source path (anything that changes how `listLocaleSegments` walks or keys files).
+
+- **Reader gate (first):** `cached.localesLayout` equals current layout fingerprint → per-block diff. **Layout mismatch → locale block rescan only** (replace `localeSegments` + `localesLayout`; **reuse** cached `files` / no `src/**` walk). Do not diff old locale keys against a new layout.
+- **One schema on disk** for all layouts; different layouts → different segment keys from the same enumerator, not different JSON top-level shapes.
+- **Partial rescan (LOCKED)** — avoid “always walk everything” when one dimension changed (see matrix below). **Full rescan** = both blocks rebuilt (fallback: corrupt `files.json`, first run, or safety path).
+
+**Layout-exclusive segment index (LOCKED)**
+
+`localeSegments` keys come **only** from `listLocaleSegments({ layout })` — the same path the read/write/archive stack uses. No parallel scanner, no “index everything under `<locales.directory>`”.
+
+| Rule | Behavior |
+|------|----------|
+| **One layout → one key shape** | `locale_file` → root `*.json` only (`en.json`, `fr.json`). `locale_per_dir` → `en/*.json` only (`en/common.json`). `feature_bundle` → `auth/en.json` style. **Never** mix shapes in one `files.json` (e.g. `en.json` + `en/common.json` together means the layout gate failed or the writer is wrong). |
+| **Disallowed JSON on disk** | Walk may see extra `*.json`; `localeCodeForSegment` returns `null` → **omit from index** (same as I/O ignores them). Do not fingerprint “orphan” files — saves space and matches runtime. |
+| **Non-JSON under bundle root** | **Never** read or hash (`.md`, `.txt`, etc.). Scanner: `walkLocaleJsonSegments` — `*.json` only (includes legacy `*.meta.json` if present; product no longer writes them, but they are JSON and layout rules apply). `recursive` from `structure`. Cache uses `listLocaleSegments` only. |
+| **Examples in docs/tests** | Show **one structure per fixture** — not a combined example that looks like multiple layouts coexist. |
+
+**Proposed on-disk shape** — two blocks only (`src` vs locale bundle). Example **`locale_per_dir`** only:
+
+```json
+{
+  "version": 1,
+  "updatedAt": "2026-05-17T12:00:00.000Z",
+  "localesLayout": {
+    "mode": "locale_directory",
+    "structure": "locale_per_dir",
+    "directory": "messages",
+    "source": "messages/en/common.json"
+  },
+  "files": {
+    "src/main.ts": { "hash": "…", "size": 200, "mtimeMs": 0, "updatedAt": "…" }
+  },
+  "localeSegments": {
+    "en/common.json": { "hash": "…", "size": 1234, "mtimeMs": 0, "updatedAt": "…", "locale": "en" },
+    "fr/common.json": { "hash": "…", "size": 90, "mtimeMs": 0, "updatedAt": "…", "locale": "fr" }
+  }
+}
+```
+
+(`locale_file` would instead have keys like `en.json` / `fr.json` only — never `en/common.json` in the same file.)
+
+**Why `files` + `localeSegments` (not three blocks, not `__source_locale__`)**
+
+| Block | Contents | Why separate |
+|-------|----------|--------------|
+| **`files`** | `src/**` only | `listSourceFiles` + exclude rules; unrelated to locale tree. |
+| **`localeSegments`** | Segments **allowed by current `localesLayout`** via `listLocaleSegments` (source included when it is a valid segment for that structure) | Reuses existing layout rules; no duplicate filtering. Keys = bundle-relative `relativePath` from enumerator. No synthetic `__source_locale__` (legacy load: map once, drop on next save). |
+| **`localesLayout`** | Layout fingerprint | Gate before diff; wrong layout → full miss, not a polluted index. |
+
+**Not** a third block for “source vs other locales” — source is just another segment; splitting would duplicate layout rules and force special-case diff logic for no size win (segment count is small vs `src/**`).
+
+**Partial invalidation matrix (LOCKED)**
+
+What runs on disk vs what happens to snapshot/analysis:
+
+| Trigger | `files` (`src/**`) | `localeSegments` | `localesLayout` | Run slot (`snapshot` / `analysis`) |
+|---------|-------------------|------------------|-----------------|----------------------------------|
+| Layout fingerprint mismatch (mode, structure, directory, source) | **Reuse** cached map | **Rescan** (`listLocaleSegments` only), replace block | Update | **Miss** if merged epoch changes (producer runs); no src walk |
+| Locale segment add/change/delete (layout matches) | **Reuse** | **Rescan** that block (diff drives miss) | Reuse | Miss when locale diff non-empty |
+| `src/**` or exclude change | **Rescan** | **Reuse** | Reuse | Miss when src diff non-empty |
+| Both src and locale changes | Both rescan | Both rescan | Reuse | Miss |
+| `files.json` malformed / oversize | **Fallback:** rebuild both blocks | Same | Rewrite | Miss (`cache_malformed` warn) |
+| Manual `files.json` edit (valid JSON) | Next run: diff vs disk truth | Same | Same | Added/changed/deleted keys reconcile on rescan of affected block only |
+| `inputFilesEpoch` stale vs merged map (sibling writer) | — | — | — | `run_binding_stale` (existing) |
+
+**Reader / writer flow**
+
+1. Load `files.json` → validate v1 (malformed → empty baseline → full rebuild both blocks).
+2. Compare `localesLayout` fingerprint.
+3. **Selective scan:** layout mismatch → scan locales only, keep `files`; else scan locales only when needed for diff; scan `src/**` only when needed for diff (implementation: build `current*` maps per matrix, not always both).
+4. `diff` per block (layout mismatch: skip locale diff vs stale keys — replace locale block wholesale).
+5. `mergeTrackedFileMaps` → `computeInputFilesEpoch` (unchanged contract).
+6. Persist: update only blocks that were rescanned; always refresh `updatedAt` / epoch binding on producer miss.
+
+**Manual / hostile `files.json`:** trust on-disk file content when rescanning a block; index records are hints for diff, not authority. Tampered hashes → corrected on next block rescan. Missing `localeSegments` keys → `added` on scan. Extra keys → `deleted`.
+
+**Core API sketch (row 10 slice only)**
+
+- `resolveCachedLocalesLayout(config, localesDir)` → fingerprint for gate
+- `layoutMatches(a, b)` → boolean
+- `buildTrackedProjectFileRecords(input)` → `{ files, localeSegments, localesLayout }` — `localeSegments` from `listLocaleSegments` only (layout-filtered, JSON-only walk)
+- `mergeTrackedFileMaps(...)` → flat map for epoch
+- `validateProjectFilesPayload` — require `files` + `localesLayout` when `localeSegments` present; default missing `localeSegments` → `{}` for legacy caches
+
+**Functions / modules (row 10)**
+
+| Area | Change |
+|------|--------|
+| `packages/core/src/cache/dispatch.ts` | Build both maps; diff merged baseline vs merged current. |
+| `packages/core/src/types/cache/index.ts` | `CacheProjectFilesState` adds `localeSegments?`, `localesLayout?`. `CachedProjectInput` gets `localesDir` + `locales` config. |
+| `packages/core/src/cache/setup/policy.ts` | Validate extended v1; default missing `localeSegments` to `{}`. |
+| `packages/core/src/cache/engine.ts` | `mergeTrackedFileMaps` + use in diff/epoch. |
+| `packages/cli/src/shared/cache/dispatch.ts` | Pass locale paths + `ctx.config.locales`. |
+| `packages/core/src/analysis/project.ts` | Same. |
+| `packages/core/src/cache/__tests__/runtime.test.ts` | Layout fixtures: segment edit → `files_changed`. |
+
+**Acceptance:** Edit a non-source locale segment under any `tests/fixtures/layout-*` → next cached `report` / `validate` → `files_changed` miss.
+
+---
+
+### After row 10 (same pattern — **not** in row 10 PR)
+
+**Incremental `analysis.json` rebuild (partial vs full, locale-aware):** canonical plan → **[`cache.md`](./cache.md)** (core owns logic; CLI/IDE are hosts).
+
+| Surface | Today | Target |
+|---------|--------|--------|
+| **CLI disk cache** | `.cache/.../files.json` + `analysis.json` with `inputFilesEpoch` | Row 10 ships segment-aware `files.json`; analysis incremental rebuild → [`cache.md`](./cache.md). |
+| **Worker DO `snapshot`** | `ProjectStoreRow.snapshot` with `localeJsonByTag` built at upload; **no** `files.json` | **Follow-up:** either store `inputFilesEpoch` on snapshot + re-use core segment scan on read, or embed a slim `localeSegmentIndex` in snapshot that mirrors `localeSegments` keys/hashes. Decide after row 10 lands — **do not** change worker upload in row 10. |
+| **Web local zip** | Same as worker — `buildLocaleJsonByTagFromArchive` only | **Follow-up:** shared core helper that produces the same logical index as `files.json` `localeSegments` for in-memory sessions (zip has no `.cache` dir today). |
+| **Translate cache** (`translations.json`) | Separate slot (H.1) | After locales + row 10; may **read** `inputFilesEpoch` from `files.json` for invalidation. |
+| **`src/i18n/config.json` (patching)** | Not in file index | Optional later; only if patching freshness bugs appear. |
+
+**Decision for row 10:** touch **CLI `.cache` `files.json` only**. Worker/web snapshot stays stable in row 10; plan the convergence PR immediately after so hosted + local use the **same** segment enumeration + hash keys as disk cache.
 
 ---
 
