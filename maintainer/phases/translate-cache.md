@@ -136,7 +136,7 @@ See [`locales.md` § Risks](./locales.md#risks) — disk cache fingerprinting it
 
 | # | Task | Status |
 |---|------|--------|
-| 0 | Locales phase: segment-aware `files.json` / `buildCurrentFileRecords` | **Todo** (locales **H**) |
+| 0 | Locales phase: segment-aware `files.json` / `buildCurrentFileRecords` | **Done** (locales **H** + cache index) |
 | 1 | `CacheState.translationsPath` + path resolution beside `analysis.json` | **Todo** |
 | 2 | `translateConfigEpoch` helper + unit tests | **Todo** |
 | 3 | L1 per-run memo in generate translation pool | **Todo** |
