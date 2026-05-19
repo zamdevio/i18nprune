@@ -42,12 +42,3 @@ export type DashboardSnapshotV1 = {
   isDarkMode: boolean;
   selectedKey: KeyObservation | null;
 };
-
-export interface I18nConfig {
-  policies: {
-    preserve: boolean;
-    exclude: string;
-  };
-  provider: 'Google GTX' | 'OpenAI' | 'Anthropic';
-  defaultLocale: string;
-}

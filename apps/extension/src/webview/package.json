@@ -11,8 +11,6 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@shikijs/core": "4.0.2",
-    "@shikijs/engine-javascript": "4.0.2",
     "@shikijs/langs": "4.0.2",
     "@shikijs/themes": "4.0.2",
     "@tailwindcss/vite": "^4.1.14",

@@ -10,10 +10,6 @@ export function resolveDynamicSitesCount(ctx: Context): number {
   return resolveProjectAnalysisFromContext(ctx).counts.dynamicSites;
 }
 
-export function resolveKeyObservationsCount(ctx: Context): number {
-  return resolveProjectAnalysisFromContext(ctx).counts.keyObservations;
-}
-
 /** Human summaries: align with **`validate`** (`dynamic`, `keyObservations`). */
 export function resolveExtractionBaselineCounts(ctx: Context): {
   dynamic: number;
