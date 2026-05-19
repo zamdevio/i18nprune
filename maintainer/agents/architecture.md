@@ -138,35 +138,13 @@ The CLI must **not**:
 
 ---
 
-## 8. Health gates (knip + madge)
+## 8. Health gates
 
-### Dead code: `pnpm knip`
+Required and diagnostic commands (`typecheck`, `test`, `knip`, `madge`, `empty:*`): **[`maintainer/systems/health.md`](../systems/health.md)**.
 
-Detects unused files, exports, dependencies, and scripts. Run after:
+Knip config and ignore catalog: **[`maintainer/systems/knip.md`](../systems/knip.md)**.
 
-- Deleting or moving files
-- Removing imports after a refactor
-- Adding new dependencies
-
-### Circular dependencies: `pnpm madge:circular`
-
-Detects import cycles across `packages/core/src` and `packages/cli/src`. Run after:
-
-- Changing barrel re-exports
-- Moving modules between directories
-- Adding new cross-module imports
-
-**Fix strategy for cycles:** import directly from the source file (`../sibling/specific.js`) instead of through a barrel (`../sibling/index.js`). Barrels aggregate for external consumers; internal siblings should reach each other directly.
-
-### Other madge commands
-
-- `pnpm madge:orphans` — files not imported by anything (potential dead code)
-- `pnpm madge:leaves` — leaf modules (no outgoing imports — good candidates for extraction)
-
-### When to run
-
-- **Always before commit** if you changed module structure (moved/renamed/deleted files, changed barrels)
-- **Diagnostic only** — don't bundle hygiene fixes into unrelated behavior PRs
+**Before commit:** `pnpm typecheck` + `pnpm test`. If you changed module structure or barrels, also run `pnpm madge:circular` and `pnpm knip`.
 
 ---
 
