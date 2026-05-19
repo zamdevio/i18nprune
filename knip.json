@@ -13,29 +13,18 @@
     "apps/landing/functions/og.svg.ts"
   ],
   "ignoreExportsUsedInFile": true,
-  "ignoreIssues": {
-    "apps/landing/src/lib/shikiHighlighter.ts": ["dependencies", "unlisted"],
-    "apps/extension/src/webview/src/lib/shiki.ts": ["dependencies", "unlisted"]
-  },
   "workspaces": {
     "apps/landing": {
       "entry": ["src/**/*.{ts,tsx}", "vite.config.ts"],
       "ignore": ["functions/og.svg.ts"],
-      "ignoreDependencies": ["@shikijs/langs", "@shikijs/themes", "shiki"]
+      "ignoreDependencies": ["@cloudflare/workers-types"]
     },
     "apps/extension": {
       "entry": ["src/extension/extension.ts"],
       "project": ["src/extension/**/*.ts"]
     },
     "apps/extension/src/webview": {
-      "entry": ["src/main.tsx", "vite.config.ts"],
-      "ignoreDependencies": [
-        "@shikijs/core",
-        "@shikijs/engine-javascript",
-        "@shikijs/langs",
-        "@shikijs/themes",
-        "shiki"
-      ]
+      "entry": ["src/main.tsx", "vite.config.ts"]
     }
   }
 }

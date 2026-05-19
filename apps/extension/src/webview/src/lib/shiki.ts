@@ -1,5 +1,15 @@
 import { createBundledHighlighter } from 'shiki/core';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
+import javascript from '@shikijs/langs/javascript';
+import typescript from '@shikijs/langs/typescript';
+import tsx from '@shikijs/langs/tsx';
+import jsx from '@shikijs/langs/jsx';
+import json from '@shikijs/langs/json';
+import jsonc from '@shikijs/langs/jsonc';
+import vue from '@shikijs/langs/vue';
+import svelte from '@shikijs/langs/svelte';
+import vitesseDark from '@shikijs/themes/vitesse-dark';
+import vitesseLight from '@shikijs/themes/vitesse-light';
 
 /**
  * Grammars aligned with `@i18nprune/core` default source scan (`tsx?|jsx?|mjs|cjs|vue|svelte`)
@@ -30,18 +40,18 @@ const LANGS: ShikiLang[] = [
 
 const createHighlighter = createBundledHighlighter({
   langs: {
-    javascript: () => import('@shikijs/langs/javascript'),
-    typescript: () => import('@shikijs/langs/typescript'),
-    tsx: () => import('@shikijs/langs/tsx'),
-    jsx: () => import('@shikijs/langs/jsx'),
-    json: () => import('@shikijs/langs/json'),
-    jsonc: () => import('@shikijs/langs/jsonc'),
-    vue: () => import('@shikijs/langs/vue'),
-    svelte: () => import('@shikijs/langs/svelte'),
+    javascript: () => javascript,
+    typescript: () => typescript,
+    tsx: () => tsx,
+    jsx: () => jsx,
+    json: () => json,
+    jsonc: () => jsonc,
+    vue: () => vue,
+    svelte: () => svelte,
   },
   themes: {
-    'vitesse-dark': () => import('@shikijs/themes/vitesse-dark'),
-    'vitesse-light': () => import('@shikijs/themes/vitesse-light'),
+    'vitesse-dark': () => vitesseDark,
+    'vitesse-light': () => vitesseLight,
   },
   engine: () => createJavaScriptRegexEngine(),
 });

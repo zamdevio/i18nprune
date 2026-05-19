@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { getLandingHighlighter, landingShikiTheme } from '../lib/shikiHighlighter';
+import { getLandingHighlighter, landingShikiTheme } from '../lib/shiki';
 
 function subscribeTheme(onStoreChange: () => void) {
   const el = document.documentElement;
