@@ -532,9 +532,12 @@ export {
   diffProjectFiles,
   emitCacheDispatchMessages,
   emitCacheMemoryHitMessage,
+  emitAnalysisCacheInvalidationMessage,
   getOrBuildCachedProjectData,
   initializeCacheState,
   invalidateProjectAnalysisCache,
+  invalidateProjectAnalysisCacheAfterLocaleWrites,
+  decideProjectAnalysisCacheInvalidation,
   isProjectCacheWritable,
   layoutMatches,
   loadProjectFilesState,
@@ -558,6 +561,10 @@ export {
   writeJsonAtomic,
 } from './namespaces/cache.js';
 export type {
+  AnalysisCacheInvalidationAction,
+  AnalysisCacheInvalidationDecision,
+  AnalysisCacheInvalidationReason,
+  LocaleWriteInvalidationInput,
   AnalysisRebuildDecision,
   CachedLocalesLayout,
   CachedProjectInput,

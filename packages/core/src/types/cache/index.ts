@@ -3,10 +3,12 @@ import type { LocalesLayoutMode, LocalesLayoutStructure } from '../locales/layou
 import type { RuntimeFsPort, RuntimePathPort, RuntimeSystemPort } from '../runtime/index.js';
 import type { ScanExcludeConfig } from '../scanner/index.js';
 import type { AnalysisRebuildDecision, CacheProducerContext, CacheRebuildConfig } from './rebuild.js';
+import type { CacheFileDelta } from './delta.js';
 import type { FilesIndexStatus } from './filesIndex.js';
 
 export type { CacheProfileDefaults, CacheProfileId } from './profile.js';
 export type { CacheConfigSource, ResolvedCacheConfig } from './resolve.js';
+export type { CacheFileDelta } from './delta.js';
 export type { FilesIndexStatus } from './filesIndex.js';
 export { filesIndexIsUsable } from './filesIndex.js';
 export type {
@@ -19,6 +21,12 @@ export type {
   ClassifiedCacheFileDelta,
   ClassifiedSrcDelta,
 } from './rebuild.js';
+export type {
+  AnalysisCacheInvalidationAction,
+  AnalysisCacheInvalidationDecision,
+  AnalysisCacheInvalidationReason,
+  LocaleWriteInvalidationInput,
+} from './invalidation.js';
 
 /** Layout fingerprint stored in `files.json` (`mode` + `structure` + config paths). */
 export type CachedLocalesLayout = {
@@ -115,14 +123,6 @@ export type CacheDispatchReason =
   | 'run_binding_stale'
   | 'producer_succeeded'
   | 'run_invalid';
-
-/** File-level diff between a baseline and the current scan, used for `--debug-cache` output. */
-export type CacheFileDelta = {
-  added: string[];
-  changed: string[];
-  deleted: string[];
-  unchanged: string[];
-};
 
 export type CacheHashText = (text: string) => string;
 

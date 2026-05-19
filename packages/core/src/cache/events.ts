@@ -1,5 +1,6 @@
 import { emitRunMessage } from '../shared/run/index.js';
 import type { CacheDispatchInfo, CacheDispatchReason } from '../types/cache/index.js';
+import type { AnalysisCacheInvalidationDecision } from '../types/cache/invalidation.js';
 import type { OperationId, RunEmitter } from '../types/shared/run/index.js';
 
 function describeCacheInvalidation(reason: CacheDispatchReason): string | undefined {
@@ -160,6 +161,35 @@ export function emitCacheDispatchMessages(input: {
       message: `warning: ${warn.message}${path}`,
     });
   }
+}
+
+function describeAnalysisCacheInvalidation(decision: AnalysisCacheInvalidationDecision): string | undefined {
+  if (decision.action === 'delete') {
+    if (decision.reason === 'config_rebuild_full') {
+      return 'deleted (config rebuild=full)';
+    }
+    return 'deleted';
+  }
+  switch (decision.reason) {
+    case 'target_locale_writes_only':
+      return 'skipped (target locale writes only)';
+    case 'locale_writes_dispatch_handles':
+      return 'skipped (dispatch rebuild on next run)';
+    default:
+      return undefined;
+  }
+}
+
+/** Emits `--debug-cache` line after sync/generate locale-write invalidation. */
+export function emitAnalysisCacheInvalidationMessage(input: {
+  emit?: RunEmitter;
+  op: OperationId;
+  runId?: string;
+  decision: AnalysisCacheInvalidationDecision;
+}): void {
+  const detail = describeAnalysisCacheInvalidation(input.decision);
+  if (detail === undefined) return;
+  emitCacheDetail({ ...input, message: `  analysis invalidation: ${detail}` });
 }
 
 /** Emits a `same_run` memory-hit line for a second dispatch that reuses the first dispatch's result. */

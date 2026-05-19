@@ -72,7 +72,8 @@ export async function sync(opts: SyncOptions): Promise<void> {
             action: 'upsert_locales',
             localeCodes: changedLocaleCodes,
           });
-          invalidateProjectAnalysisCacheForContext(ctx);
+          const writtenLocalePaths = fileLines.filter((row) => row.changed).map((row) => row.path);
+          invalidateProjectAnalysisCacheForContext(ctx, { writtenLocalePaths });
         }
       }
       console.log(stringifyEnvelope(envelope));
@@ -130,7 +131,8 @@ export async function sync(opts: SyncOptions): Promise<void> {
         action: 'upsert_locales',
         localeCodes: changedLocaleCodes,
       });
-      invalidateProjectAnalysisCacheForContext(ctx);
+      const writtenLocalePaths = fileLines.filter((row) => row.changed).map((row) => row.path);
+      invalidateProjectAnalysisCacheForContext(ctx, { writtenLocalePaths });
     }
 
     printCommandSummary(

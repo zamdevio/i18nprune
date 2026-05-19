@@ -29,7 +29,11 @@ export {
   validateProjectRunEnvelope,
 } from './setup/index.js';
 export { diffProjectFiles, computeInputFilesEpoch } from './engine.js';
-export { invalidateProjectAnalysisCache } from './invalidate.js';
+export {
+  invalidateProjectAnalysisCache,
+  invalidateProjectAnalysisCacheAfterLocaleWrites,
+} from './invalidate.js';
+export { decideProjectAnalysisCacheInvalidation } from './invalidatePolicy.js';
 export { layoutMatches, resolveCachedLocalesLayout } from './localesLayout.js';
 export {
   buildLocaleSegmentRecords,
@@ -47,7 +51,7 @@ export {
 export type { CacheConfigSource, ResolvedCacheConfig } from './resolveConfig.js';
 export { decideAnalysisRebuild } from './rebuildPolicy.js';
 export { getOrBuildCachedProjectData } from './dispatch.js';
-export { emitCacheDispatchMessages, emitCacheMemoryHitMessage } from './events.js';
+export { emitCacheDispatchMessages, emitCacheMemoryHitMessage, emitAnalysisCacheInvalidationMessage } from './events.js';
 export {
   ANALYSIS_BASENAME,
   CACHE_PROFILE_DEFAULTS,

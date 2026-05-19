@@ -1,4 +1,4 @@
-import type { CacheFileDelta } from './index.js';
+import type { CacheFileDelta } from './delta.js';
 import type { FilesIndexStatus } from './filesIndex.js';
 
 export type CacheRebuildMode = 'partial' | 'full';

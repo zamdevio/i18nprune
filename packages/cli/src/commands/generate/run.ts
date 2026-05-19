@@ -88,7 +88,11 @@ export async function generate(opts: GenerateOptions): Promise<void> {
           action: 'upsert_locales',
           localeCodes: writtenTargets,
         });
-        invalidateProjectAnalysisCacheForContext(ctx);
+        const writtenLocalePaths = payload.targetResults
+          .filter((row) => row.status === 'written')
+          .map((row) => row.paths?.localeJson)
+          .filter((path): path is string => path !== undefined);
+        invalidateProjectAnalysisCacheForContext(ctx, { writtenLocalePaths });
       }
       return;
     }
@@ -125,7 +129,11 @@ export async function generate(opts: GenerateOptions): Promise<void> {
         action: 'upsert_locales',
         localeCodes: writtenTargets,
       });
-      invalidateProjectAnalysisCacheForContext(ctx);
+      const writtenLocalePaths = payload.targetResults
+        .filter((row) => row.status === 'written')
+        .map((row) => row.paths?.localeJson)
+        .filter((path): path is string => path !== undefined);
+      invalidateProjectAnalysisCacheForContext(ctx, { writtenLocalePaths });
     }
 
     const needsReview = payload.targetResults.reduce((n, row) => n + (row.markedForReview ?? 0), 0);
