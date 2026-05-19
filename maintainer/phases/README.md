@@ -29,8 +29,9 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 | [`extractor.md`](./extractor.md) | **Active** — JS/TS extractor improvement plan (false-positive hardening, future languages) |
 | [`init.md`](./init.md) | **Shipped (Session F — core + CLI)** — presets, `runInit`, `init --json`; extension host follow-ups in [`extension/README.md`](./extension/README.md) |
 | [`locales.md`](./locales.md) | **Shipped (Session H)** — design reference; reader/writer; rows 0–10 done |
-| [`cache.md`](./cache.md) | **Active (H-cache)** — incremental `analysis.json`; `cache.rebuild` / threshold; core-owned |
-| [`translate-cache.md`](./translate-cache.md) | **Planned (H.1)** — L2 `translations.json`; **after** cache incremental; same `config.cache` |
+| [`cache.md`](./cache.md) | **Shipped (H-cache)** — Phases 0–4 (incremental analysis + invalidate policy) |
+| [`translate-cache.md`](./translate-cache.md) | **Active (H.1)** — L2 `translations.json`; same `config.cache` |
+| [`apps.md`](./apps.md) | **Planned (C.3+)** — core `share`, CLI `i18nprune share`, web/report/worker catch-up |
 | [`jsdoc.md`](./jsdoc.md) | **Active** — JSDoc enforcement tiers |
 | [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |
 | [`final.md`](./final.md) | **Gate** — one-time pre-publish checklist (delete after release) |

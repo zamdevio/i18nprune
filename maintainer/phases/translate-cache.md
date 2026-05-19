@@ -1,8 +1,7 @@
 # Translate cache phase — provider result reuse (**planned**)
 
-**Status:** **Planned** — implement **after** **[`cache.md`](./cache.md)** (Session **H-cache**) incremental analysis rebuild lands (Phases 0–3 minimum).  
-**Dependency:** **Locales (H)** — **shipped** (segment-aware **`files.json`**, row **10**). **Cache** — [`cache.md`](./cache.md) (stable `analysis.json` + dispatch policy).  
-**Does not block:** Cache incremental work; start **H.1** when [`cache.md`](./cache.md) tracker marks config policy **Done** or explicitly deferred.
+**Status:** **Active (H.1)** — cache Phases **0–4** are **shipped** on `main`.  
+**Dependency:** **Locales (H)** and **Cache (H-cache)** — **shipped**.
 
 Canonical ordering: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)** · locked chain update in **[`active-phase.md`](./active-phase.md#locked-cross-phase-dependency-chain)**.
 

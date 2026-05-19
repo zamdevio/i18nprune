@@ -2,11 +2,11 @@
 
 **v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** — use first for sequencing.
 
-**Locked vertical order (extractor → init → locales → cache → translate-cache → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below. **Init (F)** and **Locales (H)** are **shipped** for core + CLI. **Active:** **[`cache.md`](./cache.md)** — incremental `analysis.json` rebuild (core-owned; CLI/IDE are hosts).
+**Locked vertical order (extractor → init → locales → cache → translate-cache → apps → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below. **Init (F)** and **Locales (H)** are **shipped**. **Cache (Phases 0–4)** is **shipped**. **Active next:** **[`translate-cache.md`](./translate-cache.md)** (H.1) — then **[`apps.md`](./apps.md)** (C.3+).
 
-**Narrative focus:** **Project cache (Session H-cache)** — partial vs full analysis rebuild, `files.json` delta classification, locale-aware `missingKeys`. **Then** **translate-cache (H.1)**, **apps catch-up (C.3)**, **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)** · **`maintainer/phases/README.md`**.
+**Narrative focus:** **translate-cache (H.1)** → **apps / share (C.3+)** per [`apps.md`](./apps.md) → **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
 
-**Verticals:** **[`init.md`](./init.md)** (**shipped**) → **[`locales.md`](./locales.md)** (**shipped**) → **[`cache.md`](./cache.md)** (**active**) → **[`translate-cache.md`](./translate-cache.md)** (**after cache**) → **C.3** → **docs (D)** — extension per **[`extension/README.md`](./extension/README.md)**.
+**Verticals:** **[`init.md`](./init.md)** (**shipped**) → **[`locales.md`](./locales.md)** (**shipped**) → **[`cache.md`](./cache.md)** (**shipped**) → **[`translate-cache.md`](./translate-cache.md)** (**active next**) → **[`apps.md`](./apps.md)** → **docs (D)** — extension per **[`extension/README.md`](./extension/README.md)**.
 
 ---
 
@@ -23,9 +23,11 @@ init
     ↓
 locales          (shipped — Session H)
     ↓
-cache            (active — analysis incremental rebuild; cache.md)
+cache            (shipped — cache.md Phases 0–4)
     ↓
-translate-cache  (after cache incremental; translate-cache.md)
+translate-cache  (H.1 active next — translations.json; translate-cache.md)
+    ↓
+apps             (C.3+ — share op + hosted catch-up; apps.md)
     ↓
 extension
 ```
@@ -35,9 +37,10 @@ extension
 | **extractor** | Strengthens key detection and runtime-facing signals (bindings, call sites, dynamic classification). **Session C.1 shipped** — contracts are stable for **init** / **locales** / **extension**; downstream phases **must respect** extractor contracts and must not fork parallel detection “truth”. | [`extractor.md`](./extractor.md) |
 | **init** | Best-in-class onboarding: **core-owned** detection + preset/config generation; **CLI and extension are hosts only**. **Session F shipped** (core + CLI); extension init UI remains planned. **Config schema** + preset model are the contract **locales** builds on. | [`init.md`](./init.md) |
 | **locales** | Multi-topology locale **storage** via **reader/writer**; **normalized locale surface** for ops. **Shipped** (Session **H**). Design reference: [`locales.md`](./locales.md). | [`locales.md`](./locales.md) |
-| **cache** | **`files.json`** fingerprints + **`analysis.json`** scan payload; **incremental rebuild** (partial vs full, `cache.rebuild`) owned by **core**. **Active** — [`cache.md`](./cache.md). | [`cache.md`](./cache.md) |
-| **translate-cache** | Provider result cache: L1 in-memory + L2 **`translations.json`** beside **`analysis.json`**; same **`config.cache`**. **After cache incremental** (Session **H.1**). | [`translate-cache.md`](./translate-cache.md) |
-| **extension** | Consumes **stabilized core** APIs and payloads — **no parallel scanning/indexing truth**. May prototype early, but **release-grade** behavior assumes **init + locales** contracts are stable. | [`extension/README.md`](./extension/README.md) |
+| **cache** | **`files.json`** + **`analysis.json`**; incremental rebuild + profiles + Phase 4 invalidation **shipped** — [`cache.md`](./cache.md). | [`cache.md`](./cache.md) |
+| **translate-cache** | L1 + L2 **`translations.json`** beside **`analysis.json`**; same **`config.cache`**. **Active next** (Session **H.1**). | [`translate-cache.md`](./translate-cache.md) |
+| **apps** | **`apps/web`**, **`apps/report`**, worker; core **`share`** op + CLI **`i18nprune share`**. **After H.1** (or parallel planning). | [`apps.md`](./apps.md) |
+| **extension** | Hosts core APIs only — **no parallel scan truth**. | [`extension/README.md`](./extension/README.md) |
 
 ### Responsibilities (one sentence each)
 
@@ -91,7 +94,7 @@ Work delivered: **import binding resolution** (alias-aware per-file `functions` 
 
 ## Apps catch-up (**Session C.3 — after init + locales**)
 
-**Defer** until **Session H** (locales) **and** segment-aware cache index are stable — **H is shipped**; optional alignment after **cache** Phase 1–2. **`apps/web`** and **`apps/workers/i18nprune`** refresh against **`@i18nprune/core`**. Full scope: **[`V1-RELEASE.md`](./V1-RELEASE.md)** (Session C.3).
+**When:** After **translate-cache (H.1)** per [`V1-RELEASE.md`](./V1-RELEASE.md). **Locales (H)** and cache (Phases 0–4) are **shipped**. **`apps/web`**, **`apps/report`**, **`apps/workers/i18nprune`**, plus core **`share`** + CLI **`i18nprune share`**. **Plan:** **[`apps.md`](./apps.md)**.
 
 ---
 
@@ -113,9 +116,9 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **Extractor hardening** | **Shipped — Session C.1** | [`extractor.md`](./extractor.md) |
 | **Init phase (onboarding)** | **Shipped — Session F** (core + CLI; extension host I1–I3 in [`extension/README.md`](./extension/README.md)) | [`init.md`](./init.md) |
 | **Locales phase (multi-topology)** | **Shipped — Session H** (rows 0–10) | [`locales.md`](./locales.md) |
-| **Project cache (analysis incremental)** | **Active** | [`cache.md`](./cache.md) |
-| **Translate cache** | **Planned — Session H.1** (after **cache** incremental) | [`translate-cache.md`](./translate-cache.md) |
-| **Apps catch-up (web + worker-i18nprune)** | **Planned — Session C.3** (after **H**; **F** shipped) | [`V1-RELEASE.md`](./V1-RELEASE.md) |
+| **Project cache (analysis incremental)** | **Shipped — Phases 0–4** | [`cache.md`](./cache.md) |
+| **Translate cache** | **Active next — H.1** | [`translate-cache.md`](./translate-cache.md) |
+| **Apps catch-up (web + report + worker + share)** | **Planned — C.3+** (after H.1; plan in [`apps.md`](./apps.md)) | [`apps.md`](./apps.md) |
 | **Patching hardening** | **Shipped** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |
 

@@ -1,10 +1,10 @@
-# Project cache phase — disk index + analysis rebuild (**active**)
+# Project cache phase — disk index + analysis rebuild (**shipped — Phases 0–4**)
 
-**Status:** **In progress** — segment-aware **`files.json`** + single **`analysis.json`** slot are **shipped** in core + CLI. **Incremental analysis rebuild** (partial patch from file delta) is **planned** (this doc).  
-**Public user docs:** [`docs/cli/cache.md`](../../docs/cli/cache.md) (behavior only — no slice checklist).  
-**Related:** [`locales.md`](./locales.md) (locale layout + leaf identity) · [`translate-cache.md`](./translate-cache.md) (**H.1**, after locales + this phase’s index work) · [`extractor.md`](./extractor.md) (scan primitives).
+**Status:** Phases **0–4** are **shipped** (core + CLI). **Deferred:** Phase 5 (`translations.json` → [`translate-cache.md`](./translate-cache.md); worker segment index → locales follow-up).  
+**Public user docs:** [`docs/cli/cache.md`](../../docs/cli/cache.md).  
+**Related:** [`locales.md`](./locales.md) · [`translate-cache.md`](./translate-cache.md) (**H.1**, next) · [`apps.md`](./apps.md) (**C.3+**, after H.1).
 
-**For agents with zero chat context:** read this file + [`locales.md` § Locked design](./locales.md#locked-design-agreed--implement-during-h) + skim the file map [§ Code map](#code-map) before editing.
+**For agents (zero chat context):** Phases 0–4 are **done** — see [`shipped-slices.md`](./shipped-slices.md). Next vertical: [`translate-cache.md`](./translate-cache.md).
 
 ---
 
@@ -42,12 +42,12 @@ files.json     → WHAT changed (fingerprints + delta: added/changed/deleted/unc
 analysis.json  → EXPENSIVE derived state (code scan + missingKeys vs source)
 ```
 
-| Layer | Partial rebuild today? | On miss today |
-|-------|------------------------|---------------|
-| **`files.json`** | **Yes (limited):** layout-only change can reuse cached `src/**` index and rescan locale segments only (`packages/core/src/cache/dispatch.ts` → `resolveTrackedCurrent`). | Rewrite index from scan. |
-| **`analysis.json`** | **Partial (src):** single-file src edits patch cached arrays when `cache.rebuild` is `partial` and under threshold. Locale-only / layout / source-locale deltas still full-scan. | Full src walk + source locale read + `missingKeys`. |
+| Layer | Partial rebuild (shipped) | On miss when patch not allowed |
+|-------|---------------------------|--------------------------------|
+| **`files.json`** | Layout-only change can reuse cached `src/**` index and rescan locale segments only (`resolveTrackedCurrent`). | Rewrite index from scan. |
+| **`analysis.json`** | **Src:** patch arrays under threshold when `rebuild: 'partial'`. **Target locale only:** reuse scan arrays (`target_locale_only`). **Source locale only:** recompute `missingKeys` only (`source_locale_partial`). **Mixed source+target:** full scan. | Full `scanProjectAnalysis`. |
 
-**This phase** closes the gap: **patch `analysis.json` from classified delta** when policy allows.
+**Remaining (Phase 4):** **Done** — CLI no longer deletes `analysis.json` after target-only sync/generate when dispatch would reuse/patch on the next run.
 
 ---
 
@@ -58,49 +58,45 @@ analysis.json  → EXPENSIVE derived state (code scan + missingKeys vs source)
 | Segment-aware `files.json` | `localeSegments`, `localesLayout`, merged diff (`packages/core/src/cache/trackedFiles.ts`, `dispatch.ts`) |
 | Single analysis slot | `analysisPath` only (`packages/core/src/cache/setup/paths.ts`) |
 | Analysis payload types | `packages/core/src/types/analysis/index.ts` |
-| Producer | `scanProjectAnalysis` in `packages/core/src/analysis/project.ts` |
-| Dispatch entry | `getOrBuildCachedProjectData` — delta computed, **not** passed to producer yet |
-| CLI invalidate after mutate | `invalidateProjectAnalysisCacheForContext` → deletes `analysis.json` (`packages/cli/src/shared/cache/invalidate.ts`) |
+| Producer | `produceProjectAnalysis` — full, `patchProjectAnalysisFromSrcDelta`, `patchProjectAnalysisFromSourceLocaleDelta`, or reuse (`packages/core/src/analysis/project.ts`) |
+| Dispatch | `getOrBuildCachedProjectData` + `CacheProducerContext` + `decideAnalysisRebuild` |
+| Profiles | `cache.profile` + `resolveCacheConfig`; constants in `shared/constants/cache.ts`; CLI `--cache-profile` |
+| CLI invalidate after mutate | `invalidateProjectAnalysisCacheAfterLocaleWrites` — skips delete for target-only locale writes; `--debug-cache`: `analysis invalidation: skipped (target locale writes only)` |
 | Parity | Refactors must not change `--json` / exit codes / issue codes on fixtures |
 
 ---
 
-## Planned config (`cache` block)
+## Config (`cache` block) — **shipped**
 
-Extend existing Zod `cacheSchema` in `packages/core/src/config/schema/root.ts` (**shipped** for `rebuild` + `fullRescanThresholdPercent`).
+Zod `cacheSchema` in `packages/core/src/config/schema/root.ts`. Resolution: `resolveCacheConfig` in `packages/core/src/cache/resolveConfig.ts`.
 
 ```ts
 cache?: {
   enabled?: boolean;
   dir?: string;
   mode?: 'readWrite' | 'readOnly';
-
-  /**
-   * How to rebuild analysis.json on cache miss when files.json reports changes.
-   * - 'partial' (default): patch from delta when safe; see fullRescanThresholdPercent.
-   * - 'full': always run full scanProjectAnalysis (ignore threshold).
-   */
-  rebuild?: 'partial' | 'full';
-
-  /**
-   * Only when rebuild === 'partial'.
-   * If (added+changed+deleted) / trackedFileCount >= N, fall back to full src scan.
-   * Locale-only deltas never use this ratio for forcing src full scan.
-   * Default: 40 (percent). Omit = default.
-   */
-  fullRescanThresholdPercent?: number; // 0–100
+  profile?: 'safe' | 'balanced' | 'fast'; // default: balanced
+  rebuild?: 'partial' | 'full';             // explicit field overrides profile
+  fullRescanThresholdPercent?: number;    // 0–100; src bucket only
 }
 ```
 
+| Profile | `rebuild` | `fullRescanThresholdPercent` | `mode` |
+|---------|-----------|------------------------------|--------|
+| **`safe`** | `full` | `10` | `readWrite` |
+| **`balanced`** (default) | `partial` | `40` | `readWrite` |
+| **`fast`** | `partial` | `70` | `readWrite` |
+
 | Setting | Behavior |
 |---------|----------|
-| **`rebuild: 'full'`** | User opt-out of partial rebuild. Every analysis miss → full `scanProjectAnalysis`. No threshold consulted. |
-| **`rebuild: 'partial'`** (default when field omitted) | Classify delta → patch or full scan per rules below. |
-| **`fullRescanThresholdPercent`** | **Src bucket only:** if affected src files ≥ N% of tracked src files → full src scan (safety valve for large refactors). Ignored when `rebuild: 'full'`. |
+| **`profile`** | Supplies defaults; any **explicit** `rebuild` / `fullRescanThresholdPercent` / `mode` wins. |
+| **`rebuild: 'full'`** | Opt-out of partial rebuild. `--debug-cache`: `full (config rebuild=full)`. |
+| **`rebuild: 'partial'`** | Classify delta → patch / reuse / full per rules below. |
+| **`fullRescanThresholdPercent`** | **Src only:** if affected src files ≥ N% of tracked src → full src scan. |
 
-**CLI / hosts:** surface in config file only; `--no-cache` still disables all disk cache.
+**CLI:** `--no-cache`, `--debug-cache`, `--cache-profile <safe|balanced|fast>` (merges into config for one run).
 
-**Docs site:** after implementation, add a short subsection to `docs/cli/cache.md` (user-facing, no maintainer cross-links).
+**User docs:** [`docs/cli/cache.md`](../../docs/cli/cache.md) (profiles + incremental rebuild).
 
 ---
 
@@ -132,9 +128,9 @@ Locked leaf identity: [`locales.md` § Leaf identity](./locales.md#leaf-identity
 | `locales.mode` | Leaf identity | Impact on `analysis.json` |
 |----------------|---------------|---------------------------|
 | **`flat_file`** | One JSON per locale; logical path unique per file | `missingKeys: string[]` remains valid. Source patch = re-read source file + recompute. |
-| **`locale_directory`** | **`(segmentRelativePath, logicalPath)`** — duplicates across segments are **two leaves** | **Must not** use path-only `Set` for source keys when patching. Plan v2 field or encoded identity (see Phase 2). |
+| **`locale_directory`** | **`(segmentRelativePath, logicalPath)`** for leaf identity | Source reads via `readSourceLocaleLeavesForMissing` + `readLocalePerDirLocaleSurface`; `computeMissingLiteralKeysFromLeaves` unions logical paths across segments. |
 
-**Today’s gap:** `computeMissingLiteralKeysFromResolvedKeys` uses `Set(leaves.map(l => l.path))` only (`packages/core/src/validate/missingLiterals.ts`) — OK for flat_file, **wrong** for multi-segment source under locale_directory. Fix in Phase 2 before trusting partial locale patches.
+**Shipped:** `encodeLocaleLeafIdentity`, `readSourceLocaleLeavesForMissing` (`packages/core/src/analysis/sourceLocaleLeaves.ts`).
 
 ---
 
@@ -142,7 +138,7 @@ Locked leaf identity: [`locales.md` § Leaf identity](./locales.md#leaf-identity
 
 One slice per PR. Update [`shipped-slices.md`](./shipped-slices.md) when each closes.
 
-### Phase 0 — Preconditions
+### Phase 0 — Preconditions (**Done**)
 
 | Task | Detail |
 |------|--------|
@@ -154,7 +150,7 @@ One slice per PR. Update [`shipped-slices.md`](./shipped-slices.md) when each cl
 
 ---
 
-### Phase 1 — Src incremental patch
+### Phase 1 — Src incremental patch (**Done**)
 
 When **only** `SRC_DELTA` (and policy `rebuild: 'partial'`, under threshold):
 
@@ -171,7 +167,7 @@ Use existing extractors — **no new detection algorithms** (`scanProjectKeyObse
 
 ---
 
-### Phase 2 — Locale-aware source patch
+### Phase 2 — Locale-aware source patch (**Done**)
 
 | Case | Action |
 |------|--------|
@@ -184,26 +180,31 @@ Use existing extractors — **no new detection algorithms** (`scanProjectKeyObse
 
 ---
 
-### Phase 3 — Threshold + config
+### Phase 3 — Profiles + threshold + config (**Done**)
 
 | Task | Detail |
 |------|--------|
-| Implement `rebuild` + `fullRescanThresholdPercent` | Defaults: `partial`, `40`. |
-| `--debug-cache` | Log `analysis rebuild: partial (2 changed, 0 added)` vs `full (threshold 45%)` vs `full (config rebuild=full)`. |
-| Docs | `docs/cli/cache.md` user subsection. |
+| `cache.profile` + `CACHE_PROFILE_DEFAULTS` | `safe` / `balanced` / `fast` in `shared/constants/cache.ts`. |
+| `rebuild` + `fullRescanThresholdPercent` | Explicit fields override profile. |
+| `--cache-profile` | Global CLI flag → `cache.profile` for one run. |
+| `--debug-cache` | Partial / full / reuse lines including `config rebuild=full`, `target locale only`, `source locale only`. |
+| Docs | `docs/cli/cache.md`. |
 
-**Acceptance:** config `rebuild: 'full'` forces full scan on any miss; threshold 0 → always full src scan on any src delta.
+**Acceptance:** shipped + manual validation on real project (see Phase 2 acceptance).
 
 ---
 
-### Phase 4 — Invalidate policy cleanup
+### Phase 4 — Invalidate policy cleanup (**Done**)
 
 | Task | Detail |
 |------|--------|
-| Review CLI `invalidateProjectAnalysisCacheForContext` after sync/generate | Target-only writes may not need delete if Phase 2 proves dispatch patch/hit. |
-| Keep delete on layout change, parse failure, `rebuild: 'full'` optional force, or explicit user cache clear. |
+| Review CLI `invalidateProjectAnalysisCacheForContext` after sync/generate | Target-only writes skip delete; core `decideProjectAnalysisCacheInvalidation` mirrors dispatch reuse/patch policy. |
+| Keep delete on `rebuild: 'full'` | Explicit opt-out still deletes `analysis.json` after locale writes. |
+| `--debug-cache` | `analysis invalidation: skipped (target locale writes only)` or `deleted (config rebuild=full)`. |
 
-**Acceptance:** document decision in this file when shipped; parity tests for sync → validate path.
+**Decision (shipped):** sync/generate pass written locale segment paths to core; target-only mutations do **not** delete `analysis.json` — the next command’s dispatch classifies the `files.json` delta and reuses scan arrays (`target_locale_only`) or patches `missingKeys` (`source_locale_partial`) without a delete-induced full scan. Unconditional delete remains for `cache.rebuild: 'full'` and explicit clear (`invalidateProjectAnalysisCache`).
+
+**Acceptance:** target-only sync → next validate reuses analysis; parity fixtures unchanged.
 
 ---
 
@@ -242,10 +243,11 @@ flowchart TD
 
 ## Invalidate vs patch (current vs target)
 
-| Mechanism | Today | After Phase 2–4 |
-|-----------|--------|------------------|
-| Dispatch `files_changed` | Full producer | Patch when classified + policy allows |
-| `invalidateProjectAnalysisCache` (delete file) | After sync/generate writes | Narrow or remove for target-only mutations |
+| Mechanism | After Phases 0–3 | After Phase 4 (shipped) |
+|-----------|------------------|-------------------------|
+| Dispatch `files_changed` | Patch / reuse / full per `decideAnalysisRebuild` | Same |
+| `invalidateProjectAnalysisCacheAfterLocaleWrites` | — | Skips delete for target-only sync/generate writes |
+| `invalidateProjectAnalysisCache` (unconditional delete) | Used after every sync/generate | Explicit clear / `rebuild: 'full'` only |
 | `run_invalid` | Full producer | Full producer (keep) |
 
 ---
@@ -264,17 +266,24 @@ flowchart TD
 | Cache types | `packages/core/src/types/cache/index.ts` |
 | Config schema | `packages/core/src/config/schema/root.ts` (`cacheSchema`) |
 | CLI host | `packages/cli/src/shared/cache/` (`resolve.ts`, `invalidate.ts`, `runtime.ts`) |
+| Invalidation policy | `packages/core/src/cache/invalidatePolicy.ts`, `invalidate.ts` |
 | Debug lines | `packages/core/src/cache/events.ts` |
 | Tests | `packages/core/src/cache/__tests__/runtime.test.ts`, parity under `tests/parity/` |
 
 ---
 
-## Testing checklist (per slice)
+## Testing checklist
 
-- [ ] `pnpm typecheck` + `pnpm test`
-- [ ] Parity snapshots unchanged for CLI JSON/envelope on fixtures
-- [ ] New unit tests: delta classify, patch ≡ full, threshold, `rebuild: 'full'`
-- [ ] Manual: `--debug-cache validate` — 1 file edit → partial log line; 6 target meta writes → no src rescan
+**Phases 0–3 (done):**
+- [x] `pnpm typecheck` + `pnpm test`
+- [x] Unit tests: delta classify, rebuild policy, `resolveCacheConfig`, analysis rebuild, runtime dispatch
+- [x] Manual: `--debug-cache validate` — src edit → partial; target edit → skipped (target locale only); source edit → partial (source locale only); `rebuild: 'full'` → `config rebuild=full`
+
+**Phase 4 (done):**
+- [x] `pnpm typecheck` + `pnpm test`
+- [x] Parity snapshots unchanged on fixtures unless slice requires it
+- [x] sync/generate target-only → next validate reuses analysis (no delete-induced full scan)
+- [x] Document invalidation decision in Phase 4 section
 
 ---
 
@@ -287,10 +296,11 @@ flowchart TD
 | Types in `packages/core/src/types/analysis/` | **Done** |
 | Phase 0 — path canonical + dispatch hook | **Done** |
 | Phase 1 — src incremental | **Done** |
-| Phase 2 — locale source/target classification | **Todo** |
-| Phase 3 — `cache.rebuild` + threshold config | **Done** |
-| Phase 4 — invalidate cleanup | **Todo** |
-| Phase 5 — worker/web + translate-cache | **Deferred** |
+| Phase 2 — locale source/target classification | **Done** |
+| Phase 3 — profiles + `cache.rebuild` + threshold | **Done** |
+| Phase 4 — invalidate cleanup | **Done** |
+| Phase 5 — worker/web segment index | **Deferred** → [`locales.md`](./locales.md) |
+| Phase 5 — `translations.json` (L2) | **Deferred** → [`translate-cache.md`](./translate-cache.md) |
 
 ---
 
@@ -299,6 +309,6 @@ flowchart TD
 1. **Core owns rebuild policy;** CLI/IDE do not fork it.  
 2. **`rebuild: 'full'`** is the explicit opt-out — no threshold needed.  
 3. **Threshold applies to src file count only**, not locale segments.  
-4. **locale_directory** missing-key identity is `(segmentRelativePath, logicalPath)` before partial locale patch ships.  
+4. **locale_directory** source reads merge all source segments; missing keys compare logical paths across segments (`computeMissingLiteralKeysFromLeaves`).  
 5. **Target-only locale changes** must not trigger full code rescan.  
 6. **User-facing cache docs** stay in `docs/cli/cache.md`; this file is maintainer-only.

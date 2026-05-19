@@ -15,15 +15,15 @@
 
 ## Recommended v1 sequence (start here after shipped Session C)
 
-Ship **init → locales → cache** on **`@i18nprune/core`** before **translate-cache** and **hosted app** catch-up. **F** and **H** are **shipped**; **active:** incremental **`analysis.json`** rebuild ([`cache.md`](./cache.md)). **`apps/web`** and **`apps/workers/i18nprune`** stay deployed; **defer C.3** until cache Phase 1–2 land (optional worker segment-index follow-up in cache Phase 5). Then **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**.
+Ship **init → locales → cache** on **`@i18nprune/core`** before **translate-cache** and **hosted app** catch-up. **F**, **H**, and cache Phases **0–4** are **shipped**; **active:** **H.1** ([`translate-cache.md`](./translate-cache.md)). Then **C.3+** ([`apps.md`](./apps.md)) → **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**.
 
 | Step | Session | What |
 |------|---------|------|
 | **1** | **F — Init** (**shipped** — core + CLI) | [`init.md`](./init.md) — core-owned detection, presets, generated config |
 | **2** | **H — Locales** (**shipped** — core + CLI) | [`locales.md`](./locales.md) — reader/writer, multi-topology storage |
-| **2a** | **H-cache — Project cache** (**active**) | [`cache.md`](./cache.md) — segment `files.json`, single `analysis.json`, incremental rebuild policy |
-| **2b** | **H.1 — Translate cache** | [`translate-cache.md`](./translate-cache.md) — L1 + L2 `translations.json`; **after cache incremental** |
-| **3** | **C.3 — Apps** | `apps/web`, `apps/workers/i18nprune` — catch up to post-init/locales/cache **`@i18nprune/core`** |
+| **2a** | **H-cache — Project cache** (**shipped**) | [`cache.md`](./cache.md) — Phases 0–4 (incremental analysis + invalidate policy) |
+| **2b** | **H.1 — Translate cache** (**active**) | [`translate-cache.md`](./translate-cache.md) — L1 + L2 `translations.json` |
+| **3** | **C.3 — Apps + share** | [`apps.md`](./apps.md) — `apps/web`, `apps/report`, worker, core **`share`**, CLI **`i18nprune share`** |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) — nav trim, SDK quickstart, tree flattening |
 | **5** | **D.2 — Landing** | `apps/landing` — lean onboarding + value proposition |
 | **6** | **E + G** | Release polish + execute / delete [`final.md`](./final.md) when tagging |
@@ -56,7 +56,7 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 **Patching / auto-patching.** **User docs:** [`docs/patching/README.md`](../../docs/patching/README.md). Maintainer map: [`maintainer/systems/patching.md`](../systems/patching.md). Delivered: integration tests (core chain + CLI **`patch --fix` → `--patch sync` → `--patch generate`**), shared CLI **`Context` → `runPatching`** wiring (`fromContext.ts`), resolver preservation tests, **`config.json`** injection-status docs, core patching types and barrel layout.
 
-**Next (core):** Session **H-cache** ([`cache.md`](./cache.md)) — incremental analysis rebuild. **Locales (H)** and **Init (F)** are **shipped**. **Next (hosts):** **C.3** after cache Phase 1–2 (or in parallel if only import alignment).
+**Next (core):** **H.1 translate cache** ([`translate-cache.md`](./translate-cache.md)). **Hosts:** **C.3+** ([`apps.md`](./apps.md)) after H.1.
 
 ---
 
@@ -86,19 +86,17 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 ---
 
-## Session H-cache — Project cache incremental (**active**)
+## Session H-cache — Project cache incremental (**shipped**)
 
 **Docs:** [`cache.md`](./cache.md)
 
-**Goal:** **`files.json`** fingerprints (src + locale segments + layout) + single **`analysis.json`**; **partial vs full** rebuild from file delta; **`cache.rebuild`** / threshold config. **Core owns** logic; CLI/IDE are hosts.
-
-**Shipped already (baseline):** segment-aware `files.json`, enriched `analysis.json`, removed CLI report-doc / `snapshot.json` slot — see [`cache.md` § Shipped baseline](./cache.md#shipped-baseline-do-not-regress).
+**Shipped:** Phases **0–4** — segment-aware `files.json`, single `analysis.json`, src incremental patch, locale-aware reuse/patch, `cache.profile` + `--cache-profile`, invalidate policy after sync/generate — see [`shipped-slices.md`](./shipped-slices.md).
 
 **Dependencies:** **Session H** row **10** — **shipped**.
 
 ---
 
-## Session H.1 — Translate cache (**planned — after H-cache**)
+## Session H.1 — Translate cache (**active**)
 
 **Docs:** [`translate-cache.md`](./translate-cache.md)
 
@@ -106,7 +104,7 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 **Policy:** Reuse **`config.cache`** and CLI **`--no-cache`**.
 
-**Dependencies:** **Session H-cache** incremental analysis + stable **`files.json`** epoch — start **H.1** after [`cache.md`](./cache.md) Phase 3 (config policy) or explicit defer.
+**Dependencies:** **H-cache** Phases 0–4 — **shipped**.
 
 ---
 
@@ -114,7 +112,9 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 **When:** After **Session F (init)** and **Session H (locales)** have shipped the core project-structure and locale-storage contracts **`apps/web`** and **`apps/workers/i18nprune`** depend on. Hosted surfaces are already deployed and working; this session is **catch-up** to the new **`@i18nprune/core`** API, not a blocker for init/locales.
 
-**Scope:** Update **`apps/web`** and **`apps/workers/i18nprune`** (`@i18nprune/worker-i18nprune`) — imports, types, runtime adapter usage vs **`@i18nprune/core`**. **`apps/workers/meta`** (`@i18nprune/worker-meta`) is separate (cache/metadata; no **`core`** dependency); touch only if shared worker tooling changes.
+**Scope:** Update **`apps/web`**, **`apps/report`**, and **`apps/workers/i18nprune`** — imports, types, runtime adapter usage vs **`@i18nprune/core`**. Add **core `share` op** (`packages/core/src/share/`), CLI **`i18nprune share`** (+ `list` / `delete`), worker **`/v1/reports`**, and hosted share links. **`apps/workers/meta`** stays separate unless shared worker tooling changes.
+
+**Plan (authoritative):** **[`apps.md`](./apps.md)**.
 
 ---
 
