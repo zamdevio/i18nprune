@@ -4,7 +4,7 @@ Shared writer behavior for `sync`, **`generate`**, and **`generate --resume`**.
 
 ## Two different “metadata” concepts
 
-1. **`<lang>.meta.json` (locale sidecar)** — Small JSON next to **`<lang>.json`** with **`lang`**, **`englishName`**, **`nativeName`**, **`direction`** for tooling and UIs. By default **`generate`** creates or refreshes this sidecar whenever it writes a target locale (independent of **`--metadata`**). Skip with **`--no-locale-meta`** or root config **`noLocaleMeta: true`** (either skips; see [generate](../../commands/generate/README.md) “Locale sidecar” section).
+1. **Locale display metadata** — **`englishName`**, **`nativeName`**, **`direction`** for app loaders live in **`src/i18n/config.json`** (maintained with **`i18nprune patch`**). **`generate`** does **not** write **`<lang>.meta.json`** sidecars; it uses the bundled language catalog only for progress/summary labels. See [generate](../../commands/generate/README.md).
 2. **`--metadata` on writers** — Opts in to **structured per-leaf** objects **inside** **`<lang>.json`** (`value` + translation/review fields). Documented below as “structured leaves”.
 
 ## Who writes what (`--metadata` vs core)

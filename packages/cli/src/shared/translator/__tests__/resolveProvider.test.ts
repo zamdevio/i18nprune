@@ -52,6 +52,7 @@ function makeContext(overrides?: Partial<I18nPruneConfig>): Context {
         projectDir: '',
         filesPath: '',
         analysisPath: '',
+        translationsDir: '',
         readOnly: false,
       },
     },

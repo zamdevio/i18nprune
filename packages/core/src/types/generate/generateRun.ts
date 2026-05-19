@@ -151,9 +151,6 @@ export type GenerateRunOptions = {
   readonly source?: string;
   readonly provider?: string;
   readonly workers?: number;
-  readonly englishName?: string;
-  readonly nativeName?: string;
-  readonly direction?: 'ltr' | 'rtl';
   readonly force?: boolean;
   readonly dryRun?: boolean;
   readonly metadata?: boolean;

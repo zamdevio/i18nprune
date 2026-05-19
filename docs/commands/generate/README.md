@@ -9,7 +9,7 @@ i18nprune generate --target ja
 i18nprune generate --target ar,id,ja,ms,zh-cn
 i18nprune generate --target pt-br --dry-run
 i18nprune generate --target ja --metadata
-i18nprune generate --target ja --no-locale-meta
+i18nprune generate --target ja --dry-run
 i18nprune generate --resume --target ja
 i18nprune generate --resume --all --dry-run
 ```
@@ -52,22 +52,11 @@ When a confirm dialog is shown (TTY **stderr**): the **last progress frame stays
 
 The configured **source** JSON (basename of `source`, e.g. `en`) is the **source of truth**. It is **not** a valid **`--target`** for **`generate`** — use it only as the reference file; pick a **target** catalog code instead.
 
-## Locale sidecar (`<lang>.meta.json`)
+## Display metadata (catalog)
 
-By default, **`generate`** writes **`<lang>.meta.json`** next to **`<lang>.json`** with:
+**`generate`** does not write **`<lang>.meta.json`** sidecars. English label, native endonym, and layout direction for progress lines and host summaries come from the bundled **`languages.json`** catalog (via **`resolveGenerateLocaleDisplay`** in core).
 
-- **`lang`** — target code  
-- **`englishName`** — English label  
-- **`nativeName`** — native endonym  
-- **`direction`** — **`ltr`** or **`rtl`**
-
-This file is the **locale catalog sidecar** (labels and direction for tooling). It is **not** the same as **`--metadata`**, which opts in to structured **per-leaf** objects inside **`<lang>.json`** for review and quality commands.
-
-**Skipping the sidecar:** pass **`--no-locale-meta`** or set root **`noLocaleMeta: true`** in **`i18nprune` config**. If **either** is true, **`generate`** does not create or update **`<lang>.meta.json`** for that run (CLI flag and config are merged with **OR** semantics — one **`true`** is enough). You still get **`<lang>.json`** writes unless **`--dry-run`**.
-
-If you pass **`--english-name`**, **`--native-name`**, or **`--direction`**, those values override catalog defaults for the meta file (ignored when the sidecar is skipped).
-
-If **`<lang>.meta.json`** already exists, `generate` reuses its `englishName` / `nativeName` / `direction` defaults and skips the three interactive meta prompts unless you explicitly override via flags.
+To persist locale display metadata for app loaders, use **`src/i18n/config.json`** and **`i18nprune patch`** — see [Locale filesystem layouts](../../locales/layouts.md).
 
 ## Locale leaf metadata mode (`--metadata`)
 
@@ -80,16 +69,14 @@ If **`<lang>.meta.json`** already exists, `generate` reuses its `englishName` / 
 Default remains plain strings unless config opts in. For full model and rollback (`sync --strip-metadata`), see [Locales metadata mode](../../locales/metadata/README.md).
 For JSON extraction patterns, see the [jq cookbook](../../examples/jq-cookbook/README.md).
 
-**Direction vs catalog:** The bundled **`languages.json`** rows are **`code`**, **`english`**, and **`native`** only. **Layout direction** is not stored in the catalog yet. It defaults to **`ltr`**; pass **`--direction rtl`** for RTL targets (or pick **rtl** in the interactive direction menu). Meta prompts pre-fill English/native from the catalog so **Enter** keeps those defaults.
-
 ## Interactive vs non-interactive
 
-| Mode | Language (`--target` / `--lang`) | Meta (English/native/direction, `.meta.json`) |
-|------|---------------------|-----------------------------------------------|
-| **TTY, not forcing machine-only** | Prompts if omitted (when implemented); choose code and optional fields. | Prompts where applicable; **Enter** accepts **catalog defaults** for English and native names. **Direction** uses an interactive **menu** (**ltr** / **rtl**), defaulting to **ltr** or to **`--direction`** if you passed it. |
-| **Non-interactive** (no TTY, `CI=1`, `I18NPRUNE_NO_INIT=1`, or global **`--json`**) | **`--target` is required** (avoid deprecated **`--lang`**). | When a target is set and is a **valid catalog code**, **English** and **native** names default from **`languages.json`** unless you override with **`--english-name`** / **`--native-name`**. **Direction** defaults to **`ltr`** unless you pass **`--direction rtl`**. |
+| Mode | Language (`--target`) |
+|------|------------------------|
+| **TTY** | Prompts for target when omitted. |
+| **Non-interactive** (`--json`, `CI=1`, …) | **`--target`** (or **`--all`** with **`--resume`**) is required. |
 
-With global **`--yes`**, `generate` skips meta prompts and uses existing sidecar values (if present) or catalog defaults.
+With global **`--yes`**, `generate` skips confirm prompts where applicable.
 
 **Non-interactive validation**
 

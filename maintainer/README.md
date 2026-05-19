@@ -18,6 +18,6 @@ Ignoring all of **`maintainer/`** would strand clones without sequencing context
 | [**`phases/final.md`**](phases/final.md) | **One-time pre-publish checklist** (includes ADR polish + repo hygiene); **delete after completion** |
 | [**`systems/README.md`**](systems/README.md) | **Internal** tree: **`systems/operations/`**, **`systems/commands/`** — entrypoints, flows, per-op sheets (not user docs) |
 
-**Execution order (v1):** **init (F)** (**shipped**) → **locales (H)** (**shipped**) → **cache (H-cache — active)** → **translate-cache (H.1)** → **apps (C.3)** → **docs (D)** → **landing (D.2)** → **release (E)** + **`final.md` (G)**. See **[`phases/V1-RELEASE.md` § Recommended sequence](phases/V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
+**Execution order (v1):** **init (F)** (**shipped**) → **locales (H)** (**shipped**) → **cache (H-cache)** (**shipped**) → **translate-cache (H.1)** (**shipped**) → **apps (C.3)** (**active next**) → **docs (D)** → **landing (D.2)** → **release (E)** + **`final.md` (G)**. See **[`phases/V1-RELEASE.md` § Recommended sequence](phases/V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
 
-**Phase narrative:** [`phases/README.md`](phases/README.md) · **active:** [`phases/cache.md`](phases/cache.md) · **locales reference (H — shipped):** [`phases/locales.md`](phases/locales.md) · **scratch:** **`maintainer/temp/`** only.
+**Phase narrative:** [`phases/README.md`](phases/README.md) · **active:** [`phases/apps.md`](phases/apps.md) · **locales reference (H — shipped):** [`phases/locales.md`](phases/locales.md) · **scratch:** **`maintainer/temp/`** only.

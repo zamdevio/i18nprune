@@ -2,6 +2,7 @@
  * Public types for the **`generate`** op. Pattern: types-only files re-exported from this barrel;
  * runtime implementations live under `packages/core/src/generate/`.
  */
+export type { GenerateLocaleDisplay } from './localeDisplay.js';
 export type {
   GenerateFinalizeSummaryInput,
   GenerateHostHooks,

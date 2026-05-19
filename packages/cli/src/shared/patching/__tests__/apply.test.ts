@@ -45,6 +45,7 @@ function makeContext(config: Context['config']): Context {
         projectDir: '',
         filesPath: '',
         analysisPath: '',
+        translationsDir: '',
         readOnly: false,
       },
     },

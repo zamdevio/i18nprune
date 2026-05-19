@@ -33,11 +33,11 @@ Canonical phase order: **[`active-phase.md` § Locked chain](./active-phase.md#l
 | — | Layout fixtures under `tests/fixtures/layout-*` + `tests/integration/layout.fixtures.test.ts` | **Done** |
 | — | Post-H: Knip with `ignoreExportsUsedInFile: false` (see `locales.md` § Knip follow-up) | **Todo** (hygiene; not blocking cache) |
 | — | **Project cache incremental analysis** | **Moved** → **[`cache.md`](./cache.md)** (active) |
-| — | **Translate cache** ([`translate-cache.md`](./translate-cache.md)) | **Deferred** — **after** [`cache.md`](./cache.md) incremental rebuild |
+| — | **Translate cache** ([`translate-cache.md`](./translate-cache.md)) | **Shipped (H.1)** |
 
 **PR slice discipline:** one row (or tight pair like 1a+1b) per PR; parity tests after each op migration.
 
-**Next core vertical:** **[`cache.md`](./cache.md)** — partial vs full `analysis.json` rebuild, `cache.rebuild` policy. **Then** **[`translate-cache.md`](./translate-cache.md)** (H.1).
+**Next core vertical:** **[`apps.md`](./apps.md)** (C.3+). **Translate-cache (H.1)** and **cache** incremental rebuild are **shipped**.
 
 ---
 
@@ -382,7 +382,7 @@ What runs on disk vs what happens to snapshot/analysis:
 | **CLI disk cache** | `.cache/.../files.json` + `analysis.json` with `inputFilesEpoch` | Row 10 ships segment-aware `files.json`; analysis incremental rebuild → [`cache.md`](./cache.md). |
 | **Worker DO `snapshot`** | `ProjectStoreRow.snapshot` with `localeJsonByTag` built at upload; **no** `files.json` | **Follow-up:** either store `inputFilesEpoch` on snapshot + re-use core segment scan on read, or embed a slim `localeSegmentIndex` in snapshot that mirrors `localeSegments` keys/hashes. Decide after row 10 lands — **do not** change worker upload in row 10. |
 | **Web local zip** | Same as worker — `buildLocaleJsonByTagFromArchive` only | **Follow-up:** shared core helper that produces the same logical index as `files.json` `localeSegments` for in-memory sessions (zip has no `.cache` dir today). |
-| **Translate cache** (`translations.json`) | Separate slot (H.1) | After locales + row 10; may **read** `inputFilesEpoch` from `files.json` for invalidation. |
+| **Translate cache** (`translations/<code>.json`) | **Shipped (H.1)** | [`translate-cache.md`](./translate-cache.md); reads `inputFilesEpoch` from `files.json`. |
 | **`src/i18n/config.json` (patching)** | Not in file index | Optional later; only if patching freshness bugs appear. |
 
 **Decision for row 10:** touch **CLI `.cache` `files.json` only**. Worker/web snapshot stays stable in row 10; plan the convergence PR immediately after so hosted + local use the **same** segment enumeration + hash keys as disk cache.

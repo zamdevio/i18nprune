@@ -42,6 +42,7 @@ const ZERO_STATS: TranslateRunPartialStats = {
   retriesMade: 0,
   successfulLeaves: 0,
   failedRequests: 0,
+  cacheHits: 0,
 };
 
 function addStats(a: TranslateRunPartialStats, b: TranslateRunPartialStats): TranslateRunPartialStats {
@@ -50,6 +51,7 @@ function addStats(a: TranslateRunPartialStats, b: TranslateRunPartialStats): Tra
     retriesMade: a.retriesMade + b.retriesMade,
     successfulLeaves: a.successfulLeaves + b.successfulLeaves,
     failedRequests: a.failedRequests + b.failedRequests,
+    cacheHits: a.cacheHits + b.cacheHits,
   };
 }
 
@@ -288,6 +290,7 @@ export async function runTranslate(
           1,
           attemptStats.requestAttempts - attemptStats.successfulLeaves,
         ),
+        cacheHits: attemptStats.cacheHits,
       };
       const report: ProviderAttemptReport = {
         providerId,

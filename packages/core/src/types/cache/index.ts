@@ -60,6 +60,8 @@ export type CacheState = {
   filesPath: string;
   /** Project scan payload (`analysis.json`). */
   analysisPath: string;
+  /** Per-target translation cache directory (`translations/`). */
+  translationsDir: string;
   /** When true, cache reads are allowed but project cache files are not written. */
   readOnly: boolean;
 };

@@ -23,9 +23,6 @@ Read when running **`i18nprune generate`**; merged into options before CLI flags
 | Variable | Effect |
 |----------|--------|
 | **`I18NPRUNE_GENERATE_LANG`** | Default target language code. |
-| **`I18NPRUNE_GENERATE_ENGLISH_NAME`** | Default English label for `.meta.json`. |
-| **`I18NPRUNE_GENERATE_NATIVE_NAME`** | Default native endonym. |
-| **`I18NPRUNE_GENERATE_DIRECTION`** | `ltr` or `rtl` only. |
 | **`I18NPRUNE_GENERATE_FORCE`** | Truthy → force re-translate. |
 | **`I18NPRUNE_GENERATE_DRY_RUN`** | Truthy → dry-run. |
 

@@ -7,8 +7,8 @@ alwaysApply: true
 - **Local-only WIP:** `maintainer/temp/` — temporary plans and scratch (**gitignored**; not in clone history; read on disk only if the user keeps notes there).
 - **Sprint hub:** `maintainer/phases/V1-RELEASE.md` · **Active narrative:** `maintainer/phases/active-phase.md`.
 - **Shipped receipts:** `maintainer/phases/shipped-slices.md` (check before re-implementing).
-- **Current core vertical:** `maintainer/phases/translate-cache.md` (**H.1 active**). **Cache** Phases 0–4 **shipped** — [`cache.md`](./cache.md).
-- **Next after H.1:** `maintainer/phases/apps.md` (C.3+). Do not start share/`translations.json` in unrelated slices.
+- **Current core vertical:** `maintainer/phases/apps.md` (**C.3+ active next**). **Translate-cache (H.1)** and **cache** Phases 0–4 **shipped**.
+- **Next slice scope:** core **`share`** + CLI **`i18nprune share`** per [`apps.md`](./apps.md) — not unrelated cache work.
 - Other phase docs: `extractor.md`, `init.md`, `locales.md` (design reference when touching locales/cache).
 - Contributor maps: `maintainer/systems/README.md`.
 - Agent guides: `maintainer/agents/README.md` · **Architecture:** `maintainer/agents/architecture.md` · **Git:** `maintainer/agents/git.md` · **JSDoc:** `maintainer/agents/jsdoc.md` · Checklist: `maintainer/phases/jsdoc.md`.

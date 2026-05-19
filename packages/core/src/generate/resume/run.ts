@@ -26,7 +26,9 @@ import { applyLocaleLeafNormalization } from '../../shared/locales/leaves/index.
 import { emitRunMessage } from '../../shared/run/index.js';
 import { existsRuntimeFsSync } from '../../runtime/helpers/sync/fs.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../../shared/locales/index.js';
+import { formatGenerateTranslateProgress } from '../translateProgressSummary.js';
 import { listResumeTranslationJobs, translateResumeCandidateLeaves } from '../localeTranslate.js';
+import type { GenerateTranslateCache } from '../../types/translator/cache.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../../types/translator/providers.js';
 import type { CoreContext } from '../../types/context/index.js';
@@ -45,6 +47,7 @@ export type RunGenerateResumeLocaleInput = {
   refCtx: GenerateResumeRefContext;
   targetPath: string;
   targetStarted: number;
+  translationCache?: GenerateTranslateCache;
 };
 
 function emitGenerateMessage(host: Pick<GenerateHostHooks, 'emit' | 'runId'>, level: 'info' | 'notice' | 'warn', message: string): void {
@@ -56,7 +59,7 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
   issues: Issue[];
   leavesProcessed: number;
 }> {
-  const { ctx, opts, host, target, sourceMap, eff, refCtx, targetPath } = input;
+  const { ctx, opts, host, target, sourceMap, eff, refCtx, targetPath, translationCache } = input;
   const { fs } = ctx.adapters;
   if (!existsRuntimeFsSync(targetPath, fs)) {
     throw new I18nPruneError(`generate: locale file missing for --resume: ${targetPath}`, 'USAGE', {
@@ -159,6 +162,7 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
         retriesMade: 0,
         successfulLeaves: 0,
         failedRequests: 0,
+        cacheHits: 0,
       };
       let markedForReview = 0;
 
@@ -172,6 +176,8 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
         parity: ctx.config.policies?.parity,
         provider,
         providerId: translation.provider,
+        sourceLang: 'en',
+        translationCache,
         persistStructuredLeafMetadata: opts.metadata === true,
         target,
         dryRun: Boolean(opts.dryRun),
@@ -214,12 +220,7 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
       session.finish();
 
       const wallMs = Date.now() - input.targetStarted;
-      const avgRequestMs = translateStats.requestAttempts > 0 ? Math.round(wallMs / translateStats.requestAttempts) : 0;
-      emitGenerateMessage(
-        host,
-        'info',
-        `progress (${target}): wall=${String(wallMs)}ms · requests=${String(translateStats.requestAttempts)} · success=${String(translateStats.successfulLeaves)} · failed=${String(translateStats.failedRequests)} · retries=${String(translateStats.retriesMade)} · avgRequest=${String(avgRequestMs)}ms`,
-      );
+      emitGenerateMessage(host, 'info', formatGenerateTranslateProgress(target, wallMs, translateStats));
       emitGenerateMessage(
         host,
         'info',

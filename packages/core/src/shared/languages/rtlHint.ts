@@ -2,7 +2,7 @@ import { normalizeLanguageCode } from './normalize.js';
 
 /**
  * Basenames (before `-`) that are **typically** RTL in UI tooling. Not exhaustive — used for
- * **warn-only** hints when `--direction` may disagree with common practice.
+ * **warn-only** hints when catalog direction may disagree with common practice.
  */
 const TYPICAL_RTL_LANGUAGE_BASES = new Set([
   'ar',

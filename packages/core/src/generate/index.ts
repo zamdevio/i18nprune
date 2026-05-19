@@ -3,7 +3,8 @@
  * Subpath: `@i18nprune/core/generate` (see package `exports`). Root `@i18nprune/core` also re-exports.
  */
 export { createCoreContext, translateContextFromCore } from './context.js';
-export { runGenerate, resolveGenerateDirectionDefault } from './run.js';
+export { runGenerate } from './run.js';
+export { resolveGenerateLocaleDisplay, resolveLocaleDirection } from '../shared/languages/resolveGenerateLocaleDisplay.js';
 export { buildTranslatedLocaleFromSourceLeaves, localeJsonHasKeyPath } from './localeTranslate.js';
 export { translateAndNormalizeGenerateLocale } from './normalize.js';
 // Translator-layer error / partial-stats type are re-exported from `@i18nprune/core` and the

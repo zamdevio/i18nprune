@@ -4,11 +4,9 @@ The root config object includes optional namespaces for commands that read file-
 
 **Related:** [Environment variables](./env.md) (canonical names in `packages/cli/src/constants/env.ts`). When **`i18nprune/core`** export surface changes, keep **`I18nPruneConfig`** / **`defineConfig`** aligned (`docs/exports/`, `packages/core/package.json` exports).
 
-## `noLocaleMeta` (root)
+## Locale display metadata (not in `generate`)
 
-- **Purpose:** when **`true`**, **`i18nprune generate`** skips creating/updating **`<lang>.meta.json`** (the locale sidecar). Independent of **`--metadata`** (structured leaves inside **`<lang>.json`**).
-- **Precedence with CLI:** root **`noLocaleMeta`** is merged with **`--no-locale-meta`** using **OR** — if **either** is true, sidecar writes are skipped for that run.
-- **Docs:** [generate](../commands/generate/README.md) (“Locale sidecar”), [Locales metadata mode](../locales/metadata/README.md). **`generate --resume`** is documented on the same **`generate`** page.
+English label, native endonym, and layout direction for app loaders live in **`src/i18n/config.json`** (via **`i18nprune patch`**), not in per-locale **`<lang>.meta.json`** sidecars. **`generate`** resolves display labels from the bundled language catalog for progress output only. See [Locale filesystem layouts](../locales/layouts.md) and [generate](../commands/generate/README.md).
 
 ## `missing`
 

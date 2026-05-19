@@ -12,7 +12,9 @@ Under your home directory (default):
 └── projects/
     └── <projectId>/
         ├── files.json        # fingerprints: src/** + locale segments + localesLayout
-        └── analysis.json     # project scan: key sites, dynamic sites, missing keys, counts
+        ├── analysis.json     # project scan: key sites, dynamic sites, missing keys, counts
+        └── translations/     # per-target translation cache (generate only)
+            └── <code>.json   # L2 hits for one target locale
 ```
 
 `projectId` is derived from the **resolved project root**, so distinct checkouts produce distinct cache namespaces.
@@ -73,6 +75,28 @@ A **hit** means: **`files.json`** matches the current tree **and** **`analysis.j
 
 Otherwise the command recomputes the scan and writes fresh JSON.
 
+## Translation cache (`generate`)
+
+`i18nprune generate` can reuse prior **successful** provider results so repeat runs skip duplicate API calls.
+
+| Layer | Scope | When |
+|-------|-------|------|
+| **L1** | In-process memo for one generate run | Always (unless `--no-cache`) |
+| **L2** | `translations/<target>.json` on disk | When project cache is enabled |
+
+Lookup order: **L1 → L2 → provider**. Progress lines include **`cacheHits=N`** (L1 + L2 hits for that target).
+
+| Control | Effect |
+|---------|--------|
+| **`--no-cache`** | Bypass L1 and L2 |
+| **`config.cache.enabled: false`** | Disable L2 only; L1 still runs |
+| **`cache.mode: readOnly`** | Read L2; no writes |
+| **`generate --force`** | Skip L2 reads (still writes new successes unless read-only) |
+
+Each locale file stores masked source text identity, provider id, translate config epoch, and `inputFilesEpoch` from **`files.json`**. When source files or translate settings change, stale rows are ignored. Corrupt or oversize `translations/*.json` files are removed during cache prep (same heal pattern as `analysis.json`).
+
+Translated strings live under **`~/.i18nprune/cache/`** — treat that directory like any secret-bearing local data if you use cloud providers.
+
 ## `--no-cache`
 
 Global **`--no-cache`** disables cache for that process.
@@ -117,7 +141,7 @@ Resolved values come from **`cache.profile`** unless you override those fields e
 
 | Change | Behavior |
 |--------|----------|
-| **Target locale only** (e.g. `fr.json`, `*.meta.json`) | Reuse cached scan arrays; refresh **`files.json`** fingerprints only (`--debug-cache`: `analysis rebuild: skipped (target locale only)`). |
+| **Target locale only** (e.g. `fr.json`) | Reuse cached scan arrays; refresh **`files.json`** fingerprints only (`--debug-cache`: `analysis rebuild: skipped (target locale only)`). |
 | **Source locale only** | Re-read source locale segment(s) and recompute **`missingKeys`**; no `src/**` walk. |
 | **Src files only** | Patch `keyObservations` / `dynamicSites` for the delta; recompute **`missingKeys`**. |
 | **Layout fingerprint** | Full project scan (safe default). |

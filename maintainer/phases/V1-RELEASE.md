@@ -15,14 +15,14 @@
 
 ## Recommended v1 sequence (start here after shipped Session C)
 
-Ship **init → locales → cache** on **`@i18nprune/core`** before **translate-cache** and **hosted app** catch-up. **F**, **H**, and cache Phases **0–4** are **shipped**; **active:** **H.1** ([`translate-cache.md`](./translate-cache.md)). Then **C.3+** ([`apps.md`](./apps.md)) → **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**.
+Ship **init → locales → cache → translate-cache** on **`@i18nprune/core`** before **hosted app** catch-up. **F**, **H**, **H-cache**, and **H.1** are **shipped**; **active:** **C.3+** ([`apps.md`](./apps.md)). Then **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**.
 
 | Step | Session | What |
 |------|---------|------|
 | **1** | **F — Init** (**shipped** — core + CLI) | [`init.md`](./init.md) — core-owned detection, presets, generated config |
 | **2** | **H — Locales** (**shipped** — core + CLI) | [`locales.md`](./locales.md) — reader/writer, multi-topology storage |
 | **2a** | **H-cache — Project cache** (**shipped**) | [`cache.md`](./cache.md) — Phases 0–4 (incremental analysis + invalidate policy) |
-| **2b** | **H.1 — Translate cache** (**active**) | [`translate-cache.md`](./translate-cache.md) — L1 + L2 `translations.json` |
+| **2b** | **H.1 — Translate cache** (**shipped**) | [`translate-cache.md`](./translate-cache.md) — L1 + L2 `translations/<code>.json` |
 | **3** | **C.3 — Apps + share** | [`apps.md`](./apps.md) — `apps/web`, `apps/report`, worker, core **`share`**, CLI **`i18nprune share`** |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) — nav trim, SDK quickstart, tree flattening |
 | **5** | **D.2 — Landing** | `apps/landing` — lean onboarding + value proposition |
@@ -56,7 +56,7 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 **Patching / auto-patching.** **User docs:** [`docs/patching/README.md`](../../docs/patching/README.md). Maintainer map: [`maintainer/systems/patching.md`](../systems/patching.md). Delivered: integration tests (core chain + CLI **`patch --fix` → `--patch sync` → `--patch generate`**), shared CLI **`Context` → `runPatching`** wiring (`fromContext.ts`), resolver preservation tests, **`config.json`** injection-status docs, core patching types and barrel layout.
 
-**Next (core):** **H.1 translate cache** ([`translate-cache.md`](./translate-cache.md)). **Hosts:** **C.3+** ([`apps.md`](./apps.md)) after H.1.
+**Next (core):** **C.3+ apps / share** ([`apps.md`](./apps.md)). **Translate cache (H.1):** [`translate-cache.md`](./translate-cache.md) — **shipped**.
 
 ---
 
@@ -96,21 +96,19 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 ---
 
-## Session H.1 — Translate cache (**active**)
+## Session H.1 — Translate cache (**shipped**)
 
 **Docs:** [`translate-cache.md`](./translate-cache.md)
 
-**Goal:** Speed **`generate`**: **L1** in-memory dedupe + **L2** **`translations.json`** beside **`analysis.json`**.
+**Delivered:** **L1** in-process memo + **L2** per-target **`translations/<code>.json`** beside **`analysis.json`**; `cacheHits` on generate progress; startup heal for corrupt translation cache files; port types in `types/translator/cache.ts` (no circular deps). Reuses **`config.cache`** and CLI **`--no-cache`**.
 
-**Policy:** Reuse **`config.cache`** and CLI **`--no-cache`**.
-
-**Dependencies:** **H-cache** Phases 0–4 — **shipped**.
+**Dependencies:** **H-cache** Phases 0–4 — **shipped**. Receipt: [`shipped-slices.md`](./shipped-slices.md).
 
 ---
 
-## Session C.3 — Apps rework (**planned — after F + H**)
+## Session C.3 — Apps rework (**active next**)
 
-**When:** After **Session F (init)** and **Session H (locales)** have shipped the core project-structure and locale-storage contracts **`apps/web`** and **`apps/workers/i18nprune`** depend on. Hosted surfaces are already deployed and working; this session is **catch-up** to the new **`@i18nprune/core`** API, not a blocker for init/locales.
+**When:** After **translate-cache (H.1)** — **shipped**. **Session F (init)** and **Session H (locales)** contracts are in place. Hosted surfaces are **catch-up** to **`@i18nprune/core`**, not a blocker for init/locales.
 
 **Scope:** Update **`apps/web`**, **`apps/report`**, and **`apps/workers/i18nprune`** — imports, types, runtime adapter usage vs **`@i18nprune/core`**. Add **core `share` op** (`packages/core/src/share/`), CLI **`i18nprune share`** (+ `list` / `delete`), worker **`/v1/reports`**, and hosted share links. **`apps/workers/meta`** stays separate unless shared worker tooling changes.
 

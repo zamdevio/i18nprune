@@ -1,7 +1,6 @@
-# Translate cache phase — provider result reuse (**planned**)
+# Translate cache phase — provider result reuse (**shipped**)
 
-**Status:** **Active (H.1)** — cache Phases **0–4** are **shipped** on `main`.  
-**Dependency:** **Locales (H)** and **Cache (H-cache)** — **shipped**.
+**Status:** **Shipped (H.1)** — L1 + per-locale L2 on `main`.
 
 Canonical ordering: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)** · locked chain update in **[`active-phase.md`](./active-phase.md#locked-cross-phase-dependency-chain)**.
 
@@ -22,63 +21,76 @@ Two layers:
 
 ---
 
+## Core layout (shipped L1)
+
+Translation cache lives under the **translator** system (not a top-level op):
+
+| Artifact | Path |
+|----------|------|
+| L1 memo + wrapper | `packages/core/src/translator/cache/` (`l1Memo.ts`, `invokeWithL1.ts`, `resolveL1.ts`, …) |
+| Cache key + epoch | `cacheKey.ts`, `translateConfigEpoch.ts` |
+| Public types | `packages/core/src/types/translator/cache.ts` (barrel: `types/translator/index.ts`) |
+| Generate wiring | `generate/localeTranslate.ts` → `runOrderedTranslateStringJobs`; memo from `runGenerate` |
+
+Barrel: `translator/cache/index.ts` · re-exported from `translator/index.ts`.
+
+Types: `types/translator/cache.ts` (**`TranslateCacheL1Port`**, **`TranslateCacheL2Port`**, disk envelopes) — implementations must not import types from classes (no circular deps).
+
+---
+
 ## On-disk layout (beside project analysis cache)
 
 Existing project cache dir (core: `packages/core/src/cache/setup/paths.ts`):
 
 ```txt
 ~/.i18nprune/cache/projects/<projectId>/
-├── files.json          # input fingerprint index (must include all locale segments after H)
-├── analysis.json       # key-site scan slot (existing)
-└── translations.json   # NEW — L2 translation result store (this phase)
+├── files.json          # input fingerprint index (all locale segments)
+├── analysis.json       # key-site scan slot
+└── translations/       # L2 per-target translation cache (generate)
+    └── <code>.json     # one file per target locale
 ```
 
-**Rule:** `translations.json` is a **sibling** of `analysis.json` under the same `projectDir`, governed by the same project cache enablement and invalidation epoch as other slots. See **[`cache.md`](./cache.md)** for analysis rebuild policy (`cache.rebuild`, partial patch).
-
-Optional future: shard `translations/` directory if payload size exceeds **`cache` oversize** guards — v1 may start with a single `translations.json` and split only if needed.
-
----
-
-## Shared cache policy (no second config surface)
-
-Translation cache **reuses** the existing project cache policy — **no** separate `translate.cache` block in v1.
-
-| Control | Applies to L2 | Applies to L1 |
-|---------|---------------|---------------|
-| `config.cache.enabled === false` | Bypass read/write | In-memory may still run (cheap); optionally bypass for consistency — **default: L1 allowed when disk cache disabled** |
-| `config.cache.mode === 'readOnly'` | Read hits; no writes | Unaffected |
-| CLI/global `--no-cache` | Bypass (same as `cli_no_cache`) | Same host flag; recommend bypass L1 when `--no-cache` for predictable “cold run” |
-| `config.cache.dir` | Same root / `projectDir` | N/A |
-| Cache disable reasons (`project_root_missing`, `cache_dir_unavailable`, …) | Same graceful disable | N/A |
-| `CoreContext.cache` / `baselineFiles` | Share **`files.json`** epoch for invalidation | N/A |
-
-Hosts continue to wire **`initializeCacheState`** / **`CacheRuntime`**; generate (and resume) consult translation cache inside **`translateLeaf`** orchestration or a thin wrapper used only from generate paths.
-
-**Schema doc update (this phase):** extend `cacheSchema` `.describe()` in `packages/core/src/config/schema/root.ts` to state that **`cache` also governs translation result persistence** — behavior only; no new keys required for v1.
+**Rule:** `translations/<code>.json` files live under the same `projectDir` as `analysis.json`, governed by the same project cache enablement and `inputFilesEpoch` invalidation. See **[`cache.md`](./cache.md)** for analysis rebuild policy.
 
 ---
 
 ## Cache key (L2 entry identity)
 
-Entries are keyed by a stable digest of **translation inputs**, not by locale leaf path (same English string in two segment files → one cache entry).
+Entries are keyed by a stable digest of **translation inputs**, not by locale leaf path (same English string in two keys → one cache entry **per target file**).
 
-**Include in digest:**
+**Include in digest (per `translations/<target>.json`):**
 
-- Masked source text (post-`mask()`, pre-provider) — same pipeline as **`translateLeaf`**
-- `sourceLang`, `targetLang`
-- Active `providerId` (and provider-specific options epoch when model/prompt affects output)
-- **`translateConfigEpoch`** — hash of relevant `config.translate` fields (provider order, model ids, glossary flags, …)
+- Masked source text (post-`mask()`, pre-provider)
+- `sourceLang`
+- Active `providerId` and **`translateConfigEpoch`**
+
+**Implied by filename (not in digest):** `targetLang`
 
 **Exclude from digest:**
 
-- `segmentRelativePath`, `logicalPath` (leaf placement is a write concern; cache is text-level)
-- Target locale file path
+- `segmentRelativePath`, `logicalPath`
+- Target locale file path on disk
 
 **Invalidate L2 when:**
 
-- `files.json` delta changes any tracked locale segment or source locale content (after locales phase: all segments under `locales.directory`)
+- `files.json` delta changes any tracked locale segment or source locale content (all segments under `locales.directory`)
 - `translateConfigEpoch` changes
-- Explicit bypass: `generate --force`, host “no translation cache” debug flag (if added), `--no-cache`
+- Explicit bypass: `generate --force` (skip L2 reads), `--no-cache` (skip L1 + L2)
+
+---
+
+## Shared cache policy (no second config surface)
+
+Translation cache **reuses** the existing project cache policy — no separate `translate.cache` block.
+
+| Control | Applies to L2 | Applies to L1 |
+|---------|---------------|---------------|
+| `config.cache.enabled === false` | Bypass read/write | L1 still runs (in-process dedupe) |
+| `config.cache.mode === readOnly` | Read hits; no writes | Unaffected |
+| CLI/global `--no-cache` | Bypass | Bypass |
+| Cache disable reasons (`project_root_missing`, …) | Graceful disable | N/A |
+
+Hosts wire **`initializeCacheState`** / **`CacheRuntime`**; generate opens L2 per target and flushes in `finally`.
 
 ---
 
@@ -99,6 +111,8 @@ Entries are keyed by a stable digest of **translation inputs**, not by locale le
 {
   version: number;
   updatedAt: string;
+  targetLang: string;
+  inputFilesEpoch: string;
   translateConfigEpoch: string;
   entries: Record<digest, {
     text: string;
@@ -137,14 +151,22 @@ See [`locales.md` § Risks](./locales.md#risks) — disk cache fingerprinting it
 | # | Task | Status |
 |---|------|--------|
 | 0 | Locales phase: segment-aware `files.json` / `buildCurrentFileRecords` | **Done** (locales **H** + cache index) |
-| 1 | `CacheState.translationsPath` + path resolution beside `analysis.json` | **Todo** |
-| 2 | `translateConfigEpoch` helper + unit tests | **Todo** |
-| 3 | L1 per-run memo in generate translation pool | **Todo** |
-| 4 | L2 `translations.json` load/save + invalidation vs `files.json` epoch | **Todo** |
-| 5 | Wire lookup/write in `translateLeaf` or generate-only wrapper | **Todo** |
-| 6 | Respect `cache.enabled`, `cache.mode`, `--no-cache`; bypass on `--force` | **Todo** |
-| 7 | Tests: hit/miss, stale after source edit, readOnly, no-cache, config disable | **Todo** |
-| 8 | Maintainer + user docs (`docs/cache/`, generate README) | **Todo** |
+| 1 | `CacheState.translationsDir` + per-locale `translations/<code>.json` | **Done** |
+| 2 | `translateConfigEpoch` helper + unit tests | **Done** |
+| 3 | L1 per-run memo in generate translation pool | **Done** |
+| 4 | L2 per-locale load/save + invalidation vs `files.json` epoch | **Done** |
+| 5 | Wire lookup/write in generate cache wrapper (`translateLeafWithGenerateCache`) | **Done** |
+| 6 | Respect `cache.enabled`, `cache.mode`, `--no-cache`; bypass L2 reads on `--force` | **Done** |
+| 7 | Tests: hit/miss, stale epoch, L2 wrapper | **Done** (core unit tests) |
+| 8 | User docs (`docs/cli/cache.md` translation section) | **Done** |
+| 9 | Startup heal: drop malformed/oversize `translations/*.json` in `prepareCacheForRun` | **Done** |
+| 10 | Port types in `types/translator/cache.ts` (no types→impl circular deps) | **Done** |
+
+**Stability contract (shipped):**
+
+- Lookup order fixed: **L1 → L2 → provider**; failures never cached.
+- Epoch mismatch or corrupt locale file → treat as miss; **`healTranslationCacheFiles`** deletes bad files at cache prep (same pattern as `analysis.json` / `files.json`).
+- `--no-cache` bypasses L1+L2; `cache.enabled: false` disables L2 only; `readOnly` skips L2 writes; `--force` skips L2 reads.
 
 **PR slice discipline:** L1 alone is acceptable first PR after locales; L2 + invalidation second; docs third.
 

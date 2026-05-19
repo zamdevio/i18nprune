@@ -1,10 +1,7 @@
 import {
-  ENV_I18NPRUNE_GENERATE_DIRECTION,
   ENV_I18NPRUNE_GENERATE_DRY_RUN,
-  ENV_I18NPRUNE_GENERATE_ENGLISH_NAME,
   ENV_I18NPRUNE_GENERATE_FORCE,
   ENV_I18NPRUNE_GENERATE_LANG,
-  ENV_I18NPRUNE_GENERATE_NATIVE_NAME,
 } from '@/constants/env.js';
 import type { GenerateOptions } from '@/types/command/generate/index.js';
 
@@ -17,12 +14,6 @@ export function mergeGenerateOptionsFromEnv(opts: GenerateOptions): GenerateOpti
   const e = process.env;
   const out: GenerateOptions = { ...opts };
   if (e[ENV_I18NPRUNE_GENERATE_LANG]) out.target = e[ENV_I18NPRUNE_GENERATE_LANG];
-  if (e[ENV_I18NPRUNE_GENERATE_ENGLISH_NAME]) out.englishName = e[ENV_I18NPRUNE_GENERATE_ENGLISH_NAME];
-  if (e[ENV_I18NPRUNE_GENERATE_NATIVE_NAME]) out.nativeName = e[ENV_I18NPRUNE_GENERATE_NATIVE_NAME];
-  const dir = e[ENV_I18NPRUNE_GENERATE_DIRECTION];
-  if (dir === 'ltr' || dir === 'rtl') {
-    out.direction = dir;
-  }
   if (truthy(e[ENV_I18NPRUNE_GENERATE_FORCE])) out.force = true;
   if (truthy(e[ENV_I18NPRUNE_GENERATE_DRY_RUN])) out.dryRun = true;
   return out;

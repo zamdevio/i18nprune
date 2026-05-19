@@ -2,6 +2,7 @@ import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
 import type { CacheProjectsIndex, CacheRuntime, CacheState, CacheWarning } from '../../types/cache/index.js';
 import { loadProjectsIndex, maybeHealCacheIndex, saveProjectsIndex, touchProjectIndex } from '../io/projects.js';
 import { loadProjectFilesState, loadProjectRunState } from '../io/state.js';
+import { prepareTranslationCacheLayout } from '../../translator/cache/maintenance.js';
 import { tryDeleteCacheFile } from './policy.js';
 
 /**
@@ -42,6 +43,7 @@ export function prepareCacheForRun(
   warnings.push(...fileState.warnings);
   const analysisState = loadProjectRunState(state, runtime);
   warnings.push(...analysisState.warnings);
+  warnings.push(...prepareTranslationCacheLayout(state, runtime));
 
   const hasInvalidFiles = fileState.warnings.some((w) => w.code === 'cache_malformed' || w.code === 'cache_oversize');
   const hasInvalidAnalysis = analysisState.warnings.some((w) => w.code === 'cache_malformed' || w.code === 'cache_oversize');

@@ -29,5 +29,6 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 | **Cache profiles** — `cache.profile` safe/balanced/fast, `resolveCacheConfig`, `--cache-profile`, init `--rich` template | Shipped (core + CLI) | [`docs/cli/cache.md`](../../docs/cli/cache.md) § Cache profiles |
 | **Cache locale-aware rebuild (Phase 2)** — target-only reuse, source-only `missingKeys` patch, `readSourceLocaleLeavesForMissing`, leaf-based missing keys | Shipped (core) | [`cache.md`](./cache.md) · [`docs/cli/cache.md`](../../docs/cli/cache.md) |
 | **Cache invalidate policy (Phase 4)** — skip `analysis.json` delete after target-only sync/generate; `decideProjectAnalysisCacheInvalidation`; `--debug-cache` invalidation line | Shipped (core + CLI) | [`cache.md`](./cache.md) § Phase 4 |
+| **Translate-cache (H.1)** — L1 memo + L2 `translations/<code>.json`; `cacheHits` progress; startup heal; port types in `types/translator/cache.ts` | Shipped (core + CLI) | [`translate-cache.md`](./translate-cache.md) · [`docs/cli/cache.md`](../../docs/cli/cache.md) |
 
-**Next vertical:** **[`translate-cache.md`](./translate-cache.md)** (H.1) → **[`apps.md`](./apps.md)** (C.3+). Hub: **[`V1-RELEASE.md`](./V1-RELEASE.md)**.
+**Next vertical:** **[`apps.md`](./apps.md)** (C.3+). Hub: **[`V1-RELEASE.md`](./V1-RELEASE.md)**.

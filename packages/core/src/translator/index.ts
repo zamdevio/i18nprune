@@ -10,5 +10,6 @@ export * from './identity/index.js';
 export * from './limits/index.js';
 export * from './policy/index.js';
 export * from './providers/index.js';
+export * from './cache/index.js';
 export { runTranslate } from './run.js';
 export { createTranslateContext, type TranslateContext } from './context.js';

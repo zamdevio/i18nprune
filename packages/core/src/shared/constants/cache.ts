@@ -27,6 +27,8 @@ export const CACHE_PROFILE_DEFAULTS: Record<CacheProfileId, CacheProfileDefaults
 
 /** On-disk project scan cache (`analysis.json`). */
 export const ANALYSIS_BASENAME = 'analysis.json';
+/** Per-target translation cache directory (`translations/<code>.json`). */
+export const TRANSLATIONS_DIR = 'translations';
 
 /** Size guard for the global `meta.json` projects index. */
 export const MAX_PROJECTS_INDEX_BYTES = 2 * 1024 * 1024; // 2 MiB
@@ -34,6 +36,8 @@ export const MAX_PROJECTS_INDEX_BYTES = 2 * 1024 * 1024; // 2 MiB
 export const MAX_PROJECT_FILES_BYTES = 32 * 1024 * 1024; // 32 MiB
 /** Size guard for a project's `analysis.json` run envelope. */
 export const MAX_ANALYSIS_BYTES = 16 * 1024 * 1024; // 16 MiB
+/** Size guard for a project's per-locale `translations/<code>.json` file. */
+export const MAX_TRANSLATIONS_CACHE_BYTES = 32 * 1024 * 1024; // 32 MiB
 
 /** How many runs between automatic self-heal sweeps of the meta index. */
 export const DEFAULT_HEAL_EVERY_RUNS = 20;

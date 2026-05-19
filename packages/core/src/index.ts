@@ -116,7 +116,8 @@ export type {
 } from './namespaces/translator.js';
 
 export { createCoreContext, translateContextFromCore } from './generate/context.js';
-export { runGenerate, resolveGenerateDirectionDefault } from './generate/run.js';
+export { runGenerate } from './generate/run.js';
+export { resolveGenerateLocaleDisplay, resolveLocaleDirection } from './shared/languages/resolveGenerateLocaleDisplay.js';
 export type { CoreContext, CoreResolvedPaths } from './types/context/index.js';
 export type {
   GenerateHostHooks,

@@ -35,7 +35,7 @@ There is **no** global SIGINT handler on the root **`packages/cli/bin/cli.ts`**;
 
 ### `generate` (non-interactive & catalog)
 
-When prompts are skipped, **`generate`** requires **`--lang`**. The code must exist in the bundled **`languages.json`** catalog; otherwise the command **fails with a non-zero exit** and an error that suggests **`i18nprune languages`**. For valid codes, **English** and **native** labels default from the catalog unless overridden by flags. **Direction** defaults to **`ltr`**; the catalog does not store direction yet — use **`--direction rtl`** for RTL. See [commands/generate](../commands/generate/README.md). Maintainer sequencing is named only in [Roadmap](../roadmap/README.md) (hub path **`maintainer/phases/V1-RELEASE.md`** in repo — not linked from **`docs/`** bodies).
+When prompts are skipped, **`generate`** requires **`--target`**. Valid codes use the bundled **`languages.json`** catalog for display labels and direction in progress output. See [commands/generate](../commands/generate/README.md).
 
 ## Warnings vs errors
 

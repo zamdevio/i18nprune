@@ -5,6 +5,7 @@ import {
 } from '../shared/locales/leaves/index.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { buildTranslatedLocaleFromSourceLeaves } from './localeTranslate.js';
+import type { GenerateTranslateCache } from '../types/translator/cache.js';
 import { ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
 import type { LocaleMetadataReport } from '../types/locales/leaves/index.js';
@@ -31,6 +32,8 @@ export async function translateAndNormalizeGenerateLocale(input: {
   force: boolean;
   provider: Translator;
   providerId: TranslationProviderId;
+  /** BCP-47-ish source tag passed to **`translateLeaf`** (default **`en`**). */
+  sourceLang?: string;
   targetLang: string;
   sourceMap: Map<string, string>;
   tickProgress: TranslationTickProgressFn;
@@ -40,6 +43,8 @@ export async function translateAndNormalizeGenerateLocale(input: {
   maxParallelTranslates?: number;
   /** Optional translate request pacing limits (rpm/rps/intervalMs). */
   rateLimit?: TranslateStartRateLimit;
+  /** Per-run L1 memo; omitted when host bypassed cache (`--no-cache`). */
+  translationCache?: GenerateTranslateCache;
 }): Promise<{
   preserveCount: number;
   paritySkip: number;
@@ -49,12 +54,7 @@ export async function translateAndNormalizeGenerateLocale(input: {
   report: LocaleMetadataReport;
   modeDecision: ReturnType<typeof resolveLocaleLeafMode>;
   issues: Issue[];
-  translateStats: {
-    requestAttempts: number;
-    retriesMade: number;
-    successfulLeaves: number;
-    failedRequests: number;
-  };
+  translateStats: TranslateRunPartialStats;
   markedForReview: number;
 }> {
   const modeDecision = resolveLocaleLeafMode(input.localeLeafResolve);
@@ -69,7 +69,9 @@ export async function translateAndNormalizeGenerateLocale(input: {
     provider: input.provider,
     persistStructuredLeafMetadata: modeDecision.mode === 'structured',
     providerId: input.providerId,
+    sourceLang: input.sourceLang,
     targetLang: input.targetLang,
+    translationCache: input.translationCache,
     tickProgress: input.tickProgress,
     onTranslatedLeaf: input.onTranslatedLeaf,
     maxParallelTranslates: input.maxParallelTranslates,

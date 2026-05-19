@@ -44,6 +44,7 @@ function fixtureContext(): Context {
         projectDir: '',
         filesPath: '',
         analysisPath: '',
+        translationsDir: '',
         readOnly: false,
       },
     },

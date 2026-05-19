@@ -10,12 +10,6 @@ export type GenerateOptions = {
   source?: string;
   /** Preferred alias for locale targets (single code or comma-separated list). */
   target?: string;
-  /** English display label override; default from the languages catalog for `--target` when omitted. */
-  englishName?: string;
-  /** Native endonym override; default from the languages catalog for `--target` when omitted. */
-  nativeName?: string;
-  /** Layout direction for consumers (`document.dir`); default `ltr`. */
-  direction?: 'ltr' | 'rtl';
   /** Skip “already complete” prompt and re-translate (also `I18NPRUNE_GENERATE_FORCE`). */
   force?: boolean;
   /** Skip actual translation and only validate the target locales. */

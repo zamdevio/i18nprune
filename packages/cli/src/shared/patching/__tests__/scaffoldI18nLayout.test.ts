@@ -48,6 +48,7 @@ function makeContext(root: string): Context {
         projectDir: '',
         filesPath: '',
         analysisPath: '',
+        translationsDir: '',
         readOnly: false,
       },
     },

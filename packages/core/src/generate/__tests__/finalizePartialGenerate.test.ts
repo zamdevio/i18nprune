@@ -27,6 +27,7 @@ describe('finalizePartialTranslatedLocaleForGenerate', () => {
         retriesMade: 0,
         successfulLeaves: 1,
         failedRequests: 0,
+        cacheHits: 0,
       },
     });
     expect(r.issues.some((i) => i.code === ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES)).toBe(true);

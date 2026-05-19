@@ -1,10 +1,10 @@
 # Project cache phase — disk index + analysis rebuild (**shipped — Phases 0–4**)
 
-**Status:** Phases **0–4** are **shipped** (core + CLI). **Deferred:** Phase 5 (`translations.json` → [`translate-cache.md`](./translate-cache.md); worker segment index → locales follow-up).  
+**Status:** Phases **0–4** are **shipped** (core + CLI). **Deferred:** worker segment index → locales follow-up. **Translate cache L2:** **shipped** in [`translate-cache.md`](./translate-cache.md) (H.1).  
 **Public user docs:** [`docs/cli/cache.md`](../../docs/cli/cache.md).  
-**Related:** [`locales.md`](./locales.md) · [`translate-cache.md`](./translate-cache.md) (**H.1**, next) · [`apps.md`](./apps.md) (**C.3+**, after H.1).
+**Related:** [`locales.md`](./locales.md) · [`translate-cache.md`](./translate-cache.md) (**shipped**) · [`apps.md`](./apps.md) (**C.3+**, active next)
 
-**For agents (zero chat context):** Phases 0–4 are **done** — see [`shipped-slices.md`](./shipped-slices.md). Next vertical: [`translate-cache.md`](./translate-cache.md).
+**For agents (zero chat context):** Phases 0–4 and **H.1 translate cache** are **done** — see [`shipped-slices.md`](./shipped-slices.md). **Next vertical:** [`apps.md`](./apps.md).
 
 ---
 
@@ -213,7 +213,7 @@ Use existing extractors — **no new detection algorithms** (`scanProjectKeyObse
 | Item | Doc |
 |------|-----|
 | Worker/web segment index convergence | [`locales.md` § After row 10](./locales.md#after-row-10-same-pattern--not-in-row-10-pr) — align hosted snapshot with `localeSegments` keys |
-| Translate cache L2 | [`translate-cache.md`](./translate-cache.md) — `translations.json` beside `analysis.json`; uses `inputFilesEpoch` |
+| Translate cache L2 | [`translate-cache.md`](./translate-cache.md) — **shipped** — `translations/<code>.json`; uses `inputFilesEpoch` |
 | Optional cached `sourceLeafKeys` index | Only if profiling shows JSON re-read dominates |
 
 ---
@@ -300,7 +300,7 @@ flowchart TD
 | Phase 3 — profiles + `cache.rebuild` + threshold | **Done** |
 | Phase 4 — invalidate cleanup | **Done** |
 | Phase 5 — worker/web segment index | **Deferred** → [`locales.md`](./locales.md) |
-| Phase 5 — `translations.json` (L2) | **Deferred** → [`translate-cache.md`](./translate-cache.md) |
+| Phase 5 — `translations/` L2 (translate cache) | **Shipped** → [`translate-cache.md`](./translate-cache.md) |
 
 ---
 

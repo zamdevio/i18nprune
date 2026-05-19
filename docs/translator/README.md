@@ -43,9 +43,9 @@ The codebase already has a **single** `translateLeaf` entry point. The **next** 
 ## 4. Data flow: `generate`
 
 1. **Argv** → global **`RunOptions`** + **`mergeGenerateOptionsFromEnv`**.
-2. **`--lang`** — required if prompts are skipped (`canPromptGenerate`); else **catalog** validation + meta defaults.
+2. **`--lang`** — required if prompts are skipped (`canPromptGenerate`); else **catalog** validation.
 3. **Loop** — preserve / parity / dry-run / translate branches; **`session.progress.tick`** for each leaf.
-4. **Writes** — `writeJsonFile` target + optional `.meta.json`.
+4. **Writes** — `writeLocaleJsonFromContextSync` for **`<target>.json`** only (no locale sidecar files).
 5. **Failure** — `translateLeaf` throws → command exits via **`reportCliError`** (ensure **`session.fail()`** on error paths).
 
 ---

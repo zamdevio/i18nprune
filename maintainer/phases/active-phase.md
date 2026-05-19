@@ -2,11 +2,11 @@
 
 **v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** — use first for sequencing.
 
-**Locked vertical order (extractor → init → locales → cache → translate-cache → apps → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below. **Init (F)** and **Locales (H)** are **shipped**. **Cache (Phases 0–4)** is **shipped**. **Active next:** **[`translate-cache.md`](./translate-cache.md)** (H.1) — then **[`apps.md`](./apps.md)** (C.3+).
+**Locked vertical order (extractor → init → locales → cache → translate-cache → apps → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below. **Init (F)**, **Locales (H)**, **Cache (Phases 0–4)**, and **Translate-cache (H.1)** are **shipped**. **Active next:** **[`apps.md`](./apps.md)** (C.3+).
 
-**Narrative focus:** **translate-cache (H.1)** → **apps / share (C.3+)** per [`apps.md`](./apps.md) → **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
+**Narrative focus:** **apps / share (C.3+)** per [`apps.md`](./apps.md) → **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
 
-**Verticals:** **[`init.md`](./init.md)** (**shipped**) → **[`locales.md`](./locales.md)** (**shipped**) → **[`cache.md`](./cache.md)** (**shipped**) → **[`translate-cache.md`](./translate-cache.md)** (**active next**) → **[`apps.md`](./apps.md)** → **docs (D)** — extension per **[`extension/README.md`](./extension/README.md)**.
+**Verticals:** **[`init.md`](./init.md)** (**shipped**) → **[`locales.md`](./locales.md)** (**shipped**) → **[`cache.md`](./cache.md)** (**shipped**) → **[`translate-cache.md`](./translate-cache.md)** (**shipped**) → **[`apps.md`](./apps.md)** (**active next**) → **docs (D)** — extension per **[`extension/README.md`](./extension/README.md)**.
 
 ---
 
@@ -25,9 +25,9 @@ locales          (shipped — Session H)
     ↓
 cache            (shipped — cache.md Phases 0–4)
     ↓
-translate-cache  (H.1 active next — translations.json; translate-cache.md)
+translate-cache  (shipped — translations/<code>.json; translate-cache.md)
     ↓
-apps             (C.3+ — share op + hosted catch-up; apps.md)
+apps             (C.3+ active next — share op + hosted catch-up; apps.md)
     ↓
 extension
 ```
@@ -38,8 +38,8 @@ extension
 | **init** | Best-in-class onboarding: **core-owned** detection + preset/config generation; **CLI and extension are hosts only**. **Session F shipped** (core + CLI); extension init UI remains planned. **Config schema** + preset model are the contract **locales** builds on. | [`init.md`](./init.md) |
 | **locales** | Multi-topology locale **storage** via **reader/writer**; **normalized locale surface** for ops. **Shipped** (Session **H**). Design reference: [`locales.md`](./locales.md). | [`locales.md`](./locales.md) |
 | **cache** | **`files.json`** + **`analysis.json`**; incremental rebuild + profiles + Phase 4 invalidation **shipped** — [`cache.md`](./cache.md). | [`cache.md`](./cache.md) |
-| **translate-cache** | L1 + L2 **`translations.json`** beside **`analysis.json`**; same **`config.cache`**. **Active next** (Session **H.1**). | [`translate-cache.md`](./translate-cache.md) |
-| **apps** | **`apps/web`**, **`apps/report`**, worker; core **`share`** op + CLI **`i18nprune share`**. **After H.1** (or parallel planning). | [`apps.md`](./apps.md) |
+| **translate-cache** | L1 + L2 **`translations/<code>.json`** beside **`analysis.json`**; same **`config.cache`**. **Shipped** (Session **H.1**). | [`translate-cache.md`](./translate-cache.md) |
+| **apps** | **`apps/web`**, **`apps/report`**, worker; core **`share`** op + CLI **`i18nprune share`**. **Active next** (C.3+). | [`apps.md`](./apps.md) |
 | **extension** | Hosts core APIs only — **no parallel scan truth**. | [`extension/README.md`](./extension/README.md) |
 
 ### Responsibilities (one sentence each)
@@ -117,8 +117,8 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **Init phase (onboarding)** | **Shipped — Session F** (core + CLI; extension host I1–I3 in [`extension/README.md`](./extension/README.md)) | [`init.md`](./init.md) |
 | **Locales phase (multi-topology)** | **Shipped — Session H** (rows 0–10) | [`locales.md`](./locales.md) |
 | **Project cache (analysis incremental)** | **Shipped — Phases 0–4** | [`cache.md`](./cache.md) |
-| **Translate cache** | **Active next — H.1** | [`translate-cache.md`](./translate-cache.md) |
-| **Apps catch-up (web + report + worker + share)** | **Planned — C.3+** (after H.1; plan in [`apps.md`](./apps.md)) | [`apps.md`](./apps.md) |
+| **Translate cache** | **Shipped — H.1** | [`translate-cache.md`](./translate-cache.md) |
+| **Apps catch-up (web + report + worker + share)** | **Active next — C.3+** (plan in [`apps.md`](./apps.md)) | [`apps.md`](./apps.md) |
 | **Patching hardening** | **Shipped** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |
 

@@ -2,8 +2,10 @@ import { getAtPath, setAtPath } from '../shared/json/index.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { isParityExcluded } from '../policies/parity.js';
 import { isPreservePath } from '../policies/preserve.js';
-import { localeJsonValueFromTranslation, translateLeaf } from '../shared/translator/index.js';
+import { localeJsonValueFromTranslation } from '../shared/translator/index.js';
 import { localePathLooksTranslatedFromSource } from '../shared/translator/localePathTranslated.js';
+import type { GenerateTranslateCache } from '../types/translator/cache.js';
+import { translateLeafWithGenerateCache } from '../translator/cache/index.js';
 import { runTranslateLeafPoolOrderedSequential } from '../shared/translator/utils/translateLeafPoolOrderedSequential.js';
 import { TranslateRunInterruptedError } from '../translator/errors/interrupted.js';
 import { isResumeCandidateLeaf } from './resume/eligibleResumeLeaves.js';
@@ -17,6 +19,8 @@ import type { TranslateStartRateLimit } from '../types/translator/rateLimit.js';
 import type { TranslationSurfaceLeaf } from '../types/locales/leaves/index.js';
 import type { EffectiveReferenceConfig } from '../types/reference/index.js';
 import type { GenerateResumeRefContext } from '../types/generate/resumeCandidates.js';
+import type { TranslateCacheHitLayer } from '../types/translator/cache.js';
+import type { TranslateRunPartialStats } from '../types/translator/runStats.js';
 
 type GenerateLeafRow =
   | { k: 'preserve' }
@@ -64,7 +68,9 @@ async function runOrderedTranslateStringJobs<TKey extends number | string>(input
   rateLimit?: TranslateStartRateLimit;
   provider: Translator;
   providerId: TranslationProviderId;
+  sourceLang: string;
   targetLang: string;
+  translationCache?: GenerateTranslateCache;
   tickProgress: TranslationTickProgressFn;
   onTranslatedLeaf?: (sourceText: string, translatedText: string, path: string) => Promise<void> | void;
   /** After each serial **`translateLeaf`** (e.g. full-generate **`tryAdvance`** or resume bar tick). */
@@ -76,21 +82,44 @@ async function runOrderedTranslateStringJobs<TKey extends number | string>(input
   retriesMade: number;
   successfulLeaves: number;
   markedForReview: number;
+  cacheHits: number;
 }> {
   const { trByKey } = input;
   let requestAttempts = 0;
   let retriesMade = 0;
   let successfulLeaves = 0;
   let markedForReview = 0;
-  const record = (tr: TranslationResult): void => {
-    requestAttempts += tr.runtime?.attempts ?? 1;
-    retriesMade += tr.runtime?.retries ?? 0;
+  let cacheHits = 0;
+  const record = (tr: TranslationResult, cacheHit: TranslateCacheHitLayer): void => {
+    if (cacheHit !== false) {
+      cacheHits += 1;
+    } else {
+      requestAttempts += tr.runtime?.attempts ?? 1;
+      retriesMade += tr.runtime?.retries ?? 0;
+    }
     successfulLeaves += 1;
     if (tr.decision === 'review') markedForReview += 1;
   };
 
+  const translateJob = async (
+    job: OrderedTranslateStringJob<TKey>,
+    onTranslated?: (sourceText: string, translatedText: string) => Promise<void> | void,
+  ): Promise<TranslationResult> => {
+    const { result, cacheHit } = await translateLeafWithGenerateCache({
+      translationCache: input.translationCache,
+      provider: input.provider,
+      sourceText: job.value,
+      sourceLang: input.sourceLang,
+      targetLang: input.targetLang,
+      providerId: input.providerId,
+      onTranslated,
+    });
+    record(result, cacheHit);
+    return result;
+  };
+
   if (input.jobs.length === 0) {
-    return { requestAttempts, retriesMade, successfulLeaves, markedForReview };
+    return { requestAttempts, retriesMade, successfulLeaves, markedForReview, cacheHits };
   }
 
   const waitForRateWindow = createTranslateRateWindowLimiter(input.rateLimit);
@@ -100,14 +129,10 @@ async function runOrderedTranslateStringJobs<TKey extends number | string>(input
     for (let ji = 0; ji < input.jobs.length; ji++) {
       const job = input.jobs[ji]!;
       await waitForRateWindow();
-      const tr = await translateLeaf(input.provider, job.value, 'en', input.targetLang, {
-        providerId: input.providerId,
-        onTranslated: async (sourceText, translatedText) => {
-          await input.onTranslatedLeaf?.(sourceText, translatedText, job.path);
-        },
+      const tr = await translateJob(job, async (sourceText, translatedText) => {
+        await input.onTranslatedLeaf?.(sourceText, translatedText, job.path);
       });
       trByKey.set(job.key, tr);
-      record(tr);
       await input.afterEachSerial?.({ jobIndex: ji, job });
     }
   } else {
@@ -118,21 +143,18 @@ async function runOrderedTranslateStringJobs<TKey extends number | string>(input
       rateLimit: input.rateLimit,
       getPath: (j) => j.path,
       translateItem: async (j) =>
-        await translateLeaf(input.provider, j.value, 'en', input.targetLang, {
-          providerId: input.providerId,
-        }),
+        await translateJob(j),
       tickProgress: input.tickProgress,
       poolTotal,
       onSequential: async (j, _ord, tr) => {
         trByKey.set(j.key, tr);
-        record(tr);
         await input.onTranslatedLeaf?.(j.value, tr.text, j.path);
         await input.afterEachParallelSequential?.();
       },
     });
   }
 
-  return { requestAttempts, retriesMade, successfulLeaves, markedForReview };
+  return { requestAttempts, retriesMade, successfulLeaves, markedForReview, cacheHits };
 }
 
 /**
@@ -151,7 +173,11 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
   /** When true, write `{ value, status, … }` leaves using merged {@link translateLeaf} metadata. */
   persistStructuredLeafMetadata: boolean;
   providerId: TranslationProviderId;
+  /** BCP-47-ish source tag passed to **`translateLeaf`** (default **`en`**). */
+  sourceLang?: string;
   targetLang: string;
+  /** Per-run L1 memo; omitted when host bypassed cache (`--no-cache`). */
+  translationCache?: GenerateTranslateCache;
   /** Max in-flight **`translateLeaf`** calls; **1** keeps serial semantics (default). */
   maxParallelTranslates?: number;
   rateLimit?: TranslateStartRateLimit;
@@ -163,12 +189,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
   paritySkip: number;
   /** Leaf paths whose source **value** was whitespace-only — copied without calling the translator. */
   emptySourceLeafPaths: readonly string[];
-  translateStats: {
-    requestAttempts: number;
-    retriesMade: number;
-    successfulLeaves: number;
-    failedRequests: number;
-  };
+  translateStats: TranslateRunPartialStats;
   /** Count of translated leaves classified as review-needed by policy/meta pipeline. */
   markedForReview: number;
 }> {
@@ -236,7 +257,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
   let retriesMade = 0;
   let successfulLeaves = 0;
   let markedForReview = 0;
-
+  let cacheHits = 0;
   const tick = (leafIndex: number, path: string): void => {
     input.tickProgress(leafIndex + 1, total, path);
   };
@@ -344,7 +365,9 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
         rateLimit: input.rateLimit,
         provider: input.provider,
         providerId: input.providerId,
+        sourceLang: input.sourceLang ?? 'en',
         targetLang: input.targetLang,
+        translationCache: input.translationCache,
         tickProgress: input.tickProgress,
         onTranslatedLeaf: input.onTranslatedLeaf,
         afterEachSerial: async () => {
@@ -358,6 +381,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
       retriesMade += ran.retriesMade;
       successfulLeaves += ran.successfulLeaves;
       markedForReview += ran.markedForReview;
+      cacheHits += ran.cacheHits;
     }
 
     while (wal < total) {
@@ -372,6 +396,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
         retriesMade,
         successfulLeaves,
         failedRequests: Math.max(0, requestAttempts - successfulLeaves),
+        cacheHits,
       },
     });
   }
@@ -386,6 +411,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
       retriesMade,
       successfulLeaves,
       failedRequests: Math.max(0, requestAttempts - successfulLeaves),
+      cacheHits,
     },
     markedForReview,
   };
@@ -479,22 +505,21 @@ export async function translateResumeCandidateLeaves(input: {
   parity?: ParityPolicy;
   provider: Translator;
   providerId: TranslationProviderId;
+  /** BCP-47-ish source tag passed to **`translateLeaf`** (default **`en`**). */
+  sourceLang?: string;
   persistStructuredLeafMetadata: boolean;
   target: string;
   dryRun: boolean;
   maxParallelTranslates?: number;
   rateLimit?: TranslateStartRateLimit;
+  /** Per-run L1 memo; omitted when host bypassed cache (`--no-cache`). */
+  translationCache?: GenerateTranslateCache;
   tickProgress: TranslationTickProgressFn;
   onTranslatedLeaf?: (sourceText: string, translatedText: string, path: string) => Promise<void> | void;
 }): Promise<{
   next: unknown;
   changed: number;
-  translateStats: {
-    requestAttempts: number;
-    retriesMade: number;
-    successfulLeaves: number;
-    failedRequests: number;
-  };
+  translateStats: TranslateRunPartialStats;
   markedForReview: number;
 }> {
   const maxParallel = Math.max(1, Math.min(64, Math.floor(input.maxParallelTranslates ?? 1)));
@@ -543,6 +568,7 @@ export async function translateResumeCandidateLeaves(input: {
         retriesMade: 0,
         successfulLeaves: 0,
         failedRequests: 0,
+        cacheHits: 0,
       },
       markedForReview: 0,
     };
@@ -553,6 +579,7 @@ export async function translateResumeCandidateLeaves(input: {
   let retriesMade = 0;
   let successfulLeaves = 0;
   let markedForReview = 0;
+  let cacheHits = 0;
 
   try {
     if (jobs.length > 0) {
@@ -569,7 +596,9 @@ export async function translateResumeCandidateLeaves(input: {
         rateLimit: input.rateLimit,
         provider: input.provider,
         providerId: input.providerId,
+        sourceLang: input.sourceLang ?? 'en',
         targetLang: input.target,
+        translationCache: input.translationCache,
         tickProgress: input.tickProgress,
         onTranslatedLeaf: input.onTranslatedLeaf,
         afterEachSerial: async ({ jobIndex, job }) => {
@@ -580,6 +609,7 @@ export async function translateResumeCandidateLeaves(input: {
       retriesMade += ran.retriesMade;
       successfulLeaves += ran.successfulLeaves;
       markedForReview += ran.markedForReview;
+      cacheHits += ran.cacheHits;
 
       for (const j of jobs) {
         const tr = trByLeafIndex.get(j.leafIndex)!;
@@ -603,6 +633,7 @@ export async function translateResumeCandidateLeaves(input: {
         retriesMade,
         successfulLeaves,
         failedRequests: Math.max(0, requestAttempts - successfulLeaves),
+        cacheHits,
       },
     });
   }
@@ -615,6 +646,7 @@ export async function translateResumeCandidateLeaves(input: {
       retriesMade,
       successfulLeaves,
       failedRequests: Math.max(0, requestAttempts - successfulLeaves),
+      cacheHits,
     },
     markedForReview,
   };

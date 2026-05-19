@@ -180,9 +180,7 @@ const opts: GenerateRunOptions = {
   // Set `force: true` for full generate when you want existing target strings
   // re-translated instead of preserved. Do not combine `force` with `resume`.
   // force: true,
-  // Set `ask: true` in an interactive normal-generate host if you want to let
-  // users edit catalog-derived meta defaults before writing <lang>.meta.json.
-  // ask: true,
+  // Set `ask: true` with `generate --resume` when the host should confirm multi-target runs.
   // Set `resume: true` only when the host also supplies `resumeReference`; resume
   // translates eligible stale/review leaves, not every leaf.
   // resume: true,

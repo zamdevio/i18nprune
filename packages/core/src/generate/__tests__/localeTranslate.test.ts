@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { buildTranslatedLocaleFromSourceLeaves } from '../localeTranslate.js';
 import { TranslateRunInterruptedError } from '../../translator/errors/interrupted.js';
+import { TranslateCacheL1Memo } from '../../translator/cache/index.js';
 import type { Translator } from '../../types/translator/index.js';
 
 describe('buildTranslatedLocaleFromSourceLeaves', () => {
@@ -81,6 +82,32 @@ describe('buildTranslatedLocaleFromSourceLeaves', () => {
       tickProgress: () => {},
     });
     expect(out.working).toEqual({ k: 'hello-fr' });
+  });
+
+  it('dedupes duplicate source strings via L1 memo within one build pass', async () => {
+    const translate = vi.fn(async (text: string) => `${text}-fr`);
+    const provider = { translate } as unknown as Translator;
+    const translationCache = { l1: new TranslateCacheL1Memo({ translateConfigEpoch: 'test-epoch' }) };
+    const out = await buildTranslatedLocaleFromSourceLeaves({
+      sourceLeaves: [
+        { path: 'a', value: 'hello' },
+        { path: 'b', value: 'hello' },
+      ],
+      working: {},
+      existingRaw: null,
+      dryRun: false,
+      force: false,
+      provider,
+      persistStructuredLeafMetadata: false,
+      providerId: 'google',
+      targetLang: 'fr',
+      translationCache,
+      tickProgress: () => {},
+    });
+    expect(translate).toHaveBeenCalledOnce();
+    expect(out.working).toEqual({ a: 'hello-fr', b: 'hello-fr' });
+    expect(out.translateStats.requestAttempts).toBe(1);
+    expect(out.translateStats.successfulLeaves).toBe(2);
   });
 
   it('force re-translates existing manual target strings', async () => {

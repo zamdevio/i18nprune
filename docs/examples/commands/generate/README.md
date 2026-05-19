@@ -17,9 +17,6 @@ cd tests/fixtures/simple-i18n-app
 | `--resume` | Top-up existing locale JSON (review-eligible leaves matching source) | `... generate --resume --target ja --dry-run` |
 | `--all` | With `--resume`: all non-source locales | `... generate --resume --all --dry-run` |
 | `--ask` | With `--resume`, TTY: confirm multi-target list | `... generate --resume --target ja,ar --ask` |
-| `--english-name` | Override meta English label | `... generate --target ja --english-name "Japanese" --dry-run` |
-| `--native-name` | Override meta native label | `... generate --target ja --native-name "日本語" --dry-run` |
-| `--direction <ltr\|rtl>` | Override meta direction | `... generate --target ar --direction rtl --dry-run` |
 | `-c, --config` | Explicit config file | `... -c i18nprune.config.ts --json generate --target ja --dry-run` |
 | `--json` / `--json-pretty` | Machine envelope + compact/pretty formatting | `... --json generate --target ja --dry-run --json-pretty false` |
 | `stdout redirection` + `--format` | Persist run artifact independent of stdout | `... stdout redirection ./out/generate-run.json --format json generate --target ja --dry-run` |

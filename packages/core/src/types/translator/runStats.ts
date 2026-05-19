@@ -8,4 +8,6 @@ export type TranslateRunPartialStats = {
   readonly retriesMade: number;
   readonly successfulLeaves: number;
   readonly failedRequests: number;
+  /** Leaves served from L1 or L2 without a provider network call. */
+  readonly cacheHits: number;
 };

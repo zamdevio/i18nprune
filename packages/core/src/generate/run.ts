@@ -4,6 +4,7 @@
  */
 
 import { buildLanguageCatalog, generatedLanguageCatalog, getLanguageByCodeFromCatalog } from '../shared/languages/catalog/index.js';
+import { resolveGenerateLocaleDisplay } from '../shared/languages/resolveGenerateLocaleDisplay.js';
 import { languageOftenRtl } from '../shared/languages/rtlHint.js';
 import { deepClone } from '../shared/json/index.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
@@ -50,6 +51,13 @@ import { createProviderHealthMonitor } from '../shared/translator/utils/provider
 import { IdentityAbortError } from '../translator/identity/error.js';
 import type { IdentityStreakGuard } from '../translator/identity/guard.js';
 import { runGenerateResumeLocale } from './resume/run.js';
+import {
+  bindGenerateTranslateCache,
+  createGenerateTranslateCache,
+  flushTranslateCacheL2,
+  openTranslateCacheL2ForTarget,
+} from '../translator/cache/index.js';
+import { formatGenerateTranslateProgress } from './translateProgressSummary.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
@@ -99,16 +107,6 @@ function summarizeLastError(err: unknown): { code: string; message: string } | u
       : 'unknown';
   const message = err instanceof Error ? err.message : String(err);
   return { code, message };
-}
-
-export function resolveGenerateDirectionDefault(input: {
-  explicitDirection?: 'ltr' | 'rtl';
-  targetCode: string;
-  catalogDirection?: unknown;
-}): 'ltr' | 'rtl' {
-  if (input.explicitDirection === 'ltr' || input.explicitDirection === 'rtl') return input.explicitDirection;
-  if (input.catalogDirection === 'ltr' || input.catalogDirection === 'rtl') return input.catalogDirection;
-  return languageOftenRtl(input.targetCode) ? 'rtl' : 'ltr';
 }
 
 export async function runGenerate(
@@ -171,6 +169,8 @@ export async function runGenerate(
   assertTranslationProviderCredentialsReady(primaryTranslation);
   const translationMeta = translationRunMeta(primaryTranslation);
 
+  const { cache: translateCacheBase } = createGenerateTranslateCache(ctx, { bypassL2: opts.force === true });
+
   // Translate-policy substrate (steps 4–6 of `translate-policy (shipped)`).
   // One health monitor per run; resolver consults it on every backoff verb.
   const effectivePolicy = { ...TRANSLATE_POLICY_DEFAULTS, ...(translateCfg.policy ?? {}) };
@@ -190,26 +190,20 @@ export async function runGenerate(
     emitProgress({ type: 'run.progress.generate', phase: 'build_target', target });
     const targetStarted = Date.now();
     const catalog = getLanguageByCodeFromCatalog(LANG_CATALOG, target);
-    let englishName = opts.englishName ?? catalog?.english ?? target;
-    let nativeName = opts.nativeName ?? catalog?.native ?? target;
-    let direction: 'ltr' | 'rtl' = resolveGenerateDirectionDefault({
-      explicitDirection: opts.direction,
-      targetCode: target,
-      catalogDirection: catalog?.direction,
-    });
+    const { englishName, nativeName, direction } = resolveGenerateLocaleDisplay(target, catalog);
     {
       const oftenRtl = languageOftenRtl(target);
       if (oftenRtl && direction === 'ltr') {
         emitGenerateMessage(
           host,
           'notice',
-          `generate: "${target}" is often RTL in UIs — direction is ltr. Pass --direction rtl if the locale should be mirrored.`,
+          `generate: "${target}" is often RTL in UIs — catalog direction is ltr. Set direction in \`src/i18n/config.json\` (patch) if your app mirrors RTL.`,
         );
       } else if (!oftenRtl && direction === 'rtl') {
         emitGenerateMessage(
           host,
           'notice',
-          `generate: "${target}" is usually LTR — confirm --direction rtl is intentional for your app.`,
+          `generate: "${target}" is usually LTR — catalog direction is rtl; confirm that matches your app.`,
         );
       }
     }
@@ -255,6 +249,10 @@ export async function runGenerate(
       }
     }
 
+    const { l2: targetL2 } = openTranslateCacheL2ForTarget(ctx, target, { bypassL2: opts.force === true });
+    const translationCache = bindGenerateTranslateCache(translateCacheBase, targetL2);
+
+    try {
     if (opts.resume) {
       const eff = resolveReferenceConfig('generate', ctx.config);
       emitGenerateMessage(host, 'info', `generate (${target}): translating string leaves (nested shape preserved).`);
@@ -268,6 +266,7 @@ export async function runGenerate(
         refCtx: opts.resumeReference!,
         targetPath,
         targetStarted,
+        translationCache,
       });
       streakIssues.push(...resumeIssues);
       totalLeavesProcessed += resumeLeaves;
@@ -312,6 +311,7 @@ export async function runGenerate(
       retriesMade: 0,
       successfulLeaves: 0,
       failedRequests: 0,
+      cacheHits: 0,
     };
 
     let pi = 0;
@@ -386,6 +386,8 @@ export async function runGenerate(
           provider,
           providerId: translation.provider,
           targetLang: target,
+          sourceLang: 'en',
+          translationCache,
           sourceMap,
           tickProgress: host.buildTickProgressRelay({
             tick: (i, total, p, tickOpts) => session.progress.tick(i, total, p, tickOpts),
@@ -411,6 +413,7 @@ export async function runGenerate(
           retriesMade: aggTranslateStats.retriesMade + translateResult.translateStats.retriesMade,
           successfulLeaves: aggTranslateStats.successfulLeaves + translateResult.translateStats.successfulLeaves,
           failedRequests: aggTranslateStats.failedRequests + translateResult.translateStats.failedRequests,
+          cacheHits: aggTranslateStats.cacheHits + translateResult.translateStats.cacheHits,
         };
         providerAttempts?.push({ providerId, outcome: 'success' });
         winnerProviderId = providerId;
@@ -421,12 +424,7 @@ export async function runGenerate(
         {
           const wallMs = Date.now() - targetStarted;
           const s = translateResult.translateStats;
-          const avgRequestMs = s.requestAttempts > 0 ? Math.round(wallMs / s.requestAttempts) : 0;
-          emitGenerateMessage(
-            host,
-            'info',
-            `progress (${target}): wall=${String(wallMs)}ms · requests=${String(s.requestAttempts)} · success=${String(s.successfulLeaves)} · failed=${String(s.failedRequests)} · retries=${String(s.retriesMade)} · avgRequest=${String(avgRequestMs)}ms`,
-          );
+          emitGenerateMessage(host, 'info', formatGenerateTranslateProgress(target, wallMs, s));
           emitGenerateMessage(
             host,
             'info',
@@ -477,6 +475,7 @@ export async function runGenerate(
             retriesMade: aggTranslateStats.retriesMade + interrupted.translateStats.retriesMade,
             successfulLeaves: aggTranslateStats.successfulLeaves + interrupted.translateStats.successfulLeaves,
             failedRequests: aggTranslateStats.failedRequests + interrupted.translateStats.failedRequests,
+            cacheHits: aggTranslateStats.cacheHits + interrupted.translateStats.cacheHits,
           };
         }
 
@@ -756,6 +755,9 @@ export async function runGenerate(
         'info',
         `metadata for ${target}: structured ${String(normalizedReport.structuredLeavesWritten)}, repaired ${String(normalizedReport.repairedCorruptLeaves)}. Use "sync --strip-metadata" to remove metadata fields later.`,
       );
+    }
+    } finally {
+      flushTranslateCacheL2(targetL2);
     }
   }
 

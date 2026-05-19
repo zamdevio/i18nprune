@@ -1,6 +1,6 @@
-# Apps phase — core catch-up, sharing, hosted surfaces (**planned — Session C.3+**)
+# Apps phase — core catch-up, sharing, hosted surfaces (**active next — Session C.3+**)
 
-**Status:** **Planned** — depends on **locales (H)** shipped and **cache (H-cache)** Phases **0–3** + locale patch (**shipped**). Implement **after** [`translate-cache.md`](./translate-cache.md) (H.1) per [`V1-RELEASE.md`](./V1-RELEASE.md); **Phase 4** invalidate cleanup can land in parallel with early **planning** only.  
+**Status:** **Active next** — **locales (H)**, **cache (H-cache) Phases 0–4**, and **translate-cache (H.1)** are **shipped**. Implement per [`V1-RELEASE.md`](./V1-RELEASE.md) Session **C.3**. **Phase 4** invalidate cleanup is already shipped.  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) Session **C.3** · **Active narrative:** [`active-phase.md`](./active-phase.md) § Apps catch-up.  
 **Related:** [`cache.md`](./cache.md) (disk cache + `share.json` placement) · [`locales.md`](./locales.md) (upload enumeration) · [`standard-toolkit.md`](./standard-toolkit.md) (CLI TTY / `--json`).
 
@@ -40,9 +40,7 @@
 ## Sequencing
 
 ```txt
-cache Phase 4 done (optional but recommended before share.json lands)
-    ↓
-H.1 — translations.json (translate-cache.md)
+translate-cache (H.1) shipped
     ↓
 C.3a — core share op + share.json + host-snapshot dedupe
     ↓

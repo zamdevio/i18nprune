@@ -329,9 +329,6 @@ program
   )
   .option('--source <path>', 'source JSON path (defaults to resolved config / context)')
   .option('--target <codes>', 'target locale code(s): one code or comma-separated list (e.g. ja,ar,id)')
-  .option('--english-name <name>', 'English display label override (default: language catalog)')
-  .option('--native-name <name>', 'Native endonym override (default: language catalog)')
-  .option('--direction <ltr|rtl>', 'layout direction override (default from catalog / heuristics)')
   .option('--force', 're-translate even if target already has every source string path', false)
   .option('--dry-run', 'do not call translator or write files', false)
   .option(
@@ -362,9 +359,6 @@ program
     async (opts: {
       source?: string;
       target?: string;
-      englishName?: string;
-      nativeName?: string;
-      direction?: string;
       force?: boolean;
       dryRun?: boolean;
       metadata?: boolean;
@@ -374,14 +368,9 @@ program
       all?: boolean;
       ask?: boolean;
     }) => {
-      const direction =
-        opts.direction === 'ltr' || opts.direction === 'rtl' ? opts.direction : undefined;
       await generate({
         source: opts.source,
         target: opts.target,
-        englishName: opts.englishName,
-        nativeName: opts.nativeName,
-        direction,
         force: opts.force === true ? true : undefined,
         dryRun: Boolean(opts.dryRun),
         metadata: opts.metadata === true ? true : undefined,
