@@ -4,12 +4,23 @@ alwaysApply: true
 # i18nprune
 
 ## Source of truth
-- **Local-only WIP:** `maintainer/temp/` — temporary plans and scratch (**gitignored**; not in clone history; read it on disk only if the user keeps notes there).
-- Active plans: `maintainer/phases/extractor.md`. Read first.
-- Shipped receipts: `maintainer/phases/shipped-slices.md`.
-- Hub: `maintainer/phases/V1-RELEASE.md`. Active sprint focus: `maintainer/phases/active-phase.md`.
-- Contributor/agent subsystem maps (not user docs): `maintainer/systems/README.md`.
-- Agent coding guides: `maintainer/agents/README.md`. **Architecture:** `maintainer/agents/architecture.md`. **Git hygiene:** `maintainer/agents/git.md`. **JSDoc:** `maintainer/agents/jsdoc.md` (when/where/how). Task checklist: `maintainer/phases/jsdoc.md`.
+- **Local-only WIP:** `maintainer/temp/` — temporary plans and scratch (**gitignored**; not in clone history; read on disk only if the user keeps notes there).
+- **Sprint hub:** `maintainer/phases/V1-RELEASE.md` · **Active narrative:** `maintainer/phases/active-phase.md`.
+- **Shipped receipts:** `maintainer/phases/shipped-slices.md` (check before re-implementing).
+- **Current core vertical:** `maintainer/phases/translate-cache.md` (**H.1 active**). **Cache** Phases 0–4 **shipped** — [`cache.md`](./cache.md).
+- **Next after H.1:** `maintainer/phases/apps.md` (C.3+). Do not start share/`translations.json` in unrelated slices.
+- Other phase docs: `extractor.md`, `init.md`, `locales.md` (design reference when touching locales/cache).
+- Contributor maps: `maintainer/systems/README.md`.
+- Agent guides: `maintainer/agents/README.md` · **Architecture:** `maintainer/agents/architecture.md` · **Git:** `maintainer/agents/git.md` · **JSDoc:** `maintainer/agents/jsdoc.md` · Checklist: `maintainer/phases/jsdoc.md`.
+
+## Vertical sequencing (locked)
+```txt
+extractor → init → locales → cache → translate-cache → apps (C.3+) → extension
+```
+- **One slice per PR** — scope from the active plan doc only.
+- **New agent chat** per vertical slice or phase (cache Phase 4 ≠ translate-cache ≠ apps `share`).
+- Plan decisions are **LOCKED** unless you surface contradicting file:line evidence first.
+- If a doc is ambiguous, **ASK** — do not guess.
 
 ## Build / test gate
 - Required before commit: `pnpm typecheck` and `pnpm test`.
@@ -23,19 +34,29 @@ alwaysApply: true
 - Public types live in `packages/core/src/types/<domain>/` with an `index.ts` barrel.
 - CLI never re-exports core types via shim files.
 - Op orchestration entries: `packages/core/src/<op>/run.ts`, re-exported from `<op>/index.ts`.
+- Shared constants: `packages/core/src/shared/constants/<domain>.ts` (barrel: `shared/constants/index.ts`) — not ad-hoc `profiles.ts` beside ops.
 
 ## Core purity
 - No `console.*` calls in `packages/core/src/**`.
 - No `process.*` access in core except via a passed-in `env` parameter.
 - File IO in core only via passed-in host adapters (or a core-side adapters re-export).
 
+## Cache discipline (Session H-cache)
+- **Core owns** rebuild policy (`decideAnalysisRebuild`, `resolveCacheConfig`, patch/reuse in `analysis/` + `cache/dispatch.ts`). CLI/IDE are **hosts** — no forked delta/patch logic.
+- **`cache.rebuild: 'full'`** in config overrides profile defaults → always full scan; `--debug-cache` must say `full (config rebuild=full)`.
+- **`cache.profile`** (`safe` | `balanced` | `fast`) + optional field overrides; global **`--cache-profile`** merges like other CLI overrides.
+- Explicit `rebuild` / `fullRescanThresholdPercent` / `mode` in config **win** over profile.
+- Locale deltas: target-only → **reuse** analysis; source-only → **patch missingKeys**; source+target together → **full** (safe).
+- Do not add `@deprecated` exports — remove and update call sites.
+- User-facing cache behavior: `docs/cli/cache.md` only (no maintainer cross-links in VitePress).
+
 ## Pre-v1
 - No backwards-compat constraints on internal APIs.
-- User-facing surfaces (CLI argv, `--json` envelope, log lines, exit codes, issue codes) are NOT internal — those are frozen by the parity rule above.
+- User-facing surfaces (CLI argv, `--json` envelope, log lines, exit codes, issue codes) are NOT internal — frozen by the parity rule above.
 
-## Discipline
-- One slice per PR. Match the slice scope from the active plan doc.
-- Decisions in the plan docs are LOCKED unless surfaced first with file:line evidence.
-- If a doc is ambiguous, ASK. Do not guess.
-- Maintainer-only: `maintainer/**` is not mirrored to user-facing docs (`apps/docs/`); keep that boundary.
-- **`docs/**` (VitePress):** public, user-facing copy. Do not embed maintainer phase/session plans, sprint status, or `maintainer/` cross-links unless unavoidable; use plain language and `docs/` links. Contributor depth belongs in `maintainer/systems/` and `maintainer/phases/` (see `maintainer/agents/README.md` § Docs site).
+## Docs boundary
+- **`maintainer/**`** is not mirrored to user-facing docs (`apps/docs/`).
+- **`docs/**` (VitePress):** public copy; plain language and `docs/` links. No sprint status or `maintainer/` links unless unavoidable. Depth: `maintainer/systems/`, `maintainer/phases/` (see `maintainer/agents/README.md` § Docs site).
+
+## Init template / SDK wording
+- Rich config comments are for **CLI + SDK** users — avoid “core-owned” jargon; prefer **SDK** when describing behavior. Doc URLs via `getDocsUrl()` from `packages/core/src/shared/docs/urls.ts`, not hardcoded maintainer paths.
