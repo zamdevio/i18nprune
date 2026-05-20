@@ -1,3 +1,4 @@
+import { registerStoredReportRoutes } from '../reports';
 import { validate, type ProjectWorkerReportBody } from '@i18nprune/core';
 import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION, type ProjectReportDocument } from '@i18nprune/report';
 import type { Hono } from 'hono';
@@ -36,6 +37,7 @@ function localesDirFromConfig(config: Record<string, unknown> | null): string | 
 }
 
 export function registerReportRoutes(app: Hono<WorkerEnv>): void {
+  registerStoredReportRoutes(app);
   app.post('/v1/projects/:id/report', async (c) => {
     const stub = projectStore(c.env);
     const project = await getProjectById(stub, c.req.param('id'));

@@ -5,4 +5,5 @@ export * from './missing.js';
 export * from './links.js';
 export * from './result.js';
 export * from './project.js';
+export * from './reportShare.js';
 export * from './translate.js';

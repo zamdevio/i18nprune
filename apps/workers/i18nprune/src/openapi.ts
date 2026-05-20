@@ -22,6 +22,11 @@ export const openApiDocument = {
         'Upload, inspect, and delete cached project snapshots. Idle retention: project rows are evicted after 7 days without any read; each read extends that window.',
     },
     { name: 'operations', description: 'Read-only operations that execute from upload-time cached data.' },
+    {
+      name: 'reports',
+      description:
+        'Store and fetch shared report documents (`i18nprune.projectReport` JSON). Idle retention matches projects (7 days without reads).',
+    },
   ],
   components: {
     schemas: {
@@ -347,6 +352,55 @@ export const openApiDocument = {
           '400': { description: 'Cache/config policy error (for example: CONFIG_REUPLOAD_REQUIRED)' },
           '404': { description: 'Project not found' },
         },
+      },
+    },
+    '/v1/reports': {
+      post: {
+        tags: ['reports'],
+        summary: 'Store a shared project report document',
+        description:
+          'Validates `document` against `projectReportDocumentSchema` and caches it for report.i18nprune.dev share links. Max body size: REPORT_SHARE_MAX_BYTES (8 MiB).',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: { document: { type: 'object' } },
+                required: ['document'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'Report stored (`data.reportId`)' },
+          '400': { description: 'Schema or size validation failure' },
+        },
+      },
+    },
+    '/v1/reports/{id}/document': {
+      get: {
+        tags: ['reports'],
+        summary: 'Return full stored report document',
+        description: 'Returns `{ document }` for report app import. Touches idle TTL.',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'Full document' }, '404': { description: 'REPORT_NOT_FOUND' } },
+      },
+    },
+    '/v1/reports/{id}': {
+      get: {
+        tags: ['reports'],
+        summary: 'Return report metadata (no document body)',
+        description:
+          'Returns ids, hashes, summary counts, and project paths — same fields share `view` needs. Touches idle TTL.',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'Report metadata' }, '404': { description: 'REPORT_NOT_FOUND' } },
+      },
+      delete: {
+        tags: ['reports'],
+        summary: 'Delete stored report',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'Delete status (`data.deleted`)' } },
       },
     },
     '/openapi.json': {

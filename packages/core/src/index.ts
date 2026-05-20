@@ -455,6 +455,7 @@ export type {
 export {
   basenameNoExt,
   buildProjectTreeFromPaths,
+  buildStoredReportMetadata,
   emptyDirectoryPathsFromZipKeys,
   hex16Id,
   normalizeProjectConfig,
@@ -469,6 +470,7 @@ export {
   PROJECT_UPLOAD_MAX_ZIP_BYTES,
   PROJECT_UPLOAD_ZIP_LIMITS,
 } from './shared/constants/project.js';
+export { REPORT_SHARE_MAX_BYTES } from './shared/constants/reportShare.js';
 export type {
   NormalizedProjectConfig,
   ParsedProjectUpload,
@@ -489,6 +491,10 @@ export type {
   RecentProjectZipBundleManifestItem,
   RecentProjectZipEntry,
   RecentProjectZipSettings,
+  ReportStoreRow,
+  StoredReportMetadata,
+  StoredReportProjectMeta,
+  StoredReportSummary,
   WorkerApiEnvelope,
   WorkerApiErrorItem,
   WorkerApiWarningItem,

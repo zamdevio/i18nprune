@@ -481,7 +481,7 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 | 2 | `runShare` report payload + validation (`buildReportPayload`, schema check) | **Shipped** |
 | 3 | `runShareList` / `runShareView` / `runShareDelete` | **Shipped** |
 | 4 | `core/project/parseZip` — dedupe zip parse (worker + web) | **Shipped** |
-| 5 | Worker reports CRUD — **`GET /v1/reports/:id`** (metadata) + **`GET …/document`** | **Todo** |
+| 5 | Worker reports CRUD — `POST/GET/DELETE /v1/reports` + **`GET …/document`** | **Shipped** |
 | 6 | CLI `share` + `list` / `view` / `delete` + worker error envelopes | **Todo** |
 | 7 | Web `/p/:id` + Share + **404 / too-large UX** | **Todo** |
 | 8 | Report `/s/:id` + **`/document` load** + Share + error UX | **Todo** |

@@ -34,3 +34,9 @@ export type {
   RecentProjectZipEntry,
   RecentProjectZipSettings,
 } from './recentZip.js';
+export type {
+  ReportStoreRow,
+  StoredReportMetadata,
+  StoredReportProjectMeta,
+  StoredReportSummary,
+} from './reportStore.js';

@@ -6,5 +6,6 @@ export {
   projectConfigHash,
   relativeProjectPath,
 } from './normalizeConfig.js';
+export { buildStoredReportMetadata } from './reportMetadata.js';
 export { parseZipToSnapshot } from './parseZip.js';
 export { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from './tree.js';
