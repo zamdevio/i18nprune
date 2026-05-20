@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { WEB_APP_BASE } from '../lib/constants/urls';
+import { DEMO_WEB_APP_BASE } from '@i18nprune/core';
 
 export type HashRoute = {
   path: string;
@@ -33,7 +33,7 @@ export function readWorkspaceProjectIdFromLocation(): string | null {
 export function buildWebWorkspaceShareUrl(projectId: string, origin?: string): string {
   const base = (
     origin ??
-    (typeof window !== 'undefined' ? window.location.origin : WEB_APP_BASE)
+    (typeof window !== 'undefined' ? window.location.origin : DEMO_WEB_APP_BASE)
   ).replace(/\/+$/, '');
   return `${base}/#/workspace?id=${encodeURIComponent(projectId)}`;
 }
