@@ -402,7 +402,7 @@ export {
   shareRemoteIssueFromWorker,
 } from './share/index.js';
 export { sha256HexBytes } from './share/util/sha256.js';
-export { DEFAULT_WORKER_API_URL } from './shared/constants/links.js';
+export { DEFAULT_WORKER_API_URL, DEMO_WEB_APP_BASE } from './shared/constants/links.js';
 export type { ShareHumanMessageHost } from './share/index.js';
 export type {
   ShareCacheEntry,
