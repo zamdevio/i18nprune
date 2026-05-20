@@ -88,6 +88,8 @@ export type ShareHostHooks = {
     workerBaseUrl: string;
     document: unknown;
   }) => Promise<{ httpStatus: number; body: unknown }>;
+  deleteRemoteProject?: (input: { workerBaseUrl: string; projectId: string }) => Promise<{ httpStatus: number; body: unknown }>;
+  deleteRemoteReport?: (input: { workerBaseUrl: string; reportId: string }) => Promise<{ httpStatus: number; body: unknown }>;
 };
 
 export type ShareSkippedReason =
@@ -105,4 +107,45 @@ export type ShareRunResult = {
   cacheEntry?: ShareCacheEntry;
   issues: Issue[];
   skippedReason?: ShareSkippedReason;
+};
+
+export type ShareListInput = {
+  ctx: CoreContext;
+};
+
+export type ShareListResult = {
+  entries: ShareCacheEntry[];
+  issues: Issue[];
+};
+
+export type ShareViewInput = {
+  ctx: CoreContext;
+  kind: 'project' | 'report';
+  workerBaseUrl: string;
+  workerId: string;
+  hooks: Pick<ShareHostHooks, 'fetchRemoteProjectRow' | 'fetchRemoteReportRow'>;
+};
+
+export type ShareViewResult = {
+  kind: 'project' | 'report';
+  workerId: string;
+  remote?: unknown;
+  local?: ShareCacheEntry;
+  links: ShareLinks;
+  issues: Issue[];
+};
+
+export type ShareDeleteInput = {
+  ctx: CoreContext;
+  kind: 'project' | 'report';
+  workerBaseUrl: string;
+  workerId: string;
+  remote?: boolean;
+  hooks?: Pick<ShareHostHooks, 'deleteRemoteProject' | 'deleteRemoteReport'>;
+};
+
+export type ShareDeleteResult = {
+  deletedLocal: boolean;
+  deletedRemote: boolean;
+  issues: Issue[];
 };

@@ -8,6 +8,9 @@ export {
   findMatchingReportShareEntry,
   loadShareJsonFile,
   mergeDuplicateShareEntries,
+  runShareDelete,
+  runShareList,
+  runShareView,
   normalizeWorkerBaseUrl,
   parseWorkerShareEnvelope,
   projectPayloadMatchesCachedEntry,
@@ -32,10 +35,16 @@ export type {
   WorkerShareEnvelope,
 } from '../types/share/index.js';
 export type {
+  ShareDeleteInput,
+  ShareDeleteResult,
   ShareHostHooks,
+  ShareListInput,
+  ShareListResult,
   ShareRunInput,
   ShareRunResult,
   ShareSkippedReason,
+  ShareViewInput,
+  ShareViewResult,
   ShareWorkerProjectRef,
   ShareWorkerReportRef,
 } from '../types/share/shareRun.js';

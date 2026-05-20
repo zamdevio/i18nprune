@@ -33,7 +33,7 @@ If this summary diverges from code, **code + types win**; update **this doc** in
 | **providers** | `packages/cli/src/commands/providers/jsonEnvelope.ts` → **`runProviders`** | |
 | **generate** | core entry: `packages/core/src/generate/run.ts` → **`runGenerate`**. CLI host: `packages/cli/src/commands/generate/run.ts` (shell) + `hooks.ts` (host hooks) + `jsonEnvelope.ts` (envelope + shared core delegate). Other hosts (SDK, extension, web, workers) call core **`runGenerate`** directly | async, heavy **`run.progress.*`** (**`--resume`** shares this path) |
 | **report** | `packages/cli/src/shared/report/runReport.ts` → **`runReport`** · `commands/report/buildEnvelope.ts` → **`runReportOperation`** | async / IO |
-| **share** | core: `packages/core/src/share/run.ts` → **`runShare`** · **`buildProjectPayload`** / **`buildReportPayload`** · `loadShareJsonFile` / `saveShareJsonFile` · `parseWorkerShareEnvelope` / `shareRemoteIssueFromWorker` · `run.share.*` events ([`apps.md`](../../phases/apps.md) tracker) | disk cache + payload manifests + worker response mapping; CLI/web hosts |
+| **share** | core: `packages/core/src/share/run.ts` → **`runShare`** · `list.ts` → **`runShareList`** · `view.ts` → **`runShareView`** · `delete.ts` → **`runShareDelete`** · **`buildProjectPayload`** / **`buildReportPayload`** · `loadShareJsonFile` / `saveShareJsonFile` · `parseWorkerShareEnvelope` / `shareRemoteIssueFromWorker` · `run.share.*` events ([`apps.md`](../../phases/apps.md) tracker) | disk cache + payload manifests + worker response mapping; CLI/web hosts |
 
 **When this table drifts:** update it in the **same PR** that moves a **`runXxx`** or introduces a new envelope entry.
 

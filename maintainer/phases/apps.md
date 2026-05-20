@@ -479,7 +479,7 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 | 0 | `packages/core/src/share/` types + **`share.json` I/O + self-heal** + `remote.ts` | **Shipped** |
 | 1 | `runShare` project payload + manifest events (`buildProjectPayload`, `run.share.*`) | **Shipped** |
 | 2 | `runShare` report payload + validation (`buildReportPayload`, schema check) | **Shipped** |
-| 3 | `runShareList` / `runShareView` / `runShareDelete` | **Todo** |
+| 3 | `runShareList` / `runShareView` / `runShareDelete` | **Shipped** |
 | 4 | `@i18nprune/host-snapshot` — dedupe zip parse (worker + web) | **Todo** |
 | 5 | Worker reports CRUD — **`GET /v1/reports/:id`** (metadata) + **`GET …/document`** | **Todo** |
 | 6 | CLI `share` + `list` / `view` / `delete` + worker error envelopes | **Todo** |

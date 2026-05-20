@@ -376,7 +376,7 @@ export type {
 } from './namespaces/report.js';
 
 export * as share from './namespaces/share.js';
-export { buildProjectPayload, buildReportPayload, runShare } from './share/index.js';
+export { buildProjectPayload, buildReportPayload, runShare, runShareDelete, runShareList, runShareView } from './share/index.js';
 
 export * as localesDynamic from './namespaces/localesDynamic.js';
 export { runDynamic } from './namespaces/localesDynamic.js';
