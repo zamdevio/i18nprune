@@ -1,3 +1,4 @@
+import { ISSUE_SHARE_REMOTE_ERROR } from '../shared/constants/issueCodes.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { ShareDeleteInput, ShareDeleteResult } from '../types/share/shareRun.js';
 import { loadShareJsonFile, resolveShareJsonPath, saveShareJsonFile } from './io/shareJson.js';
@@ -27,7 +28,8 @@ export async function runShareDelete(input: ShareDeleteInput): Promise<ShareDele
     }
   }
 
-  if (input.remote) {
+  const deleteRemote = input.remote !== false;
+  if (deleteRemote) {
     const response =
       input.kind === 'project'
         ? input.hooks?.deleteRemoteProject
@@ -37,13 +39,26 @@ export async function runShareDelete(input: ShareDeleteInput): Promise<ShareDele
           ? await input.hooks.deleteRemoteReport({ workerBaseUrl: input.workerBaseUrl, reportId: input.workerId })
           : null;
 
-    if (response) {
+    if (!response) {
+      issues.push({
+        severity: 'error',
+        code: ISSUE_SHARE_REMOTE_ERROR,
+        message:
+          input.kind === 'project'
+            ? 'Missing host hook `deleteRemoteProject` — cannot DELETE the worker project row.'
+            : 'Missing host hook `deleteRemoteReport` — cannot DELETE the worker report row.',
+      });
+    } else {
       const env = parseWorkerShareEnvelope(response.body);
-      const remoteIssue = shareRemoteIssueFromWorker({ httpStatus: response.httpStatus, envelope: env });
-      if (remoteIssue) {
-        issues.push(remoteIssue);
-      } else {
+      if (response.httpStatus === 404) {
         deletedRemote = true;
+      } else {
+        const remoteIssue = shareRemoteIssueFromWorker({ httpStatus: response.httpStatus, envelope: env });
+        if (remoteIssue) {
+          issues.push(remoteIssue);
+        } else {
+          deletedRemote = true;
+        }
       }
     }
   }

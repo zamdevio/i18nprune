@@ -34,6 +34,7 @@ import { review } from '@/commands/review/index.js';
 import { doctor } from '@/commands/doctor/index.js';
 import { patch } from '@/commands/patch/index.js';
 import { localesList, localesDynamic, localesDelete } from '@/commands/locales/index.js';
+import { shareUpload, shareList, shareView, shareDelete } from '@/commands/share/index.js';
 import { report } from '@/commands/report/index.js';
 import { configureCliHelp } from '@/commands/help/index.js';
 import { CLI_NAME, CLI_ROOT_DESCRIPTION } from '@/constants/cli.js';
@@ -453,6 +454,64 @@ program
   )
   .action(async () => {
     await providers();
+  });
+
+const shareCmd = program
+  .command('share')
+  .description('Share project snapshots or report JSON to the worker (see `i18nprune help share`).')
+  .option('--project', 'Upload prepared project snapshot (zip) to the worker')
+  .option('--report', 'Upload report JSON to the worker (stored report link)')
+  .option('--from <file>', 'Report JSON path (with --report; default: scan in-process)')
+  .option('--worker-url <url>', 'Worker API base URL (default: I18NPRUNE_WORKER_URL or https://worker.i18nprune.dev)')
+  .option('--force', 'Ignore hash-based skip and re-upload', false)
+  .action(async (opts: { project?: boolean; report?: boolean; from?: string; workerUrl?: string; force?: boolean }) => {
+    if (!opts.project && !opts.report) {
+      shareCmd.help({ error: false });
+      return;
+    }
+    await shareUpload({
+      project: Boolean(opts.project),
+      report: Boolean(opts.report),
+      from: opts.from,
+      workerUrl: opts.workerUrl,
+      force: Boolean(opts.force),
+    });
+  });
+
+shareCmd
+  .command('list')
+  .description('List share.json entries for the current project cache')
+  .option('--project <id>', 'Filter to one worker project id')
+  .option('--report <id>', 'Filter to one worker report id')
+  .option('--worker-url <url>', 'Worker base URL hint when filtering (unused for list-only)')
+  .action(async (opts: { project?: string; report?: string; workerUrl?: string }) => {
+    await shareList(opts);
+  });
+
+shareCmd
+  .command('view')
+  .description('View hosted share metadata (GET /v1/projects/:id or /v1/reports/:id)')
+  .option('--project <id>', 'Worker-hosted project id')
+  .option('--report <id>', 'Worker-hosted report id')
+  .option('--worker-url <url>', 'Worker API base URL')
+  .action(async (opts: { project?: string; report?: string; workerUrl?: string }) => {
+    await shareView(opts);
+  });
+
+shareCmd
+  .command('delete')
+  .description('Remove share.json entry and DELETE the worker row (use --local-only for cache metadata only)')
+  .option('--project <id>', 'Worker-hosted project id')
+  .option('--report <id>', 'Worker-hosted report id')
+  .option('--worker-url <url>', 'Worker API base URL')
+  .option('--local-only', 'Remove share.json entry only; do not call worker DELETE', false)
+  .action(async (opts: { project?: string; report?: string; workerUrl?: string; localOnly?: boolean }) => {
+    await shareDelete({
+      project: opts.project,
+      report: opts.report,
+      workerUrl: opts.workerUrl,
+      localOnly: Boolean(opts.localOnly),
+    });
   });
 
 const localesCmd = program

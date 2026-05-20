@@ -94,7 +94,7 @@ Work delivered: **import binding resolution** (alias-aware per-file `functions` 
 
 ## Apps catch-up (**Session C.3 — after init + locales**)
 
-**When:** After **translate-cache (H.1)** per [`V1-RELEASE.md`](./V1-RELEASE.md). **Locales (H)** and cache (Phases 0–4) are **shipped**. **`apps/web`**, **`apps/report`**, **`apps/workers/i18nprune`**, plus core **`share`** + CLI **`i18nprune share`**. **Plan:** **[`apps.md`](./apps.md)**.
+**When:** After **translate-cache (H.1)** per [`V1-RELEASE.md`](./V1-RELEASE.md). **Rows 0–6 shipped** (core share, worker CRUD, `routes/v1/`, CLI **`i18nprune share`**). **Active:** rows **7–8** (web `/p/:id`, report `/s/:id`) per **[`apps.md`](./apps.md)**.
 
 ---
 

@@ -17,7 +17,10 @@ export const COMMANDS_WITH_JSON_OUTPUT = new Set([
   'doctor',
   'patch',
   'report',
-  // `locales` subcommands use these leaf command names in Commander.
+  'share',
+  'share-list',
+  'share-view',
+  'share-delete',
   'list',
   'dynamic',
   'delete',

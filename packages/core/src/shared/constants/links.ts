@@ -17,6 +17,9 @@ export const DOCS_SITE_BASE = 'https://docs.i18nprune.dev' as const;
 /** Public meta worker (GitHub + npm cached read models). */
 export const META_WORKER_URL = 'https://meta.i18nprune.dev' as const;
 
+/** Default project/report storage worker (`apps/workers/i18nprune`). Hosts pass an explicit origin or fall back here. */
+export const DEFAULT_WORKER_API_URL = 'https://worker.i18nprune.dev' as const;
+
 /** Public report UI URL. */
 export const DEMO_REPORT_URL = 'https://report.i18nprune.dev' as const;
 

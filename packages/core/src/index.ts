@@ -376,8 +376,55 @@ export type {
 } from './namespaces/report.js';
 
 export * as share from './namespaces/share.js';
-export { buildProjectPayload, buildReportPayload, runShare, runShareDelete, runShareList, runShareView } from './share/index.js';
+export {
+  buildProjectPayload,
+  buildProjectShareLinks,
+  buildReportPayload,
+  buildReportShareLinks,
+  emitShareDeleteHumanMessages,
+  emitShareListHumanMessages,
+  emitShareUploadHumanMessages,
+  emitShareViewHumanMessages,
+  normalizeWorkerBaseUrl,
+  parseWorkerShareEnvelope,
+  resolveShareWorkerBaseUrl,
+  runShare,
+  runShareDelete,
+  runShareList,
+  runShareView,
+  shareRemoteIssueFromWorker,
+} from './share/index.js';
 export { sha256HexBytes } from './share/sha256.js';
+export { DEFAULT_WORKER_API_URL } from './shared/constants/links.js';
+export type { ShareHumanMessageHost } from './share/index.js';
+export type {
+  ShareCacheEntry,
+  ShareDeleteJsonPayload,
+  ShareDeleteOptions,
+  ShareDeleteResult,
+  ShareHostHooks,
+  ShareKind,
+  ShareLinks,
+  ShareListJsonPayload,
+  ShareListOptions,
+  ShareManifest,
+  ShareRunResult,
+  ShareUploadJsonPayload,
+  ShareUploadOptions,
+  ShareViewJsonPayload,
+  ShareViewOptions,
+  ShareViewResult,
+} from './share/index.js';
+export type {
+  ShareDeleteInput,
+  ShareListInput,
+  ShareListResult,
+  ShareRunInput,
+  ShareSkippedReason,
+  ShareViewInput,
+  ShareWorkerProjectRef,
+  ShareWorkerReportRef,
+} from './types/share/shareRun.js';
 
 export * as localesDynamic from './namespaces/localesDynamic.js';
 export { runDynamic } from './namespaces/localesDynamic.js';

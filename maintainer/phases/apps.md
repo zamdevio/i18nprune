@@ -243,7 +243,7 @@ Core emits issue code **`share_json_repaired`** (severity `warning`) on any heal
 - `--project <workerProjectId>` — delete matching cache entry; optional remote `DELETE /v1/projects/:id` or `/v1/reports/:id` via host hook.
 - No flag + TTY → `select()` over known entries (show kind, id, uploadedAt, links).
 - No flag + non-TTY → error: require `--project <workerProjectId>`.
-- Does not delete worker row unless `--remote` (locked flag name) — default **local metadata only** vs **local + remote** TBD at implementation (recommend **`--remote`** opt-in to avoid accidental data loss).
+- **Default:** local `share.json` row **and** worker `DELETE /v1/projects/:id` or `/v1/reports/:id`. **`--local-only`** skips the HTTP DELETE (cache metadata only).
 
 ---
 
@@ -258,7 +258,7 @@ i18nprune share --help       → same
 i18nprune share [upload]     → default upload entry (options below)
 i18nprune share list [--project <workerId>] [--json]
 i18nprune share view (--project <workerId> | --report <workerId>) [--json]
-i18nprune share delete [--project <workerId>] [--remote] [--json]
+i18nprune share delete [--project <workerId>] [--local-only] [--json]
 ```
 
 **`share view` flags:**
@@ -482,7 +482,7 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 | 3 | `runShareList` / `runShareView` / `runShareDelete` | **Shipped** |
 | 4 | `core/project/parseZip` — dedupe zip parse (worker + web) | **Shipped** |
 | 5 | Worker reports CRUD — `POST/GET/DELETE /v1/reports` + **`GET …/document`** | **Shipped** |
-| 6 | CLI `share` + `list` / `view` / `delete` + worker error envelopes | **Todo** |
+| 6 | CLI `share` + `list` / `view` / `delete` + core human emit + worker HTTP hooks | **Shipped** |
 | 7 | Web `/p/:id` + Share + **404 / too-large UX** | **Todo** |
 | 8 | Report `/s/:id` + **`/document` load** + Share + error UX | **Todo** |
 | 9 | Worker `runReport` alignment | **Todo** |
@@ -509,7 +509,7 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 
 | # | Question | Recommendation |
 |---|----------|----------------|
-| 1 | `share delete` default remote delete? | **Local metadata only**; `--remote` deletes worker row |
+| 1 | `share delete` default remote delete? | **Local + worker DELETE** by default; **`--local-only`** for cache metadata only |
 | 2 | Path vs hash URLs | **Path** `/p/:id`, `/s/:id` + SPA fallback |
 | 3 | Worker 404 on skip | **v1:** metadata GET probe before skip; 404 → re-upload + prune cache |
 | 4 | `share delete --project` id namespace | **Worker-hosted id** (`workerProjectId` / `workerReportId`), not cache `projectId` |
@@ -552,6 +552,9 @@ The following refinements are **accepted** and integrated above:
 | Cache paths | `packages/core/src/cache/setup/paths.ts` |
 | Report schema | `packages/report/src/schema.ts` |
 | Worker DO | `apps/workers/i18nprune/src/lib/do.ts` |
+| Worker routes (v1) | `apps/workers/i18nprune/src/routes/v1/` (`projects/`, `reports/`, `projects/report.ts`) |
+| CLI share host | `packages/cli/src/commands/share/` (`workerHttp.ts`, `workerUrl.ts` + `ENV_I18NPRUNE_WORKER_URL` in CLI) |
+| Core share human emit | `packages/core/src/share/human.ts` |
 | Web workspace | `apps/web/src/pages/workspace/index.tsx` |
 | Report loader | `apps/report/src/data/loader/validate.ts` |
 | CLI locales pattern | `packages/cli/bin/cli.ts` (`localesCmd`) |

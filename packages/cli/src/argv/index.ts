@@ -44,6 +44,7 @@ const KNOWN_COMMAND_FIRST_TOKEN = new Set([
   'version',
   'help',
   'locales',
+  'share',
 ]);
 
 /** Global CLI options that consume the next argv token (must not be treated as a subcommand). */

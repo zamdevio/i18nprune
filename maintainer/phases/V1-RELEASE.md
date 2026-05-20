@@ -23,7 +23,7 @@ Ship **init → locales → cache → translate-cache** on **`@i18nprune/core`**
 | **2** | **H — Locales** (**shipped** — core + CLI) | [`locales.md`](./locales.md) — reader/writer, multi-topology storage |
 | **2a** | **H-cache — Project cache** (**shipped**) | [`cache.md`](./cache.md) — Phases 0–4 (incremental analysis + invalidate policy) |
 | **2b** | **H.1 — Translate cache** (**shipped**) | [`translate-cache.md`](./translate-cache.md) — L1 + L2 `translations/<code>.json` |
-| **3** | **C.3 — Apps + share** | [`apps.md`](./apps.md) — `apps/web`, `apps/report`, worker, core **`share`**, CLI **`i18nprune share`** |
+| **3** | **C.3 — Apps + share** | [`apps.md`](./apps.md) — worker + core **`share`** + CLI **`i18nprune share`** (**rows 0–6 shipped**); web/report UX rows **7–8** next |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) — nav trim, SDK quickstart, tree flattening |
 | **5** | **D.2 — Landing** | `apps/landing` — lean onboarding + value proposition |
 | **6** | **E + G** | Release polish + execute / delete [`final.md`](./final.md) when tagging |

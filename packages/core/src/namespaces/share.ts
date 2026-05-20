@@ -1,3 +1,4 @@
+export { DEFAULT_WORKER_API_URL } from '../shared/constants/links.js';
 export {
   DEFAULT_MAX_SHARE_JSON_BYTES,
   buildReportPayload,
@@ -15,6 +16,11 @@ export {
   parseWorkerShareEnvelope,
   projectPayloadMatchesCachedEntry,
   resolveShareJsonPath,
+  emitShareDeleteHumanMessages,
+  emitShareListHumanMessages,
+  emitShareUploadHumanMessages,
+  emitShareViewHumanMessages,
+  resolveShareWorkerBaseUrl,
   runShare,
   saveShareJsonFile,
   shareJsonSerializedByteLength,
@@ -25,6 +31,19 @@ export {
 } from '../share/index.js';
 export { shareCacheEntrySchema, shareJsonFileSchema } from '../share/schema.js';
 export type { SaveShareJsonResult } from '../share/io/shareJson.js';
+export type { ShareHumanMessageHost } from '../share/human.js';
+export type {
+  ShareDeleteOptions,
+  ShareListOptions,
+  ShareUploadOptions,
+  ShareViewOptions,
+} from '../types/share/hostOptions.js';
+export type {
+  ShareDeleteJsonPayload,
+  ShareListJsonPayload,
+  ShareUploadJsonPayload,
+  ShareViewJsonPayload,
+} from '../types/share/json.js';
 export type {
   LoadShareJsonResult,
   ShareCacheEntry,

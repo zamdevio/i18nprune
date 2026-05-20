@@ -23,6 +23,9 @@ export const ENV_I18NPRUNE_FUNCTIONS = 'I18NPRUNE_FUNCTIONS' as const;
 export const ENV_I18NPRUNE_NO_DISCOVERY = 'I18NPRUNE_NO_DISCOVERY' as const;
 export const ENV_I18NPRUNE_NO_INIT = 'I18NPRUNE_NO_INIT' as const;
 
+/** Worker API base URL for `share` upload / view (overridden by `--worker-url`). */
+export const ENV_I18NPRUNE_WORKER_URL = 'I18NPRUNE_WORKER_URL' as const;
+
 /** Keys surfaced in the **`i18nprune config --json`** `env` block (`I18NPRUNE_*` plus update opt-out). */
 export const I18NPRUNE_ENV_KEYS = [
   ENV_I18NPRUNE_SOURCE,

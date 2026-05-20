@@ -20,6 +20,7 @@ One **`.md` per CLI operation** we want maintainers/agents to navigate quickly. 
 | **providers** | [`providers.md`](providers.md) | |
 | **generate** | [`generate.md`](generate.md) | Async, translate + metadata normalize (**`--resume`** for top-up) |
 | **report** | [`report.md`](report.md) | Async; separate envelope builder |
+| **share** | [`share.md`](share.md) | Worker upload + `share.json`; subcommands list/view/delete |
 
 ## Scaffold
 

@@ -140,6 +140,7 @@ export type ShareDeleteInput = {
   kind: 'project' | 'report';
   workerBaseUrl: string;
   workerId: string;
+  /** When false, skip worker DELETE (local `share.json` only). Default true when host supplies delete hooks. */
   remote?: boolean;
   hooks?: Pick<ShareHostHooks, 'deleteRemoteProject' | 'deleteRemoteReport'>;
 };

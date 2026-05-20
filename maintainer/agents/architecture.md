@@ -60,7 +60,7 @@ packages/core/src/<op>/index.ts  →  barrel: re-exports run.ts + types
 
 **CLI wiring:** The CLI builds `CoreContext` via `createCliCoreContext(cliCtx)`, calls `runXxx`, then renders the result and shapes the `--json` envelope.
 
-Current ops: `runGenerate`, `runSync`, `runMissing`, `runCleanup`, `runQuality`, `runReview`, `runValidate`, `runReport`, `runDoctor`, `runDynamic`, `runLocalesList`, `writeLocaleMetaEdit`, `deleteLocaleFiles`.
+Current ops: `runGenerate`, `runSync`, `runMissing`, `runCleanup`, `runQuality`, `runReview`, `runValidate`, `runReport`, `runDoctor`, `runDynamic`, `runLocalesList`, `writeLocaleMetaEdit`, `deleteLocaleFiles`, `runShare`, `runShareList`, `runShareView`, `runShareDelete`.
 
 ---
 

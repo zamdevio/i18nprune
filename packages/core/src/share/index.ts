@@ -23,16 +23,32 @@ export {
   projectPayloadMatchesCachedEntry,
 } from './policy.js';
 export { parseWorkerShareEnvelope, shareRemoteIssueFromWorker, workerDataProjectId, workerDataReportId } from './remote.js';
+export {
+  emitShareDeleteHumanMessages,
+  emitShareListHumanMessages,
+  emitShareUploadHumanMessages,
+  emitShareViewHumanMessages,
+} from './human.js';
+export type { ShareHumanMessageHost } from './human.js';
+export { resolveShareWorkerBaseUrl } from './resolveWorkerBaseUrl.js';
 export { runShare } from './run.js';
 export { runShareView } from './view.js';
 export { shareCacheEntrySchema, shareJsonFileSchema } from './schema.js';
 export type {
   LoadShareJsonResult,
   ShareCacheEntry,
+  ShareDeleteJsonPayload,
+  ShareDeleteOptions,
   ShareJsonFile,
   ShareJsonHealReport,
   ShareKind,
   ShareLinks,
+  ShareListJsonPayload,
+  ShareListOptions,
+  ShareUploadJsonPayload,
+  ShareUploadOptions,
+  ShareViewJsonPayload,
+  ShareViewOptions,
   WorkerShareEnvelope,
 } from '../types/share/index.js';
 export type {
