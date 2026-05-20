@@ -16,7 +16,7 @@
 
 ## Notes
 
-- Doctor typically emits **`run.started`** + **`run.completed`** only (confirm in **`runDoctor`** + [`flows-and-entrypoints.md`](../operations/flows-and-entrypoints.md)).
+- Doctor typically emits **`run.started`** + **`run.completed`** only (confirm in **`runDoctor`** + [`entrypoints.md`](../operations/entrypoints.md)).
 
 ## Frozen API
 

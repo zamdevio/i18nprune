@@ -36,7 +36,7 @@
 
 ## `run.*` events
 
-- Heavy **`run.progress.generate`** usage — see [`../operations/flows-and-entrypoints.md`](../operations/flows-and-entrypoints.md) + `packages/core/src/types/shared/run/`.
+- Heavy **`run.progress.generate`** usage — see [`../operations/entrypoints.md`](../operations/entrypoints.md) + `packages/core/src/types/shared/run/`.
 
 ## Frozen API
 

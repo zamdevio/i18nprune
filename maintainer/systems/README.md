@@ -43,7 +43,7 @@ maintainer/systems/
 ├── knip.md
 ├── operations/
 │   ├── README.md
-│   └── flows-and-entrypoints.md
+│   └── entrypoints.md
 └── commands/
     ├── README.md (index + authoring rules)
     ├── sync.md (+ stubs for cleanup, doctors, envelopes, programmatic, parity, ...)
@@ -82,6 +82,6 @@ Keep this tree truthful with `git`; don't maintain a brittle wall of filenames h
 
 ## What next (optional follow-ups)
 
-- **Short “run event / envelope invariants”** block in **`operations/flows-and-entrypoints.md`** as the single prose summary (instead of scattering across transient maintainer drafts).
+- **Short “run event / envelope invariants”** block in **`operations/entrypoints.md`** as the single prose summary (instead of scattering across transient maintainer drafts).
 - **`systems/shared/`** if we need cross-cutting maintainer sheets (providers, envelopes) that aren't **per-op**.
 - Thin **“how to extend the CLI without breaking parity”** pointer from **`maintainer/phases/extension/*.md`** into **`systems/commands/`**, so extension plans don't duplicate full wiring tables.

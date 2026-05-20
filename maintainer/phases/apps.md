@@ -476,7 +476,7 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 
 | # | Slice | Status |
 |---|-------|--------|
-| 0 | `packages/core/src/share/` types + **`share.json` I/O + self-heal** + `remote.ts` | **Todo** |
+| 0 | `packages/core/src/share/` types + **`share.json` I/O + self-heal** + `remote.ts` | **Shipped** |
 | 1 | `runShare` project payload + manifest events | **Todo** |
 | 2 | `runShare` report payload + validation | **Todo** |
 | 3 | `runShareList` / `runShareView` / `runShareDelete` | **Todo** |

@@ -8,14 +8,14 @@ Practical maps for **`run.*`**, envelopes, and today’s **`runXxx`** entry path
 
 | File | Purpose |
 |------|---------|
-| [`flows-and-entrypoints.md`](flows-and-entrypoints.md) | Mental model + emission summary, **`runXxx`** table, CLI vs core split |
+| [`entrypoints.md`](entrypoints.md) | Mental model + emission summary, **`runXxx`** table, CLI vs core split |
 
 ## Contract changes
 
 When **`run.*`** semantics, **`RunEmitter`** boundaries, or envelope rules change:
 
 1. **Code + types first** (`packages/cli`, **`packages/core`**, **`types/shared/run/`**).
-2. **Same PR:** update **`flows-and-entrypoints.md`** (and **`systems/commands/`** sheets if a specific op changes).
+2. **Same PR:** update **`entrypoints.md`** (and **`systems/commands/`** sheets if a specific op changes).
 3. **Phases docs** (`maintainer/phases/`, **`extension/`** when extension-scoped) only if documenting **planned or shipped slice** intent—not as the only nav.
 
 ## Adding here

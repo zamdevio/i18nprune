@@ -48,4 +48,4 @@
 
 ## Related
 
-- **Ops entry table:** [`../operations/flows-and-entrypoints.md`](../operations/flows-and-entrypoints.md)
+- **Ops entry table:** [`../operations/entrypoints.md`](../operations/entrypoints.md)

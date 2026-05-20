@@ -375,6 +375,8 @@ export type {
   ReportRunResult,
 } from './namespaces/report.js';
 
+export * as share from './namespaces/share.js';
+
 export * as localesDynamic from './namespaces/localesDynamic.js';
 export { runDynamic } from './namespaces/localesDynamic.js';
 export type {
@@ -812,6 +814,15 @@ export {
   ISSUE_CLEANUP_RIPGREP_UNAVAILABLE,
   ISSUE_CLEANUP_UNCERTAIN_PATHS_EXCLUDED,
   ISSUE_CLI_INVALID_JSON_PRETTY,
+  ISSUE_SHARE_JSON_REPAIRED,
+  ISSUE_SHARE_JSON_WRITE_FAILED,
+  ISSUE_SHARE_REMOTE_ERROR,
+  ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE,
+  ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND,
+  ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND,
+  ISSUE_SHARE_REMOTE_REPORT_REJECTED,
+  ISSUE_SHARE_REMOTE_UNAVAILABLE,
+  ISSUE_SHARE_REMOTE_UPLOAD_REJECTED,
   ISSUE_CONFIG_INVALID,
   ISSUE_CONFIG_LOAD_FAILED,
   ISSUE_CONFIG_MISSING,

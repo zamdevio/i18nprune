@@ -20,7 +20,7 @@
 
 ## Flow (short)
 
-Discovery + scan input → core validate build → **`buildCliJsonEnvelope('validate', …)`**; emits **`run.*`** for progress/errors per **`RunEmitter`** contract (see [`../operations/flows-and-entrypoints.md`](../operations/flows-and-entrypoints.md) + run types).
+Discovery + scan input → core validate build → **`buildCliJsonEnvelope('validate', …)`**; emits **`run.*`** for progress/errors per **`RunEmitter`** contract (see [`../operations/entrypoints.md`](../operations/entrypoints.md) + run types).
 
 ## Frozen API
 
