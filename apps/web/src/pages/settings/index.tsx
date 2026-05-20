@@ -13,7 +13,8 @@ import {
   updateRecentProjectZipSettings,
   validateRecentProjectZipBundle,
 } from '../../lib/storage/recentProjectZips';
-import { writeWorkerUrl, readWorkerUrl } from '../../lib/storage/workerUrl';
+import { writeWorkerUrl, readWorkerUrl, resetWorkerUrlToDefault } from '../../lib/storage/workerUrl';
+import { DEFAULT_WORKER_API_URL } from '@i18nprune/core';
 
 export function SettingsPage() {
   const initialRecent = readRecentProjectZipSettings();
@@ -174,11 +175,23 @@ export function SettingsPage() {
         <h2>Worker URL</h2>
         <label className="field field-wide">
           Default base URL
-          <input value={workerUrl} onChange={(e) => setWorkerUrl(e.target.value)} placeholder="http://127.0.0.1:8787" />
+          <input value={workerUrl} onChange={(e) => setWorkerUrl(e.target.value)} placeholder="https://worker.i18nprune.dev" />
         </label>
-        <div className="row" style={{ marginTop: 12 }}>
+        <div className="row" style={{ marginTop: 12, flexWrap: 'wrap', gap: 8 }}>
           <button type="button" disabled={busy} onClick={() => void testHealth()}>
             Test /health
+          </button>
+          <button
+            type="button"
+            className="ghost"
+            disabled={busy || workerUrl.trim() === DEFAULT_WORKER_API_URL}
+            onClick={() => {
+              setWorkerUrl(resetWorkerUrlToDefault());
+              setHealth('idle');
+              setWorkerStatus(null);
+            }}
+          >
+            Reset to default
           </button>
           {savingWorker ? <span className="status-pill status-pill--warn">Saving URL…</span> : null}
           {health === 'ok' ? <span className="ok-pill">OK</span> : null}

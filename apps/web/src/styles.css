@@ -241,7 +241,62 @@ html.dark .runtime-header {
 }
 
 .page--workspace {
+  width: 100%;
   max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.workspace-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.workspace-head > div:first-child {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.workspace-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 1 auto;
+}
+
+.workspace-stale-banner--centered {
+  width: 100%;
+  max-width: 32rem;
+}
+
+.workspace-stale-banner__actions {
+  margin-top: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .workspace-head__actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .workspace-head__actions .ghost,
+  .workspace-head__actions .danger {
+    flex: 1 1 auto;
+  }
+
+  .share-inline-error {
+    max-width: 100%;
+    flex-basis: 100%;
+  }
 }
 
 .workspace-result__title {
@@ -717,25 +772,6 @@ html.dark .runtime-header {
   }
 }
 
-.workspace-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 8px;
-}
-
-@media (max-width: 900px) {
-  .workspace-head {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .workspace-head button.danger.ghost {
-    align-self: flex-start;
-  }
-}
-
 .workspace-head h1 {
   margin: 0 0 6px;
 }
@@ -904,6 +940,61 @@ button.danger.ghost {
   margin: 0;
   line-height: 1.45;
   font-size: 0.95rem;
+}
+
+.share-inline-error {
+  font-size: 0.85rem;
+  max-width: 280px;
+}
+
+.share-modal__manifest {
+  margin: 0 0 12px;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.share-modal__manifest li {
+  margin-bottom: 4px;
+}
+
+.page--centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.page--centered h1 {
+  margin-top: 0;
+}
+
+.page--centered .row {
+  justify-content: center;
+}
+
+.page--centered .panel {
+  width: 100%;
+  text-align: left;
+}
+
+.page--shared-project h1 {
+  margin-top: 0;
+}
+
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid var(--border);
 }
 
 .workspace-tree {

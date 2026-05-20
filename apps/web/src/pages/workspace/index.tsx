@@ -5,11 +5,16 @@ import {
   isWorkerProjectNotFoundError,
   uploadProject,
 } from '../../lib/services/api/client';
-import { navigateHash } from '../../hooks/useHashRoute';
+import { navigateHash, navigateWorkspace } from '../../hooks/useAppRoute';
+import { ShareProjectButton } from '../../components/workspace/ShareProjectButton';
+import { shareIssueFromThrownError, isShareRemoteProjectNotFound } from '../../lib/services/share/workerFetch';
+import { openSharedWorkerProject } from '../../lib/services/share/webShare';
+import { readWorkerUrl } from '../../lib/storage/workerUrl';
+import type { Issue } from '@i18nprune/core';
 import { collectWorkspaceIssuesFromResultPayload } from '../../lib/services/core/workspaceIssues';
 import { mergeConfigJsonOntoZipBase } from '../../lib/services/core/mergeZipConfig';
 import { clearOpMemo, readOpMemo, opMemoKey, writeOpMemo } from '../../lib/workspace/opMemo';
-import { clearSnapHold, snapHydrateRemote } from '../../lib/workspace/snapHold';
+import { clearSnapHold, snapBackedLocal, snapHydrateRemote, snapKey } from '../../lib/workspace/snapHold';
 import type { WorkerApiEnvelope } from '@i18nprune/core';
 import type { WorkspaceConfigHintState, WorkspaceSession } from '@i18nprune/core';
 import { Config } from './config';
@@ -18,10 +23,11 @@ import { Result } from './result';
 
 type Props = {
   session: WorkspaceSession | null;
+  workspaceProjectId: string | null;
   onSessionChange: (next: WorkspaceSession | null) => void;
 };
 
-export function WorkspacePage({ session, onSessionChange }: Props) {
+export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: Props) {
   const [configJson, setConfigJson] = useState('');
   const [overrideApplied, setOverrideApplied] = useState(false);
   const [localeTag, setLocaleTag] = useState('');
@@ -35,20 +41,75 @@ export function WorkspacePage({ session, onSessionChange }: Props) {
   }>({});
   const [busy, setBusy] = useState(false);
   const [remoteProjectMissingBanner, setRemoteProjectMissingBanner] = useState(false);
+  const [remoteMissingMessage, setRemoteMissingMessage] = useState<string | null>(null);
+  const [remoteHydrating, setRemoteHydrating] = useState(false);
   const [configHint, setConfigHint] = useState<WorkspaceConfigHintState>({
     kind: 'idle',
     ok: false,
     message: 'Loading config check…',
   });
   const prevConfigJsonForCacheRef = useRef<string | undefined>(undefined);
+  const sessionKeyRef = useRef<string | null>(null);
+  const [openingShared, setOpeningShared] = useState(false);
+  const [openSharedIssue, setOpenSharedIssue] = useState<Issue | null>(null);
 
   useEffect(() => {
+    if (!workspaceProjectId) {
+      setOpeningShared(false);
+      setOpenSharedIssue(null);
+      return;
+    }
+    const remoteId = session?.mode === 'remote' ? session.projectId : null;
+    if (remoteId && remoteId === workspaceProjectId) {
+      setOpeningShared(false);
+      setOpenSharedIssue(null);
+      return;
+    }
+    let cancelled = false;
+    setOpeningShared(true);
+    setOpenSharedIssue(null);
+    void openSharedWorkerProject({ workerBaseUrl: readWorkerUrl(), projectId: workspaceProjectId }).then((opened) => {
+      if (cancelled) return;
+      setOpeningShared(false);
+      if (!opened.ok) {
+        setOpenSharedIssue(opened.issue);
+        return;
+      }
+      onSessionChange(opened.session);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [workspaceProjectId, session, onSessionChange]);
+
+  useEffect(() => {
+    if (!session) {
+      sessionKeyRef.current = null;
+      return;
+    }
+    const key = snapKey(session);
+    const sessionChanged = key !== sessionKeyRef.current;
+    sessionKeyRef.current = key;
+    if (!sessionChanged) return;
+
     clearOpMemo();
     clearSnapHold();
     prevConfigJsonForCacheRef.current = undefined;
     setRemoteProjectMissingBanner(false);
-    if (session?.mode === 'remote') {
-      void snapHydrateRemote(session);
+    setRemoteMissingMessage(null);
+    setRemoteHydrating(false);
+
+    if (session.mode === 'remote') {
+      setRemoteHydrating(true);
+      void snapHydrateRemote(session).then((ok) => {
+        setRemoteHydrating(false);
+        if (!ok) {
+          setRemoteProjectMissingBanner(true);
+          setRemoteMissingMessage(
+            'Could not load the project snapshot from the worker. The project may have been evicted (~7 days idle) or the worker URL may be wrong.',
+          );
+        }
+      });
     }
   }, [session]);
 
@@ -171,6 +232,7 @@ export function WorkspacePage({ session, onSessionChange }: Props) {
       activeZipFile,
       label: activeZipFile.name,
     });
+    navigateWorkspace(nextProjectId);
     const snapshotMeta = (res.data as { snapshotMeta?: { uploadedAt?: string; extractionComputedAt?: string } } | null)?.snapshotMeta;
     setLatestUploadMeta({
       uploadedAt: snapshotMeta?.uploadedAt,
@@ -227,25 +289,71 @@ export function WorkspacePage({ session, onSessionChange }: Props) {
       setLatestCurl(curlCommand ?? '');
       writeOpMemo(cacheKey, { payload: res, title: label, curl: curlCommand ?? '' });
     } catch (err) {
-      if (session.mode === 'remote' && activeZipFile && isWorkerProjectNotFoundError(err)) {
+      const shareIssue = shareIssueFromThrownError(err);
+      if (session.mode === 'remote' && (isWorkerProjectNotFoundError(err) || isShareRemoteProjectNotFound(shareIssue))) {
         setRemoteProjectMissingBanner(true);
+        setRemoteMissingMessage(shareIssue?.message ?? (err instanceof Error ? err.message : String(err)));
+        if (!activeZipFile) clearSnapHold();
       }
       setResultTitle(`${label} error`);
-      setResultPayload({ message: err instanceof Error ? err.message : String(err) });
+      setResultPayload({ message: shareIssue?.message ?? (err instanceof Error ? err.message : String(err)) });
       setLatestCurl(curlCommand ?? '');
     } finally {
       setBusy(false);
     }
   }
 
+  if (openingShared || (workspaceProjectId && !session && !openSharedIssue)) {
+    return (
+      <div className="page page--centered page--workspace-loading">
+        <h1>Workspace</h1>
+        <p className="muted">
+          Opening shared project <code>{workspaceProjectId}</code>…
+        </p>
+        <p className="status-pill">Fetching metadata (GET /v1/projects/:id)</p>
+      </div>
+    );
+  }
+
+  if (openSharedIssue) {
+    return (
+      <div className="page page--centered page--workspace-empty">
+        <section className="panel workspace-stale-banner workspace-stale-banner--centered">
+          <h1>Shared project unavailable</h1>
+          <p className="workspace-stale-banner__title">{openSharedIssue.message}</p>
+          <div className="row workspace-stale-banner__actions">
+            <button type="button" className="primary" onClick={() => navigateHash('/')}>
+              Upload again (Home)
+            </button>
+            <button type="button" className="ghost" onClick={() => navigateHash('/settings')}>
+              Change worker URL
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   if (!session) {
     return (
-      <div className="page">
+      <div className="page page--centered page--workspace-empty">
         <h1>Workspace</h1>
-        <p className="muted">Open a project from Home (zip, folder, or a recent worker project) to run read-only operations here.</p>
+        <p className="muted">Open a project from Home (zip, folder, or a shared link with ?id=) to run read-only operations here.</p>
         <button type="button" className="primary" onClick={() => navigateHash('/')}>
           Go to Home
         </button>
+      </div>
+    );
+  }
+
+  if (isRemote && remoteHydrating && !remoteProjectMissingBanner) {
+    return (
+      <div className="page page--centered page--workspace-loading">
+        <h1>Workspace</h1>
+        <p className="muted">
+          Loading project <code>{projectId}</code> from the worker…
+        </p>
+        <p className="status-pill">Fetching snapshot (GET /v1/projects/:id/snapshot)</p>
       </div>
     );
   }
@@ -267,16 +375,27 @@ export function WorkspacePage({ session, onSessionChange }: Props) {
               : `Worker workspace · project ${projectId} — one server snapshot powers read-only actions until re-upload or eviction.`}
           </p>
         </div>
-        <button type="button" className="danger ghost" onClick={() => onSessionChange(null)}>
-          Clear session
-        </button>
+        <div className="workspace-head__actions">
+          <ShareProjectButton session={session} workerBaseUrl={workerBaseUrl} configJson={configJson} disabled={busy} />
+          <button
+            type="button"
+            className="danger ghost"
+            onClick={() => {
+              onSessionChange(null);
+              navigateWorkspace();
+            }}
+          >
+            Clear session
+          </button>
+        </div>
       </div>
 
       {isRemote && remoteProjectMissingBanner ? (
         <section className="panel workspace-stale-banner" aria-live="polite">
           <p className="workspace-stale-banner__title">
-            <strong>Project missing on the worker.</strong> It may have been evicted or the worker restarted. Re-upload the same zip to keep your
-            workspace context, or open a cached copy from Home.
+            <strong>Project missing on the worker.</strong>{' '}
+            {remoteMissingMessage ??
+              'It may have been evicted or the worker restarted. Re-upload the same zip to keep your workspace context, or open a cached copy from Home.'}
           </p>
           <div className="row" style={{ marginTop: 8, flexWrap: 'wrap', gap: 8 }}>
             <button
@@ -289,6 +408,9 @@ export function WorkspacePage({ session, onSessionChange }: Props) {
             </button>
             <button type="button" className="ghost" disabled={busy} onClick={() => setRemoteProjectMissingBanner(false)}>
               Dismiss
+            </button>
+            <button type="button" className="ghost" disabled={busy} onClick={() => navigateHash('/settings')}>
+              Change worker URL
             </button>
             <button type="button" className="ghost" disabled={busy} onClick={() => navigateHash('/')}>
               Go to Home (recent zips)

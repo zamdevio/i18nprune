@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { OpenProjectPanel } from '../../components/OpenProjectPanel';
-import { navigateHash } from '../../hooks/useHashRoute';
+import { navigateWorkspace } from '../../hooks/useAppRoute';
 import {
   deleteRecentProjectZip,
   findRecentProjectZipBySha256,
@@ -222,7 +222,7 @@ export function HomePage({ onOpenWorkspace }: Props) {
         onComplete={(session) => {
           refreshRecent();
           onOpenWorkspace(session);
-          navigateHash('/workspace');
+          navigateWorkspace(session.mode === 'remote' ? session.projectId : undefined);
         }}
         preferredMode={recentSettings.defaultMode === 'ask' ? undefined : recentSettings.defaultMode}
       />

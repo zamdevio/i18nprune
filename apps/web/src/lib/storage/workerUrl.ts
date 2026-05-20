@@ -1,6 +1,5 @@
+import { DEFAULT_WORKER_API_URL } from '@i18nprune/core';
 import { WORKER_URL_STORAGE_KEY } from '../constants/storageKeys';
-
-const DEFAULT_URL = 'http://127.0.0.1:8787';
 
 export function readWorkerUrl(): string {
   try {
@@ -9,7 +8,7 @@ export function readWorkerUrl(): string {
   } catch {
     /* ignore */
   }
-  return DEFAULT_URL;
+  return DEFAULT_WORKER_API_URL;
 }
 
 export function writeWorkerUrl(url: string): void {
@@ -18,4 +17,10 @@ export function writeWorkerUrl(url: string): void {
   } catch {
     /* ignore */
   }
+}
+
+/** Persist and return the production default worker origin. */
+export function resetWorkerUrlToDefault(): string {
+  writeWorkerUrl(DEFAULT_WORKER_API_URL);
+  return DEFAULT_WORKER_API_URL;
 }

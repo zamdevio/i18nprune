@@ -204,7 +204,12 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
           <div className="modal-panel__section">
             <label className="field">
               Worker base URL
-              <input value={workerUrl} onChange={(e) => setWorkerUrl(e.target.value)} disabled={busy} placeholder="http://127.0.0.1:8787" />
+              <input
+                value={workerUrl}
+                onChange={(e) => setWorkerUrl(e.target.value)}
+                disabled={busy}
+                placeholder="https://worker.i18nprune.dev"
+              />
             </label>
             <div className="row" style={{ marginTop: 8 }}>
               <button type="button" disabled={busy} onClick={() => void testHealth()}>

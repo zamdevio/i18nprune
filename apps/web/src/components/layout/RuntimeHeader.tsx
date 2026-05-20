@@ -1,16 +1,18 @@
 import { Home, LayoutDashboard, Moon, Settings, Sun } from 'lucide-react';
-import { useHashRoute, navigateHash } from '../../hooks/useHashRoute';
+import { useAppRoute, navigateHash } from '../../hooks/useAppRoute';
 import { useTheme } from '../../context/ThemeContext';
 
 export function RuntimeHeader() {
-  const route = useHashRoute();
+  const route = useAppRoute();
+  const hashPath = route.path;
   const { theme, toggleTheme } = useTheme();
 
   const nav = (path: string) => {
     navigateHash(path);
   };
 
-  const isActive = (path: string) => route === path || (path === '/' && (route === '/' || route === ''));
+  const isActive = (path: string) =>
+    hashPath === path || (path === '/' && (hashPath === '/' || hashPath === ''));
 
   return (
     <header className="runtime-header">

@@ -2,8 +2,8 @@
  * Remote tab hold: mirrors worker DO — one GET /snapshot payload, then slice like getProjectById routes.
  * No zip rescan; validate/review/report read snapshot.extraction + locale JSON only (same as `apps/workers/i18nprune` routes).
  */
-import type { ParsedProjectUpload, ProjectSnapshot, WorkerApiEnvelope, WorkspaceSession } from '@i18nprune/core';
-import { getProjectSnapshot } from '../services/api/client';
+import { parseWorkerShareEnvelope, type ParsedProjectUpload, type ProjectSnapshot, type WorkerApiEnvelope, type WorkspaceSession } from '@i18nprune/core';
+import { workerFetchJson } from '../services/share/workerHttp';
 import { seedOpMemoFromSnap, type SnapCurls } from './snapSeed';
 
 type Hold = {
@@ -14,7 +14,7 @@ type Hold = {
 };
 
 let hold: Hold | null = null;
-let hydrateP: Promise<void> | null = null;
+let hydrateP: Promise<boolean> | null = null;
 let hydrateKey: string | null = null;
 /** Bumped in {@link clearSnapHold} so stale GET /snapshot cannot apply after session switch. */
 let epoch = 0;
@@ -45,10 +45,10 @@ function curls(ws: WorkspaceSession & { mode: 'remote' }): SnapCurls {
   };
 }
 
-function applyEnv(ws: WorkspaceSession & { mode: 'remote' }, env: WorkerApiEnvelope<unknown>): void {
-  if (!env.success || env.data == null) return;
+function applyEnv(ws: WorkspaceSession & { mode: 'remote' }, env: WorkerApiEnvelope<unknown>): boolean {
+  if (!env.success || env.data == null) return false;
   const raw = env.data as { projectId?: string; snapshot?: ProjectSnapshot };
-  if (!raw.snapshot) return;
+  if (!raw.snapshot) return false;
   const sessionKey = snapKey(ws);
   hold = {
     sessionKey,
@@ -57,6 +57,7 @@ function applyEnv(ws: WorkspaceSession & { mode: 'remote' }, env: WorkerApiEnvel
     snapshot: raw.snapshot,
   };
   seedOpMemoFromSnap(ws, env, curls(ws));
+  return true;
 }
 
 /**
@@ -79,28 +80,36 @@ export function snapBackedLocal(ws: WorkspaceSession): ParsedProjectUpload | nul
   };
 }
 
-/** One GET /snapshot per remote session key; deduped in-flight. */
-export async function snapHydrateRemote(ws: WorkspaceSession): Promise<void> {
-  if (ws.mode !== 'remote') return;
+/** One GET /snapshot per remote session key; deduped in-flight. Returns true when hold is ready. */
+export async function snapHydrateRemote(ws: WorkspaceSession): Promise<boolean> {
+  if (ws.mode !== 'remote') return false;
   const key = snapKey(ws);
-  if (hold?.sessionKey === key) return;
+  if (hold?.sessionKey === key) return true;
   if (hydrateP && hydrateKey === key) {
-    await hydrateP;
-    return;
+    return hydrateP;
   }
   const e0 = epoch;
+  const base = ws.workerBaseUrl.replace(/\/$/, '');
   hydrateKey = key;
   hydrateP = (async () => {
     try {
-      const res = await getProjectSnapshot(ws.workerBaseUrl, ws.projectId);
-      if (e0 !== epoch) return;
-      applyEnv(ws, res as WorkerApiEnvelope<unknown>);
+      const { httpStatus, body } = await workerFetchJson(
+        `${base}/v1/projects/${encodeURIComponent(ws.projectId)}/snapshot`,
+      );
+      if (e0 !== epoch) return false;
+      const envelope = parseWorkerShareEnvelope(body);
+      if (httpStatus >= 200 && httpStatus < 300 && envelope.success) {
+        return applyEnv(ws, envelope as WorkerApiEnvelope<unknown>);
+      }
+      if (e0 === epoch) hold = null;
+      return false;
     } catch {
       if (e0 === epoch) hold = null;
+      return false;
     } finally {
       hydrateP = null;
       hydrateKey = null;
     }
   })();
-  await hydrateP;
+  return hydrateP;
 }
