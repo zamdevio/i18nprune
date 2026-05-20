@@ -17,7 +17,9 @@
 | **No duplicate storage** | Web/report “Share” when the session **already came from the worker** → **copy link only** (no re-upload). |
 | **Privacy** | Upload **prepared project snapshot** (sanitized zip) or **report JSON only** — never opaque full-repo upload. Core emits a **manifest** before upload. |
 | **Cache coupling** | `share.json` lives beside `files.json` / `analysis.json` under `cache/projects/<cacheProjectId>/`. Honors **`--no-cache`**, `cache.enabled`, `cache.mode`, `cache.dir` — same rules as analysis cache. |
-| **CLI shape** | Parent `share` shows help when invoked bare (same pattern as `locales`). Subcommands: **`share list`**, **`share view`**, **`share delete`**. Default upload entry: **`share`** with `--project` / `--report`. |
+| **CLI shape** | Parent `share` shows help when invoked bare (same pattern as `locales`). Subcommands: **`share upload`**, **`share list`**, **`share view`**, **`share delete`** (upload flags live on **`upload`** so `delete --project <id>` is not ambiguous). |
+| **Share backups** | Before overwriting `share.json`, copy **raw bytes** to `{projectCacheDir}/share.bak/share.json.bak.<timestamp>.json` (invalid JSON preserved). CLI **warn** when a backup is written. |
+| **Share cache debug** | Global **`--debug-cache`** emits `[cache]` lines on share ops (path, entry count, skip reason, backup path) — same logger gate as analysis cache. |
 | **Remote row GET (no `/metadata`)** | **`GET /v1/projects/:id`** and **`GET /v1/reports/:id`** return **metadata only** (mirror today’s project route). Full bodies: **`GET /v1/projects/:id/snapshot`**, **`GET /v1/reports/:id/document`**. **`share view`** uses the metadata GETs. |
 | **`share.json` self-heal** | Core **loads safely**: auto-restore missing/corrupt files, strip unknown fields, drop invalid entries, **warn** once (do not fail silently; tell user not to hand-edit). |
 | **Worker failures** | Core maps predictable worker errors (404/eviction, payload too large, validation, 5xx) → stable **`issues[]`** codes; CLI / web / report show the same guidance. |
@@ -63,19 +65,18 @@ Session D — user docs (`docs/commands/share/`)
 
 ```txt
 packages/core/src/share/
-├── index.ts              # barrel → runShare, runShareList, runShareView, runShareDelete
-├── run.ts                # runShare — main upload orchestration (project `build` + `worker-ref` today)
-├── list.ts               # runShareList
-├── view.ts               # runShareView — GET /v1/{projects|reports}/:id (+ merge local share.json)
-├── delete.ts             # runShareDelete (local metadata + optional worker DELETE)
-├── buildProjectPayload.ts  # prepared zip bytes + manifest
-├── buildReportPayload.ts   # ProjectReportDocument (+ hash)
-├── policy.ts             # shouldReupload?, read/write share.json
-├── remote.ts             # mapWorkerShareResponse, classify worker HTTP/errors
-├── io/
-│   └── shareJson.ts      # read/write + Zod + self-heal share.json
-├── links.ts              # web / report / worker URL builders (constants from core/links)
-└── types/                # ShareKind, ShareManifest, ShareRunResult, ShareCacheEntry
+├── index.ts
+├── ops/                  # runShare, runShareList, runShareView, runShareDelete
+├── payload/              # buildProjectPayload, buildReportPayload, collectSnapshotPaths, ignorePaths, reportSemantic
+├── policy/               # skip / match policy (hash, files epoch)
+├── cache/                # share.json I/O, schema, canonicalEntry, resolveInputFilesEpoch, share.bak backups, debug emit
+│   ├── io/shareJson.ts
+│   ├── shareJsonBackup.ts
+│   └── debug.ts
+├── remote/               # worker envelope + resolveWorkerBaseUrl
+├── util/                 # sha256, stableJson, links
+├── emit/human.ts         # CLI human lines (no console in ops)
+└── __tests__/            # mirror ops/, payload/, cache/, …
 ```
 
 Re-export from `packages/core/src/index.ts` and `packages/core/src/namespaces/share.ts` (mirror other ops).
@@ -172,7 +173,9 @@ type ShareCacheEntry = {
 | Condition | Action |
 |-----------|--------|
 | No `share.json` or no matching entry | Upload |
-| `payloadContentHash` (and `configHash` for project) **unchanged** vs last entry for same `workerBaseUrl` + `kind` | **Skip upload** — refresh `lastUsedAt`, return stored `worker*Id` + links |
+| Project: `inputFilesEpoch` + `configHash` **unchanged** vs cached row (from `files.json` epoch) | **Skip zip build** — `cache_epoch_unchanged`; still probe worker before skip |
+| `payloadContentHash` (and `configHash` for project) **unchanged** vs last entry for same `workerBaseUrl` + `kind` | **Skip upload** — `hash_unchanged`; refresh `lastUsedAt`, return stored `worker*Id` + links |
+| Report: semantic hash excludes `generatedAt`, `toolVersion`, `cwd`, `environment` | Stable skip across re-runs of the same report body |
 | Hash changed or `force: true` | Upload (new worker id for project; new report id for report) |
 | `share delete` removed entry | Next share uploads fresh |
 | Hash match but worker **404** on probe | **Upload** (treat remote as gone); prune stale `share.json` entry; warn |
@@ -181,12 +184,13 @@ type ShareCacheEntry = {
 
 ### 1.4b `share.json` load / self-heal (locked)
 
-Implemented in `share/io/shareJson.ts` — **never throw** on local file problems; return `{ file, heal: ShareJsonHealReport, warnings: Issue[] }`.
+Implemented in `share/cache/io/shareJson.ts` — **never throw** on local file problems; return `{ file, heal: ShareJsonHealReport, issues: Issue[] }`.
 
 | Situation | Behavior |
 |-----------|----------|
 | **Missing file** | Treat as `{ version: 1, entries: [] }`; optional write empty file when cache writable. |
-| **Invalid JSON** | Rename to `share.json.bak.<timestamp>` when possible; start fresh `version: 1` entries `[]`. |
+| **Invalid JSON / oversize** | `backupAndRemoveCorruptShareJson` → raw copy under **`share.bak/`**, delete bad file, write fresh `version: 1` (warn in CLI). |
+| **Heal rewrite (valid but non-canonical)** | `backupShareJsonRaw` before `saveShareJsonFile` (raw bytes — malformed content preserved in backup). |
 | **Wrong `version`** | Reset to v1 (or forward-migrate when we add v2 later); warn with old/new version. |
 | **Unknown top-level keys** | Strip (Zod `.strip()`); warn: `Removed unknown share.json fields: …` |
 | **Invalid `entries[]` rows** | Drop bad rows; keep valid; warn count + first reason. |
@@ -202,7 +206,7 @@ Core emits issue code **`share_json_repaired`** (severity `warning`) on any heal
 
 ### 1.5 Worker remote errors (core-owned)
 
-`share/remote.ts` normalizes worker `ApiResponse` / HTTP status into **`ShareRemoteError`** + stable issue codes (add to `packages/core` issue catalog + docs):
+`share/remote/remote.ts` normalizes worker `ApiResponse` / HTTP status into stable issue codes (catalog + [`docs/issues/share.md`](../../docs/issues/share.md)):
 
 | Worker signal | Core issue code | Typical cause |
 |---------------|-----------------|---------------|
@@ -229,6 +233,7 @@ Core emits issue code **`share_json_repaired`** (severity `warning`) on any heal
 **`runShareView`:**
 
 - **Purpose:** show useful facts about a **hosted** share without downloading zip or full report document.
+- **404 on metadata GET:** emit `share_remote_*_not_found`, **purge** matching `share.json` row (`stale_cache_row_removed`), **do not** print stale web/report links.
 - **Inputs:** `kind: 'project' | 'report'` + `workerId` + `workerBaseUrl` (required on non-TTY).
 - **Host:** `fetchRemoteRow` → **`GET /v1/projects/:id`** or **`GET /v1/reports/:id`** (see §3 — metadata only).
 - **Merge:** when cache enabled, overlay local `share.json` entry (payload hash, lastUsedAt, cached links) on top of remote row.
@@ -242,7 +247,8 @@ Core emits issue code **`share_json_repaired`** (severity `warning`) on any heal
 
 - `--project <workerProjectId>` — delete matching cache entry; optional remote `DELETE /v1/projects/:id` or `/v1/reports/:id` via host hook.
 - No flag + TTY → `select()` over known entries (show kind, id, uploadedAt, links).
-- No flag + non-TTY → error: require `--project <workerProjectId>`.
+- No flag + non-TTY → error: require `--project <workerProjectId>` (friendly empty-cache hints via `ISSUE_SHARE_CACHE_EMPTY`).
+- **`--all`:** delete every `share.json` row for this project (TTY confirm unless `--yes`); JSON kind `share-delete-all`.
 - **Default:** local `share.json` row **and** worker `DELETE /v1/projects/:id` or `/v1/reports/:id`. **`--local-only`** skips the HTTP DELETE (cache metadata only).
 
 ---
@@ -255,11 +261,13 @@ Core emits issue code **`share_json_repaired`** (severity `warning`) on any heal
 i18nprune share              → prints shareCmd.help() (no upload)
 i18nprune share --help       → same
 
-i18nprune share [upload]     → default upload entry (options below)
-i18nprune share list [--project <workerId>] [--json]
+i18nprune share upload       → --project | --report (options below)
+i18nprune share list [--project <workerId>] [--report <workerId>] [--json]
 i18nprune share view (--project <workerId> | --report <workerId>) [--json]
-i18nprune share delete [--project <workerId>] [--local-only] [--json]
+i18nprune share delete [--project <workerId> | --report <workerId>] [--local-only] [--all] [--json]
 ```
+
+**Cache flags (global):** `--no-cache` disables `share.json` read/write; **`--debug-cache`** prints `[cache]` diagnostics on list / view / delete / upload (via `ShareHostHooks.debugCache` + `emitShareCacheDebug`).
 
 **`share view` flags:**
 
@@ -482,11 +490,12 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 | 3 | `runShareList` / `runShareView` / `runShareDelete` | **Shipped** |
 | 4 | `core/project/parseZip` — dedupe zip parse (worker + web) | **Shipped** |
 | 5 | Worker reports CRUD — `POST/GET/DELETE /v1/reports` + **`GET …/document`** | **Shipped** |
-| 6 | CLI `share` + `list` / `view` / `delete` + core human emit + worker HTTP hooks | **Shipped** |
+| 6 | CLI `share` + `upload` / `list` / `view` / `delete` (+ `--all`) + core human emit + worker HTTP hooks | **Shipped** |
+| 6b | `share.bak/` backups, cache-epoch skip, view 404 purge, `--debug-cache`, issue codes `cache_empty` / `stale_cache_row_removed` | **Shipped** |
 | 7 | Web `/p/:id` + Share + **404 / too-large UX** | **Todo** |
 | 8 | Report `/s/:id` + **`/document` load** + Share + error UX | **Todo** |
 | 9 | Worker `runReport` alignment | **Todo** |
-| 10 | User docs `docs/commands/share/` + OpenAPI | **Todo** |
+| 10 | User docs `docs/commands/share/` + `docs/issues/share.md` | **Shipped** (OpenAPI optional later) |
 
 **PR discipline:** one row per PR; `pnpm typecheck` + `pnpm test`; parity unchanged except new `share --json` fixtures.
 
@@ -496,9 +505,10 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 
 | Layer | Focus |
 |-------|-------|
-| `share/io.test.ts` | Missing/corrupt/unknown fields → heal + `share_json_repaired` |
-| `share/remote.test.ts` | Maps 404/413/400/5xx → stable issue codes |
-| `share/policy.test.ts` | Hash skip/miss; `--no-cache`; worker 404 → force re-upload |
+| `share/__tests__/ops/shareJson.test.ts` | Missing/corrupt/unknown fields → heal + `share.bak/` raw backup |
+| `share/__tests__/ops/remote.test.ts` | Maps 404/413/400/5xx → stable issue codes |
+| `share/__tests__/ops/policy.test.ts` | Hash skip/miss; epoch skip; worker 404 → force re-upload |
+| `share/__tests__/ops/listViewDelete.test.ts` | List/view/delete + empty cache hints |
 | CLI | TTY confirm; non-TTY auto-upload; `view` 404 message |
 | Worker | `GET :id` metadata vs `GET :document` body; oversize POST codes |
 | Web/report | 404 banner; payload too large; link-only when worker-sourced |
@@ -554,7 +564,9 @@ The following refinements are **accepted** and integrated above:
 | Worker DO | `apps/workers/i18nprune/src/lib/do.ts` |
 | Worker routes (v1) | `apps/workers/i18nprune/src/routes/v1/` (`projects/`, `reports/`, `projects/report.ts`) |
 | CLI share host | `packages/cli/src/commands/share/` (`workerHttp.ts`, `workerUrl.ts` + `ENV_I18NPRUNE_WORKER_URL` in CLI) |
-| Core share human emit | `packages/core/src/share/human.ts` |
+| Core share human emit | `packages/core/src/share/emit/human.ts` |
+| Share backups | `packages/core/src/share/cache/shareJsonBackup.ts` |
+| Share cache debug | `packages/core/src/share/cache/debug.ts` · CLI `commands/share/cacheDebug.ts` |
 | Web workspace | `apps/web/src/pages/workspace/index.tsx` |
 | Report loader | `apps/report/src/data/loader/validate.ts` |
 | CLI locales pattern | `packages/cli/bin/cli.ts` (`localesCmd`) |
