@@ -2,7 +2,7 @@ import { assertSyncPortResult } from '../../../runtime/helpers/sync/index.js';
 import { readJsonFileWithLimit, textByteLength, writeJsonAtomic } from '../../../cache/io/helpers.js';
 import { ISSUE_SHARE_JSON_REPAIRED, ISSUE_SHARE_JSON_WRITE_FAILED } from '../../../shared/constants/issueCodes.js';
 import { DEFAULT_MAX_SHARE_JSON_BYTES, SHARE_JSON_BASENAME } from '../../../shared/constants/share.js';
-import { backupAndRemoveCorruptShareJson, backupShareJsonRaw, shareJsonBackupNotice } from '../shareJsonBackup.js';
+import { backupAndRemoveCorruptShareJson, shareJsonBackupNotice } from '../shareJsonBackup.js';
 import type { CacheRuntime } from '../../../types/cache/index.js';
 import type { Issue } from '../../../types/json/envelope/index.js';
 import type { ShareCacheEntry, ShareJsonFile, ShareJsonHealKind, ShareJsonHealReport, LoadShareJsonResult } from '../../../types/share/index.js';
@@ -238,9 +238,6 @@ export function loadShareJsonFile(input: {
 
   const file = coerceShareFileFromUnknown(data, heal);
   if (heal.repaired) {
-    if (!cacheReadOnly) {
-      recordShareJsonBackup(heal, backupShareJsonRaw(sharePath, runtime));
-    }
     issues.push(shareJsonRepairedIssue(heal, sharePath));
     persistHealedShareFile({ sharePath, file, runtime, cacheReadOnly, issues });
   }
@@ -249,11 +246,11 @@ export function loadShareJsonFile(input: {
 
 export type SaveShareJsonResult = {
   warning?: Issue;
-  backupBakPath?: string;
 };
 
 /**
- * Writes `share.json` atomically when the cache runtime allows writes.
+ * Writes `share.json` atomically. Does not create `share.bak/` copies — backups happen
+ * only in {@link loadShareJsonFile} when the on-disk file is corrupt or oversize.
  */
 export function saveShareJsonFile(input: {
   sharePath: string;
@@ -261,17 +258,13 @@ export function saveShareJsonFile(input: {
   runtime: CacheRuntime;
 }): SaveShareJsonResult {
   const { sharePath, runtime } = input;
-  const backed = backupShareJsonRaw(sharePath, runtime);
   const file: ShareJsonFile = {
     version: input.file.version,
     entries: input.file.entries.map(normalizeShareCacheEntry),
   };
   const warn = writeJsonAtomic(sharePath, file, runtime);
-  if (!warn) {
-    return backed.created && backed.bakPath ? { backupBakPath: backed.bakPath } : {};
-  }
+  if (!warn) return {};
   return {
-    backupBakPath: backed.bakPath,
     warning: {
       severity: 'warning',
       code: ISSUE_SHARE_JSON_WRITE_FAILED,

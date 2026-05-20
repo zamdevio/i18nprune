@@ -19,6 +19,7 @@ function shareJsonBackupFilename(stamp: number | string): string {
 
 /**
  * Copies the current `share.json` bytes to `share.bak/share.json.bak.<stamp>.json` (raw text — invalid JSON is preserved).
+ * Used from {@link loadShareJsonFile} corrupt/oversize paths only — not from normal {@link saveShareJsonFile} writes.
  * Does not remove or modify `share.json`.
  */
 export function backupShareJsonRaw(sharePath: string, runtime: CacheRuntime): ShareJsonBackupResult {

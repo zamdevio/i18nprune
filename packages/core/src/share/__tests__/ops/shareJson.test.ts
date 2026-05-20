@@ -118,14 +118,18 @@ describe('shareJson', () => {
     expect(out.heal.repaired).toBe(false);
   });
 
-  it('loadShareJsonFile: strips unknown top-level keys and emits repair issue', () => {
+  it('loadShareJsonFile: strips unknown top-level keys without share.bak backup', () => {
     const raw = JSON.stringify({ version: 1, entries: [], extra: 1 });
-    const fs = memoryFs({ '/cache/projects/p1/share.json': raw });
     const sharePath = '/cache/projects/p1/share.json';
-    const out = loadShareJsonFile({ sharePath, runtime: testRuntime(fs) });
+    const fs = memoryFs({ [sharePath]: raw });
+    const rt = testRuntime(fs);
+    rt.system.now = () => 77_001;
+    const out = loadShareJsonFile({ sharePath, runtime: rt });
     expect(out.file).toEqual({ version: 1, entries: [] });
     expect(out.issues.some((i) => i.code === ISSUE_SHARE_JSON_REPAIRED)).toBe(true);
     expect(out.heal.repaired).toBe(true);
+    expect(out.heal.backupBakPath).toBeUndefined();
+    expect(fs.exists('/cache/projects/p1/share.bak/share.json.bak.77001.json')).toBe(false);
   });
 
   it('loadShareJsonFile: report rows persist with workerReportId only (no repair loop)', () => {
@@ -268,7 +272,7 @@ describe('shareJson', () => {
     expect(out.issues.some((i) => i.code === ISSUE_SHARE_JSON_REPAIRED)).toBe(true);
   });
 
-  it('saveShareJsonFile backs up existing file under share.bak/', () => {
+  it('saveShareJsonFile does not create share.bak on normal writes', () => {
     const sharePath = '/cache/projects/p1/share.json';
     const fs = memoryFs({ [sharePath]: '{"version":1,"entries":[]}' });
     const rt = testRuntime(fs);
@@ -292,19 +296,58 @@ describe('shareJson', () => {
       },
       runtime: rt,
     });
-    expect(w.backupBakPath).toBe('/cache/projects/p1/share.bak/share.json.bak.42000.json');
-    expect(fs.readText(w.backupBakPath!)).toBe('{"version":1,"entries":[]}');
+    expect(w.warning).toBeUndefined();
+    expect(fs.exists('/cache/projects/p1/share.bak/share.json.bak.42000.json')).toBe(false);
   });
 
-  it('respects maxBytes on read', () => {
+  it('canonical project row round-trip does not heal or backup', () => {
+    const sharePath = '/cache/projects/p1/share.json';
+    const fs = memoryFs();
+    const rt = testRuntime(fs);
+    saveShareJsonFile({
+      sharePath,
+      runtime: rt,
+      file: {
+        version: 1,
+        entries: [
+          {
+            kind: 'project',
+            workerBaseUrl: 'https://worker.i18nprune.dev',
+            workerProjectId: 'p1',
+            payloadContentHash: 'abc',
+            configHash: 'cfg',
+            inputFilesEpoch: 'epoch',
+            byteSize: 100,
+            uploadedAt: '2026-05-20T00:00:00.000Z',
+            lastUsedAt: '2026-05-20T00:00:00.000Z',
+            links: { web: 'https://web.example/p/p1', worker: 'https://worker.example/v1/projects/p1' },
+          },
+        ],
+      },
+    });
+    const reload = loadShareJsonFile({ sharePath, runtime: rt });
+    expect(reload.heal.repaired).toBe(false);
+    expect(reload.heal.backupBakPath).toBeUndefined();
+    expect(reload.issues).toHaveLength(0);
+    expect(reload.file.entries).toHaveLength(1);
+  });
+
+  it('respects maxBytes on read and backs up oversize file', () => {
     const huge = 'x'.repeat(DEFAULT_MAX_SHARE_JSON_BYTES + 10);
-    const fs = memoryFs({ '/cache/projects/p1/share.json': `{"version":1,"entries":[],"pad":"${huge}"}` });
+    const sharePath = '/cache/projects/p1/share.json';
+    const raw = `{"version":1,"entries":[],"pad":"${huge}"}`;
+    const fs = memoryFs({ [sharePath]: raw });
+    const rt = testRuntime(fs);
+    rt.system.now = () => 88_002;
     const out = loadShareJsonFile({
-      sharePath: '/cache/projects/p1/share.json',
-      runtime: testRuntime(fs),
+      sharePath,
+      runtime: rt,
       maxBytes: 64,
     });
+    const bakPath = '/cache/projects/p1/share.bak/share.json.bak.88002.json';
     expect(out.file.entries).toEqual([]);
+    expect(out.heal.backupBakPath).toBe(bakPath);
+    expect(fs.readText(bakPath)).toBe(raw);
     expect(out.issues.some((i) => i.code === ISSUE_SHARE_JSON_REPAIRED)).toBe(true);
   });
 });

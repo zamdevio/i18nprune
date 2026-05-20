@@ -475,15 +475,6 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     const nextEntries = mergeDuplicateShareEntries([...filtered, newEntry]).entries;
     shareFile = { version: 1, entries: nextEntries };
     const w = saveShareJsonFile({ sharePath, file: shareFile, runtime: cache.runtime });
-    if (w.backupBakPath) {
-      emitRunMessage(input.hooks.emit, {
-        op: 'share',
-        runId: input.hooks.runId,
-        level: 'warn',
-        message: shareJsonBackupNotice(w.backupBakPath),
-      });
-      shareCacheDebug(input.hooks, [{ level: 'detail', message: `  backup before save: ${w.backupBakPath}` }]);
-    }
     if (w.warning) issues.push(w.warning);
   }
 
