@@ -1,12 +1,21 @@
-import { buildLocaleJsonByTagFromArchive, extractor, mergePartialConfigIntoBase } from '@i18nprune/core';
+import {
+  buildLocaleJsonByTagFromArchive,
+  extractor,
+  hex16Id,
+  mergePartialConfigIntoBase,
+  normalizeProjectConfig,
+  parseProjectUploadFailure,
+  parseZipToSnapshot,
+  projectConfigHash,
+  relativeProjectPath,
+  sha256HexBytes,
+  type ProjectStoreRow,
+} from '@i18nprune/core';
 import { edgePathRuntime } from '@i18nprune/core/runtime/edge';
 import type { Hono } from 'hono';
-import type { ProjectStoreRow } from '../../lib/do';
-import { hex16Id, parseZipToSnapshot, sha256Hex } from '../../lib/project';
 import { ApiResponse } from '../../response';
 import { projectStore } from '../shared/store';
 import type { WorkerEnv } from '../types';
-import { configHash, normalizeConfig, parseUploadFailure, relativeProjectPath } from './shared';
 
 export function uploadRoute(app: Hono<WorkerEnv>): void {
   app.post('/v1/projects', async (c) => {
@@ -20,14 +29,14 @@ export function uploadRoute(app: Hono<WorkerEnv>): void {
     }
 
     const bytes = new Uint8Array(await archive.arrayBuffer());
-    const hash = await sha256Hex(bytes);
+    const hash = await sha256HexBytes(bytes);
     const stub = projectStore(c.env);
     const projectId = hex16Id();
     let parsedUpload: ReturnType<typeof parseZipToSnapshot>;
     try {
       parsedUpload = parseZipToSnapshot(projectId, hash, bytes);
     } catch (cause) {
-      const parsed = parseUploadFailure(cause);
+      const parsed = parseProjectUploadFailure(cause);
       return ApiResponse.badRequest(c, parsed.code, parsed.message);
     }
     const snapshot = parsedUpload.snapshot;
@@ -53,7 +62,7 @@ export function uploadRoute(app: Hono<WorkerEnv>): void {
       }
     }
 
-    const normalized = normalizeConfig(snapshot.resolvedConfig);
+    const normalized = normalizeProjectConfig(snapshot.resolvedConfig);
     if (!normalized) {
       return ApiResponse.badRequest(
         c,
@@ -137,7 +146,7 @@ export function uploadRoute(app: Hono<WorkerEnv>): void {
       readText: (rel) => parsedUpload.textFiles[rel],
     });
     snapshot.extraction = {
-      configHash: await configHash(normalized),
+      configHash: await projectConfigHash(normalized),
       sourceLocalePath: normalized.source,
       srcRoot: normalized.src,
       localesDir: normalized.localesDir,

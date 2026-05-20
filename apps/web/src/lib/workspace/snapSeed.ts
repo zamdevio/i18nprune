@@ -1,6 +1,7 @@
-import { okEnvelope, type ApiEnvelope } from '../services/api/client';
-import type { ProjectSnapshot } from '../services/core/projectZip';
-import type { WorkspaceSession } from '../../types/workspace';
+import { okEnvelope } from '../services/api/client';
+import type { WorkerApiEnvelope } from '@i18nprune/core';
+import type { ProjectSnapshot } from '@i18nprune/core';
+import type { WorkspaceSession } from '@i18nprune/core';
 import { opMemoKey, writeOpMemo } from './opMemo';
 
 /** Curl hints for seeded ops (worker GET paths). */
@@ -12,13 +13,13 @@ export type SnapCurls = {
 };
 
 /** Warm wsOpMemo for Metadata/Tree/Locales/Doctor from one snapshot envelope (worker-style slice). */
-export function seedOpMemoFromSnap(session: WorkspaceSession, snapEnv: ApiEnvelope<unknown>, curls: SnapCurls): void {
+export function seedOpMemoFromSnap(session: WorkspaceSession, snapEnv: WorkerApiEnvelope<unknown>, curls: SnapCurls): void {
   if (!snapEnv.success || snapEnv.data == null) return;
   const raw = snapEnv.data as { projectId?: string; snapshot?: ProjectSnapshot };
   if (!raw.snapshot) return;
 
   const s = raw.snapshot;
-  const projectId = raw.projectId ?? (session.mode === 'remote' ? session.projectId : session.local.projectId);
+  const projectId = raw.projectId ?? (session.mode === 'remote' ? session.projectId : session.local.snapshot.projectId);
   const localeJsonByTag = s.localeJsonByTag ?? {};
 
   const metadataData = {

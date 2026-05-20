@@ -14,6 +14,6 @@ export async function sha256HexBytes(bytes: Uint8Array): Promise<string> {
       { issueCode: 'i18nprune.share.zip_failed' },
     );
   }
-  const digest = await subtle.digest({ name: 'SHA-256' }, bytes);
+  const digest = await subtle.digest({ name: 'SHA-256' }, new Uint8Array(bytes));
   return bufferToHex(new Uint8Array(digest));
 }

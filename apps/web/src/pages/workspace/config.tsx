@@ -1,6 +1,6 @@
 import { DeleteConfirmButton } from '../../components/ui/delete';
 import { UploadPerfBadge } from '../../components/UploadPerfBadge';
-import type { WorkspaceConfigHintState } from '../../types/workspace';
+import type { WorkspaceConfigHintState } from '@i18nprune/core';
 
 type Props = {
   isRemote: boolean;

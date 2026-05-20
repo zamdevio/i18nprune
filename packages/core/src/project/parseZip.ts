@@ -1,54 +1,8 @@
-import {
-  buildProjectTreeFromPaths,
-  emptyDirectoryPathsFromZipKeys,
-  type ProjectTreeNode,
-  type ProjectZipFileMetaForTree,
-} from '@i18nprune/core';
 import { unzipSync } from 'fflate';
-import { PROJECT_LIMITS } from './limits';
-
-export type { ProjectTreeNode };
-
-export type ProjectFileMeta = {
-  path: string;
-  kind: 'file';
-  size: number;
-  ext: string;
-  mimeGuess: string;
-  textLike: boolean;
-};
-
-export type ProjectSnapshot = {
-  projectId: string;
-  projectHash: string;
-  uploadedAt: string;
-  zipBytes: number;
-  fileCount: number;
-  textFileCount: number;
-  detectedConfigPath: string | null;
-  detectedConfigRaw: string | null;
-  tree: ProjectTreeNode[];
-  resolvedConfig: Record<string, unknown> | null;
-  sourceLocaleJson: Record<string, unknown> | null;
-  localeJsonByTag: Record<string, Record<string, unknown>>;
-  extraction: {
-    configHash: string;
-    sourceLocalePath: string;
-    srcRoot: string;
-    localesDir: string;
-    resolvedKeys: string[];
-    keyObservationsCount: number;
-    dynamicSitesCount: number;
-    keyObservationsPreview: unknown[];
-    dynamicSitesPreview: unknown[];
-    computedAt: string;
-  } | null;
-};
-
-export type ParsedProjectUpload = {
-  snapshot: ProjectSnapshot;
-  textFiles: Record<string, string>;
-};
+import { PROJECT_UPLOAD_ZIP_LIMITS } from '../shared/constants/project.js';
+import type { ParsedProjectUpload, ProjectUploadFileMeta } from '../types/project/upload.js';
+import type { ProjectZipFileMetaForTree } from '../types/project/tree.js';
+import { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from './tree.js';
 
 const CONFIG_NAMES = new Set([
   'i18nprune.config.ts',
@@ -61,7 +15,9 @@ const CONFIG_NAMES = new Set([
 
 function parseFunctionsArray(raw: string): string[] {
   const quoted = raw.match(/['"`]([^'"`]+)['"`]/g) ?? [];
-  const values = quoted.map((token) => token.slice(1, -1).trim()).filter((v) => v.length > 0);
+  const values = quoted
+    .map((token) => token.slice(1, -1).trim())
+    .filter((v) => v.length > 0);
   return [...new Set(values)];
 }
 
@@ -129,7 +85,9 @@ function isLikelyText(bytes: Uint8Array): boolean {
   return weird / sample.length < 0.1;
 }
 
-function fileMetaMapForTree(fileMeta: Map<string, ProjectFileMeta>): Map<string, ProjectZipFileMetaForTree> {
+function fileMetaMapForTree(
+  fileMeta: Map<string, ProjectUploadFileMeta>,
+): Map<string, ProjectZipFileMetaForTree> {
   const out = new Map<string, ProjectZipFileMetaForTree>();
   for (const [k, v] of fileMeta) {
     out.set(k, { size: v.size, ext: v.ext, mimeGuess: v.mimeGuess, textLike: v.textLike });
@@ -137,22 +95,27 @@ function fileMetaMapForTree(fileMeta: Map<string, ProjectFileMeta>): Map<string,
   return out;
 }
 
-export function parseZipToSnapshot(projectId: string, projectHash: string, zipBytes: Uint8Array): ParsedProjectUpload {
-  if (zipBytes.byteLength > PROJECT_LIMITS.maxZipBytes) {
-    throw new Error(`Zip exceeds max size (${PROJECT_LIMITS.maxZipBytes} bytes)`);
+export function parseZipToSnapshot(
+  projectId: string,
+  projectHash: string,
+  zipBytes: Uint8Array,
+): ParsedProjectUpload {
+  const limits = PROJECT_UPLOAD_ZIP_LIMITS;
+  if (zipBytes.byteLength > limits.maxZipBytes) {
+    throw new Error(`Zip exceeds max size (${limits.maxZipBytes} bytes)`);
   }
 
   const unzipped = unzipSync(zipBytes);
   const files: Record<string, string> = {};
-  const fileMeta = new Map<string, ProjectFileMeta>();
+  const fileMeta = new Map<string, ProjectUploadFileMeta>();
   let totalTextBytes = 0;
 
   const entries = Object.entries(unzipped)
     .map(([k, v]) => [normalizePath(k), v] as const)
     .filter(([k, v]) => k.length > 0 && !k.endsWith('/') && v.length >= 0);
 
-  if (entries.length > PROJECT_LIMITS.maxFiles) {
-    throw new Error(`Zip exceeds max file count (${PROJECT_LIMITS.maxFiles})`);
+  if (entries.length > limits.maxFiles) {
+    throw new Error(`Zip exceeds max file count (${limits.maxFiles})`);
   }
 
   let detectedConfigPath: string | null = null;
@@ -163,7 +126,7 @@ export function parseZipToSnapshot(projectId: string, projectHash: string, zipBy
     const ext = extOf(rawPath);
     const textLike = isLikelyText(bytes);
     const size = bytes.byteLength;
-    const meta: ProjectFileMeta = {
+    const meta: ProjectUploadFileMeta = {
       path: rawPath,
       kind: 'file',
       size,
@@ -174,8 +137,8 @@ export function parseZipToSnapshot(projectId: string, projectHash: string, zipBy
     fileMeta.set(rawPath, meta);
     if (!textLike) continue;
     totalTextBytes += size;
-    if (totalTextBytes > PROJECT_LIMITS.maxTextBytes) {
-      throw new Error(`Zip extracted text exceeds limit (${PROJECT_LIMITS.maxTextBytes} bytes)`);
+    if (totalTextBytes > limits.maxTextBytes) {
+      throw new Error(`Zip extracted text exceeds limit (${limits.maxTextBytes} bytes)`);
     }
     const decoded = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
     files[rawPath] = decoded;

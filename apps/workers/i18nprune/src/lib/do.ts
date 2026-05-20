@@ -1,13 +1,5 @@
-import type { ProjectSnapshot } from './project';
+import type { ProjectSnapshot, ProjectStoreRow } from '@i18nprune/core';
 import { PROJECT_CACHE_IDLE_MS, PROJECT_CACHE_SWEEP_INTERVAL_MS } from './constants/retention';
-
-export type ProjectStoreRow = {
-  projectId: string;
-  projectHash: string;
-  snapshot: ProjectSnapshot;
-  /** ISO timestamp — updated on upload and on every successful project read; drives idle eviction. */
-  lastAccessedAt?: string;
-};
 
 export class ProjectStoreDO {
   state: DurableObjectState;
@@ -113,3 +105,5 @@ export class ProjectStoreDO {
     return new Response('Not found', { status: 404 });
   }
 }
+
+export type { ProjectSnapshot, ProjectStoreRow };

@@ -33,7 +33,7 @@
 | `apps/web`, `apps/report`, `apps/workers/i18nprune` | `apps/landing`, `apps/workers/meta` |
 | `packages/core/src/share/**` | `apps/extension` share UI (may open links later) |
 | CLI `i18nprune share` (+ `list` / `view` / `delete`) | Accounts, ACL, private teams |
-| `@i18nprune/host-snapshot` (or core `share/buildZip`) — dedupe zip parse | CLI disk `analysis.json` inside worker DO |
+| `packages/core/src/project/parseZip` — dedupe zip parse (worker + web) | CLI disk `analysis.json` inside worker DO |
 
 ---
 
@@ -42,7 +42,7 @@
 ```txt
 translate-cache (H.1) shipped
     ↓
-C.3a — core share op + share.json + host-snapshot dedupe
+C.3a — core share op + share.json + project zip parse dedupe
     ↓
 C.3b — worker /v1/reports + project share idempotency hooks
     ↓
@@ -328,7 +328,7 @@ Register in `packages/cli/bin/cli.ts` like `localesCmd`.
 
 **Project GET payload:** `projectId`, `projectHash`, `uploadedAt`, `lastAccessedAt`, `zipBytes`, `fileCount`, `textFileCount`, `detectedConfigPath`, `localeTags[]`, `extraction` summary — **no** zip bytes, **no** full preview arrays.
 
-Limits: [`PROJECT_LIMITS`](../../apps/workers/i18nprune/src/lib/constants/project.ts) (50MB zip, etc.).
+Limits: canonical zip caps in [`PROJECT_UPLOAD_ZIP_LIMITS`](../../packages/core/src/shared/constants/project.ts); worker [`PROJECT_LIMITS`](../../apps/workers/i18nprune/src/lib/constants/project.ts) adds preview retention fields.
 
 ### 3.2 New — report storage (mirror project pattern)
 
@@ -377,7 +377,7 @@ Storage: same `ProjectStoreDO` with key prefix `report:{id}` **or** parallel pre
 
 ### 3.3 Shared utilities
 
-Extract duplicated zip logic from `apps/workers/.../lib/project.ts` and `apps/web/.../projectZip.ts` into **`@i18nprune/host-snapshot`** (or `core/share/zip.ts` if we avoid a new package — prefer **small workspace package** imported by core share builder + worker + web).
+Extract duplicated zip logic from `apps/workers/.../lib/project.ts` and `apps/web/.../projectZip.ts` into **`packages/core/src/project/parseZip.ts`** (limits in `shared/constants/project.ts`; types in `types/project/upload.ts`).
 
 Worker **project report route** should call **`runReport`** with edge adapters (C.3 alignment).
 
@@ -480,7 +480,7 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 | 1 | `runShare` project payload + manifest events (`buildProjectPayload`, `run.share.*`) | **Shipped** |
 | 2 | `runShare` report payload + validation (`buildReportPayload`, schema check) | **Shipped** |
 | 3 | `runShareList` / `runShareView` / `runShareDelete` | **Shipped** |
-| 4 | `@i18nprune/host-snapshot` — dedupe zip parse (worker + web) | **Todo** |
+| 4 | `core/project/parseZip` — dedupe zip parse (worker + web) | **Shipped** |
 | 5 | Worker reports CRUD — **`GET /v1/reports/:id`** (metadata) + **`GET …/document`** | **Todo** |
 | 6 | CLI `share` + `list` / `view` / `delete` + worker error envelopes | **Todo** |
 | 7 | Web `/p/:id` + Share + **404 / too-large UX** | **Todo** |

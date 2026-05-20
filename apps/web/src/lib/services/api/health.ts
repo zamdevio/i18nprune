@@ -1,10 +1,10 @@
+import type { WorkerHealthResult } from '@i18nprune/core';
+
 function normalizeBaseUrl(url: string): string {
   return url.replace(/\/$/, '');
 }
 
-export type HealthResult = { ok: true } | { ok: false; message: string };
-
-export async function checkWorkerHealth(workerBaseUrl: string): Promise<HealthResult> {
+export async function checkWorkerHealth(workerBaseUrl: string): Promise<WorkerHealthResult> {
   const base = normalizeBaseUrl(workerBaseUrl);
   try {
     const resp = await fetch(`${base}/health`, { method: 'GET' });

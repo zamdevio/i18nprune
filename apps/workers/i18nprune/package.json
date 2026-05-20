@@ -12,7 +12,6 @@
     "@hono/swagger-ui": "^0.5.2",
     "@i18nprune/core": "workspace:*",
     "@i18nprune/report": "workspace:*",
-    "fflate": "^0.8.2",
     "hono": "^4.8.3"
   },
   "devDependencies": {

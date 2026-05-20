@@ -2,7 +2,7 @@
  * Workspace read-only ops: prefer in-memory snapshot (local session or wsSnapHold) + localWorkerShim,
  * same data paths as worker routes (getProjectById → project.snapshot, no extractor rescan).
  */
-import type { ApiEnvelope } from '../services/api/client';
+import type { WorkerApiEnvelope } from '@i18nprune/core';
 import {
   getProjectMetadata,
   getProjectSnapshot,
@@ -15,7 +15,7 @@ import {
   runWorkerReview,
   runWorkerValidate,
 } from '../services/api/client';
-import type { WorkspaceSession } from '../../types/workspace';
+import type { WorkspaceSession } from '@i18nprune/core';
 import {
   localGetDoctor,
   localGetLocaleByTag,
@@ -30,7 +30,7 @@ import {
 } from '../services/core/localWorkerShim';
 import { setSnapFromEnv, snapBackedLocal, snapEpoch, snapHydrateRemote } from './snapHold';
 
-export async function snapMetadata(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function snapMetadata(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   if (session.mode === 'local') return localGetMetadata(session.local);
   await snapHydrateRemote(session);
   const backed = snapBackedLocal(session);
@@ -38,7 +38,7 @@ export async function snapMetadata(session: WorkspaceSession, workerBaseUrl: str
   return getProjectMetadata(workerBaseUrl, projectId);
 }
 
-export async function snapTree(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function snapTree(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   if (session.mode === 'local') return localGetTree(session.local);
   await snapHydrateRemote(session);
   const backed = snapBackedLocal(session);
@@ -46,15 +46,15 @@ export async function snapTree(session: WorkspaceSession, workerBaseUrl: string,
   return getProjectTree(workerBaseUrl, projectId);
 }
 
-export async function snapSnapshot(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function snapSnapshot(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   if (session.mode === 'local') return localGetSnapshot(session.local);
   const e0 = snapEpoch();
   const res = await getProjectSnapshot(workerBaseUrl, projectId);
-  setSnapFromEnv(session, res as ApiEnvelope<unknown>, e0);
-  return res as ApiEnvelope<unknown>;
+  setSnapFromEnv(session, res as WorkerApiEnvelope<unknown>, e0);
+  return res as WorkerApiEnvelope<unknown>;
 }
 
-export async function snapValidate(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function snapValidate(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   if (session.mode === 'local') return localRunValidate(session.local);
   await snapHydrateRemote(session);
   const backed = snapBackedLocal(session);
@@ -62,7 +62,7 @@ export async function snapValidate(session: WorkspaceSession, workerBaseUrl: str
   return runWorkerValidate(workerBaseUrl, projectId);
 }
 
-export async function snapReview(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function snapReview(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   if (session.mode === 'local') return localRunReview(session.local);
   await snapHydrateRemote(session);
   const backed = snapBackedLocal(session);
@@ -70,7 +70,7 @@ export async function snapReview(session: WorkspaceSession, workerBaseUrl: strin
   return runWorkerReview(workerBaseUrl, projectId);
 }
 
-export async function snapReport(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function snapReport(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   if (session.mode === 'local') return localRunReport(session.local);
     await snapHydrateRemote(session);
   const backed = snapBackedLocal(session);
@@ -83,7 +83,7 @@ export async function snapMissing(
   workerBaseUrl: string,
   projectId: string,
   missingTargetTag: string,
-): Promise<ApiEnvelope<unknown>> {
+): Promise<WorkerApiEnvelope<unknown>> {
   if (session.mode === 'local') return localRunMissing(session.local, missingTargetTag);
   await snapHydrateRemote(session);
   const backed = snapBackedLocal(session);
@@ -91,7 +91,7 @@ export async function snapMissing(
   return runWorkerMissing(workerBaseUrl, projectId, missingTargetTag);
 }
 
-export async function snapLocs(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function snapLocs(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   if (session.mode === 'local') return localGetLocales(session.local);
   await snapHydrateRemote(session);
   const backed = snapBackedLocal(session);
@@ -104,7 +104,7 @@ export async function snapLocTag(
   workerBaseUrl: string,
   projectId: string,
   localeTag: string,
-): Promise<ApiEnvelope<unknown>> {
+): Promise<WorkerApiEnvelope<unknown>> {
   if (session.mode === 'local') return localGetLocaleByTag(session.local, localeTag);
   await snapHydrateRemote(session);
   const backed = snapBackedLocal(session);
@@ -112,7 +112,7 @@ export async function snapLocTag(
   return getWorkerLocaleByTag(workerBaseUrl, projectId, localeTag);
 }
 
-export async function snapDoctor(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function snapDoctor(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   if (session.mode === 'local') return localGetDoctor(session.local);
   await snapHydrateRemote(session);
   const backed = snapBackedLocal(session);

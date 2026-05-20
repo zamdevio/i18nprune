@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { buildLocalProjectFromZip } from '../lib/services/core/buildLocalProject';
 import { mergeConfigJsonOntoZipBase } from '../lib/services/core/mergeZipConfig';
-import { parseUploadFailure } from '../lib/services/core/configUtils';
+import { parseProjectUploadFailure as parseUploadFailure } from '@i18nprune/core';
 import { uploadProject } from '../lib/services/api/client';
 import { checkWorkerHealth } from '../lib/services/api/health';
 import { filesToZipBytes } from '../lib/zip/folderToZip';
 import { saveRecentProjectZip } from '../lib/storage/recentProjectZips';
-import type { WorkspaceSession } from '../types/workspace';
+import type { WorkspaceSession } from '@i18nprune/core';
 
 type Props = {
   open: boolean;

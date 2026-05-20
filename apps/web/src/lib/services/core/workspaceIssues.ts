@@ -1,6 +1,6 @@
 import { buildValidateIssues, enrichIssuesWithDocHrefs } from '@i18nprune/core';
 import type { Issue } from '@i18nprune/core/types';
-import type { ApiEnvelope } from '../api/client';
+import type { WorkerApiEnvelope } from '@i18nprune/core';
 
 function isIssueLike(x: unknown): x is Issue {
   if (!x || typeof x !== 'object') return false;
@@ -26,7 +26,7 @@ function isValidateScanPayload(data: unknown): data is {
   return typeof (o.keyObservations as { count?: unknown }).count === 'number';
 }
 
-function isApiEnvelope(payload: unknown): payload is ApiEnvelope<unknown> {
+function isWorkerApiEnvelope(payload: unknown): payload is WorkerApiEnvelope<unknown> {
   if (!payload || typeof payload !== 'object') return false;
   const o = payload as Record<string, unknown>;
   return (
@@ -39,7 +39,7 @@ function isApiEnvelope(payload: unknown): payload is ApiEnvelope<unknown> {
 }
 
 /**
- * Collect CLI-shaped {@link Issue} rows from a workspace operation result (worker `ApiEnvelope` or local shim).
+ * Collect CLI-shaped {@link Issue} rows from a workspace operation result (worker `WorkerApiEnvelope` or local shim).
  * Validate scan payloads are turned into the same issues as CLI via {@link buildValidateIssues}; doc URLs use {@link enrichIssuesWithDocHrefs}.
  */
 export function collectWorkspaceIssuesFromResultPayload(payload: unknown): Issue[] {
@@ -51,7 +51,7 @@ export function collectWorkspaceIssuesFromResultPayload(payload: unknown): Issue
 
   const obj = payload as Record<string, unknown>;
 
-  if (isApiEnvelope(payload)) {
+  if (isWorkerApiEnvelope(payload)) {
     for (const e of payload.errors) {
       out.push({ severity: 'error', code: e.code, message: e.message });
     }

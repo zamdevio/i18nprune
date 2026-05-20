@@ -1,4 +1,4 @@
-import type { WorkspaceSession } from '../../types/workspace';
+import type { WorkspaceSession } from '@i18nprune/core';
 
 type MemoEntry = { payload: unknown; title: string; curl: string };
 
@@ -17,7 +17,7 @@ function memoPayloadOk(payload: unknown): boolean {
 }
 
 export function opMemoKey(session: WorkspaceSession, opTitle: string): string {
-  const id = session.mode === 'remote' ? session.projectId : session.local.projectId;
+  const id = session.mode === 'remote' ? session.projectId : session.local.snapshot.projectId;
   return `${session.mode}:${id}:${opTitle}`;
 }
 

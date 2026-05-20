@@ -1,15 +1,6 @@
-import type { ScanExcludeConfig } from '@i18nprune/core';
-import { sha256Hex } from './cryptoUtils';
-
-export type NormalizedConfig = {
-  source: string;
-  src: string;
-  localesDir: string;
-  localesMode?: 'flat_file' | 'locale_directory';
-  localesStructure?: 'locale_file' | 'locale_per_dir' | 'feature_bundle';
-  functions: string[];
-  exclude?: ScanExcludeConfig;
-};
+import type { ScanExcludeConfig } from '../types/scanner/exclude.js';
+import type { NormalizedProjectConfig } from '../types/project/config.js';
+import { sha256HexBytes } from '../share/sha256.js';
 
 function stableJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`;
@@ -20,11 +11,11 @@ function stableJson(value: unknown): string {
   return JSON.stringify(value);
 }
 
-export async function configHash(config: NormalizedConfig): Promise<string> {
-  return sha256Hex(new TextEncoder().encode(stableJson(config)));
+export async function projectConfigHash(config: NormalizedProjectConfig): Promise<string> {
+  return sha256HexBytes(new TextEncoder().encode(stableJson(config)));
 }
 
-export function normalizeConfig(input: Record<string, unknown> | null): NormalizedConfig | null {
+export function normalizeProjectConfig(input: Record<string, unknown> | null): NormalizedProjectConfig | null {
   if (!input) return null;
   const locales = input.locales;
   if (!locales || typeof locales !== 'object' || Array.isArray(locales)) return null;
@@ -63,7 +54,7 @@ export function basenameNoExt(filePath: string): string {
   return name.endsWith('.json') ? name.slice(0, -5) : name;
 }
 
-export function parseUploadFailure(cause: unknown): { code: string; message: string } {
+export function parseProjectUploadFailure(cause: unknown): { code: string; message: string } {
   const message = cause instanceof Error ? cause.message : 'Failed to process uploaded project archive.';
   if (message.startsWith('Zip exceeds max size')) {
     return { code: 'UPLOAD_ZIP_TOO_LARGE', message };

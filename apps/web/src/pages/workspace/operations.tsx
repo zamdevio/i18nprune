@@ -1,6 +1,6 @@
 import { DeleteConfirmButton } from '../../components/ui/delete';
 import { deleteProject } from '../../lib/services/api/client';
-import type { WorkspaceSession } from '../../types/workspace';
+import type { WorkspaceSession } from '@i18nprune/core';
 import { snapDoctor, snapLocTag, snapLocs, snapMetadata, snapMissing, snapReport, snapReview, snapSnapshot, snapTree, snapValidate } from '../../lib/workspace/snapOps';
 import { OpPreview } from './op-preview';
 

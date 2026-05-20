@@ -1,10 +1,16 @@
 import {
+  basenameNoExt,
   buildLocaleJsonByTagFromArchive,
   buildReviewJsonData,
   extractor,
   mergePartialConfigIntoBase,
+  normalizeProjectConfig,
+  parseZipToSnapshot,
+  projectConfigHash,
+  relativeProjectPath,
   resolveMissingPathsPlan,
   validate,
+  type ParsedProjectUpload,
 } from '@i18nprune/core';
 import { webPathRuntime } from '@i18nprune/core/runtime/web';
 import {
@@ -13,22 +19,13 @@ import {
   type ProjectReportDocument,
 } from '@i18nprune/report';
 import { hex16Id, sha256Hex } from './cryptoUtils';
-import { basenameNoExt, configHash, normalizeConfig, relativeProjectPath } from './configUtils';
-import { parseZipToSnapshot, type ProjectSnapshot } from './projectZip';
-
-export type LocalProjectSession = {
-  projectId: string;
-  projectHash: string;
-  snapshot: ProjectSnapshot;
-  textFiles: Record<string, string>;
-};
 
 const LOCAL_TOOL_VERSION = 'runtime-web-local/0.1.0';
 
 export async function buildLocalProjectFromZip(
   zipBytes: Uint8Array,
   options?: { configJson?: string },
-): Promise<LocalProjectSession> {
+): Promise<ParsedProjectUpload> {
   const projectId = hex16Id();
   const projectHash = await sha256Hex(zipBytes);
   const parsedUpload = parseZipToSnapshot(projectId, projectHash, zipBytes);
@@ -47,7 +44,7 @@ export async function buildLocalProjectFromZip(
     }
   }
 
-  const normalized = normalizeConfig(snapshot.resolvedConfig);
+  const normalized = normalizeProjectConfig(snapshot.resolvedConfig);
   if (!normalized) {
     throw new Error(
       'Config required. Pass configJson, include i18nprune.config.json, or use a parseable i18nprune.config.ts/js with locales.source, locales.directory, src, and functions[].',
@@ -121,7 +118,7 @@ export async function buildLocalProjectFromZip(
     readText: (rel) => parsedUpload.textFiles[rel],
   });
   snapshot.extraction = {
-    configHash: await configHash(normalized),
+    configHash: await projectConfigHash(normalized),
     sourceLocalePath: normalized.source,
     srcRoot: normalized.src,
     localesDir: normalized.localesDir,
@@ -133,18 +130,18 @@ export async function buildLocalProjectFromZip(
     computedAt: new Date().toISOString(),
   };
 
-  return { projectId, projectHash, snapshot, textFiles: parsedUpload.textFiles };
+  return parsedUpload;
 }
 
-export function localValidateData(session: LocalProjectSession) {
-  const { snapshot, projectId } = session;
+export function localValidateData(session: ParsedProjectUpload) {
+  const { snapshot } = session;
   if (!snapshot.extraction || !snapshot.sourceLocaleJson) {
     throw new Error('EXTRACTION_CACHE_MISSING');
   }
   const resolvedKeys = new Set(snapshot.extraction.resolvedKeys);
   const missing = validate.computeMissingLiteralKeysFromResolvedKeys(snapshot.sourceLocaleJson, resolvedKeys);
   return {
-    projectId,
+    projectId: snapshot.projectId,
     missing,
     count: snapshot.extraction.keyObservationsCount,
     dynamic: {
@@ -156,8 +153,8 @@ export function localValidateData(session: LocalProjectSession) {
   };
 }
 
-export function localReviewData(session: LocalProjectSession) {
-  const { snapshot, projectId } = session;
+export function localReviewData(session: ParsedProjectUpload) {
+  const { snapshot } = session;
   if (!snapshot.extraction || !snapshot.sourceLocaleJson) {
     throw new Error('EXTRACTION_CACHE_MISSING');
   }
@@ -169,7 +166,7 @@ export function localReviewData(session: LocalProjectSession) {
     targetLocaleJsonByFile[`${tag}.json`] = json;
   }
   return {
-    projectId,
+    projectId: snapshot.projectId,
     ...buildReviewJsonData({
       sourceLocalePath,
       localesDir: snapshot.extraction.localesDir,
@@ -180,8 +177,8 @@ export function localReviewData(session: LocalProjectSession) {
   };
 }
 
-export function localMissingData(session: LocalProjectSession, targetTag?: string, reportMissingPaths?: string[]) {
-  const { snapshot, projectId } = session;
+export function localMissingData(session: ParsedProjectUpload, targetTag?: string, reportMissingPaths?: string[]) {
+  const { snapshot } = session;
   if (!snapshot.extraction || !snapshot.sourceLocaleJson) {
     throw new Error('EXTRACTION_CACHE_MISSING');
   }
@@ -200,10 +197,10 @@ export function localMissingData(session: LocalProjectSession, targetTag?: strin
     resolvedKeys: new Set(snapshot.extraction.resolvedKeys),
     reportMissingPaths: Array.isArray(reportMissingPaths) ? reportMissingPaths : undefined,
   });
-  return { projectId, targetTag: tag, toAdd: plan.toAdd, skippedNotInScan: plan.skippedNotInScan };
+  return { projectId: snapshot.projectId, targetTag: tag, toAdd: plan.toAdd, skippedNotInScan: plan.skippedNotInScan };
 }
 
-export function localReportData(session: LocalProjectSession) {
+export function localReportData(session: ParsedProjectUpload) {
   const { snapshot } = session;
   if (!snapshot.extraction || !snapshot.sourceLocaleJson) {
     throw new Error('EXTRACTION_CACHE_MISSING');

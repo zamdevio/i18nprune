@@ -1,18 +1,17 @@
-import type { ApiEnvelope } from '../api/client';
+import type { ParsedProjectUpload, WorkerApiEnvelope } from '@i18nprune/core';
 import { okEnvelope } from '../api/client';
-import type { LocalProjectSession } from './buildLocalProject';
 import {
   localMissingData,
   localReportData,
   localReviewData,
   localValidateData,
 } from './buildLocalProject';
-export function localGetMetadata(session: LocalProjectSession): ApiEnvelope<unknown> {
+export function localGetMetadata(session: ParsedProjectUpload): WorkerApiEnvelope<unknown> {
   const s = session.snapshot;
   const localeJsonByTag = s.localeJsonByTag ?? {};
   return okEnvelope({
-    projectId: session.projectId,
-    projectHash: session.projectHash,
+    projectId: session.snapshot.projectId,
+    projectHash: session.snapshot.projectHash,
     uploadedAt: s.uploadedAt,
     zipBytes: s.zipBytes,
     fileCount: s.fileCount,
@@ -33,10 +32,10 @@ export function localGetMetadata(session: LocalProjectSession): ApiEnvelope<unkn
   });
 }
 
-export function localGetTree(session: LocalProjectSession): ApiEnvelope<unknown> {
+export function localGetTree(session: ParsedProjectUpload): WorkerApiEnvelope<unknown> {
   const s = session.snapshot;
   return okEnvelope({
-    projectId: session.projectId,
+    projectId: session.snapshot.projectId,
     tree: s.tree,
     stats: {
       fileCount: s.fileCount,
@@ -46,39 +45,39 @@ export function localGetTree(session: LocalProjectSession): ApiEnvelope<unknown>
   });
 }
 
-export function localGetSnapshot(session: LocalProjectSession): ApiEnvelope<unknown> {
+export function localGetSnapshot(session: ParsedProjectUpload): WorkerApiEnvelope<unknown> {
   return okEnvelope({
-    projectId: session.projectId,
+    projectId: session.snapshot.projectId,
     snapshot: session.snapshot,
   });
 }
 
-export function localRunValidate(session: LocalProjectSession): ApiEnvelope<unknown> {
+export function localRunValidate(session: ParsedProjectUpload): WorkerApiEnvelope<unknown> {
   return okEnvelope(localValidateData(session));
 }
 
-export function localRunReview(session: LocalProjectSession): ApiEnvelope<unknown> {
+export function localRunReview(session: ParsedProjectUpload): WorkerApiEnvelope<unknown> {
   return okEnvelope(localReviewData(session));
 }
 
-export function localRunReport(session: LocalProjectSession): ApiEnvelope<unknown> {
+export function localRunReport(session: ParsedProjectUpload): WorkerApiEnvelope<unknown> {
   return okEnvelope(localReportData(session));
 }
 
 export function localRunMissing(
-  session: LocalProjectSession,
+  session: ParsedProjectUpload,
   targetTag?: string,
   reportMissingPaths?: string[],
-): ApiEnvelope<unknown> {
+): WorkerApiEnvelope<unknown> {
   return okEnvelope(localMissingData(session, targetTag, reportMissingPaths));
 }
 
-export function localGetLocales(session: LocalProjectSession): ApiEnvelope<unknown> {
+export function localGetLocales(session: ParsedProjectUpload): WorkerApiEnvelope<unknown> {
   const s = session.snapshot;
   const localeJsonByTag = s.localeJsonByTag ?? {};
   const tags = Object.keys(localeJsonByTag).sort((a, b) => a.localeCompare(b));
   return okEnvelope({
-    projectId: session.projectId,
+    projectId: session.snapshot.projectId,
     sourceLocalePath: s.extraction?.sourceLocalePath ?? null,
     localesDir: s.extraction?.localesDir ?? null,
     locales: tags.map((tag) => ({
@@ -89,19 +88,19 @@ export function localGetLocales(session: LocalProjectSession): ApiEnvelope<unkno
   });
 }
 
-export function localGetLocaleByTag(session: LocalProjectSession, tag: string): ApiEnvelope<unknown> {
+export function localGetLocaleByTag(session: ParsedProjectUpload, tag: string): WorkerApiEnvelope<unknown> {
   const localeJson = (session.snapshot.localeJsonByTag ?? {})[tag];
   if (!localeJson) {
     throw new Error(`Locale not found for tag: ${tag}`);
   }
   return okEnvelope({
-    projectId: session.projectId,
+    projectId: session.snapshot.projectId,
     tag,
     localeJson,
   });
 }
 
-export function localGetDoctor(session: LocalProjectSession): ApiEnvelope<unknown> {
+export function localGetDoctor(session: ParsedProjectUpload): WorkerApiEnvelope<unknown> {
   const s = session.snapshot;
   const extraction = s.extraction;
   const checks = [
@@ -112,7 +111,7 @@ export function localGetDoctor(session: LocalProjectSession): ApiEnvelope<unknow
     { id: 'locales_cached', ok: Object.keys(s.localeJsonByTag ?? {}).length > 0, message: 'Locale JSON map is cached.' },
   ];
   return okEnvelope({
-    projectId: session.projectId,
+    projectId: session.snapshot.projectId,
     ok: checks.every((x) => x.ok),
     checks,
     stats: {

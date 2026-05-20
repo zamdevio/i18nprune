@@ -1,3 +1,16 @@
+import type {
+  RecentProjectZipBundleManifest,
+  RecentProjectZipBundleManifestItem,
+  RecentProjectZipEntry,
+  RecentProjectZipSettings,
+} from '@i18nprune/core';
+
+export type {
+  RecentProjectZipBundleManifest,
+  RecentProjectZipBundleManifestItem,
+  RecentProjectZipEntry,
+  RecentProjectZipSettings,
+};
 import { RECENT_PROJECT_ZIPS_META_KEY, RECENT_PROJECT_ZIPS_SETTINGS_KEY } from '../constants/storageKeys';
 import { sha256Hex } from '../services/core/cryptoUtils';
 import { unzipSync, zipSync } from 'fflate';
@@ -10,32 +23,6 @@ const EXPORT_MANIFEST = 'manifest.json';
 const DEFAULT_MAX = 100;
 const MAX_ALLOWED = 1000;
 const DEFAULT_MAX_TOTAL_MB = 512;
-
-export type RecentProjectZipEntry = {
-  id: string;
-  name: string;
-  size: number;
-  createdAt: number;
-  /** Content hash of the zip bytes (SHA-256 hex); used for dedupe and duplicate detection. */
-  sha256?: string;
-};
-
-export type RecentProjectZipSettings = {
-  enabled: boolean;
-  maxCount: number;
-  defaultMode: 'ask' | 'local' | 'remote';
-  maxTotalMb: number;
-};
-
-/** Root `manifest.json` for Settings zip-cache export/import (version must be `1`). */
-export type RecentProjectZipBundleManifest = {
-  version: 1;
-  exportedAt: string;
-  settings: RecentProjectZipSettings;
-  items: RecentProjectZipBundleManifestItem[];
-};
-
-export type RecentProjectZipBundleManifestItem = RecentProjectZipEntry & { sha256: string };
 
 function assertNoUnknownKeys(input: Record<string, unknown>, allowed: string[], context: string): void {
   for (const key of Object.keys(input)) {

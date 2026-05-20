@@ -1,21 +1,15 @@
-import { resolveMissingPathsPlan } from '@i18nprune/core';
+import { resolveMissingPathsPlan, type ProjectWorkerMissingBody } from '@i18nprune/core';
 import type { Hono } from 'hono';
 import { ApiResponse } from '../../response';
 import { getProjectById, projectStore } from '../shared/store';
 import type { WorkerEnv } from '../types';
-import type { ValidateBody } from './shared';
-
-type MissingBody = ValidateBody & {
-  targetTag?: string;
-  reportMissingPaths?: string[];
-};
 
 export function missingRoute(app: Hono<WorkerEnv>): void {
   app.post('/v1/projects/:id/missing', async (c) => {
     const stub = projectStore(c.env);
     const project = await getProjectById(stub, c.req.param('id'));
     if (!project) return ApiResponse.notFound(c, 'PROJECT_NOT_FOUND', 'Project not found');
-    const body = (await c.req.json().catch(() => ({}))) as MissingBody;
+    const body = (await c.req.json().catch(() => ({}))) as ProjectWorkerMissingBody;
     if (body.configJson !== undefined || body.config !== undefined || body.configOverrides !== undefined) {
       return ApiResponse.badRequest(
         c,

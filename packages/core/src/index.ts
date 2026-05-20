@@ -377,6 +377,7 @@ export type {
 
 export * as share from './namespaces/share.js';
 export { buildProjectPayload, buildReportPayload, runShare, runShareDelete, runShareList, runShareView } from './share/index.js';
+export { sha256HexBytes } from './share/sha256.js';
 
 export * as localesDynamic from './namespaces/localesDynamic.js';
 export { runDynamic } from './namespaces/localesDynamic.js';
@@ -451,12 +452,49 @@ export type {
   ReviewRunResult,
 } from './namespaces/review.js';
 
-export { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from './project/tree.js';
+export {
+  basenameNoExt,
+  buildProjectTreeFromPaths,
+  emptyDirectoryPathsFromZipKeys,
+  hex16Id,
+  normalizeProjectConfig,
+  parseProjectUploadFailure,
+  parseZipToSnapshot,
+  projectConfigHash,
+  relativeProjectPath,
+} from './project/index.js';
+export {
+  PROJECT_UPLOAD_MAX_FILES,
+  PROJECT_UPLOAD_MAX_TEXT_BYTES,
+  PROJECT_UPLOAD_MAX_ZIP_BYTES,
+  PROJECT_UPLOAD_ZIP_LIMITS,
+} from './shared/constants/project.js';
 export type {
+  NormalizedProjectConfig,
+  ParsedProjectUpload,
+  ProjectSnapshot,
+  ProjectStoreRow,
   ProjectTreeDirMeta,
   ProjectTreeFileMeta,
   ProjectTreeNode,
+  ProjectUploadExtractionSummary,
+  ProjectUploadFileMeta,
+  ProjectUploadResponse,
+  ProjectUploadSnapshotMeta,
+  ProjectWorkerConfigBody,
+  ProjectWorkerMissingBody,
+  ProjectWorkerReportBody,
   ProjectZipFileMetaForTree,
+  RecentProjectZipBundleManifest,
+  RecentProjectZipBundleManifestItem,
+  RecentProjectZipEntry,
+  RecentProjectZipSettings,
+  WorkerApiEnvelope,
+  WorkerApiErrorItem,
+  WorkerApiWarningItem,
+  WorkerHealthResult,
+  WorkspaceConfigHintState,
+  WorkspaceSession,
 } from './types/project/index.js';
 
 export * as reference from './namespaces/reference.js';
@@ -722,7 +760,6 @@ export {
   stringifyEnvelope,
 } from './namespaces/result.js';
 export type {
-  LocaleLeafFileOrigin,
   LocaleLeafPathApi,
   LocaleLeafDecisionAction,
   LocaleLeafMode,

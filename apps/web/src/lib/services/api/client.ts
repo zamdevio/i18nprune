@@ -1,15 +1,7 @@
+import type { ProjectUploadResponse, WorkerApiEnvelope } from '@i18nprune/core';
 import { ensureWorkerReachable } from './remoteGate';
 
-export type ApiEnvelope<T> = {
-  code: string;
-  success: boolean;
-  data: T | null;
-  errors: Array<{ code: string; message: string; details?: unknown }>;
-  warnings: Array<{ code: string; message: string; details?: unknown }>;
-  timestamp: string;
-};
-
-export function okEnvelope<T>(data: T): ApiEnvelope<T> {
+export function okEnvelope<T>(data: T): WorkerApiEnvelope<T> {
   return {
     code: 'OK',
     success: true,
@@ -20,24 +12,12 @@ export function okEnvelope<T>(data: T): ApiEnvelope<T> {
   };
 }
 
-export type UploadResult = {
-  projectId: string;
-  snapshotMeta: {
-    uploadedAt: string;
-    fileCount: number;
-    textFileCount: number;
-    detectedConfigPath: string | null;
-    extractionReady: boolean;
-    extractionComputedAt: string;
-  };
-};
-
 function normalizeBaseUrl(url: string): string {
   return url.replace(/\/$/, '');
 }
 
-async function parseEnvelope<T>(resp: Response): Promise<ApiEnvelope<T>> {
-  const body = (await resp.json()) as ApiEnvelope<T>;
+async function parseEnvelope<T>(resp: Response): Promise<WorkerApiEnvelope<T>> {
+  const body = (await resp.json()) as WorkerApiEnvelope<T>;
   if (!resp.ok || !body.success) {
     const err = body.errors[0];
     throw new Error(err ? `${err.code}: ${err.message}` : `Request failed (${resp.status})`);
@@ -54,7 +34,7 @@ export async function uploadProject(
   workerBaseUrl: string,
   archive: File,
   configJson?: string,
-): Promise<ApiEnvelope<UploadResult>> {
+): Promise<WorkerApiEnvelope<ProjectUploadResponse>> {
   await ensureWorkerReachable(workerBaseUrl);
   const form = new FormData();
   form.set('archive', archive);
@@ -65,28 +45,28 @@ export async function uploadProject(
     method: 'POST',
     body: form,
   });
-  return parseEnvelope<UploadResult>(resp);
+  return parseEnvelope<ProjectUploadResponse>(resp);
 }
 
-export async function getProjectMetadata(workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function getProjectMetadata(workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}`);
   return parseEnvelope<unknown>(resp);
 }
 
-export async function getProjectTree(workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function getProjectTree(workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}/tree`);
   return parseEnvelope<unknown>(resp);
 }
 
-export async function getProjectSnapshot(workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function getProjectSnapshot(workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}/snapshot`);
   return parseEnvelope<unknown>(resp);
 }
 
-export async function runWorkerValidate(workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function runWorkerValidate(workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}/validate`, {
     method: 'POST',
@@ -96,7 +76,7 @@ export async function runWorkerValidate(workerBaseUrl: string, projectId: string
   return parseEnvelope<unknown>(resp);
 }
 
-export async function runWorkerReview(workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function runWorkerReview(workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}/review`, {
     method: 'POST',
@@ -110,7 +90,7 @@ export async function runWorkerMissing(
   workerBaseUrl: string,
   projectId: string,
   targetTag?: string,
-): Promise<ApiEnvelope<unknown>> {
+): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const payload = targetTag && targetTag.trim().length > 0 ? { targetTag } : {};
   const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}/missing`, {
@@ -121,7 +101,7 @@ export async function runWorkerMissing(
   return parseEnvelope<unknown>(resp);
 }
 
-export async function runWorkerReport(workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function runWorkerReport(workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}/report`, {
     method: 'POST',
@@ -131,7 +111,7 @@ export async function runWorkerReport(workerBaseUrl: string, projectId: string):
   return parseEnvelope<unknown>(resp);
 }
 
-export async function getWorkerLocales(workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function getWorkerLocales(workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}/locales`);
   return parseEnvelope<unknown>(resp);
@@ -141,7 +121,7 @@ export async function getWorkerLocaleByTag(
   workerBaseUrl: string,
   projectId: string,
   tag: string,
-): Promise<ApiEnvelope<unknown>> {
+): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const resp = await fetch(
     `${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}/locales/${encodeURIComponent(tag)}`,
@@ -149,13 +129,13 @@ export async function getWorkerLocaleByTag(
   return parseEnvelope<unknown>(resp);
 }
 
-export async function getWorkerDoctor(workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function getWorkerDoctor(workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}/doctor`);
   return parseEnvelope<unknown>(resp);
 }
 
-export async function deleteProject(workerBaseUrl: string, projectId: string): Promise<ApiEnvelope<unknown>> {
+export async function deleteProject(workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {
   await ensureWorkerReachable(workerBaseUrl);
   const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}`, {
     method: 'DELETE',

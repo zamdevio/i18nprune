@@ -3,10 +3,10 @@ import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sy
 import { listSourceFiles } from '../shared/scanner/files.js';
 import { ISSUE_IO_READ_FAILED, ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE } from '../shared/constants/issueCodes.js';
 import {
-  SHARE_PROJECT_SNAPSHOT_MAX_FILES,
-  SHARE_PROJECT_SNAPSHOT_MAX_TEXT_BYTES,
-  SHARE_PROJECT_SNAPSHOT_MAX_ZIP_BYTES,
-} from '../shared/constants/shareProject.js';
+  PROJECT_UPLOAD_MAX_FILES,
+  PROJECT_UPLOAD_MAX_TEXT_BYTES,
+  PROJECT_UPLOAD_MAX_ZIP_BYTES,
+} from '../shared/constants/project.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { ProjectFilesystemRuntime } from '../types/runtime/capabilities.js';
@@ -128,11 +128,11 @@ export function buildShareZipObject(input: {
       textFileCount += 1;
       const bytes = enc.encode(text);
       textBytes += bytes.byteLength;
-      if (textBytes > SHARE_PROJECT_SNAPSHOT_MAX_TEXT_BYTES) {
+      if (textBytes > PROJECT_UPLOAD_MAX_TEXT_BYTES) {
         issues.push({
           severity: 'error',
           code: ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE,
-          message: `Prepared snapshot text exceeds the worker text limit (${String(SHARE_PROJECT_SNAPSHOT_MAX_TEXT_BYTES)} bytes) before zipping.`,
+          message: `Prepared snapshot text exceeds the worker text limit (${String(PROJECT_UPLOAD_MAX_TEXT_BYTES)} bytes) before zipping.`,
         });
         return { zipObject: {}, textFileCount: 0, issues };
       }
@@ -149,11 +149,11 @@ export function buildShareZipObject(input: {
   }
 
   const fileCount = Object.keys(zipObject).length;
-  if (fileCount > SHARE_PROJECT_SNAPSHOT_MAX_FILES) {
+  if (fileCount > PROJECT_UPLOAD_MAX_FILES) {
     issues.push({
       severity: 'error',
       code: ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE,
-      message: `Prepared snapshot has too many files (${String(fileCount)} > ${String(SHARE_PROJECT_SNAPSHOT_MAX_FILES)}).`,
+      message: `Prepared snapshot has too many files (${String(fileCount)} > ${String(PROJECT_UPLOAD_MAX_FILES)}).`,
     });
     return { zipObject: {}, textFileCount: 0, issues };
   }
@@ -162,10 +162,10 @@ export function buildShareZipObject(input: {
 }
 
 export function assertZipWithinLimit(zipBytes: Uint8Array): Issue | undefined {
-  if (zipBytes.byteLength <= SHARE_PROJECT_SNAPSHOT_MAX_ZIP_BYTES) return undefined;
+  if (zipBytes.byteLength <= PROJECT_UPLOAD_MAX_ZIP_BYTES) return undefined;
   return {
     severity: 'error',
     code: ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE,
-    message: `Prepared zip exceeds worker limit (${String(SHARE_PROJECT_SNAPSHOT_MAX_ZIP_BYTES)} bytes).`,
+    message: `Prepared zip exceeds worker limit (${String(PROJECT_UPLOAD_MAX_ZIP_BYTES)} bytes).`,
   };
 }

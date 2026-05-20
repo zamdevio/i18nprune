@@ -19,6 +19,3 @@ export type LocaleSegmentSource = {
   locale: string;
   relativePath: string;
 };
-
-/** @deprecated Use {@link LocaleSegmentSource}. */
-export type LocaleLeafFileOrigin = LocaleSegmentSource;

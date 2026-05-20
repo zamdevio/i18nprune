@@ -1,18 +1,7 @@
 import type { Context } from 'hono';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
+import type { WorkerApiErrorItem, WorkerApiWarningItem } from '@i18nprune/core';
 import type { WorkerEnv } from '../routes/types';
-
-export interface ResponseErrorItem {
-  code: string;
-  message: string;
-  details?: Record<string, unknown>;
-}
-
-export interface ResponseWarningItem {
-  code: string;
-  message: string;
-  details?: Record<string, unknown>;
-}
 
 type ResponseMeta = Record<string, unknown>;
 
@@ -21,7 +10,7 @@ export class ApiResponse {
     c: Context<WorkerEnv>,
     data: T,
     status: ContentfulStatusCode = 200,
-    warnings: ResponseWarningItem[] = [],
+    warnings: WorkerApiWarningItem[] = [],
     meta?: ResponseMeta,
     code = 'OK',
   ) {
@@ -30,7 +19,7 @@ export class ApiResponse {
         code,
         success: true,
         data,
-        errors: [] as ResponseErrorItem[],
+        errors: [] as WorkerApiErrorItem[],
         warnings,
         meta,
         timestamp: new Date().toISOString(),
@@ -41,9 +30,9 @@ export class ApiResponse {
 
   static error(
     c: Context<WorkerEnv>,
-    error: ResponseErrorItem,
+    error: WorkerApiErrorItem,
     status: ContentfulStatusCode = 500,
-    warnings: ResponseWarningItem[] = [],
+    warnings: WorkerApiWarningItem[] = [],
   ) {
     return c.json(
       {

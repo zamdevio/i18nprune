@@ -5,7 +5,7 @@ import { useHashRoute } from './hooks/useHashRoute';
 import { HomePage } from './pages/home';
 import { SettingsPage } from './pages/settings';
 import { WorkspacePage } from './pages/workspace';
-import type { WorkspaceSession } from './types/workspace';
+import type { WorkspaceSession } from '@i18nprune/core';
 
 export default function App() {
   const route = useHashRoute();

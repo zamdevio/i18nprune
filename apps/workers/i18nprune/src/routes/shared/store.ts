@@ -1,4 +1,4 @@
-import type { ProjectStoreRow } from '../../lib/do';
+import type { ProjectStoreRow } from '@i18nprune/core';
 import type { WorkerEnv } from '../types';
 
 export function projectStore(env: WorkerEnv['Bindings']): DurableObjectStub {

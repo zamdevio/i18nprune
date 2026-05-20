@@ -10,8 +10,8 @@ import { collectWorkspaceIssuesFromResultPayload } from '../../lib/services/core
 import { mergeConfigJsonOntoZipBase } from '../../lib/services/core/mergeZipConfig';
 import { clearOpMemo, readOpMemo, opMemoKey, writeOpMemo } from '../../lib/workspace/opMemo';
 import { clearSnapHold, snapHydrateRemote } from '../../lib/workspace/snapHold';
-import type { ApiEnvelope } from '../../lib/services/api/client';
-import type { WorkspaceConfigHintState, WorkspaceSession } from '../../types/workspace';
+import type { WorkerApiEnvelope } from '@i18nprune/core';
+import type { WorkspaceConfigHintState, WorkspaceSession } from '@i18nprune/core';
 import { Config } from './config';
 import { Operations } from './operations';
 import { Result } from './result';
@@ -76,15 +76,15 @@ export function WorkspacePage({ session, onSessionChange }: Props) {
 
   const isRemote = session?.mode === 'remote';
   const isLocal = session?.mode === 'local';
-  const projectId = session?.mode === 'remote' ? session.projectId : session?.mode === 'local' ? session.local.projectId : '';
+  const projectId = session?.mode === 'remote' ? session.projectId : session?.mode === 'local' ? session.local.snapshot.projectId : '';
   const workerBaseUrl = session?.mode === 'remote' ? session.workerBaseUrl : '';
   const activeZipFile = session?.activeZipFile;
 
   const responseDataForViewer = useMemo(() => {
     if (resultPayload === null || resultPayload === undefined) return null;
-    const env = resultPayload as ApiEnvelope<unknown>;
+    const env = resultPayload as WorkerApiEnvelope<unknown>;
     if (env && typeof env === 'object' && 'data' in env) {
-      const data = (env as ApiEnvelope<unknown>).data as unknown;
+      const data = (env as WorkerApiEnvelope<unknown>).data as unknown;
       if (resultTitle.toLowerCase().includes('report') && data && typeof data === 'object' && 'document' in (data as Record<string, unknown>)) {
         return (data as { document: unknown }).document;
       }

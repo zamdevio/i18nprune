@@ -12,7 +12,7 @@ import {
 } from '../../lib/storage/recentProjectZips';
 import { sha256Hex } from '../../lib/services/core/cryptoUtils';
 import { readWorkerUrl } from '../../lib/storage/workerUrl';
-import type { WorkspaceSession } from '../../types/workspace';
+import type { WorkspaceSession } from '@i18nprune/core';
 import { DuplicateCachedZipDialog } from './duplicate-zip-dialog';
 import { Dropdown } from './dropdown';
 import { Hero } from './hero';

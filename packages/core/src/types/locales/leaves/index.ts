@@ -1,4 +1,4 @@
-export type { LocaleSegmentSource, LocaleLeafPathApi, LocaleLeafFileOrigin } from './segmentSource.js';
+export type { LocaleSegmentSource, LocaleLeafPathApi } from './segmentSource.js';
 export type {
   TranslationSurfaceLeaf,
   TranslationSurfaceShape,

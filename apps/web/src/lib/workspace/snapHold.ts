@@ -2,11 +2,8 @@
  * Remote tab hold: mirrors worker DO — one GET /snapshot payload, then slice like getProjectById routes.
  * No zip rescan; validate/review/report read snapshot.extraction + locale JSON only (same as `apps/workers/i18nprune` routes).
  */
-import type { ApiEnvelope } from '../services/api/client';
+import type { ParsedProjectUpload, ProjectSnapshot, WorkerApiEnvelope, WorkspaceSession } from '@i18nprune/core';
 import { getProjectSnapshot } from '../services/api/client';
-import type { LocalProjectSession } from '../services/core/buildLocalProject';
-import type { ProjectSnapshot } from '../services/core/projectZip';
-import type { WorkspaceSession } from '../../types/workspace';
 import { seedOpMemoFromSnap, type SnapCurls } from './snapSeed';
 
 type Hold = {
@@ -27,7 +24,7 @@ export function snapEpoch(): number {
 }
 
 export function snapKey(s: WorkspaceSession): string {
-  return s.mode === 'remote' ? `r:${s.workerBaseUrl.replace(/\/$/, '')}:${s.projectId}` : `l:${s.local.projectId}`;
+  return s.mode === 'remote' ? `r:${s.workerBaseUrl.replace(/\/$/, '')}:${s.projectId}` : `l:${s.local.snapshot.projectId}`;
 }
 
 export function clearSnapHold(): void {
@@ -48,7 +45,7 @@ function curls(ws: WorkspaceSession & { mode: 'remote' }): SnapCurls {
   };
 }
 
-function applyEnv(ws: WorkspaceSession & { mode: 'remote' }, env: ApiEnvelope<unknown>): void {
+function applyEnv(ws: WorkspaceSession & { mode: 'remote' }, env: WorkerApiEnvelope<unknown>): void {
   if (!env.success || env.data == null) return;
   const raw = env.data as { projectId?: string; snapshot?: ProjectSnapshot };
   if (!raw.snapshot) return;
@@ -66,19 +63,17 @@ function applyEnv(ws: WorkspaceSession & { mode: 'remote' }, env: ApiEnvelope<un
  * Replace hold from a fresh snapshot envelope (explicit Snapshot button).
  * @param epochGuard If set, must still equal current epoch after await or apply is skipped.
  */
-export function setSnapFromEnv(ws: WorkspaceSession, env: ApiEnvelope<unknown>, epochGuard?: number): void {
+export function setSnapFromEnv(ws: WorkspaceSession, env: WorkerApiEnvelope<unknown>, epochGuard?: number): void {
   if (ws.mode !== 'remote') return;
   if (epochGuard !== undefined && epochGuard !== epoch) return;
   applyEnv(ws, env);
 }
 
-/** Synthetic LocalProjectSession for localWorkerShim (textFiles unused by read-only ops). */
-export function snapBackedLocal(ws: WorkspaceSession): LocalProjectSession | null {
+/** Synthetic ParsedProjectUpload for localWorkerShim (textFiles unused by read-only ops). */
+export function snapBackedLocal(ws: WorkspaceSession): ParsedProjectUpload | null {
   if (ws.mode === 'local') return ws.local;
   if (!hold || hold.sessionKey !== snapKey(ws)) return null;
   return {
-    projectId: hold.projectId,
-    projectHash: hold.projectHash,
     snapshot: hold.snapshot,
     textFiles: {},
   };
@@ -99,7 +94,7 @@ export async function snapHydrateRemote(ws: WorkspaceSession): Promise<void> {
     try {
       const res = await getProjectSnapshot(ws.workerBaseUrl, ws.projectId);
       if (e0 !== epoch) return;
-      applyEnv(ws, res as ApiEnvelope<unknown>);
+      applyEnv(ws, res as WorkerApiEnvelope<unknown>);
     } catch {
       if (e0 === epoch) hold = null;
     } finally {

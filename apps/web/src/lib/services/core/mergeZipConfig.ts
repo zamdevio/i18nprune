@@ -1,6 +1,6 @@
 import { mergePartialConfigIntoBase } from '@i18nprune/core';
-import { normalizeConfig } from './configUtils';
-import { parseZipToSnapshot } from './projectZip';
+import { normalizeProjectConfig } from '@i18nprune/core';
+import { parseZipToSnapshot } from '@i18nprune/core';
 
 /**
  * Parse zip bytes and merge optional `configJson` text onto zip-detected config.
@@ -15,7 +15,7 @@ export function mergeConfigJsonOntoZipBase(
   const snap = parseZipToSnapshot('preview', 'preview', zipBytes).snapshot;
   const zipBase = snap.resolvedConfig;
   if (typeof configJsonText !== 'string' || !configJsonText.trim()) {
-    if (!normalizeConfig(zipBase ?? {})) {
+    if (!normalizeProjectConfig(zipBase ?? {})) {
       return {
         ok: false,
         message:
@@ -35,7 +35,7 @@ export function mergeConfigJsonOntoZipBase(
     return { ok: false, message: e instanceof Error ? `Invalid JSON: ${e.message}` : 'Invalid JSON.' };
   }
   const merged = mergePartialConfigIntoBase(zipBase, partial);
-  if (!normalizeConfig(merged)) {
+  if (!normalizeProjectConfig(merged)) {
     return {
       ok: false,
       message:

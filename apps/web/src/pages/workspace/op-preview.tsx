@@ -1,15 +1,15 @@
-import type { ApiEnvelope } from '../../lib/services/api/client';
+import type { WorkerApiEnvelope } from '@i18nprune/core';
 import { WorkspaceTreePanel } from '../../components/workspace/WorkspaceTreePanel';
 
 type Props = {
   /** Same label as the workspace result header (e.g. `Metadata`, `Validate error`). */
   title: string;
-  /** Raw result from `runAction` — full `ApiEnvelope`, `{ message }` errors, or `{ ok: true }`. */
+  /** Raw result from `runAction` — full `WorkerApiEnvelope`, `{ message }` errors, or `{ ok: true }`. */
   payload: unknown | null;
 };
 
-function isEnvelope(x: unknown): x is ApiEnvelope<unknown> {
-  return Boolean(x && typeof x === 'object' && 'success' in x && typeof (x as ApiEnvelope<unknown>).success === 'boolean');
+function isEnvelope(x: unknown): x is WorkerApiEnvelope<unknown> {
+  return Boolean(x && typeof x === 'object' && 'success' in x && typeof (x as WorkerApiEnvelope<unknown>).success === 'boolean');
 }
 
 function envData(x: unknown): unknown {
@@ -54,12 +54,13 @@ export function OpPreview({ title, payload }: Props) {
     );
   }
 
-  if (isErr || (isEnvelope(payload) && !payload.success)) {
+  const env = isEnvelope(payload) ? payload : null;
+  if (isErr || (env !== null && !env.success)) {
     const msg =
-      !isEnvelope(payload) && payload && typeof payload === 'object' && 'message' in payload
+      !env && payload && typeof payload === 'object' && 'message' in payload
         ? String((payload as { message: unknown }).message)
-        : isEnvelope(payload) && payload.errors[0]
-          ? `${payload.errors[0]!.code}: ${payload.errors[0]!.message}`
+        : env?.errors[0]
+          ? `${env.errors[0].code}: ${env.errors[0].message}`
           : 'Request failed.';
     return (
       <div className="op-preview op-preview--error">
