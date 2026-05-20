@@ -36,6 +36,7 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | [quality](./quality.md) | Quality hints (e.g. identical English leaves) |
 | [report](./report.md) | Report format and payload errors |
 | [scan](./scan.md) | Dynamic key sites across pipelines |
+| [share](./share.md) | `share.json` cache, worker upload/delete (`runShare`, `runShareDelete`) |
 | [sync](./sync.md) | Missing locale files and metadata flag conflicts |
 | [translate](./translate.md) | Identity streak guard; provider / credentials / env troubleshooting (**`generate`** / **`generate --resume`**; list backends: **`i18nprune providers`**) |
 | [validate](./validate.md) | Missing keys, dynamic sites, unreadable source |
@@ -66,11 +67,20 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.report.invalid_format` | `error` | **`report`** |
 | `i18nprune.cli.invalid_json_pretty` | `error` | Global CLI option parsing |
 | `i18nprune.io.read_failed` | `error` | JSON commands on I/O / JSON parse failures |
-| `i18nprune.share.json_repaired` | `warning` | **`share.json`** self-heal (missing/invalid rows) |
-| `i18nprune.share.json_write_failed` | `warning` | **`share.json`** persistence failure |
-| `i18nprune.share.snapshot_empty` | `error` | **`buildProjectPayload`** / **`runShare`** — no files after excludes |
-| `i18nprune.share.zip_failed` | `error` | Local zip build failure (`fflate`) |
-| `i18nprune.share.remote_*` | varies | **`runShare`** worker probe / upload mapping (`shareRemoteIssueFromWorker`) |
+| `i18nprune.share.json_repaired` | `warning` | **`share.json`** self-heal — see [share](./share.md#json-repaired) |
+| `i18nprune.share.json_write_failed` | `warning` | **`share.json`** persistence failure — [share](./share.md#json-write-failed) |
+| `i18nprune.share.cache_entry_not_found` | `warning` | **`share delete`** — no local row; worker DELETE may still run — [share](./share.md#cache-entry-not-found) |
+| `i18nprune.share.stale_cache_row_removed` | `warning` | **`share upload`** — stale `share.json` row purged after worker 404 — [share](./share.md#stale-cache-row-removed) |
+| `i18nprune.share.cache_empty` | `warning` | **`share view` / `delete`** — no local rows; pass an id or upload first — [share](./share.md#cache-empty) |
+| `i18nprune.share.remote_project_not_found` | `warning` / `error` | Worker project id missing / evicted — [share](./share.md#remote-project-not-found) |
+| `i18nprune.share.remote_report_not_found` | `warning` / `error` | Worker report id missing / evicted — [share](./share.md#remote-report-not-found) |
+| `i18nprune.share.remote_payload_too_large` | `error` | Upload over worker size limits — [share](./share.md#remote-payload-too-large) |
+| `i18nprune.share.remote_report_rejected` | `error` | Report JSON rejected by worker — [share](./share.md#remote-report-rejected) |
+| `i18nprune.share.remote_upload_rejected` | `error` | Project upload rejected (`UPLOAD_*`) — [share](./share.md#remote-upload-rejected) |
+| `i18nprune.share.remote_unavailable` | `error` | Network / 5xx — [share](./share.md#remote-unavailable) |
+| `i18nprune.share.remote_error` | `error` | Unmapped worker failure — [share](./share.md#remote-error) |
+| `i18nprune.share.snapshot_empty` | `error` | Empty project snapshot — [share](./share.md#snapshot-empty) |
+| `i18nprune.share.zip_failed` | `error` | Local zip build failure — [share](./share.md#zip-failed) |
 | `i18nprune.scan.dynamic_key_sites` | `warning` | **`sync`**, **`cleanup`**, **`quality`**, … |
 | `i18nprune.missing.paths_not_in_current_scan` | `warning` | **`missing`**, **`runMissing`** |
 | `i18nprune.patching.*` | varies | Patching analyzer (**`doctor`**, **`validate`**) |

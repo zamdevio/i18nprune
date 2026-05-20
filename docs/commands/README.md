@@ -32,6 +32,7 @@ Domain behavior stays in `packages/cli/src/core/**`. Table and rationale: [Comma
 | `doctor` | [doctor](./doctor/README.md) |
 | `help` | [help](./help/README.md) |
 | `report` | [report](./report/README.md) |
+| `share` | [share](./share/README.md) (`upload`, `list`, `view`, `delete`) |
 
 **`locales`:** [list](./locales/list/README.md), [edit](./locales/edit/README.md), [dynamic](./locales/dynamic/README.md), [delete](./locales/delete/README.md).
 
