@@ -20,6 +20,9 @@ export const META_WORKER_URL = 'https://meta.i18nprune.dev' as const;
 /** Public report UI URL. */
 export const DEMO_REPORT_URL = 'https://report.i18nprune.dev' as const;
 
+/** Public web workspace (hosted project share viewer). */
+export const DEMO_WEB_APP_BASE = 'https://web.i18nprune.dev' as const;
+
 /** Installable npm package name. */
 export const NPM_PACKAGE_NAME = 'i18nprune' as const;
 

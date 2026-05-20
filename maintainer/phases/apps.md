@@ -64,7 +64,7 @@ Session D — user docs (`docs/commands/share/`)
 ```txt
 packages/core/src/share/
 ├── index.ts              # barrel → runShare, runShareList, runShareView, runShareDelete
-├── run.ts                # runShare — main upload orchestration
+├── run.ts                # runShare — main upload orchestration (project `build` + `worker-ref` today)
 ├── list.ts               # runShareList
 ├── view.ts               # runShareView — GET /v1/{projects|reports}/:id (+ merge local share.json)
 ├── delete.ts             # runShareDelete (local metadata + optional worker DELETE)
@@ -477,7 +477,7 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 | # | Slice | Status |
 |---|-------|--------|
 | 0 | `packages/core/src/share/` types + **`share.json` I/O + self-heal** + `remote.ts` | **Shipped** |
-| 1 | `runShare` project payload + manifest events | **Todo** |
+| 1 | `runShare` project payload + manifest events (`buildProjectPayload`, `run.share.*`) | **Shipped** |
 | 2 | `runShare` report payload + validation | **Todo** |
 | 3 | `runShareList` / `runShareView` / `runShareDelete` | **Todo** |
 | 4 | `@i18nprune/host-snapshot` — dedupe zip parse (worker + web) | **Todo** |

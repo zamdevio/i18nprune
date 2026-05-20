@@ -30,6 +30,6 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 | **Cache locale-aware rebuild (Phase 2)** — target-only reuse, source-only `missingKeys` patch, `readSourceLocaleLeavesForMissing`, leaf-based missing keys | Shipped (core) | [`cache.md`](./cache.md) · [`docs/cli/cache.md`](../../docs/cli/cache.md) |
 | **Cache invalidate policy (Phase 4)** — skip `analysis.json` delete after target-only sync/generate; `decideProjectAnalysisCacheInvalidation`; `--debug-cache` invalidation line | Shipped (core + CLI) | [`cache.md`](./cache.md) § Phase 4 |
 | **Translate-cache (H.1)** — L1 memo + L2 `translations/<code>.json`; `cacheHits` progress; startup heal; port types in `types/translator/cache.ts` | Shipped (core + CLI) | [`translate-cache.md`](./translate-cache.md) · [`docs/cli/cache.md`](../../docs/cli/cache.md) |
-| **Share (C.3+)** — core `share.json` load/save + self-heal + worker envelope issue mapping (`packages/core/src/share/`) | Shipped (tracker row 0) | [`apps.md`](./apps.md) |
+| **Share (C.3+)** — core `share.json` load/save + self-heal + worker envelope mapping + **`runShare`** project zip/manifest + `run.share.*` events | Shipped (tracker rows 0–1) | [`apps.md`](./apps.md) |
 
 **Next vertical:** **[`apps.md`](./apps.md)** (C.3+). Hub: **[`V1-RELEASE.md`](./V1-RELEASE.md)**.

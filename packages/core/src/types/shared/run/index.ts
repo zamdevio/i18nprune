@@ -1,5 +1,7 @@
 import type { Issue } from '../../json/envelope/index.js';
 import type { TranslationProviderId } from '../../translator/providers.js';
+import type { ShareLinks } from '../../../types/share/entry.js';
+import type { ShareManifest } from '../../../types/share/manifest.js';
 
 /**
  * Known operation identifiers for `run.*` events.
@@ -17,7 +19,8 @@ export type OperationId =
   | 'review'
   | 'missing'
   | 'cleanup'
-  | 'locales-dynamic';
+  | 'locales-dynamic'
+  | 'share';
 
 export type RunEventBase = {
   /** Operation identifier (matches `CliJsonEnvelope.kind`). */
@@ -86,6 +89,11 @@ export type LocalesDynamicCounts = {
   shown: number;
 };
 
+export type ShareCounts = {
+  fileCount: number;
+  zipBytes: number;
+};
+
 export type RunCountsByOperation = {
   generate: GenerateCounts;
   sync: SyncCounts;
@@ -97,6 +105,7 @@ export type RunCountsByOperation = {
   missing: MissingCounts;
   cleanup: CleanupCounts;
   'locales-dynamic': LocalesDynamicCounts;
+  share: ShareCounts;
 };
 
 type RunCompletedEventFor<T extends OperationId> = Omit<RunEventBase, 'op'> & {
@@ -147,6 +156,38 @@ export type RunMessageEvent = RunEventBase & {
   target?: string;
   path?: string;
   data?: Record<string, string | number | boolean | null>;
+};
+
+export type RunShareManifestEvent = RunEventBase & {
+  op: 'share';
+  type: 'run.share.manifest';
+  at: number;
+  manifest: ShareManifest;
+};
+
+export type RunShareSkippedEvent = RunEventBase & {
+  op: 'share';
+  type: 'run.share.skipped';
+  at: number;
+  reason: string;
+  links: ShareLinks;
+  workerIds: { projectId?: string; reportId?: string };
+};
+
+export type RunShareUploadedEvent = RunEventBase & {
+  op: 'share';
+  type: 'run.share.uploaded';
+  at: number;
+  kind: 'project';
+  workerProjectId: string;
+  byteSize: number;
+};
+
+export type RunShareLinksEvent = RunEventBase & {
+  op: 'share';
+  type: 'run.share.links';
+  at: number;
+  links: ShareLinks;
 };
 
 export type ProgressEvent<T extends OperationId> = RunEventBase & {
@@ -226,7 +267,10 @@ export type RunEvent =
   | RunSummaryEvent
   | GenerateProgressEvent
   | SyncProgressEvent
-  | ValidateProgressEvent;
+  | ValidateProgressEvent
+  | RunShareManifestEvent
+  | RunShareSkippedEvent
+  | RunShareUploadedEvent
+  | RunShareLinksEvent;
 
 export type RunEmitter = (event: RunEvent) => void;
-

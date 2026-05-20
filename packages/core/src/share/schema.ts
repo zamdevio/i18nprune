@@ -42,5 +42,3 @@ export const shareJsonFileSchema = z
   })
   .strict();
 
-export type ParsedShareCacheEntry = z.infer<typeof shareCacheEntrySchema>;
-export type ParsedShareJsonFile = z.infer<typeof shareJsonFileSchema>;

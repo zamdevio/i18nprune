@@ -107,6 +107,10 @@ export const ISSUE_SHARE_REMOTE_UPLOAD_REJECTED = 'i18nprune.share.remote_upload
 export const ISSUE_SHARE_REMOTE_UNAVAILABLE = 'i18nprune.share.remote_unavailable' as const;
 /** Unmapped worker / HTTP error. */
 export const ISSUE_SHARE_REMOTE_ERROR = 'i18nprune.share.remote_error' as const;
+/** Prepared project snapshot had no eligible files after excludes (empty zip). */
+export const ISSUE_SHARE_SNAPSHOT_EMPTY = 'i18nprune.share.snapshot_empty' as const;
+/** Local zip build failed (e.g. `fflate` error). */
+export const ISSUE_SHARE_ZIP_FAILED = 'i18nprune.share.zip_failed' as const;
 /** Patching: config payload size looks anomalous vs expectations. */
 export const ISSUE_PATCHING_CONFIG_SIZE_ANOMALY = 'i18nprune.patching.config_size_anomaly' as const;
 /** Patching: config payload exceeds hard size cap. */

@@ -66,6 +66,11 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.report.invalid_format` | `error` | **`report`** |
 | `i18nprune.cli.invalid_json_pretty` | `error` | Global CLI option parsing |
 | `i18nprune.io.read_failed` | `error` | JSON commands on I/O / JSON parse failures |
+| `i18nprune.share.json_repaired` | `warning` | **`share.json`** self-heal (missing/invalid rows) |
+| `i18nprune.share.json_write_failed` | `warning` | **`share.json`** persistence failure |
+| `i18nprune.share.snapshot_empty` | `error` | **`buildProjectPayload`** / **`runShare`** — no files after excludes |
+| `i18nprune.share.zip_failed` | `error` | Local zip build failure (`fflate`) |
+| `i18nprune.share.remote_*` | varies | **`runShare`** worker probe / upload mapping (`shareRemoteIssueFromWorker`) |
 | `i18nprune.scan.dynamic_key_sites` | `warning` | **`sync`**, **`cleanup`**, **`quality`**, … |
 | `i18nprune.missing.paths_not_in_current_scan` | `warning` | **`missing`**, **`runMissing`** |
 | `i18nprune.patching.*` | varies | Patching analyzer (**`doctor`**, **`validate`**) |

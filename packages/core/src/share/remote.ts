@@ -151,3 +151,10 @@ export function shareRemoteIssueFromWorker(input: {
     message: `${message} (HTTP ${String(httpStatus)})`,
   };
 }
+
+/** Reads `data.projectId` from a successful worker upload envelope. */
+export function workerDataProjectId(data: unknown): string | undefined {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
+  const id = (data as Record<string, unknown>).projectId;
+  return typeof id === 'string' && id.length > 0 ? id : undefined;
+}

@@ -1,0 +1,183 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { describe, expect, it } from 'vitest';
+import { DEFAULT_CONFIG, parseI18nPruneConfig } from '../../config/index.js';
+import { initializeCacheState } from '../../cache/setup/index.js';
+import { createCoreContext } from '../../generate/context.js';
+import { createNodeRuntimeAdapters } from '../../runtime/exports/node.js';
+import type { CacheRuntime } from '../../types/cache/index.js';
+import type { RunEvent } from '../../types/shared/run/index.js';
+import { buildProjectPayload } from '../buildProjectPayload.js';
+import { runShare } from '../run.js';
+
+function nodeCacheRuntime(adapters: ReturnType<typeof createNodeRuntimeAdapters>): CacheRuntime {
+  return {
+    fs: adapters.fs,
+    path: adapters.path,
+    system: adapters.system,
+    hashText: (text) => crypto.createHash('sha256').update(text).digest('hex'),
+    byteLength: (text) => Buffer.byteLength(text, 'utf8'),
+  };
+}
+
+function writeMinimalProject(root: string): { sourcePath: string; localesDir: string; srcRoot: string } {
+  const srcRoot = path.join(root, 'src');
+  const localesDir = path.join(root, 'locales');
+  fs.mkdirSync(srcRoot, { recursive: true });
+  fs.mkdirSync(localesDir, { recursive: true });
+  fs.writeFileSync(path.join(root, 'i18nprune.config.json'), '{}');
+  fs.writeFileSync(path.join(srcRoot, 'app.ts'), 'export const x = () => t("a");');
+  const sourcePath = path.join(localesDir, 'en.json');
+  fs.writeFileSync(sourcePath, JSON.stringify({ a: 'A' }));
+  return { sourcePath, localesDir, srcRoot };
+}
+
+describe('buildProjectPayload', () => {
+  it('builds a non-empty zip + manifest with payload/config hashes', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-share-payload-'));
+    const cacheRoot = path.join(root, '.cache');
+    fs.mkdirSync(cacheRoot);
+    try {
+      const { sourcePath, localesDir, srcRoot } = writeMinimalProject(root);
+      const adapters = createNodeRuntimeAdapters();
+      const config = parseI18nPruneConfig({
+        ...DEFAULT_CONFIG,
+        locales: { source: 'locales/en.json', directory: 'locales' },
+        src: 'src',
+        functions: ['t'],
+      });
+      const cacheRuntime = nodeCacheRuntime(adapters);
+      const { state } = initializeCacheState({
+        projectRoot: root,
+        cacheRootDir: cacheRoot,
+        runtime: cacheRuntime,
+      });
+      const ctx = createCoreContext({
+        config,
+        adapters,
+        env: {},
+        paths: { sourceLocale: sourcePath, localesDir, srcRoot },
+        cache: { state, runtime: cacheRuntime },
+      });
+
+      const out = await buildProjectPayload({ ctx, projectRoot: root });
+      expect(out.ok).toBe(true);
+      if (!out.ok) return;
+      expect(out.zipBytes.byteLength).toBeGreaterThan(0);
+      expect(out.manifest.kind).toBe('project');
+      expect(out.manifest.fileCount).toBeGreaterThanOrEqual(3);
+      expect(out.manifest.payloadContentHash).toMatch(/^[a-f0-9]{64}$/);
+      expect(out.manifest.configHash.length).toBeGreaterThan(0);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('runShare (project / build)', () => {
+  it('emits run.share.manifest on dry-run', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-share-run-'));
+    const cacheRoot = path.join(root, '.cache');
+    fs.mkdirSync(cacheRoot);
+    try {
+      const { sourcePath, localesDir, srcRoot } = writeMinimalProject(root);
+      const adapters = createNodeRuntimeAdapters();
+      const config = parseI18nPruneConfig({
+        ...DEFAULT_CONFIG,
+        locales: { source: 'locales/en.json', directory: 'locales' },
+        src: 'src',
+        functions: ['t'],
+      });
+      const cacheRuntime = nodeCacheRuntime(adapters);
+      const { state } = initializeCacheState({
+        projectRoot: root,
+        cacheRootDir: cacheRoot,
+        runtime: cacheRuntime,
+      });
+      const ctx = createCoreContext({
+        config,
+        adapters,
+        env: {},
+        paths: { sourceLocale: sourcePath, localesDir, srcRoot },
+        cache: { state, runtime: cacheRuntime },
+      });
+
+      const events: RunEvent[] = [];
+      const res = await runShare({
+        ctx,
+        projectRoot: root,
+        workerBaseUrl: 'https://example.test',
+        kind: 'project',
+        source: 'build',
+        hooks: {
+          emit: (e) => events.push(e),
+          dryRun: true,
+        },
+      });
+
+      expect(res.skippedReason).toBe('dry_run');
+      expect(events.some((e) => e.type === 'run.share.manifest')).toBe(true);
+      const manifestEvt = events.find((e) => e.type === 'run.share.manifest');
+      expect(manifestEvt && manifestEvt.type === 'run.share.manifest' ? manifestEvt.manifest.kind : '').toBe('project');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('uploads when hook returns worker success envelope', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-share-upload-'));
+    const cacheRoot = path.join(root, '.cache');
+    fs.mkdirSync(cacheRoot);
+    try {
+      const { sourcePath, localesDir, srcRoot } = writeMinimalProject(root);
+      const adapters = createNodeRuntimeAdapters();
+      const config = parseI18nPruneConfig({
+        ...DEFAULT_CONFIG,
+        locales: { source: 'locales/en.json', directory: 'locales' },
+        src: 'src',
+        functions: ['t'],
+      });
+      const cacheRuntime = nodeCacheRuntime(adapters);
+      const { state } = initializeCacheState({
+        projectRoot: root,
+        cacheRootDir: cacheRoot,
+        runtime: cacheRuntime,
+      });
+      const ctx = createCoreContext({
+        config,
+        adapters,
+        env: {},
+        paths: { sourceLocale: sourcePath, localesDir, srcRoot },
+        cache: { state, runtime: cacheRuntime },
+      });
+
+      const res = await runShare({
+        ctx,
+        projectRoot: root,
+        workerBaseUrl: 'https://example.test',
+        kind: 'project',
+        source: 'build',
+        hooks: {
+          interactive: false,
+          uploadProject: async () => ({
+            httpStatus: 200,
+            body: {
+              code: 'OK',
+              success: true,
+              data: { projectId: 'a1b2c3d4e5f6a7b8' },
+              errors: [],
+            },
+          }),
+        },
+      });
+
+      expect(res.action).toBe('uploaded');
+      expect(res.workerIds.projectId).toBe('a1b2c3d4e5f6a7b8');
+      expect(res.links.web).toContain('/p/a1b2c3d4e5f6a7b8');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+});

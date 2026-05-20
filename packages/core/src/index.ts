@@ -376,6 +376,7 @@ export type {
 } from './namespaces/report.js';
 
 export * as share from './namespaces/share.js';
+export { buildProjectPayload, runShare } from './share/index.js';
 
 export * as localesDynamic from './namespaces/localesDynamic.js';
 export { runDynamic } from './namespaces/localesDynamic.js';
@@ -823,6 +824,8 @@ export {
   ISSUE_SHARE_REMOTE_REPORT_REJECTED,
   ISSUE_SHARE_REMOTE_UNAVAILABLE,
   ISSUE_SHARE_REMOTE_UPLOAD_REJECTED,
+  ISSUE_SHARE_SNAPSHOT_EMPTY,
+  ISSUE_SHARE_ZIP_FAILED,
   ISSUE_CONFIG_INVALID,
   ISSUE_CONFIG_LOAD_FAILED,
   ISSUE_CONFIG_MISSING,
