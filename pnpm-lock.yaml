@@ -344,6 +344,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@i18nprune/report':
+        specifier: workspace:*
+        version: link:../report
       fflate:
         specifier: ^0.8.2
         version: 0.8.2

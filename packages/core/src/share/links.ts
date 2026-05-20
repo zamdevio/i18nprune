@@ -1,4 +1,4 @@
-import { DEMO_WEB_APP_BASE } from '../shared/constants/links.js';
+import { DEMO_REPORT_URL, DEMO_WEB_APP_BASE } from '../shared/constants/links.js';
 import type { ShareLinks } from '../types/share/index.js';
 
 function trimTrailingSlash(url: string): string {
@@ -11,5 +11,14 @@ export function buildProjectShareLinks(input: { workerBaseUrl: string; projectId
   return {
     web: `${DEMO_WEB_APP_BASE}/p/${encodeURIComponent(input.projectId)}`,
     worker: `${base}/v1/projects/${encodeURIComponent(input.projectId)}`,
+  };
+}
+
+/** Public URLs for a hosted **report** payload (report UI + worker metadata). */
+export function buildReportShareLinks(input: { workerBaseUrl: string; reportId: string }): ShareLinks {
+  const base = trimTrailingSlash(input.workerBaseUrl);
+  return {
+    report: `${DEMO_REPORT_URL}/s/${encodeURIComponent(input.reportId)}`,
+    worker: `${base}/v1/reports/${encodeURIComponent(input.reportId)}`,
   };
 }

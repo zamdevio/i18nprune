@@ -37,3 +37,24 @@ export function findMatchingProjectShareEntry(
   hits.sort((a, b) => (a.lastUsedAt < b.lastUsedAt ? 1 : -1));
   return hits[0];
 }
+
+/**
+ * Finds the newest report row for the same worker origin + payload hash.
+ */
+export function findMatchingReportShareEntry(
+  entries: readonly ShareCacheEntry[],
+  workerBaseUrl: string,
+  payloadHash: string,
+): ShareCacheEntry | undefined {
+  const base = normalizeWorkerBaseUrl(workerBaseUrl);
+  const hits = entries.filter(
+    (e) =>
+      e.kind === 'report' &&
+      normalizeWorkerBaseUrl(e.workerBaseUrl) === base &&
+      Boolean(e.workerReportId) &&
+      e.payloadContentHash === payloadHash,
+  );
+  if (hits.length === 0) return undefined;
+  hits.sort((a, b) => (a.lastUsedAt < b.lastUsedAt ? 1 : -1));
+  return hits[0];
+}

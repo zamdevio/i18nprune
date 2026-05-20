@@ -2,16 +2,19 @@ import { emitRunEvent, nowMs } from '../shared/run/index.js';
 import {
   ISSUE_SHARE_REMOTE_ERROR,
   ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND,
+  ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND,
   ISSUE_SHARE_ZIP_FAILED,
 } from '../shared/constants/issueCodes.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { ShareCacheEntry } from '../types/share/entry.js';
+import type { ShareManifest } from '../types/share/manifest.js';
 import type { ShareRunInput, ShareRunResult } from '../types/share/shareRun.js';
 import { buildProjectPayload } from './buildProjectPayload.js';
+import { buildReportPayload } from './buildReportPayload.js';
 import { loadShareJsonFile, mergeDuplicateShareEntries, resolveShareJsonPath, saveShareJsonFile } from './io/shareJson.js';
-import { buildProjectShareLinks } from './links.js';
-import { findMatchingProjectShareEntry, normalizeWorkerBaseUrl } from './policy.js';
-import { parseWorkerShareEnvelope, shareRemoteIssueFromWorker, workerDataProjectId } from './remote.js';
+import { buildProjectShareLinks, buildReportShareLinks } from './links.js';
+import { findMatchingProjectShareEntry, findMatchingReportShareEntry, normalizeWorkerBaseUrl } from './policy.js';
+import { parseWorkerShareEnvelope, shareRemoteIssueFromWorker, workerDataProjectId, workerDataReportId } from './remote.js';
 
 export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
   const emit = input.hooks.emit;
@@ -22,48 +25,59 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
 
   emitRunEvent(emit, { type: 'run.started', op: 'share', runId, at: stamp() });
 
-  if (input.kind === 'project' && input.source === 'worker-ref') {
-    const ref = input.workerRef;
-    const links = buildProjectShareLinks({
-      workerBaseUrl: normalizeWorkerBaseUrl(ref.workerBaseUrl),
-      projectId: ref.workerProjectId,
-    });
+  if (input.source === 'worker-ref') {
+    const links =
+      input.kind === 'project'
+        ? buildProjectShareLinks({
+            workerBaseUrl: normalizeWorkerBaseUrl(input.workerRef.workerBaseUrl),
+            projectId: input.workerRef.workerProjectId,
+          })
+        : buildReportShareLinks({
+            workerBaseUrl: normalizeWorkerBaseUrl(input.workerRef.workerBaseUrl),
+            reportId: input.workerRef.workerReportId,
+          });
     emitRunEvent(emit, { type: 'run.share.links', op: 'share', runId, at: stamp(), links });
     emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: true });
     return {
       action: 'link-only',
-      kind: 'project',
+      kind: input.kind,
       links,
-      workerIds: { projectId: ref.workerProjectId },
+      workerIds:
+        input.kind === 'project'
+          ? { projectId: input.workerRef.workerProjectId }
+          : { reportId: input.workerRef.workerReportId },
       issues,
       skippedReason: 'worker_ref_link_only',
     };
   }
 
-  if (input.kind !== 'project' || input.source !== 'build') {
+  const isProjectBuild = input.kind === 'project' && input.source === 'build';
+  const isReportDocument = input.kind === 'report' && input.source === 'document';
+  if (!isProjectBuild && !isReportDocument) {
+    const _exhaustive: never = input;
+    void _exhaustive;
     emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
     return {
       action: 'skipped',
       kind: 'project',
       links: {},
       workerIds: {},
-      issues: [
-        {
-          severity: 'error',
-          code: ISSUE_SHARE_ZIP_FAILED,
-          message: 'Unsupported share run (expected project + source "build").',
-        },
-      ],
+      issues: [{ severity: 'error', code: ISSUE_SHARE_ZIP_FAILED, message: 'Unsupported share run input.' }],
     };
   }
 
-  const built = await buildProjectPayload({ ctx: input.ctx, projectRoot: input.projectRoot });
-  if (!built.ok) {
+  const builtProject = isProjectBuild ? await buildProjectPayload({ ctx: input.ctx, projectRoot: input.projectRoot }) : null;
+  if (builtProject && !builtProject.ok) {
     emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
-    return { action: 'skipped', kind: 'project', links: {}, workerIds: {}, issues: built.issues };
+    return { action: 'skipped', kind: 'project', links: {}, workerIds: {}, issues: builtProject.issues };
   }
-
-  const { manifest, zipBytes } = built;
+  const builtReport = isReportDocument ? await buildReportPayload({ reportDocument: input.reportDocument }) : null;
+  if (builtReport && !builtReport.ok) {
+    emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
+    return { action: 'skipped', kind: 'report', links: {}, workerIds: {}, issues: builtReport.issues };
+  }
+  const manifest: ShareManifest = isProjectBuild ? builtProject!.manifest : builtReport!.manifest;
+  const projectManifest = manifest.kind === 'project' ? manifest : null;
   emitRunEvent(emit, {
     type: 'run.share.manifest',
     op: 'share',
@@ -85,29 +99,34 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     issues.push(...loaded.issues);
   }
 
-  const candidateEntry = findMatchingProjectShareEntry(
-    shareFile.entries,
-    workerBaseUrl,
-    manifest.payloadContentHash,
-    manifest.configHash,
-  );
+  const candidateEntry =
+    input.kind === 'project'
+      ? findMatchingProjectShareEntry(shareFile.entries, workerBaseUrl, manifest.payloadContentHash, projectManifest!.configHash)
+      : findMatchingReportShareEntry(shareFile.entries, workerBaseUrl, manifest.payloadContentHash);
 
-  let allowSkip = !input.force && Boolean(candidateEntry?.workerProjectId);
+  let allowSkip = !input.force && (input.kind === 'project' ? Boolean(candidateEntry?.workerProjectId) : Boolean(candidateEntry?.workerReportId));
 
-  if (allowSkip && candidateEntry?.workerProjectId && input.hooks.fetchRemoteProjectRow) {
-    const resp = await input.hooks.fetchRemoteProjectRow({
-      workerBaseUrl,
-      projectId: candidateEntry.workerProjectId,
-    });
+  if (
+    allowSkip &&
+    ((input.kind === 'project' && candidateEntry?.workerProjectId && input.hooks.fetchRemoteProjectRow) ||
+      (input.kind === 'report' && candidateEntry?.workerReportId && input.hooks.fetchRemoteReportRow))
+  ) {
+    const resp =
+      input.kind === 'project'
+        ? await input.hooks.fetchRemoteProjectRow!({ workerBaseUrl, projectId: candidateEntry!.workerProjectId! })
+        : await input.hooks.fetchRemoteReportRow!({ workerBaseUrl, reportId: candidateEntry!.workerReportId! });
     const env = parseWorkerShareEnvelope(resp.body);
     const remoteIssue = shareRemoteIssueFromWorker({ httpStatus: resp.httpStatus, envelope: env });
-    if (remoteIssue?.code === ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND) {
+    const notFoundCode = input.kind === 'project' ? ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND : ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND;
+    if (remoteIssue?.code === notFoundCode) {
       allowSkip = false;
       shareFile.entries = shareFile.entries.filter(
         (e) =>
           !(
-            e.kind === 'project' &&
-            e.workerProjectId === candidateEntry.workerProjectId &&
+            e.kind === input.kind &&
+            (input.kind === 'project'
+              ? e.workerProjectId === candidateEntry?.workerProjectId
+              : e.workerReportId === candidateEntry?.workerReportId) &&
             normalizeWorkerBaseUrl(e.workerBaseUrl) === workerBaseUrl
           ),
       );
@@ -117,24 +136,32 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
       }
       issues.push({
         severity: 'warning',
-        code: ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND,
+        code: notFoundCode,
         message:
-          'Cached project link no longer exists on the worker (eviction or wrong id). Removed the stale share.json row; uploading a fresh snapshot.',
+          input.kind === 'project'
+            ? 'Cached project link no longer exists on the worker (eviction or wrong id). Removed the stale share.json row; uploading a fresh snapshot.'
+            : 'Cached report link no longer exists on the worker (eviction or wrong id). Removed the stale share.json row; uploading a fresh payload.',
       });
     } else if (remoteIssue) {
       allowSkip = false;
     }
-  } else if (!input.force && candidateEntry?.workerProjectId && !input.hooks.fetchRemoteProjectRow) {
+  } else if (
+    !input.force &&
+    ((input.kind === 'project' && candidateEntry?.workerProjectId && !input.hooks.fetchRemoteProjectRow) ||
+      (input.kind === 'report' && candidateEntry?.workerReportId && !input.hooks.fetchRemoteReportRow))
+  ) {
     allowSkip = false;
   }
 
-  if (allowSkip && candidateEntry?.workerProjectId) {
+  if (allowSkip && candidateEntry) {
     const links = candidateEntry.links;
     const nowIso = new Date().toISOString();
     const idx = shareFile.entries.findIndex(
       (e) =>
-        e.kind === 'project' &&
-        e.workerProjectId === candidateEntry.workerProjectId &&
+        e.kind === input.kind &&
+        (input.kind === 'project'
+          ? e.workerProjectId === candidateEntry.workerProjectId
+          : e.workerReportId === candidateEntry.workerReportId) &&
         normalizeWorkerBaseUrl(e.workerBaseUrl) === workerBaseUrl,
     );
     if (idx >= 0) {
@@ -153,18 +180,27 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
       op: 'share',
       runId,
       at: stamp(),
-      reason: 'unchanged payload hash — reusing cached worker project id',
+      reason:
+        input.kind === 'project'
+          ? 'unchanged payload hash — reusing cached worker project id'
+          : 'unchanged payload hash — reusing cached worker report id',
       links,
-      workerIds: { projectId: candidateEntry.workerProjectId },
+      workerIds:
+        input.kind === 'project'
+          ? { projectId: candidateEntry.workerProjectId }
+          : { reportId: candidateEntry.workerReportId },
     });
     emitRunEvent(emit, { type: 'run.share.links', op: 'share', runId, at: stamp(), links });
     emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: true });
     return {
       action: 'skipped',
-      kind: 'project',
+      kind: input.kind,
       manifest,
       links,
-      workerIds: { projectId: candidateEntry.workerProjectId },
+      workerIds:
+        input.kind === 'project'
+          ? { projectId: candidateEntry.workerProjectId }
+          : { reportId: candidateEntry.workerReportId },
       cacheEntry: idx >= 0 ? shareFile.entries[idx]! : candidateEntry,
       issues,
       skippedReason: 'hash_unchanged',
@@ -175,7 +211,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: true });
     return {
       action: 'skipped',
-      kind: 'project',
+      kind: input.kind,
       manifest,
       links: {},
       workerIds: {},
@@ -187,14 +223,17 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
   const interactive = input.hooks.interactive !== false;
   if (interactive && input.hooks.confirmUpload) {
     const ok = await input.hooks.confirmUpload({
-      message: `Upload this snapshot (${String(manifest.fileCount)} files, ${String(manifest.byteSize)} bytes) to ${workerBaseUrl}?`,
+      message:
+        input.kind === 'project'
+          ? `Upload this snapshot (${String(projectManifest!.fileCount)} files, ${String(manifest.byteSize)} bytes) to ${workerBaseUrl}?`
+          : `Upload this report (${String(manifest.byteSize)} bytes) to ${workerBaseUrl}?`,
       defaultValue: true,
     });
     if (!ok) {
       emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: true });
       return {
         action: 'skipped',
-        kind: 'project',
+        kind: input.kind,
         manifest,
         links: {},
         workerIds: {},
@@ -204,11 +243,11 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     }
   }
 
-  if (!input.hooks.uploadProject) {
+  if ((input.kind === 'project' && !input.hooks.uploadProject) || (input.kind === 'report' && !input.hooks.uploadReport)) {
     emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
     return {
       action: 'skipped',
-      kind: 'project',
+      kind: input.kind,
       manifest,
       links: {},
       workerIds: {},
@@ -216,48 +255,63 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
         {
           severity: 'error',
           code: ISSUE_SHARE_REMOTE_ERROR,
-          message: 'Missing host hook `uploadProject` — cannot complete share upload.',
+          message:
+            input.kind === 'project'
+              ? 'Missing host hook `uploadProject` — cannot complete share upload.'
+              : 'Missing host hook `uploadReport` — cannot complete share upload.',
         },
       ],
     };
   }
 
-  const up = await input.hooks.uploadProject({ workerBaseUrl, zipBytes });
+  const up =
+    input.kind === 'project'
+      ? await input.hooks.uploadProject!({ workerBaseUrl, zipBytes: builtProject!.zipBytes })
+      : await input.hooks.uploadReport!({ workerBaseUrl, document: builtReport!.document });
   const env = parseWorkerShareEnvelope(up.body);
   const remoteIssue = shareRemoteIssueFromWorker({ httpStatus: up.httpStatus, envelope: env });
   if (remoteIssue) {
     issues.push(remoteIssue);
     emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
-    return { action: 'skipped', kind: 'project', manifest, links: {}, workerIds: {}, issues };
+    return { action: 'skipped', kind: input.kind, manifest, links: {}, workerIds: {}, issues };
   }
 
-  const projectId = workerDataProjectId(env.data);
-  if (!projectId) {
+  const workerId = input.kind === 'project' ? workerDataProjectId(env.data) : workerDataReportId(env.data);
+  if (!workerId) {
     issues.push({
       severity: 'error',
       code: ISSUE_SHARE_REMOTE_ERROR,
-      message: 'Worker upload succeeded but the response did not include a projectId.',
+      message:
+        input.kind === 'project'
+          ? 'Worker upload succeeded but the response did not include a projectId.'
+          : 'Worker upload succeeded but the response did not include a reportId.',
     });
     emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
-    return { action: 'skipped', kind: 'project', manifest, links: {}, workerIds: {}, issues };
+    return { action: 'skipped', kind: input.kind, manifest, links: {}, workerIds: {}, issues };
   }
 
-  const links = buildProjectShareLinks({ workerBaseUrl, projectId });
+  const links =
+    input.kind === 'project'
+      ? buildProjectShareLinks({ workerBaseUrl, projectId: workerId })
+      : buildReportShareLinks({ workerBaseUrl, reportId: workerId });
   const nowIso = new Date().toISOString();
   const newEntry: ShareCacheEntry = {
-    kind: 'project',
+    kind: input.kind,
     workerBaseUrl,
-    workerProjectId: projectId,
+    ...(input.kind === 'project' ? { workerProjectId: workerId, configHash: projectManifest!.configHash } : { workerReportId: workerId }),
     payloadContentHash: manifest.payloadContentHash,
-    configHash: manifest.configHash,
-    byteSize: zipBytes.byteLength,
+    byteSize: manifest.byteSize,
     uploadedAt: nowIso,
     lastUsedAt: nowIso,
     links,
   };
 
   if (canUseShareJson && sharePath && cache?.runtime) {
-    const filtered = shareFile.entries.filter((e) => !(e.kind === 'project' && e.workerProjectId === projectId));
+    const filtered = shareFile.entries.filter((e) =>
+      input.kind === 'project'
+        ? !(e.kind === 'project' && e.workerProjectId === workerId)
+        : !(e.kind === 'report' && e.workerReportId === workerId),
+    );
     const nextEntries = mergeDuplicateShareEntries([...filtered, newEntry]).entries;
     shareFile = { version: 1, entries: nextEntries };
     const w = saveShareJsonFile({ sharePath, file: shareFile, runtime: cache.runtime });
@@ -269,19 +323,19 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     op: 'share',
     runId,
     at: stamp(),
-    kind: 'project',
-    workerProjectId: projectId,
-    byteSize: zipBytes.byteLength,
+    kind: input.kind,
+    ...(input.kind === 'project' ? { workerProjectId: workerId } : { workerReportId: workerId }),
+    byteSize: manifest.byteSize,
   });
   emitRunEvent(emit, { type: 'run.share.links', op: 'share', runId, at: stamp(), links });
   emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: true });
 
   return {
     action: 'uploaded',
-    kind: 'project',
+    kind: input.kind,
     manifest,
     links,
-    workerIds: { projectId },
+    workerIds: input.kind === 'project' ? { projectId: workerId } : { reportId: workerId },
     cacheEntry: canUseShareJson ? newEntry : undefined,
     issues,
   };

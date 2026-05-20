@@ -25,6 +25,7 @@ extractor → init → locales → cache → translate-cache → apps (C.3+) →
 ## Build / test gate
 - Required before commit: `pnpm typecheck` and `pnpm test`.
 - Refactor PRs: parity snapshot tests under `tests/parity/` must pass.
+- Optional repo hygiene helpers: `pnpm empty:dir`, `pnpm empty:file`; destructive variants `pnpm empty:dir:del`, `pnpm empty:file:del` only after reviewing listed paths.
 
 ## Behavior parity (refactors)
 - `--json` envelope, stripped human stderr output, exit codes, and issue codes on the sample fixture must not change byte-for-byte during a refactor.

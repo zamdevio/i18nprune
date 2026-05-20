@@ -158,3 +158,10 @@ export function workerDataProjectId(data: unknown): string | undefined {
   const id = (data as Record<string, unknown>).projectId;
   return typeof id === 'string' && id.length > 0 ? id : undefined;
 }
+
+/** Reads `data.reportId` from a successful worker report upload envelope. */
+export function workerDataReportId(data: unknown): string | undefined {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
+  const id = (data as Record<string, unknown>).reportId;
+  return typeof id === 'string' && id.length > 0 ? id : undefined;
+}

@@ -1,6 +1,5 @@
 /**
  * Prepared project snapshot manifest (zip not included — described by hashes + counts).
- * Report manifests land in slice row 2.
  */
 export type ShareProjectManifest = {
   kind: 'project';
@@ -16,5 +15,14 @@ export type ShareProjectManifest = {
   detectedConfigRelPath: string | null;
 };
 
-/** Union for future report manifests. */
-export type ShareManifest = ShareProjectManifest;
+/** Prepared report payload manifest (validated `ProjectReportDocument` JSON). */
+export type ShareReportManifest = {
+  kind: 'report';
+  byteSize: number;
+  payloadContentHash: string;
+  schemaVersion: number;
+  toolVersion: string;
+  generatedAt: string;
+};
+
+export type ShareManifest = ShareProjectManifest | ShareReportManifest;

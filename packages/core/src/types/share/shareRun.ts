@@ -2,12 +2,18 @@ import type { CoreContext } from '../context/index.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { RunEmitter } from '../shared/run/index.js';
 import type { ShareCacheEntry, ShareLinks } from './entry.js';
-import type { ShareProjectManifest } from './manifest.js';
+import type { ShareManifest } from './manifest.js';
 
 export type ShareWorkerProjectRef = {
   kind: 'project';
   workerBaseUrl: string;
   workerProjectId: string;
+};
+
+export type ShareWorkerReportRef = {
+  kind: 'report';
+  workerBaseUrl: string;
+  workerReportId: string;
 };
 
 export type ShareRunInputProjectBuild = {
@@ -31,7 +37,32 @@ export type ShareRunInputProjectWorkerRef = {
   hooks: ShareHostHooks;
 };
 
-export type ShareRunInput = ShareRunInputProjectBuild | ShareRunInputProjectWorkerRef;
+export type ShareRunInputReportDocument = {
+  ctx: CoreContext;
+  projectRoot: string;
+  workerBaseUrl: string;
+  kind: 'report';
+  source: 'document';
+  reportDocument: unknown;
+  force?: boolean;
+  hooks: ShareHostHooks;
+};
+
+export type ShareRunInputReportWorkerRef = {
+  ctx: CoreContext;
+  projectRoot: string;
+  workerBaseUrl: string;
+  kind: 'report';
+  source: 'worker-ref';
+  workerRef: ShareWorkerReportRef;
+  hooks: ShareHostHooks;
+};
+
+export type ShareRunInput =
+  | ShareRunInputProjectBuild
+  | ShareRunInputProjectWorkerRef
+  | ShareRunInputReportDocument
+  | ShareRunInputReportWorkerRef;
 
 export type ShareHostHooks = {
   emit?: RunEmitter;
@@ -45,9 +76,17 @@ export type ShareHostHooks = {
     workerBaseUrl: string;
     projectId: string;
   }) => Promise<{ httpStatus: number; body: unknown }>;
+  fetchRemoteReportRow?: (input: {
+    workerBaseUrl: string;
+    reportId: string;
+  }) => Promise<{ httpStatus: number; body: unknown }>;
   uploadProject?: (input: {
     workerBaseUrl: string;
     zipBytes: Uint8Array;
+  }) => Promise<{ httpStatus: number; body: unknown }>;
+  uploadReport?: (input: {
+    workerBaseUrl: string;
+    document: unknown;
   }) => Promise<{ httpStatus: number; body: unknown }>;
 };
 
@@ -59,8 +98,8 @@ export type ShareSkippedReason =
 
 export type ShareRunResult = {
   action: 'uploaded' | 'skipped' | 'link-only';
-  kind: 'project';
-  manifest?: ShareProjectManifest;
+  kind: 'project' | 'report';
+  manifest?: ShareManifest;
   links: ShareLinks;
   workerIds: { projectId?: string; reportId?: string };
   cacheEntry?: ShareCacheEntry;

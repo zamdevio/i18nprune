@@ -10,14 +10,17 @@ export {
 export type { SaveShareJsonResult } from './io/shareJson.js';
 export { buildProjectPayload } from './buildProjectPayload.js';
 export type { BuildProjectPayloadResult } from './buildProjectPayload.js';
+export { buildReportPayload } from './buildReportPayload.js';
+export type { BuildReportPayloadResult } from './buildReportPayload.js';
 export { shouldSkipPathForShareZip } from './ignorePaths.js';
-export { buildProjectShareLinks } from './links.js';
+export { buildProjectShareLinks, buildReportShareLinks } from './links.js';
 export {
   findMatchingProjectShareEntry,
+  findMatchingReportShareEntry,
   normalizeWorkerBaseUrl,
   projectPayloadMatchesCachedEntry,
 } from './policy.js';
-export { parseWorkerShareEnvelope, shareRemoteIssueFromWorker, workerDataProjectId } from './remote.js';
+export { parseWorkerShareEnvelope, shareRemoteIssueFromWorker, workerDataProjectId, workerDataReportId } from './remote.js';
 export { runShare } from './run.js';
 export { shareCacheEntrySchema, shareJsonFileSchema } from './schema.js';
 export type {
@@ -35,5 +38,6 @@ export type {
   ShareRunResult,
   ShareSkippedReason,
   ShareWorkerProjectRef,
+  ShareWorkerReportRef,
 } from '../types/share/shareRun.js';
-export type { ShareManifest, ShareProjectManifest } from '../types/share/manifest.js';
+export type { ShareManifest, ShareProjectManifest, ShareReportManifest } from '../types/share/manifest.js';

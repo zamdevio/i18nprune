@@ -14,6 +14,7 @@
 | **Moved/renamed/deleted files or changed barrels** | `pnpm madge:circular` · `pnpm knip` |
 | **Refactor PR (parity-sensitive)** | Above + `tests/parity/` must pass |
 | **Optional diagnostics** | `pnpm madge:orphans` · `pnpm madge:leaves` · `pnpm empty:dir` · `pnpm empty:file` |
+| **Optional cleanup (manual review first)** | `pnpm empty:dir:del` · `pnpm empty:file:del` |
 
 Hygiene-only fixes (knip/madge/empty) belong in **dedicated PRs** or the same PR only when you already changed module structure — do not bundle unrelated behavior changes.
 
@@ -86,8 +87,10 @@ Ad-hoc helpers after large deletes or directory reshuffles. Not CI gates.
 |---------|---------|
 | **`pnpm empty:dir`** | List empty directories (skips `node_modules`, `.git`, `wrangler`) |
 | **`pnpm empty:file`** | List zero-byte files (same skips) |
+| **`pnpm empty:dir:del`** | Delete empty directories after printing each path (same skip policy) |
+| **`pnpm empty:file:del`** | Delete zero-byte files after printing each path (same skip policy) |
 
-Use to clean up leftover folders from moves; verify with `git status` before removing.
+Use to clean up leftover folders from moves; prefer `empty:dir` / `empty:file` first, then run delete variants only when you have reviewed output. Always verify with `git status` after cleanup.
 
 ---
 

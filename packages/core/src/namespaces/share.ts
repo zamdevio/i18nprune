@@ -1,8 +1,11 @@
 export {
   DEFAULT_MAX_SHARE_JSON_BYTES,
+  buildReportPayload,
   buildProjectPayload,
+  buildReportShareLinks,
   buildProjectShareLinks,
   findMatchingProjectShareEntry,
+  findMatchingReportShareEntry,
   loadShareJsonFile,
   mergeDuplicateShareEntries,
   normalizeWorkerBaseUrl,
@@ -13,6 +16,7 @@ export {
   saveShareJsonFile,
   shareJsonSerializedByteLength,
   shareRemoteIssueFromWorker,
+  workerDataReportId,
   workerDataProjectId,
   SHARE_JSON_BASENAME,
 } from '../share/index.js';
@@ -33,5 +37,6 @@ export type {
   ShareRunResult,
   ShareSkippedReason,
   ShareWorkerProjectRef,
+  ShareWorkerReportRef,
 } from '../types/share/shareRun.js';
-export type { ShareManifest, ShareProjectManifest } from '../types/share/manifest.js';
+export type { ShareManifest, ShareProjectManifest, ShareReportManifest } from '../types/share/manifest.js';

@@ -178,8 +178,9 @@ export type RunShareUploadedEvent = RunEventBase & {
   op: 'share';
   type: 'run.share.uploaded';
   at: number;
-  kind: 'project';
-  workerProjectId: string;
+  kind: 'project' | 'report';
+  workerProjectId?: string;
+  workerReportId?: string;
   byteSize: number;
 };
 

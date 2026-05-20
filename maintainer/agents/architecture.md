@@ -140,7 +140,7 @@ The CLI must **not**:
 
 ## 8. Health gates
 
-Required and diagnostic commands (`typecheck`, `test`, `knip`, `madge`, `empty:*`): **[`maintainer/systems/health.md`](../systems/health.md)**.
+Required and diagnostic commands (`typecheck`, `test`, `knip`, `madge`, `empty:*`, `empty:*:del`): **[`maintainer/systems/health.md`](../systems/health.md)**.
 
 Knip config and ignore catalog: **[`maintainer/systems/knip.md`](../systems/knip.md)**.
 

@@ -80,8 +80,10 @@
     "madge:leaves": "madge --leaves --extensions ts,tsx --ts-config tsconfig.json packages/core/src packages/cli/src packages/report/src",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "empty:dir": "find . -path '*node_modules' -prune -o -path '*wrangler' -prune -o -path ./.git -prune -o  -type d -empty -print",
-    "empty:file": "find . -path '*node_modules' -prune -o -path '*wrangler' -prune -o -path ./.git -prune -o  -type f -empty -print"
+    "empty:dir": "find . -path '*node_modules' -prune -o -path '*/.wrangler' -prune -o -path ./.git -prune -o -type d -empty -print",
+    "empty:file": "find . -path '*node_modules' -prune -o -path '*/.wrangler' -prune -o -path ./.git -prune -o -type f -empty -print",
+    "empty:dir:del": "find . -type d -empty ! -path '*/node_modules' ! -path '*/node_modules/*' ! -path '*/.wrangler' ! -path '*/.wrangler/*' ! -path './.git' ! -path './.git/*' -print -delete",
+    "empty:file:del": "find . -type f -empty ! -path '*/node_modules/*' ! -path '*/.wrangler/*' ! -path './.git/*' -print -delete"
   },
   "keywords": [
     "i18n",
