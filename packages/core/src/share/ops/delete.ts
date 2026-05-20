@@ -1,19 +1,27 @@
-import { ISSUE_SHARE_REMOTE_ERROR } from '../shared/constants/issueCodes.js';
-import type { Issue } from '../types/json/envelope/index.js';
-import type { ShareDeleteInput, ShareDeleteResult } from '../types/share/shareRun.js';
-import { loadShareJsonFile, resolveShareJsonPath, saveShareJsonFile } from './io/shareJson.js';
-import { parseWorkerShareEnvelope, shareRemoteIssueFromWorker } from './remote.js';
+import {
+  ISSUE_SHARE_CACHE_ENTRY_NOT_FOUND,
+  ISSUE_SHARE_REMOTE_ERROR,
+} from '../../shared/constants/issueCodes.js';
+import type { Issue } from '../../types/json/envelope/index.js';
+import type { ShareDeleteInput, ShareDeleteResult } from '../../types/share/shareRun.js';
+import { loadShareJsonFile, resolveShareJsonPath, saveShareJsonFile } from '../cache/io/shareJson.js';
+import { parseWorkerShareEnvelope, resolveShareRemoteDeleteOutcome } from '../remote/remote.js';
 
 /** Deletes one local share entry and optionally deletes the remote worker row. */
 export async function runShareDelete(input: ShareDeleteInput): Promise<ShareDeleteResult> {
   const issues: Issue[] = [];
   let deletedLocal = false;
   let deletedRemote = false;
+  let remoteAlreadyAbsent = false;
 
   const cache = input.ctx.cache;
   if (cache?.state.enabled && cache.runtime) {
     const sharePath = resolveShareJsonPath(cache.state.projectDir, cache.runtime.path);
-    const loaded = loadShareJsonFile({ sharePath, runtime: cache.runtime });
+    const loaded = loadShareJsonFile({
+      sharePath,
+      runtime: cache.runtime,
+      cacheReadOnly: cache.state.readOnly,
+    });
     issues.push(...loaded.issues);
     const before = loaded.file.entries.length;
     const entries = loaded.file.entries.filter((e) =>
@@ -29,6 +37,17 @@ export async function runShareDelete(input: ShareDeleteInput): Promise<ShareDele
   }
 
   const deleteRemote = input.remote !== false;
+  if (!deletedLocal) {
+    const label = input.kind === 'project' ? 'project' : 'report';
+    issues.push({
+      severity: 'warning',
+      code: ISSUE_SHARE_CACHE_ENTRY_NOT_FOUND,
+      message: deleteRemote
+        ? `No matching ${label} id in share.json (${input.workerId}); continuing with worker DELETE.`
+        : `No matching ${label} id in share.json (${input.workerId}).`,
+    });
+  }
+
   if (deleteRemote) {
     const response =
       input.kind === 'project'
@@ -50,18 +69,16 @@ export async function runShareDelete(input: ShareDeleteInput): Promise<ShareDele
       });
     } else {
       const env = parseWorkerShareEnvelope(response.body);
-      if (response.httpStatus === 404) {
-        deletedRemote = true;
-      } else {
-        const remoteIssue = shareRemoteIssueFromWorker({ httpStatus: response.httpStatus, envelope: env });
-        if (remoteIssue) {
-          issues.push(remoteIssue);
-        } else {
-          deletedRemote = true;
-        }
-      }
+      const outcome = resolveShareRemoteDeleteOutcome({
+        httpStatus: response.httpStatus,
+        envelope: env,
+        kind: input.kind,
+      });
+      deletedRemote = outcome.deletedRemote;
+      remoteAlreadyAbsent = outcome.alreadyAbsent;
+      if (outcome.issue) issues.push(outcome.issue);
     }
   }
 
-  return { deletedLocal, deletedRemote, issues };
+  return { deletedLocal, deletedRemote, remoteAlreadyAbsent, issues };
 }

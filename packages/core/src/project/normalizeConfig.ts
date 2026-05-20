@@ -1,6 +1,6 @@
 import type { ScanExcludeConfig } from '../types/scanner/exclude.js';
 import type { NormalizedProjectConfig } from '../types/project/config.js';
-import { sha256HexBytes } from '../share/sha256.js';
+import { sha256HexBytes } from '../share/util/sha256.js';
 
 function stableJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`;

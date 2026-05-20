@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE, ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND } from '../../shared/constants/issueCodes.js';
-import { parseWorkerShareEnvelope, shareRemoteIssueFromWorker } from '../remote.js';
+import { ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE, ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND } from '../../../shared/constants/issueCodes.js';
+import { parseWorkerShareEnvelope, resolveShareRemoteDeleteOutcome, shareRemoteIssueFromWorker } from '../../remote/remote.js';
 
 describe('parseWorkerShareEnvelope', () => {
   it('parses success envelope', () => {
@@ -56,6 +56,36 @@ describe('shareRemoteIssueFromWorker', () => {
       }),
     });
     expect(issue?.code).toBe(ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE);
+  });
+
+  it('DELETE 200 with deleted:false is idempotent success with warning', () => {
+    const out = resolveShareRemoteDeleteOutcome({
+      httpStatus: 200,
+      envelope: parseWorkerShareEnvelope({
+        success: true,
+        code: 'OK',
+        data: { deleted: false },
+        errors: [],
+      }),
+      kind: 'project',
+    });
+    expect(out.deletedRemote).toBe(true);
+    expect(out.alreadyAbsent).toBe(true);
+    expect(out.issue?.severity).toBe('warning');
+  });
+
+  it('DELETE 404 is idempotent success with warning', () => {
+    const out = resolveShareRemoteDeleteOutcome({
+      httpStatus: 404,
+      envelope: parseWorkerShareEnvelope({
+        success: false,
+        errors: [{ code: 'REPORT_NOT_FOUND', message: 'Report not found' }],
+      }),
+      kind: 'report',
+    });
+    expect(out.deletedRemote).toBe(true);
+    expect(out.alreadyAbsent).toBe(true);
+    expect(out.issue?.severity).toBe('warning');
   });
 
   it('maps 413 without worker code', () => {

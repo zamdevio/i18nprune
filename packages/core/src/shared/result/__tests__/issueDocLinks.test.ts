@@ -27,6 +27,9 @@ describe('issueDocLinks', () => {
     expect(resolveIssueCodeDocLink('i18nprune.io.read_failed').anchor).toBe('read-failed');
     expect(resolveIssueCodeDocLink('i18nprune.config.missing').anchor).toBe('missing');
     expect(resolveIssueCodeDocLink('i18nprune.project.config_file_missing').anchor).toBe('config-file-missing');
+    expect(resolveIssueCodeDocLink('i18nprune.share.cache_entry_not_found').sitePagePath).toBe('/issues/share');
+    expect(resolveIssueCodeDocLink('i18nprune.share.cache_entry_not_found').anchor).toBe('cache-entry-not-found');
+    expect(resolveIssueCodeDocLink('i18nprune.share.remote_project_not_found').anchor).toBe('remote-project-not-found');
     expect(resolveIssueCodeDocLink('i18nprune.languages.unsupported_language_code').anchor).toBe(
       'unsupported-language-code',
     );

@@ -1,43 +1,59 @@
+export { DEFAULT_MAX_SHARE_JSON_BYTES, SHARE_JSON_BASENAME } from '../shared/constants/share.js';
 export {
-  DEFAULT_MAX_SHARE_JSON_BYTES,
   loadShareJsonFile,
   mergeDuplicateShareEntries,
   resolveShareJsonPath,
   saveShareJsonFile,
   shareJsonSerializedByteLength,
-  SHARE_JSON_BASENAME,
-} from './io/shareJson.js';
-export type { SaveShareJsonResult } from './io/shareJson.js';
-export { buildProjectPayload } from './buildProjectPayload.js';
-export type { BuildProjectPayloadResult } from './buildProjectPayload.js';
-export { buildReportPayload } from './buildReportPayload.js';
-export type { BuildReportPayloadResult } from './buildReportPayload.js';
-export { runShareDelete } from './delete.js';
-export { shouldSkipPathForShareZip } from './ignorePaths.js';
-export { buildProjectShareLinks, buildReportShareLinks } from './links.js';
-export { runShareList } from './list.js';
+} from './cache/io/shareJson.js';
+export type { SaveShareJsonResult } from './cache/io/shareJson.js';
+export { buildProjectPayload, computeShareProjectConfigHash } from './payload/buildProjectPayload.js';
+export type { BuildProjectPayloadResult } from './payload/buildProjectPayload.js';
+export { buildReportPayload } from './payload/buildReportPayload.js';
+export type { BuildReportPayloadResult } from './payload/buildReportPayload.js';
+export { runShareDelete } from './ops/delete.js';
+export { shouldSkipPathForShareZip } from './payload/ignorePaths.js';
+export { buildProjectShareLinks, buildReportShareLinks } from './util/links.js';
+export { runShareList } from './ops/list.js';
 export {
   findMatchingProjectShareEntry,
+  findMatchingProjectShareEntryByFilesEpoch,
   findMatchingReportShareEntry,
   normalizeWorkerBaseUrl,
   projectPayloadMatchesCachedEntry,
-} from './policy.js';
-export { parseWorkerShareEnvelope, shareRemoteIssueFromWorker, workerDataProjectId, workerDataReportId } from './remote.js';
+  projectShareEpochMatchesCachedEntry,
+} from './policy/policy.js';
+export {
+  isShareRemoteNotFoundIssue,
+  parseWorkerShareEnvelope,
+  resolveShareRemoteDeleteOutcome,
+  shareRemoteIssueFromWorker,
+  workerDataDeleteRemoved,
+  workerDataProjectId,
+  workerDataReportId,
+} from './remote/remote.js';
+export type { ShareRemoteDeleteOutcome } from './remote/remote.js';
 export {
   emitShareDeleteHumanMessages,
+  emitShareJsonHealHumanMessages,
   emitShareListHumanMessages,
   emitShareUploadHumanMessages,
   emitShareViewHumanMessages,
-} from './human.js';
-export type { ShareHumanMessageHost } from './human.js';
-export { resolveShareWorkerBaseUrl } from './resolveWorkerBaseUrl.js';
-export { runShare } from './run.js';
-export { runShareView } from './view.js';
-export { shareCacheEntrySchema, shareJsonFileSchema } from './schema.js';
+} from './emit/human.js';
+export type { ShareHumanMessageHost } from './emit/human.js';
+export { resolveShareWorkerBaseUrl } from './remote/resolveWorkerBaseUrl.js';
+export { runShare } from './ops/run.js';
+export { emitShareCacheDebug } from './cache/debug.js';
+export { purgeShareCacheEntry } from './cache/purgeCacheEntry.js';
+export { resolveShareBakDir, shareJsonBackupNotice } from './cache/shareJsonBackup.js';
+export { runShareView } from './ops/view.js';
+export { shareCacheEntrySchema, shareJsonFileSchema } from './cache/schema.js';
 export type {
   LoadShareJsonResult,
   ShareCacheEntry,
   ShareDeleteJsonPayload,
+  ShareDeleteAllJsonPayload,
+  ShareDeleteRowResult,
   ShareDeleteOptions,
   ShareJsonFile,
   ShareJsonHealReport,

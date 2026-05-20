@@ -1,15 +1,15 @@
-import { readRuntimeFsTextSync } from '../runtime/helpers/sync/fs.js';
-import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../runtime/helpers/sync/index.js';
-import { listSourceFiles } from '../shared/scanner/files.js';
-import { ISSUE_IO_READ_FAILED, ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE } from '../shared/constants/issueCodes.js';
+import { readRuntimeFsTextSync } from '../../runtime/helpers/sync/fs.js';
+import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../../runtime/helpers/sync/index.js';
+import { listSourceFiles } from '../../shared/scanner/files.js';
+import { ISSUE_IO_READ_FAILED, ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE } from '../../shared/constants/issueCodes.js';
 import {
   PROJECT_UPLOAD_MAX_FILES,
   PROJECT_UPLOAD_MAX_TEXT_BYTES,
   PROJECT_UPLOAD_MAX_ZIP_BYTES,
-} from '../shared/constants/project.js';
-import type { CoreContext } from '../types/context/index.js';
-import type { Issue } from '../types/json/envelope/index.js';
-import type { ProjectFilesystemRuntime } from '../types/runtime/capabilities.js';
+} from '../../shared/constants/project.js';
+import type { CoreContext } from '../../types/context/index.js';
+import type { Issue } from '../../types/json/envelope/index.js';
+import type { ProjectFilesystemRuntime } from '../../types/runtime/capabilities.js';
 import { shouldSkipPathForShareZip } from './ignorePaths.js';
 
 const CONFIG_NAMES = new Set([

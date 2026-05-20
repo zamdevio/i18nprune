@@ -1,16 +1,21 @@
 import { zipSync } from 'fflate';
-import { computeCacheContentHash } from '../cache/io/hash.js';
-import { ISSUE_SHARE_SNAPSHOT_EMPTY, ISSUE_SHARE_ZIP_FAILED } from '../shared/constants/issueCodes.js';
-import type { CoreContext } from '../types/context/index.js';
-import type { Issue } from '../types/json/envelope/index.js';
-import type { ShareProjectManifest } from '../types/share/manifest.js';
+import { computeCacheContentHash } from '../../cache/io/hash.js';
+import { ISSUE_SHARE_SNAPSHOT_EMPTY, ISSUE_SHARE_ZIP_FAILED } from '../../shared/constants/issueCodes.js';
+import type { CoreContext } from '../../types/context/index.js';
+import type { Issue } from '../../types/json/envelope/index.js';
+import type { ShareProjectManifest } from '../../types/share/manifest.js';
 import {
   assertZipWithinLimit,
   buildShareZipObject,
   collectShareSnapshotPaths,
 } from './collectSnapshotPaths.js';
-import { sha256HexBytes } from './sha256.js';
-import { stableStringify } from './stableJson.js';
+import { sha256HexBytes } from '../util/sha256.js';
+import { stableStringify } from '../util/stableJson.js';
+
+/** Config digest stored in `share.json` and used for project skip policy. */
+export function computeShareProjectConfigHash(ctx: CoreContext): string {
+  return computeCacheContentHash(stableStringify(ctx.config), ctx.cache?.runtime?.hashText);
+}
 
 const ZIP_IGNORES_LABEL =
   'default share excludes (node_modules, .git, common build/cache dirs — see shouldSkipPathForShareZip)';
@@ -94,7 +99,7 @@ export async function buildProjectPayload(input: {
 
   const keys = Object.keys(built.zipObject).sort();
   const payloadContentHash = await sha256HexBytes(zipBytes);
-  const configHash = computeCacheContentHash(stableStringify(input.ctx.config), input.ctx.cache?.runtime?.hashText);
+  const configHash = computeShareProjectConfigHash(input.ctx);
 
   const manifest: ShareProjectManifest = {
     kind: 'project',

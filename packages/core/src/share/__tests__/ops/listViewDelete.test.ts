@@ -3,15 +3,15 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CONFIG, parseI18nPruneConfig } from '../../config/index.js';
-import { initializeCacheState } from '../../cache/setup/index.js';
-import { createCoreContext } from '../../generate/context.js';
-import { createNodeRuntimeAdapters } from '../../runtime/exports/node.js';
-import type { CacheRuntime } from '../../types/cache/index.js';
-import { resolveShareJsonPath, saveShareJsonFile } from '../io/shareJson.js';
-import { runShareDelete } from '../delete.js';
-import { runShareList } from '../list.js';
-import { runShareView } from '../view.js';
+import { DEFAULT_CONFIG, parseI18nPruneConfig } from '../../../config/index.js';
+import { initializeCacheState } from '../../../cache/setup/index.js';
+import { createCoreContext } from '../../../generate/context.js';
+import { createNodeRuntimeAdapters } from '../../../runtime/exports/node.js';
+import type { CacheRuntime } from '../../../types/cache/index.js';
+import { resolveShareJsonPath, saveShareJsonFile } from '../../cache/io/shareJson.js';
+import { runShareDelete } from '../../ops/delete.js';
+import { runShareList } from '../../ops/list.js';
+import { runShareView } from '../../ops/view.js';
 
 function nodeCacheRuntime(adapters: ReturnType<typeof createNodeRuntimeAdapters>): CacheRuntime {
   return {
@@ -106,6 +106,48 @@ describe('runShareList/view/delete', () => {
       });
       expect(viewed.local?.workerProjectId).toBe('p123');
       expect(viewed.links.web).toContain('/p/p123');
+
+      const missing = await runShareView({
+        ctx,
+        kind: 'project',
+        workerBaseUrl: 'https://w.test',
+        workerId: 'gone',
+        hooks: {
+          fetchRemoteProjectRow: async () => ({
+            httpStatus: 404,
+            body: {
+              code: 'PROJECT_NOT_FOUND',
+              success: false,
+              data: null,
+              errors: [{ code: 'PROJECT_NOT_FOUND', message: 'not found' }],
+            },
+          }),
+        },
+      });
+      expect(missing.issues.some((i) => i.code === 'i18nprune.share.remote_project_not_found')).toBe(true);
+      expect(missing.remote).toBeUndefined();
+
+      const purged = await runShareView({
+        ctx,
+        kind: 'project',
+        workerBaseUrl: 'https://w.test',
+        workerId: 'p123',
+        hooks: {
+          fetchRemoteProjectRow: async () => ({
+            httpStatus: 404,
+            body: {
+              code: 'PROJECT_NOT_FOUND',
+              success: false,
+              data: null,
+              errors: [{ code: 'PROJECT_NOT_FOUND', message: 'not found' }],
+            },
+          }),
+        },
+      });
+      expect(purged.purgedLocalCache).toBe(true);
+      expect(purged.local).toBeUndefined();
+      const afterList = runShareList({ ctx });
+      expect(afterList.entries.some((e) => e.workerProjectId === 'p123')).toBe(false);
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }

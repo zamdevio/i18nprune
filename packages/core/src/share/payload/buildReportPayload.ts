@@ -1,9 +1,10 @@
 import { projectReportDocumentSchema } from '@i18nprune/report';
-import { ISSUE_SHARE_REMOTE_REPORT_REJECTED } from '../shared/constants/issueCodes.js';
-import type { Issue } from '../types/json/envelope/index.js';
-import type { ShareReportManifest } from '../types/share/manifest.js';
-import { sha256HexBytes } from './sha256.js';
-import { stableStringify } from './stableJson.js';
+import { ISSUE_SHARE_REMOTE_REPORT_REJECTED } from '../../shared/constants/issueCodes.js';
+import type { Issue } from '../../types/json/envelope/index.js';
+import type { ShareReportManifest } from '../../types/share/manifest.js';
+import { reportDocumentForShareContentHash } from './reportSemantic.js';
+import { sha256HexBytes } from '../util/sha256.js';
+import { stableStringify } from '../util/stableJson.js';
 
 function utf8Bytes(text: string): Uint8Array {
   return new TextEncoder().encode(text);
@@ -31,10 +32,11 @@ export async function buildReportPayload(input: { reportDocument: unknown }): Pr
     };
   }
 
-  const canonical = stableStringify(checked.data);
-  const bytes = utf8Bytes(canonical);
-  const payloadContentHash = await sha256HexBytes(bytes);
   const document = checked.data as unknown as Record<string, unknown>;
+  const uploadSerialized = stableStringify(checked.data);
+  const uploadBytes = utf8Bytes(uploadSerialized);
+  const semanticCanonical = stableStringify(reportDocumentForShareContentHash(checked.data));
+  const payloadContentHash = await sha256HexBytes(utf8Bytes(semanticCanonical));
   const toolVersion = typeof document.toolVersion === 'string' ? document.toolVersion : 'unknown';
   const generatedAt = typeof document.generatedAt === 'string' ? document.generatedAt : new Date().toISOString();
   const schemaVersion = typeof document.schemaVersion === 'number' ? document.schemaVersion : 0;
@@ -42,10 +44,10 @@ export async function buildReportPayload(input: { reportDocument: unknown }): Pr
   return {
     ok: true,
     document,
-    serialized: canonical,
+    serialized: uploadSerialized,
     manifest: {
       kind: 'report',
-      byteSize: bytes.byteLength,
+      byteSize: uploadBytes.byteLength,
       payloadContentHash,
       schemaVersion,
       toolVersion,

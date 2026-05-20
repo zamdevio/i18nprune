@@ -1,9 +1,11 @@
-import type { ShareCacheEntry, ShareLinks } from '../types/share/entry.js';
-import type { Issue } from '../types/json/envelope/index.js';
-import type { ShareViewInput, ShareViewResult } from '../types/share/shareRun.js';
-import { loadShareJsonFile, resolveShareJsonPath } from './io/shareJson.js';
-import { buildProjectShareLinks, buildReportShareLinks } from './links.js';
-import { parseWorkerShareEnvelope, shareRemoteIssueFromWorker } from './remote.js';
+import { ISSUE_SHARE_STALE_CACHE_ROW_REMOVED } from '../../shared/constants/issueCodes.js';
+import type { ShareCacheEntry, ShareLinks } from '../../types/share/entry.js';
+import type { Issue } from '../../types/json/envelope/index.js';
+import type { ShareViewInput, ShareViewResult } from '../../types/share/shareRun.js';
+import { loadShareJsonFile, resolveShareJsonPath } from '../cache/io/shareJson.js';
+import { purgeShareCacheEntry } from '../cache/purgeCacheEntry.js';
+import { buildProjectShareLinks, buildReportShareLinks } from '../util/links.js';
+import { isShareRemoteNotFoundIssue, parseWorkerShareEnvelope, shareRemoteIssueFromWorker } from '../remote/remote.js';
 
 function pickLocalEntry(input: ShareViewInput, entries: ShareCacheEntry[]): ShareCacheEntry | undefined {
   return entries.find((e) =>
@@ -25,7 +27,11 @@ export async function runShareView(input: ShareViewInput): Promise<ShareViewResu
   const cache = input.ctx.cache;
   if (cache?.state.enabled && cache.runtime) {
     const sharePath = resolveShareJsonPath(cache.state.projectDir, cache.runtime.path);
-    const loaded = loadShareJsonFile({ sharePath, runtime: cache.runtime });
+    const loaded = loadShareJsonFile({
+      sharePath,
+      runtime: cache.runtime,
+      cacheReadOnly: cache.state.readOnly,
+    });
     issues.push(...loaded.issues);
     local = pickLocalEntry(input, loaded.file.entries);
   }
@@ -54,7 +60,34 @@ export async function runShareView(input: ShareViewInput): Promise<ShareViewResu
 
   const envelope = parseWorkerShareEnvelope(response.body);
   const remoteIssue = shareRemoteIssueFromWorker({ httpStatus: response.httpStatus, envelope });
-  if (remoteIssue) issues.push(remoteIssue);
+  let purgedLocalCache = false;
+
+  if (remoteIssue && isShareRemoteNotFoundIssue(remoteIssue)) {
+    issues.push({ ...remoteIssue, severity: 'warning' });
+    if (input.purgeStaleLocalOnNotFound !== false) {
+      const purged = purgeShareCacheEntry({
+        ctx: input.ctx,
+        kind: input.kind,
+        workerId: input.workerId,
+        workerBaseUrl: input.workerBaseUrl,
+      });
+      issues.push(...purged.issues);
+      if (purged.purged) {
+        purgedLocalCache = true;
+        local = undefined;
+        issues.push({
+          severity: 'warning',
+          code: ISSUE_SHARE_STALE_CACHE_ROW_REMOVED,
+          message:
+            input.kind === 'project'
+              ? 'Removed stale share.json project row after the worker reported the project is gone.'
+              : 'Removed stale share.json report row after the worker reported the report is gone.',
+        });
+      }
+    }
+  } else if (remoteIssue) {
+    issues.push(remoteIssue);
+  }
 
   const remoteLinks =
     input.kind === 'project'
@@ -68,5 +101,6 @@ export async function runShareView(input: ShareViewInput): Promise<ShareViewResu
     local,
     links: mergeLinks(remoteLinks, local),
     issues,
+    ...(purgedLocalCache ? { purgedLocalCache: true } : {}),
   };
 }

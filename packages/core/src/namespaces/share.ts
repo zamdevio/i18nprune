@@ -15,8 +15,13 @@ export {
   normalizeWorkerBaseUrl,
   parseWorkerShareEnvelope,
   projectPayloadMatchesCachedEntry,
+  resolveShareRemoteDeleteOutcome,
+  resolveShareBakDir,
   resolveShareJsonPath,
+  shareJsonBackupNotice,
+  emitShareCacheDebug,
   emitShareDeleteHumanMessages,
+  emitShareJsonHealHumanMessages,
   emitShareListHumanMessages,
   emitShareUploadHumanMessages,
   emitShareViewHumanMessages,
@@ -25,13 +30,14 @@ export {
   saveShareJsonFile,
   shareJsonSerializedByteLength,
   shareRemoteIssueFromWorker,
+  workerDataDeleteRemoved,
   workerDataReportId,
   workerDataProjectId,
   SHARE_JSON_BASENAME,
 } from '../share/index.js';
-export { shareCacheEntrySchema, shareJsonFileSchema } from '../share/schema.js';
-export type { SaveShareJsonResult } from '../share/io/shareJson.js';
-export type { ShareHumanMessageHost } from '../share/human.js';
+export { shareCacheEntrySchema, shareJsonFileSchema } from '../share/cache/schema.js';
+export type { SaveShareJsonResult } from '../share/cache/io/shareJson.js';
+export type { ShareHumanMessageHost } from '../share/emit/human.js';
 export type {
   ShareDeleteOptions,
   ShareListOptions,
@@ -40,6 +46,8 @@ export type {
 } from '../types/share/hostOptions.js';
 export type {
   ShareDeleteJsonPayload,
+  ShareDeleteAllJsonPayload,
+  ShareDeleteRowResult,
   ShareListJsonPayload,
   ShareUploadJsonPayload,
   ShareViewJsonPayload,

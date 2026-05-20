@@ -4,15 +4,15 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '@i18nprune/report';
-import { DEFAULT_CONFIG, parseI18nPruneConfig } from '../../config/index.js';
-import { initializeCacheState } from '../../cache/setup/index.js';
-import { createCoreContext } from '../../generate/context.js';
-import { createNodeRuntimeAdapters } from '../../runtime/exports/node.js';
-import type { CacheRuntime } from '../../types/cache/index.js';
-import type { RunEvent } from '../../types/shared/run/index.js';
-import { buildProjectPayload } from '../buildProjectPayload.js';
-import { buildReportPayload } from '../buildReportPayload.js';
-import { runShare } from '../run.js';
+import { DEFAULT_CONFIG, parseI18nPruneConfig } from '../../../config/index.js';
+import { initializeCacheState } from '../../../cache/setup/index.js';
+import { createCoreContext } from '../../../generate/context.js';
+import { createNodeRuntimeAdapters } from '../../../runtime/exports/node.js';
+import type { CacheRuntime } from '../../../types/cache/index.js';
+import type { RunEvent } from '../../../types/shared/run/index.js';
+import { buildProjectPayload } from '../../payload/buildProjectPayload.js';
+import { buildReportPayload } from '../../payload/buildReportPayload.js';
+import { runShare } from '../../ops/run.js';
 
 function nodeCacheRuntime(adapters: ReturnType<typeof createNodeRuntimeAdapters>): CacheRuntime {
   return {
@@ -111,6 +111,37 @@ describe('buildReportPayload', () => {
     expect(out.manifest.kind).toBe('report');
     expect(out.manifest.payloadContentHash).toMatch(/^[a-f0-9]{64}$/);
     expect(out.manifest.byteSize).toBeGreaterThan(0);
+
+    const out2 = await buildReportPayload({
+      reportDocument: {
+        kind: PROJECT_REPORT_KIND,
+        schemaVersion: PROJECT_REPORT_SCHEMA_VERSION,
+        generatedAt: '2026-06-01T12:00:00.000Z',
+        toolVersion: 'other/9.9.9',
+        project: {
+          cwd: '/other/cwd',
+          sourceLocalePath: 'locales/en.json',
+          localesDir: 'locales',
+          srcRoot: 'src',
+          environment: { platform: 'linux', arch: 'x64', nodeVersion: '22', osRelease: '6' },
+        },
+        summary: {
+          missingKeysCount: 0,
+          dynamicSitesCount: 0,
+          keyObservationsCount: 0,
+          sourceFilesScannedCount: 1,
+          ok: true,
+        },
+        details: {
+          missingKeys: [],
+          dynamicSites: [],
+          keyObservations: [],
+        },
+      },
+    });
+    expect(out2.ok).toBe(true);
+    if (!out2.ok) return;
+    expect(out2.manifest.payloadContentHash).toBe(out.manifest.payloadContentHash);
   });
 });
 

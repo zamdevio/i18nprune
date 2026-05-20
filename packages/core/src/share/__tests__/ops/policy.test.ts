@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { ShareCacheEntry } from '../../types/share/entry.js';
-import { findMatchingProjectShareEntry, normalizeWorkerBaseUrl, projectPayloadMatchesCachedEntry } from '../policy.js';
+import type { ShareCacheEntry } from '../../../types/share/entry.js';
+import { findMatchingProjectShareEntry, normalizeWorkerBaseUrl, projectPayloadMatchesCachedEntry } from '../../policy/policy.js';
 
 describe('share policy', () => {
   it('normalizeWorkerBaseUrl trims trailing slashes', () => {

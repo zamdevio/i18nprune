@@ -5,11 +5,11 @@ import {
   mergeDuplicateShareEntries,
   resolveShareJsonPath,
   saveShareJsonFile,
-} from '../io/shareJson.js';
-import { ISSUE_SHARE_JSON_REPAIRED, ISSUE_SHARE_JSON_WRITE_FAILED } from '../../shared/constants/issueCodes.js';
-import type { CacheRuntime } from '../../types/cache/index.js';
-import type { RuntimeDirEntry, RuntimeFsPort, RuntimePathPort } from '../../types/runtime/index.js';
-import type { ShareCacheEntry } from '../../types/share/index.js';
+} from '../../cache/io/shareJson.js';
+import { ISSUE_SHARE_JSON_REPAIRED, ISSUE_SHARE_JSON_WRITE_FAILED } from '../../../shared/constants/issueCodes.js';
+import type { CacheRuntime } from '../../../types/cache/index.js';
+import type { RuntimeDirEntry, RuntimeFsPort, RuntimePathPort } from '../../../types/runtime/index.js';
+import type { ShareCacheEntry } from '../../../types/share/index.js';
 
 function normalizePath(value: string): string {
   const parts: string[] = [];
@@ -128,6 +128,68 @@ describe('shareJson', () => {
     expect(out.heal.repaired).toBe(true);
   });
 
+  it('loadShareJsonFile: report rows persist with workerReportId only (no repair loop)', () => {
+    const sharePath = '/cache/projects/p1/share.json';
+    const fs = memoryFs();
+    const runtime = testRuntime(fs);
+    saveShareJsonFile({
+      sharePath,
+      runtime,
+      file: {
+        version: 1,
+        entries: [
+          {
+            kind: 'report',
+            workerBaseUrl: 'https://w.example',
+            workerReportId: 'r1',
+            payloadContentHash: 'h1',
+            byteSize: 1,
+            uploadedAt: '2020-01-01T00:00:00.000Z',
+            lastUsedAt: '2020-01-02T00:00:00.000Z',
+            links: {},
+          },
+        ],
+      },
+    });
+    const reload = loadShareJsonFile({ sharePath, runtime });
+    expect(reload.issues).toHaveLength(0);
+    expect(reload.heal.repaired).toBe(false);
+    expect(reload.file.entries[0]).toMatchObject({ kind: 'report', workerReportId: 'r1' });
+    expect(reload.file.entries[0]).not.toHaveProperty('workerProjectId');
+  });
+
+  it('loadShareJsonFile: persists healed share.json to disk', () => {
+    const raw = JSON.stringify({
+      version: 1,
+      entries: [
+        {
+          kind: 'project',
+          workerBaseUrl: 'https://w.example',
+          workerReportId: 'pid1',
+          payloadContentHash: 'h1',
+          byteSize: 1,
+          uploadedAt: '2020-01-01T00:00:00.000Z',
+          lastUsedAt: '2020-01-02T00:00:00.000Z',
+          links: {},
+        },
+        { kind: 'project', workerBaseUrl: 'x' },
+      ],
+    });
+    const sharePath = '/cache/projects/p1/share.json';
+    const fs = memoryFs({ [sharePath]: raw });
+    const runtime = testRuntime(fs);
+    const out = loadShareJsonFile({ sharePath, runtime });
+    expect(out.file.entries).toHaveLength(1);
+    expect(out.file.entries[0]?.workerProjectId).toBe('pid1');
+    expect(out.issues.some((i) => i.code === ISSUE_SHARE_JSON_REPAIRED)).toBe(true);
+
+    const reload = loadShareJsonFile({ sharePath, runtime });
+    expect(reload.issues).toHaveLength(0);
+    expect(reload.heal.repaired).toBe(false);
+    expect(reload.file.entries).toHaveLength(1);
+    expect(reload.file.entries[0]?.workerProjectId).toBe('pid1');
+  });
+
   it('loadShareJsonFile: drops invalid entry rows', () => {
     const raw = JSON.stringify({
       version: 1,
@@ -188,6 +250,50 @@ describe('shareJson', () => {
     expect(fs.exists(sharePath)).toBe(true);
     const parsed = JSON.parse(fs.readText(sharePath) as string) as { version: number };
     expect(parsed.version).toBe(1);
+  });
+
+  it('backs up invalid JSON raw bytes under share.bak/', () => {
+    const raw = '{ not-valid-json';
+    const sharePath = '/cache/projects/p1/share.json';
+    const fs = memoryFs({ [sharePath]: raw });
+    const rt = testRuntime(fs);
+    const prevNow = rt.system.now;
+    rt.system.now = () => 99_001;
+    const out = loadShareJsonFile({ sharePath, runtime: rt });
+    rt.system.now = prevNow;
+    const bakPath = '/cache/projects/p1/share.bak/share.json.bak.99001.json';
+    expect(out.heal.backupBakPath).toBe(bakPath);
+    expect(fs.exists(bakPath)).toBe(true);
+    expect(fs.readText(bakPath)).toBe(raw);
+    expect(out.issues.some((i) => i.code === ISSUE_SHARE_JSON_REPAIRED)).toBe(true);
+  });
+
+  it('saveShareJsonFile backs up existing file under share.bak/', () => {
+    const sharePath = '/cache/projects/p1/share.json';
+    const fs = memoryFs({ [sharePath]: '{"version":1,"entries":[]}' });
+    const rt = testRuntime(fs);
+    rt.system.now = () => 42_000;
+    const w = saveShareJsonFile({
+      sharePath,
+      file: {
+        version: 1,
+        entries: [
+          {
+            kind: 'project',
+            workerBaseUrl: 'https://w',
+            workerProjectId: 'p1',
+            payloadContentHash: 'h',
+            byteSize: 1,
+            uploadedAt: '2020-01-01T00:00:00.000Z',
+            lastUsedAt: '2020-01-01T00:00:00.000Z',
+            links: {},
+          },
+        ],
+      },
+      runtime: rt,
+    });
+    expect(w.backupBakPath).toBe('/cache/projects/p1/share.bak/share.json.bak.42000.json');
+    expect(fs.readText(w.backupBakPath!)).toBe('{"version":1,"entries":[]}');
   });
 
   it('respects maxBytes on read', () => {

@@ -28,4 +28,6 @@ export type ShareDeleteOptions = {
   workerUrl?: string;
   /** When true, skip `DELETE /v1/projects/:id` or `/v1/reports/:id` (local `share.json` only). */
   localOnly?: boolean;
+  /** Delete every row in `share.json` for this project (mutually exclusive with `--project` / `--report`). */
+  all?: boolean;
 };

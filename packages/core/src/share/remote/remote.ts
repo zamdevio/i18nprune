@@ -6,9 +6,9 @@ import {
   ISSUE_SHARE_REMOTE_REPORT_REJECTED,
   ISSUE_SHARE_REMOTE_UNAVAILABLE,
   ISSUE_SHARE_REMOTE_UPLOAD_REJECTED,
-} from '../shared/constants/issueCodes.js';
-import type { Issue } from '../types/json/envelope/index.js';
-import type { WorkerShareEnvelope } from '../types/share/index.js';
+} from '../../shared/constants/issueCodes.js';
+import type { Issue } from '../../types/json/envelope/index.js';
+import type { WorkerShareEnvelope } from '../../types/share/index.js';
 
 const PAYLOAD_TOO_LARGE_CODES = new Set([
   'UPLOAD_ZIP_TOO_LARGE',
@@ -61,6 +61,13 @@ function firstWorkerCode(env: WorkerShareEnvelope): string | undefined {
 /**
  * Maps HTTP status + worker error codes to a stable {@link Issue} for share flows.
  */
+/** True when the worker confirmed the project/report id does not exist (safe to drop stale `share.json` rows). */
+export function isShareRemoteNotFoundIssue(issue: Issue): boolean {
+  return (
+    issue.code === ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND || issue.code === ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND
+  );
+}
+
 export function shareRemoteIssueFromWorker(input: {
   httpStatus: number;
   envelope: WorkerShareEnvelope;
@@ -152,11 +159,83 @@ export function shareRemoteIssueFromWorker(input: {
   };
 }
 
+export type ShareRemoteDeleteOutcome = {
+  /** Worker row removed or was already absent (idempotent DELETE). */
+  deletedRemote: boolean;
+  /** HTTP 404 / worker not-found codes — DELETE treated as success. */
+  alreadyAbsent: boolean;
+  issue: Issue | null;
+};
+
+/**
+ * Maps worker `DELETE` responses for share delete (idempotent: 404 / not-found → success + warning).
+ */
+export function resolveShareRemoteDeleteOutcome(input: {
+  httpStatus: number;
+  envelope: WorkerShareEnvelope;
+  kind: 'project' | 'report';
+}): ShareRemoteDeleteOutcome {
+  const { httpStatus, envelope, kind } = input;
+
+  if (httpStatus === 404) {
+    const code = kind === 'project' ? ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND : ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND;
+    const label = kind === 'project' ? 'project' : 'report';
+    return {
+      deletedRemote: true,
+      alreadyAbsent: true,
+      issue: {
+        severity: 'warning',
+        code,
+        message: `Worker ${label} "${firstWorkerMessage(envelope)}" was already removed or never existed; DELETE is complete.`,
+      },
+    };
+  }
+
+  if (httpStatus >= 200 && httpStatus < 300) {
+    if (envelope.success) {
+      const removed = workerDataDeleteRemoved(envelope.data);
+      if (removed === false) {
+        const code =
+          kind === 'project' ? ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND : ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND;
+        const label = kind === 'project' ? 'project' : 'report';
+        return {
+          deletedRemote: true,
+          alreadyAbsent: true,
+          issue: {
+            severity: 'warning',
+            code,
+            message: `Worker ${label} was not found on the server (already deleted or unknown id). Nothing left to delete remotely.`,
+          },
+        };
+      }
+      return { deletedRemote: true, alreadyAbsent: false, issue: null };
+    }
+    return {
+      deletedRemote: false,
+      alreadyAbsent: false,
+      issue: shareRemoteIssueFromWorker({ httpStatus, envelope }),
+    };
+  }
+
+  return {
+    deletedRemote: false,
+    alreadyAbsent: false,
+    issue: shareRemoteIssueFromWorker({ httpStatus, envelope }),
+  };
+}
+
 /** Reads `data.projectId` from a successful worker upload envelope. */
 export function workerDataProjectId(data: unknown): string | undefined {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
   const id = (data as Record<string, unknown>).projectId;
   return typeof id === 'string' && id.length > 0 ? id : undefined;
+}
+
+/** Reads `data.deleted` from a successful worker DELETE envelope (`true` = row existed and was removed). */
+export function workerDataDeleteRemoved(data: unknown): boolean | undefined {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
+  const deleted = (data as Record<string, unknown>).deleted;
+  return typeof deleted === 'boolean' ? deleted : undefined;
 }
 
 /** Reads `data.reportId` from a successful worker report upload envelope. */

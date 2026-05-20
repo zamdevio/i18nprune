@@ -1,7 +1,7 @@
 import type { CoreContext } from '../context/index.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { RunEmitter } from '../shared/run/index.js';
-import type { ShareCacheEntry, ShareLinks } from './entry.js';
+import type { ShareCacheEntry, ShareJsonHealReport, ShareLinks } from './entry.js';
 import type { ShareManifest } from './manifest.js';
 
 export type ShareWorkerProjectRef = {
@@ -67,6 +67,8 @@ export type ShareRunInput =
 export type ShareHostHooks = {
   emit?: RunEmitter;
   runId?: string;
+  /** When true, emit `[cache]` diagnostics (host maps to `--debug-cache`). */
+  debugCache?: boolean;
   /** When true, core stops after manifest + policy (no upload hooks). */
   dryRun?: boolean;
   /** When false, core skips `confirmUpload` and uploads immediately after manifest (unless policy skips). */
@@ -95,6 +97,7 @@ export type ShareHostHooks = {
 export type ShareSkippedReason =
   | 'dry_run'
   | 'hash_unchanged'
+  | 'cache_epoch_unchanged'
   | 'user_cancelled_confirm'
   | 'worker_ref_link_only';
 
@@ -107,6 +110,8 @@ export type ShareRunResult = {
   cacheEntry?: ShareCacheEntry;
   issues: Issue[];
   skippedReason?: ShareSkippedReason;
+  /** Rows removed from `share.json` after worker 404 during skip probe (re-upload follows). */
+  purgedStaleCacheRows?: Array<{ kind: 'project' | 'report'; workerId: string }>;
 };
 
 export type ShareListInput = {
@@ -116,6 +121,7 @@ export type ShareListInput = {
 export type ShareListResult = {
   entries: ShareCacheEntry[];
   issues: Issue[];
+  heal: ShareJsonHealReport;
 };
 
 export type ShareViewInput = {
@@ -124,6 +130,8 @@ export type ShareViewInput = {
   workerBaseUrl: string;
   workerId: string;
   hooks: Pick<ShareHostHooks, 'fetchRemoteProjectRow' | 'fetchRemoteReportRow'>;
+  /** When true (default), drop matching `share.json` rows after worker not-found (not on network errors). */
+  purgeStaleLocalOnNotFound?: boolean;
 };
 
 export type ShareViewResult = {
@@ -133,6 +141,8 @@ export type ShareViewResult = {
   local?: ShareCacheEntry;
   links: ShareLinks;
   issues: Issue[];
+  /** True when a matching `share.json` row was removed after worker not-found. */
+  purgedLocalCache?: boolean;
 };
 
 export type ShareDeleteInput = {
@@ -148,5 +158,7 @@ export type ShareDeleteInput = {
 export type ShareDeleteResult = {
   deletedLocal: boolean;
   deletedRemote: boolean;
+  /** Worker returned 404 / not-found — DELETE treated as done. */
+  remoteAlreadyAbsent?: boolean;
   issues: Issue[];
 };

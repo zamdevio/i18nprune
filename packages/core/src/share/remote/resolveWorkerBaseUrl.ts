@@ -1,5 +1,5 @@
-import { DEFAULT_WORKER_API_URL } from '../shared/constants/links.js';
-import { normalizeWorkerBaseUrl } from './policy.js';
+import { DEFAULT_WORKER_API_URL } from '../../shared/constants/links.js';
+import { normalizeWorkerBaseUrl } from '../policy/policy.js';
 
 /**
  * Normalizes a host-supplied worker API origin, or {@link DEFAULT_WORKER_API_URL} when omitted.

@@ -3,6 +3,8 @@
  * Not part of **`i18nprune` config** — keep here; config schema lives under `config/schema/`.
  */
 import { z } from 'zod';
+import { normalizeShareCacheEntry } from './canonicalEntry.js';
+import type { ShareCacheEntry } from '../../types/share/entry.js';
 
 const shareLinksSchema = z
   .object({
@@ -20,12 +22,14 @@ export const shareCacheEntrySchema = z
     workerReportId: z.string().min(1).optional(),
     payloadContentHash: z.string().min(1),
     configHash: z.string().min(1).optional(),
+    inputFilesEpoch: z.string().min(1).optional(),
     byteSize: z.number().int().nonnegative(),
     uploadedAt: z.string().min(1),
     lastUsedAt: z.string().min(1),
     links: shareLinksSchema.default({}),
   })
   .strict()
+  .transform((row): ShareCacheEntry => normalizeShareCacheEntry(row as ShareCacheEntry))
   .superRefine((row, ctx) => {
     if (row.kind === 'project' && !row.workerProjectId) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'project share entry requires workerProjectId' });

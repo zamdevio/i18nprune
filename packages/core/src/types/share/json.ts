@@ -26,10 +26,25 @@ export type ShareViewJsonPayload = {
   links: ShareLinks;
 };
 
+export type ShareDeleteRowResult = {
+  shareKind: ShareKind;
+  workerId: string;
+  deletedLocal: boolean;
+  deletedRemote: boolean;
+  remoteAlreadyAbsent?: boolean;
+};
+
 export type ShareDeleteJsonPayload = {
   kind: 'share-delete';
   shareKind: ShareKind;
   workerId: string;
   deletedLocal: boolean;
   deletedRemote: boolean;
+  remoteAlreadyAbsent?: boolean;
+};
+
+export type ShareDeleteAllJsonPayload = {
+  kind: 'share-delete-all';
+  deletions: ShareDeleteRowResult[];
+  aborted?: boolean;
 };

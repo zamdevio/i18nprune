@@ -19,6 +19,7 @@ const DOC_ISSUE_PARENT_SEGMENTS = new Set([
   'quality',
   'report',
   'scan',
+  'share',
   'sync',
   'translate',
   'validate',

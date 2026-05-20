@@ -1,5 +1,5 @@
-import { DEMO_REPORT_URL, DEMO_WEB_APP_BASE } from '../shared/constants/links.js';
-import type { ShareLinks } from '../types/share/index.js';
+import { DEMO_REPORT_URL, DEMO_WEB_APP_BASE } from '../../shared/constants/links.js';
+import type { ShareLinks } from '../../types/share/index.js';
 
 function trimTrailingSlash(url: string): string {
   return url.replace(/\/+$/, '');

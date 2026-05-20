@@ -91,6 +91,12 @@ export const ISSUE_REPORT_INVALID_FORMAT = 'i18nprune.report.invalid_format' as 
 export const ISSUE_CLI_INVALID_JSON_PRETTY = 'i18nprune.cli.invalid_json_pretty' as const;
 /** `share.json` was invalid or manually edited — core repaired it automatically. */
 export const ISSUE_SHARE_JSON_REPAIRED = 'i18nprune.share.json_repaired' as const;
+/** `share delete` / `--project` / `--report`: no matching row in local `share.json` (worker DELETE may still run). */
+export const ISSUE_SHARE_CACHE_ENTRY_NOT_FOUND = 'i18nprune.share.cache_entry_not_found' as const;
+/** Stale `share.json` row removed after worker 404 during upload skip probe (fresh upload follows). */
+export const ISSUE_SHARE_STALE_CACHE_ROW_REMOVED = 'i18nprune.share.stale_cache_row_removed' as const;
+/** No rows in local `share.json` (view/delete/list without `--project` / `--report` / `--all`). */
+export const ISSUE_SHARE_CACHE_EMPTY = 'i18nprune.share.cache_empty' as const;
 /** Failed to persist repaired or updated `share.json`. */
 export const ISSUE_SHARE_JSON_WRITE_FAILED = 'i18nprune.share.json_write_failed' as const;
 /** Worker returned 404 for a project id (unknown or evicted after idle TTL). */

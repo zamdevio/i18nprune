@@ -27,6 +27,8 @@ export type ShareCacheEntry = {
   workerReportId?: string;
   payloadContentHash: string;
   configHash?: string;
+  /** Tracked-files epoch from `files.json` when the project snapshot was last shared (skip zip rebuild). */
+  inputFilesEpoch?: string;
   byteSize: number;
   uploadedAt: string;
   lastUsedAt: string;
@@ -47,6 +49,8 @@ export type ShareJsonHealReport = {
   actions: ShareJsonHealKind[];
   /** Human-readable detail lines for hosts (CLI may log once). */
   details: string[];
+  /** Set when the previous `share.json` was copied under `share.bak/` before replace. */
+  backupBakPath?: string;
 };
 
 export type LoadShareJsonResult = {

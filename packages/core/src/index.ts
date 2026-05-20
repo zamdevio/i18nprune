@@ -381,25 +381,34 @@ export {
   buildProjectShareLinks,
   buildReportPayload,
   buildReportShareLinks,
+  emitShareCacheDebug,
   emitShareDeleteHumanMessages,
+  emitShareJsonHealHumanMessages,
   emitShareListHumanMessages,
   emitShareUploadHumanMessages,
   emitShareViewHumanMessages,
+  loadShareJsonFile,
   normalizeWorkerBaseUrl,
   parseWorkerShareEnvelope,
+  resolveShareBakDir,
+  resolveShareJsonPath,
   resolveShareWorkerBaseUrl,
   runShare,
+  shareJsonBackupNotice,
   runShareDelete,
   runShareList,
   runShareView,
+  resolveShareRemoteDeleteOutcome,
   shareRemoteIssueFromWorker,
 } from './share/index.js';
-export { sha256HexBytes } from './share/sha256.js';
+export { sha256HexBytes } from './share/util/sha256.js';
 export { DEFAULT_WORKER_API_URL } from './shared/constants/links.js';
 export type { ShareHumanMessageHost } from './share/index.js';
 export type {
   ShareCacheEntry,
   ShareDeleteJsonPayload,
+  ShareDeleteAllJsonPayload,
+  ShareDeleteRowResult,
   ShareDeleteOptions,
   ShareDeleteResult,
   ShareHostHooks,
@@ -517,7 +526,7 @@ export {
   PROJECT_UPLOAD_MAX_ZIP_BYTES,
   PROJECT_UPLOAD_ZIP_LIMITS,
 } from './shared/constants/project.js';
-export { REPORT_SHARE_MAX_BYTES } from './shared/constants/reportShare.js';
+export { REPORT_SHARE_MAX_BYTES } from './shared/constants/share.js';
 export type {
   NormalizedProjectConfig,
   ParsedProjectUpload,
@@ -907,6 +916,9 @@ export {
   ISSUE_CLI_INVALID_JSON_PRETTY,
   ISSUE_SHARE_JSON_REPAIRED,
   ISSUE_SHARE_JSON_WRITE_FAILED,
+  ISSUE_SHARE_CACHE_ENTRY_NOT_FOUND,
+  ISSUE_SHARE_STALE_CACHE_ROW_REMOVED,
+  ISSUE_SHARE_CACHE_EMPTY,
   ISSUE_SHARE_REMOTE_ERROR,
   ISSUE_SHARE_REMOTE_PAYLOAD_TOO_LARGE,
   ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND,
