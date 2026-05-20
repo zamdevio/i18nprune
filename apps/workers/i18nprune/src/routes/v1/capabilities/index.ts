@@ -1,6 +1,6 @@
 import type { Hono } from 'hono';
-import { ApiResponse } from '../../response';
-import type { WorkerEnv } from '../types';
+import { ApiResponse } from '../../../response';
+import type { WorkerEnv } from '../../types';
 
 export function registerCapabilitiesRoutes(app: Hono<WorkerEnv>): void {
   const payload = {
@@ -12,7 +12,7 @@ export function registerCapabilitiesRoutes(app: Hono<WorkerEnv>): void {
       'Use CLI/IDE extension for write-heavy operations. This worker is intentionally read-focused by default.',
   } as const;
 
-  app.get('/v1/capabilities', (c) =>
+  app.get('/capabilities', (c) =>
     ApiResponse.success(c, {
       ...payload,
     }),

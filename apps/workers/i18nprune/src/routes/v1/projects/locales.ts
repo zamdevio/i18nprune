@@ -1,10 +1,10 @@
 import type { Hono } from 'hono';
-import { ApiResponse } from '../../response';
-import { getProjectById, projectStore } from '../shared/store';
-import type { WorkerEnv } from '../types';
+import { ApiResponse } from '../../../response';
+import { getProjectById, projectStore } from '../../shared/store';
+import type { WorkerEnv } from '../../types';
 
 export function localesRoute(app: Hono<WorkerEnv>): void {
-  app.get('/v1/projects/:id/locales', async (c) => {
+  app.get('/projects/:id/locales', async (c) => {
     const stub = projectStore(c.env);
     const project = await getProjectById(stub, c.req.param('id'));
     if (!project) return ApiResponse.notFound(c, 'PROJECT_NOT_FOUND', 'Project not found');
@@ -22,7 +22,7 @@ export function localesRoute(app: Hono<WorkerEnv>): void {
     });
   });
 
-  app.get('/v1/projects/:id/locales/:tag', async (c) => {
+  app.get('/projects/:id/locales/:tag', async (c) => {
     const stub = projectStore(c.env);
     const project = await getProjectById(stub, c.req.param('id'));
     if (!project) return ApiResponse.notFound(c, 'PROJECT_NOT_FOUND', 'Project not found');

@@ -1,10 +1,8 @@
 import type { Hono } from 'hono';
 import { ApiResponse } from '../response';
-import { registerCapabilitiesRoutes } from './capabilities';
 import { registerDocsRoutes } from './docs';
 import { registerHealthRoutes } from './health';
-import { registerProjectRoutes } from './projects';
-import { registerReportRoutes } from './report';
+import { registerV1Routes } from './v1';
 import type { WorkerEnv } from './types';
 
 export function registerRoutes(app: Hono<WorkerEnv>): void {
@@ -22,9 +20,7 @@ export function registerRoutes(app: Hono<WorkerEnv>): void {
     });
   });
   registerHealthRoutes(app);
-  registerCapabilitiesRoutes(app);
-  registerProjectRoutes(app);
-  registerReportRoutes(app);
+  registerV1Routes(app);
   registerDocsRoutes(app);
 }
 

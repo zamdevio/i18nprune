@@ -452,7 +452,7 @@ Align shell with web/landing (header, theme, `getDocsUrl` links). Add “Open sh
 
 | Task | Notes |
 |------|-------|
-| **`runReport` on worker** | Replace hand-built doc in `routes/report/index.ts` |
+| **`runReport` on worker** | Replace hand-built doc in `routes/v1/projects/report.ts` |
 | **Locale / layout** | Keep `buildLocaleJsonByTagFromArchive` — already aligned |
 | **Segment index** | After cache Phase 5 — optional worker/web convergence ([`cache.md` § Phase 5](./cache.md)) |
 | **Types** | `@i18nprune/report` only for report DTOs |

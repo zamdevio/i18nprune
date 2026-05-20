@@ -7,9 +7,10 @@ import { missingRoute } from './missing';
 import { reviewRoute } from './review';
 import { snapshotRoute } from './snapshot';
 import { treeRoute } from './tree';
+import { reportRoute } from './report';
 import { uploadRoute } from './upload';
 import { validateRoute } from './validate';
-import type { WorkerEnv } from '../types';
+import type { WorkerEnv } from '../../types';
 
 export function registerProjectRoutes(app: Hono<WorkerEnv>): void {
   uploadRoute(app);
@@ -22,4 +23,5 @@ export function registerProjectRoutes(app: Hono<WorkerEnv>): void {
   missingRoute(app);
   localesRoute(app);
   doctorRoute(app);
+  reportRoute(app);
 }

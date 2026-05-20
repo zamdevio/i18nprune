@@ -1,16 +1,16 @@
 import { buildReportPayload, hex16Id, REPORT_SHARE_MAX_BYTES } from '@i18nprune/core';
 import type { Hono } from 'hono';
-import { ApiResponse } from '../../response';
-import { projectStore } from '../shared/store';
-import { putReport } from '../shared/reportStore';
-import type { WorkerEnv } from '../types';
+import { ApiResponse } from '../../../response';
+import { projectStore } from '../../shared/store';
+import { putReport } from '../../shared/reportStore';
+import type { WorkerEnv } from '../../types';
 
 type UploadBody = {
   document?: unknown;
 };
 
 export function uploadReportRoute(app: Hono<WorkerEnv>): void {
-  app.post('/v1/reports', async (c) => {
+  app.post('/reports', async (c) => {
     const body = (await c.req.json().catch(() => ({}))) as UploadBody;
     if (body.document === undefined) {
       return ApiResponse.badRequest(c, 'REPORT_DOCUMENT_REQUIRED', 'Missing document (JSON body field: document)');

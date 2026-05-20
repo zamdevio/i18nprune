@@ -13,12 +13,12 @@ import {
 } from '@i18nprune/core';
 import { edgePathRuntime } from '@i18nprune/core/runtime/edge';
 import type { Hono } from 'hono';
-import { ApiResponse } from '../../response';
-import { projectStore } from '../shared/store';
-import type { WorkerEnv } from '../types';
+import { ApiResponse } from '../../../response';
+import { projectStore } from '../../shared/store';
+import type { WorkerEnv } from '../../types';
 
 export function uploadRoute(app: Hono<WorkerEnv>): void {
-  app.post('/v1/projects', async (c) => {
+  app.post('/projects', async (c) => {
     const form = await c.req.formData();
     const archive = form.get('archive');
     if (!(archive instanceof File)) {

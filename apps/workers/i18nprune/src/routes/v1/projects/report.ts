@@ -1,10 +1,9 @@
-import { registerStoredReportRoutes } from '../reports';
 import { validate, type ProjectWorkerReportBody } from '@i18nprune/core';
 import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION, type ProjectReportDocument } from '@i18nprune/report';
 import type { Hono } from 'hono';
-import { ApiResponse } from '../../response';
-import { getProjectById, projectStore } from '../shared/store';
-import type { WorkerEnv } from '../types';
+import { ApiResponse } from '../../../response';
+import { getProjectById, projectStore } from '../../shared/store';
+import type { WorkerEnv } from '../../types';
 
 const WORKER_TOOL_VERSION = 'worker-i18nprune/0.1.0';
 
@@ -36,9 +35,8 @@ function localesDirFromConfig(config: Record<string, unknown> | null): string | 
   return typeof d === 'string' && d.length > 0 ? d : null;
 }
 
-export function registerReportRoutes(app: Hono<WorkerEnv>): void {
-  registerStoredReportRoutes(app);
-  app.post('/v1/projects/:id/report', async (c) => {
+export function reportRoute(app: Hono<WorkerEnv>): void {
+  app.post('/projects/:id/report', async (c) => {
     const stub = projectStore(c.env);
     const project = await getProjectById(stub, c.req.param('id'));
     if (!project) return ApiResponse.notFound(c, 'PROJECT_NOT_FOUND', 'Project not found');
