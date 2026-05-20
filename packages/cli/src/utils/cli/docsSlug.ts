@@ -12,6 +12,7 @@ export function docsSlugForCommand(cmd: Command): string {
   if (path === 'locales list') return 'locales/list';
   if (path === 'locales dynamic') return 'locales/dynamic';
   if (path === 'locales delete') return 'locales/delete';
+  if (path === 'share upload' || path.startsWith('share ')) return 'share';
   if (path.startsWith('locales ')) return 'locales';
   const first = path.split(' ')[0];
   return (first || cmd.name()).trim().toLowerCase();

@@ -12,12 +12,14 @@ import { attachWallTimer } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import {
   emitShareListHumanMessages,
+  ISSUE_SHARE_JSON_REPAIRED,
   type ShareCacheEntry,
   type ShareListJsonPayload,
   type ShareListOptions,
 } from '@i18nprune/core';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import { randomUUID } from 'node:crypto';
+import { emitShareListCacheDebug } from './cacheDebug.js';
 
 function filterEntries(entries: ShareCacheEntry[], opts: ShareListOptions): ShareCacheEntry[] {
   if (opts.project) {
@@ -31,6 +33,7 @@ function filterEntries(entries: ShareCacheEntry[], opts: ShareListOptions): Shar
 
 export async function shareList(opts: ShareListOptions): Promise<void> {
   const wall = attachWallTimer();
+  try {
   if (opts.project && opts.report) {
     const message = 'Pass only one of --project or --report to filter.';
     const ctx = await resolveContext();
@@ -73,10 +76,14 @@ export async function shareList(opts: ShareListOptions): Promise<void> {
     return;
   }
 
+  const runHost = { emit: createCliRunEmitter(ctx.run), runId: randomUUID() };
+  emitShareListCacheDebug(ctx, coreCtx, listed, entries.length, runHost);
   for (const issue of listed.issues) {
-    if (issue.severity === 'warning') logger.warn(issue.message, ctx.run);
+    if (issue.severity === 'warning' && issue.code !== ISSUE_SHARE_JSON_REPAIRED) {
+      logger.warn(issue.message, ctx.run);
+    }
   }
-  emitShareListHumanMessages({ emit: createCliRunEmitter(ctx.run), runId: randomUUID() }, entries);
+  emitShareListHumanMessages(runHost, entries);
   printCommandSummary(
     {
       command: 'share list',
@@ -88,4 +95,7 @@ export async function shareList(opts: ShareListOptions): Promise<void> {
     ctx,
   );
   applyCliCiExitGate(ok);
+  } finally {
+    wall.dispose();
+  }
 }

@@ -39,8 +39,8 @@ import { report } from '@/commands/report/index.js';
 import { configureCliHelp } from '@/commands/help/index.js';
 import { CLI_NAME, CLI_ROOT_DESCRIPTION } from '@/constants/cli.js';
 import { maybePrintCommandBanner } from '@/utils/cli/banner.js';
+import { resolveJsonOutputCommandId } from '@/utils/cli/jsonOutputCommand.js';
 import { parseCliPositiveIntTop } from '@/utils/cli/top.js';
-import { COMMANDS_WITH_JSON_OUTPUT } from '@/constants/jsonoutput.js';
 import {
   ISSUE_CLI_INVALID_JSON_PRETTY,
   ISSUE_REPORT_INVALID_FORMAT,
@@ -175,15 +175,15 @@ program
     const silent = Boolean(opts.silent);
     const quiet = Boolean(opts.quiet) || silent;
     const cmdName = actionCommand.name();
-    const jsonOutput =
-      Boolean(opts.json) && COMMANDS_WITH_JSON_OUTPUT.has(cmdName);
+    const jsonCommandId = resolveJsonOutputCommandId(actionCommand, CLI_NAME);
+    const jsonOutput = Boolean(opts.json) && jsonCommandId !== null;
     let jsonPretty: boolean;
     try {
       jsonPretty = parseBooleanOption('--json-pretty', opts.jsonPretty, true);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       const emitted = emitCliJsonOptionError({
-        command: cmdName,
+        command: jsonCommandId ?? cmdName,
         json: jsonOutput,
         issueCode: ISSUE_CLI_INVALID_JSON_PRETTY,
         message,
@@ -456,19 +456,28 @@ program
     await providers();
   });
 
+const SHARE_CMD_DESCRIPTION =
+  'Upload hosted project snapshots and reports to the worker. Per-project cache metadata lives in share.json beside the analysis cache — use list, view, and delete to inspect or clean up rows without editing that file by hand.';
+
 const shareCmd = program
   .command('share')
-  .description('Share project snapshots or report JSON to the worker (see `i18nprune help share`).')
+  .description(SHARE_CMD_DESCRIPTION)
+  .action(() => {
+    shareCmd.help({ error: false });
+  });
+
+/** Upload flags on `share upload` so `share delete --project <id>` is not eaten by boolean `--project`. */
+shareCmd
+  .command('upload')
+  .description(
+    'Push a project zip or report JSON to the worker API. Records worker ids and public links in share.json for this project cache.',
+  )
   .option('--project', 'Upload prepared project snapshot (zip) to the worker')
   .option('--report', 'Upload report JSON to the worker (stored report link)')
   .option('--from <file>', 'Report JSON path (with --report; default: scan in-process)')
   .option('--worker-url <url>', 'Worker API base URL (default: I18NPRUNE_WORKER_URL or https://worker.i18nprune.dev)')
   .option('--force', 'Ignore hash-based skip and re-upload', false)
   .action(async (opts: { project?: boolean; report?: boolean; from?: string; workerUrl?: string; force?: boolean }) => {
-    if (!opts.project && !opts.report) {
-      shareCmd.help({ error: false });
-      return;
-    }
     await shareUpload({
       project: Boolean(opts.project),
       report: Boolean(opts.report),
@@ -480,7 +489,9 @@ const shareCmd = program
 
 shareCmd
   .command('list')
-  .description('List share.json entries for the current project cache')
+  .description(
+    'List cached upload rows for this project from share.json (kind, worker id, payload hash, links, timestamps).',
+  )
   .option('--project <id>', 'Filter to one worker project id')
   .option('--report <id>', 'Filter to one worker report id')
   .option('--worker-url <url>', 'Worker base URL hint when filtering (unused for list-only)')
@@ -490,7 +501,9 @@ shareCmd
 
 shareCmd
   .command('view')
-  .description('View hosted share metadata (GET /v1/projects/:id or /v1/reports/:id)')
+  .description(
+    'Fetch live worker metadata for a hosted project or report id (GET /v1/projects/:id or /v1/reports/:id; may match a share.json row).',
+  )
   .option('--project <id>', 'Worker-hosted project id')
   .option('--report <id>', 'Worker-hosted report id')
   .option('--worker-url <url>', 'Worker API base URL')
@@ -500,17 +513,27 @@ shareCmd
 
 shareCmd
   .command('delete')
-  .description('Remove share.json entry and DELETE the worker row (use --local-only for cache metadata only)')
+  .description(
+    'Remove a matching row from share.json and DELETE the worker copy (use --local-only to drop cache metadata only).',
+  )
   .option('--project <id>', 'Worker-hosted project id')
   .option('--report <id>', 'Worker-hosted report id')
   .option('--worker-url <url>', 'Worker API base URL')
   .option('--local-only', 'Remove share.json entry only; do not call worker DELETE', false)
-  .action(async (opts: { project?: string; report?: string; workerUrl?: string; localOnly?: boolean }) => {
+  .option('--all', 'Delete every share.json row for this project (TTY confirms unless --yes)', false)
+  .action(async (opts: {
+    project?: string;
+    report?: string;
+    workerUrl?: string;
+    localOnly?: boolean;
+    all?: boolean;
+  }) => {
     await shareDelete({
       project: opts.project,
       report: opts.report,
       workerUrl: opts.workerUrl,
       localOnly: Boolean(opts.localOnly),
+      all: Boolean(opts.all),
     });
   });
 

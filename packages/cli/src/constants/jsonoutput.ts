@@ -21,6 +21,7 @@ export const COMMANDS_WITH_JSON_OUTPUT = new Set([
   'share-list',
   'share-view',
   'share-delete',
+  'share-delete-all',
   'list',
   'dynamic',
   'delete',
