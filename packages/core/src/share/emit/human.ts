@@ -7,7 +7,6 @@ import {
 import type { RunEmitter, RunMessageLevel } from '../../types/shared/run/index.js';
 import type { ShareCacheEntry, ShareJsonHealReport } from '../../types/share/entry.js';
 import type { ShareRunResult, ShareViewResult } from '../../types/share/shareRun.js';
-import { shareJsonBackupNotice } from '../cache/shareJsonBackup.js';
 
 function shareTtlHint(kind: 'project' | 'report'): string {
   if (kind === 'project') {
@@ -85,9 +84,6 @@ export function emitShareUploadHumanMessages(host: ShareHumanMessageHost, res: S
 
 /** Emits human-oriented lines when {@link loadShareJsonFile} repaired `share.json`. */
 export function emitShareJsonHealHumanMessages(host: ShareHumanMessageHost, heal: ShareJsonHealReport): void {
-  if (heal.backupBakPath) {
-    shareMessage(host, 'warn', shareJsonBackupNotice(heal.backupBakPath));
-  }
   if (!heal.repaired) return;
   shareMessage(
     host,
@@ -98,7 +94,11 @@ export function emitShareJsonHealHumanMessages(host: ShareHumanMessageHost, heal
     if (line.startsWith('Previous share.json was copied')) continue;
     shareMessage(host, 'detail', `  • ${line}`);
   }
-  shareMessage(host, 'detail', '  • Saved a canonical share.json for this project cache.');
+  const canonicalSaved =
+    heal.backupBakPath != null
+      ? `  • Saved a canonical share.json for this project cache. Backup: ${heal.backupBakPath}`
+      : '  • Saved a canonical share.json for this project cache.';
+  shareMessage(host, 'detail', canonicalSaved);
 }
 
 /** Emits human-oriented lines for {@link runShareList} output. */
@@ -154,7 +154,7 @@ export function emitShareViewHumanMessages(host: ShareHumanMessageHost, res: Sha
       shareMessage(
         host,
         'info',
-        `Remote: ${String(r.fileCount ?? '?')} files, ${String(r.zipBytes ?? r.byteSize ?? '?')} bytes, last accessed ${String(r.lastAccessedAt ?? '-')}`,
+        `Remote: ${String(r.fileCount ?? '?')} files, ${String(r.zipBytes ?? r.byteSize ?? '?')} bytes`,
       );
     } else {
       shareMessage(
