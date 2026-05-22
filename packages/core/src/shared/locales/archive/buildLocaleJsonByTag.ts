@@ -10,6 +10,16 @@ type ArchiveLocaleSegment = {
   archiveRelPath: string;
 };
 
+/** Project-root-relative path under `localesDirAbsolute` (edge `path.relative` is not POSIX). */
+function segmentRelUnderLocalesDir(localesDirAbsolute: string, absolutePath: string): string | null {
+  const root = localesDirAbsolute.replace(/\\/g, '/').replace(/\/$/, '');
+  const abs = absolutePath.replace(/\\/g, '/');
+  if (abs === root) return '';
+  const prefix = `${root}/`;
+  if (!abs.startsWith(prefix)) return null;
+  return abs.slice(prefix.length);
+}
+
 function collectArchiveLocaleSegments(input: {
   localesDirAbsolute: string;
   archiveRelPaths: Iterable<string>;
@@ -26,10 +36,9 @@ function collectArchiveLocaleSegments(input: {
   for (const archiveRelPath of archiveRelPaths) {
     if (!archiveRelPath.endsWith('.json')) continue;
     const absolutePath = resolveArchiveAbsolute(archiveRelPath);
-    const relativePath = path.relative(localesDirAbsolute, absolutePath);
-    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) continue;
-    const segmentRel = relativePath.replace(/\\/g, '/');
-    if (!recursive && relativePath.includes('/')) continue;
+    const segmentRel = segmentRelUnderLocalesDir(localesDirAbsolute, absolutePath);
+    if (segmentRel === null) continue;
+    if (!recursive && segmentRel.includes('/')) continue;
 
     const locale = localeCodeForSegment(layout.structure, path, { absolutePath, relativePath: segmentRel });
     if (locale === null) continue;
