@@ -18,8 +18,8 @@
 | Human lines (all hosts) | `emit/human.ts` → `emitShare*HumanMessages` via `run.message` |
 | Worker URL normalize | `remote/resolveWorkerBaseUrl.ts` — default `https://worker.i18nprune.dev` |
 | CLI argv + env | `packages/cli/bin/cli.ts` (`share` tree: `upload`, `list`, `view`, `delete`) |
-| CLI worker URL | `commands/share/workerUrl.ts` · `ENV_I18NPRUNE_WORKER_URL` |
-| CLI HTTP hooks | `commands/share/workerHttp.ts`, `commands/share/hooks.ts` (`debugCache` from global `--debug-cache`) |
+| CLI worker URL | `commands/share/worker/url.ts` · `ENV_I18NPRUNE_WORKER_URL` |
+| CLI HTTP hooks | `commands/share/worker/http.ts`, `commands/share/worker/fetch.ts`, `commands/share/hooks.ts` (`debugCache` from global `--debug-cache`) |
 | CLI cache debug helper | `commands/share/cacheDebug.ts` (list / view / delete human path) |
 | CLI empty-cache hints | `commands/share/resolveTarget.ts` |
 | SDK example | `examples/sdk/share/runShareList.ts` |
@@ -38,7 +38,12 @@ Upload flags are on **`share upload`** so **`share delete --project <id>`** is n
 
 ## `share.json` backups
 
-Before any overwrite of `share.json`, core copies the **existing file as raw text** (no JSON parse) into `share.bak/`. Hosts emit a **warn** (`shareJsonBackupNotice`) when a backup is created. Corrupt/oversize loads use `backupAndRemoveCorruptShareJson` then replace with an empty v1 file.
+Backups are created only when **`loadShareJsonFile`** cannot trust the on-disk file:
+
+- **Corrupt / malformed JSON** or **oversize**: `backupAndRemoveCorruptShareJson` → raw copy under `share.bak/`, delete bad `share.json`, write fresh `version: 1`.
+- **Valid JSON but non-canonical** (unknown keys, bad rows): rewrite in place — **no** `share.bak/`.
+
+**`saveShareJsonFile`** (upload, delete, skip touch) never writes to `share.bak/`. Hosts warn via load-time `shareJsonBackupWarnMessage` / `emitShareJsonHealHumanMessages` when corrupt/oversize bytes were backed up under `share.bak/` before heal.
 
 ## Skip policy (upload)
 
@@ -59,6 +64,8 @@ Before any overwrite of `share.json`, core copies the **existing file as raw tex
 
 - Metadata GET only (`GET /v1/projects/:id` or `GET /v1/reports/:id`).
 - **404:** warning + purge local row; **no** stale web/report links in human output.
+- **`--verbose`:** extra sections (processor, extraction, cache, timings, edge, local, links). Works with **`--json`** (`verbose` on payload). Prints as **`[verbose]`** in human mode (still shown under **`--quiet`**).
+- Unknown subcommand typo **`uplaod`** → explicit hint toward **`share upload`**.
 
 ## Cache flags
 

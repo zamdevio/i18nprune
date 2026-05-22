@@ -18,7 +18,7 @@
 | **Privacy** | Upload **prepared project snapshot** (sanitized zip) or **report JSON only** — never opaque full-repo upload. Core emits a **manifest** before upload. |
 | **Cache coupling** | `share.json` lives beside `files.json` / `analysis.json` under `cache/projects/<cacheProjectId>/`. Honors **`--no-cache`**, `cache.enabled`, `cache.mode`, `cache.dir` — same rules as analysis cache. |
 | **CLI shape** | Parent `share` shows help when invoked bare (same pattern as `locales`). Subcommands: **`share upload`**, **`share list`**, **`share view`**, **`share delete`** (upload flags live on **`upload`** so `delete --project <id>` is not ambiguous). |
-| **Share backups** | Before overwriting `share.json`, copy **raw bytes** to `{projectCacheDir}/share.bak/share.json.bak.<timestamp>.json` (invalid JSON preserved). CLI **warn** when a backup is written. |
+| **Share backups** | On **corrupt/malformed JSON or oversize** load only: raw copy to `{projectCacheDir}/share.bak/share.json.bak.<timestamp>.json`, then fresh `share.json`. Normal upload/delete saves do **not** create backups. |
 | **Share cache debug** | Global **`--debug-cache`** emits `[cache]` lines on share ops (path, entry count, skip reason, backup path) — same logger gate as analysis cache. |
 | **Remote row GET (no `/metadata`)** | **`GET /v1/projects/:id`** and **`GET /v1/reports/:id`** return **metadata only** (mirror today’s project route). Full bodies: **`GET /v1/projects/:id/snapshot`**, **`GET /v1/reports/:id/document`**. **`share view`** uses the metadata GETs. |
 | **`share.json` self-heal** | Core **loads safely**: auto-restore missing/corrupt files, strip unknown fields, drop invalid entries, **warn** once (do not fail silently; tell user not to hand-edit). |
@@ -190,7 +190,7 @@ Implemented in `share/cache/io/shareJson.ts` — **never throw** on local file p
 |-----------|----------|
 | **Missing file** | Treat as `{ version: 1, entries: [] }`; optional write empty file when cache writable. |
 | **Invalid JSON / oversize** | `backupAndRemoveCorruptShareJson` → raw copy under **`share.bak/`**, delete bad file, write fresh `version: 1` (warn in CLI). |
-| **Heal rewrite (valid but non-canonical)** | `backupShareJsonRaw` before `saveShareJsonFile` (raw bytes — malformed content preserved in backup). |
+| **Heal rewrite (valid but non-canonical)** | Canonical rewrite on load **without** `share.bak/` (schema sanitize only). |
 | **Wrong `version`** | Reset to v1 (or forward-migrate when we add v2 later); warn with old/new version. |
 | **Unknown top-level keys** | Strip (Zod `.strip()`); warn: `Removed unknown share.json fields: …` |
 | **Invalid `entries[]` rows** | Drop bad rows; keep valid; warn count + first reason. |
