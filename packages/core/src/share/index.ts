@@ -92,6 +92,7 @@ export type {
   ShareListResult,
   ShareRunInput,
   ShareRunResult,
+  ShareRunShareJsonSession,
   ShareSkippedReason,
   ShareViewInput,
   ShareViewResult,

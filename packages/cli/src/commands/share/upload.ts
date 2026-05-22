@@ -8,6 +8,7 @@ import {
   runShare,
   stringifyEnvelope,
   type Issue,
+  type ShareRunShareJsonSession,
 } from '@i18nprune/core';
 import { resolveContext } from '@/shared/context/index.js';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
@@ -137,7 +138,8 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
 
     const coreCtx = createCliCoreContext(ctx);
     const projectRoot = resolvePatchingProjectRoot(ctx);
-    const hooks = buildShareHostHooks(ctx, workerBaseUrl);
+    const shareJsonSession: ShareRunShareJsonSession = { shareFile: { version: 1, entries: [] } };
+    const hooks = { ...buildShareHostHooks(ctx, workerBaseUrl), shareJsonSession };
 
     if (shareKind === 'both') {
       const hosted = await prepareShareHostedFromContext({

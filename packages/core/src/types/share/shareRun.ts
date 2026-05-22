@@ -2,7 +2,15 @@ import type { CoreContext } from '../context/index.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { RunEmitter } from '../shared/run/index.js';
 import type { HostedProjectIngestEnvelope } from '../project/prepare.js';
-import type { ShareCacheEntry, ShareJsonHealReport, ShareLinks } from './entry.js';
+import type { ShareCacheEntry, ShareJsonFile, ShareJsonHealReport, ShareLinks } from './entry.js';
+
+/** Reused across multiple {@link runShare} calls in one host command (e.g. CLI `--project` + `--report`). */
+export type ShareRunShareJsonSession = {
+  sharePath?: string;
+  shareFile: ShareJsonFile;
+  /** After the first load, suppress repeated `share.json` / `entries loaded` `[cache]` lines. */
+  shareJsonLoadDebugDone?: boolean;
+};
 import type { ShareManifest, ShareProjectManifest, ShareReportManifest } from './manifest.js';
 
 export type ShareWorkerProjectRef = {
@@ -105,6 +113,8 @@ export type ShareHostHooks = {
   }) => Promise<{ httpStatus: number; body: unknown }>;
   deleteRemoteProject?: (input: { workerBaseUrl: string; projectId: string }) => Promise<{ httpStatus: number; body: unknown }>;
   deleteRemoteReport?: (input: { workerBaseUrl: string; reportId: string }) => Promise<{ httpStatus: number; body: unknown }>;
+  /** When set, reuse in-memory `share.json` across back-to-back uploads in one CLI invocation. */
+  shareJsonSession?: ShareRunShareJsonSession;
 };
 
 export type ShareSkippedReason =

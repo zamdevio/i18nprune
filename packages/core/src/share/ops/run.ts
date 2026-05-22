@@ -95,30 +95,48 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
   const canUseShareJson =
     cache?.state.enabled === true && !cache.state.readOnly && cache.runtime !== undefined;
 
+  const shareJsonSession = input.hooks.shareJsonSession;
   if (canUseShareJson) {
-    sharePath = resolveShareJsonPath(cache!.state.projectDir, cache!.runtime.path);
-    const loaded = loadShareJsonFile({
-      sharePath,
-      runtime: cache!.runtime,
-      cacheReadOnly: cache!.state.readOnly,
-    });
-    shareFile = loaded.file;
-    issues.push(...loaded.issues);
-    if (loaded.heal.backupBakPath) {
-      emitRunMessage(input.hooks.emit, {
-        op: 'share',
-        runId: input.hooks.runId,
-        level: 'warn',
-        message: shareJsonBackupWarnMessage(loaded.heal.backupBakPath),
+    const reuseSession =
+      shareJsonSession !== undefined &&
+      (shareJsonSession.shareJsonLoadDebugDone === true || shareJsonSession.sharePath !== undefined);
+    if (reuseSession && shareJsonSession) {
+      sharePath = shareJsonSession.sharePath ?? resolveShareJsonPath(cache!.state.projectDir, cache!.runtime.path);
+      shareFile = shareJsonSession.shareFile;
+      shareJsonSession.sharePath = sharePath;
+    } else {
+      sharePath = resolveShareJsonPath(cache!.state.projectDir, cache!.runtime.path);
+      const loaded = loadShareJsonFile({
+        sharePath,
+        runtime: cache!.runtime,
+        cacheReadOnly: cache!.state.readOnly,
       });
+      shareFile = loaded.file;
+      issues.push(...loaded.issues);
+      if (shareJsonSession) {
+        shareJsonSession.shareFile = shareFile;
+        shareJsonSession.sharePath = sharePath;
+      }
+      if (loaded.heal.backupBakPath) {
+        emitRunMessage(input.hooks.emit, {
+          op: 'share',
+          runId: input.hooks.runId,
+          level: 'warn',
+          message: shareJsonBackupWarnMessage(loaded.heal.backupBakPath),
+        });
+      }
+      const emitLoadDebug = !shareJsonSession?.shareJsonLoadDebugDone;
+      if (emitLoadDebug) {
+        shareCacheDebug(input.hooks, [
+          { level: 'info', message: `share.json: ${sharePath}` },
+          { level: 'detail', message: `  entries loaded: ${String(shareFile.entries.length)}` },
+          ...(loaded.heal.backupBakPath
+            ? [{ level: 'detail' as const, message: `  backup: ${loaded.heal.backupBakPath}` }]
+            : []),
+        ]);
+        if (shareJsonSession) shareJsonSession.shareJsonLoadDebugDone = true;
+      }
     }
-    shareCacheDebug(input.hooks, [
-      { level: 'info', message: `share.json: ${sharePath}` },
-      { level: 'detail', message: `  entries loaded: ${String(shareFile.entries.length)}` },
-      ...(loaded.heal.backupBakPath
-        ? [{ level: 'detail' as const, message: `  backup: ${loaded.heal.backupBakPath}` }]
-        : []),
-    ]);
   } else {
     shareCacheDebug(input.hooks, [
       {
@@ -514,6 +532,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     );
     const nextEntries = mergeDuplicateShareEntries([...filtered, newEntry]).entries;
     shareFile = { version: 1, entries: nextEntries };
+    if (shareJsonSession) shareJsonSession.shareFile = shareFile;
     const w = saveShareJsonFile({ sharePath, file: shareFile, runtime: cache.runtime });
     if (w.warning) issues.push(w.warning);
   }

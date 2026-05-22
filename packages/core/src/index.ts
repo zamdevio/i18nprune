@@ -436,6 +436,7 @@ export type {
   ShareListInput,
   ShareListResult,
   ShareRunInput,
+  ShareRunShareJsonSession,
   ShareSkippedReason,
   ShareViewInput,
   ShareWorkerProjectRef,
