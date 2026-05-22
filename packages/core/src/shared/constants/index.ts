@@ -1,4 +1,5 @@
 export * from './config.js';
+export * from './sdk.js';
 export * from './cache.js';
 export * from './docs.js';
 export * from './issueCodes.js';

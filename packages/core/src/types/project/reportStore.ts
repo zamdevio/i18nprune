@@ -1,3 +1,9 @@
+import type { HostedIngestProcessorContext } from './metadata.js';
+import type { IngestRouteKind } from './metadata.js';
+import type { PrepareHostKind } from './prepareHost.js';
+import type { PayloadProcessorInfo, ReportMetadataDocumentTiming } from './metadata.js';
+import type { MetadataScalar } from './metadata.js';
+
 /** Summary fields extracted from a stored report document (metadata GET). */
 export type StoredReportSummary = {
   missingKeysCount: number;
@@ -19,11 +25,11 @@ export type StoredReportMetadata = {
   reportId: string;
   payloadContentHash: string;
   byteSize: number;
-  storedAt: string;
-  lastAccessedAt: string;
+  expiresAt: MetadataScalar;
+  timing: ReportMetadataDocumentTiming;
+  processor: PayloadProcessorInfo;
   schemaVersion: number;
   toolVersion: string;
-  generatedAt: string;
   summary: StoredReportSummary;
   project: StoredReportProjectMeta;
 };
@@ -36,4 +42,7 @@ export type ReportStoreRow = {
   storedAt: string;
   lastAccessedAt?: string;
   document: Record<string, unknown>;
+  ingestRoute: IngestRouteKind;
+  prepareHost?: PrepareHostKind;
+  processorContext?: HostedIngestProcessorContext;
 };

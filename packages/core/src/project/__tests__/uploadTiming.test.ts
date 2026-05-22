@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { buildProjectUploadSnapshotMeta } from '../uploadTiming.js';
 import type { ProjectSnapshot } from '../../types/project/upload.js';
+import type { ProjectStoreRow } from '../../types/project/store.js';
+import { METADATA_DASH } from '../../types/project/metadata.js';
 
 function baseSnapshot(overrides: Partial<ProjectSnapshot> = {}): ProjectSnapshot {
   return {
@@ -35,29 +37,100 @@ function baseSnapshot(overrides: Partial<ProjectSnapshot> = {}): ProjectSnapshot
   };
 }
 
+function baseRow(overrides: Partial<ProjectStoreRow> = {}): ProjectStoreRow {
+  return {
+    projectId: 'abc',
+    projectHash: 'hash',
+    snapshot: baseSnapshot(),
+    ingestRoute: 'prepared',
+    prepareMeta: {
+      prepareHost: 'cli-share',
+      zipParsedMs: 10,
+      analysisMs: 20,
+      extractionMs: 700,
+      totalMs: 1000,
+    },
+    processorContext: {
+      toolVersion: '0.1.0',
+      environment: {
+        platform: 'linux',
+        arch: 'x64',
+        nodeVersion: 'v20.0.0',
+        osRelease: '6.6',
+        runtimeFamily: 'linux',
+      },
+    },
+    ...overrides,
+  };
+}
+
 describe('buildProjectUploadSnapshotMeta', () => {
-  it('returns monotonic timing deltas in milliseconds', () => {
-    const meta = buildProjectUploadSnapshotMeta(baseSnapshot());
-    expect(meta.extractionMs).toBe(700);
-    expect(meta.persistMs).toBe(200);
-    expect(meta.totalMs).toBe(1000);
-    expect(meta.extractionStartedAt).toBe('2026-01-01T00:00:00.100Z');
-    expect(meta.storedAt).toBe('2026-01-01T00:00:01.000Z');
+  it('returns timing block with ms and ISO values', () => {
+    const meta = buildProjectUploadSnapshotMeta(baseRow());
+    expect(meta.timing.prepare.extractionMs).toBe(700);
+    expect(meta.timing.edge.persistMs).toBe(200);
+    expect(meta.timing.edge.totalMs).toBe(1000);
+    expect(meta.timing.extraction.startedAt).toBe('2026-01-01T00:00:00.100Z');
+    expect(meta.processor.surface).toBe('cli');
+    expect(meta.processor.route).toBe('prepared');
+    expect(meta.processor.sdk).toBe('i18nprune-cli');
+    expect(meta.processor.sdkVersion).toBe('0.1.0');
+    expect(meta.extraction?.cache.projectCacheEnabled).toBe(false);
   });
 
-  it('falls back when legacy snapshots omit new timestamp fields', () => {
+  it('surfaces custom SDK processor and cache meta from prepare', () => {
     const meta = buildProjectUploadSnapshotMeta(
-      baseSnapshot({
-        requestReceivedAt: undefined,
-        storedAt: undefined,
-        extraction: {
-          ...baseSnapshot().extraction!,
-          extractionStartedAt: undefined,
+      baseRow({
+        processorContext: {
+          surface: 'acme-ci',
+          surfaceLabel: 'Acme CI',
+          route: 'nightly-upload',
+          routeLabel: 'Nightly snapshot',
+          sdk: 'acme-i18n-sdk',
+          toolVersion: '2.0.0',
+        },
+        prepareMeta: {
+          prepareHost: 'acme-ci',
+          totalMs: 50,
+          analysisMs: 0,
+          hostCache: {
+            analysis: 'hit',
+            analysisReason: 'cache_hit',
+            timingsTrustworthy: false,
+            filesEpoch: 'epoch-abc',
+            projectCacheEnabled: true,
+          },
         },
       }),
     );
-    expect(meta.requestReceivedAt).toBe('2026-01-01T00:00:00.050Z');
-    expect(meta.extractionStartedAt).toBe('2026-01-01T00:00:00.050Z');
-    expect(meta.storedAt).toBe('2026-01-01T00:00:00.800Z');
+    expect(meta.processor.surface).toBe('acme-ci');
+    expect(meta.processor.surfaceLabel).toBe('Acme CI');
+    expect(meta.processor.route).toBe('nightly-upload');
+    expect(meta.processor.sdk).toBe('acme-i18n-sdk');
+    expect(meta.processor.sdkVersion).toBe('0.1.0');
+    expect(meta.extraction?.cache.analysis).toBe('hit');
+    expect(meta.extraction?.cache.timingsTrustworthy).toBe(false);
+    expect(meta.extraction?.cache.filesEpoch).toBe('epoch-abc');
+  });
+
+  it('uses dash for invalid or missing timestamps', () => {
+    const meta = buildProjectUploadSnapshotMeta(
+      baseRow({
+        snapshot: baseSnapshot({
+          requestReceivedAt: undefined,
+          storedAt: undefined,
+          extraction: {
+            ...baseSnapshot().extraction!,
+            extractionStartedAt: undefined,
+            computedAt: 'not-a-date',
+          },
+        }),
+        prepareMeta: { prepareHost: 'cli-share' },
+      }),
+    );
+    expect(meta.timing.requestReceivedAt).toBe('2026-01-01T00:00:00.050Z');
+    expect(meta.timing.extraction.startedAt).toBe('2026-01-01T00:00:00.050Z');
+    expect(meta.timing.extraction.computedAt).toBe(METADATA_DASH);
+    expect(meta.timing.prepare.zipParsedMs).toBe(METADATA_DASH);
   });
 });

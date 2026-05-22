@@ -10,6 +10,8 @@ describe('buildStoredReportMetadata', () => {
       byteSize: 100,
       storedAt: '2026-01-01T00:00:00.000Z',
       lastAccessedAt: '2026-01-02T00:00:00.000Z',
+      ingestRoute: 'prepared',
+      prepareHost: 'cli-share',
       document: {
         kind: 'i18nprune.projectReport',
         schemaVersion: 1,
@@ -32,7 +34,8 @@ describe('buildStoredReportMetadata', () => {
     };
     const meta = buildStoredReportMetadata(row);
     expect(meta.reportId).toBe('abc');
-    expect(meta.lastAccessedAt).toBe('2026-01-02T00:00:00.000Z');
+    expect(meta.timing.lastAccessedAt).toBe('2026-01-02T00:00:00.000Z');
+    expect(meta.processor.surface).toBe('cli');
     expect(meta.summary.ok).toBe(false);
     expect(meta.project.sourceLocaleTag).toBe('en');
     expect('document' in meta).toBe(false);

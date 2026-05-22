@@ -22,6 +22,27 @@ export type { PrepareProjectSnapshotFromRootInput } from './prepareRoot.js';
 export type { BuildProjectSnapshotShellResult } from './snapshotShell.js';
 export type { PrepareTimer, PrepareTimerMark } from './prepareTimer.js';
 export type {
+  HostedIngestProcessorContext,
+  HostPrepareCacheMeta,
+  IngestRouteKind,
+  KnownIngestRouteKind,
+  KnownPayloadProcessorSurface,
+  MetadataDash,
+  MetadataScalar,
+  PayloadProcessorEnvironment,
+  PayloadProcessorInfo,
+  PayloadProcessorSurface,
+  ProjectExtractionCacheMeta,
+  ProjectExtractionSummaryMeta,
+  ProjectMetadataEdgeTiming,
+  ProjectMetadataExtractionTiming,
+  ProjectMetadataPrepareTiming,
+  ProjectMetadataTiming,
+  ProjectStoredMetadata,
+  ReportMetadataDocumentTiming,
+} from './metadata.js';
+export { METADATA_DASH } from './metadata.js';
+export type {
   HostedProjectIngestEnvelope,
   PrepareProjectSnapshotResult,
   ProjectPrepareMeta,

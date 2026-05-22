@@ -3,6 +3,7 @@ import {
   ISSUE_PROJECT_HOSTED_SNAPSHOT_INVALID,
   ISSUE_PROJECT_HOSTED_SNAPSHOT_SCHEMA_VERSION,
 } from '../../shared/constants/issueCodes.js';
+import type { HostedIngestProcessorContext } from '../../types/project/metadata.js';
 import type {
   HostedProjectIngestEnvelope,
   ValidateHostedProjectIngestResult,
@@ -61,12 +62,22 @@ export function validateHostedProjectIngestBody(body: unknown): ValidateHostedPr
     return { ok: false, issues: [err('prepareMeta must be an object when provided')] };
   }
 
+  const processorContext = raw.processorContext;
+  if (processorContext !== undefined && (typeof processorContext !== 'object' || Array.isArray(processorContext))) {
+    return { ok: false, issues: [err('processorContext must be an object when provided')] };
+  }
+
   return {
     ok: true,
     envelope: {
       schemaVersion: HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION,
       snapshot: snapshot as ProjectSnapshot,
-      ...(prepareMeta && typeof prepareMeta === 'object' ? { prepareMeta: prepareMeta as HostedProjectIngestEnvelope['prepareMeta'] } : {}),
+      ...(prepareMeta && typeof prepareMeta === 'object'
+        ? { prepareMeta: prepareMeta as HostedProjectIngestEnvelope['prepareMeta'] }
+        : {}),
+      ...(processorContext && typeof processorContext === 'object'
+        ? { processorContext: processorContext as HostedIngestProcessorContext }
+        : {}),
     },
   };
 }

@@ -5,7 +5,17 @@ import { parseProjectUploadFailure } from '../normalizeConfig.js';
 import { parseZipToSnapshot } from '../parseZip.js';
 import { createArchiveProjectFs } from './archiveFs.js';
 import { fillProjectSnapshotExtraction } from './extract.js';
+import { METADATA_DASH } from '../../types/project/metadata.js';
+import type { HostPrepareCacheMeta } from '../../types/project/metadata.js';
 import { createPrepareTimer } from './timing.js';
+
+const ARCHIVE_HOST_CACHE: HostPrepareCacheMeta = {
+  analysis: 'disabled',
+  analysisReason: 'archive_ingest_no_project_cache',
+  timingsTrustworthy: true,
+  filesEpoch: METADATA_DASH,
+  projectCacheEnabled: false,
+};
 
 function toIssue(code: string, message: string): Issue {
   return { severity: 'error', code, message };
@@ -45,9 +55,12 @@ export async function prepareProjectSnapshotFromArchive(
     return { ok: false, issues: [toIssue(filled.code, filled.message)] };
   }
 
+  const prepareMeta = timer.finish(input.prepareHost);
+  prepareMeta.hostCache = ARCHIVE_HOST_CACHE;
+
   return {
     ok: true,
     parsed: parsedUpload,
-    prepareMeta: timer.finish(input.prepareHost),
+    prepareMeta,
   };
 }

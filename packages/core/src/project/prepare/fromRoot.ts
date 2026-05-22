@@ -8,6 +8,7 @@ import type { PrepareProjectSnapshotFromRootInput } from '../../types/project/pr
 import { normalizeProjectConfig } from '../normalizeConfig.js';
 import { applyProjectAnalysisToSnapshot, resolveShareProjectAnalysis } from './fromAnalysis.js';
 import { buildProjectSnapshotShellFromContext } from './snapshotShell.js';
+import { buildHostPrepareCacheMeta } from '../hostPrepareCache.js';
 import { createPrepareTimer } from './timing.js';
 
 function toIssue(code: string, message: string): Issue {
@@ -72,9 +73,12 @@ export async function prepareProjectSnapshotFromRoot(
 
   timer.mark('extractionDone');
 
+  const prepareMeta = timer.finish(host);
+  prepareMeta.hostCache = buildHostPrepareCacheMeta(input.ctx, analysis, prepareMeta);
+
   return {
     ok: true,
     parsed: shell.parsed,
-    prepareMeta: timer.finish(host),
+    prepareMeta,
   };
 }

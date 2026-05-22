@@ -7,6 +7,16 @@ export {
   relativeProjectPath,
 } from './normalizeConfig.js';
 export { buildStoredReportMetadata } from './reportMetadata.js';
+export {
+  buildProjectStoredMetadata,
+  isoOrDash,
+  msOrDash,
+  isoMsDelta,
+  buildPayloadProcessorInfo,
+  buildExtractionCacheMeta,
+} from './storedMetadata.js';
+export { buildHostPrepareCacheMeta } from './hostPrepareCache.js';
+export { METADATA_DASH } from '../types/project/metadata.js';
 export { parseZipToSnapshot } from './parseZip.js';
 export { buildProjectUploadSnapshotMeta } from './uploadTiming.js';
 export { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from './tree.js';
