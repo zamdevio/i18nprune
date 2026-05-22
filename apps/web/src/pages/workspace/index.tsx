@@ -232,7 +232,6 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
       activeZipFile,
       label: activeZipFile.name,
     });
-    navigateWorkspace(nextProjectId);
     const snapshotMeta = (res.data as { snapshotMeta?: { uploadedAt?: string; extractionComputedAt?: string } } | null)?.snapshotMeta;
     setLatestUploadMeta({
       uploadedAt: snapshotMeta?.uploadedAt,

@@ -15,6 +15,18 @@
     <meta name="twitter:description" content="i18nprune web runtime powered by @i18nprune/core." />
   </head>
   <body>
+    <script>
+      (function () {
+        try {
+          var key = 'i18nprune-runtime-web-theme';
+          var stored = localStorage.getItem(key);
+          var dark =
+            stored === 'dark' ||
+            (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (_) {}
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

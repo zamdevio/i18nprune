@@ -15,6 +15,7 @@ import {
 } from '../../lib/storage/recentProjectZips';
 import { writeWorkerUrl, readWorkerUrl, resetWorkerUrlToDefault } from '../../lib/storage/workerUrl';
 import { DEFAULT_WORKER_API_URL } from '@i18nprune/core';
+import { ECOSYSTEM_LINKS } from '../../lib/constants/ecosystemLinks';
 
 export function SettingsPage() {
   const initialRecent = readRecentProjectZipSettings();
@@ -160,7 +161,14 @@ export function SettingsPage() {
   return (
     <div className="page">
       <h1>Settings</h1>
-      <p className="muted">Worker URL and recent project cache settings are auto-saved locally.</p>
+      <p className="muted">
+        Worker URL and recent project cache settings are auto-saved locally. Share links use this worker with the hosted
+        web app — see{' '}
+        <a href={ECOSYSTEM_LINKS.docsShare.href} target="_blank" rel="noopener noreferrer">
+          share docs
+        </a>
+        .
+      </p>
 
       <section className="panel">
         <h2>Remote project cache</h2>

@@ -16,7 +16,9 @@ import type { WorkspaceSession } from '@i18nprune/core';
 import { DuplicateCachedZipDialog } from './duplicate-zip-dialog';
 import { Dropdown } from './dropdown';
 import { Hero } from './hero';
+import { OpenSharedLinkPanel } from './open-shared-link';
 import { Recent } from './recent';
+import { SurfacesStrip } from './surfaces-strip';
 
 type Props = {
   onOpenWorkspace: (session: WorkspaceSession) => void;
@@ -150,6 +152,10 @@ export function HomePage({ onOpenWorkspace }: Props) {
           if (f && f.length) void openFiles(f);
         }}
       />
+
+      <OpenSharedLinkPanel />
+
+      <SurfacesStrip />
 
       <Dropdown
         dropDepth={dropDepth}

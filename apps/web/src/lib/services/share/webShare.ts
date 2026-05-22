@@ -9,7 +9,7 @@ import {
   type ShareRunResult,
   type WorkspaceSession,
 } from '@i18nprune/core';
-import { buildWebWorkspaceShareUrl, navigateWorkspace } from '../../../hooks/useAppRoute.js';
+import { buildWebWorkspaceShareUrl } from '../../../hooks/useAppRoute.js';
 import { workerFetchJson, zipBytesToArrayBuffer } from './workerHttp';
 import { fetchWorkerProjectMetadata } from './workerFetch';
 
@@ -107,7 +107,6 @@ export async function shareLocalProjectUpload(input: {
     web: buildWebWorkspaceShareUrl(projectId),
     worker: `${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}`,
   };
-  navigateWorkspace(projectId);
   humanLines.push('Uploaded to worker.');
   humanLines.push(`Web: ${links.web}`);
   humanLines.push(`Worker metadata: ${links.worker}`);

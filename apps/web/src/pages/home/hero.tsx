@@ -11,10 +11,11 @@ type Props = {
 export function Hero({ zipInputRef, dirInputRef, onZipInputChange, onDirInputChange }: Props) {
   return (
     <section className="hero-card">
-      <h1>Runtime console</h1>
+      <h1>Hosted workspace</h1>
       <p className="muted">
-        Upload a zip or folder, choose <strong>local</strong> (in-browser using <code>@i18nprune/core</code>) or{' '}
-        <strong>remote</strong> (worker API), then run validate, review, report, and more with the same JSON shapes.
+        One browser surface of the i18nprune stack — same <code>@i18nprune/core</code> envelopes as the CLI and worker.
+        Upload a zip or folder, run <strong>local</strong> in-browser or <strong>remote</strong> against your worker, then
+        share with <strong>Copy link</strong> (<code>#/workspace?id=…</code>).
       </p>
       <div className="home-actions">
         <button type="button" className="primary" onClick={() => zipInputRef.current?.click()}>

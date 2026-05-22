@@ -1,6 +1,7 @@
 import { Home, LayoutDashboard, Moon, Settings, Sun } from 'lucide-react';
-import { useAppRoute, navigateHash } from '../../hooks/useAppRoute';
+import { useAppRoute, navigateHash, navigateWorkspace } from '../../hooks/useAppRoute';
 import { useTheme } from '../../context/ThemeContext';
+import { EcosystemNavMenu } from './EcosystemNavMenu';
 
 export function RuntimeHeader() {
   const route = useAppRoute();
@@ -26,6 +27,7 @@ export function RuntimeHeader() {
         </div>
 
         <nav className="runtime-header__nav" aria-label="Primary">
+          <EcosystemNavMenu />
           <button
             type="button"
             className={`runtime-header__nav-link${isActive('/') ? ' is-active' : ''}`}
@@ -37,7 +39,7 @@ export function RuntimeHeader() {
           <button
             type="button"
             className={`runtime-header__nav-link${isActive('/workspace') ? ' is-active' : ''}`}
-            onClick={() => nav('/workspace')}
+            onClick={() => navigateWorkspace()}
           >
             <LayoutDashboard size={16} aria-hidden />
             <span className="runtime-header__nav-label">Workspace</span>

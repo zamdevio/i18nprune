@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
+import { EcosystemFooter } from './components/layout/EcosystemFooter';
 import { RuntimeHeader } from './components/layout/RuntimeHeader';
 import { useAppRoute } from './hooks/useAppRoute';
 import { HomePage } from './pages/home';
@@ -10,11 +11,27 @@ import type { WorkspaceSession } from '@i18nprune/core';
 export default function App() {
   const route = useAppRoute();
   const [workspaceSession, setWorkspaceSession] = useState<WorkspaceSession | null>(null);
+  const prevWorkspaceProjectIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const leftWorkspace = route.path !== '/workspace';
+    const droppedShareId =
+      route.path === '/workspace' &&
+      prevWorkspaceProjectIdRef.current != null &&
+      route.workspaceProjectId == null;
+
+    if (leftWorkspace || droppedShareId) {
+      setWorkspaceSession(null);
+    }
+
+    prevWorkspaceProjectIdRef.current =
+      route.path === '/workspace' ? route.workspaceProjectId : null;
+  }, [route.path, route.workspaceProjectId]);
 
   return (
     <ThemeProvider>
       <RuntimeHeader />
-      <main className="page-shell">
+      <main className="page-shell page-shell--with-footer">
         {route.path === '/settings' ? (
           <SettingsPage />
         ) : route.path === '/workspace' ? (
@@ -27,6 +44,7 @@ export default function App() {
           <HomePage onOpenWorkspace={setWorkspaceSession} />
         )}
       </main>
+      <EcosystemFooter />
     </ThemeProvider>
   );
 }
