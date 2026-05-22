@@ -378,6 +378,11 @@ export type {
 export * as share from './namespaces/share.js';
 export {
   buildProjectPayload,
+  buildPreparedProjectPayload,
+  buildHostedProjectShareArtifacts,
+  buildHostedReportShareArtifacts,
+  hostedIngestEnvelopeForShareContentHash,
+  hostedSnapshotForShareContentHash,
   buildProjectShareLinks,
   buildReportShareLinks,
   emitShareCacheDebug,

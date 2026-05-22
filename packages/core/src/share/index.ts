@@ -9,6 +9,17 @@ export {
 export type { SaveShareJsonResult } from './cache/io/shareJson.js';
 export { buildProjectPayload, computeShareProjectConfigHash } from './payload/buildProjectPayload.js';
 export type { BuildProjectPayloadResult } from './payload/buildProjectPayload.js';
+export { buildPreparedProjectPayload } from './payload/buildPreparedProjectPayload.js';
+export type { BuildPreparedProjectPayloadResult } from './payload/buildPreparedProjectPayload.js';
+export {
+  buildHostedProjectShareArtifacts,
+  buildHostedReportShareArtifacts,
+} from './payload/buildHostedShareArtifacts.js';
+export type { HostedProjectShareArtifacts, HostedReportShareArtifacts } from './payload/buildHostedShareArtifacts.js';
+export {
+  hostedIngestEnvelopeForShareContentHash,
+  hostedSnapshotForShareContentHash,
+} from './payload/hostedSnapshotSemantic.js';
 export { prepareReportPayload } from '../project/prepare/report.js';
 export type { PrepareReportPayloadResult } from '../types/report/ingest.js';
 export { runShareDelete } from './ops/delete.js';

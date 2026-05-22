@@ -1,8 +1,9 @@
 import type { CoreContext } from '../context/index.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { RunEmitter } from '../shared/run/index.js';
+import type { HostedProjectIngestEnvelope } from '../project/prepare.js';
 import type { ShareCacheEntry, ShareJsonHealReport, ShareLinks } from './entry.js';
-import type { ShareManifest } from './manifest.js';
+import type { ShareManifest, ShareProjectManifest, ShareReportManifest } from './manifest.js';
 
 export type ShareWorkerProjectRef = {
   kind: 'project';
@@ -25,6 +26,12 @@ export type ShareRunInputProjectBuild = {
   source: 'build';
   force?: boolean;
   hooks: ShareHostHooks;
+  /** When set, skips disk prepare (e.g. combined `prepareShareHostedFromContext`). */
+  prepared?: {
+    envelope: HostedProjectIngestEnvelope;
+    serialized: string;
+    manifest: ShareProjectManifest;
+  };
 };
 
 export type ShareRunInputProjectWorkerRef = {
@@ -46,6 +53,11 @@ export type ShareRunInputReportDocument = {
   reportDocument: unknown;
   force?: boolean;
   hooks: ShareHostHooks;
+  /** When set, skips {@link prepareReportPayload} (document + manifest already validated). */
+  prepared?: {
+    document: unknown;
+    manifest: ShareReportManifest;
+  };
 };
 
 export type ShareRunInputReportWorkerRef = {
@@ -84,7 +96,8 @@ export type ShareHostHooks = {
   }) => Promise<{ httpStatus: number; body: unknown }>;
   uploadProject?: (input: {
     workerBaseUrl: string;
-    zipBytes: Uint8Array;
+    envelope: HostedProjectIngestEnvelope;
+    serialized: string;
   }) => Promise<{ httpStatus: number; body: unknown }>;
   uploadReport?: (input: {
     workerBaseUrl: string;

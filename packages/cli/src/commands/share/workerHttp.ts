@@ -45,11 +45,12 @@ export function createShareWorkerHooks(_workerBaseUrl: string): Pick<
       workerFetchJson(`${base(w)}/v1/projects/${encodeURIComponent(projectId)}`),
     fetchRemoteReportRow: async ({ workerBaseUrl: w, reportId }) =>
       workerFetchJson(`${base(w)}/v1/reports/${encodeURIComponent(reportId)}`),
-    uploadProject: async ({ workerBaseUrl: w, zipBytes }) => {
-      const form = new FormData();
-      form.set('archive', new Blob([zipBytes], { type: 'application/zip' }), 'project.zip');
-      return workerFetchJson(`${base(w)}/v1/projects`, { method: 'POST', body: form });
-    },
+    uploadProject: async ({ workerBaseUrl: w, serialized }) =>
+      workerFetchJson(`${base(w)}/v1/projects`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: serialized,
+      }),
     uploadReport: async ({ workerBaseUrl: w, document }) =>
       workerFetchJson(`${base(w)}/v1/reports`, {
         method: 'POST',

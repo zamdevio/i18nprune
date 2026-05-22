@@ -11,7 +11,8 @@ import type { ShareCacheEntry, ShareKind } from '../../types/share/entry.js';
 import type { ShareManifest, ShareProjectManifest } from '../../types/share/manifest.js';
 import type { ShareRunInput, ShareRunResult } from '../../types/share/shareRun.js';
 import type { ShareSkippedReason } from '../../types/share/shareRun.js';
-import { buildProjectPayload, computeShareProjectConfigHash } from '../payload/buildProjectPayload.js';
+import { computeShareProjectConfigHash } from '../payload/buildProjectPayload.js';
+import { buildPreparedProjectPayload } from '../payload/buildPreparedProjectPayload.js';
 import { prepareReportPayload } from '../../project/prepare/report.js';
 import type { PrepareReportPayloadResult } from '../../types/report/ingest.js';
 import { loadShareJsonFile, mergeDuplicateShareEntries, resolveShareJsonPath, saveShareJsonFile } from '../cache/io/shareJson.js';
@@ -130,9 +131,9 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     ]);
   }
 
-  let builtProject: Awaited<ReturnType<typeof buildProjectPayload>> | null = null;
+  let builtProject: Awaited<ReturnType<typeof buildPreparedProjectPayload>> | null = null;
   let builtReport: PrepareReportPayloadResult | null = null;
-  let skipZipBuild = false;
+  let skipPrepareBuild = false;
   let payloadSkipReason: ShareSkippedReason = 'hash_unchanged';
   let epochCacheEntry: ShareCacheEntry | undefined;
 
@@ -154,7 +155,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
         inputFilesEpoch,
       );
       if (epochCacheEntry?.workerProjectId) {
-        skipZipBuild = true;
+        skipPrepareBuild = true;
         payloadSkipReason = 'cache_epoch_unchanged';
         shareCacheDebug(input.hooks, [
           {
@@ -166,14 +167,38 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     }
   }
 
-  if (isProjectBuild && !skipZipBuild) {
-    builtProject = await buildProjectPayload({ ctx: input.ctx, projectRoot: input.projectRoot });
+  if (isProjectBuild && input.prepared) {
+    builtProject = {
+      ok: true,
+      envelope: input.prepared.envelope,
+      serialized: input.prepared.serialized,
+      manifest: input.prepared.manifest,
+      prepare: {
+        ok: true,
+        parsed: { snapshot: input.prepared.envelope.snapshot, textFiles: {} },
+        prepareMeta: input.prepared.envelope.prepareMeta ?? { prepareHost: 'cli-share', totalMs: 0 },
+      },
+    };
+  } else if (isProjectBuild && !skipPrepareBuild) {
+    builtProject = await buildPreparedProjectPayload({
+      ctx: input.ctx,
+      projectRoot: input.projectRoot,
+      analysisOpts: { emit: input.hooks.emit, runId: input.hooks.runId },
+      prepareHost: 'cli-share',
+    });
     if (!builtProject.ok) {
       emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
       return { action: 'skipped', kind: 'project', links: {}, workerIds: {}, issues: builtProject.issues };
     }
   }
-  if (isReportDocument) {
+  if (isReportDocument && input.prepared) {
+    builtReport = {
+      ok: true,
+      document: input.prepared.document as Record<string, unknown>,
+      serialized: '',
+      manifest: input.prepared.manifest,
+    };
+  } else if (isReportDocument) {
     builtReport = await prepareReportPayload({ reportDocument: input.reportDocument });
     if (!builtReport.ok) {
       emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
@@ -197,7 +222,9 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
           configHash: projectConfigHash,
           detectedConfigRelPath: null,
         } satisfies ShareProjectManifest)
-    : builtReport!.manifest;
+    : builtReport && builtReport.ok
+      ? builtReport.manifest
+      : ({ kind: 'report', byteSize: 0, payloadContentHash: '', schemaVersion: 0, toolVersion: '', generatedAt: '' } satisfies ShareManifest);
   const projectManifest = manifest.kind === 'project' ? manifest : null;
   emitRunEvent(emit, {
     type: 'run.share.manifest',
@@ -208,7 +235,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
   });
 
   let candidateEntry: ShareCacheEntry | undefined =
-    isProjectBuild && skipZipBuild
+    isProjectBuild && skipPrepareBuild
       ? epochCacheEntry
       : isProjectBuild
         ? findMatchingProjectShareEntry(
@@ -279,7 +306,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
         level: 'info',
         message: input.force
           ? 'share upload: --force (skip policy ignored)'
-          : `share upload: will upload (${isProjectBuild && skipZipBuild ? 'after zip skip cleared' : 'payload ready'})`,
+          : `share upload: will upload (${isProjectBuild && skipPrepareBuild ? 'after prepare skip cleared' : 'payload ready'})`,
       },
     ]);
   }
@@ -348,7 +375,12 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
   }
 
   if (isProjectBuild && !builtProject) {
-    builtProject = await buildProjectPayload({ ctx: input.ctx, projectRoot: input.projectRoot });
+    builtProject = await buildPreparedProjectPayload({
+      ctx: input.ctx,
+      projectRoot: input.projectRoot,
+      analysisOpts: { emit: input.hooks.emit, runId: input.hooks.runId },
+      prepareHost: 'cli-share',
+    });
     if (!builtProject.ok) {
       emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
       return { action: 'skipped', kind: 'project', links: {}, workerIds: {}, issues: builtProject.issues };
@@ -419,8 +451,15 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
 
   const up =
     input.kind === 'project'
-      ? await input.hooks.uploadProject!({ workerBaseUrl, zipBytes: builtProject!.zipBytes })
-      : await input.hooks.uploadReport!({ workerBaseUrl, document: builtReport!.document });
+      ? await input.hooks.uploadProject!({
+          workerBaseUrl,
+          envelope: builtProject!.envelope,
+          serialized: builtProject!.serialized,
+        })
+      : await input.hooks.uploadReport!({
+          workerBaseUrl,
+          document: builtReport && builtReport.ok ? builtReport.document : {},
+        });
   const env = parseWorkerShareEnvelope(up.body);
   const remoteIssue = shareRemoteIssueFromWorker({ httpStatus: up.httpStatus, envelope: env });
   if (remoteIssue) {

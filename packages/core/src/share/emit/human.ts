@@ -44,7 +44,7 @@ export function emitShareUploadHumanMessages(host: ShareHumanMessageHost, res: S
         shareMessage(
           host,
           'info',
-          `Tracked project files unchanged (cache epoch) — skipped zip build; reusing worker project ${res.workerIds.projectId ?? '?'}.`,
+          `Tracked project files unchanged (cache epoch) — skipped prepare; reusing worker project ${res.workerIds.projectId ?? '?'}.`,
         );
       } else if (m.fileCount > 0) {
         shareMessage(

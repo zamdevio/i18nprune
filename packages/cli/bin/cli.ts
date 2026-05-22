@@ -470,9 +470,9 @@ const shareCmd = program
 shareCmd
   .command('upload')
   .description(
-    'Push a project zip or report JSON to the worker API. Records worker ids and public links in share.json for this project cache.',
+    'Push a prepared project snapshot or report JSON to the worker API. Records worker ids and public links in share.json for this project cache.',
   )
-  .option('--project', 'Upload prepared project snapshot (zip) to the worker')
+  .option('--project', 'Upload prepared project snapshot (JSON) to the worker')
   .option('--report', 'Upload report JSON to the worker (stored report link)')
   .option('--from <file>', 'Report JSON path (with --report; default: scan in-process)')
   .option('--worker-url <url>', 'Worker API base URL (default: I18NPRUNE_WORKER_URL or https://worker.i18nprune.dev)')

@@ -34,7 +34,7 @@ export const COMMAND_BANNER_LABELS: Record<string, CommandBannerSpec> = {
   'locales delete': { subtitle: 'remove locale JSON (+ meta); future loader patches' },
   report: { subtitle: 'project report SPA (html) · json/csv/text' },
   share: { subtitle: 'hosted project snapshots and report links' },
-  'share upload': { subtitle: 'upload project zip or report JSON to the worker' },
+  'share upload': { subtitle: 'upload prepared project snapshot or report JSON to the worker' },
   'share list': { subtitle: 'cached uploads for this project' },
   'share view': { subtitle: 'live worker metadata for a hosted id' },
   'share delete': { subtitle: 'remove cache row and remote worker copy' },

@@ -29,7 +29,14 @@ function writeMinimalProject(root: string): { sourcePath: string; localesDir: st
   const localesDir = path.join(root, 'locales');
   fs.mkdirSync(srcRoot, { recursive: true });
   fs.mkdirSync(localesDir, { recursive: true });
-  fs.writeFileSync(path.join(root, 'i18nprune.config.json'), '{}');
+  fs.writeFileSync(
+    path.join(root, 'i18nprune.config.json'),
+    JSON.stringify({
+      locales: { source: 'locales/en.json', directory: 'locales' },
+      src: 'src',
+      functions: ['t'],
+    }),
+  );
   fs.writeFileSync(path.join(srcRoot, 'app.ts'), 'export const x = () => t("a");');
   const sourcePath = path.join(localesDir, 'en.json');
   fs.writeFileSync(sourcePath, JSON.stringify({ a: 'A' }));
@@ -230,15 +237,18 @@ describe('runShare (project / build)', () => {
         source: 'build',
         hooks: {
           interactive: false,
-          uploadProject: async () => ({
-            httpStatus: 200,
-            body: {
-              code: 'OK',
-              success: true,
-              data: { projectId: 'a1b2c3d4e5f6a7b8' },
-              errors: [],
-            },
-          }),
+          uploadProject: async ({ envelope }) => {
+            expect(envelope.schemaVersion).toBe(1);
+            return {
+              httpStatus: 200,
+              body: {
+                code: 'OK',
+                success: true,
+                data: { projectId: 'a1b2c3d4e5f6a7b8' },
+                errors: [],
+              },
+            };
+          },
         },
       });
 

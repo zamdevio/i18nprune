@@ -1,28 +1,32 @@
-import { hex16Id, prepareReportPayload, REPORT_SHARE_MAX_BYTES } from '@i18nprune/core';
+import { hex16Id, REPORT_SHARE_MAX_BYTES, validateHostedReportIngestBody } from '@i18nprune/core';
 import type { Hono } from 'hono';
 import { ApiResponse } from '../../../response';
 import { projectStore } from '../../shared/store';
 import { putReport } from '../../shared/reportStore';
+import { badRequestFromIssues } from '../../shared/workerIngest';
 import type { WorkerEnv } from '../../types';
-
-type UploadBody = {
-  document?: unknown;
-};
 
 export function uploadReportRoute(app: Hono<WorkerEnv>): void {
   app.post('/reports', async (c) => {
-    const body = (await c.req.json().catch(() => ({}))) as UploadBody;
-    if (body.document === undefined) {
-      return ApiResponse.badRequest(c, 'REPORT_DOCUMENT_REQUIRED', 'Missing document (JSON body field: document)');
-    }
-
-    const built = await prepareReportPayload({ reportDocument: body.document });
-    if (!built.ok) {
+    const contentType = c.req.header('content-type') ?? '';
+    if (!contentType.includes('application/json')) {
       return ApiResponse.badRequest(
         c,
-        'REPORT_SCHEMA_INVALID',
-        built.issues[0]?.message ?? 'Report document does not match project report schema.',
+        'INGEST_JSON_REQUIRED',
+        'POST /v1/reports expects application/json ({ document }). Use POST /v1/reports/archive for zip uploads.',
       );
+    }
+
+    let body: unknown;
+    try {
+      body = await c.req.json();
+    } catch {
+      return ApiResponse.badRequest(c, 'INGEST_JSON_INVALID', 'Request body was not valid JSON.');
+    }
+
+    const built = await validateHostedReportIngestBody(body);
+    if (!built.ok) {
+      return badRequestFromIssues(c, built.issues);
     }
     if (built.manifest.byteSize > REPORT_SHARE_MAX_BYTES) {
       return ApiResponse.badRequest(

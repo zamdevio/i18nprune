@@ -8,12 +8,14 @@ import { reviewRoute } from './review';
 import { snapshotRoute } from './snapshot';
 import { treeRoute } from './tree';
 import { reportRoute } from './report';
-import { uploadRoute } from './upload';
+import { ingestProjectRoute } from './ingest';
+import { uploadProjectArchiveRoute } from './uploadArchive';
 import { validateRoute } from './validate';
 import type { WorkerEnv } from '../../types';
 
 export function registerProjectRoutes(app: Hono<WorkerEnv>): void {
-  uploadRoute(app);
+  ingestProjectRoute(app);
+  uploadProjectArchiveRoute(app);
   metadataRoute(app);
   treeRoute(app);
   snapshotRoute(app);

@@ -1,6 +1,10 @@
 import {
   buildCliJsonEnvelope,
+  buildHostedProjectShareArtifacts,
+  buildHostedReportShareArtifacts,
+  hex16Id,
   ISSUE_SHARE_REMOTE_ERROR,
+  prepareShareHostedFromContext,
   runShare,
   stringifyEnvelope,
   type Issue,
@@ -15,6 +19,8 @@ import { canAsk } from '@/shared/ask/gate.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { runReportOperation } from '@/commands/report/buildEnvelope.js';
+import { buildReportEnvironmentSnapshot } from '@/commands/report/build.js';
+import { CLI_VERSION } from '@/constants/cli.js';
 import {
   emitShareUploadHumanMessages,
   ISSUE_SHARE_STALE_CACHE_ROW_REMOVED,
@@ -36,18 +42,17 @@ function emptyUploadPayload(shareKind: 'project' | 'report'): ShareUploadJsonPay
 }
 
 function resolveShareKindError(opts: ShareUploadOptions, json: boolean): string {
-  if (opts.project && opts.report) {
-    return json
-      ? 'Pass only one of --project or --report when using --json.'
-      : 'Pass only one of --project or --report.';
+  if (opts.project && opts.report && opts.from) {
+    return 'Pass --from only with --report alone (not with --project).';
   }
+  if (opts.project && opts.report) return '';
   return json
     ? 'Pass --project or --report when using --json (interactive select is not available).'
     : 'Pass --project or --report (or run in a TTY to choose interactively).';
 }
 
-async function resolveShareKind(opts: ShareUploadOptions, json: boolean): Promise<'project' | 'report' | null> {
-  if (opts.project && opts.report) return null;
+async function resolveShareKind(opts: ShareUploadOptions, json: boolean): Promise<'project' | 'report' | 'both' | null> {
+  if (opts.project && opts.report) return 'both';
   if (opts.project) return 'project';
   if (opts.report) return 'report';
   if (json) return null;
@@ -61,6 +66,22 @@ function emitUploadJsonEnvelope(
 ): void {
   console.log(stringifyEnvelope(buildCliJsonEnvelope('share', payload, input)));
   applyCliCiExitGate(input.ok);
+}
+
+function shareReportHost(ctx: Awaited<ReturnType<typeof resolveContext>>) {
+  return {
+    cwd: process.cwd(),
+    toolVersion: CLI_VERSION,
+    environment: buildReportEnvironmentSnapshot(ctx.adapters.fs),
+  };
+}
+
+function mergeUploadIssues(...groups: Issue[][]): Issue[] {
+  return groups.flat();
+}
+
+function uploadOk(res: { issues: Issue[] }): boolean {
+  return !res.issues.some((i) => i.severity === 'error');
 }
 
 export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
@@ -87,7 +108,7 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
     const ctx = ctxEarly;
     const workerBaseUrl = resolveCliShareWorkerBaseUrl(opts.workerUrl);
 
-    if (shareKind === 'project') {
+    if (shareKind === 'project' || shareKind === 'both') {
       const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'validate' });
       if (readiness) {
         if (json) {
@@ -118,6 +139,101 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
     const projectRoot = resolvePatchingProjectRoot(ctx);
     const hooks = buildShareHostHooks(ctx, workerBaseUrl);
 
+    if (shareKind === 'both') {
+      const hosted = await prepareShareHostedFromContext({
+        ctx: coreCtx,
+        projectRoot,
+        projectId: hex16Id(),
+        projectHash: '0'.repeat(64),
+        wantProject: true,
+        wantReport: true,
+        prepareHost: 'cli-share',
+        reportHost: shareReportHost(ctx),
+        analysisOpts: { emit: hooks.emit, runId: hooks.runId },
+      });
+      if (!hosted.ok) {
+        if (json) {
+          emitUploadJsonEnvelope(emptyUploadPayload('project'), {
+            ok: false,
+            issues: hosted.issues,
+            cwd: ctx.adapters.system.cwd(),
+          });
+          return;
+        }
+        for (const issue of hosted.issues) {
+          if (issue.severity === 'warning') logger.warn(issue.message, ctx.run);
+          else logger.err(issue.message);
+        }
+        printCommandSummary(
+          { command: 'share upload', ok: false, durationMs: wall.elapsedMs(), counts: {}, issues: hosted.issues },
+          ctx,
+        );
+        applyCliCiExitGate(false);
+        return;
+      }
+
+      const projectArtifacts = await buildHostedProjectShareArtifacts({
+        ctx: coreCtx,
+        prepare: hosted.project!,
+      });
+      const reportArtifacts = buildHostedReportShareArtifacts(hosted.report!);
+
+      const projectRes = await runShare({
+        ctx: coreCtx,
+        projectRoot,
+        workerBaseUrl,
+        kind: 'project',
+        source: 'build',
+        force: Boolean(opts.force),
+        hooks,
+        prepared: projectArtifacts,
+      });
+      const reportRes = await runShare({
+        ctx: coreCtx,
+        projectRoot,
+        workerBaseUrl,
+        kind: 'report',
+        source: 'document',
+        reportDocument: reportArtifacts.document,
+        force: Boolean(opts.force),
+        hooks,
+        prepared: reportArtifacts,
+      });
+
+      const issues = mergeUploadIssues(projectRes.issues, reportRes.issues);
+      const ok = uploadOk(projectRes) && uploadOk(reportRes);
+
+      if (json) {
+        const payload: ShareUploadJsonPayload = {
+          kind: 'share',
+          shareKind: 'project',
+          action: projectRes.action,
+          manifest: projectRes.manifest,
+          links: { ...projectRes.links, ...reportRes.links },
+          workerIds: { ...projectRes.workerIds, ...reportRes.workerIds },
+          skippedReason: projectRes.skippedReason ?? reportRes.skippedReason,
+          cacheEntry: projectRes.cacheEntry ?? reportRes.cacheEntry,
+        };
+        emitUploadJsonEnvelope(payload, { ok, issues, cwd: ctx.adapters.system.cwd() });
+        return;
+      }
+
+      for (const issue of issues) {
+        if (issue.code === ISSUE_SHARE_STALE_CACHE_ROW_REMOVED) continue;
+        if (issue.severity === 'warning') logger.warn(issue.message, ctx.run);
+        else if (issue.severity === 'error') logger.err(issue.message);
+      }
+      emitShareUploadHumanMessages(hooks, projectRes);
+      emitShareUploadHumanMessages(hooks, reportRes);
+      const summaryIssues = issues.filter((i) => i.code !== ISSUE_SHARE_STALE_CACHE_ROW_REMOVED);
+      printCommandSummary(
+        { command: 'share upload', ok, durationMs: wall.elapsedMs(), counts: {}, issues: summaryIssues },
+        ctx,
+      );
+      applyCliCiExitGate(ok);
+      return;
+    }
+
     let reportDocument: unknown;
     if (shareKind === 'report') {
       const out = await runReportOperation({ format: 'json', from: opts.from });
@@ -146,7 +262,7 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
             hooks,
           });
 
-    const ok = !res.issues.some((i) => i.severity === 'error');
+    const ok = uploadOk(res);
     const payload: ShareUploadJsonPayload = {
       kind: 'share',
       shareKind,

@@ -149,9 +149,43 @@ export const openApiDocument = {
     '/v1/projects': {
       post: {
         tags: ['projects'],
-        summary: 'Upload project archive (.zip only) and create/reuse a project snapshot',
+        summary: 'Ingest prepared project snapshot JSON (primary)',
         description:
-          'Builds upload-time cache (source locale parse + extraction outputs). Optional `configJson` overrides zip-detected config. Required config fields: `locales.source` (project-relative path to the source locale JSON), `locales.directory` (locale bundle root), `src`, `functions`.',
+          'Validates `HostedProjectIngestEnvelope` from CLI/web prepare (`schemaVersion`, `snapshot` with extraction, optional `prepareMeta`). No analysis cache on the worker.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Project cached and ready for operations',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
+          '400': {
+            description: 'Ingest validation failure',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/v1/projects/archive': {
+      post: {
+        tags: ['projects'],
+        summary: 'Upload project archive (.zip) and prepare snapshot (secondary)',
+        description:
+          'Worker-side zip prepare via core `prepareProjectSnapshotFromArchive` (cache off). Optional `configJson` form field overrides zip-detected config.',
         requestBody: {
           required: true,
           content: {
@@ -160,11 +194,7 @@ export const openApiDocument = {
                 type: 'object',
                 properties: {
                   archive: { type: 'string', format: 'binary' },
-                  configJson: {
-                    type: 'string',
-                    description:
-                      'Optional JSON string override for config. If provided, this takes precedence over zip-detected config files.',
-                  },
+                  configJson: { type: 'string' },
                 },
                 required: ['archive'],
               },
@@ -180,14 +210,7 @@ export const openApiDocument = {
               },
             },
           },
-          '400': {
-            description: 'Upload/config validation failure',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ApiEnvelope' },
-              },
-            },
-          },
+          '400': { description: 'Upload/prepare validation failure' },
         },
       },
     },
@@ -375,6 +398,33 @@ export const openApiDocument = {
         responses: {
           '200': { description: 'Report stored (`data.reportId`)' },
           '400': { description: 'Schema or size validation failure' },
+        },
+      },
+    },
+    '/v1/reports/archive': {
+      post: {
+        tags: ['reports'],
+        summary: 'Upload project zip and store derived report (secondary)',
+        description:
+          'Prepares report document from archive via core `prepareReportFromArchive` (no analysis cache). Same multipart shape as project archive.',
+        requestBody: {
+          required: true,
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                properties: {
+                  archive: { type: 'string', format: 'binary' },
+                  configJson: { type: 'string' },
+                },
+                required: ['archive'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'Report stored (`data.reportId`)' },
+          '400': { description: 'Prepare or validation failure' },
         },
       },
     },
