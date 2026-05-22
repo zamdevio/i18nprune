@@ -9,7 +9,11 @@ import { edgePathRuntime } from '@i18nprune/core/runtime/edge';
 import type { Hono } from 'hono';
 import { ApiResponse } from '../../../response';
 import { projectStore } from '../../shared/store';
-import { badRequestFromIssues, persistProjectSnapshot } from '../../shared/workerIngest';
+import {
+  badRequestFromIssues,
+  persistProjectSnapshot,
+  workerArchiveProcessorContext,
+} from '../../shared/workerIngest';
 import type { WorkerEnv } from '../../types';
 
 export function uploadProjectArchiveRoute(app: Hono<WorkerEnv>): void {
@@ -53,7 +57,12 @@ export function uploadProjectArchiveRoute(app: Hono<WorkerEnv>): void {
     }
 
     const stub = projectStore(c.env);
-    const persisted = await persistProjectSnapshot(stub, validated.envelope.snapshot);
+    const persisted = await persistProjectSnapshot(stub, {
+      snapshot: validated.envelope.snapshot,
+      ingestRoute: 'archive',
+      prepareMeta: prepared.prepareMeta,
+      processorContext: workerArchiveProcessorContext(),
+    });
     return ApiResponse.success(c, persisted);
   });
 }

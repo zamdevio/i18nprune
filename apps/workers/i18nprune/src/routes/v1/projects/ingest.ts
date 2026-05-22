@@ -34,7 +34,12 @@ export function ingestProjectRoute(app: Hono<WorkerEnv>): void {
     }
 
     const stub = projectStore(c.env);
-    const persisted = await persistProjectSnapshot(stub, snapshot);
+    const persisted = await persistProjectSnapshot(stub, {
+      snapshot,
+      ingestRoute: 'prepared',
+      prepareMeta: validated.envelope.prepareMeta,
+      processorContext: validated.envelope.processorContext,
+    });
     return ApiResponse.success(c, persisted);
   });
 }

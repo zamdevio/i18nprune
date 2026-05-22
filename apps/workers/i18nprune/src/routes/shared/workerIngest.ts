@@ -1,9 +1,14 @@
 import {
   buildProjectUploadSnapshotMeta,
+  SDK_VERSION,
+  type HostedIngestProcessorContext,
+  type IngestRouteKind,
   type Issue,
+  type ProjectPrepareMeta,
   type ProjectSnapshot,
   type ProjectStoreRow,
 } from '@i18nprune/core';
+import type { ReportEnvironmentSnapshot } from '@i18nprune/core';
 import type { Context } from 'hono';
 import { ApiResponse } from '../../response';
 import type { WorkerEnv } from '../types';
@@ -22,17 +27,43 @@ export function badRequestFromIssues(c: Context<WorkerEnv>, issues: Issue[]) {
   );
 }
 
+/** Edge runtime label for archive uploads prepared on the worker. */
+export function workerArchiveProcessorContext(): HostedIngestProcessorContext {
+  return {
+    surface: 'worker',
+    route: 'archive',
+    sdk: 'i18nprune-worker',
+    sdkVersion: SDK_VERSION,
+    toolVersion: 'i18nprune-worker',
+    environment: {
+      platform: 'cloudflare-workers',
+      arch: 'edge',
+      nodeVersion: 'workers',
+      osRelease: 'edge',
+      runtimeFamily: 'linux',
+    } satisfies ReportEnvironmentSnapshot,
+  };
+}
+
 export async function persistProjectSnapshot(
   stub: DurableObjectStub,
-  snapshot: ProjectSnapshot,
+  input: {
+    snapshot: ProjectSnapshot;
+    ingestRoute: IngestRouteKind;
+    prepareMeta?: ProjectPrepareMeta;
+    processorContext?: HostedIngestProcessorContext;
+  },
 ): Promise<{ projectId: string; snapshotMeta: ReturnType<typeof buildProjectUploadSnapshotMeta> }> {
   const storedAt = new Date().toISOString();
-  snapshot.storedAt = storedAt;
+  input.snapshot.storedAt = storedAt;
   const row: ProjectStoreRow = {
-    projectId: snapshot.projectId,
-    projectHash: snapshot.projectHash,
-    snapshot,
+    projectId: input.snapshot.projectId,
+    projectHash: input.snapshot.projectHash,
+    snapshot: input.snapshot,
+    ingestRoute: input.ingestRoute,
+    prepareMeta: input.prepareMeta,
+    processorContext: input.processorContext,
   };
   await stub.fetch('https://do/project', { method: 'PUT', body: JSON.stringify(row) });
-  return { projectId: snapshot.projectId, snapshotMeta: buildProjectUploadSnapshotMeta(snapshot) };
+  return { projectId: input.snapshot.projectId, snapshotMeta: buildProjectUploadSnapshotMeta(row) };
 }

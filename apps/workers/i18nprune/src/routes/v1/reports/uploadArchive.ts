@@ -4,7 +4,7 @@ import type { Hono } from 'hono';
 import { ApiResponse } from '../../../response';
 import { projectStore } from '../../shared/store';
 import { putReport } from '../../shared/reportStore';
-import { badRequestFromIssues } from '../../shared/workerIngest';
+import { badRequestFromIssues, workerArchiveProcessorContext } from '../../shared/workerIngest';
 import type { WorkerEnv } from '../../types';
 
 export function uploadReportArchiveRoute(app: Hono<WorkerEnv>): void {
@@ -53,6 +53,9 @@ export function uploadReportArchiveRoute(app: Hono<WorkerEnv>): void {
       storedAt,
       lastAccessedAt: storedAt,
       document: prepared.document,
+      ingestRoute: 'archive' as const,
+      prepareHost: 'worker-archive' as const,
+      processorContext: workerArchiveProcessorContext(),
     };
 
     const stub = projectStore(c.env);
