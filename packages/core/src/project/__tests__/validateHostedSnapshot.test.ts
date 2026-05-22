@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../types/project/prepare.js';
+import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../shared/constants/project.js';
 import { validateHostedProjectIngestBody } from '../validate/hostedSnapshot.js';
 
 describe('validateHostedProjectIngestBody', () => {

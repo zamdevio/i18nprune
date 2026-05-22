@@ -1,14 +1,9 @@
-import type { ProjectPrepareMeta } from '../../types/project/prepare.js';
-
-export type PrepareTimer = {
-  mark(label: 'zipParsed' | 'extractionDone'): void;
-  finish(prepareHost?: string): ProjectPrepareMeta;
-};
+import type { PrepareTimer, PrepareTimerMark } from '../../types/project/prepareTimer.js';
 
 /** Wall-clock prepare timer (sub-ms via `performance.now()`). */
 export function createPrepareTimer(): PrepareTimer {
   const t0 = performance.now();
-  const marks: Partial<Record<'zipParsed' | 'extractionDone', number>> = {};
+  const marks: Partial<Record<PrepareTimerMark, number>> = {};
 
   return {
     mark(label) {
@@ -18,14 +13,21 @@ export function createPrepareTimer(): PrepareTimer {
       const tEnd = performance.now();
       const zipParsedMs =
         marks.zipParsed !== undefined ? Math.max(0, Math.round(marks.zipParsed - t0)) : undefined;
-      const extractionMs =
-        marks.zipParsed !== undefined && marks.extractionDone !== undefined
-          ? Math.max(0, Math.round(marks.extractionDone - marks.zipParsed))
+      const analysisMs =
+        marks.zipParsed !== undefined && marks.analysisDone !== undefined
+          ? Math.max(0, Math.round(marks.analysisDone - marks.zipParsed))
           : undefined;
+      const extractionMs =
+        marks.analysisDone !== undefined && marks.extractionDone !== undefined
+          ? Math.max(0, Math.round(marks.extractionDone - marks.analysisDone))
+          : marks.zipParsed !== undefined && marks.extractionDone !== undefined
+            ? Math.max(0, Math.round(marks.extractionDone - marks.zipParsed))
+            : undefined;
       const totalMs = Math.max(0, Math.round(tEnd - t0));
       return {
         ...(prepareHost ? { prepareHost } : {}),
         ...(zipParsedMs !== undefined ? { zipParsedMs } : {}),
+        ...(analysisMs !== undefined ? { analysisMs } : {}),
         ...(extractionMs !== undefined ? { extractionMs } : {}),
         totalMs,
       };

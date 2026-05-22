@@ -1,13 +1,5 @@
 import type { RuntimePathPort } from '../../types/runtime/path.js';
-
-/** Virtual `/project` filesystem over zip `textFiles` for extraction scans. */
-export type ArchiveProjectFs = {
-  cwd: string;
-  path: RuntimePathPort;
-  textFiles: Record<string, string>;
-  listFiles: (srcRootPath: string) => string[];
-  readFile: (filePath: string) => string;
-};
+import type { ArchiveProjectFs } from '../../types/project/archiveFs.js';
 
 export function createArchiveProjectFs(
   textFiles: Record<string, string>,

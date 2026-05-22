@@ -1,13 +1,12 @@
+import type { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../shared/constants/project.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { ParsedProjectUpload, ProjectSnapshot } from './upload.js';
 
-/** Wire format version for `POST /v1/projects` prepared snapshot ingest. */
-export const HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION = 1 as const;
-
-/** High-resolution prepare timings (measured where {@link prepareProjectSnapshotFromArchive} runs). */
+/** High-resolution prepare timings (measured where prepare runs on the host). */
 export type ProjectPrepareMeta = {
   prepareHost?: string;
   zipParsedMs?: number;
+  analysisMs?: number;
   extractionMs?: number;
   totalMs?: number;
 };

@@ -10,17 +10,8 @@ import {
 import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { ProjectFilesystemRuntime } from '../../types/runtime/capabilities.js';
+import { I18NPRUNE_CONFIG_SNAPSHOT_FILE_NAMES_SET } from '../../shared/constants/config.js';
 import { shouldSkipPathForShareZip } from './ignorePaths.js';
-
-const CONFIG_NAMES = new Set([
-  'i18nprune.config.ts',
-  'i18nprune.config.mts',
-  'i18nprune.config.cts',
-  'i18nprune.config.js',
-  'i18nprune.config.mjs',
-  'i18nprune.config.cjs',
-  'i18nprune.config.json',
-]);
 
 function relPosix(path: ProjectFilesystemRuntime['path'], rootDir: string, absPath: string): string {
   return path.relative(rootDir, absPath).replace(/\\/g, '/');
@@ -72,7 +63,7 @@ export function collectShareSnapshotPaths(input: {
     const top = listRuntimeFsDirSync(absRoot, ctx.adapters.fs);
     for (const e of top) {
       if (e.kind !== 'file') continue;
-      if (!CONFIG_NAMES.has(e.name)) continue;
+      if (!I18NPRUNE_CONFIG_SNAPSHOT_FILE_NAMES_SET.has(e.name)) continue;
       const abs = ctx.adapters.path.join(absRoot, e.name);
       out.add(abs);
     }

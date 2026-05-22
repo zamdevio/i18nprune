@@ -1,21 +1,18 @@
 import { mergePartialConfigIntoBase } from '../../config/index.js';
 import * as extractor from '../../namespaces/extractor.js';
 import { buildLocaleJsonByTagFromArchive } from '../../shared/locales/index.js';
-import type { ProjectSnapshot } from '../../types/project/upload.js';
-import type { NormalizedProjectConfig } from '../../types/project/config.js';
+import {
+  ISSUE_PROJECT_SOURCE_LOCALE_INVALID_JSON,
+  ISSUE_PROJECT_SOURCE_LOCALE_INVALID_SHAPE,
+  ISSUE_PROJECT_SOURCE_LOCALE_NOT_FOUND,
+  ISSUE_PROJECT_UPLOAD_CONFIG_JSON_INVALID,
+  ISSUE_PROJECT_UPLOAD_CONFIG_REQUIRED,
+} from '../../shared/constants/issueCodes.js';
+import type {
+  FillProjectSnapshotExtractionInput,
+  FillProjectSnapshotExtractionResult,
+} from '../../types/project/extract.js';
 import { normalizeProjectConfig, projectConfigHash, relativeProjectPath } from '../normalizeConfig.js';
-import type { ArchiveProjectFs } from './archiveFs.js';
-
-export type FillProjectSnapshotExtractionInput = {
-  snapshot: ProjectSnapshot;
-  textFiles: Record<string, string>;
-  fs: ArchiveProjectFs;
-  configOverride?: string;
-};
-
-export type FillProjectSnapshotExtractionResult =
-  | { ok: true; normalized: NormalizedProjectConfig; extractionStartedAt: string; computedAt: string }
-  | { ok: false; code: string; message: string };
 
 function workerIssue(code: string, message: string): FillProjectSnapshotExtractionResult {
   return { ok: false, code, message };
@@ -23,7 +20,7 @@ function workerIssue(code: string, message: string): FillProjectSnapshotExtracti
 
 /**
  * Merges optional config, normalizes, runs upload-time extraction into `snapshot`.
- * Error `code` values align with worker `POST /v1/projects/archive` responses.
+ * Error `code` values use stable `i18nprune.project.*` issue codes.
  */
 export async function fillProjectSnapshotExtraction(
   input: FillProjectSnapshotExtractionInput,
@@ -34,18 +31,18 @@ export async function fillProjectSnapshotExtraction(
     try {
       const parsed = JSON.parse(input.configOverride) as unknown;
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        return workerIssue('UPLOAD_CONFIG_JSON_INVALID', 'Invalid configJson payload: expected valid JSON object');
+        return workerIssue(ISSUE_PROJECT_UPLOAD_CONFIG_JSON_INVALID, 'Invalid configJson payload: expected valid JSON object');
       }
       snapshot.resolvedConfig = mergePartialConfigIntoBase(snapshot.resolvedConfig, parsed as Record<string, unknown>);
     } catch {
-      return workerIssue('UPLOAD_CONFIG_JSON_INVALID', 'Invalid configJson payload: expected valid JSON object');
+      return workerIssue(ISSUE_PROJECT_UPLOAD_CONFIG_JSON_INVALID, 'Invalid configJson payload: expected valid JSON object');
     }
   }
 
   const normalized = normalizeProjectConfig(snapshot.resolvedConfig);
   if (!normalized) {
     return workerIssue(
-      'UPLOAD_CONFIG_REQUIRED',
+      ISSUE_PROJECT_UPLOAD_CONFIG_REQUIRED,
       'Config required. Pass configJson, include i18nprune.config.json, or use a parseable i18nprune.config.ts/js with locales.source, locales.directory, src, and functions[].',
     );
   }
@@ -56,7 +53,7 @@ export async function fillProjectSnapshotExtraction(
   const sourceRaw = textFiles[sourceRel];
   if (!sourceRaw) {
     return workerIssue(
-      'SOURCE_LOCALE_NOT_FOUND',
+      ISSUE_PROJECT_SOURCE_LOCALE_NOT_FOUND,
       `Configured source locale file not found in uploaded zip: ${normalized.source}`,
     );
   }
@@ -65,10 +62,10 @@ export async function fillProjectSnapshotExtraction(
   try {
     sourceLocaleJson = JSON.parse(sourceRaw) as unknown;
   } catch {
-    return workerIssue('SOURCE_LOCALE_INVALID_JSON', `Configured source locale is invalid JSON: ${normalized.source}`);
+    return workerIssue(ISSUE_PROJECT_SOURCE_LOCALE_INVALID_JSON, `Configured source locale is invalid JSON: ${normalized.source}`);
   }
   if (!sourceLocaleJson || typeof sourceLocaleJson !== 'object' || Array.isArray(sourceLocaleJson)) {
-    return workerIssue('SOURCE_LOCALE_INVALID_SHAPE', 'Configured source locale must be a JSON object.');
+    return workerIssue(ISSUE_PROJECT_SOURCE_LOCALE_INVALID_SHAPE, 'Configured source locale must be a JSON object.');
   }
 
   const extractionStartedAt = new Date().toISOString();

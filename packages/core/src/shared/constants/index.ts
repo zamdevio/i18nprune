@@ -1,3 +1,4 @@
+export * from './config.js';
 export * from './cache.js';
 export * from './docs.js';
 export * from './issueCodes.js';
@@ -5,5 +6,6 @@ export * from './missing.js';
 export * from './links.js';
 export * from './result.js';
 export * from './project.js';
+export * from './report.js';
 export * from './share.js';
 export * from './translate.js';

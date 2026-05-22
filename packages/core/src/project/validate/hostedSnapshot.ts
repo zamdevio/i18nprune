@@ -1,12 +1,16 @@
+import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../shared/constants/project.js';
 import {
-  HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION,
-  type HostedProjectIngestEnvelope,
-  type ValidateHostedProjectIngestResult,
+  ISSUE_PROJECT_HOSTED_SNAPSHOT_INVALID,
+  ISSUE_PROJECT_HOSTED_SNAPSHOT_SCHEMA_VERSION,
+} from '../../shared/constants/issueCodes.js';
+import type {
+  HostedProjectIngestEnvelope,
+  ValidateHostedProjectIngestResult,
 } from '../../types/project/prepare.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { ProjectSnapshot } from '../../types/project/upload.js';
 
-function err(message: string, code = 'HOSTED_SNAPSHOT_INVALID'): Issue {
+function err(message: string, code: string = ISSUE_PROJECT_HOSTED_SNAPSHOT_INVALID): Issue {
   return { severity: 'error', code, message };
 }
 
@@ -40,7 +44,7 @@ export function validateHostedProjectIngestBody(body: unknown): ValidateHostedPr
       issues: [
         err(
           `schemaVersion must be ${String(HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION)}`,
-          'HOSTED_SNAPSHOT_SCHEMA_VERSION',
+          ISSUE_PROJECT_HOSTED_SNAPSHOT_SCHEMA_VERSION,
         ),
       ],
     };

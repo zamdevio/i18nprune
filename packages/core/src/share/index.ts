@@ -10,7 +10,7 @@ export type { SaveShareJsonResult } from './cache/io/shareJson.js';
 export { buildProjectPayload, computeShareProjectConfigHash } from './payload/buildProjectPayload.js';
 export type { BuildProjectPayloadResult } from './payload/buildProjectPayload.js';
 export { prepareReportPayload } from '../project/prepare/report.js';
-export type { PrepareReportPayloadResult } from '../project/prepare/report.js';
+export type { PrepareReportPayloadResult } from '../types/report/ingest.js';
 export { runShareDelete } from './ops/delete.js';
 export { shouldSkipPathForShareZip } from './payload/ignorePaths.js';
 export { buildProjectShareLinks, buildReportShareLinks } from './util/links.js';

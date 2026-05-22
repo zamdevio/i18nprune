@@ -11,3 +11,6 @@ export const PROJECT_UPLOAD_ZIP_LIMITS = {
 export const PROJECT_UPLOAD_MAX_ZIP_BYTES = PROJECT_UPLOAD_ZIP_LIMITS.maxZipBytes;
 export const PROJECT_UPLOAD_MAX_FILES = PROJECT_UPLOAD_ZIP_LIMITS.maxFiles;
 export const PROJECT_UPLOAD_MAX_TEXT_BYTES = PROJECT_UPLOAD_ZIP_LIMITS.maxTextBytes;
+
+/** Wire format version for `POST /v1/projects` prepared snapshot ingest. */
+export const HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION = 1 as const;

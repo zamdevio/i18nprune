@@ -121,3 +121,39 @@ Codes from **`runShare`**, **`runShareList`**, **`runShareDelete`**, and local *
 **When:** Local zip build failed (`fflate`).  
 **Who:** `runShare` / `buildProjectPayload`.  
 **What to do:** Check disk space and project file access; retry.
+
+## Hosted prepare (`i18nprune.share.prepare_*`)
+
+Codes from **`prepareShareHostedFromContext`**, **`prepareProjectSnapshotFromRoot`**, and **`prepareReportFromArchive`** before worker upload.
+
+### `prepare_nothing_requested`
+
+**Code:** `i18nprune.share.prepare_nothing_requested`  
+**Severity:** `error`  
+**When:** Combined prepare ran with both `wantProject` and `wantReport` false.  
+**Who:** `prepareShareHostedFromContext`.  
+**What to do:** Pass at least one of project or report prepare flags (CLI: `--project` and/or `--report` on `share upload`).
+
+### `prepare_report_host_required`
+
+**Code:** `i18nprune.share.prepare_report_host_required`  
+**Severity:** `error`  
+**When:** Report prepare was requested without `reportHost` (`cwd`, `toolVersion`, `environment`).  
+**Who:** `prepareShareHostedFromContext`.  
+**What to do:** Supply host metadata (CLI fills this from `process` / OS facts).
+
+### `prepare_analysis_failed`
+
+**Code:** `i18nprune.share.prepare_analysis_failed`  
+**Severity:** `error`  
+**When:** Cached analysis could not be applied to the snapshot (e.g. source locale shape).  
+**Who:** `prepareProjectSnapshotFromRoot`, `prepareShareHostedFromContext`.  
+**What to do:** Fix source locale and config paths; see also `i18nprune.project.source_locale_invalid_shape`.
+
+### `prepare_report_from_archive_failed`
+
+**Code:** `i18nprune.share.prepare_report_from_archive_failed`  
+**Severity:** `error`  
+**When:** Project zip prepare succeeded but building a report document from the extracted snapshot failed.  
+**Who:** `prepareReportFromArchive` (`packages/core/src/project/prepare/fromArchiveReport.ts`).  
+**What to do:** Ensure archive extraction completed (`snapshot.extraction` present); retry with a valid project zip or use live `prepareReportForShare` from disk instead of archive report mode.

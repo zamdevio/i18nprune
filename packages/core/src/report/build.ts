@@ -12,9 +12,9 @@ export type BuildReportDocumentInput = {
   runId?: string;
 };
 
+import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '../shared/constants/report.js';
+
 const REPORT_OP: OperationId = 'report';
-const PROJECT_REPORT_KIND = 'i18nprune.projectReport' as const;
-const PROJECT_REPORT_SCHEMA_VERSION = 1 as const;
 
 /**
  * Build a `ProjectReportDocument` from live project analysis.

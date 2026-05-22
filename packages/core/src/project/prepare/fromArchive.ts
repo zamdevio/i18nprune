@@ -1,6 +1,6 @@
-import type { RuntimePathPort } from '../../types/runtime/path.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { PrepareProjectSnapshotResult } from '../../types/project/prepare.js';
+import type { PrepareProjectSnapshotFromArchiveInput } from '../../types/project/prepareArchive.js';
 import { parseProjectUploadFailure } from '../normalizeConfig.js';
 import { parseZipToSnapshot } from '../parseZip.js';
 import { createArchiveProjectFs } from './archiveFs.js';
@@ -10,16 +10,6 @@ import { createPrepareTimer } from './timing.js';
 function toIssue(code: string, message: string): Issue {
   return { severity: 'error', code, message };
 }
-
-export type PrepareProjectSnapshotFromArchiveInput = {
-  projectId: string;
-  projectHash: string;
-  zipBytes: Uint8Array;
-  path: RuntimePathPort;
-  configJson?: string;
-  prepareHost?: string;
-  requestReceivedAt?: string;
-};
 
 /**
  * Zip secondary mode: parse archive bytes then run shared extraction (same pipeline as CLI/web prepare).

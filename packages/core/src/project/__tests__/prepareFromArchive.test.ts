@@ -4,7 +4,7 @@ import { strToU8, zipSync } from 'fflate';
 import { createNodeRuntimeAdapters } from '../../runtime/exports/node.js';
 import { prepareProjectSnapshotFromArchive } from '../prepare/fromArchive.js';
 import { validateHostedProjectIngestBody } from '../validate/hostedSnapshot.js';
-import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../types/project/prepare.js';
+import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../shared/constants/project.js';
 
 function minimalProjectZip(): Uint8Array {
   return zipSync({
@@ -31,7 +31,7 @@ describe('prepareProjectSnapshotFromArchive', () => {
         projectHash: hash,
         zipBytes,
         path: adapters.path,
-        prepareHost: 'test',
+        prepareHost: 'worker-archive',
       });
 
       expect(out.ok).toBe(true);

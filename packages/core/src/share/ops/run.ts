@@ -13,7 +13,7 @@ import type { ShareRunInput, ShareRunResult } from '../../types/share/shareRun.j
 import type { ShareSkippedReason } from '../../types/share/shareRun.js';
 import { buildProjectPayload, computeShareProjectConfigHash } from '../payload/buildProjectPayload.js';
 import { prepareReportPayload } from '../../project/prepare/report.js';
-import type { PrepareReportPayloadResult } from '../../project/prepare/report.js';
+import type { PrepareReportPayloadResult } from '../../types/report/ingest.js';
 import { loadShareJsonFile, mergeDuplicateShareEntries, resolveShareJsonPath, saveShareJsonFile } from '../cache/io/shareJson.js';
 import { buildProjectShareLinks, buildReportShareLinks } from '../util/links.js';
 import {

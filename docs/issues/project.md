@@ -92,6 +92,68 @@ These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a smal
 
 ---
 
+## Hosted snapshot ingest (`i18nprune.project.hosted_*`, `upload_*`, `source_locale_*`)
+
+Codes from **`validateHostedProjectIngestBody`** and **`fillProjectSnapshotExtraction`** / **`prepareProjectSnapshotFromArchive`** when building a prepared project snapshot for **`POST /v1/projects`** (primary JSON) or archive secondary mode.
+
+### `hosted_snapshot_invalid`
+
+**Code:** `i18nprune.project.hosted_snapshot_invalid`  
+**Severity:** `error`  
+**When:** Primary ingest body is not a valid prepared snapshot envelope (missing `snapshot`, bad `prepareMeta`, incomplete extraction fields, etc.).  
+**Who:** `validateHostedProjectIngestBody` (`packages/core/src/project/validate/hostedSnapshot.ts`).  
+**What to do:** Run host prepare (`prepareProjectSnapshotFromRoot` / CLI share upload) before upload; ensure `snapshot.extraction`, `sourceLocaleJson`, and `localeJsonByTag` are populated.
+
+### `hosted_snapshot_schema_version`
+
+**Code:** `i18nprune.project.hosted_snapshot_schema_version`  
+**Severity:** `error`  
+**When:** `schemaVersion` on the ingest body does not match **`HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION`** (currently `1`).  
+**Who:** `validateHostedProjectIngestBody`.  
+**What to do:** Align CLI/SDK/worker with the current schema version exported from `@i18nprune/core`.
+
+### `upload_config_required`
+
+**Code:** `i18nprune.project.upload_config_required`  
+**Severity:** `error`  
+**When:** Zip/archive prepare cannot normalize config (`locales.source`, `locales.directory`, `src`, `functions[]`).  
+**Who:** `fillProjectSnapshotExtraction`, `prepareProjectSnapshotFromRoot`, `prepareShareHostedFromContext`.  
+**What to do:** Include `i18nprune.config.json` (or a parseable `i18nprune.config.ts/js`) in the snapshot, or pass `configJson` on archive upload.
+
+### `upload_config_json_invalid`
+
+**Code:** `i18nprune.project.upload_config_json_invalid`  
+**Severity:** `error`  
+**When:** Optional `configJson` override is not a JSON object.  
+**Who:** `fillProjectSnapshotExtraction`.  
+**What to do:** Pass a single JSON object string for partial config overrides.
+
+### `source_locale_not_found`
+
+**Code:** `i18nprune.project.source_locale_not_found`  
+**Severity:** `error`  
+**When:** The configured source locale path is missing from the uploaded zip / collected snapshot paths.  
+**Who:** `fillProjectSnapshotExtraction`.  
+**What to do:** Ensure `locales.source` points at a file included in the share snapshot collection.
+
+### `source_locale_invalid_json`
+
+**Code:** `i18nprune.project.source_locale_invalid_json`  
+**Severity:** `error`  
+**When:** Source locale file bytes are not valid JSON.  
+**Who:** `fillProjectSnapshotExtraction`.  
+**What to do:** Fix the source locale file encoding and JSON syntax.
+
+### `source_locale_invalid_shape`
+
+**Code:** `i18nprune.project.source_locale_invalid_shape`  
+**Severity:** `error`  
+**When:** Source locale JSON root is not a plain object.  
+**Who:** `fillProjectSnapshotExtraction`, `applyProjectAnalysisToSnapshot`.  
+**What to do:** Use a top-level JSON object for the source catalog (`{ "key": "value" }`).
+
+---
+
 ## Related
 
 - [Doctor](./doctor.md) — full environment and path checks, including **`i18nprune.doctor.paths_*`**.

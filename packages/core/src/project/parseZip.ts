@@ -1,17 +1,12 @@
 import { unzipSync } from 'fflate';
+import {
+  I18NPRUNE_CONFIG_JSON_FILE_NAME,
+  I18NPRUNE_CONFIG_SCRIPT_FILE_NAMES_SET,
+} from '../shared/constants/config.js';
 import { PROJECT_UPLOAD_ZIP_LIMITS } from '../shared/constants/project.js';
 import type { ParsedProjectUpload, ProjectUploadFileMeta } from '../types/project/upload.js';
 import type { ProjectZipFileMetaForTree } from '../types/project/tree.js';
 import { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from './tree.js';
-
-const CONFIG_NAMES = new Set([
-  'i18nprune.config.ts',
-  'i18nprune.config.mts',
-  'i18nprune.config.cts',
-  'i18nprune.config.js',
-  'i18nprune.config.mjs',
-  'i18nprune.config.cjs',
-]);
 
 function parseFunctionsArray(raw: string): string[] {
   const quoted = raw.match(/['"`]([^'"`]+)['"`]/g) ?? [];
@@ -143,11 +138,11 @@ export function parseZipToSnapshot(
     const decoded = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
     files[rawPath] = decoded;
     const baseName = rawPath.split('/').pop() ?? rawPath;
-    if (detectedConfigPath === null && CONFIG_NAMES.has(baseName)) {
+    if (detectedConfigPath === null && I18NPRUNE_CONFIG_SCRIPT_FILE_NAMES_SET.has(baseName)) {
       detectedConfigPath = rawPath;
       detectedConfigRaw = decoded;
     }
-    if (resolvedConfig === null && baseName === 'i18nprune.config.json') {
+    if (resolvedConfig === null && baseName === I18NPRUNE_CONFIG_JSON_FILE_NAME) {
       try {
         const parsed = JSON.parse(decoded) as unknown;
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
@@ -157,7 +152,7 @@ export function parseZipToSnapshot(
         /* ignore invalid config json */
       }
     }
-    if (resolvedConfig === null && CONFIG_NAMES.has(baseName)) {
+    if (resolvedConfig === null && I18NPRUNE_CONFIG_SCRIPT_FILE_NAMES_SET.has(baseName)) {
       resolvedConfig = tryParseConfigObjectFromTsOrJs(decoded);
     }
   }
