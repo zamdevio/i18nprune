@@ -13,6 +13,13 @@ export type {
 export type { NormalizedProjectConfig, ProjectWorkerConfigBody } from './config.js';
 export type { ProjectWorkerMissingBody, ProjectWorkerReportBody } from './routes.js';
 export type { ProjectStoreRow } from './store.js';
+export {
+  HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION,
+  type HostedProjectIngestEnvelope,
+  type PrepareProjectSnapshotResult,
+  type ProjectPrepareMeta,
+  type ValidateHostedProjectIngestResult,
+} from './prepare.js';
 export type {
   ParsedProjectUpload,
   ProjectSnapshot,

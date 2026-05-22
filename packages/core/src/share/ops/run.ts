@@ -12,7 +12,8 @@ import type { ShareManifest, ShareProjectManifest } from '../../types/share/mani
 import type { ShareRunInput, ShareRunResult } from '../../types/share/shareRun.js';
 import type { ShareSkippedReason } from '../../types/share/shareRun.js';
 import { buildProjectPayload, computeShareProjectConfigHash } from '../payload/buildProjectPayload.js';
-import { buildReportPayload } from '../payload/buildReportPayload.js';
+import { prepareReportPayload } from '../../project/prepare/report.js';
+import type { PrepareReportPayloadResult } from '../../project/prepare/report.js';
 import { loadShareJsonFile, mergeDuplicateShareEntries, resolveShareJsonPath, saveShareJsonFile } from '../cache/io/shareJson.js';
 import { buildProjectShareLinks, buildReportShareLinks } from '../util/links.js';
 import {
@@ -23,7 +24,7 @@ import {
 } from '../policy/policy.js';
 import { emitShareCacheDebug } from '../cache/debug.js';
 import { resolveShareInputFilesEpoch } from '../cache/resolveInputFilesEpoch.js';
-import { shareJsonBackupNotice } from '../cache/shareJsonBackup.js';
+import { shareJsonBackupWarnMessage } from '../cache/shareJsonBackup.js';
 import { parseWorkerShareEnvelope, shareRemoteIssueFromWorker, workerDataProjectId, workerDataReportId } from '../remote/remote.js';
 import type { ShareHostHooks } from '../../types/share/shareRun.js';
 
@@ -107,7 +108,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
         op: 'share',
         runId: input.hooks.runId,
         level: 'warn',
-        message: shareJsonBackupNotice(loaded.heal.backupBakPath),
+        message: shareJsonBackupWarnMessage(loaded.heal.backupBakPath),
       });
     }
     shareCacheDebug(input.hooks, [
@@ -130,7 +131,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
   }
 
   let builtProject: Awaited<ReturnType<typeof buildProjectPayload>> | null = null;
-  let builtReport: Awaited<ReturnType<typeof buildReportPayload>> | null = null;
+  let builtReport: PrepareReportPayloadResult | null = null;
   let skipZipBuild = false;
   let payloadSkipReason: ShareSkippedReason = 'hash_unchanged';
   let epochCacheEntry: ShareCacheEntry | undefined;
@@ -173,7 +174,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     }
   }
   if (isReportDocument) {
-    builtReport = await buildReportPayload({ reportDocument: input.reportDocument });
+    builtReport = await prepareReportPayload({ reportDocument: input.reportDocument });
     if (!builtReport.ok) {
       emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
       return { action: 'skipped', kind: 'report', links: {}, workerIds: {}, issues: builtReport.issues };

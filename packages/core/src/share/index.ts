@@ -9,8 +9,8 @@ export {
 export type { SaveShareJsonResult } from './cache/io/shareJson.js';
 export { buildProjectPayload, computeShareProjectConfigHash } from './payload/buildProjectPayload.js';
 export type { BuildProjectPayloadResult } from './payload/buildProjectPayload.js';
-export { buildReportPayload } from './payload/buildReportPayload.js';
-export type { BuildReportPayloadResult } from './payload/buildReportPayload.js';
+export { prepareReportPayload } from '../project/prepare/report.js';
+export type { PrepareReportPayloadResult } from '../project/prepare/report.js';
 export { runShareDelete } from './ops/delete.js';
 export { shouldSkipPathForShareZip } from './payload/ignorePaths.js';
 export { buildProjectShareLinks, buildReportShareLinks } from './util/links.js';
@@ -45,7 +45,13 @@ export { resolveShareWorkerBaseUrl } from './remote/resolveWorkerBaseUrl.js';
 export { runShare } from './ops/run.js';
 export { emitShareCacheDebug } from './cache/debug.js';
 export { purgeShareCacheEntry } from './cache/purgeCacheEntry.js';
-export { resolveShareBakDir, shareJsonBackupNotice } from './cache/shareJsonBackup.js';
+export {
+  resolveShareBakDir,
+  SHARE_JSON_HEAL_BACKUP_LABEL,
+  SHARE_JSON_HEAL_CANONICAL_SAVED,
+  shareJsonBackupDetailEntries,
+  shareJsonBackupWarnMessage,
+} from './cache/shareJsonBackup.js';
 export { runShareView } from './ops/view.js';
 export { shareCacheEntrySchema, shareJsonFileSchema } from './cache/schema.js';
 export type {

@@ -7,6 +7,10 @@ import {
 import type { RunEmitter, RunMessageLevel } from '../../types/shared/run/index.js';
 import type { ShareCacheEntry, ShareJsonHealReport } from '../../types/share/entry.js';
 import type { ShareRunResult, ShareViewResult } from '../../types/share/shareRun.js';
+import {
+  SHARE_JSON_HEAL_BACKUP_LABEL,
+  SHARE_JSON_HEAL_CANONICAL_SAVED,
+} from '../cache/shareJsonBackup.js';
 
 function shareTtlHint(kind: 'project' | 'report'): string {
   if (kind === 'project') {
@@ -91,14 +95,14 @@ export function emitShareJsonHealHumanMessages(host: ShareHumanMessageHost, heal
     'share.json was auto-repaired (manual edits or legacy format). Do not edit it by hand — use share list / share delete.',
   );
   for (const line of heal.details) {
-    if (line.startsWith('Previous share.json was copied')) continue;
+    if (line === heal.backupBakPath || line === SHARE_JSON_HEAL_BACKUP_LABEL) continue;
     shareMessage(host, 'detail', `  • ${line}`);
   }
-  const canonicalSaved =
-    heal.backupBakPath != null
-      ? `  • Saved a canonical share.json for this project cache. Backup: ${heal.backupBakPath}`
-      : '  • Saved a canonical share.json for this project cache.';
-  shareMessage(host, 'detail', canonicalSaved);
+  if (heal.backupBakPath) {
+    shareMessage(host, 'detail', `  • ${SHARE_JSON_HEAL_BACKUP_LABEL}`);
+    shareMessage(host, 'detail', `    ${heal.backupBakPath}`);
+  }
+  shareMessage(host, 'detail', `  • ${SHARE_JSON_HEAL_CANONICAL_SAVED}`);
 }
 
 /** Emits human-oriented lines for {@link runShareList} output. */

@@ -1,4 +1,4 @@
-import { buildReportPayload, hex16Id, REPORT_SHARE_MAX_BYTES } from '@i18nprune/core';
+import { hex16Id, prepareReportPayload, REPORT_SHARE_MAX_BYTES } from '@i18nprune/core';
 import type { Hono } from 'hono';
 import { ApiResponse } from '../../../response';
 import { projectStore } from '../../shared/store';
@@ -16,7 +16,7 @@ export function uploadReportRoute(app: Hono<WorkerEnv>): void {
       return ApiResponse.badRequest(c, 'REPORT_DOCUMENT_REQUIRED', 'Missing document (JSON body field: document)');
     }
 
-    const built = await buildReportPayload({ reportDocument: body.document });
+    const built = await prepareReportPayload({ reportDocument: body.document });
     if (!built.ok) {
       return ApiResponse.badRequest(
         c,

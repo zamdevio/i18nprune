@@ -2,22 +2,23 @@ import { projectReportDocumentSchema } from '@i18nprune/report';
 import { ISSUE_SHARE_REMOTE_REPORT_REJECTED } from '../../shared/constants/issueCodes.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { ShareReportManifest } from '../../types/share/manifest.js';
+import { sha256HexBytes } from '../../share/util/sha256.js';
+import { stableStringify } from '../../share/util/stableJson.js';
 import { reportDocumentForShareContentHash } from './reportSemantic.js';
-import { sha256HexBytes } from '../util/sha256.js';
-import { stableStringify } from '../util/stableJson.js';
 
 function utf8Bytes(text: string): Uint8Array {
   return new TextEncoder().encode(text);
 }
 
-export type BuildReportPayloadResult =
+export type PrepareReportPayloadResult =
   | { ok: true; document: Record<string, unknown>; serialized: string; manifest: ShareReportManifest }
   | { ok: false; issues: Issue[] };
 
 /**
- * Validates and hashes a report document for `runShare({ kind: 'report' })`.
+ * Validates and hashes a report document for hosted ingest (`POST /v1/reports`) and `runShare({ kind: 'report' })`.
+ * CLI `report` command output can be passed here before upload.
  */
-export async function buildReportPayload(input: { reportDocument: unknown }): Promise<BuildReportPayloadResult> {
+export async function prepareReportPayload(input: { reportDocument: unknown }): Promise<PrepareReportPayloadResult> {
   const checked = projectReportDocumentSchema.safeParse(input.reportDocument);
   if (!checked.success) {
     return {

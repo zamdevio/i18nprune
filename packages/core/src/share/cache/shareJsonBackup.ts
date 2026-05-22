@@ -55,7 +55,23 @@ export function backupAndRemoveCorruptShareJson(sharePath: string, runtime: Cach
   return backed;
 }
 
-/** User-facing line for hosts when a backup was written. */
-export function shareJsonBackupNotice(bakPath: string): string {
-  return `Previous ${SHARE_JSON_BASENAME} was copied to ${bakPath} before it was replaced. You can restore or inspect that file under share.bak/ if needed.`;
+/** Bullet label before the `share.bak/` path in human / issue copy. */
+export const SHARE_JSON_HEAL_BACKUP_LABEL = 'Corrupt backup preserved:' as const;
+
+/** Bullet when a canonical `share.json` was written after heal. */
+export const SHARE_JSON_HEAL_CANONICAL_SAVED = 'Saved canonical share.json' as const;
+
+/** Detail rows stored on {@link ShareJsonHealReport.details} when a backup was created. */
+export function shareJsonBackupDetailEntries(bakPath: string): readonly [typeof SHARE_JSON_HEAL_BACKUP_LABEL, string] {
+  return [SHARE_JSON_HEAL_BACKUP_LABEL, bakPath];
+}
+
+/** One warn block for hosts when load-time heal replaced `share.json` after backing up corrupt bytes. */
+export function shareJsonBackupWarnMessage(bakPath: string): string {
+  return [
+    `Previous ${SHARE_JSON_BASENAME} was replaced after repair.`,
+    `  • ${SHARE_JSON_HEAL_BACKUP_LABEL}`,
+    `    ${bakPath}`,
+    `  • ${SHARE_JSON_HEAL_CANONICAL_SAVED}`,
+  ].join('\n');
 }

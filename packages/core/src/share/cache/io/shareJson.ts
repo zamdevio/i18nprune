@@ -2,7 +2,7 @@ import { assertSyncPortResult } from '../../../runtime/helpers/sync/index.js';
 import { readJsonFileWithLimit, textByteLength, writeJsonAtomic } from '../../../cache/io/helpers.js';
 import { ISSUE_SHARE_JSON_REPAIRED, ISSUE_SHARE_JSON_WRITE_FAILED } from '../../../shared/constants/issueCodes.js';
 import { DEFAULT_MAX_SHARE_JSON_BYTES, SHARE_JSON_BASENAME } from '../../../shared/constants/share.js';
-import { backupAndRemoveCorruptShareJson, shareJsonBackupNotice } from '../shareJsonBackup.js';
+import { backupAndRemoveCorruptShareJson, shareJsonBackupDetailEntries } from '../shareJsonBackup.js';
 import type { CacheRuntime } from '../../../types/cache/index.js';
 import type { Issue } from '../../../types/json/envelope/index.js';
 import type { ShareCacheEntry, ShareJsonFile, ShareJsonHealKind, ShareJsonHealReport, LoadShareJsonResult } from '../../../types/share/index.js';
@@ -182,7 +182,7 @@ function persistHealedShareFile(input: {
 function recordShareJsonBackup(heal: ShareJsonHealReport, backed: { created: boolean; bakPath?: string }): void {
   if (!backed.created || !backed.bakPath) return;
   heal.backupBakPath = backed.bakPath;
-  heal.details.push(shareJsonBackupNotice(backed.bakPath));
+  heal.details.push(...shareJsonBackupDetailEntries(backed.bakPath));
 }
 
 /**

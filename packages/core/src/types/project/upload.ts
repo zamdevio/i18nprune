@@ -19,6 +19,9 @@ export type ProjectUploadExtractionSummary = {
   dynamicSitesCount: number;
   keyObservationsPreview: unknown[];
   dynamicSitesPreview: unknown[];
+  /** ISO timestamp immediately before key/dynamic extraction scan. */
+  extractionStartedAt?: string;
+  /** ISO timestamp after locale map + previews are assembled. */
   computedAt: string;
 };
 
@@ -26,7 +29,12 @@ export type ProjectUploadExtractionSummary = {
 export type ProjectSnapshot = {
   projectId: string;
   projectHash: string;
+  /** ISO timestamp when the upload handler received the request (before zip parse). */
+  requestReceivedAt?: string;
+  /** ISO timestamp when zip parse finished (`parseZipToSnapshot`). */
   uploadedAt: string;
+  /** ISO timestamp when the DO row was persisted successfully. */
+  storedAt?: string;
   zipBytes: number;
   fileCount: number;
   textFileCount: number;

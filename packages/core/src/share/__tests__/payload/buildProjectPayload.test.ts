@@ -11,7 +11,7 @@ import { createNodeRuntimeAdapters } from '../../../runtime/exports/node.js';
 import type { CacheRuntime } from '../../../types/cache/index.js';
 import type { RunEvent } from '../../../types/shared/run/index.js';
 import { buildProjectPayload } from '../../payload/buildProjectPayload.js';
-import { buildReportPayload } from '../../payload/buildReportPayload.js';
+import { prepareReportPayload } from '../../../project/prepare/report.js';
 import { runShare } from '../../ops/run.js';
 
 function nodeCacheRuntime(adapters: ReturnType<typeof createNodeRuntimeAdapters>): CacheRuntime {
@@ -78,9 +78,9 @@ describe('buildProjectPayload', () => {
   });
 });
 
-describe('buildReportPayload', () => {
+describe('prepareReportPayload', () => {
   it('validates report document and builds stable hash manifest', async () => {
-    const out = await buildReportPayload({
+    const out = await prepareReportPayload({
       reportDocument: {
         kind: PROJECT_REPORT_KIND,
         schemaVersion: PROJECT_REPORT_SCHEMA_VERSION,
@@ -112,7 +112,7 @@ describe('buildReportPayload', () => {
     expect(out.manifest.payloadContentHash).toMatch(/^[a-f0-9]{64}$/);
     expect(out.manifest.byteSize).toBeGreaterThan(0);
 
-    const out2 = await buildReportPayload({
+    const out2 = await prepareReportPayload({
       reportDocument: {
         kind: PROJECT_REPORT_KIND,
         schemaVersion: PROJECT_REPORT_SCHEMA_VERSION,

@@ -1,7 +1,7 @@
 export { DEFAULT_WORKER_API_URL } from '../shared/constants/links.js';
 export {
   DEFAULT_MAX_SHARE_JSON_BYTES,
-  buildReportPayload,
+  prepareReportPayload,
   buildProjectPayload,
   buildReportShareLinks,
   buildProjectShareLinks,
@@ -18,7 +18,10 @@ export {
   resolveShareRemoteDeleteOutcome,
   resolveShareBakDir,
   resolveShareJsonPath,
-  shareJsonBackupNotice,
+  SHARE_JSON_HEAL_BACKUP_LABEL,
+  SHARE_JSON_HEAL_CANONICAL_SAVED,
+  shareJsonBackupDetailEntries,
+  shareJsonBackupWarnMessage,
   emitShareCacheDebug,
   emitShareDeleteHumanMessages,
   emitShareJsonHealHumanMessages,

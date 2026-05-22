@@ -379,7 +379,6 @@ export * as share from './namespaces/share.js';
 export {
   buildProjectPayload,
   buildProjectShareLinks,
-  buildReportPayload,
   buildReportShareLinks,
   emitShareCacheDebug,
   emitShareDeleteHumanMessages,
@@ -394,7 +393,10 @@ export {
   resolveShareJsonPath,
   resolveShareWorkerBaseUrl,
   runShare,
-  shareJsonBackupNotice,
+  SHARE_JSON_HEAL_BACKUP_LABEL,
+  SHARE_JSON_HEAL_CANONICAL_SAVED,
+  shareJsonBackupDetailEntries,
+  shareJsonBackupWarnMessage,
   runShareDelete,
   runShareList,
   runShareView,
@@ -512,14 +514,23 @@ export {
   basenameNoExt,
   buildProjectTreeFromPaths,
   buildStoredReportMetadata,
+  createArchiveProjectFs,
+  createPrepareTimer,
   emptyDirectoryPathsFromZipKeys,
+  fillProjectSnapshotExtraction,
   hex16Id,
   normalizeProjectConfig,
   parseProjectUploadFailure,
+  buildProjectUploadSnapshotMeta,
   parseZipToSnapshot,
+  prepareProjectSnapshotFromArchive,
+  prepareReportPayload,
   projectConfigHash,
   relativeProjectPath,
+  reportDocumentForShareContentHash,
+  validateHostedProjectIngestBody,
 } from './project/index.js';
+export { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from './types/project/prepare.js';
 export {
   PROJECT_UPLOAD_MAX_FILES,
   PROJECT_UPLOAD_MAX_TEXT_BYTES,
@@ -557,6 +568,10 @@ export type {
   WorkerHealthResult,
   WorkspaceConfigHintState,
   WorkspaceSession,
+  HostedProjectIngestEnvelope,
+  PrepareProjectSnapshotResult,
+  ProjectPrepareMeta,
+  ValidateHostedProjectIngestResult,
 } from './types/project/index.js';
 
 export * as reference from './namespaces/reference.js';

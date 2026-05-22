@@ -22,12 +22,21 @@ export type WorkerApiEnvelope<T> = {
 };
 
 export type ProjectUploadSnapshotMeta = {
+  requestReceivedAt: string;
   uploadedAt: string;
+  extractionStartedAt: string;
+  extractionComputedAt: string;
+  storedAt: string;
   fileCount: number;
   textFileCount: number;
   detectedConfigPath: string | null;
   extractionReady: boolean;
-  extractionComputedAt: string;
+  /** Wall time for key/dynamic extraction scan (`extractionStartedAt` → `extractionComputedAt`). */
+  extractionMs?: number;
+  /** Wall time for DO persist (`extractionComputedAt` → `storedAt`). */
+  persistMs?: number;
+  /** Wall time for full upload handler (`requestReceivedAt` → `storedAt`). */
+  totalMs?: number;
 };
 
 export type ProjectUploadResponse = {
