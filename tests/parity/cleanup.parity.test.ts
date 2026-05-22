@@ -7,6 +7,7 @@ import {
   normalizeCleanupHumanStderr,
   normalizeCleanupJsonEnvelope,
 } from './normalizeCleanupParity.ts';
+import { paritySpawnEnv } from './paritySpawnEnv.ts';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
@@ -27,7 +28,7 @@ describe('cleanup parity (sample-i18n)', () => {
     const r = spawnSync(process.execPath, [cliJs, 'cleanup', '--json', '--check-only'], {
       cwd: fixture,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: paritySpawnEnv(),
       maxBuffer: 50 * 1024 * 1024,
     });
     expect(r.status, r.stderr ?? '').toBe(0);
@@ -41,7 +42,7 @@ describe('cleanup parity (sample-i18n)', () => {
     const r = spawnSync(process.execPath, [cliJs, 'cleanup', '--dry-run'], {
       cwd: fixture,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: paritySpawnEnv(),
       maxBuffer: 50 * 1024 * 1024,
     });
     expect(r.status, r.stderr ?? '').toBe(0);

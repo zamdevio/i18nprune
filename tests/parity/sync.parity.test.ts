@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeSyncHumanStderr, normalizeSyncJsonEnvelope } from './normalizeSyncParity.ts';
+import { paritySpawnEnv } from './paritySpawnEnv.ts';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
@@ -24,7 +25,7 @@ describe('sync parity (sample-i18n)', () => {
     const r = spawnSync(process.execPath, [cliJs, 'sync', '--json', '--dry-run', '--target', 'ar'], {
       cwd: fixture,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: paritySpawnEnv(),
       maxBuffer: 50 * 1024 * 1024,
     });
     expect(r.status, r.stderr ?? '').toBe(0);
@@ -38,7 +39,7 @@ describe('sync parity (sample-i18n)', () => {
     const r = spawnSync(process.execPath, [cliJs, 'sync', '--dry-run', '--target', 'ar'], {
       cwd: fixture,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: paritySpawnEnv(),
       maxBuffer: 50 * 1024 * 1024,
     });
     expect(r.status, r.stderr ?? '').toBe(0);

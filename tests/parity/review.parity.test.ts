@@ -7,6 +7,7 @@ import {
   normalizeReviewHumanStderr,
   normalizeReviewJsonEnvelope,
 } from './normalizeReviewParity.ts';
+import { paritySpawnEnv } from './paritySpawnEnv.ts';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
@@ -27,7 +28,7 @@ describe('review parity (sample-i18n)', () => {
     const r = spawnSync(process.execPath, [cliJs, 'review', '--json', '--target', 'ar'], {
       cwd: fixture,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: paritySpawnEnv(),
       maxBuffer: 50 * 1024 * 1024,
     });
     expect(r.status, r.stderr ?? '').toBe(0);
@@ -41,7 +42,7 @@ describe('review parity (sample-i18n)', () => {
     const r = spawnSync(process.execPath, [cliJs, 'review', '--target', 'ar'], {
       cwd: fixture,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: paritySpawnEnv(),
       maxBuffer: 50 * 1024 * 1024,
     });
     expect(r.status, r.stderr ?? '').toBe(0);

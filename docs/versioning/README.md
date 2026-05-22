@@ -8,7 +8,7 @@ This document describes how the CLI learns whether a newer **`i18nprune`** packa
 
 - Compares the **running CLI semver** (from the published package / `packages/cli/src/constants/cli.ts`) to the **`latest`** dist-tag on npm.
 - **Throttles** automatic checks to **once per 24 hours** per machine using on-disk **`updatestate.json`** (see [Cache](#cache-directory-24h-throttle)).
-- Shows a **Wrangler-style** dim hint under the command banner when the cache says a **newer** `latest` exists.
+- Shows a **`[notice]`** line under the command banner when the cache says a **newer** `latest` exists (live registry check when possible; otherwise notes that npm could not be verified).
 - **`i18nprune version --check`** always hits the registry (unless opted out) and refreshes the on-disk cache.
 - **`i18nprune version --reset`** clears that cache so the next automatic check is not blocked by the throttle timer (path and fields: [Cache](#cache-directory-24h-throttle)).
 
@@ -23,7 +23,9 @@ This document describes how the CLI learns whether a newer **`i18nprune`** packa
 | **Paths** (`~/.config/i18nprune/updatestate.json`) | `packages/cli/src/utils/update/paths.ts` |
 | **Read/write `updatestate.json`** | `packages/cli/src/utils/update/cache.ts` |
 | **Fetch npm + semver compare** | `packages/cli/src/utils/update/registry.ts` |
-| **Background refresh + banner line** | `packages/cli/src/utils/update/index.ts` (`ensureUpdateCacheRefreshed`, `formatCachedUpdateBannerLine`) |
+| **Background refresh** | `packages/cli/src/utils/update/index.ts` (`ensureUpdateCacheRefreshed`) |
+| **Post-banner update notice** | `packages/cli/src/utils/update/notice.ts` (`maybePrintUpdateNoticeAfterBanner`) |
+| **Install hints (npm / pnpm)** | `packages/cli/src/utils/update/installHint.ts` |
 | **`version --check` / `--reset`** | `packages/cli/src/utils/update/version.ts`, `packages/cli/bin/cli.ts` |
 | **Banner wiring** | `packages/cli/src/utils/cli/banner.ts` |
 
@@ -89,7 +91,7 @@ Documented with other env vars in [Environment variables](../config/env.md).
 ## Commands
 
 - **`i18nprune version`** — prints the running semver.
-- **`i18nprune version --check`** — **always** attempts a registry fetch (unless opted out), prints current vs latest, suggests **`npm i -g i18nprune`** when newer. Persists result in **`updatestate.json`** (see [Cache directory (24h throttle)](#cache-directory-24h-throttle)).
+- **`i18nprune version --check`** — **always** attempts a registry fetch (unless opted out), prints current / latest / SDK lines, **`[notice]`** when newer, and one install line with **`pnpm … or npm …`**. Persists result in **`updatestate.json`** (see [Cache directory (24h throttle)](#cache-directory-24h-throttle)).
 - **`i18nprune version --reset`** — clears that cache; combine with **`--check`** to clear then query npm immediately.
 - **`-v` / `--version`** on the root program are rewritten to **`version`** when you did not pass another command, so **`-q` / `-s`** and the banner behave the same as **`i18nprune version`** (see [CLI verbosity](../cli/verbosity/README.md)).
 

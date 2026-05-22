@@ -232,7 +232,7 @@ program
     });
     setCliYesFlag(Boolean(opts.yes));
     if (actionCommand.name() !== CLI_NAME) {
-      maybePrintCommandBanner(actionCommand);
+      await maybePrintCommandBanner(actionCommand);
     }
   });
 

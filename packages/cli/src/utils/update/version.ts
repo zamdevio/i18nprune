@@ -7,6 +7,7 @@ import type { RunOptions } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
 import { style } from '@/utils/style/index.js';
 import { readUpdateState, resetUpdateState, writeUpdateState } from './cache.js';
+import { printGlobalInstallHints, VERSION_UNKNOWN } from './installHint.js';
 import { fetchLatestPublishedVersion, isPublishedVersionNewer } from './registry.js';
 
 /**
@@ -14,6 +15,18 @@ import { fetchLatestPublishedVersion, isPublishedVersionNewer } from './registry
  * (registry check / current line would otherwise be empty or misleading).
  */
 export const VERSION_OUTPUT_UNGATED: LoggerMask = { quiet: false, silent: false };
+
+/** Human `Latest CLI:` line for **`version --check`**. */
+export function formatLatestCliLine(latest: string | null, current: string): string {
+  if (!latest) {
+    return `${style.dim('Latest CLI:')} ${style.dim(VERSION_UNKNOWN)}`;
+  }
+  const value = `${style.dim('Latest CLI:')} ${style.bold(style.ok(latest))}`;
+  if (!isPublishedVersionNewer(latest, current)) {
+    return `${value} ${style.dim('(up to date)')}`;
+  }
+  return value;
+}
 
 /** Styled CLI + SDK version lines via **`logger.info`** (grep-friendly `[i18nprune] [info]` prefix). */
 export function printCurrentVersionLine(run: RunOptions): void {
@@ -23,10 +36,29 @@ export function printCurrentVersionLine(run: RunOptions): void {
   logger.info(sdkLine, run, VERSION_OUTPUT_UNGATED);
 }
 
-/** Styled `Latest on npm: <semver>` for **`version --check`**. */
-export function printLatestVersionLine(latest: string, run: RunOptions): void {
-  const msg = `${style.dim('Latest on npm:')} ${style.bold(style.ok(latest))}`;
-  logger.info(msg, run, VERSION_OUTPUT_UNGATED);
+/** Full **`version --check`** report (current, latest, optional update notice + install hint). */
+export function printVersionCheckReport(run: RunOptions, latest: string | null): void {
+  if (latest && isPublishedVersionNewer(latest, CLI_VERSION)) {
+    logger.notice(
+      `Update available: ${CLI_VERSION} → ${latest}`,
+      run,
+      VERSION_OUTPUT_UNGATED,
+    );
+  }
+
+  logger.info(
+    `${style.dim('Current CLI:')} ${style.bold(style.ok(CLI_VERSION))}`,
+    run,
+    VERSION_OUTPUT_UNGATED,
+  );
+  logger.info(formatLatestCliLine(latest, CLI_VERSION), run, VERSION_OUTPUT_UNGATED);
+
+  if (latest && isPublishedVersionNewer(latest, CLI_VERSION)) {
+    printGlobalInstallHints(run, VERSION_OUTPUT_UNGATED, 'info');
+  }
+
+  const sdkLine = `${style.dim('SDK:')} ${style.bold(style.ok(SDK_VERSION))} ${style.dim(`(${SDK_PACKAGE_NAME})`)}`;
+  logger.info(sdkLine, run, VERSION_OUTPUT_UNGATED);
 }
 
 function truthyEnv(v: string | undefined): boolean {
@@ -74,7 +106,7 @@ export async function runVersionCheckCommand(run: RunOptions): Promise<void> {
       run,
       VERSION_OUTPUT_UNGATED,
     );
-    printCurrentVersionLine(run);
+    printVersionCheckReport(run, null);
     return;
   }
 
@@ -88,15 +120,5 @@ export async function runVersionCheckCommand(run: RunOptions): Promise<void> {
     cliVersionWhenRecorded: CLI_VERSION,
   });
 
-  printCurrentVersionLine(run);
-  printLatestVersionLine(latest, run);
-  if (isPublishedVersionNewer(latest, CLI_VERSION)) {
-    logger.warn(
-      'A newer version is available. Install globally: npm i -g i18nprune',
-      run,
-      VERSION_OUTPUT_UNGATED,
-    );
-  } else {
-    logger.info('You are on the latest published version.', run, VERSION_OUTPUT_UNGATED);
-  }
+  printVersionCheckReport(run, latest);
 }

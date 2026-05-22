@@ -10,4 +10,5 @@ export const style = {
   warn: (s: string) => chalk.yellow(s),
   err: (s: string) => chalk.red(s),
   magenta: (s: string) => chalk.magenta(s),
+  blue: (s: string) => chalk.blue(s),
 };

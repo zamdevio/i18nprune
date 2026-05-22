@@ -1,12 +1,12 @@
 import type { Command } from 'commander';
 import { CLI_NAME, CLI_ROOT_TAGLINE, CONFIG_BASE_NAME } from '@/constants/cli.js';
 import { getRunOptions } from '@i18nprune/core';
-import { header, style } from '@/utils/ansi/index.js';
+import { header } from '@/utils/ansi/index.js';
 import { canEmit } from '@/utils/logger/policy.js';
 import { logger } from '@/utils/logger/index.js';
 import { getCommandInvocationPath } from '@/utils/cli/path.js';
 import type { CommandBannerSpec } from '@/types/utils/cli/banner.js';
-import { formatCachedUpdateBannerLine } from '@/utils/update/index.js';
+import { maybePrintUpdateNoticeAfterBanner } from '@/utils/update/notice.js';
 
 const ROOT = CLI_NAME;
 
@@ -78,8 +78,10 @@ export function getTopicBannerSubtitle(cmd: Command): string {
  * Print the standard top banner once per invocation when appropriate:
  * **off** for `--json` and **`-s` / `--silent`**; **on** for **`-q` / `--quiet`** (still readable).
  * Skips the **`help`** subcommand — its action prints **`program.outputHelp()`** or **`cmd.helpInformation()`**, which already prepend the same box via **`formatHelp`**; printing here would duplicate it (e.g. **Help** + **I18nprune** for **`i18nprune help`**).
+ *
+ * When a newer npm version is cached, prints a **`[notice]`** update line after the header (registry-confirmed when online).
  */
-export function maybePrintCommandBanner(actionCommand: Command): void {
+export async function maybePrintCommandBanner(actionCommand: Command): Promise<void> {
   const run = getRunOptions();
   if (!canEmit(run, 'banner')) return;
   if (actionCommand.name() === 'help') return;
@@ -92,14 +94,6 @@ export function maybePrintCommandBanner(actionCommand: Command): void {
 
   logger.decorative.blank(run);
   logger.decorative.printHeader(title, header, { subtitle, mark: spec.mark }, run);
-  const updateLine =
-    path === 'version' ? null : formatCachedUpdateBannerLine();
-  if (updateLine) {
-    logger.decorative.dim(style.bold(style.warn('▲')) + ' ' + updateLine, run);
-    logger.decorative.dim(
-      '  Update when ready: npm i -g i18nprune',
-      run,
-    );
-  }
+  await maybePrintUpdateNoticeAfterBanner(run, path);
   logger.decorative.blank(run);
 }
