@@ -14,6 +14,7 @@ import type {
 } from '../types/project/reportStore.js';
 import {
   buildPayloadProcessorInfo,
+  buildProjectMetadataPrepareTiming,
   isoMsDelta,
   isoOrDash,
 } from './storedMetadata.js';
@@ -85,13 +86,18 @@ function buildReportDocumentTiming(row: ReportStoreRow): ReportMetadataDocumentT
   );
   const storedAt = isoOrDash(row.storedAt);
   const lastAccessedAt = isoOrDash(row.lastAccessedAt ?? row.storedAt);
+  const requestReceivedAt = row.requestReceivedAt ? isoOrDash(row.requestReceivedAt) : undefined;
   return {
     generatedAt,
     storedAt,
     lastAccessedAt,
+    ...(requestReceivedAt !== undefined ? { requestReceivedAt } : {}),
+    ...(row.prepareMeta ? { prepare: buildProjectMetadataPrepareTiming(row.prepareMeta) } : {}),
     edge: {
-      persistMs: isoMsDelta(generatedAt === METADATA_DASH ? undefined : generatedAt, row.storedAt),
-      totalMs: isoMsDelta(generatedAt === METADATA_DASH ? undefined : generatedAt, row.storedAt),
+      persistMs:
+        row.prepareMeta?.persistMs !== undefined
+          ? row.prepareMeta.persistMs
+          : isoMsDelta(generatedAt === METADATA_DASH ? undefined : generatedAt, row.storedAt),
     },
   };
 }
@@ -113,7 +119,7 @@ export function buildStoredReportMetadata(row: ReportStoreRow): StoredReportMeta
       : METADATA_DASH;
   const processor: PayloadProcessorInfo = buildPayloadProcessorInfo({
     ingestRoute,
-    prepareMeta: row.prepareHost ? { prepareHost: row.prepareHost } : undefined,
+    prepareMeta: row.prepareMeta ?? (row.prepareHost ? { prepareHost: row.prepareHost } : undefined),
     processorContext: resolveReportProcessorContext(row),
   });
 

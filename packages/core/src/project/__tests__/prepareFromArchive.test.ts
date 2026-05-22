@@ -38,8 +38,11 @@ describe('prepareProjectSnapshotFromArchive', () => {
       if (!out.ok) return;
       expect(out.parsed.snapshot.extraction?.resolvedKeys.length).toBeGreaterThan(0);
       expect(out.parsed.snapshot.localeJsonByTag.en).toBeDefined();
+      expect(out.prepareMeta.zipParsedMs).toBeGreaterThanOrEqual(0);
       expect(out.prepareMeta.extractionMs).toBeGreaterThanOrEqual(0);
       expect(out.prepareMeta.totalMs).toBeGreaterThanOrEqual(out.prepareMeta.extractionMs ?? 0);
+      expect(out.prepareMeta.hostCache?.filesEpoch).not.toBe('—');
+      expect(out.parsed.snapshot.localeTags).toEqual(['en']);
 
       const ingest = validateHostedProjectIngestBody({
         schemaVersion: HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION,

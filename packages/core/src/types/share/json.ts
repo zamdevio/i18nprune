@@ -13,6 +13,8 @@ export type ShareUploadJsonPayload = {
   workerIds: { projectId?: string; reportId?: string };
   skippedReason?: string;
   cacheEntry?: ShareCacheEntry;
+  workerExpiresAt?: string;
+  workerDeduped?: boolean;
 };
 
 export type ShareListJsonPayload = {

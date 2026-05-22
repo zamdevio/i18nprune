@@ -1,6 +1,7 @@
 import { mergePartialConfigIntoBase } from '../../config/index.js';
 import * as extractor from '../../namespaces/extractor.js';
-import { buildLocaleJsonByTagFromArchive } from '../../shared/locales/index.js';
+import { buildLocaleJsonByTagFromArchive, listLocaleCodesFromArchive } from '../../shared/locales/index.js';
+import { discoverLocaleTagsFromTextFiles } from './discoverLocaleTags.js';
 import {
   ISSUE_PROJECT_SOURCE_LOCALE_INVALID_JSON,
   ISSUE_PROJECT_SOURCE_LOCALE_INVALID_SHAPE,
@@ -91,20 +92,42 @@ export async function fillProjectSnapshotExtraction(
 
   snapshot.sourceLocaleJson = sourceLocaleJson as Record<string, unknown>;
   const localesRootAbs = fs.path.resolve(fs.cwd, normalized.localesDir);
+  const localesConfig = {
+    source: normalized.source,
+    directory: normalized.localesDir,
+    mode: normalized.localesMode,
+    structure: normalized.localesStructure,
+  };
+  const archiveRelPaths = Object.keys(textFiles);
+  const resolveArchiveAbsolute = (rel: string) => fs.path.resolve(fs.cwd, rel);
   snapshot.localeJsonByTag = buildLocaleJsonByTagFromArchive({
     localesDirAbsolute: localesRootAbs,
     sourceLocaleAbsolute: sourceAbs,
-    archiveRelPaths: Object.keys(textFiles),
-    resolveArchiveAbsolute: (rel: string) => fs.path.resolve(fs.cwd, rel),
+    archiveRelPaths,
+    resolveArchiveAbsolute,
     path: fs.path,
-    locales: {
-      source: normalized.source,
-      directory: normalized.localesDir,
-      mode: normalized.localesMode,
-      structure: normalized.localesStructure,
-    },
+    locales: localesConfig,
     readText: (rel: string) => textFiles[rel],
   });
+  const tagsFromMap = Object.keys(snapshot.localeJsonByTag);
+  snapshot.localeTags =
+    tagsFromMap.length > 0
+      ? tagsFromMap.sort((a, b) => a.localeCompare(b))
+      : listLocaleCodesFromArchive({
+          localesDirAbsolute: localesRootAbs,
+          archiveRelPaths,
+          resolveArchiveAbsolute,
+          path: fs.path,
+          locales: localesConfig,
+        });
+  if (snapshot.localeTags.length === 0) {
+    snapshot.localeTags = discoverLocaleTagsFromTextFiles({
+      textFiles,
+      localesDir: normalized.localesDir,
+      sourceLocalePath: normalized.source,
+      localesMode: normalized.localesMode,
+    });
+  }
 
   const computedAt = new Date().toISOString();
   snapshot.extraction = {

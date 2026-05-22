@@ -1,4 +1,5 @@
 import { ISSUE_REPORT_HOSTED_REPORT_INVALID } from '../../shared/constants/issueCodes.js';
+import { parseWorkerIngestForceField } from '../../shared/workerApi/ingestForce.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { ValidateHostedReportIngestResult } from '../../types/report/ingest.js';
 import { validateReportIngest } from '../prepare/reportIngest.js';
@@ -17,5 +18,11 @@ export async function validateHostedReportIngestBody(body: unknown): Promise<Val
   if (document === undefined) {
     return { ok: false, issues: [err('document is required')] };
   }
-  return validateReportIngest({ reportDocument: document });
+  if (raw.force !== undefined && raw.force !== false && raw.force !== true) {
+    return { ok: false, issues: [err('force must be a boolean when provided')] };
+  }
+  const validated = await validateReportIngest({ reportDocument: document });
+  if (!validated.ok) return validated;
+  const force = parseWorkerIngestForceField(raw.force);
+  return force ? { ...validated, force: true } : validated;
 }

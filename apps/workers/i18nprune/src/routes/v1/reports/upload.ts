@@ -1,10 +1,25 @@
-import { hex16Id, REPORT_SHARE_MAX_BYTES, validateHostedReportIngestBody } from '@i18nprune/core';
+import {
+  hex16Id,
+  REPORT_SHARE_MAX_BYTES,
+  validateHostedReportIngestBody,
+  workerPayloadTooLargeError,
+} from '@i18nprune/core';
 import type { HostedIngestProcessorContext } from '@i18nprune/core';
 import type { Hono } from 'hono';
+import { uploadRateLimitResponse } from '../../../lib/rateLimit/upload';
 import { ApiResponse } from '../../../response';
 import { projectStore } from '../../shared/store';
+import {
+  hashDedupWarnings,
+  loadReportRow,
+  lookupReportIdByPayloadHash,
+  replaceHostedReportForForce,
+  reportDedupUploadPayload,
+  reportUploadSuccessPayload,
+} from '../../shared/hashDedup.js';
+import { workerIngestForceFromRequest } from '../../shared/ingestForce.js';
 import { putReport } from '../../shared/reportStore';
-import { badRequestFromIssues } from '../../shared/workerIngest';
+import { errorResponseFromIssues, storageLimitResponseFromPersistError, workerErrorResponse } from '../../shared/workerIngest';
 import type { WorkerEnv } from '../../types';
 
 function processorContextFromDocument(document: Record<string, unknown>): HostedIngestProcessorContext | undefined {
@@ -43,9 +58,12 @@ function processorContextFromDocument(document: Record<string, unknown>): Hosted
 
 export function uploadReportRoute(app: Hono<WorkerEnv>): void {
   app.post('/reports', async (c) => {
+    const rateLimited = await uploadRateLimitResponse(c);
+    if (rateLimited) return rateLimited;
+
     const contentType = c.req.header('content-type') ?? '';
     if (!contentType.includes('application/json')) {
-      return ApiResponse.badRequest(
+      return workerErrorResponse(
         c,
         'INGEST_JSON_REQUIRED',
         'POST /v1/reports expects application/json ({ document }). Use POST /v1/reports/archive for zip uploads.',
@@ -56,19 +74,44 @@ export function uploadReportRoute(app: Hono<WorkerEnv>): void {
     try {
       body = await c.req.json();
     } catch {
-      return ApiResponse.badRequest(c, 'INGEST_JSON_INVALID', 'Request body was not valid JSON.');
+      return workerErrorResponse(c, 'INGEST_JSON_INVALID', 'Request body was not valid JSON.');
     }
 
     const built = await validateHostedReportIngestBody(body);
     if (!built.ok) {
-      return badRequestFromIssues(c, built.issues);
+      return errorResponseFromIssues(c, built.issues);
     }
     if (built.manifest.byteSize > REPORT_SHARE_MAX_BYTES) {
-      return ApiResponse.badRequest(
+      return ApiResponse.structuredError(
         c,
-        'REPORT_PAYLOAD_TOO_LARGE',
-        `Report exceeds max size (${REPORT_SHARE_MAX_BYTES} bytes)`,
+        workerPayloadTooLargeError({
+          kind: 'report',
+          receivedBytes: built.manifest.byteSize,
+          maxBytes: REPORT_SHARE_MAX_BYTES,
+        }),
       );
+    }
+
+    const force = workerIngestForceFromRequest(c, built.force);
+    const stub = projectStore(c.env);
+
+    if (!force) {
+      const existingId = await lookupReportIdByPayloadHash(stub, built.manifest.payloadContentHash);
+      if (existingId) {
+        const row = await loadReportRow(stub, existingId);
+        if (row) {
+          return ApiResponse.success(
+            c,
+            reportDedupUploadPayload(row),
+            200,
+            hashDedupWarnings('report', existingId),
+            undefined,
+            'HASH_ALREADY_EXISTS',
+          );
+        }
+      }
+    } else {
+      await replaceHostedReportForForce(stub, built.manifest.payloadContentHash);
     }
 
     const reportId = hex16Id();
@@ -86,14 +129,14 @@ export function uploadReportRoute(app: Hono<WorkerEnv>): void {
       processorContext,
     };
 
-    const stub = projectStore(c.env);
-    await putReport(stub, row);
+    try {
+      await putReport(stub, row);
+    } catch (err) {
+      const storage = storageLimitResponseFromPersistError(c, err);
+      if (storage) return storage;
+      throw err;
+    }
 
-    return ApiResponse.success(c, {
-      reportId,
-      payloadContentHash: built.manifest.payloadContentHash,
-      byteSize: built.manifest.byteSize,
-      storedAt,
-    });
+    return ApiResponse.success(c, reportUploadSuccessPayload({ ...row, lastAccessedAt: storedAt }));
   });
 }

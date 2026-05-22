@@ -91,7 +91,6 @@ export type ProjectMetadataExtractionTiming = {
 
 export type ProjectMetadataEdgeTiming = {
   persistMs: MetadataScalar;
-  totalMs: MetadataScalar;
 };
 
 /** Ordered timing block for `GET /v1/projects/:id` and upload meta. */
@@ -124,9 +123,11 @@ export type ProjectExtractionSummaryMeta = {
 };
 
 export type ReportMetadataDocumentTiming = {
+  requestReceivedAt?: MetadataScalar;
   generatedAt: MetadataScalar;
   storedAt: MetadataScalar;
   lastAccessedAt: MetadataScalar;
+  prepare?: ProjectMetadataPrepareTiming;
   edge: ProjectMetadataEdgeTiming;
 };
 

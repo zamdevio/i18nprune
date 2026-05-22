@@ -1,6 +1,13 @@
 import type { Context } from 'hono';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
-import type { WorkerApiErrorItem, WorkerApiWarningItem } from '@i18nprune/core';
+import {
+  workerErrorFromCode,
+  workerErrorHttpStatus,
+  workerProjectNotFoundError,
+  workerReportNotFoundError,
+  type WorkerApiErrorItem,
+  type WorkerApiWarningItem,
+} from '@i18nprune/core';
 import type { WorkerEnv } from '../routes/types';
 
 type ResponseMeta = Record<string, unknown>;
@@ -47,11 +54,32 @@ export class ApiResponse {
     );
   }
 
-  static badRequest(c: Context<WorkerEnv>, code: string, message: string, details?: Record<string, unknown>) {
-    return this.error(c, { code, message, details }, 400);
+  static structuredError(c: Context<WorkerEnv>, error: WorkerApiErrorItem, status?: ContentfulStatusCode) {
+    const httpStatus = status ?? workerErrorHttpStatus(error.code);
+    return this.error(c, error, httpStatus);
   }
 
-  static notFound(c: Context<WorkerEnv>, code: string, message: string, details?: Record<string, unknown>) {
-    return this.error(c, { code, message, details }, 404);
+  static badRequest(
+    c: Context<WorkerEnv>,
+    code: string,
+    message: string,
+    details?: WorkerApiErrorItem['details'],
+  ) {
+    return this.structuredError(c, workerErrorFromCode(code, message, details));
+  }
+
+  static notFound(
+    c: Context<WorkerEnv>,
+    code: string,
+    message: string,
+    details?: WorkerApiErrorItem['details'],
+  ) {
+    if (code === 'PROJECT_NOT_FOUND') {
+      return this.structuredError(c, workerProjectNotFoundError(), 404);
+    }
+    if (code === 'REPORT_NOT_FOUND') {
+      return this.structuredError(c, workerReportNotFoundError(), 404);
+    }
+    return this.structuredError(c, workerErrorFromCode(code, message, details), 404);
   }
 }

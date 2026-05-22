@@ -11,11 +11,15 @@ import type { Issue } from '../../types/json/envelope/index.js';
 import type { WorkerShareEnvelope } from '../../types/share/index.js';
 
 const PAYLOAD_TOO_LARGE_CODES = new Set([
-  'UPLOAD_ZIP_TOO_LARGE',
-  'UPLOAD_TOO_MANY_FILES',
-  'UPLOAD_TEXT_LIMIT_EXCEEDED',
+  'PAYLOAD_TOO_LARGE',
+  'TOO_MANY_FILES',
+  'EXTRACTION_LIMIT_EXCEEDED',
   'REPORT_PAYLOAD_TOO_LARGE',
 ]);
+
+const RETRYABLE_WORKER_CODES = new Set(['RATE_LIMITED', 'WORKER_BUSY', 'UPLOAD_TIMEOUT']);
+
+const STORAGE_QUOTA_CODES = new Set(['STORAGE_QUOTA_EXCEEDED']);
 
 const REPORT_REJECT_CODES = new Set(['REPORT_PAYLOAD_INVALID', 'REPORT_SCHEMA_INVALID']);
 
@@ -44,7 +48,40 @@ export function parseWorkerShareEnvelope(body: unknown): WorkerShareEnvelope {
       }
     }
   }
-  return { success, code, data, errors };
+  const warningsRaw = o.warnings;
+  const warnings: Array<{ code: string; message: string }> = [];
+  if (Array.isArray(warningsRaw)) {
+    for (const w of warningsRaw) {
+      if (w && typeof w === 'object' && !Array.isArray(w)) {
+        const wr = w as Record<string, unknown>;
+        const c = typeof wr.code === 'string' ? wr.code : 'UNKNOWN';
+        const m = typeof wr.message === 'string' ? wr.message : '';
+        warnings.push({ code: c, message: m });
+      }
+    }
+  }
+  return { success, code, data, errors, ...(warnings.length > 0 ? { warnings } : {}) };
+}
+
+/** Reads `expiresAt` from a successful worker upload `data` payload. */
+export function workerUploadExpiresAt(data: unknown, kind: 'project' | 'report'): string | undefined {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
+  const d = data as Record<string, unknown>;
+  if (kind === 'project') {
+    const meta = d.snapshotMeta;
+    if (meta && typeof meta === 'object' && !Array.isArray(meta)) {
+      const exp = (meta as Record<string, unknown>).expiresAt;
+      return typeof exp === 'string' && exp.length > 0 ? exp : undefined;
+    }
+    return undefined;
+  }
+  const exp = d.expiresAt;
+  return typeof exp === 'string' && exp.length > 0 ? exp : undefined;
+}
+
+export function workerUploadWasDeduped(envelope: WorkerShareEnvelope): boolean {
+  if (envelope.code === 'HASH_ALREADY_EXISTS') return true;
+  return (envelope.warnings ?? []).some((w) => w.code === 'HASH_ALREADY_EXISTS');
 }
 
 function firstWorkerMessage(env: WorkerShareEnvelope): string {
@@ -101,6 +138,22 @@ export function shareRemoteIssueFromWorker(input: {
       severity: 'error',
       code: ISSUE_SHARE_REMOTE_ERROR,
       message: `${message} (HTTP ${String(httpStatus)})`,
+    };
+  }
+
+  if (httpStatus === 507 || (workerCode && STORAGE_QUOTA_CODES.has(workerCode))) {
+    return {
+      severity: 'error',
+      code: ISSUE_SHARE_REMOTE_UNAVAILABLE,
+      message: `Worker storage limit reached (${workerCode ?? 'STORAGE_QUOTA_EXCEEDED'}): ${message}`,
+    };
+  }
+
+  if (httpStatus === 429 || (workerCode && RETRYABLE_WORKER_CODES.has(workerCode))) {
+    return {
+      severity: 'error',
+      code: ISSUE_SHARE_REMOTE_UNAVAILABLE,
+      message: `Worker temporarily unavailable (${workerCode ?? 'RATE_LIMITED'}): ${message}`,
     };
   }
 

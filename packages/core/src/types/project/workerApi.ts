@@ -5,10 +5,16 @@ import type {
   ProjectMetadataTiming,
 } from './metadata.js';
 
+export type WorkerErrorAction = 'reduce_payload' | 'fix_payload' | 'retry' | 'reupload' | 'self_host';
+
 export type WorkerApiErrorItem = {
   code: string;
   message: string;
-  details?: unknown;
+  details?: Record<string, string | number | boolean | null>;
+  suggestions?: string[];
+  recoverable?: boolean;
+  action?: WorkerErrorAction;
+  retryAfterSeconds?: number;
 };
 
 export type WorkerApiWarningItem = {

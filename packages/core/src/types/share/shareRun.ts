@@ -108,10 +108,13 @@ export type ShareHostHooks = {
     workerBaseUrl: string;
     envelope: HostedProjectIngestEnvelope;
     serialized: string;
+    /** CLI `--force` → worker accepts duplicate content hash (replaces prior row). */
+    force?: boolean;
   }) => Promise<{ httpStatus: number; body: unknown }>;
   uploadReport?: (input: {
     workerBaseUrl: string;
     document: unknown;
+    force?: boolean;
   }) => Promise<{ httpStatus: number; body: unknown }>;
   deleteRemoteProject?: (input: { workerBaseUrl: string; projectId: string }) => Promise<{ httpStatus: number; body: unknown }>;
   deleteRemoteReport?: (input: { workerBaseUrl: string; reportId: string }) => Promise<{ httpStatus: number; body: unknown }>;
@@ -137,6 +140,10 @@ export type ShareRunResult = {
   cacheEntry?: ShareCacheEntry;
   issues: Issue[];
   skippedReason?: ShareSkippedReason;
+  /** Worker `expiresAt` from upload response (ISO). */
+  workerExpiresAt?: string;
+  /** Worker returned `HASH_ALREADY_EXISTS` (reused existing row). */
+  workerDeduped?: boolean;
   /** Rows removed from `share.json` after worker 404 during skip probe (re-upload follows). */
   purgedStaleCacheRows?: Array<{ kind: 'project' | 'report'; workerId: string }>;
 };

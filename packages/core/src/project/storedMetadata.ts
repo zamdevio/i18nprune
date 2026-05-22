@@ -16,9 +16,41 @@ import { METADATA_DASH } from '../types/project/metadata.js';
 import type { ProjectPrepareMeta } from '../types/project/prepare.js';
 import type { ProjectStoreRow } from '../types/project/store.js';
 import type { ProjectSnapshot } from '../types/project/upload.js';
+import { basenameNoExt } from './normalizeConfig.js';
 import { resolveProcessorPresentation } from './processorPresets.js';
 
 const IDLE_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+
+function finiteMs(value: unknown): number | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return undefined;
+  return Math.round(value);
+}
+
+function preferPositiveMs(measured: unknown, isoFallback: MetadataScalar): MetadataScalar {
+  const m = finiteMs(measured);
+  if (m !== undefined && m > 0) return m;
+  const iso = finiteMs(isoFallback);
+  if (iso !== undefined && iso > 0) return iso;
+  return msOrDash(measured);
+}
+
+/** Prefer persisted `localeTags`; fall back to map keys, then source locale path. */
+export function resolveProjectLocaleTags(snapshot: ProjectSnapshot): string[] {
+  const persisted = snapshot.localeTags?.filter((t) => typeof t === 'string' && t.length > 0) ?? [];
+  if (persisted.length > 0) {
+    return [...new Set(persisted)].sort((a, b) => a.localeCompare(b));
+  }
+  const fromMap = Object.keys(snapshot.localeJsonByTag ?? {});
+  if (fromMap.length > 0) {
+    return fromMap.sort((a, b) => a.localeCompare(b));
+  }
+  const sourcePath = snapshot.extraction?.sourceLocalePath;
+  if (typeof sourcePath === 'string' && sourcePath.length > 0) {
+    const tag = basenameNoExt(sourcePath.replace(/\\/g, '/'));
+    if (tag.length > 0) return [tag];
+  }
+  return [];
+}
 
 export function isoOrDash(value: unknown): MetadataScalar {
   if (typeof value !== 'string' || value.trim().length === 0) return METADATA_DASH;
@@ -102,12 +134,48 @@ export function buildPayloadProcessorInfo(input: {
   };
 }
 
-export function buildProjectMetadataPrepareTiming(prepareMeta?: ProjectPrepareMeta): ProjectMetadataPrepareTiming {
+export function buildProjectMetadataPrepareTiming(
+  prepareMeta?: ProjectPrepareMeta,
+  snapshot?: ProjectSnapshot,
+): ProjectMetadataPrepareTiming {
+  if (!snapshot) {
+    return {
+      zipParsedMs: msOrDash(prepareMeta?.zipParsedMs),
+      analysisMs: msOrDash(prepareMeta?.analysisMs),
+      extractionMs: msOrDash(prepareMeta?.extractionMs),
+      totalMs: msOrDash(prepareMeta?.totalMs),
+    };
+  }
+  const zipIso = isoMsDelta(snapshot.requestReceivedAt ?? snapshot.uploadedAt, snapshot.uploadedAt);
+  const extractIso = isoMsDelta(
+    snapshot.extraction?.extractionStartedAt ?? snapshot.uploadedAt,
+    snapshot.extraction?.computedAt,
+  );
+  const totalIso = isoMsDelta(snapshot.requestReceivedAt ?? snapshot.uploadedAt, snapshot.extraction?.computedAt);
+
+  const zipParsedMs = preferPositiveMs(prepareMeta?.zipParsedMs, zipIso);
+  const extractionMs = preferPositiveMs(prepareMeta?.extractionMs, extractIso);
+  let totalMs = preferPositiveMs(prepareMeta?.totalMs, totalIso);
+
+  if (
+    typeof totalMs === 'number' &&
+    totalMs > 0 &&
+    (extractionMs === 0 || extractionMs === METADATA_DASH) &&
+    typeof zipParsedMs === 'number'
+  ) {
+    return {
+      zipParsedMs,
+      analysisMs: msOrDash(prepareMeta?.analysisMs),
+      extractionMs: Math.max(0, totalMs - zipParsedMs),
+      totalMs,
+    };
+  }
+
   return {
-    zipParsedMs: msOrDash(prepareMeta?.zipParsedMs),
+    zipParsedMs,
     analysisMs: msOrDash(prepareMeta?.analysisMs),
-    extractionMs: msOrDash(prepareMeta?.extractionMs),
-    totalMs: msOrDash(prepareMeta?.totalMs),
+    extractionMs,
+    totalMs,
   };
 }
 
@@ -124,31 +192,29 @@ export function buildProjectMetadataTiming(input: {
   const extractionComputedAt = isoOrDash(extraction?.computedAt);
   const storedAt = isoOrDash(snap.storedAt ?? extraction?.computedAt);
 
-  const extractionDuration =
-    prepareMetaExtractionMs(input.prepareMeta) !== METADATA_DASH
-      ? prepareMetaExtractionMs(input.prepareMeta)
-      : isoMsDelta(extraction?.extractionStartedAt ?? snap.uploadedAt, extraction?.computedAt);
+  const extractionDuration = preferPositiveMs(
+    input.prepareMeta?.extractionMs,
+    isoMsDelta(extraction?.extractionStartedAt ?? snap.uploadedAt, extraction?.computedAt),
+  );
 
   return {
     requestReceivedAt,
     uploadedAt,
     storedAt,
     lastAccessedAt: isoOrDash(input.lastAccessedAt ?? snap.storedAt),
-    prepare: buildProjectMetadataPrepareTiming(input.prepareMeta),
+    prepare: buildProjectMetadataPrepareTiming(input.prepareMeta, snap),
     extraction: {
       startedAt: extractionStartedAt,
       computedAt: extractionComputedAt,
       durationMs: extractionDuration,
     },
     edge: {
-      persistMs: isoMsDelta(extraction?.computedAt, snap.storedAt),
-      totalMs: isoMsDelta(snap.requestReceivedAt ?? snap.uploadedAt, snap.storedAt),
+      persistMs: preferPositiveMs(
+        input.prepareMeta?.persistMs,
+        isoMsDelta(extraction?.computedAt, snap.storedAt),
+      ),
     },
   };
-}
-
-function prepareMetaExtractionMs(prepareMeta?: ProjectPrepareMeta): MetadataScalar {
-  return msOrDash(prepareMeta?.extractionMs);
 }
 
 function expiresAtFromLastAccess(lastAccessedAt: string | undefined, storedAt: string | undefined): MetadataScalar {
@@ -186,7 +252,7 @@ export function buildProjectStoredMetadata(row: ProjectStoreRow): ProjectStoredM
     fileCount: row.snapshot.fileCount,
     textFileCount: row.snapshot.textFileCount,
     detectedConfigPath: row.snapshot.detectedConfigPath,
-    localeTags: Object.keys(row.snapshot.localeJsonByTag ?? {}).sort((a, b) => a.localeCompare(b)),
+    localeTags: resolveProjectLocaleTags(row.snapshot),
     expiresAt: expiresAtFromLastAccess(row.lastAccessedAt, row.snapshot.storedAt),
     timing: buildProjectMetadataTiming({
       snapshot: row.snapshot,

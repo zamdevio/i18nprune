@@ -60,6 +60,7 @@ export type {
   WorkerApiEnvelope,
   WorkerApiErrorItem,
   WorkerApiWarningItem,
+  WorkerErrorAction,
   WorkerHealthResult,
 } from './workerApi.js';
 export type { WorkspaceConfigHintState, WorkspaceSession } from './workspace.js';

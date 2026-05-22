@@ -65,4 +65,5 @@ export type WorkerShareEnvelope = {
   code?: string;
   data: unknown;
   errors: Array<{ code: string; message: string }>;
+  warnings?: Array<{ code: string; message: string }>;
 };

@@ -2,28 +2,26 @@ import type { LocalesFilesystemConfig } from '../../../config/schema/root.js';
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import { localeCodeForSegment } from '../enumerate/parseSegmentLocale.js';
 import { resolveLocalesLayout } from '../layout/resolveLayout.js';
-/**
- * Build `localeJsonByTag` from archive-relative paths using the same segment rules as CLI enumeration.
- * When a locale has multiple segments, uses the primary segment (source path match, else lexicographically first).
- */
-export function buildLocaleJsonByTagFromArchive(input: {
+
+type ArchiveLocaleSegment = {
+  locale: string;
+  relativePath: string;
+  absolutePath: string;
+  archiveRelPath: string;
+};
+
+function collectArchiveLocaleSegments(input: {
   localesDirAbsolute: string;
-  sourceLocaleAbsolute?: string;
-  /** Project-root-relative paths (e.g. `messages/en.json` from a zip). */
   archiveRelPaths: Iterable<string>;
-  /** Resolve an archive-relative path to an absolute path on the virtual project root. */
   resolveArchiveAbsolute: (archiveRelPath: string) => string;
   path: LocaleLeafPathApi;
   locales: LocalesFilesystemConfig;
-  readText: (archiveRelPath: string) => string | undefined;
-}): Record<string, Record<string, unknown>> {
-  const { path, localesDirAbsolute, archiveRelPaths, locales, readText, sourceLocaleAbsolute, resolveArchiveAbsolute } =
-    input;
+}): ArchiveLocaleSegment[] {
+  const { path, localesDirAbsolute, archiveRelPaths, locales, resolveArchiveAbsolute } = input;
   const layout = resolveLocalesLayout(locales, localesDirAbsolute);
   const recursive = layout.structure !== 'locale_file';
 
-  type Segment = { locale: string; relativePath: string; absolutePath: string; archiveRelPath: string };
-  const segments: Segment[] = [];
+  const segments: ArchiveLocaleSegment[] = [];
 
   for (const archiveRelPath of archiveRelPaths) {
     if (!archiveRelPath.endsWith('.json')) continue;
@@ -44,7 +42,42 @@ export function buildLocaleJsonByTagFromArchive(input: {
     return a.relativePath.localeCompare(b.relativePath);
   });
 
-  const byLocale = new Map<string, Segment[]>();
+  return segments;
+}
+
+/**
+ * Locale codes present in the archive for the resolved layout (enumeration only; no JSON parse).
+ */
+export function listLocaleCodesFromArchive(input: {
+  localesDirAbsolute: string;
+  archiveRelPaths: Iterable<string>;
+  resolveArchiveAbsolute: (archiveRelPath: string) => string;
+  path: LocaleLeafPathApi;
+  locales: LocalesFilesystemConfig;
+}): string[] {
+  const segments = collectArchiveLocaleSegments(input);
+  return [...new Set(segments.map((s) => s.locale))].sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Build `localeJsonByTag` from archive-relative paths using the same segment rules as CLI enumeration.
+ * When a locale has multiple segments, uses the primary segment (source path match, else lexicographically first).
+ */
+export function buildLocaleJsonByTagFromArchive(input: {
+  localesDirAbsolute: string;
+  sourceLocaleAbsolute?: string;
+  /** Project-root-relative paths (e.g. `messages/en.json` from a zip). */
+  archiveRelPaths: Iterable<string>;
+  /** Resolve an archive-relative path to an absolute path on the virtual project root. */
+  resolveArchiveAbsolute: (archiveRelPath: string) => string;
+  path: LocaleLeafPathApi;
+  locales: LocalesFilesystemConfig;
+  readText: (archiveRelPath: string) => string | undefined;
+}): Record<string, Record<string, unknown>> {
+  const { readText, sourceLocaleAbsolute } = input;
+  const segments = collectArchiveLocaleSegments(input);
+
+  const byLocale = new Map<string, ArchiveLocaleSegment[]>();
   for (const segment of segments) {
     const list = byLocale.get(segment.locale) ?? [];
     list.push(segment);

@@ -6,32 +6,8 @@ import {
 import { PROJECT_UPLOAD_ZIP_LIMITS } from '../shared/constants/project.js';
 import type { ParsedProjectUpload, ProjectUploadFileMeta } from '../types/project/upload.js';
 import type { ProjectZipFileMetaForTree } from '../types/project/tree.js';
+import { tryParseConfigObjectFromTsOrJs } from './parseConfigScript.js';
 import { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from './tree.js';
-
-function parseFunctionsArray(raw: string): string[] {
-  const quoted = raw.match(/['"`]([^'"`]+)['"`]/g) ?? [];
-  const values = quoted
-    .map((token) => token.slice(1, -1).trim())
-    .filter((v) => v.length > 0);
-  return [...new Set(values)];
-}
-
-function tryParseConfigObjectFromTsOrJs(raw: string): Record<string, unknown> | null {
-  const compact = raw.replace(/\r\n/g, '\n');
-  const source =
-    compact.match(/\blocales\s*:\s*\{[\s\S]*?\bsource\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
-  const directory =
-    compact.match(/\blocales\s*:\s*\{[\s\S]*?\bdirectory\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
-  const src = compact.match(/\bsrc\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
-  const functionsRaw = compact.match(/\bfunctions\s*:\s*\[([\s\S]*?)\]/)?.[1] ?? null;
-  const functions = functionsRaw ? parseFunctionsArray(functionsRaw) : [];
-  if (!source || !directory || !src || functions.length === 0) return null;
-  return {
-    locales: { source, directory },
-    src,
-    functions,
-  };
-}
 
 function extOf(filePath: string): string {
   const idx = filePath.lastIndexOf('.');

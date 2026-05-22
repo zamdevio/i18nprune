@@ -10,6 +10,8 @@ export type ProjectPrepareMeta = {
   analysisMs?: number;
   extractionMs?: number;
   totalMs?: number;
+  /** Measured DO persist on worker ingest (ms). */
+  persistMs?: number;
   /** Host project-cache dispatch at prepare time (CLI/web/SDK). */
   hostCache?: HostPrepareCacheMeta;
 };
@@ -21,6 +23,8 @@ export type HostedProjectIngestEnvelope = {
   prepareMeta?: ProjectPrepareMeta;
   /** Host SDK context (CLI / web); omitted on worker-only archive uploads. */
   processorContext?: HostedIngestProcessorContext;
+  /** When true, worker stores payload even if content hash already exists (replaces prior row). */
+  force?: boolean;
 };
 
 export type PrepareProjectSnapshotResult =

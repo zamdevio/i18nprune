@@ -2,6 +2,7 @@ import type { HostedIngestProcessorContext } from './metadata.js';
 import type { IngestRouteKind } from './metadata.js';
 import type { PrepareHostKind } from './prepareHost.js';
 import type { PayloadProcessorInfo, ReportMetadataDocumentTiming } from './metadata.js';
+import type { ProjectPrepareMeta } from './prepare.js';
 import type { MetadataScalar } from './metadata.js';
 
 /** Summary fields extracted from a stored report document (metadata GET). */
@@ -44,5 +45,7 @@ export type ReportStoreRow = {
   document: Record<string, unknown>;
   ingestRoute: IngestRouteKind;
   prepareHost?: PrepareHostKind;
+  prepareMeta?: ProjectPrepareMeta;
+  requestReceivedAt?: string;
   processorContext?: HostedIngestProcessorContext;
 };

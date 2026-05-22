@@ -44,6 +44,8 @@ export type ProjectSnapshot = {
   resolvedConfig: Record<string, unknown> | null;
   sourceLocaleJson: Record<string, unknown> | null;
   localeJsonByTag: Record<string, Record<string, unknown>>;
+  /** Locale codes discovered at prepare (flat_file or locale_directory layouts). */
+  localeTags?: string[];
   extraction: ProjectUploadExtractionSummary | null;
 };
 

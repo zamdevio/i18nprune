@@ -1,4 +1,5 @@
 import type { ReportStoreRow } from '@i18nprune/core';
+import { readDoStorageFailure } from './doResponse.js';
 
 export async function getReportById(stub: DurableObjectStub, reportId: string): Promise<ReportStoreRow | null> {
   const resp = await stub.fetch(`https://do/report/${encodeURIComponent(reportId)}`);
@@ -7,11 +8,18 @@ export async function getReportById(stub: DurableObjectStub, reportId: string): 
 }
 
 export async function putReport(stub: DurableObjectStub, row: ReportStoreRow): Promise<void> {
-  await stub.fetch('https://do/report', {
+  const resp = await stub.fetch('https://do/report', {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(row),
   });
+  const storageFailure = await readDoStorageFailure(resp);
+  if (storageFailure) {
+    throw storageFailure;
+  }
+  if (!resp.ok) {
+    throw new Error(`Report persist failed (HTTP ${String(resp.status)})`);
+  }
 }
 
 export async function deleteReport(stub: DurableObjectStub, reportId: string): Promise<boolean> {

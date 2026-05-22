@@ -44,5 +44,7 @@ export async function prepareReportFromArchive(
     };
   }
 
-  return prepareReportPayload({ reportDocument: document });
+  const validated = await prepareReportPayload({ reportDocument: document });
+  if (!validated.ok) return validated;
+  return { ...validated, prepareMeta: project.prepareMeta };
 }

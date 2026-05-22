@@ -124,7 +124,7 @@ describe('runShareList/view/delete', () => {
                     computedAt: '2026-01-01T00:00:00.500Z',
                     durationMs: 400,
                   },
-                  edge: { persistMs: 500, totalMs: 1000 },
+                  edge: { persistMs: 500 },
                 },
                 processor: {
                   surface: 'cli',

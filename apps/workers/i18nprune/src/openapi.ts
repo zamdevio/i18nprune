@@ -30,6 +30,22 @@ export const openApiDocument = {
   ],
   components: {
     schemas: {
+      WorkerApiErrorItem: {
+        type: 'object',
+        required: ['code', 'message'],
+        properties: {
+          code: { type: 'string', description: 'Stable machine code (e.g. PAYLOAD_TOO_LARGE, RATE_LIMITED, PROJECT_NOT_FOUND).' },
+          message: { type: 'string' },
+          details: { type: 'object', additionalProperties: true },
+          suggestions: { type: 'array', items: { type: 'string' } },
+          recoverable: { type: 'boolean' },
+          action: {
+            type: 'string',
+            enum: ['reduce_payload', 'fix_payload', 'retry', 'reupload', 'self_host'],
+          },
+          retryAfterSeconds: { type: 'integer' },
+        },
+      },
       ApiEnvelope: {
         type: 'object',
         properties: {
@@ -38,14 +54,7 @@ export const openApiDocument = {
           data: {},
           errors: {
             type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                code: { type: 'string' },
-                message: { type: 'string' },
-                details: {},
-              },
-            },
+            items: { $ref: '#/components/schemas/WorkerApiErrorItem' },
           },
           warnings: {
             type: 'array',
@@ -177,6 +186,22 @@ export const openApiDocument = {
               },
             },
           },
+          '413': {
+            description: 'Prepared JSON exceeds max bytes',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
+          '429': {
+            description: 'Per-IP anonymous upload quota exceeded',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
         },
       },
     },
@@ -210,7 +235,30 @@ export const openApiDocument = {
               },
             },
           },
-          '400': { description: 'Upload/prepare validation failure' },
+          '400': {
+            description: 'Upload/prepare validation failure',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
+          '413': {
+            description: 'Zip too large, too many files, or extraction text limit',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
+          '429': {
+            description: 'Per-IP anonymous upload quota exceeded',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
         },
       },
     },
@@ -397,7 +445,30 @@ export const openApiDocument = {
         },
         responses: {
           '200': { description: 'Report stored (`data.reportId`)' },
-          '400': { description: 'Schema or size validation failure' },
+          '400': {
+            description: 'Schema validation failure',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
+          '413': {
+            description: 'Report JSON exceeds REPORT_SHARE_MAX_BYTES',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
+          '429': {
+            description: 'Per-IP anonymous upload quota exceeded',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
         },
       },
     },
@@ -424,7 +495,30 @@ export const openApiDocument = {
         },
         responses: {
           '200': { description: 'Report stored (`data.reportId`)' },
-          '400': { description: 'Prepare or validation failure' },
+          '400': {
+            description: 'Prepare or validation failure',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
+          '413': {
+            description: 'Zip too large or extraction limits',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
+          '429': {
+            description: 'Per-IP anonymous upload quota exceeded',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiEnvelope' },
+              },
+            },
+          },
         },
       },
     },

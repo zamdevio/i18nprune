@@ -42,7 +42,14 @@ export {
   workerDataDeleteRemoved,
   workerDataProjectId,
   workerDataReportId,
+  workerUploadExpiresAt,
+  workerUploadWasDeduped,
 } from './remote/remote.js';
+export {
+  buildHostedProjectUploadRequest,
+  buildHostedReportUploadRequest,
+  resolveShareUploadForce,
+} from '../shared/workerApi/ingestRequest.js';
 export {
   parseWorkerProjectStoredMetadata,
   parseWorkerReportStoredMetadata,

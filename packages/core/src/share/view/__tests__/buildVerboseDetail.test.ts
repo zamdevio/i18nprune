@@ -25,7 +25,7 @@ function projectView(overrides?: Partial<ShareViewResult>): ShareViewResult {
         computedAt: '2026-01-01T00:00:00.500Z',
         durationMs: 400,
       },
-      edge: { persistMs: 1866, totalMs: 2000 },
+      edge: { persistMs: 1866 },
     },
     processor: {
       surface: 'cli',
@@ -91,7 +91,7 @@ describe('buildShareViewVerboseDetail', () => {
     const verbose = buildShareViewVerboseDetail({
       kind: 'project',
       workerId: 'p2',
-      remote: { fileCount: 3, zipBytes: 50, projectHash: 'ab', timing: { edge: { persistMs: 1, totalMs: 2 } } },
+      remote: { fileCount: 3, zipBytes: 50, projectHash: 'ab', timing: { edge: { persistMs: 1 } } },
       links: {},
       issues: [],
     });

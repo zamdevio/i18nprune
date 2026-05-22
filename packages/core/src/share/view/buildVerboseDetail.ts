@@ -85,7 +85,6 @@ function projectTimingsSection(t: ProjectStoredMetadata['timing']): ShareViewVer
 function projectEdgeSection(t: ProjectStoredMetadata['timing']): ShareViewVerboseSection {
   return {
     persistMs: dash(t.edge.persistMs),
-    edgeTotalMs: dash(t.edge.totalMs),
   };
 }
 
@@ -142,7 +141,6 @@ function minimalVerboseFromRemote(
     links,
     edge: {
       persistMs: dash(edge?.persistMs),
-      edgeTotalMs: dash(edge?.totalMs),
     },
   };
   if (res.kind === 'project') {
@@ -223,13 +221,23 @@ export function buildShareViewVerboseDetail(res: ShareViewResult): ShareViewVerb
         expiresAt: dash(m.expiresAt),
       },
       timings: {
+        ...(m.timing.requestReceivedAt !== undefined
+          ? { requestReceivedAt: dash(m.timing.requestReceivedAt) }
+          : {}),
         generatedAt: dash(m.timing.generatedAt),
         storedAt: dash(m.timing.storedAt),
         lastAccessedAt: dash(m.timing.lastAccessedAt),
+        ...(m.timing.prepare
+          ? {
+              'prepare.totalMs': dash(m.timing.prepare.totalMs),
+              'prepare.zipParsedMs': dash(m.timing.prepare.zipParsedMs),
+              'prepare.analysisMs': dash(m.timing.prepare.analysisMs),
+              'prepare.extractionMs': dash(m.timing.prepare.extractionMs),
+            }
+          : {}),
       },
       edge: {
         persistMs: dash(m.timing.edge.persistMs),
-        edgeTotalMs: dash(m.timing.edge.totalMs),
       },
       ...(res.local ? { local: localSection(res.local) } : {}),
       links,

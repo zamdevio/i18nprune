@@ -57,13 +57,13 @@ export function basenameNoExt(filePath: string): string {
 export function parseProjectUploadFailure(cause: unknown): { code: string; message: string } {
   const message = cause instanceof Error ? cause.message : 'Failed to process uploaded project archive.';
   if (message.startsWith('Zip exceeds max size')) {
-    return { code: 'UPLOAD_ZIP_TOO_LARGE', message };
+    return { code: 'PAYLOAD_TOO_LARGE', message };
   }
   if (message.startsWith('Zip exceeds max file count')) {
-    return { code: 'UPLOAD_TOO_MANY_FILES', message };
+    return { code: 'TOO_MANY_FILES', message };
   }
   if (message.startsWith('Zip extracted text exceeds limit')) {
-    return { code: 'UPLOAD_TEXT_LIMIT_EXCEEDED', message };
+    return { code: 'EXTRACTION_LIMIT_EXCEEDED', message };
   }
-  return { code: 'UPLOAD_PROCESSING_FAILED', message };
+  return { code: 'UPLOAD_FAILED', message };
 }

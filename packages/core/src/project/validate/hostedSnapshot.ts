@@ -4,6 +4,7 @@ import {
   ISSUE_PROJECT_HOSTED_SNAPSHOT_SCHEMA_VERSION,
 } from '../../shared/constants/issueCodes.js';
 import type { HostedIngestProcessorContext } from '../../types/project/metadata.js';
+import { parseWorkerIngestForceField } from '../../shared/workerApi/ingestForce.js';
 import type {
   HostedProjectIngestEnvelope,
   ValidateHostedProjectIngestResult,
@@ -67,6 +68,8 @@ export function validateHostedProjectIngestBody(body: unknown): ValidateHostedPr
     return { ok: false, issues: [err('processorContext must be an object when provided')] };
   }
 
+  const force = parseWorkerIngestForceField(raw.force);
+
   return {
     ok: true,
     envelope: {
@@ -78,6 +81,7 @@ export function validateHostedProjectIngestBody(body: unknown): ValidateHostedPr
       ...(processorContext && typeof processorContext === 'object'
         ? { processorContext: processorContext as HostedIngestProcessorContext }
         : {}),
+      ...(force ? { force: true } : {}),
     },
   };
 }

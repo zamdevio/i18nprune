@@ -75,7 +75,16 @@ export function emitShareUploadHumanMessages(host: ShareHumanMessageHost, res: S
           : res.skippedReason;
     shareMessage(host, 'notice', `Share skipped (${skipLabel}).`);
   } else if (res.action === 'uploaded') {
-    shareMessage(host, 'info', 'Uploaded to worker.');
+    if (res.workerDeduped) {
+      const id = res.kind === 'project' ? res.workerIds.projectId : res.workerIds.reportId;
+      shareMessage(
+        host,
+        'notice',
+        `Worker already hosts this payload — reusing existing ${res.kind} ${id ?? '?'}.`,
+      );
+    } else {
+      shareMessage(host, 'info', 'Uploaded to worker.');
+    }
   } else if (res.action === 'link-only') {
     shareMessage(host, 'info', 'Link-only (existing worker row).');
   }
@@ -86,7 +95,13 @@ export function emitShareUploadHumanMessages(host: ShareHumanMessageHost, res: S
     res.action === 'uploaded' ||
     (res.action === 'skipped' &&
       (res.skippedReason === 'hash_unchanged' || res.skippedReason === 'cache_epoch_unchanged'));
-  if (showTtl) {
+  if (res.workerExpiresAt) {
+    shareMessage(
+      host,
+      'info',
+      `Hosted ${res.kind} retained until ${res.workerExpiresAt}; reads reset the ~7 day idle window.`,
+    );
+  } else if (showTtl) {
     shareMessage(host, 'info', shareTtlHint(res.kind));
   }
 }

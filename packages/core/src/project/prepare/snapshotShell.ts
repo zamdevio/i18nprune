@@ -8,6 +8,7 @@ import {
   I18NPRUNE_CONFIG_SNAPSHOT_FILE_NAMES_SET,
 } from '../../shared/constants/config.js';
 import { collectShareSnapshotPaths } from '../../share/payload/collectSnapshotPaths.js';
+import { tryParseConfigObjectFromTsOrJs } from '../parseConfigScript.js';
 import { buildProjectTreeFromPaths, emptyDirectoryPathsFromZipKeys } from '../tree.js';
 
 function extOf(filePath: string): string {
@@ -27,21 +28,6 @@ function fileMetaMapForTree(fileMeta: Map<string, ProjectUploadFileMeta>): Map<s
     out.set(k, { size: v.size, ext: v.ext, mimeGuess: v.mimeGuess, textLike: v.textLike });
   }
   return out;
-}
-
-function tryParseConfigObjectFromTsOrJs(raw: string): Record<string, unknown> | null {
-  const compact = raw.replace(/\r\n/g, '\n');
-  const source =
-    compact.match(/\blocales\s*:\s*\{[\s\S]*?\bsource\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
-  const directory =
-    compact.match(/\blocales\s*:\s*\{[\s\S]*?\bdirectory\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
-  const src = compact.match(/\bsrc\s*:\s*['"`]([^'"`]+)['"`]/)?.[1] ?? null;
-  const functionsRaw = compact.match(/\bfunctions\s*:\s*\[([\s\S]*?)\]/)?.[1] ?? null;
-  const functions = functionsRaw
-    ? [...new Set((functionsRaw.match(/['"`]([^'"`]+)['"`]/g) ?? []).map((t) => t.slice(1, -1).trim()).filter(Boolean))]
-    : [];
-  if (!source || !directory || !src || functions.length === 0) return null;
-  return { locales: { source, directory }, src, functions };
 }
 
 /**

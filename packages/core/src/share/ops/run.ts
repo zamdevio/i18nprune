@@ -27,7 +27,14 @@ import {
 import { emitShareCacheDebug } from '../cache/debug.js';
 import { resolveShareInputFilesEpoch } from '../cache/resolveInputFilesEpoch.js';
 import { shareJsonBackupWarnMessage } from '../cache/shareJsonBackup.js';
-import { parseWorkerShareEnvelope, shareRemoteIssueFromWorker, workerDataProjectId, workerDataReportId } from '../remote/remote.js';
+import {
+  parseWorkerShareEnvelope,
+  shareRemoteIssueFromWorker,
+  workerDataProjectId,
+  workerDataReportId,
+  workerUploadExpiresAt,
+  workerUploadWasDeduped,
+} from '../remote/remote.js';
 import type { ShareHostHooks } from '../../types/share/shareRun.js';
 
 function shareCacheDebug(hooks: ShareHostHooks, lines: Parameters<typeof emitShareCacheDebug>[0]['lines']): void {
@@ -480,16 +487,22 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     };
   }
 
+  const uploadForce =
+    (input.kind === 'project' && input.source === 'build' && input.force === true) ||
+    (input.kind === 'report' && input.source === 'document' && input.force === true);
+
   const up =
     input.kind === 'project'
       ? await input.hooks.uploadProject!({
           workerBaseUrl,
           envelope: builtProject!.envelope,
           serialized: builtProject!.serialized,
+          force: uploadForce,
         })
       : await input.hooks.uploadReport!({
           workerBaseUrl,
           document: builtReport && builtReport.ok ? builtReport.document : {},
+          force: uploadForce,
         });
   const env = parseWorkerShareEnvelope(up.body);
   const remoteIssue = shareRemoteIssueFromWorker({ httpStatus: up.httpStatus, envelope: env });
@@ -562,6 +575,9 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
   emitRunEvent(emit, { type: 'run.share.links', op: 'share', runId, at: stamp(), links });
   emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: true });
 
+  const workerExpiresAt = workerUploadExpiresAt(env.data, input.kind);
+  const workerDeduped = workerUploadWasDeduped(env);
+
   return {
     action: 'uploaded',
     kind: input.kind,
@@ -570,6 +586,8 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
     workerIds: input.kind === 'project' ? { projectId: workerId } : { reportId: workerId },
     cacheEntry: canUseShareJson ? newEntry : undefined,
     issues,
+    ...(workerExpiresAt ? { workerExpiresAt } : {}),
+    ...(workerDeduped ? { workerDeduped } : {}),
     ...(purgedStaleCacheRows.length > 0 ? { purgedStaleCacheRows } : {}),
   };
 }

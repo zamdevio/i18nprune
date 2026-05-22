@@ -569,6 +569,40 @@ export {
 } from './shared/constants/project.js';
 export { REPORT_SHARE_MAX_BYTES } from './shared/constants/share.js';
 export { SDK_PACKAGE_NAME, SDK_VERSION } from './shared/constants/sdk.js';
+export {
+  buildWorkerApiError,
+  HOSTED_PROJECT_PREPARED_MAX_BYTES,
+  workerBusyError,
+  workerErrorFromIssue,
+  workerErrorFromCode,
+  workerErrorHttpStatus,
+  workerPayloadTooLargeError,
+  workerRateLimitedError,
+  workerProjectNotFoundError,
+  workerReportNotFoundError,
+  workerHashAlreadyExistsWarning,
+  workerStorageLimitError,
+} from './shared/workerApi/errors.js';
+export {
+  appendWorkerIngestForceQuery,
+  coalesceWorkerIngestForce,
+  parseWorkerIngestForceField,
+  parseWorkerIngestForceQuery,
+  resolveShareUploadForce,
+  serializeHostedProjectIngestBody,
+  serializeHostedReportIngestBody,
+  withHostedProjectIngestForce,
+  workerProjectArchiveIngestUrl,
+  workerProjectIngestUrl,
+  workerReportArchiveIngestUrl,
+  workerReportIngestUrl,
+  WORKER_INGEST_FORCE_QUERY,
+} from './shared/workerApi/ingestForce.js';
+export {
+  buildHostedProjectUploadRequest,
+  buildHostedReportUploadRequest,
+} from './shared/workerApi/ingestRequest.js';
+export type { WorkerErrorHttpStatus } from './shared/workerApi/errors.js';
 export { EMPTY_INPUT_FILES_EPOCH, isEmptyInputFilesEpoch } from './cache/emptyEpoch.js';
 export type {
   NormalizedProjectConfig,
@@ -609,6 +643,7 @@ export type {
   WorkerApiEnvelope,
   WorkerApiErrorItem,
   WorkerApiWarningItem,
+  WorkerErrorAction,
   WorkerHealthResult,
   WorkspaceConfigHintState,
   WorkspaceSession,

@@ -217,6 +217,8 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
           workerIds: { ...projectRes.workerIds, ...reportRes.workerIds },
           skippedReason: projectRes.skippedReason ?? reportRes.skippedReason,
           cacheEntry: projectRes.cacheEntry ?? reportRes.cacheEntry,
+          workerExpiresAt: projectRes.workerExpiresAt ?? reportRes.workerExpiresAt,
+          workerDeduped: projectRes.workerDeduped || reportRes.workerDeduped,
         };
         emitUploadJsonEnvelope(payload, { ok, issues, cwd: ctx.adapters.system.cwd() });
         return;
@@ -276,6 +278,8 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
       workerIds: res.workerIds,
       skippedReason: res.skippedReason,
       cacheEntry: res.cacheEntry,
+      ...(res.workerExpiresAt ? { workerExpiresAt: res.workerExpiresAt } : {}),
+      ...(res.workerDeduped ? { workerDeduped: res.workerDeduped } : {}),
     };
 
     if (json) {

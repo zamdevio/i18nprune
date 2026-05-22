@@ -7,15 +7,19 @@ import { createArchiveProjectFs } from './archiveFs.js';
 import { fillProjectSnapshotExtraction } from './extract.js';
 import { METADATA_DASH } from '../../types/project/metadata.js';
 import type { HostPrepareCacheMeta } from '../../types/project/metadata.js';
+import { alignArchiveSnapshotTimings } from './alignArchiveTimings.js';
+import { resolveArchiveInputFilesEpoch } from './resolveArchiveInputFilesEpoch.js';
 import { createPrepareTimer } from './timing.js';
 
-const ARCHIVE_HOST_CACHE: HostPrepareCacheMeta = {
-  analysis: 'disabled',
-  analysisReason: 'archive_ingest_no_project_cache',
-  timingsTrustworthy: true,
-  filesEpoch: METADATA_DASH,
-  projectCacheEnabled: false,
-};
+function archiveHostCache(filesEpoch: string | undefined): HostPrepareCacheMeta {
+  return {
+    analysis: 'disabled',
+    analysisReason: 'archive_ingest_no_project_cache',
+    timingsTrustworthy: true,
+    filesEpoch: filesEpoch ?? METADATA_DASH,
+    projectCacheEnabled: false,
+  };
+}
 
 function toIssue(code: string, message: string): Issue {
   return { severity: 'error', code, message };
@@ -29,6 +33,7 @@ export async function prepareProjectSnapshotFromArchive(
 ): Promise<PrepareProjectSnapshotResult> {
   const timer = createPrepareTimer();
 
+  const zipWall0 = Date.now();
   let parsedUpload: ReturnType<typeof parseZipToSnapshot>;
   try {
     parsedUpload = parseZipToSnapshot(input.projectId, input.projectHash, input.zipBytes);
@@ -56,7 +61,27 @@ export async function prepareProjectSnapshotFromArchive(
   }
 
   const prepareMeta = timer.finish(input.prepareHost);
-  prepareMeta.hostCache = ARCHIVE_HOST_CACHE;
+  const zipWallMs = Math.max(0, Date.now() - zipWall0);
+  if ((prepareMeta.zipParsedMs ?? 0) <= 0 && zipWallMs > 0) {
+    prepareMeta.zipParsedMs = zipWallMs;
+  }
+  if (input.requestReceivedAt) {
+    const wallTotal = Math.max(0, Date.now() - Date.parse(input.requestReceivedAt));
+    if (wallTotal > (prepareMeta.totalMs ?? 0)) {
+      prepareMeta.totalMs = wallTotal;
+      const zip = prepareMeta.zipParsedMs ?? 0;
+      if ((prepareMeta.extractionMs ?? 0) <= 0) {
+        prepareMeta.extractionMs = Math.max(0, wallTotal - zip);
+      }
+    }
+  }
+  alignArchiveSnapshotTimings({
+    snapshot,
+    requestReceivedAt: input.requestReceivedAt,
+    prepareMeta,
+  });
+  const filesEpoch = await resolveArchiveInputFilesEpoch(textFiles);
+  prepareMeta.hostCache = archiveHostCache(filesEpoch);
 
   return {
     ok: true,

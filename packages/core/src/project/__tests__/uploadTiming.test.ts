@@ -69,7 +69,7 @@ describe('buildProjectUploadSnapshotMeta', () => {
     const meta = buildProjectUploadSnapshotMeta(baseRow());
     expect(meta.timing.prepare.extractionMs).toBe(700);
     expect(meta.timing.edge.persistMs).toBe(200);
-    expect(meta.timing.edge.totalMs).toBe(1000);
+    expect('totalMs' in meta.timing.edge).toBe(false);
     expect(meta.timing.extraction.startedAt).toBe('2026-01-01T00:00:00.100Z');
     expect(meta.processor.surface).toBe('cli');
     expect(meta.processor.route).toBe('prepared');
@@ -111,6 +111,20 @@ describe('buildProjectUploadSnapshotMeta', () => {
     expect(meta.extraction?.cache.analysis).toBe('hit');
     expect(meta.extraction?.cache.timingsTrustworthy).toBe(false);
     expect(meta.extraction?.cache.filesEpoch).toBe('epoch-abc');
+  });
+
+  it('prefers measured persistMs on prepareMeta over ISO delta', () => {
+    const meta = buildProjectUploadSnapshotMeta(
+      baseRow({ prepareMeta: { prepareHost: 'worker-archive', persistMs: 42, totalMs: 900 } }),
+    );
+    expect(meta.timing.edge.persistMs).toBe(42);
+  });
+
+  it('falls back to ISO persist delta when measured persistMs is zero', () => {
+    const meta = buildProjectUploadSnapshotMeta(
+      baseRow({ prepareMeta: { prepareHost: 'worker-archive', persistMs: 0 } }),
+    );
+    expect(meta.timing.edge.persistMs).toBe(200);
   });
 
   it('uses dash for invalid or missing timestamps', () => {

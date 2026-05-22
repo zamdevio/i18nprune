@@ -1,6 +1,6 @@
 import { resolveProjectAnalysis } from '../../analysis/project.js';
 import { readLocaleJsonFromContextSync } from '../../shared/locales/read/bundle.js';
-import { buildLocaleJsonByTagFromArchive } from '../../shared/locales/archive/buildLocaleJsonByTag.js';
+import { buildLocaleJsonByTagFromArchive, listLocaleCodesFromArchive } from '../../shared/locales/archive/buildLocaleJsonByTag.js';
 import { ISSUE_PROJECT_SOURCE_LOCALE_INVALID_SHAPE } from '../../shared/constants/issueCodes.js';
 import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '../../shared/constants/report.js';
 import type { CoreContext } from '../../types/context/index.js';
@@ -24,20 +24,34 @@ export async function applyProjectAnalysisToSnapshot(input: ApplyProjectAnalysis
 
   const localesDirAbs = ctx.adapters.path.resolve(absRoot, normalized.localesDir);
   snapshot.sourceLocaleJson = sourceLocaleJson as Record<string, unknown>;
+  const localesConfig = {
+    source: normalized.source,
+    directory: normalized.localesDir,
+    mode: normalized.localesMode,
+    structure: normalized.localesStructure,
+  };
+  const archiveRelPaths = Object.keys(textFiles);
+  const resolveArchiveAbsolute = (rel: string) => ctx.adapters.path.resolve(absRoot, rel);
   snapshot.localeJsonByTag = buildLocaleJsonByTagFromArchive({
     localesDirAbsolute: localesDirAbs,
     sourceLocaleAbsolute: sourceAbs,
-    archiveRelPaths: Object.keys(textFiles),
-    resolveArchiveAbsolute: (rel) => ctx.adapters.path.resolve(absRoot, rel),
+    archiveRelPaths,
+    resolveArchiveAbsolute,
     path: ctx.adapters.path,
-    locales: {
-      source: normalized.source,
-      directory: normalized.localesDir,
-      mode: normalized.localesMode,
-      structure: normalized.localesStructure,
-    },
+    locales: localesConfig,
     readText: (rel) => textFiles[rel],
   });
+  const tagsFromMap = Object.keys(snapshot.localeJsonByTag);
+  snapshot.localeTags =
+    tagsFromMap.length > 0
+      ? tagsFromMap.sort((a, b) => a.localeCompare(b))
+      : listLocaleCodesFromArchive({
+          localesDirAbsolute: localesDirAbs,
+          archiveRelPaths,
+          resolveArchiveAbsolute,
+          path: ctx.adapters.path,
+          locales: localesConfig,
+        });
 
   const extractionStartedAt = new Date().toISOString();
   snapshot.extraction = {
