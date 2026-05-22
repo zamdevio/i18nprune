@@ -44,6 +44,6 @@ describe('buildProjectStoredMetadata timing fallbacks', () => {
     expect(meta.timing.prepare.totalMs).toBe(900);
     expect(meta.timing.prepare.extractionMs).toBe(890);
     expect(meta.timing.edge.persistMs).toBe(100);
-    expect(meta.localeTags).toEqual(['en']);
+    expect(meta.localeTags).toEqual([]);
   });
 });

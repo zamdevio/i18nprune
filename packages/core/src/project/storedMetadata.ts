@@ -16,7 +16,6 @@ import { METADATA_DASH } from '../types/project/metadata.js';
 import type { ProjectPrepareMeta } from '../types/project/prepare.js';
 import type { ProjectStoreRow } from '../types/project/store.js';
 import type { ProjectSnapshot } from '../types/project/upload.js';
-import { basenameNoExt } from './normalizeConfig.js';
 import { resolveProcessorPresentation } from './processorPresets.js';
 
 const IDLE_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -34,7 +33,10 @@ function preferPositiveMs(measured: unknown, isoFallback: MetadataScalar): Metad
   return msOrDash(measured);
 }
 
-/** Prefer persisted `localeTags`; fall back to map keys, then source locale path. */
+/**
+ * Locale codes for worker metadata (`localeTags`).
+ * Uses values persisted at prepare time, else keys of `localeJsonByTag`, else `[]`.
+ */
 export function resolveProjectLocaleTags(snapshot: ProjectSnapshot): string[] {
   const persisted = snapshot.localeTags?.filter((t) => typeof t === 'string' && t.length > 0) ?? [];
   if (persisted.length > 0) {
@@ -43,11 +45,6 @@ export function resolveProjectLocaleTags(snapshot: ProjectSnapshot): string[] {
   const fromMap = Object.keys(snapshot.localeJsonByTag ?? {});
   if (fromMap.length > 0) {
     return fromMap.sort((a, b) => a.localeCompare(b));
-  }
-  const sourcePath = snapshot.extraction?.sourceLocalePath;
-  if (typeof sourcePath === 'string' && sourcePath.length > 0) {
-    const tag = basenameNoExt(sourcePath.replace(/\\/g, '/'));
-    if (tag.length > 0) return [tag];
   }
   return [];
 }

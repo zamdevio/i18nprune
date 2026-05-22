@@ -1,7 +1,6 @@
 import { mergePartialConfigIntoBase } from '../../config/index.js';
 import * as extractor from '../../namespaces/extractor.js';
 import { buildLocaleJsonByTagFromArchive, listLocaleCodesFromArchive } from '../../shared/locales/index.js';
-import { discoverLocaleTagsFromTextFiles } from './discoverLocaleTags.js';
 import {
   ISSUE_PROJECT_SOURCE_LOCALE_INVALID_JSON,
   ISSUE_PROJECT_SOURCE_LOCALE_INVALID_SHAPE,
@@ -120,14 +119,6 @@ export async function fillProjectSnapshotExtraction(
           path: fs.path,
           locales: localesConfig,
         });
-  if (snapshot.localeTags.length === 0) {
-    snapshot.localeTags = discoverLocaleTagsFromTextFiles({
-      textFiles,
-      localesDir: normalized.localesDir,
-      sourceLocalePath: normalized.source,
-      localesMode: normalized.localesMode,
-    });
-  }
 
   const computedAt = new Date().toISOString();
   snapshot.extraction = {
