@@ -1,4 +1,4 @@
-import { cacheLine, line, scanLine, style } from '@/utils/ansi/index.js';
+import { cacheLine, line, scanLine, style, verboseLine } from '@/utils/ansi/index.js';
 import { getRunOptions } from '@i18nprune/core';
 import type { RunOptions } from '@i18nprune/core';
 import type { LoggerMask } from '@/types/core/logger/index.js';
@@ -58,11 +58,22 @@ export const logger = {
     console.log(cacheLine(msg));
   },
 
-  /** Dim cache detail line, also gated by `--debug-cache`. */
+  /** Indented cache detail (dim only; parent line carries `[cache]`). Gated by `--debug-cache`. */
   cacheDetail(msg: string, run?: RunOptions, mask?: LoggerMask): void {
     const r = effective(run, mask);
     if (!canEmit(r, 'cache')) return;
-    console.log(style.dim(cacheLine(msg)));
+    console.log(style.dim(msg));
+  },
+
+  /** `[i18nprune] [verbose] …` — share view `--verbose`; prints under `--quiet`. */
+  verbose(msg: string, run?: RunOptions, mask?: LoggerMask, options?: { dim?: boolean }): void {
+    const r = effective(run, mask);
+    if (!canEmit(r, 'verbose')) return;
+    if (msg === '') {
+      console.log('');
+      return;
+    }
+    console.log(verboseLine(msg, options?.dim !== false));
   },
 
   /** Always prints (stderr). */

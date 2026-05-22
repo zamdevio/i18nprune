@@ -63,6 +63,11 @@ export function canPrintCache(run: RunOptions): boolean {
   return run.debugCache && canPrintInfo(run);
 }
 
+/** `share view --verbose` sections — prints in quiet; hidden in silent / JSON. */
+export function canPrintVerbose(run: RunOptions): boolean {
+  return !run.json && !run.silent;
+}
+
 /** Single entry for gate checks — use in custom code paths if needed. */
 export function canEmit(run: RunOptions, gate: LogGate): boolean {
   switch (gate) {
@@ -86,6 +91,8 @@ export function canEmit(run: RunOptions, gate: LogGate): boolean {
       return canPrintCache(run);
     case 'scan':
       return canPrintScanDebug(run);
+    case 'verbose':
+      return canPrintVerbose(run);
     default:
       return false;
   }

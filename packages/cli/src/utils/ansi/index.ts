@@ -7,12 +7,21 @@ export const style = baseStyle;
 
 export type { HeaderOptions, LogLevel };
 
-const levelTag: Record<LogLevel, (s: string) => string> = {
+const levelColor: Record<LogLevel, (s: string) => string> = {
   info: style.ok,
   notice: style.warn,
   warn: style.warn,
   error: style.err,
 };
+
+/** `[label]` with dim brackets and colored inner text. */
+export function bracketTag(label: string, color: (s: string) => string): string {
+  return `${style.dim('[')}${color(label)}${style.dim(']')}`;
+}
+
+function appPrefix(): string {
+  return `${style.dim('[')}${style.bold(style.accent(CLI_NAME))}${style.dim(']')}`;
+}
 
 /** Visible length for layout (ANSI SGR stripped). */
 export function stripAnsiVisible(s: string): string {
@@ -21,23 +30,25 @@ export function stripAnsiVisible(s: string): string {
 
 /** `[i18nprune] [level] message` — grep-friendly in CI. */
 export function line(level: LogLevel, message: string): string {
-  const app = `${style.dim('[')}${style.bold(style.accent(CLI_NAME))}${style.dim(']')}`;
-  const tag = levelTag[level](`[${level}]`);
-  return `${app} ${tag} ${message}`;
+  const tag = bracketTag(level, levelColor[level]);
+  return `${appPrefix()} ${tag} ${message}`;
 }
 
 /** `[i18nprune] [scan] message` — same prefix family as {@link line}; used for `--debug-scan`. */
 export function scanLine(message: string): string {
-  const app = `${style.dim('[')}${style.bold(style.accent(CLI_NAME))}${style.dim(']')}`;
-  const tag = style.magenta('[scan]');
-  return `${app} ${tag} ${message}`;
+  return `${appPrefix()} ${bracketTag('scan', style.magenta)} ${message}`;
 }
 
 /** `[i18nprune] [cache] message` — report-cache status, hidden by the info gate. */
 export function cacheLine(message: string): string {
-  const app = `${style.dim('[')}${style.bold(style.accent(CLI_NAME))}${style.dim(']')}`;
-  const tag = style.accent('[cache]');
-  return `${app} ${tag} ${message}`;
+  return `${appPrefix()} ${bracketTag('cache', style.accent)} ${message}`;
+}
+
+/** `[i18nprune] [verbose] message` — share view `--verbose` internals. */
+export function verboseLine(message: string, dimBody = true): string {
+  const tag = bracketTag('verbose', style.accent);
+  const body = dimBody ? style.dim(message) : message;
+  return `${appPrefix()} ${tag} ${body}`;
 }
 
 /**

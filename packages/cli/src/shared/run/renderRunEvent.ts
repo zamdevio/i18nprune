@@ -3,8 +3,18 @@ import type { RunEmitter, RunEvent } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
 import type { RunOptions } from '@i18nprune/core';
 
+const SHARE_VERBOSE_OUTPUT_MASK = { quiet: false } as const;
+
 export function renderRunEvent(event: RunEvent, run: RunOptions): void {
   if (event.type !== 'run.message') return;
+  if (event.channel === 'verbose') {
+    if (event.level === 'detail') {
+      logger.detail(event.message, run, SHARE_VERBOSE_OUTPUT_MASK);
+      return;
+    }
+    logger.verbose(event.message, run, SHARE_VERBOSE_OUTPUT_MASK, { dim: false });
+    return;
+  }
   if (event.channel === 'cache') {
     if (event.level === 'detail') logger.cacheDetail(event.message, run);
     else logger.cache(event.message, run);
