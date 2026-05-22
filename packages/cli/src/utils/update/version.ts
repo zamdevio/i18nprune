@@ -1,4 +1,5 @@
 import { CLI_VERSION } from '@/constants/cli.js';
+import { SDK_PACKAGE_NAME, SDK_VERSION } from '@i18nprune/core';
 import { NPM_REGISTRY_LATEST_URL, UPDATE_STATE_SCHEMA_VERSION } from '@/constants/update.js';
 import { ENV_I18NPRUNE_NO_UPDATE_CHECK } from '@/constants/env.js';
 import type { LoggerMask } from '@/types/core/logger/index.js';
@@ -14,10 +15,12 @@ import { fetchLatestPublishedVersion, isPublishedVersionNewer } from './registry
  */
 export const VERSION_OUTPUT_UNGATED: LoggerMask = { quiet: false, silent: false };
 
-/** Styled `Current: <semver>` via **`logger.info`** (grep-friendly `[i18nprune] [info]` prefix). */
+/** Styled CLI + SDK version lines via **`logger.info`** (grep-friendly `[i18nprune] [info]` prefix). */
 export function printCurrentVersionLine(run: RunOptions): void {
-  const msg = `${style.dim('Current:')} ${style.bold(style.ok(CLI_VERSION))}`;
-  logger.info(msg, run, VERSION_OUTPUT_UNGATED);
+  const cliLine = `${style.dim('Current CLI:')} ${style.bold(style.ok(CLI_VERSION))}`;
+  const sdkLine = `${style.dim('SDK:')} ${style.bold(style.ok(SDK_VERSION))} ${style.dim(`(${SDK_PACKAGE_NAME})`)}`;
+  logger.info(cliLine, run, VERSION_OUTPUT_UNGATED);
+  logger.info(sdkLine, run, VERSION_OUTPUT_UNGATED);
 }
 
 /** Styled `Latest on npm: <semver>` for **`version --check`**. */

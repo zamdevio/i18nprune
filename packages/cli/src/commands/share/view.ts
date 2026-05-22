@@ -11,6 +11,7 @@ import { logger } from '@/utils/logger/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import {
+  buildShareViewVerboseDetail,
   emitShareViewHumanMessages,
   ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND,
   ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND,
@@ -28,7 +29,7 @@ import {
   shareCacheEmptyIssue,
   shareNeedIdIssue,
 } from './resolveTarget.js';
-import { createShareWorkerHooks } from './workerHttp.js';
+import { createShareWorkerHooks } from './worker/http.js';
 
 export async function shareView(opts: ShareViewOptions): Promise<void> {
   const wall = attachWallTimer();
@@ -36,7 +37,12 @@ export async function shareView(opts: ShareViewOptions): Promise<void> {
     const ctx = await resolveContext();
     const coreCtx = createCliCoreContext(ctx);
     const listed = runShareList({ ctx: coreCtx });
-    const resolved = await resolveShareCommandTarget(opts, listed.entries, 'Select a cached share entry');
+    const resolved = await resolveShareCommandTarget(
+      opts,
+      listed.entries,
+      'Select a cached share entry',
+      ctx.run,
+    );
 
     if (resolved.status !== 'ok') {
       const issues =
@@ -44,7 +50,7 @@ export async function shareView(opts: ShareViewOptions): Promise<void> {
           ? [shareCacheEmptyIssue()]
           : resolved.status === 'both_kinds'
             ? [shareBothKindsIssue()]
-            : [shareNeedIdIssue('view', listed.entries.length > 0)];
+            : [shareNeedIdIssue('view', listed.entries.length > 0, ctx.run)];
       const ok = resolved.status === 'empty_cache';
 
       if (ctx.run.json) {
@@ -73,8 +79,7 @@ export async function shareView(opts: ShareViewOptions): Promise<void> {
       if (resolved.status === 'empty_cache') {
         emitShareCacheEmptyHints(ctx, 'view');
       } else if (resolved.status === 'need_id') {
-        logger.info(issues[0]!.message, ctx.run);
-        emitShareCacheEmptyHints(ctx, 'view');
+        logger.err(issues[0]!.message);
       } else {
         logger.err(issues[0]!.message);
       }
@@ -93,7 +98,7 @@ export async function shareView(opts: ShareViewOptions): Promise<void> {
     }
 
     const target = resolved.target;
-    const workerHooks = createShareWorkerHooks(target.workerBaseUrl);
+    const workerHooks = createShareWorkerHooks(target.workerBaseUrl, ctx.run);
     const res = await runShareView({
       ctx: coreCtx,
       kind: target.kind,
@@ -104,13 +109,16 @@ export async function shareView(opts: ShareViewOptions): Promise<void> {
 
     let issues = [...listed.issues, ...res.issues];
     const ok = !issues.some((i) => i.severity === 'error');
+    const verboseDetail = opts.verbose ? buildShareViewVerboseDetail(res) : undefined;
     const payload: ShareViewJsonPayload = {
       kind: 'share-view',
       shareKind: res.kind,
       workerId: res.workerId,
       remote: res.remote,
+      ...(res.remoteMetadata !== undefined ? { remoteMetadata: res.remoteMetadata } : {}),
       local: res.local,
       links: res.links,
+      ...(verboseDetail !== undefined ? { verbose: verboseDetail } : {}),
     };
 
     if (ctx.run.json) {
@@ -140,7 +148,7 @@ export async function shareView(opts: ShareViewOptions): Promise<void> {
       if (issue.severity === 'warning') logger.warn(issue.message, ctx.run);
       else if (issue.severity === 'error') logger.err(issue.message);
     }
-    emitShareViewHumanMessages(runHost, res);
+    emitShareViewHumanMessages(runHost, res, opts.verbose ? { verbose: true } : undefined);
     const summaryIssues = issues.filter(
       (i) =>
         i.code !== ISSUE_SHARE_STALE_CACHE_ROW_REMOVED &&

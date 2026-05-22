@@ -459,10 +459,22 @@ program
 const SHARE_CMD_DESCRIPTION =
   'Upload hosted project snapshots and reports to the worker. Per-project cache metadata lives in share.json beside the analysis cache — use list, view, and delete to inspect or clean up rows without editing that file by hand.';
 
+const SHARE_SUBCOMMANDS = ['upload', 'list', 'view', 'delete'] as const;
+
 const shareCmd = program
   .command('share')
   .description(SHARE_CMD_DESCRIPTION)
-  .action(() => {
+  .action((_, cmd) => {
+    const unknown = typeof cmd?.args?.[0] === 'string' ? cmd.args[0] : undefined;
+    if (unknown && !SHARE_SUBCOMMANDS.includes(unknown as (typeof SHARE_SUBCOMMANDS)[number])) {
+      if (unknown === 'uplaod') {
+        console.error('Unknown share subcommand "uplaod". Did you mean `i18nprune share upload`?');
+      } else {
+        console.error(`Unknown share subcommand "${unknown}". Try: ${SHARE_SUBCOMMANDS.join(', ')}.`);
+      }
+      process.exitCode = 1;
+      return;
+    }
     shareCmd.help({ error: false });
   });
 
@@ -470,7 +482,7 @@ const shareCmd = program
 shareCmd
   .command('upload')
   .description(
-    'Push a prepared project snapshot or report JSON to the worker API. Records worker ids and public links in share.json for this project cache.',
+    'Push a prepared project snapshot or report JSON to the worker API. Records worker ids and public links in share.json for this project cache. Without --project or --report, prompts for kind in a TTY.',
   )
   .option('--project', 'Upload prepared project snapshot (JSON) to the worker')
   .option('--report', 'Upload report JSON to the worker (stored report link)')
@@ -507,8 +519,23 @@ shareCmd
   .option('--project <id>', 'Worker-hosted project id')
   .option('--report <id>', 'Worker-hosted report id')
   .option('--worker-url <url>', 'Worker API base URL')
-  .action(async (opts: { project?: string; report?: string; workerUrl?: string }) => {
-    await shareView(opts);
+  .option(
+    '--verbose',
+    'Include processor, extraction, cache, and timing sections (human and --json)',
+    false,
+  )
+  .action(async (opts: {
+    project?: string;
+    report?: string;
+    workerUrl?: string;
+    verbose?: boolean;
+  }) => {
+    await shareView({
+      project: opts.project,
+      report: opts.report,
+      workerUrl: opts.workerUrl,
+      verbose: Boolean(opts.verbose),
+    });
   });
 
 shareCmd

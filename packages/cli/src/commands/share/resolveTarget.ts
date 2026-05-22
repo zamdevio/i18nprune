@@ -2,6 +2,7 @@ import {
   ISSUE_SHARE_CACHE_EMPTY,
   ISSUE_SHARE_REMOTE_ERROR,
   type Issue,
+  type RunOptions,
   type ShareCacheEntry,
   type ShareKind,
 } from '@i18nprune/core';
@@ -9,7 +10,7 @@ import { canAsk } from '@/shared/ask/gate.js';
 import { logger } from '@/utils/logger/index.js';
 import type { Context } from '@/types/core/context/index.js';
 import { promptSharePickEntry } from './prompts.js';
-import { resolveCliShareWorkerBaseUrl } from './workerUrl.js';
+import { resolveCliShareWorkerBaseUrl } from './worker/url.js';
 
 export type ShareResolvedTarget = {
   kind: ShareKind;
@@ -63,16 +64,20 @@ export function shareBothKindsIssue(): Issue {
   };
 }
 
-export function shareNeedIdIssue(command: 'view' | 'delete', hasCacheEntries: boolean): Issue {
+export function shareNeedIdIssue(command: 'view' | 'delete', hasCacheEntries: boolean, run?: RunOptions): Issue {
   if (!hasCacheEntries) return shareCacheEmptyIssue();
   const flags =
     command === 'delete'
       ? '--project <id>, --report <id>, or --all'
       : '--project <id> or --report <id>';
+  const message =
+    run?.json || !canAsk(run)
+      ? `Pass ${flags} when using --json or in non-interactive mode (interactive select is not available).`
+      : `Pass ${flags}, or run in a TTY to pick from share.json.`;
   return {
     severity: 'error',
     code: ISSUE_SHARE_REMOTE_ERROR,
-    message: `Pass ${flags}, or run in a TTY to pick from share.json.`,
+    message,
   };
 }
 
@@ -83,6 +88,7 @@ export async function resolveShareCommandTarget(
   opts: ShareIdOptions,
   entries: readonly ShareCacheEntry[],
   pickMessage: string,
+  run?: RunOptions,
 ): Promise<ShareTargetResolution> {
   if (opts.project && opts.report) return { status: 'both_kinds' };
   if (typeof opts.project === 'string' && opts.project.length > 0) {
@@ -106,7 +112,7 @@ export async function resolveShareCommandTarget(
     };
   }
   if (entries.length === 0) return { status: 'empty_cache' };
-  if (!canAsk()) return { status: 'need_id' };
+  if (!canAsk(run)) return { status: 'need_id' };
   const picked = await promptSharePickEntry(entries, pickMessage);
   const workerId = entryWorkerId(picked);
   if (!workerId) return { status: 'need_id' };

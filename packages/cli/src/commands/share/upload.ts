@@ -25,12 +25,13 @@ import { CLI_VERSION } from '@/constants/cli.js';
 import {
   emitShareUploadHumanMessages,
   ISSUE_SHARE_STALE_CACHE_ROW_REMOVED,
+  type RunOptions,
   type ShareUploadJsonPayload,
   type ShareUploadOptions,
 } from '@i18nprune/core';
 import { buildShareHostHooks } from './hooks.js';
 import { promptShareKind } from './prompts.js';
-import { resolveCliShareWorkerBaseUrl } from './workerUrl.js';
+import { resolveCliShareWorkerBaseUrl } from './worker/url.js';
 
 function emptyUploadPayload(shareKind: 'project' | 'report'): ShareUploadJsonPayload {
   return {
@@ -52,12 +53,12 @@ function resolveShareKindError(opts: ShareUploadOptions, json: boolean): string 
     : 'Pass --project or --report (or run in a TTY to choose interactively).';
 }
 
-async function resolveShareKind(opts: ShareUploadOptions, json: boolean): Promise<'project' | 'report' | 'both' | null> {
+async function resolveShareKind(opts: ShareUploadOptions, run: RunOptions): Promise<'project' | 'report' | 'both' | null> {
   if (opts.project && opts.report) return 'both';
   if (opts.project) return 'project';
   if (opts.report) return 'report';
-  if (json) return null;
-  if (canAsk()) return promptShareKind();
+  if (run.json) return null;
+  if (canAsk(run)) return promptShareKind();
   return null;
 }
 
@@ -90,7 +91,7 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
   try {
     const ctxEarly = await resolveContext();
     const json = ctxEarly.run.json;
-    const shareKind = await resolveShareKind(opts, json);
+    const shareKind = await resolveShareKind(opts, ctxEarly.run);
     if (!shareKind) {
       const message = resolveShareKindError(opts, json);
       if (json) {
@@ -177,6 +178,7 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
       const projectArtifacts = await buildHostedProjectShareArtifacts({
         ctx: coreCtx,
         prepare: hosted.project!,
+        processorContext: hooks.processorContext,
       });
       const reportArtifacts = buildHostedReportShareArtifacts(hosted.report!);
 

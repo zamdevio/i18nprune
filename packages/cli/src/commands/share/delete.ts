@@ -33,7 +33,7 @@ import {
   shareCacheEmptyIssue,
   shareNeedIdIssue,
 } from './resolveTarget.js';
-import { createShareWorkerHooks } from './workerHttp.js';
+import { createShareWorkerHooks } from './worker/http.js';
 import { randomUUID } from 'node:crypto';
 
 function entryWorkerId(entry: ShareCacheEntry): string | undefined {
@@ -87,7 +87,7 @@ async function shareDeleteAll(opts: ShareDeleteOptions): Promise<void> {
       return;
     }
 
-    if (canAsk() && !getCliYesFlag() && !ctx.run.json) {
+    if (canAsk(ctx.run) && !getCliYesFlag() && !ctx.run.json) {
       const ok = await confirmShareDeleteAll(targets.length);
       if (!ok) {
         logger.info('Bulk delete cancelled.', ctx.run);
@@ -104,7 +104,7 @@ async function shareDeleteAll(opts: ShareDeleteOptions): Promise<void> {
 
     for (let i = 0; i < targets.length; i++) {
       const target = targets[i]!;
-      const workerHooks = createShareWorkerHooks(target.workerBaseUrl);
+      const workerHooks = createShareWorkerHooks(target.workerBaseUrl, ctx.run);
       const res = await runShareDelete({
         ctx: coreCtx,
         kind: target.kind,
@@ -216,7 +216,12 @@ export async function shareDelete(opts: ShareDeleteOptions): Promise<void> {
     const ctx = await resolveContext();
     const coreCtx = createCliCoreContext(ctx);
     const listed = runShareList({ ctx: coreCtx });
-    const resolved = await resolveShareCommandTarget(opts, listed.entries, 'Delete which cached upload?');
+    const resolved = await resolveShareCommandTarget(
+      opts,
+      listed.entries,
+      'Delete which cached upload?',
+      ctx.run,
+    );
 
     if (resolved.status !== 'ok') {
       const issues =
@@ -224,7 +229,7 @@ export async function shareDelete(opts: ShareDeleteOptions): Promise<void> {
           ? [...listed.issues, shareCacheEmptyIssue()]
           : resolved.status === 'both_kinds'
             ? [...listed.issues, shareBothKindsIssue()]
-            : [...listed.issues, shareNeedIdIssue('delete', listed.entries.length > 0)];
+            : [...listed.issues, shareNeedIdIssue('delete', listed.entries.length > 0, ctx.run)];
       const ok = resolved.status === 'empty_cache';
 
       if (ctx.run.json) {
@@ -267,7 +272,7 @@ export async function shareDelete(opts: ShareDeleteOptions): Promise<void> {
     }
 
     const target = resolved.target;
-    const workerHooks = createShareWorkerHooks(target.workerBaseUrl);
+    const workerHooks = createShareWorkerHooks(target.workerBaseUrl, ctx.run);
     const res = await runShareDelete({
       ctx: coreCtx,
       kind: target.kind,
