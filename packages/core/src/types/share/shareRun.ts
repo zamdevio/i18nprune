@@ -1,6 +1,8 @@
 import type { CoreContext } from '../context/index.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { RunEmitter } from '../shared/run/index.js';
+import type { HostedIngestProcessorContext, ProjectStoredMetadata } from '../project/metadata.js';
+import type { StoredReportMetadata } from '../project/reportStore.js';
 import type { HostedProjectIngestEnvelope } from '../project/prepare.js';
 import type { ShareCacheEntry, ShareJsonFile, ShareJsonHealReport, ShareLinks } from './entry.js';
 
@@ -115,6 +117,8 @@ export type ShareHostHooks = {
   deleteRemoteReport?: (input: { workerBaseUrl: string; reportId: string }) => Promise<{ httpStatus: number; body: unknown }>;
   /** When set, reuse in-memory `share.json` across back-to-back uploads in one CLI invocation. */
   shareJsonSession?: ShareRunShareJsonSession;
+  /** Host SDK / machine context attached to JSON ingest envelopes. */
+  processorContext?: HostedIngestProcessorContext;
 };
 
 export type ShareSkippedReason =
@@ -161,6 +165,8 @@ export type ShareViewResult = {
   kind: 'project' | 'report';
   workerId: string;
   remote?: unknown;
+  /** Parsed worker GET metadata when the response matches the stored-metadata shape. */
+  remoteMetadata?: ProjectStoredMetadata | StoredReportMetadata;
   local?: ShareCacheEntry;
   links: ShareLinks;
   issues: Issue[];

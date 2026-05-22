@@ -1,4 +1,5 @@
 import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../shared/constants/project.js';
+import type { HostedIngestProcessorContext } from '../../types/project/metadata.js';
 import type { HostedProjectIngestEnvelope } from '../../types/project/prepare.js';
 import type { PrepareProjectSnapshotResult } from '../../types/project/prepare.js';
 import type { ValidateReportIngestResult } from '../../types/report/ingest.js';
@@ -35,11 +36,13 @@ export type HostedProjectShareArtifacts = {
 export async function buildHostedProjectShareArtifacts(input: {
   ctx: CoreContext;
   prepare: PrepareProjectSnapshotResult & { ok: true };
+  processorContext?: HostedIngestProcessorContext;
 }): Promise<HostedProjectShareArtifacts> {
   const envelope: HostedProjectIngestEnvelope = {
     schemaVersion: HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION,
     snapshot: input.prepare.parsed.snapshot,
     prepareMeta: input.prepare.prepareMeta,
+    ...(input.processorContext ? { processorContext: input.processorContext } : {}),
   };
 
   const semanticCanonical = stableStringify(hostedIngestEnvelopeForShareContentHash(envelope));

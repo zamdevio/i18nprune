@@ -5,11 +5,20 @@ function trimTrailingSlash(url: string): string {
   return url.replace(/\/+$/, '');
 }
 
-/** Public URLs for a hosted **project** snapshot (web viewer + worker metadata). */
+/** Public web workspace URL */
+export function buildWebWorkspaceShareUrl(
+  projectId: string,
+  webAppBase: string = DEMO_WEB_APP_BASE,
+): string {
+  const base = trimTrailingSlash(webAppBase);
+  return `${base}/#/workspace?id=${encodeURIComponent(projectId)}`;
+}
+
+/** Public URLs for a hosted **project** snapshot (web workspace + worker metadata). */
 export function buildProjectShareLinks(input: { workerBaseUrl: string; projectId: string }): ShareLinks {
   const base = trimTrailingSlash(input.workerBaseUrl);
   return {
-    web: `${DEMO_WEB_APP_BASE}/p/${encodeURIComponent(input.projectId)}`,
+    web: buildWebWorkspaceShareUrl(input.projectId),
     worker: `${base}/v1/projects/${encodeURIComponent(input.projectId)}`,
   };
 }

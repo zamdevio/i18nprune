@@ -145,7 +145,7 @@ export type RunErrorEvent = RunEventBase & {
 };
 
 export type RunMessageLevel = 'detail' | 'info' | 'notice' | 'warn';
-export type RunMessageChannel = 'default' | 'cache';
+export type RunMessageChannel = 'default' | 'cache' | 'verbose';
 
 export type RunMessageEvent = RunEventBase & {
   type: 'run.message';

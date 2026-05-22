@@ -28,6 +28,7 @@ export {
   emitShareListHumanMessages,
   emitShareUploadHumanMessages,
   emitShareViewHumanMessages,
+  buildShareViewVerboseDetail,
   resolveShareWorkerBaseUrl,
   runShare,
   saveShareJsonFile,
@@ -54,7 +55,9 @@ export type {
   ShareListJsonPayload,
   ShareUploadJsonPayload,
   ShareViewJsonPayload,
-} from '../types/share/json.js';
+  ShareViewVerboseDetail,
+  ShareViewVerboseSection,
+} from '../types/share/index.js';
 export type {
   LoadShareJsonResult,
   ShareCacheEntry,

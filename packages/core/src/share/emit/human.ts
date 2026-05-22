@@ -6,7 +6,12 @@ import {
 } from '../../shared/constants/issueCodes.js';
 import type { RunEmitter, RunMessageLevel } from '../../types/shared/run/index.js';
 import type { ShareCacheEntry, ShareJsonHealReport } from '../../types/share/entry.js';
+import { METADATA_DASH } from '../../types/project/metadata.js';
+import type { ProjectStoredMetadata } from '../../types/project/metadata.js';
+import type { StoredReportMetadata } from '../../types/project/reportStore.js';
 import type { ShareRunResult, ShareViewResult } from '../../types/share/shareRun.js';
+import { buildShareViewVerboseDetail } from '../view/buildVerboseDetail.js';
+import { emitShareViewVerboseHumanMessages } from '../view/emitVerboseHuman.js';
 import {
   SHARE_JSON_HEAL_BACKUP_LABEL,
   SHARE_JSON_HEAL_CANONICAL_SAVED,
@@ -127,8 +132,55 @@ export function emitShareListHumanMessages(host: ShareHumanMessageHost, entries:
   }
 }
 
+function emitProjectRemoteMetadata(host: ShareHumanMessageHost, meta: ProjectStoredMetadata): void {
+  const p = meta.processor;
+  shareMessage(
+    host,
+    'info',
+    `Remote: ${meta.fileCount} files, ${meta.zipBytes} bytes, expires ${String(meta.expiresAt)}`,
+  );
+  shareMessage(
+    host,
+    'detail',
+    `  processor: ${String(p.surface)} (${String(p.surfaceLabel)}) · route ${String(p.route)} · SDK ${String(p.sdk)}@${String(p.sdkVersion)} · host ${String(p.toolVersion)}`,
+  );
+  if (meta.extraction?.cache) {
+    const c = meta.extraction.cache;
+    shareMessage(
+      host,
+      'detail',
+      `  cache: analysis=${String(c.analysis)} (${String(c.analysisReason)}), timingsTrustworthy=${String(c.timingsTrustworthy)}, filesEpoch=${String(c.filesEpoch).slice(0, 12)}${c.filesEpoch === METADATA_DASH ? '' : '…'}`,
+    );
+  }
+  const prep = meta.timing.prepare;
+  shareMessage(
+    host,
+    'detail',
+    `  timing.prepare: total=${String(prep.totalMs)}ms (analysis=${String(prep.analysisMs)}, extraction=${String(prep.extractionMs)})`,
+  );
+}
+
+function emitReportRemoteMetadata(host: ShareHumanMessageHost, meta: StoredReportMetadata): void {
+  const p = meta.processor;
+  shareMessage(
+    host,
+    'info',
+    `Remote: schema v${meta.schemaVersion}, ${meta.byteSize} bytes, ok=${meta.summary.ok}, expires ${String(meta.expiresAt)}`,
+  );
+  shareMessage(
+    host,
+    'detail',
+    `  processor: ${String(p.surface)} · SDK ${String(p.sdk)}@${String(p.sdkVersion)} · host ${String(p.toolVersion)}`,
+  );
+}
+
 /** Emits human-oriented lines for {@link runShareView} output. */
-export function emitShareViewHumanMessages(host: ShareHumanMessageHost, res: ShareViewResult): void {
+export function emitShareViewHumanMessages(
+  host: ShareHumanMessageHost,
+  res: ShareViewResult,
+  options?: { verbose?: boolean },
+): void {
+  const verboseMode = options?.verbose === true;
   const remoteGone = res.issues.some(
     (i) => i.code === ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND || i.code === ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND,
   );
@@ -152,7 +204,13 @@ export function emitShareViewHumanMessages(host: ShareHumanMessageHost, res: Sha
       `Local cache: uploaded ${res.local.uploadedAt}, payload hash ${res.local.payloadContentHash.slice(0, 12)}…`,
     );
   }
-  if (res.remote && typeof res.remote === 'object' && res.remote !== null) {
+  if (!verboseMode && res.remoteMetadata) {
+    if (res.kind === 'project') {
+      emitProjectRemoteMetadata(host, res.remoteMetadata as ProjectStoredMetadata);
+    } else {
+      emitReportRemoteMetadata(host, res.remoteMetadata as StoredReportMetadata);
+    }
+  } else if (!verboseMode && res.remote && typeof res.remote === 'object' && res.remote !== null) {
     const r = res.remote as Record<string, unknown>;
     if (res.kind === 'project') {
       shareMessage(
@@ -172,7 +230,34 @@ export function emitShareViewHumanMessages(host: ShareHumanMessageHost, res: Sha
     if (res.links.web) shareMessage(host, 'info', `Web: ${res.links.web}`);
     if (res.links.report) shareMessage(host, 'info', `Report: ${res.links.report}`);
     if (res.links.worker) shareMessage(host, 'info', `Worker: ${res.links.worker}`);
-    if (res.remote) shareMessage(host, 'info', shareTtlHint(res.kind));
+    if (res.remote ?? res.remoteMetadata) shareMessage(host, 'info', shareTtlHint(res.kind));
+  }
+
+  if (verboseMode && !remoteGone && res.remoteMetadata) {
+    if (res.kind === 'project') {
+      const m = res.remoteMetadata as ProjectStoredMetadata;
+      shareMessage(
+        host,
+        'info',
+        `Remote: ${m.fileCount} files, ${m.zipBytes} bytes, expires ${String(m.expiresAt)}`,
+      );
+    } else {
+      const m = res.remoteMetadata as StoredReportMetadata;
+      shareMessage(
+        host,
+        'info',
+        `Remote: schema v${m.schemaVersion}, ${m.byteSize} bytes, ok=${m.summary.ok}, expires ${String(m.expiresAt)}`,
+      );
+    }
+  }
+
+  if (verboseMode && !remoteGone) {
+    const verboseDetail = buildShareViewVerboseDetail(res);
+    if (verboseDetail) {
+      emitShareViewVerboseHumanMessages(host, verboseDetail);
+    } else {
+      shareMessage(host, 'warn', 'Verbose detail unavailable (no parseable remote metadata).');
+    }
   }
 }
 

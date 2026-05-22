@@ -1,3 +1,6 @@
+import type { ProjectStoredMetadata } from '../project/metadata.js';
+import type { StoredReportMetadata } from '../project/reportStore.js';
+import type { ShareViewVerboseDetail } from './viewDetail.js';
 import type { ShareCacheEntry, ShareKind, ShareLinks } from './entry.js';
 import type { ShareManifest } from './manifest.js';
 
@@ -22,8 +25,11 @@ export type ShareViewJsonPayload = {
   shareKind: ShareKind;
   workerId: string;
   remote?: unknown;
+  remoteMetadata?: ProjectStoredMetadata | StoredReportMetadata;
   local?: ShareCacheEntry;
   links: ShareLinks;
+  /** Present when CLI passed `--verbose` (including with `--json`). */
+  verbose?: ShareViewVerboseDetail;
 };
 
 export type ShareDeleteRowResult = {

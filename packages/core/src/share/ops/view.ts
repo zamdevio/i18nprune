@@ -5,6 +5,10 @@ import type { ShareViewInput, ShareViewResult } from '../../types/share/shareRun
 import { loadShareJsonFile, resolveShareJsonPath } from '../cache/io/shareJson.js';
 import { purgeShareCacheEntry } from '../cache/purgeCacheEntry.js';
 import { buildProjectShareLinks, buildReportShareLinks } from '../util/links.js';
+import {
+  parseWorkerProjectStoredMetadata,
+  parseWorkerReportStoredMetadata,
+} from '../remote/parseMetadata.js';
 import { isShareRemoteNotFoundIssue, parseWorkerShareEnvelope, shareRemoteIssueFromWorker } from '../remote/remote.js';
 
 function pickLocalEntry(input: ShareViewInput, entries: ShareCacheEntry[]): ShareCacheEntry | undefined {
@@ -94,10 +98,17 @@ export async function runShareView(input: ShareViewInput): Promise<ShareViewResu
       ? buildProjectShareLinks({ workerBaseUrl: input.workerBaseUrl, projectId: input.workerId })
       : buildReportShareLinks({ workerBaseUrl: input.workerBaseUrl, reportId: input.workerId });
 
+  const remote = envelope.success ? envelope.data : undefined;
+  const remoteMetadata =
+    input.kind === 'project'
+      ? parseWorkerProjectStoredMetadata(remote)
+      : parseWorkerReportStoredMetadata(remote);
+
   return {
     kind: input.kind,
     workerId: input.workerId,
-    remote: envelope.success ? envelope.data : undefined,
+    remote,
+    ...(remoteMetadata !== undefined ? { remoteMetadata } : {}),
     local,
     links: mergeLinks(remoteLinks, local),
     issues,

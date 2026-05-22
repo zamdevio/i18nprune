@@ -83,7 +83,7 @@ describe('runShareList/view/delete', () => {
               byteSize: 1,
               uploadedAt: '2026-01-01T00:00:00.000Z',
               lastUsedAt: '2026-01-01T00:00:00.000Z',
-              links: { web: 'https://web.i18nprune.dev/p/p123' },
+              links: { web: 'https://web.i18nprune.dev/#/workspace?id=p123' },
             },
           ],
         },
@@ -100,12 +100,73 @@ describe('runShareList/view/delete', () => {
         hooks: {
           fetchRemoteProjectRow: async () => ({
             httpStatus: 200,
-            body: { code: 'OK', success: true, data: { projectId: 'p123' }, errors: [] },
+            body: {
+              code: 'OK',
+              success: true,
+              data: {
+                projectId: 'p123',
+                projectHash: 'h',
+                uploadedAt: '2026-01-01T00:00:00.000Z',
+                zipBytes: 100,
+                fileCount: 2,
+                textFileCount: 2,
+                detectedConfigPath: 'i18nprune.config.json',
+                localeTags: ['en'],
+                expiresAt: '2026-01-08T00:00:00.000Z',
+                timing: {
+                  requestReceivedAt: '2026-01-01T00:00:00.000Z',
+                  uploadedAt: '2026-01-01T00:00:00.000Z',
+                  storedAt: '2026-01-01T00:00:01.000Z',
+                  lastAccessedAt: '2026-01-01T00:00:01.000Z',
+                  prepare: { zipParsedMs: 1, analysisMs: 2, extractionMs: 3, totalMs: 10 },
+                  extraction: {
+                    startedAt: '2026-01-01T00:00:00.100Z',
+                    computedAt: '2026-01-01T00:00:00.500Z',
+                    durationMs: 400,
+                  },
+                  edge: { persistMs: 500, totalMs: 1000 },
+                },
+                processor: {
+                  surface: 'cli',
+                  surfaceLabel: 'i18nprune CLI',
+                  route: 'prepared',
+                  routeLabel: 'Prepared JSON ingest',
+                  prepareHost: 'cli-share',
+                  toolVersion: '0.1.0',
+                  sdk: 'i18nprune-cli',
+                  sdkVersion: '0.1.0',
+                  prepareSummary: 'Prepared on disk',
+                  environment: null,
+                },
+                extraction: {
+                  configHash: 'cfg',
+                  sourceLocalePath: 'locales/en.json',
+                  srcRoot: 'src',
+                  localesDir: 'locales',
+                  keyObservationsCount: 1,
+                  dynamicSitesCount: 0,
+                  cache: {
+                    analysis: 'hit',
+                    analysisReason: 'cache_hit',
+                    timingsTrustworthy: false,
+                    filesEpoch: 'abc123',
+                    projectCacheEnabled: true,
+                  },
+                },
+              },
+              errors: [],
+            },
           }),
         },
       });
       expect(viewed.local?.workerProjectId).toBe('p123');
-      expect(viewed.links.web).toContain('/p/p123');
+      expect(viewed.links.web).toContain('/#/workspace?id=p123');
+      expect(viewed.remoteMetadata && 'projectId' in viewed.remoteMetadata && viewed.remoteMetadata.projectId).toBe(
+        'p123',
+      );
+      if (viewed.remoteMetadata && 'processor' in viewed.remoteMetadata) {
+        expect(viewed.remoteMetadata.processor.sdkVersion).toBe('0.1.0');
+      }
 
       const missing = await runShareView({
         ctx,

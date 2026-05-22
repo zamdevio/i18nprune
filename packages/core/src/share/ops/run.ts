@@ -3,6 +3,7 @@ import {
   ISSUE_SHARE_REMOTE_ERROR,
   ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND,
   ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND,
+  ISSUE_SHARE_REMOTE_UNAVAILABLE,
   ISSUE_SHARE_STALE_CACHE_ROW_REMOVED,
   ISSUE_SHARE_ZIP_FAILED,
 } from '../../shared/constants/issueCodes.js';
@@ -162,7 +163,9 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
       { level: 'detail', message: `  project configHash: ${configHash.slice(0, 12)}…` },
       {
         level: 'detail',
-        message: `  files.json inputFilesEpoch: ${inputFilesEpoch ?? '(unavailable — cache off or no files.json)'}`,
+        message: inputFilesEpoch
+          ? `  files.json inputFilesEpoch: ${inputFilesEpoch.slice(0, 12)}…`
+          : '  files.json inputFilesEpoch: (unavailable — cache off, missing/empty files index, or not ready)',
       },
     ]);
     if (inputFilesEpoch) {
@@ -178,7 +181,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
         shareCacheDebug(input.hooks, [
           {
             level: 'info',
-            message: `share upload skip: cache_epoch_unchanged (worker project ${epochCacheEntry.workerProjectId})`,
+            message: `share upload: tracked-files epoch matches share.json (worker project ${epochCacheEntry.workerProjectId}) — verifying worker row before skip`,
           },
         ]);
       }
@@ -203,6 +206,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
       projectRoot: input.projectRoot,
       analysisOpts: { emit: input.hooks.emit, runId: input.hooks.runId },
       prepareHost: 'cli-share',
+      processorContext: input.hooks.processorContext,
     });
     if (!builtProject.ok) {
       emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
@@ -309,6 +313,14 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
       });
     } else if (remoteIssue) {
       allowSkip = false;
+      if (input.hooks.debugCache && remoteIssue.code === ISSUE_SHARE_REMOTE_UNAVAILABLE) {
+        shareCacheDebug(input.hooks, [
+          {
+            level: 'info',
+            message: `share upload: worker verify failed (${remoteIssue.message}) — will prepare and upload`,
+          },
+        ]);
+      }
     }
   } else if (
     !input.force &&
@@ -398,6 +410,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
       projectRoot: input.projectRoot,
       analysisOpts: { emit: input.hooks.emit, runId: input.hooks.runId },
       prepareHost: 'cli-share',
+      processorContext: input.hooks.processorContext,
     });
     if (!builtProject.ok) {
       emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });

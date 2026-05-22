@@ -20,6 +20,8 @@ export type ShareViewOptions = {
   project?: string;
   report?: string;
   workerUrl?: string;
+  /** Extra worker metadata sections (processor, cache, timings) in human and JSON output. */
+  verbose?: boolean;
 };
 
 export type ShareDeleteOptions = {

@@ -4,6 +4,7 @@ import { prepareProjectSnapshotFromRoot } from '../../project/prepare/fromRoot.j
 import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { HostedProjectIngestEnvelope, PrepareProjectSnapshotResult } from '../../types/project/prepare.js';
+import type { HostedIngestProcessorContext } from '../../types/project/metadata.js';
 import type { PrepareProjectSnapshotFromRootInput } from '../../types/project/prepareRoot.js';
 import type { ShareProjectManifest } from '../../types/share/manifest.js';
 import type { ProjectAnalysisResolveOptions } from '../../types/analysis/index.js';
@@ -44,6 +45,7 @@ export type BuildPreparedProjectPayloadInput = {
   analysisOpts?: Pick<ProjectAnalysisResolveOptions, 'emit' | 'runId'>;
   prepareHost?: PrepareProjectSnapshotFromRootInput['prepareHost'];
   requestReceivedAt?: string;
+  processorContext?: HostedIngestProcessorContext;
 };
 
 /**
@@ -68,6 +70,7 @@ export async function buildPreparedProjectPayload(
     schemaVersion: HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION,
     snapshot: prepare.parsed.snapshot,
     prepareMeta: prepare.prepareMeta,
+    ...(input.processorContext ? { processorContext: input.processorContext } : {}),
   };
 
   const semanticCanonical = stableStringify(hostedIngestEnvelopeForShareContentHash(envelope));

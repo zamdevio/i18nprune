@@ -254,7 +254,7 @@ describe('runShare (project / build)', () => {
 
       expect(res.action).toBe('uploaded');
       expect(res.workerIds.projectId).toBe('a1b2c3d4e5f6a7b8');
-      expect(res.links.web).toContain('/p/a1b2c3d4e5f6a7b8');
+      expect(res.links.web).toContain('/#/workspace?id=a1b2c3d4e5f6a7b8');
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }

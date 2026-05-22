@@ -24,7 +24,7 @@ export { prepareReportPayload } from '../project/prepare/report.js';
 export type { PrepareReportPayloadResult } from '../types/report/ingest.js';
 export { runShareDelete } from './ops/delete.js';
 export { shouldSkipPathForShareZip } from './payload/ignorePaths.js';
-export { buildProjectShareLinks, buildReportShareLinks } from './util/links.js';
+export { buildProjectShareLinks, buildReportShareLinks, buildWebWorkspaceShareUrl } from './util/links.js';
 export { runShareList } from './ops/list.js';
 export {
   findMatchingProjectShareEntry,
@@ -43,6 +43,10 @@ export {
   workerDataProjectId,
   workerDataReportId,
 } from './remote/remote.js';
+export {
+  parseWorkerProjectStoredMetadata,
+  parseWorkerReportStoredMetadata,
+} from './remote/parseMetadata.js';
 export type { ShareRemoteDeleteOutcome } from './remote/remote.js';
 export {
   emitShareDeleteHumanMessages,
@@ -52,6 +56,8 @@ export {
   emitShareViewHumanMessages,
 } from './emit/human.js';
 export type { ShareHumanMessageHost } from './emit/human.js';
+export { buildShareViewVerboseDetail } from './view/buildVerboseDetail.js';
+export { emitShareViewVerboseHumanMessages } from './view/emitVerboseHuman.js';
 export { resolveShareWorkerBaseUrl } from './remote/resolveWorkerBaseUrl.js';
 export { runShare } from './ops/run.js';
 export { emitShareCacheDebug } from './cache/debug.js';
@@ -81,6 +87,8 @@ export type {
   ShareUploadJsonPayload,
   ShareUploadOptions,
   ShareViewJsonPayload,
+  ShareViewVerboseDetail,
+  ShareViewVerboseSection,
   ShareViewOptions,
   WorkerShareEnvelope,
 } from '../types/share/index.js';
