@@ -315,7 +315,7 @@ Register in `packages/cli/bin/cli.ts` like `localesCmd`.
 **Report (`--report`):**
 
 1. Load doc: `--from` or in-process `runReport` (same as `report --format json` body).
-2. Validate `projectReportDocumentSchema` (`@i18nprune/report`).
+2. Validate `projectReportDocumentSchema` (`@i18nprune/report-schema` / `packages/report`).
 3. `POST /v1/reports` with `{ document }`.
 4. Link: `https://report.i18nprune.dev/#/?id={reportId}`.
 
@@ -388,7 +388,7 @@ Storage: same `ProjectStoreDO` with key prefix `report:{id}` **or** parallel pre
 
 ### 3.3 Shared utilities
 
-Extract duplicated zip logic from `apps/workers/.../lib/project.ts` and `apps/web/.../projectZip.ts` into **`packages/core/src/project/parseZip.ts`** (limits in `shared/constants/project.ts`; types in `types/project/upload.ts`).
+Extract duplicated zip logic from `apps/workers/.../lib/project.ts` and web prepare paths into **`packages/core/src/project/parseZip.ts`** (limits in `shared/constants/project.ts`; types in `types/project/upload.ts`). Web uses **`prepareProjectSnapshotFromArchive`** via `apps/web/src/project/`.
 
 Worker **project report route** should call **`runReport`** with edge adapters (C.3 alignment).
 
@@ -451,6 +451,23 @@ Use core **`shareRemoteIssueFromWorker`** (via `workerFetch` / `projectUpload`) 
 
 Web calls **`shareProjectFromSession`** (link-only when `mode: remote`; prepared upload when local). Upload + GET wrappers route HTTP through **`shareRemoteIssueFromWorker`**. Align thrown API errors with `shareIssueFromThrownError`.
 
+### 4.6 Source layout (`apps/web/src`)
+
+Domain folders + barrels (types import **`types/index.ts`** only):
+
+```txt
+worker/      # API client, health, share upload, worker HTTP
+project/     # local prepare, merge config, workspace issues
+workspace/   # snap hold, op memo, share binding
+storage/     # worker URL, recent project zips (IndexedDB)
+zip/         # folder → zip, ignore paths
+constants/   # ecosystem links, storage keys
+types/       # web-only types (barrel)
+app/         # hash route helpers (workspace `?id=`)
+pages/       # route screens
+components/  # UI
+```
+
 ---
 
 ## 5. `apps/report` — report sharing
@@ -494,7 +511,7 @@ Align shell with web/landing (header, theme, `getDocsUrl` links). Add “Open sh
 | **`runReport` on worker** | Replace hand-built doc in `routes/v1/projects/report.ts` |
 | **Locale / layout** | Keep `buildLocaleJsonByTagFromArchive` — already aligned |
 | **Segment index** | After cache Phase 5 — optional worker/web convergence ([`cache.md` § Phase 5](./cache.md)) |
-| **Types** | `@i18nprune/report` only for report DTOs |
+| **Types** | `@i18nprune/report-schema` (`packages/report`) only for report DTOs |
 
 ---
 
@@ -600,6 +617,7 @@ The following refinements are **accepted** and integrated above:
 | Share backups | `packages/core/src/share/cache/shareJsonBackup.ts` |
 | Share cache debug | `packages/core/src/share/cache/debug.ts` · CLI `commands/share/cacheDebug.ts` |
 | Web workspace | `apps/web/src/pages/workspace/index.tsx` |
+| Web modules | `apps/web/src/{worker,project,workspace,storage,types}/` (+ `app/`, `constants/`, `zip/`) |
 | Report loader | `apps/report/src/data/loader/validate.ts` |
 | CLI locales pattern | `packages/cli/bin/cli.ts` (`localesCmd`) |
 | CLI ask gate | `packages/cli/src/shared/ask/gate.ts` |

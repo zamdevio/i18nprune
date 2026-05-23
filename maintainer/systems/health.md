@@ -24,7 +24,11 @@ Hygiene-only fixes (knip/madge/empty) belong in **dedicated PRs** or the same PR
 
 ### `pnpm typecheck`
 
-Root `tsc --noEmit` across the monorepo TypeScript project references. Run after any type or import change.
+Root orchestrator: **`core:typecheck`**, **`cli:typecheck`** (root `tsc`), then per-app scripts (`web:typecheck`, `landing:typecheck`, `docs:typecheck`, `report:typecheck`, worker **`build`** / `meta:build`, `ext:web:typecheck`). Run the umbrella command before commit, or a single target (e.g. **`pnpm web:typecheck`**) while iterating on one app.
+
+### `pnpm build`
+
+Production artifact chain: **`cli:build`** (includes report SPA bundle for embedded HTML), **`web:build`**, **`landing:build`**, **`docs:build`**, **`ext:build`**, worker compile gates. The report SPA is **not** built twice — root **`build`** omits standalone **`report:build`** because **`cli:build`** already runs it.
 
 ### `pnpm test`
 

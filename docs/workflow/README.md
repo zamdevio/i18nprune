@@ -5,16 +5,21 @@ From the **repository root**:
 | Command | Purpose |
 |--------|---------|
 | `pnpm install` | Install dependencies |
-| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm typecheck` | Monorepo gate — orchestrates `core`, `cli`, and per-app checks (`web:typecheck`, `landing:typecheck`, `docs:typecheck`, `report:typecheck`, worker `build`, extension webview, …) |
 | `pnpm test` | Vitest |
-| `pnpm build` | `tsup` → `dist/` (run before **`pnpm test`** if you use integration tests that execute **`dist/cli.js`**) |
+| `pnpm build` | Production build chain — CLI (includes embedded report HTML via `cli:build`), `web`, `landing`, `docs`, `extension`, worker compile gates (see root `package.json`) |
+| `pnpm cli:build` | `tsup` → `dist/` only (run before **`pnpm test`** if integration tests execute **`dist/cli.js`**) |
 | `pnpm dev -- --help` | Run CLI via `tsx` |
 | `pnpm generate:languages` | Regenerate `languages.json` |
 | `pnpm docs:sync` | One-shot copy `docs/` → `apps/docs/content/` |
 | `pnpm docs:dev` | VitePress dev (**port `8282`**, or next free if busy) plus **live sync** — edits under `docs/` mirror into `apps/docs/content/` (`apps/docs/scripts/dev.mjs`) |
 | `pnpm --filter @i18nprune/docs dev:no-watch` | One **`sync`** then VitePress only (no file watcher) |
-| `pnpm web:dev` | Landing site (`apps/web`, port 5174) |
-| `pnpm web:build` | Production build of landing (`apps/web/dist`) |
+| `pnpm web:dev` | Runtime web console (`apps/web`, `web.i18nprune.dev`) |
+| `pnpm web:build` | Production build of runtime web (`apps/web/dist`) |
+| `pnpm landing:dev` | Product landing site (`apps/landing`) |
+| `pnpm landing:build` | Production build of landing (`apps/landing/dist`) |
+| `pnpm report:dev` | Report SPA dev (`apps/report`) |
+| `pnpm report:build` | Report SPA bundle (`apps/report/dist`) — also run via `cli:build` |
 | `pnpm docs:build` | Static export |
 
 **Docs site navigation:** the left nav is **hand-curated** in `apps/docs/.vitepress/sidebar.ts` (plus top **nav** in `config.mts`). After significant `docs/` IA moves, update those entries so the sidebar matches new paths.

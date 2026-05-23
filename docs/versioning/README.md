@@ -84,7 +84,7 @@ Documented with other env vars in [Environment variables](../config/env.md).
 ## Constants layout (update vs report)
 
 - **Update discovery** knobs that are not environment variable **names** live in **`packages/cli/src/constants/update.ts`** (registry URL, `updatestate.json` schema version, throttle duration). That keeps **`packages/cli/src/constants/env.ts`** focused on **env var identifiers** and re-exports used by **`config --json`**.
-- **Project report** JSON (`i18nprune.projectReport`, inline HTML placeholder, report schema version) stay defined in the **`@i18nprune/report`** package (`packages/report`) and are re-exported from **`packages/cli/src/constants/env.ts`** for consumers that already import report DTOs from one place. Moving those into the CLI tree would duplicate sources or create awkward package→CLI dependencies; revisit only if you want a single **`packages/cli/src/constants/report.ts`** that **both** the CLI and the report package import (would require a shared small package or careful re-exports).
+- **Project report** JSON (`i18nprune.projectReport`, inline HTML placeholder, report schema version) stay defined in **`packages/report`** (workspace **`@i18nprune/report-schema`**; published as **`i18nprune/report`**) and are re-exported from **`packages/cli/src/constants/env.ts`** for consumers that already import report DTOs from one place. Moving those into the CLI tree would duplicate sources or create awkward package→CLI dependencies; revisit only if you want a single **`packages/cli/src/constants/report.ts`** that **both** the CLI and the report package import (would require a shared small package or careful re-exports).
 
 ---
 

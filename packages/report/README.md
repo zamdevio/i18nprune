@@ -20,7 +20,7 @@ import {
 
 Root `package.json` **`"exports"`** maps **`@i18nprune/report`** → `dist/report.js` and **`dist/report/src/index.d.ts`** (where `tsup` emits declarations). No separate flatten step.
 
-**Workspace package name** (`packages/report/package.json` → **`@i18nprune/report`**) is **`private`**; it exists so the monorepo has a clear folder and optional **`peerDependencies`**. **Do not** publish it as its own tarball unless you intentionally split releases.
+**Workspace package name** is **`@i18nprune/report-schema`** (`packages/report/package.json`); the report SPA app is a separate workspace package **`@i18nprune/report`** (`apps/report`). Both are **`private`**; published consumers use the root **`i18nprune/report`** export, not workspace names.
 
 ## What `PROJECT_REPORT_SCHEMA_VERSION` is (and is not)
 

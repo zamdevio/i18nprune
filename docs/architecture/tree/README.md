@@ -20,7 +20,7 @@ This page only documents the repository structure and component relationships.
 ├── packages/
 │   ├── cli/                   # CLI package
 │   ├── core/                  # Runtime-agnostic engines and adapters
-│   └── report/                # Shared report schema/types
+│   └── report/                # Shared report schema/types (`@i18nprune/report-schema`)
 ├── scripts/                   # Repository scripts
 ├── tests/
 │   ├── fixtures/
@@ -37,12 +37,12 @@ This page only documents the repository structure and component relationships.
 | Surface | Role | Depends on |
 |---|---|---|
 | `packages/core` | Shared operation engines and runtime adapters | — |
-| `packages/report` | Report schema/types shared across apps | used by `apps/report`, `apps/web`, `packages/core` |
+| `packages/report` | Report schema/types (`@i18nprune/report-schema` workspace) | `packages/core`, `apps/report` SPA, `apps/web`, worker |
 | `packages/cli` | Node CLI orchestration and host I/O | `i18nprune/core` |
-| `apps/web` | Browser runtime console (local + remote worker) | `@i18nprune/core`, `@i18nprune/report` |
-| `apps/report` | Report UI viewer | `@i18nprune/report` |
+| `apps/web` | Browser runtime console (local + remote worker) | `@i18nprune/core`, `@i18nprune/report-schema` |
+| `apps/report` | Report UI SPA (`@i18nprune/report` workspace) | `@i18nprune/report-schema`, `@i18nprune/core` |
 | `apps/landing` | Product landing app | app-local UI modules |
 | `apps/docs` | Primary docs site | root `docs/` content sync |
-| `apps/workers/i18nprune` | Project / workspace API worker (`@i18nprune/worker-i18nprune`) | `@i18nprune/core`, `@i18nprune/report`, worker runtime |
+| `apps/workers/i18nprune` | Project / workspace API worker (`@i18nprune/worker-i18nprune`) | `@i18nprune/core`, `@i18nprune/report-schema`, worker runtime |
 | `apps/workers/meta` | Public meta API (`@i18nprune/worker-meta`, meta.i18nprune.dev) | worker runtime only |
 

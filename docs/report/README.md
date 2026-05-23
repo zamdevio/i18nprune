@@ -22,7 +22,7 @@ The **`report`** command can emit a **single self-contained HTML file** (`--form
 
 | Area | Role |
 |------|------|
-| **`data/loader`** | Reads `#i18nprune-inline-payload`, `JSON.parse`, validates with Zod (`@i18nprune/report`). **Manual import** (paste / file) uses the same validation (`validatePayloadString`). Dev server without payload uses `data/mock`. |
+| **`data/loader`** | Reads `#i18nprune-inline-payload`, `JSON.parse`, validates with Zod (`@i18nprune/report-schema` / `packages/report`). **Manual import** (paste / file) uses the same validation (`validatePayloadString`). Dev server without payload uses `data/mock`. |
 | **`context/report`** | Provides validated `ProjectReportDocument`; wraps editor preference, search, and pagination providers. |
 | **`components/payload-import`** | Collapsible panel (collapsed by default on the main shell; open on the missing-payload screen; auto-expands on validation error): paste or choose `.json`, load with schema + version errors. |
 | **`context/search`** | Global filter string; list routes use `matchesSearch` on row text. |
@@ -74,7 +74,7 @@ The file at **`apps/report/index.html`** is only the **dev entry**: it loads `/s
 ## Changing the payload shape
 
 1. Update **`packages/report`** (schema + types) and mirror any CLI-only types in **`packages/cli/src/types/command/report`** if needed.
-2. Types + Zod live in **`packages/report`**; the SPA imports **`@i18nprune/report`** (see `apps/report/src/types` for re-exports).
+2. Types + Zod live in **`packages/report`** (`@i18nprune/report-schema`); the SPA workspace package is **`@i18nprune/report`** (`apps/report`) and re-exports schema types from `apps/report/src/types`.
 3. Adjust **`build.ts`** if new fields are produced at scan time.
 
 Keep **optional** fields for older saved JSON when possible so `--from` and old HTML still load.
