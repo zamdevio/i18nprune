@@ -3,18 +3,24 @@ import { buildLocalProjectFromZip } from '../../lib/services/core/buildLocalProj
 import {
   deleteProject,
   isWorkerProjectNotFoundError,
-  uploadProject,
 } from '../../lib/services/api/client';
 import { navigateHash, navigateWorkspace } from '../../hooks/useAppRoute';
 import { ShareProjectButton } from '../../components/workspace/ShareProjectButton';
 import { shareIssueFromThrownError, isShareRemoteProjectNotFound } from '../../lib/services/share/workerFetch';
 import { openSharedWorkerProject } from '../../lib/services/share/webShare';
+import { uploadProjectToWorker } from '../../lib/services/share/projectUpload';
+import { ECOSYSTEM_LINKS } from '../../lib/constants/ecosystemLinks';
 import { readWorkerUrl } from '../../lib/storage/workerUrl';
 import type { Issue } from '@i18nprune/core';
 import { collectWorkspaceIssuesFromResultPayload } from '../../lib/services/core/workspaceIssues';
 import { mergeConfigJsonOntoZipBase } from '../../lib/services/core/mergeZipConfig';
 import { clearOpMemo, readOpMemo, opMemoKey, writeOpMemo } from '../../lib/workspace/opMemo';
 import { clearSnapHold, snapBackedLocal, snapHydrateRemote, snapKey } from '../../lib/workspace/snapHold';
+import {
+  healLocalWorkerShareBinding,
+  withoutLocalWorkerShare,
+  workspaceEffectiveWorkerBaseUrl,
+} from '../../lib/workspace/shareBinding';
 import type { WorkerApiEnvelope } from '@i18nprune/core';
 import type { WorkspaceConfigHintState, WorkspaceSession } from '@i18nprune/core';
 import { Config } from './config';
@@ -72,6 +78,7 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
       if (cancelled) return;
       setOpeningShared(false);
       if (!opened.ok) {
+        clearSnapHold();
         setOpenSharedIssue(opened.issue);
         return;
       }
@@ -137,8 +144,17 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
 
   const isRemote = session?.mode === 'remote';
   const isLocal = session?.mode === 'local';
+  const settingsWorkerUrl = useMemo(() => readWorkerUrl(), []);
+  const effectiveWorkerBaseUrl = session
+    ? workspaceEffectiveWorkerBaseUrl(session, settingsWorkerUrl)
+    : settingsWorkerUrl;
+
+  useEffect(() => {
+    if (!session || session.mode !== 'local') return;
+    const healed = healLocalWorkerShareBinding(session, settingsWorkerUrl);
+    if (healed !== session) onSessionChange(healed);
+  }, [session, settingsWorkerUrl, onSessionChange]);
   const projectId = session?.mode === 'remote' ? session.projectId : session?.mode === 'local' ? session.local.snapshot.projectId : '';
-  const workerBaseUrl = session?.mode === 'remote' ? session.workerBaseUrl : '';
   const activeZipFile = session?.activeZipFile;
 
   const responseDataForViewer = useMemo(() => {
@@ -208,37 +224,43 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
     if (session.mode === 'local') {
       const bytes = new Uint8Array(await activeZipFile.arrayBuffer());
       const local = await buildLocalProjectFromZip(bytes, { configJson: configOverride });
-      onSessionChange({
-        mode: 'local',
-        local,
-        activeZipFile,
-        label: activeZipFile.name,
-      });
+      onSessionChange(
+        withoutLocalWorkerShare({
+          mode: 'local',
+          local,
+          activeZipFile,
+          label: activeZipFile.name,
+        }),
+      );
       return;
     }
 
+    if (session.mode !== 'remote') return;
+
     try {
-      await deleteProject(workerBaseUrl, projectId);
+      await deleteProject(effectiveWorkerBaseUrl, session.projectId);
     } catch {
       /* ignore cleanup failure and continue */
     }
-    const res = await uploadProject(workerBaseUrl, activeZipFile, configOverride);
-    const nextProjectId = (res.data as { projectId?: string } | null)?.projectId;
-    if (!nextProjectId) throw new Error('Upload succeeded but projectId missing.');
+    const bytes = new Uint8Array(await activeZipFile.arrayBuffer());
+    const uploaded = await uploadProjectToWorker({
+      workerBaseUrl: effectiveWorkerBaseUrl,
+      zipBytes: bytes,
+      zipFileName: activeZipFile.name,
+      configJson: configOverride,
+      ingestMode: 'prepared',
+      force: true,
+    });
+    if (!uploaded.ok) throw new Error(uploaded.issue.message);
     onSessionChange({
       mode: 'remote',
-      workerBaseUrl,
-      projectId: nextProjectId,
+      workerBaseUrl: effectiveWorkerBaseUrl,
+      projectId: uploaded.projectId,
       activeZipFile,
       label: activeZipFile.name,
+      uploadMeta: uploaded.uploadMeta,
     });
-    const snapshotMeta = (res.data as {
-      snapshotMeta?: { preparedAt?: string; uploadedAt?: string; extractionComputedAt?: string };
-    } | null)?.snapshotMeta;
-    setLatestUploadMeta({
-      preparedAt: snapshotMeta?.preparedAt ?? snapshotMeta?.uploadedAt,
-      extractionComputedAt: snapshotMeta?.extractionComputedAt,
-    });
+    setLatestUploadMeta(uploaded.uploadMeta);
   }
 
   async function recoverRemoteProjectAfterEviction(): Promise<void> {
@@ -322,6 +344,13 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
         <section className="panel workspace-stale-banner workspace-stale-banner--centered">
           <h1>Shared project unavailable</h1>
           <p className="workspace-stale-banner__title">{openSharedIssue.message}</p>
+          <p className="muted">
+            Hosted snapshots expire after ~7 days without reads. See{' '}
+            <a href={ECOSYSTEM_LINKS.docsShare.href} target="_blank" rel="noopener noreferrer">
+              share docs
+            </a>{' '}
+            for limits and recovery.
+          </p>
           <div className="row workspace-stale-banner__actions">
             <button type="button" className="primary" onClick={() => navigateHash('/')}>
               Upload again (Home)
@@ -377,7 +406,13 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
           </p>
         </div>
         <div className="workspace-head__actions">
-          <ShareProjectButton session={session} workerBaseUrl={workerBaseUrl} configJson={configJson} disabled={busy} />
+          <ShareProjectButton
+            session={session}
+            workerBaseUrl={effectiveWorkerBaseUrl}
+            configJson={configJson}
+            disabled={busy}
+            onSessionChange={onSessionChange}
+          />
           <button
             type="button"
             className="danger ghost"
@@ -396,7 +431,12 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
           <p className="workspace-stale-banner__title">
             <strong>Project missing on the worker.</strong>{' '}
             {remoteMissingMessage ??
-              'It may have been evicted or the worker restarted. Re-upload the same zip to keep your workspace context, or open a cached copy from Home.'}
+              'It may have been evicted (~7 days idle) or the worker URL may be wrong. Re-upload the prepared snapshot from your zip, or open a cached copy from Home.'}
+          </p>
+          <p className="muted" style={{ marginTop: 4 }}>
+            <a href={ECOSYSTEM_LINKS.docsShare.href} target="_blank" rel="noopener noreferrer">
+              Share & worker retention
+            </a>
           </p>
           <div className="row" style={{ marginTop: 8, flexWrap: 'wrap', gap: 8 }}>
             <button
@@ -435,9 +475,19 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
             if (!configHint.ok) throw new Error(configHint.message);
             await applyConfigOverride(configJson.trim() || undefined);
             setOverrideApplied(true);
-            return { ok: true };
+            if (isRemote) {
+              return {
+                ok: true,
+                message:
+                  'Re-uploaded with worker force ingest (?force=true): any prior row for the same payload hash was replaced. Use Share → Copy link for the new project id.',
+              };
+            }
+            return {
+              ok: true,
+              message: 'Local snapshot rebuilt — Share is available again for the updated config.',
+            };
           }, isRemote
-            ? `curl -sS -X POST "${workerBaseUrl.replace(/\/$/, '')}/v1/projects" -F "archive=@<cached-zip>.zip;type=application/zip"`
+            ? `curl -sS -X POST "${effectiveWorkerBaseUrl.replace(/\/$/, '')}/v1/projects?force=true" -H "content-type: application/json" -d @prepared-envelope.json`
             : '')
         }
         onClearOverride={async () => {
@@ -451,13 +501,25 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
         busy={busy}
         session={session}
         projectId={projectId}
-        workerBaseUrl={workerBaseUrl}
+        workerBaseUrl={effectiveWorkerBaseUrl}
         missingTargetTag={missingTargetTag}
         onMissingTargetTagChange={setMissingTargetTag}
         localeTag={localeTag}
         onLocaleTagChange={setLocaleTag}
         runAction={runAction}
-        onRemoteProjectDeleted={() => onSessionChange(null)}
+        onWorkerProjectDeleted={() => {
+          if (!session) return;
+          if (session.mode === 'remote') {
+            onSessionChange(null);
+            navigateHash('/');
+            return;
+          }
+          onSessionChange(withoutLocalWorkerShare(session));
+          navigateWorkspace();
+          setResultTitle('JSON preview');
+          setResultPayload(null);
+          setLatestCurl('');
+        }}
         lastOpTitle={resultTitle}
         lastOpPayload={resultPayload}
       />

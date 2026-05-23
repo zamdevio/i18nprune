@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { buildLocalProjectFromZip } from '../lib/services/core/buildLocalProject';
 import { mergeConfigJsonOntoZipBase } from '../lib/services/core/mergeZipConfig';
-import { parseProjectUploadFailure as parseUploadFailure } from '@i18nprune/core';
-import { uploadProject } from '../lib/services/api/client';
+import { uploadProjectToWorker, type ProjectIngestMode } from '../lib/services/share/projectUpload';
 import { checkWorkerHealth } from '../lib/services/api/health';
 import { filesToZipBytes } from '../lib/zip/folderToZip';
 import { saveRecentProjectZip } from '../lib/storage/recentProjectZips';
@@ -20,6 +19,7 @@ type Props = {
 
 export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferredMode, onClose, onComplete }: Props) {
   const [mode, setMode] = useState<'local' | 'remote' | null>(null);
+  const [remoteIngest, setRemoteIngest] = useState<ProjectIngestMode>('prepared');
   const [workerUrl, setWorkerUrl] = useState(defaultWorkerUrl);
   const [configJson, setConfigJson] = useState('');
   const [busy, setBusy] = useState(false);
@@ -31,6 +31,7 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
   useEffect(() => {
     if (!open) return;
     setMode(preferredMode ?? null);
+    setRemoteIngest('prepared');
     setError(null);
     setHealthOk(null);
     setConfigJson('');
@@ -95,7 +96,7 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
     setBusy(true);
     try {
       const zipBytes = preparedZipBytes;
-      if (!zipBytes) throw new Error('Preparing zip bundle. Please wait a moment and retry.');
+      if (!zipBytes) throw new Error('Preparing project bundle. Please wait a moment and retry.');
 
       const cfg = configJson.trim().length > 0 ? configJson : undefined;
       const mergedCheck = mergeConfigJsonOntoZipBase(zipBytes, cfg);
@@ -103,11 +104,12 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
         throw new Error(mergedCheck.message);
       }
 
+      const zipBlob = new Blob([new Uint8Array(zipBytes)], { type: 'application/zip' });
+      const zipFile = new File([zipBlob], primaryName.toLowerCase().endsWith('.zip') ? primaryName : `${primaryName}.zip`, {
+        type: 'application/zip',
+      });
+
       if (mode === 'local') {
-        const zipBlob = new Blob([new Uint8Array(zipBytes)], { type: 'application/zip' });
-        const zipFile = new File([zipBlob], primaryName.toLowerCase().endsWith('.zip') ? primaryName : `${primaryName}.zip`, {
-          type: 'application/zip',
-        });
         const local = await buildLocalProjectFromZip(zipBytes, { configJson: cfg });
         try {
           await saveRecentProjectZip(zipFile);
@@ -127,16 +129,19 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
           return;
         }
         setHealthOk(true);
-        const zipBlob = new Blob([new Uint8Array(zipBytes)], { type: 'application/zip' });
-        const zipFile = new File([zipBlob], primaryName.toLowerCase().endsWith('.zip') ? primaryName : `${primaryName}.zip`, {
-          type: 'application/zip',
+
+        const uploaded = await uploadProjectToWorker({
+          workerBaseUrl: workerUrl.trim(),
+          zipBytes,
+          zipFileName: zipFile.name,
+          configJson: cfg,
+          ingestMode: remoteIngest,
         });
-        const res = await uploadProject(workerUrl, zipFile, cfg);
-        const nextProjectId = (res.data as { projectId?: string } | null)?.projectId;
-        if (!nextProjectId) throw new Error('Upload succeeded but projectId missing.');
-        const snapshotMeta = (res.data as {
-          snapshotMeta?: { preparedAt?: string; uploadedAt?: string; extractionComputedAt?: string };
-        } | null)?.snapshotMeta;
+        if (!uploaded.ok) {
+          setError(uploaded.issue.message);
+          return;
+        }
+
         try {
           await saveRecentProjectZip(zipFile);
         } catch {
@@ -145,19 +150,15 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
         onComplete({
           mode: 'remote',
           workerBaseUrl: workerUrl.trim(),
-          projectId: nextProjectId,
+          projectId: uploaded.projectId,
           activeZipFile: zipFile,
           label: primaryName,
-          uploadMeta: {
-            preparedAt: snapshotMeta?.preparedAt ?? snapshotMeta?.uploadedAt,
-            extractionComputedAt: snapshotMeta?.extractionComputedAt,
-          },
+          uploadMeta: uploaded.uploadMeta,
         });
         resetAndClose();
       }
     } catch (e) {
-      const parsed = parseUploadFailure(e);
-      setError(parsed.message);
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
@@ -165,6 +166,7 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
 
   function resetAndClose(): void {
     setMode(null);
+    setRemoteIngest('prepared');
     setError(null);
     setHealthOk(null);
     setConfigJson('');
@@ -187,7 +189,7 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
             ? ' — folder is zipped in the browser; paths under node_modules, .git, dist, build, out, .next, coverage, and similar are skipped to save bandwidth.'
             : ''}
         </p>
-        {preparingZip ? <p className="status-pill status-pill--warn">Preparing zip once for this panel session…</p> : null}
+        {preparingZip ? <p className="status-pill status-pill--warn">Building zip bundle for this session…</p> : null}
 
         <div className="modal-panel__section">
           <span className="field-label">Where to process</span>
@@ -199,27 +201,59 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
               Remote worker
             </button>
           </div>
+          <p className="muted" style={{ marginTop: 8, fontSize: '0.9rem' }}>
+            Local and remote both use the same core prepare pipeline (parse zip → extract keys/locales). Remote upload defaults to
+            prepared JSON ingest (like <code>i18nprune share upload --project</code>).
+          </p>
         </div>
 
         {mode === 'remote' ? (
-          <div className="modal-panel__section">
-            <label className="field">
-              Worker base URL
-              <input
-                value={workerUrl}
-                onChange={(e) => setWorkerUrl(e.target.value)}
-                disabled={busy}
-                placeholder="https://worker.i18nprune.dev"
-              />
-            </label>
-            <div className="row" style={{ marginTop: 8 }}>
-              <button type="button" disabled={busy} onClick={() => void testHealth()}>
-                Test /health
-              </button>
-              {healthOk === true ? <span className="ok-pill">Reachable</span> : null}
-              {healthOk === false ? <span className="warn-pill">Unreachable</span> : null}
+          <>
+            <div className="modal-panel__section">
+              <span className="field-label">Worker upload mode</span>
+              <div className="mode-pills">
+                <button
+                  type="button"
+                  className={remoteIngest === 'prepared' ? 'primary' : ''}
+                  disabled={busy}
+                  onClick={() => setRemoteIngest('prepared')}
+                >
+                  Prepared JSON (default)
+                </button>
+                <button
+                  type="button"
+                  className={remoteIngest === 'archive' ? 'primary' : ''}
+                  disabled={busy}
+                  onClick={() => setRemoteIngest('archive')}
+                >
+                  Archive zip only
+                </button>
+              </div>
+              <p className="muted" style={{ marginTop: 8, fontSize: '0.9rem' }}>
+                {remoteIngest === 'prepared'
+                  ? 'Prepare in the browser, then POST application/json to /v1/projects (smaller worker CPU, same snapshot shape as CLI).'
+                  : 'Send the zip to POST /v1/projects/archive — the worker runs prepare on the edge (no browser extraction before upload).'}
+              </p>
             </div>
-          </div>
+            <div className="modal-panel__section">
+              <label className="field">
+                Worker base URL
+                <input
+                  value={workerUrl}
+                  onChange={(e) => setWorkerUrl(e.target.value)}
+                  disabled={busy}
+                  placeholder="https://worker.i18nprune.dev"
+                />
+              </label>
+              <div className="row" style={{ marginTop: 8 }}>
+                <button type="button" disabled={busy} onClick={() => void testHealth()}>
+                  Test /health
+                </button>
+                {healthOk === true ? <span className="ok-pill">Reachable</span> : null}
+                {healthOk === false ? <span className="warn-pill">Unreachable</span> : null}
+              </div>
+            </div>
+          </>
         ) : null}
 
         <div className="modal-panel__section">
@@ -241,7 +275,13 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
             Cancel
           </button>
           <button type="button" className="primary" disabled={busy || preparingZip || !preparedZipBytes || !mode} onClick={() => void runProcess()}>
-            {busy ? 'Working…' : mode === 'remote' ? 'Upload + open' : 'Parse + open'}
+            {busy
+              ? 'Working…'
+              : mode === 'remote'
+                ? remoteIngest === 'prepared'
+                  ? 'Prepare + upload'
+                  : 'Upload archive'
+                : 'Prepare + open'}
           </button>
         </div>
       </div>

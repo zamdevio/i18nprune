@@ -14,7 +14,8 @@ type Props = {
   localeTag: string;
   onLocaleTagChange: (v: string) => void;
   runAction: (label: string, action: () => Promise<unknown>, curlCommand?: string) => Promise<void>;
-  onRemoteProjectDeleted: () => void;
+  /** After worker DELETE — remote clears session; local clears `workerShare` only. */
+  onWorkerProjectDeleted: () => void;
   lastOpTitle: string;
   lastOpPayload: unknown | null;
 };
@@ -29,11 +30,22 @@ export function Operations({
   localeTag,
   onLocaleTagChange,
   runAction,
-  onRemoteProjectDeleted,
+  onWorkerProjectDeleted,
   lastOpTitle,
   lastOpPayload,
 }: Props) {
   const base = workerBaseUrl.replace(/\/$/, '');
+
+  const workerDeleteTarget =
+    session.mode === 'remote'
+      ? { workerBaseUrl, projectId: session.projectId, hostedLabel: 'worker project' as const }
+      : session.mode === 'local' && session.workerShare
+        ? {
+            workerBaseUrl,
+            projectId: session.workerShare.projectId,
+            hostedLabel: 'hosted copy' as const,
+          }
+        : null;
 
   return (
     <section className="panel">
@@ -209,18 +221,24 @@ export function Operations({
           </div>
         </div>
 
-        {session.mode === 'remote' ? (
+        {workerDeleteTarget ? (
           <div className="workspace-ops-group workspace-ops-group--danger">
             <h3 className="workspace-ops-group__title">Worker cache</h3>
+            <p className="muted workspace-ops-group__hint">
+              {session.mode === 'local'
+                ? 'Removes the prepared snapshot you shared to the worker. Your in-browser session and zip stay open; Share becomes available again.'
+                : 'Removes this project row from the worker (7-day retention applies until deleted).'}
+            </p>
             <DeleteConfirmButton
               title="Delete worker project?"
-              description={`This removes project ${projectId} from the worker cache.`}
+              description={`This removes ${workerDeleteTarget.hostedLabel} ${workerDeleteTarget.projectId} from ${workerDeleteTarget.workerBaseUrl.replace(/\/$/, '')}.`}
               confirmLabel="Delete project"
               triggerClassName="danger"
-              triggerLabel="Delete Project"
+              triggerLabel="Delete project"
+              disabled={busy}
               onConfirm={async () => {
-                await deleteProject(workerBaseUrl, projectId);
-                onRemoteProjectDeleted();
+                await deleteProject(workerDeleteTarget.workerBaseUrl, workerDeleteTarget.projectId);
+                onWorkerProjectDeleted();
               }}
             />
           </div>

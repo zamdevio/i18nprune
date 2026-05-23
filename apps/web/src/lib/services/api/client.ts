@@ -1,4 +1,4 @@
-import type { ProjectUploadResponse, WorkerApiEnvelope } from '@i18nprune/core';
+import type { WorkerApiEnvelope } from '@i18nprune/core';
 import { ensureWorkerReachable } from './remoteGate';
 
 export function okEnvelope<T>(data: T): WorkerApiEnvelope<T> {
@@ -28,24 +28,6 @@ async function parseEnvelope<T>(resp: Response): Promise<WorkerApiEnvelope<T>> {
 /** True when {@link parseEnvelope} rejected the response with `PROJECT_NOT_FOUND` (worker cache miss / eviction). */
 export function isWorkerProjectNotFoundError(err: unknown): boolean {
   return err instanceof Error && err.message.startsWith('PROJECT_NOT_FOUND:');
-}
-
-export async function uploadProject(
-  workerBaseUrl: string,
-  archive: File,
-  configJson?: string,
-): Promise<WorkerApiEnvelope<ProjectUploadResponse>> {
-  await ensureWorkerReachable(workerBaseUrl);
-  const form = new FormData();
-  form.set('archive', archive);
-  if (configJson && configJson.trim().length > 0) {
-    form.set('configJson', configJson);
-  }
-  const resp = await fetch(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects`, {
-    method: 'POST',
-    body: form,
-  });
-  return parseEnvelope<ProjectUploadResponse>(resp);
 }
 
 export async function getProjectMetadata(workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {

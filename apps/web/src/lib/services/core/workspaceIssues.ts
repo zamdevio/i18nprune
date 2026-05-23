@@ -77,6 +77,10 @@ export function collectWorkspaceIssuesFromResultPayload(payload: unknown): Issue
     return enrichIssuesWithDocHrefs(out);
   }
 
+  if ('ok' in obj && obj.ok === true) {
+    return enrichIssuesWithDocHrefs(out);
+  }
+
   if ('message' in obj && typeof obj.message === 'string' && !('success' in obj)) {
     out.push({
       severity: 'error',

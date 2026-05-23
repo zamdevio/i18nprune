@@ -1,26 +1,23 @@
 import {
   emitShareUploadHumanMessages,
   ISSUE_SHARE_REMOTE_ERROR,
-  parseWorkerShareEnvelope,
   resolveShareWorkerBaseUrl,
-  shareRemoteIssueFromWorker,
   type Issue,
+  type WorkspaceWorkerShareBinding,
   type RunEmitter,
   type ShareRunResult,
   type WorkspaceSession,
 } from '@i18nprune/core';
 import { buildWebWorkspaceShareUrl } from '../../../hooks/useAppRoute.js';
-import { workerFetchJson, zipBytesToArrayBuffer } from './workerHttp';
+import {
+  localWorkspaceShareIsLinkOnly,
+  workspaceShareConfigFingerprint,
+} from '../../workspace/shareBinding.js';
+import { uploadProjectToWorker } from './projectUpload';
 import { fetchWorkerProjectMetadata } from './workerFetch';
 
 function normalizeBaseUrl(url: string): string {
   return url.replace(/\/$/, '');
-}
-
-function workerProjectIdFromEnvelope(data: unknown): string | undefined {
-  if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
-  const id = (data as Record<string, unknown>).projectId;
-  return typeof id === 'string' && id.length > 0 ? id : undefined;
 }
 
 function collectShareHumanLines(result: ShareRunResult): string[] {
@@ -57,67 +54,57 @@ export async function shareRemoteProjectLinkOnly(input: {
   return { ok: true, result, humanLines: collectShareHumanLines(result) };
 }
 
-/** Local session: upload active zip, then return canonical share links. */
+/** Local session: prepare in browser + upload prepared JSON, then return canonical share links. */
 export async function shareLocalProjectUpload(input: {
   workerBaseUrl: string;
   zipFile: File;
   configJson?: string;
+  force?: boolean;
 }): Promise<WebShareProjectOutcome> {
   const workerBaseUrl = resolveShareWorkerBaseUrl(input.workerBaseUrl);
   const humanLines: string[] = [];
   const zipBytes = new Uint8Array(await input.zipFile.arrayBuffer());
   humanLines.push(
-    `Prepared project snapshot: ${input.zipFile.name}, ${String(zipBytes.byteLength)} bytes (browser zip).`,
+    `Prepared project snapshot: ${input.zipFile.name}, ${String(zipBytes.byteLength)} bytes (browser prepare → JSON ingest).`,
   );
-
-  const form = new FormData();
-  form.set(
-    'archive',
-    new Blob([zipBytesToArrayBuffer(zipBytes)], { type: 'application/zip' }),
-    input.zipFile.name,
-  );
-  const cfg = input.configJson?.trim();
-  if (cfg && cfg.length > 0) form.set('configJson', cfg);
-
-  const { httpStatus, body } = await workerFetchJson(`${normalizeBaseUrl(workerBaseUrl)}/v1/projects`, {
-    method: 'POST',
-    body: form,
-  });
-  const envelope = parseWorkerShareEnvelope(body);
-  const uploadIssue = shareRemoteIssueFromWorker({ httpStatus, envelope });
-  if (uploadIssue) {
-    return { ok: false, issues: [uploadIssue], humanLines };
+  if (input.force) {
+    humanLines.push(
+      'Force ingest: worker replaces any prior row for this payload hash (used after config override re-upload).',
+    );
   }
-  const projectId = workerProjectIdFromEnvelope(envelope.data);
-  if (!projectId) {
-    return {
-      ok: false,
-      issues: [
-        {
-          severity: 'error',
-          code: ISSUE_SHARE_REMOTE_ERROR,
-          message: 'Upload succeeded but projectId was missing.',
-        },
-      ],
-      humanLines,
-    };
+
+  const uploaded = await uploadProjectToWorker({
+    workerBaseUrl,
+    zipBytes,
+    zipFileName: input.zipFile.name,
+    configJson: input.configJson,
+    ingestMode: 'prepared',
+    force: input.force,
+  });
+  if (!uploaded.ok) {
+    return { ok: false, issues: [uploaded.issue], humanLines };
   }
 
   const links = {
-    web: buildWebWorkspaceShareUrl(projectId),
-    worker: `${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(projectId)}`,
+    web: buildWebWorkspaceShareUrl(uploaded.projectId),
+    worker: `${normalizeBaseUrl(workerBaseUrl)}/v1/projects/${encodeURIComponent(uploaded.projectId)}`,
   };
-  humanLines.push('Uploaded to worker.');
+  if (uploaded.deduped) {
+    humanLines.push('Worker reused existing project (HASH_ALREADY_EXISTS — same prepared payload hash).');
+  } else {
+    humanLines.push('Uploaded to worker.');
+  }
   humanLines.push(`Web: ${links.web}`);
   humanLines.push(`Worker metadata: ${links.worker}`);
   humanLines.push('Hosted project snapshots expire after ~7 days without reads on the worker.');
 
   const result: ShareRunResult = {
-    action: 'uploaded',
+    action: uploaded.deduped ? 'skipped' : 'uploaded',
     kind: 'project',
     links,
-    workerIds: { projectId },
+    workerIds: { projectId: uploaded.projectId },
     issues: [],
+    ...(uploaded.deduped ? { skippedReason: 'hash_unchanged' as const } : {}),
   };
   return { ok: true, result, humanLines };
 }
@@ -126,6 +113,7 @@ export async function shareProjectFromSession(input: {
   session: WorkspaceSession;
   workerBaseUrl: string;
   configJson?: string;
+  force?: boolean;
 }): Promise<WebShareProjectOutcome> {
   if (input.session.mode === 'remote') {
     return shareRemoteProjectLinkOnly({
@@ -133,6 +121,14 @@ export async function shareProjectFromSession(input: {
       projectId: input.session.projectId,
     });
   }
+
+  if (localWorkspaceShareIsLinkOnly(input.session, input.workerBaseUrl, input.configJson)) {
+    return shareRemoteProjectLinkOnly({
+      workerBaseUrl: input.session.workerShare.workerBaseUrl,
+      projectId: input.session.workerShare.projectId,
+    });
+  }
+
   const zip = input.session.activeZipFile;
   if (!zip) {
     return {
@@ -151,7 +147,27 @@ export async function shareProjectFromSession(input: {
     workerBaseUrl: input.workerBaseUrl,
     zipFile: zip,
     configJson: input.configJson,
+    force: input.force,
   });
+}
+
+export type BindLocalShareInput = {
+  session: WorkspaceSession & { mode: 'local' };
+  workerBaseUrl: string;
+  projectId: string;
+  configJson?: string;
+};
+
+export function bindLocalShareToSession(input: BindLocalShareInput): WorkspaceSession {
+  const binding: WorkspaceWorkerShareBinding = {
+    workerBaseUrl: resolveShareWorkerBaseUrl(input.workerBaseUrl),
+    projectId: input.projectId,
+    configFingerprint: workspaceShareConfigFingerprint(input.configJson),
+  };
+  return {
+    ...input.session,
+    workerShare: binding,
+  };
 }
 
 export type OpenSharedProjectOutcome =

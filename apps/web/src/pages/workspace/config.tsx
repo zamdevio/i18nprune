@@ -60,7 +60,7 @@ export function Config({
         {overrideApplied ? (
           <DeleteConfirmButton
             title="Clear config override and rebuild?"
-            description="This removes the override, deletes the current worker project, then re-uploads the same active zip without configJson."
+            description="This removes the override, deletes the current worker project, then re-uploads with force ingest (replaces any prior row for the same payload hash)."
             confirmLabel="Clear override + rebuild"
             triggerClassName="danger"
             triggerLabel="Clear override + rebuild"
