@@ -35,7 +35,7 @@ After a successful upload, human output includes share links and, when the worke
 
 1. Load a `i18nprune.projectReport` document (`--from <file>` or in-process report build).
 2. `POST /v1/reports` with `{ document }`.
-3. Link: `https://report.i18nprune.dev/s/{reportId}`.
+3. Link: `https://report.i18nprune.dev/#/?id={reportId}` (hash route; `id` survives reload).
 
 ### Combined upload
 

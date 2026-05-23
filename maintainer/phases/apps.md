@@ -50,9 +50,9 @@ C.3b — worker /v1/reports + project share idempotency hooks
     ↓
 Share-1 — CLI share (project + report) + list/view/delete
     ↓
-Share-2 — web /p/:projectId + Share (no re-upload when remote)
+Share-2 — web `/#/workspace?id=` + Share (no re-upload when remote)
     ↓
-Share-3 — report /s/:reportId + shell UI + Share (no re-upload when from worker)
+Share-3 — report `/#/?id=` + shell UI + Share (no re-upload when from worker)
     ↓
 Session D — user docs (`docs/commands/share/`)
 ```
@@ -127,7 +127,7 @@ Core emits structured events (host maps to stderr lines), e.g.:
 - Excludes applied (`node_modules`, `.git`, …)
 - `payloadContentHash` / `configHash`
 - **Re-upload decision:** `skipped: unchanged payload (hash abc…)` vs `upload: new or forced`
-- **Links after upload:** `https://web.i18nprune.dev/p/{id}`, `https://report.i18nprune.dev/s/{id}`, worker metadata URL
+- **Links after upload:** `https://web.i18nprune.dev/#/workspace?id={id}`, `https://report.i18nprune.dev/#/?id={id}`, worker metadata URL
 
 CLI flow:
 
@@ -317,7 +317,7 @@ Register in `packages/cli/bin/cli.ts` like `localesCmd`.
 1. Load doc: `--from` or in-process `runReport` (same as `report --format json` body).
 2. Validate `projectReportDocumentSchema` (`@i18nprune/report`).
 3. `POST /v1/reports` with `{ document }`.
-4. Link: `https://report.i18nprune.dev/s/{reportId}`.
+4. Link: `https://report.i18nprune.dev/#/?id={reportId}`.
 
 ---
 
@@ -415,7 +415,7 @@ User-facing copy: [`docs/commands/share/README.md`](../../docs/commands/share/RE
 
 ### 4.1 URL
 
-- Canonical: `https://web.i18nprune.dev/p/{workerProjectId}`
+- Canonical: `https://web.i18nprune.dev/#/workspace?id={workerProjectId}` (hash route — id survives reload)
 - SPA fallback on Cloudflare Pages (`/* → /index.html`).
 
 ### 4.2 Share action (workspace)
@@ -424,11 +424,11 @@ User-facing copy: [`docs/commands/share/README.md`](../../docs/commands/share/RE
 |---------|----------|
 | `mode: 'remote'` with `projectId` | **Link-only:** `runShare({ source: 'worker-ref', kind: 'project', workerRef })` — copy existing link; toast cites 7-day TTL |
 | `mode: 'local'` | Prompt upload → `POST /v1/projects` → then link |
-| Open `/p/:id` | `GET /v1/projects/:id` → on success hydrate remote workspace; on **404** show eviction banner (below) |
+| Open `/#/workspace?id=` | `GET /v1/projects/:id` → on success hydrate remote workspace; on **404** show eviction banner (below) |
 
 ### 4.3 Worker error UX (web)
 
-Use core **`mapWorkerShareError`** (or shared TS helper exported for apps) — **do not** fork messages in web-only strings.
+Use core **`shareRemoteIssueFromWorker`** (via `workerFetch` / `projectUpload`) — **do not** fork messages in web-only strings.
 
 | Case | UX |
 |------|-----|
@@ -437,11 +437,19 @@ Use core **`mapWorkerShareError`** (or shared TS helper exported for apps) — *
 | **Upload → other 400** | Map `UPLOAD_*` codes; keep zip in browser for retry. |
 | **5xx / network** | Retry hint + worker health link (settings test). |
 
-**TTY / non-TTY:** N/A in browser; always show explicit UI (no silent failure). Same codes whether user opened `/p/:id` or was already in remote workspace.
+**TTY / non-TTY:** N/A in browser; always show explicit UI (no silent failure). Same codes whether user opened `/#/workspace?id=` or was already in remote workspace.
 
-### 4.4 Core integration
+### 4.4 Process project (Home panel)
 
-Web calls **`runShare`** for manifest text in UI modals. Upload + GET wrappers route HTTP through shared error mapper. Reuse existing `isWorkerProjectNotFoundError` — align with new stable issue codes.
+| Mode | Default | Notes |
+|------|---------|-------|
+| **Local** | Prepared pipeline in browser | `prepareProjectSnapshotFromArchive` + `prepareHost: web` — same snapshot shape as CLI/worker |
+| **Remote upload** | **Prepared JSON** (`POST /v1/projects`) | Browser prepare → hosted ingest envelope (like `i18nprune share upload --project`) |
+| **Remote (optional)** | Archive zip (`POST /v1/projects/archive`) | Worker-side prepare; for hosts that cannot run core prepare in-browser |
+
+### 4.5 Core integration
+
+Web calls **`shareProjectFromSession`** (link-only when `mode: remote`; prepared upload when local). Upload + GET wrappers route HTTP through **`shareRemoteIssueFromWorker`**. Align thrown API errors with `shareIssueFromThrownError`.
 
 ---
 
@@ -449,7 +457,10 @@ Web calls **`runShare`** for manifest text in UI modals. Upload + GET wrappers r
 
 ### 5.1 URL
 
-- Canonical: `https://report.i18nprune.dev/s/{workerReportId}`
+- Canonical: `https://report.i18nprune.dev/#/?id={workerReportId}` (hash route + query — same pattern as web `/#/workspace?id=`)
+- SPA fallback on Cloudflare Pages (`/* → /index.html`). **Do not** use legacy path `/s/:id` (removed from plan; never shipped in `apps/report`).
+
+**Row 8 implementation:** mirror web row 7 — `parseReportShareId` (URL or raw 16-char id), `GET /v1/reports/:id` metadata probe, `GET /v1/reports/:id/document` hydrate, eviction banner + `shareRemoteIssueFromWorker`. Core link helper: `buildReportShareUrl` in `packages/core/src/share/util/links.ts`.
 
 ### 5.2 Load paths
 
@@ -513,8 +524,8 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 | 6 | CLI `share` + `upload` / `list` / `view` / `delete` (+ `--all`) + core human emit + worker HTTP hooks | **Shipped** |
 | 6b | `share.bak/` backups, cache-epoch skip, view 404 purge, `--debug-cache`, issue codes `cache_empty` / `stale_cache_row_removed` | **Shipped** |
 | 6c | Worker hardening — ingest errors, dedup/force, storage pressure, timings (`preparedAt`), `localeTags`, `filesEpoch` | **Shipped** |
-| 7 | Web `/p/:id` + Share + **404 / too-large UX** | **Todo** (**next PR**) |
-| 8 | Report `/s/:id` + **`/document` load** + Share + error UX | **Todo** (after row 7) |
+| 7 | Web `/#/workspace?id=` + Share + **404 / too-large UX** + prepared upload default | **Shipped** |
+| 8 | Report `/#/?id=` + **`/document` load** + Share + error UX | **Todo** (**next PR**) |
 | 9 | Worker `runReport` alignment | **Todo** |
 | 10 | User docs `docs/commands/share/` + `docs/issues/share.md` + worker runtime page | **Shipped** (expanded post-6c; OpenAPI optional later) |
 
@@ -541,7 +552,7 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 | # | Question | Recommendation |
 |---|----------|----------------|
 | 1 | `share delete` default remote delete? | **Local + worker DELETE** by default; **`--local-only`** for cache metadata only |
-| 2 | Path vs hash URLs | **Path** `/p/:id`, `/s/:id` + SPA fallback |
+| 2 | Path vs hash URLs | **Web:** `/#/workspace?id=` · **Report:** `/#/?id=` + SPA fallback (no `/s/:id`) |
 | 3 | Worker 404 on skip | **v1:** metadata GET probe before skip; 404 → re-upload + prune cache |
 | 4 | `share delete --project` id namespace | **Worker-hosted id** (`workerProjectId` / `workerReportId`), not cache `projectId` |
 | 5 | List filter `--project` | Same worker id; optional `--kind report\|project` |
