@@ -44,7 +44,7 @@ export default defineConfig({
       '@i18nprune/core/runtime/edge': path.join(coreSrc, 'runtime/exports/edge.ts'),
       '@i18nprune/core/runtime/helpers/sync': path.join(coreSrc, 'runtime/exports/helpers/sync.ts'),
       '@i18nprune/core': coreSrc,
-      '@i18nprune/report': path.join(root, 'packages/report/src'),
+      '@i18nprune/report-schema': path.join(root, 'packages/report/src'),
     };
   },
 });

@@ -5,7 +5,7 @@ import {
   issuesFromDiscoveryWarnings,
   mergeIssues,
 } from '@/shared/result/index.js';
-import { projectReportDocumentSchema } from '@i18nprune/report';
+import { projectReportDocumentSchema } from '@i18nprune/report-schema';
 import { formatProjectReportDocument } from '@/commands/report/write.js';
 import { resolveReportOutputPath } from '@/utils/report/index.js';
 import { runReport as runReportCore, runProjectReadiness } from '@i18nprune/core';

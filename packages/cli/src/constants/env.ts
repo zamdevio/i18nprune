@@ -58,4 +58,4 @@ export const ENV_I18NPRUNE_TRANSLATE_LLM_MODEL = 'I18NPRUNE_TRANSLATE_LLM_MODEL'
 export {
   PROJECT_REPORT_KIND,
   REPORT_INLINE_PAYLOAD_PLACEHOLDER,
-} from '@i18nprune/report';
+} from '@i18nprune/report-schema';

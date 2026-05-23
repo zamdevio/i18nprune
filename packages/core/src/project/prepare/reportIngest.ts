@@ -1,4 +1,4 @@
-import { projectReportDocumentSchema } from '@i18nprune/report';
+import { projectReportDocumentSchema } from '@i18nprune/report-schema';
 import { ISSUE_SHARE_REMOTE_REPORT_REJECTED } from '../../shared/constants/issueCodes.js';
 import { sha256HexBytes } from '../../share/util/sha256.js';
 import { stableStringify } from '../../share/util/stableJson.js';

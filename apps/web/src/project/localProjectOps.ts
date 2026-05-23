@@ -9,7 +9,7 @@ import {
   PROJECT_REPORT_KIND,
   PROJECT_REPORT_SCHEMA_VERSION,
   type ProjectReportDocument,
-} from '@i18nprune/report';
+} from '@i18nprune/report-schema';
 
 const LOCAL_TOOL_VERSION = 'runtime-web-local/0.1.0';
 

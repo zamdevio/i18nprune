@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '@i18nprune/report';
+import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '@i18nprune/report-schema';
 import { DEFAULT_CONFIG, parseI18nPruneConfig } from '../../../config/index.js';
 import { initializeCacheState } from '../../../cache/setup/index.js';
 import { createCoreContext } from '../../../generate/context.js';

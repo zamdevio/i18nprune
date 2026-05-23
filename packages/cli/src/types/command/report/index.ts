@@ -3,7 +3,7 @@ export type {
   ProjectReportEnvironment,
   ProjectReportProjectMeta,
   ProjectReportSummary,
-} from '@i18nprune/report';
+} from '@i18nprune/report-schema';
 
 export type ReportCommandFormat = 'html' | 'json' | 'csv' | 'text';
 

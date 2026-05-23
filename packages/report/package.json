@@ -1,5 +1,5 @@
 {
-  "name": "@i18nprune/report",
+  "name": "@i18nprune/report-schema",
   "version": "0.1.0",
   "private": true,
   "type": "module",

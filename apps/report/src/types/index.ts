@@ -3,6 +3,6 @@ export type {
   ProjectReportEnvironment,
   ProjectReportProjectMeta,
   ProjectReportSummary,
-} from '@i18nprune/report';
+} from '@i18nprune/report-schema';
 
-export { PROJECT_REPORT_KIND } from '@i18nprune/report';
+export { PROJECT_REPORT_KIND } from '@i18nprune/report-schema';

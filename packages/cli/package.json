@@ -6,6 +6,6 @@
   "description": "CLI binary and programmatic API source for i18nprune. Private workspace package; the installable npm release is built from the repository root.",
   "dependencies": {
     "@i18nprune/core": "workspace:*",
-    "@i18nprune/report": "workspace:*"
+    "@i18nprune/report-schema": "workspace:*"
   }
 }

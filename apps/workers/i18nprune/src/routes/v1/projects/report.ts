@@ -1,5 +1,5 @@
 import { validate, type ProjectWorkerReportBody } from '@i18nprune/core';
-import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION, type ProjectReportDocument } from '@i18nprune/report';
+import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION, type ProjectReportDocument } from '@i18nprune/report-schema';
 import type { Hono } from 'hono';
 import { ApiResponse } from '../../../response';
 import { getProjectById, projectStore } from '../../shared/store';

@@ -37,7 +37,7 @@ export default defineConfig({
         replacement: path.resolve(__dirname, 'packages/core/src/index.ts'),
       },
       {
-        find: '@i18nprune/report',
+        find: '@i18nprune/report-schema',
         replacement: path.resolve(__dirname, 'packages/report/src/index.ts'),
       },
     ],

@@ -1,4 +1,4 @@
-import type { ParsedProjectReportDocument } from '@i18nprune/report';
+import type { ParsedProjectReportDocument } from '@i18nprune/report-schema';
 
 /**
  * Report fields that affect hosted findings — excludes per-run host metadata

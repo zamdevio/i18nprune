@@ -15,7 +15,7 @@ export default defineConfig({
         repoRoot,
         'packages/core/src/index.ts',
       ),
-      '@i18nprune/report': path.join(
+      '@i18nprune/report-schema': path.join(
         repoRoot,
         'packages/report/src/index.ts',
       ),

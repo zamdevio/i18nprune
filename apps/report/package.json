@@ -1,5 +1,5 @@
 {
-  "name": "@i18nprune/report-app",
+  "name": "@i18nprune/report",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@i18nprune/core": "workspace:*",
-    "@i18nprune/report": "workspace:*",
+    "@i18nprune/report-schema": "workspace:*",
     "i18nprune": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

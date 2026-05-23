@@ -1,4 +1,4 @@
 export {
   PROJECT_REPORT_KIND,
   REPORT_INLINE_PAYLOAD_PLACEHOLDER,
-} from '@i18nprune/report';
+} from '@i18nprune/report-schema';
