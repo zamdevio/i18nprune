@@ -233,7 +233,7 @@ describe('runShareList/view/delete', () => {
               byteSize: 1,
               uploadedAt: '2026-01-01T00:00:00.000Z',
               lastUsedAt: '2026-01-01T00:00:00.000Z',
-              links: { report: 'https://report.i18nprune.dev/s/r123' },
+              links: { report: 'https://report.i18nprune.dev/#/?id=r123' },
             },
           ],
         },

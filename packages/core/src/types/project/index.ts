@@ -63,7 +63,11 @@ export type {
   WorkerErrorAction,
   WorkerHealthResult,
 } from './workerApi.js';
-export type { WorkspaceConfigHintState, WorkspaceSession } from './workspace.js';
+export type {
+  WorkspaceConfigHintState,
+  WorkspaceSession,
+  WorkspaceWorkerShareBinding,
+} from './workspace.js';
 export type {
   RecentProjectZipBundleManifest,
   RecentProjectZipBundleManifestItem,

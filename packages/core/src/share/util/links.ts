@@ -14,6 +14,15 @@ export function buildWebWorkspaceShareUrl(
   return `${base}/#/workspace?id=${encodeURIComponent(projectId)}`;
 }
 
+/** Public report app URL — hash route + `?id=` (mirrors web workspace links; survives reload). */
+export function buildReportShareUrl(
+  reportId: string,
+  reportAppBase: string = DEMO_REPORT_URL,
+): string {
+  const base = trimTrailingSlash(reportAppBase);
+  return `${base}/#/?id=${encodeURIComponent(reportId)}`;
+}
+
 /** Public URLs for a hosted **project** snapshot (web workspace + worker metadata). */
 export function buildProjectShareLinks(input: { workerBaseUrl: string; projectId: string }): ShareLinks {
   const base = trimTrailingSlash(input.workerBaseUrl);
@@ -27,7 +36,7 @@ export function buildProjectShareLinks(input: { workerBaseUrl: string; projectId
 export function buildReportShareLinks(input: { workerBaseUrl: string; reportId: string }): ShareLinks {
   const base = trimTrailingSlash(input.workerBaseUrl);
   return {
-    report: `${DEMO_REPORT_URL}/s/${encodeURIComponent(input.reportId)}`,
+    report: buildReportShareUrl(input.reportId),
     worker: `${base}/v1/reports/${encodeURIComponent(input.reportId)}`,
   };
 }

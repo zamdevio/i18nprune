@@ -330,7 +330,7 @@ describe('runShare (project / build)', () => {
       expect(res.action).toBe('uploaded');
       expect(res.kind).toBe('report');
       expect(res.workerIds.reportId).toBe('r1b2c3d4e5f6a7b8');
-      expect(res.links.report).toContain('/s/r1b2c3d4e5f6a7b8');
+      expect(res.links.report).toContain('/#/?id=r1b2c3d4e5f6a7b8');
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }

@@ -5,6 +5,7 @@ export {
   buildProjectPayload,
   buildReportShareLinks,
   buildProjectShareLinks,
+  buildReportShareUrl,
   findMatchingProjectShareEntry,
   findMatchingReportShareEntry,
   loadShareJsonFile,

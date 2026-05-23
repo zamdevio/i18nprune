@@ -385,6 +385,7 @@ export {
   hostedSnapshotForShareContentHash,
   buildProjectShareLinks,
   buildReportShareLinks,
+  buildReportShareUrl,
   buildWebWorkspaceShareUrl,
   emitShareCacheDebug,
   emitShareDeleteHumanMessages,
@@ -412,6 +413,9 @@ export {
   runShareView,
   resolveShareRemoteDeleteOutcome,
   shareRemoteIssueFromWorker,
+  workerDataProjectId,
+  workerDataReportId,
+  workerUploadWasDeduped,
 } from './share/index.js';
 export { sha256HexBytes } from './share/util/sha256.js';
 export { DEFAULT_WORKER_API_URL, DEMO_WEB_APP_BASE } from './shared/constants/links.js';
@@ -648,6 +652,7 @@ export type {
   WorkerHealthResult,
   WorkspaceConfigHintState,
   WorkspaceSession,
+  WorkspaceWorkerShareBinding,
   ApplyProjectAnalysisInput,
   ArchiveProjectFs,
   BuildProjectSnapshotShellResult,
