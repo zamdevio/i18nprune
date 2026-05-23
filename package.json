@@ -79,6 +79,7 @@
     "madge:orphans": "madge --orphans --extensions ts,tsx --ts-config tsconfig.json packages/core/src packages/cli/src packages/report/src",
     "madge:leaves": "madge --leaves --extensions ts,tsx --ts-config tsconfig.json packages/core/src packages/cli/src packages/report/src",
     "test": "vitest run",
+    "test:summary": "pnpm test 2>&1 | grep -E 'Test Files|Tests|Start at|Duration'",
     "typecheck": "tsc --noEmit",
     "empty:dir": "find . -path '*node_modules' -prune -o -path '*/.wrangler' -prune -o -path ./.git -prune -o -type d -empty -print",
     "empty:file": "find . -path '*node_modules' -prune -o -path '*/.wrangler' -prune -o -path ./.git -prune -o -type f -empty -print",
