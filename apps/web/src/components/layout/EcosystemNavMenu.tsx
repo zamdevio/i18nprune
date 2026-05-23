@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import { ECOSYSTEM_NAV_LINKS } from '../../lib/constants/ecosystemLinks';
+import { ECOSYSTEM_NAV_LINKS } from '../../constants/index.js';
 
 export function EcosystemNavMenu() {
   const [open, setOpen] = useState(false);

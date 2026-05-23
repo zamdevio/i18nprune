@@ -1,6 +1,6 @@
 import type { ParsedProjectUpload, WorkerApiEnvelope } from '@i18nprune/core';
 import { snapshotPreparedAtIso } from '@i18nprune/core';
-import { okEnvelope } from '../api/client';
+import { okEnvelope } from '../worker/api/index.js';
 import {
   localMissingData,
   localReportData,

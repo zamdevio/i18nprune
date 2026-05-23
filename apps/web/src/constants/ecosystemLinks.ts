@@ -14,13 +14,7 @@ export const LANDING_SITE_URL = 'https://i18nprune.dev' as const;
 export const VSCODE_MARKETPLACE_EXTENSION_URL =
   'https://marketplace.visualstudio.com/items?itemName=zamdevio.i18nprune' as const;
 
-export type EcosystemLink = {
-  id: string;
-  label: string;
-  href: string;
-  description?: string;
-  external?: boolean;
-};
+import type { EcosystemLink } from '../types/index.js';
 
 export const ECOSYSTEM_LINKS = {
   landing: { id: 'landing', label: 'i18nprune.dev', href: LANDING_SITE_URL, description: 'Product overview', external: true },

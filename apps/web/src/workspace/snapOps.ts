@@ -14,7 +14,7 @@ import {
   runWorkerReport,
   runWorkerReview,
   runWorkerValidate,
-} from '../services/api/client';
+} from '../worker/api/index.js';
 import type { WorkspaceSession } from '@i18nprune/core';
 import {
   localGetDoctor,
@@ -27,7 +27,7 @@ import {
   localRunReport,
   localRunReview,
   localRunValidate,
-} from '../services/core/localWorkerShim';
+} from '../project/index.js';
 import { setSnapFromEnv, snapBackedLocal, snapEpoch, snapHydrateRemote } from './snapHold';
 
 export async function snapMetadata(session: WorkspaceSession, workerBaseUrl: string, projectId: string): Promise<WorkerApiEnvelope<unknown>> {

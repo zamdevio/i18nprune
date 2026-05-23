@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { DeleteConfirmButton } from '../../components/ui/delete';
 import { ToolbarDropdown } from '../../components/ui/toolbar-dropdown';
-import { checkWorkerHealth } from '../../lib/services/api/health';
-import { invalidateWorkerGate } from '../../lib/services/api/remoteGate';
+import { DEFAULT_WORKER_API_URL } from '@i18nprune/core';
+import { ECOSYSTEM_LINKS } from '../../constants/index.js';
 import {
   clearRecentProjectZips,
   exportRecentProjectZipBundle,
@@ -12,10 +12,11 @@ import {
   summarizeTrimPreview,
   updateRecentProjectZipSettings,
   validateRecentProjectZipBundle,
-} from '../../lib/storage/recentProjectZips';
-import { writeWorkerUrl, readWorkerUrl, resetWorkerUrlToDefault } from '../../lib/storage/workerUrl';
-import { DEFAULT_WORKER_API_URL } from '@i18nprune/core';
-import { ECOSYSTEM_LINKS } from '../../lib/constants/ecosystemLinks';
+  readWorkerUrl,
+  resetWorkerUrlToDefault,
+  writeWorkerUrl,
+} from '../../storage/index.js';
+import { checkWorkerHealth, invalidateWorkerGate } from '../../worker/index.js';
 
 export function SettingsPage() {
   const initialRecent = readRecentProjectZipSettings();

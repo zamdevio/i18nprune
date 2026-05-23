@@ -1,5 +1,5 @@
 import { DEFAULT_WORKER_API_URL } from '@i18nprune/core';
-import { WORKER_URL_STORAGE_KEY } from '../constants/storageKeys';
+import { WORKER_URL_STORAGE_KEY } from '../constants/index.js';
 
 export function readWorkerUrl(): string {
   try {

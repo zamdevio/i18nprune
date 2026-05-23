@@ -1,26 +1,31 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { buildLocalProjectFromZip } from '../../lib/services/core/buildLocalProject';
+import { navigateHash, navigateWorkspace } from '../../hooks/useAppRoute.js';
+import { buildLocalProjectFromZip, collectWorkspaceIssuesFromResultPayload, mergeConfigJsonOntoZipBase } from '../../project/index.js';
 import {
   deleteProject,
   isWorkerProjectNotFoundError,
-} from '../../lib/services/api/client';
-import { navigateHash, navigateWorkspace } from '../../hooks/useAppRoute';
-import { ShareProjectButton } from '../../components/workspace/ShareProjectButton';
-import { shareIssueFromThrownError, isShareRemoteProjectNotFound } from '../../lib/services/share/workerFetch';
-import { openSharedWorkerProject } from '../../lib/services/share/webShare';
-import { uploadProjectToWorker } from '../../lib/services/share/projectUpload';
-import { ECOSYSTEM_LINKS } from '../../lib/constants/ecosystemLinks';
-import { readWorkerUrl } from '../../lib/storage/workerUrl';
+  isShareRemoteProjectNotFound,
+  openSharedWorkerProject,
+  shareIssueFromThrownError,
+  uploadProjectToWorker,
+} from '../../worker/index.js';
+import { ECOSYSTEM_LINKS } from '../../constants/index.js';
+import { readWorkerUrl } from '../../storage/index.js';
 import type { Issue } from '@i18nprune/core';
-import { collectWorkspaceIssuesFromResultPayload } from '../../lib/services/core/workspaceIssues';
-import { mergeConfigJsonOntoZipBase } from '../../lib/services/core/mergeZipConfig';
-import { clearOpMemo, readOpMemo, opMemoKey, writeOpMemo } from '../../lib/workspace/opMemo';
-import { clearSnapHold, snapBackedLocal, snapHydrateRemote, snapKey } from '../../lib/workspace/snapHold';
 import {
+  clearOpMemo,
+  clearSnapHold,
   healLocalWorkerShareBinding,
+  opMemoKey,
+  readOpMemo,
+  snapBackedLocal,
+  snapHydrateRemote,
+  snapKey,
   withoutLocalWorkerShare,
   workspaceEffectiveWorkerBaseUrl,
-} from '../../lib/workspace/shareBinding';
+  writeOpMemo,
+} from '../../workspace/index.js';
+import { ShareProjectButton } from '../../components/workspace/ShareProjectButton.js';
 import type { WorkerApiEnvelope } from '@i18nprune/core';
 import type { WorkspaceConfigHintState, WorkspaceSession } from '@i18nprune/core';
 import { Config } from './config';

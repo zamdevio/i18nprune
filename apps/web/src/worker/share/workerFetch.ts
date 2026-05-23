@@ -4,15 +4,12 @@ import {
   shareRemoteIssueFromWorker,
   type Issue,
 } from '@i18nprune/core';
-import { workerFetchJson } from './workerHttp';
+import type { WorkerProjectMetadataResult } from '../../types/index.js';
+import { workerFetchJson } from './workerHttp.js';
 
 function normalizeBaseUrl(url: string): string {
   return url.replace(/\/$/, '');
 }
-
-export type WorkerProjectMetadataResult =
-  | { ok: true; data: unknown }
-  | { ok: false; issue: Issue };
 
 /** Metadata GET for shared links and probes — maps worker errors via core share helpers. */
 export async function fetchWorkerProjectMetadata(

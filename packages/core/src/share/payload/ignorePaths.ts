@@ -1,6 +1,6 @@
 /**
  * Path segments (and a few roots) skipped when building a prepared project zip.
- * Mirrors `apps/web/src/lib/zip/zipIgnorePaths.ts` so CLI / web uploads stay aligned.
+ * Mirrors `apps/web/src/zip/zipIgnorePaths.ts` so CLI / web uploads stay aligned.
  */
 const IGNORE_DIR_SEGMENTS = new Set(
   [

@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { OpenProjectPanel } from '../../components/OpenProjectPanel';
-import { navigateWorkspace } from '../../hooks/useAppRoute';
+import { navigateWorkspace } from '../../hooks/useAppRoute.js';
+import { sha256Hex } from '../../project/index.js';
 import {
   deleteRecentProjectZip,
   findRecentProjectZipBySha256,
   loadRecentProjectZipFile,
   listRecentProjectZips,
   readRecentProjectZipSettings,
+  readWorkerUrl,
   searchRecentProjectZips,
-  type RecentProjectZipEntry,
-} from '../../lib/storage/recentProjectZips';
-import { sha256Hex } from '../../lib/services/core/cryptoUtils';
-import { readWorkerUrl } from '../../lib/storage/workerUrl';
+} from '../../storage/index.js';
+import type { RecentProjectZipEntry } from '../../types/index.js';
 import type { WorkspaceSession } from '@i18nprune/core';
 import { DuplicateCachedZipDialog } from './duplicate-zip-dialog';
 import { Dropdown } from './dropdown';

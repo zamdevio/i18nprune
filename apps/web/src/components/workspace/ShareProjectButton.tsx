@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Copy, Link2 } from 'lucide-react';
 import type { WorkspaceSession } from '@i18nprune/core';
-import { ECOSYSTEM_LINKS } from '../../lib/constants/ecosystemLinks';
-import { readWorkerUrl } from '../../lib/storage/workerUrl';
-import { localWorkspaceShareIsLinkOnly, workspaceEffectiveWorkerBaseUrl } from '../../lib/workspace/shareBinding';
-import { bindLocalShareToSession, shareProjectFromSession } from '../../lib/services/share/webShare';
+import { ECOSYSTEM_LINKS } from '../../constants/index.js';
+import { readWorkerUrl } from '../../storage/index.js';
+import { bindLocalShareToSession, shareProjectFromSession } from '../../worker/index.js';
+import { localWorkspaceShareIsLinkOnly, workspaceEffectiveWorkerBaseUrl } from '../../workspace/index.js';
 
 type Props = {
   session: WorkspaceSession;

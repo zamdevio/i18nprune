@@ -1,5 +1,5 @@
 import { ExternalLink } from 'lucide-react';
-import { ECOSYSTEM_SURFACES } from '../../lib/constants/ecosystemLinks';
+import { ECOSYSTEM_SURFACES } from '../../constants/index.js';
 
 export function SurfacesStrip() {
   return (

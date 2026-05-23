@@ -1,7 +1,7 @@
 import { ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { DeleteConfirmButton } from '../../components/ui/delete';
 import { ToolbarDropdown } from '../../components/ui/toolbar-dropdown';
-import type { RecentProjectZipEntry } from '../../lib/storage/recentProjectZips';
+import type { RecentProjectZipEntry } from '../../types/index.js';
 
 type Props = {
   recentQuery: string;

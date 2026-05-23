@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import type { RecentProjectZipEntry } from '../../lib/storage/recentProjectZips';
+import type { RecentProjectZipEntry } from '../../types/index.js';
 
 type Props = {
   existing: RecentProjectZipEntry;

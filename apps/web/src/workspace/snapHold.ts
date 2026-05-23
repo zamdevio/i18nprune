@@ -3,8 +3,9 @@
  * No zip rescan; validate/review/report read snapshot.extraction + locale JSON only (same as `apps/workers/i18nprune` routes).
  */
 import { parseWorkerShareEnvelope, type ParsedProjectUpload, type ProjectSnapshot, type WorkerApiEnvelope, type WorkspaceSession } from '@i18nprune/core';
-import { workerFetchJson } from '../services/share/workerHttp';
-import { seedOpMemoFromSnap, type SnapCurls } from './snapSeed';
+import { workerFetchJson } from '../worker/share/workerHttp.js';
+import { seedOpMemoFromSnap } from './snapSeed.js';
+import type { SnapCurls } from '../types/index.js';
 
 type Hold = {
   sessionKey: string;

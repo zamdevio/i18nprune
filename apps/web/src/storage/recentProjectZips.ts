@@ -3,16 +3,9 @@ import type {
   RecentProjectZipBundleManifestItem,
   RecentProjectZipEntry,
   RecentProjectZipSettings,
-} from '@i18nprune/core';
-
-export type {
-  RecentProjectZipBundleManifest,
-  RecentProjectZipBundleManifestItem,
-  RecentProjectZipEntry,
-  RecentProjectZipSettings,
-};
-import { RECENT_PROJECT_ZIPS_META_KEY, RECENT_PROJECT_ZIPS_SETTINGS_KEY } from '../constants/storageKeys';
-import { sha256Hex } from '../services/core/cryptoUtils';
+} from '../types/index.js';
+import { RECENT_PROJECT_ZIPS_META_KEY, RECENT_PROJECT_ZIPS_SETTINGS_KEY } from '../constants/index.js';
+import { sha256Hex } from '../project/index.js';
 import { unzipSync, zipSync } from 'fflate';
 
 const DB_NAME = 'i18nprune-runtime-web';

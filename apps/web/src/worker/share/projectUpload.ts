@@ -13,20 +13,9 @@ import {
   type ProjectUploadSnapshotMeta,
 } from '@i18nprune/core';
 import { webPathRuntime } from '@i18nprune/core/runtime/web';
-import { hex16Id, sha256Hex } from '../core/cryptoUtils';
-import { createWebShareCoreContext, webProcessorContext } from '../core/webShareContext';
-import { workerFetchJson, zipBytesToArrayBuffer } from './workerHttp';
-
-export type ProjectIngestMode = 'prepared' | 'archive';
-
-export type ProjectUploadMeta = {
-  preparedAt?: string;
-  extractionComputedAt?: string;
-};
-
-export type ProjectUploadResult =
-  | { ok: true; projectId: string; uploadMeta: ProjectUploadMeta; deduped?: boolean }
-  | { ok: false; issue: Issue };
+import { hex16Id, sha256Hex, createWebShareCoreContext, webProcessorContext } from '../../project/index.js';
+import type { ProjectIngestMode, ProjectUploadMeta, ProjectUploadResult } from '../../types/index.js';
+import { workerFetchJson, zipBytesToArrayBuffer } from './workerHttp.js';
 
 function metadataScalarIso(value: string | number | undefined): string | undefined {
   return typeof value === 'string' && value.length > 0 && value !== METADATA_DASH ? value : undefined;

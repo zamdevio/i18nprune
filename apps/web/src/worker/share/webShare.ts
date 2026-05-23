@@ -8,13 +8,14 @@ import {
   type ShareRunResult,
   type WorkspaceSession,
 } from '@i18nprune/core';
-import { buildWebWorkspaceShareUrl } from '../../../hooks/useAppRoute.js';
+import { buildWebWorkspaceShareUrl } from '../../app/index.js';
 import {
   localWorkspaceShareIsLinkOnly,
   workspaceShareConfigFingerprint,
 } from '../../workspace/shareBinding.js';
-import { uploadProjectToWorker } from './projectUpload';
-import { fetchWorkerProjectMetadata } from './workerFetch';
+import type { BindLocalShareInput, OpenSharedProjectOutcome, WebShareProjectOutcome } from '../../types/index.js';
+import { uploadProjectToWorker } from './projectUpload.js';
+import { fetchWorkerProjectMetadata } from './workerFetch.js';
 
 function normalizeBaseUrl(url: string): string {
   return url.replace(/\/$/, '');
@@ -28,10 +29,6 @@ function collectShareHumanLines(result: ShareRunResult): string[] {
   emitShareUploadHumanMessages({ emit }, result);
   return lines;
 }
-
-export type WebShareProjectOutcome =
-  | { ok: true; result: ShareRunResult; humanLines: string[] }
-  | { ok: false; issues: Issue[]; humanLines: string[] };
 
 /** Link-only share when the workspace session is already on the worker (same as core `runShare` worker-ref). */
 export async function shareRemoteProjectLinkOnly(input: {
@@ -151,13 +148,6 @@ export async function shareProjectFromSession(input: {
   });
 }
 
-export type BindLocalShareInput = {
-  session: WorkspaceSession & { mode: 'local' };
-  workerBaseUrl: string;
-  projectId: string;
-  configJson?: string;
-};
-
 export function bindLocalShareToSession(input: BindLocalShareInput): WorkspaceSession {
   const binding: WorkspaceWorkerShareBinding = {
     workerBaseUrl: resolveShareWorkerBaseUrl(input.workerBaseUrl),
@@ -169,14 +159,6 @@ export function bindLocalShareToSession(input: BindLocalShareInput): WorkspaceSe
     workerShare: binding,
   };
 }
-
-export type OpenSharedProjectOutcome =
-  | {
-      ok: true;
-      session: WorkspaceSession;
-      metadata: unknown;
-    }
-  | { ok: false; issue: Issue };
 
 /** Hydrate a remote workspace from `GET /v1/projects/:id` (metadata probe before snapshot fetch). */
 export async function openSharedWorkerProject(input: {

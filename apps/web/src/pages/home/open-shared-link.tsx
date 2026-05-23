@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Link2, SearchCheck } from 'lucide-react';
-import { navigateWorkspace } from '../../hooks/useAppRoute';
-import { ECOSYSTEM_LINKS } from '../../lib/constants/ecosystemLinks';
-import { parseWorkspaceProjectId } from '../../lib/share/parseWorkspaceProjectId';
-import { fetchWorkerProjectMetadata } from '../../lib/services/share/workerFetch';
-import { readWorkerUrl } from '../../lib/storage/workerUrl';
+import { navigateWorkspace } from '../../hooks/useAppRoute.js';
+import { ECOSYSTEM_LINKS } from '../../constants/index.js';
+import { readWorkerUrl } from '../../storage/index.js';
+import { fetchWorkerProjectMetadata, parseWorkspaceProjectId } from '../../worker/index.js';
 
 type CheckState =
   | { kind: 'idle' }

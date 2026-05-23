@@ -123,6 +123,7 @@
     "compile": "esbuild src/extension/extension.ts --bundle --platform=node --target=node20 --external:vscode --outfile=out/extension.js --format=cjs --sourcemap",
     "watch": "esbuild src/extension/extension.ts --bundle --platform=node --target=node20 --external:vscode --outfile=out/extension.js --format=cjs --sourcemap --watch",
     "build": "pnpm run build:webview && pnpm run compile",
+    "typecheck": "tsc --noEmit",
     "vscode:prepublish": "pnpm run build"
   },
   "devDependencies": {

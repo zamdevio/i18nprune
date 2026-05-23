@@ -7,10 +7,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { THEME_STORAGE_KEY } from '../lib/constants/storageKeys';
-
-export type Theme = 'dark' | 'light';
-export type ThemeChoice = 'system' | Theme;
+import { THEME_STORAGE_KEY } from '../constants/index.js';
+import type { Theme, ThemeChoice } from '../types/index.js';
 
 function getSystemTheme(): Theme {
   if (typeof window === 'undefined') return 'light';

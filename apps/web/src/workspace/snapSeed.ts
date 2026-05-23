@@ -1,17 +1,8 @@
-import { okEnvelope } from '../services/api/client';
-import type { WorkerApiEnvelope } from '@i18nprune/core';
-import type { ProjectSnapshot } from '@i18nprune/core';
+import type { WorkerApiEnvelope, ProjectSnapshot, WorkspaceSession } from '@i18nprune/core';
 import { snapshotPreparedAtIso } from '@i18nprune/core';
-import type { WorkspaceSession } from '@i18nprune/core';
-import { opMemoKey, writeOpMemo } from './opMemo';
-
-/** Curl hints for seeded ops (worker GET paths). */
-export type SnapCurls = {
-  metadata: string;
-  tree: string;
-  locales: string;
-  doctor: string;
-};
+import { okEnvelope } from '../worker/api/index.js';
+import type { SnapCurls } from '../types/index.js';
+import { opMemoKey, writeOpMemo } from './opMemo.js';
 
 /** Warm wsOpMemo for Metadata/Tree/Locales/Doctor from one snapshot envelope (worker-style slice). */
 export function seedOpMemoFromSnap(session: WorkspaceSession, snapEnv: WorkerApiEnvelope<unknown>, curls: SnapCurls): void {

@@ -1,5 +1,5 @@
 import { ExternalLink } from 'lucide-react';
-import { ECOSYSTEM_LINKS } from '../../lib/constants/ecosystemLinks';
+import { ECOSYSTEM_LINKS } from '../../constants/index.js';
 
 const FOOTER_LINKS = [
   ECOSYSTEM_LINKS.landing,

@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { buildLocalProjectFromZip } from '../lib/services/core/buildLocalProject';
-import { mergeConfigJsonOntoZipBase } from '../lib/services/core/mergeZipConfig';
-import { uploadProjectToWorker, type ProjectIngestMode } from '../lib/services/share/projectUpload';
-import { checkWorkerHealth } from '../lib/services/api/health';
-import { filesToZipBytes } from '../lib/zip/folderToZip';
-import { saveRecentProjectZip } from '../lib/storage/recentProjectZips';
+import type { ProjectIngestMode } from '../types/index.js';
+import { buildLocalProjectFromZip, mergeConfigJsonOntoZipBase } from '../project/index.js';
+import { saveRecentProjectZip } from '../storage/index.js';
+import { checkWorkerHealth, uploadProjectToWorker } from '../worker/index.js';
+import { filesToZipBytes } from '../zip/index.js';
 import type { WorkspaceSession } from '@i18nprune/core';
 
 type Props = {

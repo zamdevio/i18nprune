@@ -1,7 +1,18 @@
 import { DeleteConfirmButton } from '../../components/ui/delete';
-import { deleteProject } from '../../lib/services/api/client';
 import type { WorkspaceSession } from '@i18nprune/core';
-import { snapDoctor, snapLocTag, snapLocs, snapMetadata, snapMissing, snapReport, snapReview, snapSnapshot, snapTree, snapValidate } from '../../lib/workspace/snapOps';
+import { deleteProject } from '../../worker/index.js';
+import {
+  snapDoctor,
+  snapLocTag,
+  snapLocs,
+  snapMetadata,
+  snapMissing,
+  snapReport,
+  snapReview,
+  snapSnapshot,
+  snapTree,
+  snapValidate,
+} from '../../workspace/index.js';
 import { OpPreview } from './op-preview';
 
 type Props = {
