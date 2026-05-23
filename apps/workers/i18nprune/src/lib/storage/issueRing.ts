@@ -9,8 +9,6 @@ export type StorageFailureRingEntry = {
   at: string;
 };
 
-export const OPS_STORAGE_RING_KEY = 'ops:storage:ring';
-
 export function appendStorageFailure(
   ring: StorageFailureRingEntry[],
   err: unknown,

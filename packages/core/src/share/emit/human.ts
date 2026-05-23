@@ -4,12 +4,13 @@ import {
   ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND,
   ISSUE_SHARE_STALE_CACHE_ROW_REMOVED,
 } from '../../shared/constants/issueCodes.js';
-import type { RunEmitter, RunMessageLevel } from '../../types/shared/run/index.js';
+import type { RunMessageLevel } from '../../types/shared/run/index.js';
 import type { ShareCacheEntry, ShareJsonHealReport } from '../../types/share/entry.js';
 import { METADATA_DASH } from '../../types/project/metadata.js';
 import type { ProjectStoredMetadata } from '../../types/project/metadata.js';
 import type { StoredReportMetadata } from '../../types/project/reportStore.js';
 import type { ShareRunResult, ShareViewResult } from '../../types/share/shareRun.js';
+import type { ShareHumanMessageHost } from './host.js';
 import { buildShareViewVerboseDetail } from '../view/buildVerboseDetail.js';
 import { emitShareViewVerboseHumanMessages } from '../view/emitVerboseHuman.js';
 import {
@@ -23,11 +24,6 @@ function shareTtlHint(kind: 'project' | 'report'): string {
   }
   return 'Hosted report links expire after ~7 days without reads on the worker.';
 }
-
-export type ShareHumanMessageHost = {
-  emit?: RunEmitter;
-  runId?: string;
-};
 
 function shareMessage(host: ShareHumanMessageHost, level: RunMessageLevel, message: string): void {
   emitRunMessage(host.emit, { op: 'share', runId: host.runId, level, message });

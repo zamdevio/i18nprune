@@ -62,7 +62,7 @@ export {
   emitShareUploadHumanMessages,
   emitShareViewHumanMessages,
 } from './emit/human.js';
-export type { ShareHumanMessageHost } from './emit/human.js';
+export type { ShareHumanMessageHost } from './emit/host.js';
 export { buildShareViewVerboseDetail } from './view/buildVerboseDetail.js';
 export { emitShareViewVerboseHumanMessages } from './view/emitVerboseHuman.js';
 export { resolveShareWorkerBaseUrl } from './remote/resolveWorkerBaseUrl.js';

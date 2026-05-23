@@ -41,7 +41,7 @@ export {
 } from '../share/index.js';
 export { shareCacheEntrySchema, shareJsonFileSchema } from '../share/cache/schema.js';
 export type { SaveShareJsonResult } from '../share/cache/io/shareJson.js';
-export type { ShareHumanMessageHost } from '../share/emit/human.js';
+export type { ShareHumanMessageHost } from '../share/emit/host.js';
 export type {
   ShareDeleteOptions,
   ShareListOptions,

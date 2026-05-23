@@ -4,11 +4,11 @@ import {
   DO_PREFIX_PROJECT_HASH,
   DO_PREFIX_REPORT,
   DO_PREFIX_REPORT_HASH,
+  OPS_STORAGE_RING_KEY,
 } from '../constants/storageKeys.js';
 import { STORAGE_PRESSURE_EVICTION_FRACTION } from '../constants/storagePressure.js';
 import {
   appendStorageFailure,
-  OPS_STORAGE_RING_KEY,
   shouldTriggerStorageEviction,
   type StorageFailureRingEntry,
 } from './issueRing.js';

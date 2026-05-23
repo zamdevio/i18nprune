@@ -1,5 +1,5 @@
 import { emitRunMessage } from '../../shared/run/index.js';
-import type { ShareHumanMessageHost } from '../emit/human.js';
+import type { ShareHumanMessageHost } from '../emit/host.js';
 import type { ShareViewVerboseDetail, ShareViewVerboseSection } from '../../types/share/viewDetail.js';
 
 const VERBOSE_SECTION_ORDER: (keyof ShareViewVerboseDetail)[] = [

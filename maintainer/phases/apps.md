@@ -339,7 +339,7 @@ Report routes mirror this: `POST /v1/reports` (JSON), `POST /v1/reports/archive`
 
 **Project GET payload:** `projectId`, `projectHash`, `preparedAt`, `lastAccessedAt`, `zipBytes`, `fileCount`, `textFileCount`, `detectedConfigPath`, `localeTags[]`, `extraction` summary — **no** zip bytes, **no** full preview arrays. (`timing.preparedAt` mirrors top-level; legacy DO rows may still store snapshot `uploadedAt` — core reads both.)
 
-Limits: canonical zip caps in [`PROJECT_UPLOAD_ZIP_LIMITS`](../../packages/core/src/shared/constants/project.ts); worker [`PROJECT_LIMITS`](../../apps/workers/i18nprune/src/lib/constants/project.ts) adds preview retention fields.
+Limits: canonical zip caps in [`PROJECT_UPLOAD_ZIP_LIMITS`](../../packages/core/src/shared/constants/project.ts) (worker and web use core limits via `parseZipToSnapshot`).
 
 ### 3.2 New — report storage (mirror project pattern)
 

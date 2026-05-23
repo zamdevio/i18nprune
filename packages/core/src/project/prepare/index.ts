@@ -9,7 +9,6 @@ export {
 export { prepareProjectSnapshotFromArchive } from './fromArchive.js';
 export { prepareReportFromArchive } from './fromArchiveReport.js';
 export { prepareProjectSnapshotFromRoot } from './fromRoot.js';
-export { resolvePrepareHostPolicy } from './policy.js';
 export {
   prepareReportForShare,
   prepareReportPayload,

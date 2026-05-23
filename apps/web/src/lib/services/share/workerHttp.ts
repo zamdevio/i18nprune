@@ -1,6 +1,3 @@
-import type { ShareHostHooks } from '@i18nprune/core';
-import { normalizeWorkerBaseUrl } from '@i18nprune/core';
-
 function workerNetworkErrorBody(err: unknown): { success: false; errors: Array<{ code: string; message: string }> } {
   const message = err instanceof Error ? err.message : String(err);
   return { success: false, errors: [{ code: 'NETWORK_ERROR', message }] };
@@ -34,41 +31,3 @@ export async function workerFetchJson(url: string, init?: RequestInit): Promise<
   }
 }
 
-/** Web host hooks: HTTP to the worker API; parsing stays in core `share/remote`. */
-export function createShareWorkerHooks(): Pick<
-  ShareHostHooks,
-  | 'fetchRemoteProjectRow'
-  | 'fetchRemoteReportRow'
-  | 'uploadProject'
-  | 'uploadReport'
-  | 'deleteRemoteProject'
-  | 'deleteRemoteReport'
-> {
-  const base = (url: string) => normalizeWorkerBaseUrl(url);
-
-  return {
-    fetchRemoteProjectRow: async ({ workerBaseUrl: w, projectId }) =>
-      workerFetchJson(`${base(w)}/v1/projects/${encodeURIComponent(projectId)}`),
-    fetchRemoteReportRow: async ({ workerBaseUrl: w, reportId }) =>
-      workerFetchJson(`${base(w)}/v1/reports/${encodeURIComponent(reportId)}`),
-    uploadProject: async ({ workerBaseUrl: w, zipBytes }) => {
-      const form = new FormData();
-      form.set(
-        'archive',
-        new Blob([zipBytesToArrayBuffer(zipBytes)], { type: 'application/zip' }),
-        'project.zip',
-      );
-      return workerFetchJson(`${base(w)}/v1/projects`, { method: 'POST', body: form });
-    },
-    uploadReport: async ({ workerBaseUrl: w, document }) =>
-      workerFetchJson(`${base(w)}/v1/reports`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ document }),
-      }),
-    deleteRemoteProject: async ({ workerBaseUrl: w, projectId }) =>
-      workerFetchJson(`${base(w)}/v1/projects/${encodeURIComponent(projectId)}`, { method: 'DELETE' }),
-    deleteRemoteReport: async ({ workerBaseUrl: w, reportId }) =>
-      workerFetchJson(`${base(w)}/v1/reports/${encodeURIComponent(reportId)}`, { method: 'DELETE' }),
-  };
-}

@@ -3,6 +3,7 @@ import { PROJECT_CACHE_IDLE_MS, PROJECT_CACHE_SWEEP_INTERVAL_MS } from './consta
 import {
   DO_PREFIX_PROJECT,
   DO_PREFIX_PROJECT_HASH,
+  DO_PREFIX_RATE_LIMIT,
   DO_PREFIX_REPORT,
   DO_PREFIX_REPORT_HASH,
 } from './constants/storageKeys.js';
@@ -185,8 +186,8 @@ export class ProjectStoreDO {
         const ip = typeof body.ip === 'string' && body.ip.length > 0 ? body.ip : 'unknown';
         const hourSlot = Math.floor(Date.now() / 3_600_000);
         const daySlot = Math.floor(Date.now() / 86_400_000);
-        const hourKey = `ratelimit:${ip}:h:${String(hourSlot)}`;
-        const dayKey = `ratelimit:${ip}:d:${String(daySlot)}`;
+        const hourKey = `${DO_PREFIX_RATE_LIMIT}${ip}:h:${String(hourSlot)}`;
+        const dayKey = `${DO_PREFIX_RATE_LIMIT}${ip}:d:${String(daySlot)}`;
         const hour = ((await this.state.storage.get<number>(hourKey)) ?? 0) + 1;
         const day = ((await this.state.storage.get<number>(dayKey)) ?? 0) + 1;
         await putWithStorageRecovery(this.state, hourKey, hour);

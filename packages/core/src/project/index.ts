@@ -36,7 +36,6 @@ export {
   prepareReportPayload,
   prepareShareHostedFromContext,
   reportDocumentForShareContentHash,
-  resolvePrepareHostPolicy,
   resolveShareProjectAnalysis,
   validateReportIngest,
 } from './prepare/index.js';

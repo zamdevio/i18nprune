@@ -7,3 +7,5 @@ export const DO_PREFIX_REPORT_HASH = 'reporthash:';
 /** Preserved under storage-pressure eviction. */
 export const DO_PREFIX_RATE_LIMIT = 'ratelimit:';
 export const DO_PREFIX_OPS = 'ops:';
+
+export const OPS_STORAGE_RING_KEY = `${DO_PREFIX_OPS}storage:ring`;

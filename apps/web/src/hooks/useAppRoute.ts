@@ -40,7 +40,10 @@ export function buildWebWorkspaceShareUrl(projectId: string, origin?: string): s
 
 export function navigateHash(path: string): void {
   const next = path.startsWith('#') ? path : `#${path.startsWith('/') ? path : `/${path}`}`;
-  if (typeof window !== 'undefined') window.location.hash = next;
+  if (typeof window !== 'undefined') {
+    window.location.hash = next;
+    syncAppRoute();
+  }
 }
 
 export function navigateWorkspace(projectId?: string): void {
@@ -62,10 +65,9 @@ export type AppRoute = {
 };
 
 function resolveAppRoute(): AppRoute {
-  const { path, searchParams } = parseHashRoute();
-  const workspaceProjectId =
-    path === '/workspace' ? (searchParams.get('id')?.trim() || null) : null;
-  return { path, workspaceProjectId: workspaceProjectId && workspaceProjectId.length > 0 ? workspaceProjectId : null };
+  const { path } = parseHashRoute();
+  const workspaceProjectId = path === '/workspace' ? readWorkspaceProjectIdFromLocation() : null;
+  return { path, workspaceProjectId };
 }
 
 export function useAppRoute(): AppRoute {
