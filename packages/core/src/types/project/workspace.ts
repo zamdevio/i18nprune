@@ -7,7 +7,7 @@ export type WorkspaceSession =
       projectId: string;
       activeZipFile?: File;
       label?: string;
-      uploadMeta?: { uploadedAt?: string; extractionComputedAt?: string };
+      uploadMeta?: { preparedAt?: string; extractionComputedAt?: string };
     }
   | { mode: 'local'; local: ParsedProjectUpload; activeZipFile?: File; label?: string };
 

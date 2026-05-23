@@ -9,7 +9,7 @@ function baseSnapshot(overrides: Partial<ProjectSnapshot> = {}): ProjectSnapshot
     projectId: 'abc',
     projectHash: 'hash',
     requestReceivedAt: '2026-01-01T00:00:00.000Z',
-    uploadedAt: '2026-01-01T00:00:00.050Z',
+    preparedAt: '2026-01-01T00:00:00.050Z',
     storedAt: '2026-01-01T00:00:01.000Z',
     zipBytes: 1,
     fileCount: 1,

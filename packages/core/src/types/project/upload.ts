@@ -29,10 +29,10 @@ export type ProjectUploadExtractionSummary = {
 export type ProjectSnapshot = {
   projectId: string;
   projectHash: string;
-  /** ISO timestamp when the upload handler received the request (before zip parse). */
+  /** ISO timestamp when the worker ingest handler received the request. */
   requestReceivedAt?: string;
-  /** ISO timestamp when zip parse finished (`parseZipToSnapshot`). */
-  uploadedAt: string;
+  /** ISO timestamp when the payload was fully prepared (host prepare or worker zip parse + extraction). */
+  preparedAt: string;
   /** ISO timestamp when the DO row was persisted successfully. */
   storedAt?: string;
   zipBytes: number;

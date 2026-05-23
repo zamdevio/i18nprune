@@ -68,8 +68,8 @@ function projectCacheSection(ex: ProjectStoredMetadata['extraction']): ShareView
 
 function projectTimingsSection(t: ProjectStoredMetadata['timing']): ShareViewVerboseSection {
   return {
+    preparedAt: dash(t.preparedAt),
     requestReceivedAt: dash(t.requestReceivedAt),
-    uploadedAt: dash(t.uploadedAt),
     storedAt: dash(t.storedAt),
     lastAccessedAt: dash(t.lastAccessedAt),
     'prepare.totalMs': dash(t.prepare.totalMs),

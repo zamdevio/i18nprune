@@ -3,11 +3,11 @@ import { alignArchiveSnapshotTimings } from '../prepare/alignArchiveTimings.js';
 import type { ProjectSnapshot } from '../../types/project/upload.js';
 
 describe('alignArchiveSnapshotTimings', () => {
-  it('maps prepare ms onto uploadedAt and extraction ISO fields', () => {
+  it('maps prepare ms onto preparedAt and extraction ISO fields', () => {
     const snapshot: ProjectSnapshot = {
       projectId: 'p1',
       projectHash: 'h1',
-      uploadedAt: '2026-01-01T00:00:00.000Z',
+      preparedAt: '2026-01-01T00:00:00.000Z',
       zipBytes: 1,
       fileCount: 1,
       textFileCount: 1,
@@ -38,7 +38,7 @@ describe('alignArchiveSnapshotTimings', () => {
       prepareMeta: { prepareHost: 'worker-archive', zipParsedMs: 40, extractionMs: 900, totalMs: 940 },
     });
 
-    expect(snapshot.uploadedAt).toBe('2026-01-01T00:00:00.040Z');
+    expect(snapshot.preparedAt).toBe('2026-01-01T00:00:00.040Z');
     expect(snapshot.extraction?.extractionStartedAt).toBe('2026-01-01T00:00:00.040Z');
     expect(snapshot.extraction?.computedAt).toBe('2026-01-01T00:00:00.940Z');
   });
@@ -47,7 +47,7 @@ describe('alignArchiveSnapshotTimings', () => {
     const snapshot: ProjectSnapshot = {
       projectId: 'p1',
       projectHash: 'h1',
-      uploadedAt: '2026-01-01T00:00:00.000Z',
+      preparedAt: '2026-01-01T00:00:00.000Z',
       zipBytes: 1,
       fileCount: 1,
       textFileCount: 1,
@@ -78,7 +78,7 @@ describe('alignArchiveSnapshotTimings', () => {
       prepareMeta: { prepareHost: 'worker-archive', zipParsedMs: 5, extractionMs: 0, totalMs: 105 },
     });
 
-    expect(snapshot.uploadedAt).toBe('2026-01-01T00:00:00.005Z');
+    expect(snapshot.preparedAt).toBe('2026-01-01T00:00:00.005Z');
     expect(snapshot.extraction?.computedAt).toBe('2026-01-01T00:00:00.105Z');
   });
 });

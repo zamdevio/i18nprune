@@ -20,6 +20,13 @@ import { resolveProcessorPresentation } from './processorPresets.js';
 
 const IDLE_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
+/** ISO `preparedAt` on snapshot rows (read compat for legacy `uploadedAt` in stored DO JSON). */
+export function snapshotPreparedAtIso(snapshot: ProjectSnapshot): string {
+  const legacy = snapshot as ProjectSnapshot & { uploadedAt?: string };
+  const raw = snapshot.preparedAt ?? legacy.uploadedAt ?? '';
+  return typeof raw === 'string' ? raw : '';
+}
+
 function finiteMs(value: unknown): number | undefined {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return undefined;
   return Math.round(value);
@@ -143,12 +150,13 @@ export function buildProjectMetadataPrepareTiming(
       totalMs: msOrDash(prepareMeta?.totalMs),
     };
   }
-  const zipIso = isoMsDelta(snapshot.requestReceivedAt ?? snapshot.uploadedAt, snapshot.uploadedAt);
+  const preparedAt = snapshotPreparedAtIso(snapshot);
+  const zipIso = isoMsDelta(snapshot.requestReceivedAt ?? preparedAt, preparedAt);
   const extractIso = isoMsDelta(
-    snapshot.extraction?.extractionStartedAt ?? snapshot.uploadedAt,
+    snapshot.extraction?.extractionStartedAt ?? preparedAt,
     snapshot.extraction?.computedAt,
   );
-  const totalIso = isoMsDelta(snapshot.requestReceivedAt ?? snapshot.uploadedAt, snapshot.extraction?.computedAt);
+  const totalIso = isoMsDelta(snapshot.requestReceivedAt ?? preparedAt, snapshot.extraction?.computedAt);
 
   const zipParsedMs = preferPositiveMs(prepareMeta?.zipParsedMs, zipIso);
   const extractionMs = preferPositiveMs(prepareMeta?.extractionMs, extractIso);
@@ -183,20 +191,21 @@ export function buildProjectMetadataTiming(input: {
 }): ProjectMetadataTiming {
   const snap = input.snapshot;
   const extraction = snap.extraction;
-  const requestReceivedAt = isoOrDash(snap.requestReceivedAt ?? snap.uploadedAt);
-  const uploadedAt = isoOrDash(snap.uploadedAt);
-  const extractionStartedAt = isoOrDash(extraction?.extractionStartedAt ?? snap.uploadedAt);
+  const preparedAt = snapshotPreparedAtIso(snap);
+  const requestReceivedAt = isoOrDash(snap.requestReceivedAt ?? preparedAt);
+  const preparedAtMeta = isoOrDash(preparedAt);
+  const extractionStartedAt = isoOrDash(extraction?.extractionStartedAt ?? preparedAt);
   const extractionComputedAt = isoOrDash(extraction?.computedAt);
   const storedAt = isoOrDash(snap.storedAt ?? extraction?.computedAt);
 
   const extractionDuration = preferPositiveMs(
     input.prepareMeta?.extractionMs,
-    isoMsDelta(extraction?.extractionStartedAt ?? snap.uploadedAt, extraction?.computedAt),
+    isoMsDelta(extraction?.extractionStartedAt ?? preparedAt, extraction?.computedAt),
   );
 
   return {
+    preparedAt: preparedAtMeta,
     requestReceivedAt,
-    uploadedAt,
     storedAt,
     lastAccessedAt: isoOrDash(input.lastAccessedAt ?? snap.storedAt),
     prepare: buildProjectMetadataPrepareTiming(input.prepareMeta, snap),
@@ -240,11 +249,11 @@ export function buildProjectExtractionSummary(
 /** Build metadata for `GET /v1/projects/:id` from a stored row. */
 export function buildProjectStoredMetadata(row: ProjectStoreRow): ProjectStoredMetadata {
   const ingestRoute = row.ingestRoute ?? 'prepared';
-  const lastAccessedAt = row.lastAccessedAt ?? row.snapshot.storedAt ?? row.snapshot.uploadedAt;
+  const lastAccessedAt = row.lastAccessedAt ?? row.snapshot.storedAt ?? snapshotPreparedAtIso(row.snapshot);
   return {
     projectId: row.projectId,
     projectHash: row.projectHash,
-    uploadedAt: isoOrDash(row.snapshot.uploadedAt),
+    preparedAt: isoOrDash(snapshotPreparedAtIso(row.snapshot)),
     zipBytes: row.snapshot.zipBytes,
     fileCount: row.snapshot.fileCount,
     textFileCount: row.snapshot.textFileCount,

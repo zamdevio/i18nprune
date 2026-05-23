@@ -96,7 +96,7 @@ export function buildProjectSnapshotShellFromContext(input: {
       snapshot: {
         projectId: input.projectId,
         projectHash: input.projectHash,
-        uploadedAt: new Date().toISOString(),
+        preparedAt: new Date().toISOString(),
         zipBytes: textBytes,
         fileCount: keys.length,
         textFileCount: keys.length,

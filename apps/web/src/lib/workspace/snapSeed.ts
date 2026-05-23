@@ -1,6 +1,7 @@
 import { okEnvelope } from '../services/api/client';
 import type { WorkerApiEnvelope } from '@i18nprune/core';
 import type { ProjectSnapshot } from '@i18nprune/core';
+import { snapshotPreparedAtIso } from '@i18nprune/core';
 import type { WorkspaceSession } from '@i18nprune/core';
 import { opMemoKey, writeOpMemo } from './opMemo';
 
@@ -25,7 +26,7 @@ export function seedOpMemoFromSnap(session: WorkspaceSession, snapEnv: WorkerApi
   const metadataData = {
     projectId,
     projectHash: s.projectHash,
-    uploadedAt: s.uploadedAt,
+    preparedAt: snapshotPreparedAtIso(s),
     zipBytes: s.zipBytes,
     fileCount: s.fileCount,
     textFileCount: s.textFileCount,

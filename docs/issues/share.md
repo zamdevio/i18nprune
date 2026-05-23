@@ -122,6 +122,21 @@ Codes from **`runShare`**, **`runShareList`**, **`runShareDelete`**, and local *
 **Who:** `runShare` / `buildProjectPayload`.  
 **What to do:** Check disk space and project file access; retry.
 
+## Worker envelope codes (upload / view)
+
+When the CLI talks to `workers.i18nprune.dev`, structured failures appear in the worker JSON envelope (`errors[].code`). Core maps most of them to **`i18nprune.share.remote_*`** issues above.
+
+| Worker code | CLI / share behavior |
+|-------------|----------------------|
+| `HASH_ALREADY_EXISTS` | **Warning** — same content hash already stored; existing `projectId` / `reportId` reused. Use **`share upload --force`** to replace with a new id. |
+| `RATE_LIMITED` | **`remote_unavailable`** — per-IP upload quota; retry later. |
+| `STORAGE_QUOTA_EXCEEDED` | **`remote_unavailable`** — worker storage pressure; message may suggest self-hosting. |
+| `PROJECT_NOT_FOUND` / `REPORT_NOT_FOUND` | **`remote_project_not_found`** / **`remote_report_not_found`** — idle eviction or wrong id. |
+| `PAYLOAD_TOO_LARGE`, `TOO_MANY_FILES`, `EXTRACTION_LIMIT_EXCEEDED` | **`remote_payload_too_large`** |
+| `PAYLOAD_REJECTED`, `INVALID_SCHEMA`, `UPLOAD_*` | **`remote_upload_rejected`** or **`remote_report_rejected`** |
+
+See [Worker / edge runtime](../runtime/worker.md) for routes, retention, and timing fields (`preparedAt`, `expiresAt`).
+
 ## Hosted prepare (`i18nprune.share.prepare_*`)
 
 Codes from **`prepareShareHostedFromContext`**, **`prepareProjectSnapshotFromRoot`**, and **`prepareReportFromArchive`** before worker upload.

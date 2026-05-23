@@ -173,6 +173,7 @@ export async function openSharedWorkerProject(input: {
 
   const data = meta.data as {
     projectId?: string;
+    preparedAt?: string;
     uploadedAt?: string;
     extraction?: { computedAt?: string };
   } | null;
@@ -186,7 +187,7 @@ export async function openSharedWorkerProject(input: {
       projectId: data?.projectId ?? input.projectId,
       label: `Shared project ${input.projectId}`,
       uploadMeta: {
-        uploadedAt: data?.uploadedAt,
+        preparedAt: data?.preparedAt ?? data?.uploadedAt,
         extractionComputedAt: data?.extraction?.computedAt,
       },
     },

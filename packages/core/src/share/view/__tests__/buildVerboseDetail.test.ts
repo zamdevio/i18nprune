@@ -7,7 +7,7 @@ function projectView(overrides?: Partial<ShareViewResult>): ShareViewResult {
   const meta: ProjectStoredMetadata = {
     projectId: 'p1',
     projectHash: 'abcdef1234567890',
-    uploadedAt: '2026-01-01T00:00:00.000Z',
+    preparedAt: '2026-01-01T00:00:00.000Z',
     zipBytes: 100,
     fileCount: 2,
     textFileCount: 2,
@@ -15,8 +15,8 @@ function projectView(overrides?: Partial<ShareViewResult>): ShareViewResult {
     localeTags: ['en'],
     expiresAt: '2026-01-08T00:00:00.000Z',
     timing: {
+      preparedAt: '2026-01-01T00:00:00.000Z',
       requestReceivedAt: '2026-01-01T00:00:00.000Z',
-      uploadedAt: '2026-01-01T00:00:00.000Z',
       storedAt: '2026-01-01T00:00:01.000Z',
       lastAccessedAt: '2026-01-01T00:00:01.000Z',
       prepare: { zipParsedMs: 72, analysisMs: 48, extractionMs: 22, totalMs: 153 },

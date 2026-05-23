@@ -528,6 +528,7 @@ export {
   buildProjectTreeFromPaths,
   buildStoredReportMetadata,
   buildProjectStoredMetadata,
+  snapshotPreparedAtIso,
   buildPayloadProcessorInfo,
   buildExtractionCacheMeta,
   buildHostPrepareCacheMeta,

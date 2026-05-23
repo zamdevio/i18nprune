@@ -36,7 +36,7 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
   const [resultTitle, setResultTitle] = useState('JSON preview');
   const [latestCurl, setLatestCurl] = useState<string>('');
   const [latestUploadMeta, setLatestUploadMeta] = useState<{
-    uploadedAt?: string;
+    preparedAt?: string;
     extractionComputedAt?: string;
   }>({});
   const [busy, setBusy] = useState(false);
@@ -129,7 +129,7 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
   useEffect(() => {
     if (session?.mode === 'remote' && session.uploadMeta) {
       setLatestUploadMeta({
-        uploadedAt: session.uploadMeta.uploadedAt,
+        preparedAt: session.uploadMeta.preparedAt,
         extractionComputedAt: session.uploadMeta.extractionComputedAt,
       });
     }
@@ -232,9 +232,11 @@ export function WorkspacePage({ session, workspaceProjectId, onSessionChange }: 
       activeZipFile,
       label: activeZipFile.name,
     });
-    const snapshotMeta = (res.data as { snapshotMeta?: { uploadedAt?: string; extractionComputedAt?: string } } | null)?.snapshotMeta;
+    const snapshotMeta = (res.data as {
+      snapshotMeta?: { preparedAt?: string; uploadedAt?: string; extractionComputedAt?: string };
+    } | null)?.snapshotMeta;
     setLatestUploadMeta({
-      uploadedAt: snapshotMeta?.uploadedAt,
+      preparedAt: snapshotMeta?.preparedAt ?? snapshotMeta?.uploadedAt,
       extractionComputedAt: snapshotMeta?.extractionComputedAt,
     });
   }

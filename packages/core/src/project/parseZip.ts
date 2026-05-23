@@ -135,12 +135,12 @@ export function parseZipToSnapshot(
 
   const emptyDirs = emptyDirectoryPathsFromZipKeys(Object.keys(unzipped), normalizePath);
   const tree = buildProjectTreeFromPaths([...fileMeta.keys()], fileMetaMapForTree(fileMeta), emptyDirs);
-  const uploadedAt = new Date().toISOString();
+  const preparedAt = new Date().toISOString();
   return {
     snapshot: {
       projectId,
       projectHash,
-      uploadedAt,
+      preparedAt,
       zipBytes: zipBytes.byteLength,
       fileCount: entries.length,
       textFileCount: Object.keys(files).length,

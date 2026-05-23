@@ -13,7 +13,7 @@ describe('buildProjectStoredMetadata timing fallbacks', () => {
         projectId: 'p1',
         projectHash: 'h1',
         requestReceivedAt: '2026-01-01T00:00:00.000Z',
-        uploadedAt: '2026-01-01T00:00:00.010Z',
+        preparedAt: '2026-01-01T00:00:00.010Z',
         storedAt: '2026-01-01T00:00:01.000Z',
         zipBytes: 1,
         fileCount: 1,
@@ -45,5 +45,32 @@ describe('buildProjectStoredMetadata timing fallbacks', () => {
     expect(meta.timing.prepare.extractionMs).toBe(890);
     expect(meta.timing.edge.persistMs).toBe(100);
     expect(meta.localeTags).toEqual([]);
+  });
+
+  it('reads legacy snapshot uploadedAt as preparedAt', () => {
+    const legacySnapshot = {
+      projectId: 'p1',
+      projectHash: 'h1',
+      uploadedAt: '2026-02-01T12:00:00.000Z',
+      zipBytes: 1,
+      fileCount: 1,
+      textFileCount: 1,
+      detectedConfigPath: null,
+      detectedConfigRaw: null,
+      tree: [],
+      resolvedConfig: null,
+      sourceLocaleJson: null,
+      localeJsonByTag: {},
+      extraction: null,
+    } as unknown as ProjectStoreRow['snapshot'];
+    const row: ProjectStoreRow = {
+      projectId: 'p1',
+      projectHash: 'h1',
+      ingestRoute: 'prepared',
+      snapshot: legacySnapshot,
+    };
+    const meta = buildProjectStoredMetadata(row);
+    expect(meta.preparedAt).toBe('2026-02-01T12:00:00.000Z');
+    expect(meta.timing.preparedAt).toBe('2026-02-01T12:00:00.000Z');
   });
 });

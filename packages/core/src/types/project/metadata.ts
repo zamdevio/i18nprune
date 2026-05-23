@@ -95,8 +95,9 @@ export type ProjectMetadataEdgeTiming = {
 
 /** Ordered timing block for `GET /v1/projects/:id` and upload meta. */
 export type ProjectMetadataTiming = {
+  /** Payload ready to persist (host prepare on prepared route; worker zip parse end on archive). */
+  preparedAt: MetadataScalar;
   requestReceivedAt: MetadataScalar;
-  uploadedAt: MetadataScalar;
   storedAt: MetadataScalar;
   lastAccessedAt: MetadataScalar;
   prepare: ProjectMetadataPrepareTiming;
@@ -134,7 +135,7 @@ export type ReportMetadataDocumentTiming = {
 export type ProjectStoredMetadata = {
   projectId: string;
   projectHash: string;
-  uploadedAt: MetadataScalar;
+  preparedAt: MetadataScalar;
   zipBytes: number;
   fileCount: number;
   textFileCount: number;

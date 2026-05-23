@@ -14,6 +14,7 @@ export {
   isoMsDelta,
   buildPayloadProcessorInfo,
   buildExtractionCacheMeta,
+  snapshotPreparedAtIso,
 } from './storedMetadata.js';
 export { buildHostPrepareCacheMeta } from './hostPrepareCache.js';
 export { METADATA_DASH } from '../types/project/metadata.js';

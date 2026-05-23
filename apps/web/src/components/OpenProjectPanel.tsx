@@ -134,8 +134,9 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
         const res = await uploadProject(workerUrl, zipFile, cfg);
         const nextProjectId = (res.data as { projectId?: string } | null)?.projectId;
         if (!nextProjectId) throw new Error('Upload succeeded but projectId missing.');
-        const snapshotMeta = (res.data as { snapshotMeta?: { uploadedAt?: string; extractionComputedAt?: string } } | null)
-          ?.snapshotMeta;
+        const snapshotMeta = (res.data as {
+          snapshotMeta?: { preparedAt?: string; uploadedAt?: string; extractionComputedAt?: string };
+        } | null)?.snapshotMeta;
         try {
           await saveRecentProjectZip(zipFile);
         } catch {
@@ -148,7 +149,7 @@ export function OpenProjectPanel({ open, initialFiles, defaultWorkerUrl, preferr
           activeZipFile: zipFile,
           label: primaryName,
           uploadMeta: {
-            uploadedAt: snapshotMeta?.uploadedAt,
+            preparedAt: snapshotMeta?.preparedAt ?? snapshotMeta?.uploadedAt,
             extractionComputedAt: snapshotMeta?.extractionComputedAt,
           },
         });

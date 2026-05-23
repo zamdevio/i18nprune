@@ -10,7 +10,7 @@ type Props = {
   onConfigJsonChange: (value: string) => void;
   configHint: WorkspaceConfigHintState;
   overrideApplied: boolean;
-  latestUploadMeta: { uploadedAt?: string; extractionComputedAt?: string };
+  latestUploadMeta: { preparedAt?: string; extractionComputedAt?: string };
   onReprocess: () => void;
   onClearOverride: () => void;
 };
@@ -68,7 +68,7 @@ export function Config({
           />
         ) : null}
         {isRemote ? (
-          <UploadPerfBadge uploadedAt={latestUploadMeta.uploadedAt} extractionComputedAt={latestUploadMeta.extractionComputedAt} />
+          <UploadPerfBadge preparedAt={latestUploadMeta.preparedAt} extractionComputedAt={latestUploadMeta.extractionComputedAt} />
         ) : null}
       </div>
       <div

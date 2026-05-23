@@ -158,7 +158,7 @@ type ShareCacheEntry = {
   payloadContentHash: string; // sha256 of zip bytes or canonical report JSON
   configHash?: string;        // project only — from normalized config
   byteSize: number;
-  uploadedAt: string;         // ISO
+  uploadedAt: string;         // ISO — when this entry was cached after worker upload
   lastUsedAt: string;         // ISO — updated on successful share skip or list
   links: {
     web?: string;
@@ -323,18 +323,21 @@ Register in `packages/cli/bin/cli.ts` like `localesCmd`.
 
 ## 3. Worker API
 
-### 3.1 Existing — project storage
+### 3.1 Project storage (ingest + read)
 
-| Route | Role |
-|-------|------|
-| `POST /v1/projects` | Upload zip → `projectId` |
-| `GET /v1/projects/:id` | Touch TTL + **metadata only** (today — unchanged) |
-| `GET /v1/projects/:id/snapshot` | Full cached snapshot (heavy) |
-| `DELETE /v1/projects/:id` | Evict → `PROJECT_NOT_FOUND` on later GET |
+| Route | Body | Role |
+|-------|------|------|
+| `POST /v1/projects` | JSON prepared envelope | Host-prepared snapshot → validate → persist (**primary** for CLI share) |
+| `POST /v1/projects/archive` | multipart zip (+ optional `configJson`) | Worker `prepareProjectSnapshotFromArchive` (cache OFF) → persist |
+| `GET /v1/projects/:id` | — | Touch TTL + **metadata only** |
+| `GET /v1/projects/:id/snapshot` | — | Full cached snapshot (heavy) |
+| `DELETE /v1/projects/:id` | — | Evict → `PROJECT_NOT_FOUND` on later GET |
+
+Report routes mirror this: `POST /v1/reports` (JSON), `POST /v1/reports/archive` (zip), `GET /v1/reports/:id`, `GET /v1/reports/:id/document`, `DELETE /v1/reports/:id`.
 
 **No `/metadata` suffix** — the metadata GET **is** `GET /v1/projects/:id`.
 
-**Project GET payload:** `projectId`, `projectHash`, `uploadedAt`, `lastAccessedAt`, `zipBytes`, `fileCount`, `textFileCount`, `detectedConfigPath`, `localeTags[]`, `extraction` summary — **no** zip bytes, **no** full preview arrays.
+**Project GET payload:** `projectId`, `projectHash`, `preparedAt`, `lastAccessedAt`, `zipBytes`, `fileCount`, `textFileCount`, `detectedConfigPath`, `localeTags[]`, `extraction` summary — **no** zip bytes, **no** full preview arrays. (`timing.preparedAt` mirrors top-level; legacy DO rows may still store snapshot `uploadedAt` — core reads both.)
 
 Limits: canonical zip caps in [`PROJECT_UPLOAD_ZIP_LIMITS`](../../packages/core/src/shared/constants/project.ts); worker [`PROJECT_LIMITS`](../../apps/workers/i18nprune/src/lib/constants/project.ts) adds preview retention fields.
 
@@ -388,6 +391,23 @@ Storage: same `ProjectStoreDO` with key prefix `report:{id}` **or** parallel pre
 Extract duplicated zip logic from `apps/workers/.../lib/project.ts` and `apps/web/.../projectZip.ts` into **`packages/core/src/project/parseZip.ts`** (limits in `shared/constants/project.ts`; types in `types/project/upload.ts`).
 
 Worker **project report route** should call **`runReport`** with edge adapters (C.3 alignment).
+
+### 3.4 Worker hardening (**shipped — row 6c**)
+
+Delivered on `apps/workers/i18nprune` + core metadata (see [`shipped-slices.md`](./shipped-slices.md)):
+
+| Area | Behavior |
+|------|----------|
+| **Ingest** | Four POST routes (§3.1–3.2); worker never runs disk `analysis.json` cache |
+| **Dedup** | `projecthash:` / `reporthash:` — same payload hash → same id + `HASH_ALREADY_EXISTS` warning |
+| **Force** | `?force=true` or JSON `"force": true` — purge prior row for hash, new id, hash unchanged |
+| **Retention** | 7-day idle sweep; missing id → `PROJECT_NOT_FOUND` / `REPORT_NOT_FOUND` (`action: reupload`) — no `PAYLOAD_EXPIRED` |
+| **Rate limit** | 20 uploads/hour, 100/day per IP (`ratelimit:` keys, not evicted on storage pressure) |
+| **Storage pressure** | Repeated DO put failures → evict ~25% `project:*` / `report:*` rows; `STORAGE_QUOTA_EXCEEDED` → `action: self_host` |
+| **Timings** | `timing.preparedAt`, `timing.requestReceivedAt`, `timing.storedAt`, `prepare.*`, `extraction.*`, `edge.persistMs` only; snapshot field **`preparedAt`** (legacy DO: read `uploadedAt`) |
+| **Metadata** | `localeTags[]` at prepare; archive `filesEpoch` in `extraction.cache`; `processor` block (`surface`, `route`, `prepareHost`, `sdkVersion`) |
+
+User-facing copy: [`docs/commands/share/README.md`](../../docs/commands/share/README.md), [`docs/runtime/worker.md`](../../docs/runtime/worker.md).
 
 ---
 
@@ -492,10 +512,11 @@ CLI / web / report surfaces repeat the same bullets before confirm.
 | 5 | Worker reports CRUD — `POST/GET/DELETE /v1/reports` + **`GET …/document`** | **Shipped** |
 | 6 | CLI `share` + `upload` / `list` / `view` / `delete` (+ `--all`) + core human emit + worker HTTP hooks | **Shipped** |
 | 6b | `share.bak/` backups, cache-epoch skip, view 404 purge, `--debug-cache`, issue codes `cache_empty` / `stale_cache_row_removed` | **Shipped** |
-| 7 | Web `/p/:id` + Share + **404 / too-large UX** | **Todo** |
-| 8 | Report `/s/:id` + **`/document` load** + Share + error UX | **Todo** |
+| 6c | Worker hardening — ingest errors, dedup/force, storage pressure, timings (`preparedAt`), `localeTags`, `filesEpoch` | **Shipped** |
+| 7 | Web `/p/:id` + Share + **404 / too-large UX** | **Todo** (**next PR**) |
+| 8 | Report `/s/:id` + **`/document` load** + Share + error UX | **Todo** (after row 7) |
 | 9 | Worker `runReport` alignment | **Todo** |
-| 10 | User docs `docs/commands/share/` + `docs/issues/share.md` | **Shipped** (OpenAPI optional later) |
+| 10 | User docs `docs/commands/share/` + `docs/issues/share.md` + worker runtime page | **Shipped** (expanded post-6c; OpenAPI optional later) |
 
 **PR discipline:** one row per PR; `pnpm typecheck` + `pnpm test`; parity unchanged except new `share --json` fixtures.
 

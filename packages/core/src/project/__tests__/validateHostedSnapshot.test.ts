@@ -9,7 +9,7 @@ describe('validateHostedProjectIngestBody', () => {
       snapshot: {
         projectId: 'a',
         projectHash: 'b',
-        uploadedAt: new Date().toISOString(),
+        preparedAt: new Date().toISOString(),
         zipBytes: 1,
         fileCount: 1,
         textFileCount: 1,
@@ -32,7 +32,7 @@ describe('validateHostedProjectIngestBody', () => {
       snapshot: {
         projectId: 'a',
         projectHash: 'b',
-        uploadedAt: new Date().toISOString(),
+        preparedAt: new Date().toISOString(),
         zipBytes: 1,
         fileCount: 1,
         textFileCount: 1,

@@ -1,4 +1,5 @@
 import type { ParsedProjectUpload, WorkerApiEnvelope } from '@i18nprune/core';
+import { snapshotPreparedAtIso } from '@i18nprune/core';
 import { okEnvelope } from '../api/client';
 import {
   localMissingData,
@@ -12,7 +13,7 @@ export function localGetMetadata(session: ParsedProjectUpload): WorkerApiEnvelop
   return okEnvelope({
     projectId: session.snapshot.projectId,
     projectHash: session.snapshot.projectHash,
-    uploadedAt: s.uploadedAt,
+    preparedAt: snapshotPreparedAtIso(s),
     zipBytes: s.zipBytes,
     fileCount: s.fileCount,
     textFileCount: s.textFileCount,

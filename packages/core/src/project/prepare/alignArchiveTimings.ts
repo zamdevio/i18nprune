@@ -7,7 +7,7 @@ function finiteMs(value: unknown): number | undefined {
 }
 
 /**
- * Maps archive prepare wall-clock ms onto snapshot ISO fields so metadata is stable on edge
+ * Maps archive prepare wall-clock ms onto snapshot ISO fields (`preparedAt`, extraction) on edge
  * (Workers `performance.now()` can round sub-ms work to zero; prepare ms are authoritative).
  */
 export function alignArchiveSnapshotTimings(input: {
@@ -27,20 +27,20 @@ export function alignArchiveSnapshotTimings(input: {
     extractionMs = totalMs - zipParsedMs;
   }
 
-  const uploadedAtMs = base + zipParsedMs;
+  const preparedAtMs = base + zipParsedMs;
   input.snapshot.requestReceivedAt = new Date(base).toISOString();
-  input.snapshot.uploadedAt = new Date(uploadedAtMs).toISOString();
+  input.snapshot.preparedAt = new Date(preparedAtMs).toISOString();
 
   const extraction = input.snapshot.extraction;
   if (!extraction) return;
 
-  const extractionStartMs = uploadedAtMs;
+  const extractionStartMs = preparedAtMs;
   const extractionEndMs =
     extractionMs !== undefined
-      ? uploadedAtMs + extractionMs
+      ? preparedAtMs + extractionMs
       : totalMs !== undefined
         ? base + totalMs
-        : uploadedAtMs + Math.max(1, extractionMs ?? 0);
+        : preparedAtMs + Math.max(1, extractionMs ?? 0);
 
   extraction.extractionStartedAt = new Date(extractionStartMs).toISOString();
   extraction.computedAt = new Date(Math.max(extractionEndMs, extractionStartMs + 1)).toISOString();

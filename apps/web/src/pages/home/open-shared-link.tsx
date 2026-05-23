@@ -48,12 +48,13 @@ export function OpenSharedLinkPanel() {
       setCheck({ kind: 'invalid', message: meta.issue.message });
       return;
     }
-    const data = meta.data as { uploadedAt?: string; projectId?: string } | null;
-    const uploadedAt = data?.uploadedAt ? new Date(data.uploadedAt).toLocaleString() : null;
+    const data = meta.data as { preparedAt?: string; uploadedAt?: string; projectId?: string } | null;
+    const preparedIso = data?.preparedAt ?? data?.uploadedAt;
+    const preparedLabel = preparedIso ? new Date(preparedIso).toLocaleString() : null;
     setCheck({
       kind: 'valid',
       projectId: data?.projectId ?? id,
-      detail: uploadedAt ? `Found on worker · uploaded ${uploadedAt}` : 'Found on worker · metadata OK',
+      detail: preparedLabel ? `Found on worker · prepared ${preparedLabel}` : 'Found on worker · metadata OK',
     });
   }
 
