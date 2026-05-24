@@ -6,17 +6,20 @@ import type { WorkerEnv } from '../types';
 
 export function registerDocsRoutes(app: Hono<WorkerEnv>): void {
   app.get('/openapi.json', (c) => c.json(openApiDocument));
-  app.get('/docs', (c) => {
-    const origin = new URL(c.req.url).origin;
-    return c.html(
+  app.get('/docs', (c) =>
+    c.html(
       renderSwaggerShell({
         title: 'i18nprune Worker API',
-        openApiUrl: `${origin}/openapi.json`,
+        brandSubtitle: 'Worker API',
+        logoUrl: '/i18nprune.svg',
+        faviconUrl: '/favicon.ico',
+        openApiUrl: '/openapi.json', // ← relative, always same host as /docs
         headerLinks: [
+          { href: 'https://i18nprune.dev', label: 'Product' },
           { href: getDocsUrl(), label: 'Docs' },
           { href: getDocsUrl('commands/share'), label: 'Share command' },
         ],
       }),
-    );
-  });
+    ),
+  );
 }

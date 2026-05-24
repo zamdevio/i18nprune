@@ -23,5 +23,8 @@
       "pattern": "worker.i18nprune.dev",
       "custom_domain": true
     }
-  ]
+  ],
+  "assets": {
+    "directory": "./public"
+  }
 }

@@ -148,24 +148,32 @@ Mirror the [core purity contract](../agents/architecture.md#2-core-purity-contra
 
 ---
 
-## Swagger integration rules
+### Phase 4 polish (worker `/docs` — reusable shell)
 
-**Do not rebuild API docs.** Keep OpenAPI specs and routes in workers.
+**Shipped in ui package** — any worker with OpenAPI can reuse the same shell (`apps/workers/meta` is the next natural host).
 
-| Asset | Owner |
-|-------|--------|
-| `openapi.ts` / spec JSON | Worker |
-| Route registration (`/docs`, `/openapi.json`) | Worker |
-| Header links (may use core URLs) | Worker builds HTML; passes strings into shell |
-| `swagger-overrides.css` | `@i18nprune/ui/styles/` |
-| `renderSwaggerShell()` (static HTML) | `@i18nprune/ui/swagger` |
+| Concern | Owner |
+|---------|--------|
+| OpenAPI spec + `/openapi.json` | Worker |
+| `/docs` route | Worker |
+| `public/assets/swagger-ui.{css,bundle.js}` | Worker (pin version; copy from `swagger-ui-dist`) |
+| Logo + favicon | Worker `public/` |
+| `renderSwaggerShell()`, overrides CSS, asset URL helpers | `@i18nprune/ui/swagger` |
 
-**Constraints:**
+**Integration recipe**
 
-- **Shell + CSS only** — no React in worker docs pages.
-- Pin `swagger-ui-dist` version when customizing CSS; treat overrides as a compatibility shim.
-- Dark/light: prefer `prefers-color-scheme` first; optional toggle via `data-theme` on `<html>` without React.
+1. Register `GET /openapi.json` and `GET /docs`.
+2. Copy swagger-ui dist files to `public/assets/`.
+3. Set `wrangler.jsonc` `"assets": { "directory": "./public" }`.
+4. Call `renderSwaggerShell()` with **root-relative** URLs only:
+   - `openApiUrl: '/openapi.json'`
+   - `logoUrl: '/i18nprune.svg'`, `faviconUrl: '/favicon.ico'`
+   - Do **not** pass `assetBaseUrl` / do **not** derive origin from `c.req.url` (Wrangler dev rewrites host when `routes` + `custom_domain` are set).
+5. Optional: `useCdnAssets: true` if the host does not ship static swagger files.
 
+**UX included:** fixed header (theme + nav links), light/dark toggle, hidden servers section (default), stock Swagger styling in light mode, dark-mode readability layer, thin scrollbars, overflow-safe info block.
+
+**Explicit non-goals:** OpenAPI parsing in ui; `resolveSwaggerOrigin` (removed — relative paths instead).
 ---
 
 ## Non-goals / forbidden directions
@@ -191,7 +199,7 @@ Mirror the [core purity contract](../agents/architecture.md#2-core-purity-contra
 | **1** | Theme + tokens + clipboard (`web`, `report`) | **Shipped** |
 | **2** | `ToolbarDropdown` + `runtime.css` | **Shipped** |
 | **3** | Confirm dialog + pagination | **Shipped** |
-| **4** | Worker Swagger shell (optional pre/post v1) | **Shipped** |
+| **4** | Worker Swagger shell + reusable `/docs` polish | **Shipped** |
 
 **Timing:** Run Phases 1–3 in **hygiene PRs between C.3 share sub-slices** — not mixed into `packages/core/src/share/**` parity work.
 

@@ -2,6 +2,7 @@
  * Shared runtime toolbar + theme button styles (web + report).
  * Uses app vars with fallbacks: web (--text, --panel), report (--fg, --bg-elevated).
  */
+@import './scrollbars.css';
 
 .theme-btn {
   border: 1px solid var(--ui-border, var(--border));

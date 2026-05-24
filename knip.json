@@ -10,7 +10,8 @@
     "packages/core/src/runtime/index.ts",
     "packages/core/src/translator/errors/index.ts",
     "packages/core/src/translator/index.ts",
-    "apps/landing/functions/og.svg.ts"
+    "apps/landing/functions/og.svg.ts",
+    "apps/workers/**/public/**"
   ],
   "ignoreExportsUsedInFile": true,
   "workspaces": {
