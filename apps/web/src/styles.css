@@ -1234,66 +1234,6 @@ button.danger.ghost {
   align-items: center;
 }
 
-.theme-btn {
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text);
-  border-radius: 999px;
-  padding: 8px 12px;
-}
-
-.toolbar-dropdown {
-  position: relative;
-}
-
-.toolbar-dropdown__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.toolbar-dropdown__current {
-  font-weight: 600;
-}
-
-.toolbar-dropdown__menu {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  z-index: 40;
-  margin: 0;
-  padding: 6px;
-  list-style: none;
-  min-width: 220px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--panel);
-  box-shadow: 0 10px 30px color-mix(in hsl, hsl(170 30% 4%) 28%, transparent);
-}
-
-.toolbar-dropdown--dropup .toolbar-dropdown__menu {
-  top: auto;
-  bottom: calc(100% + 8px);
-}
-
-.toolbar-dropdown__option {
-  width: 100%;
-  text-align: left;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-}
-
-.toolbar-dropdown__option:hover {
-  background: var(--secondary);
-}
-
-.toolbar-dropdown__option.is-active {
-  color: var(--primary);
-  font-weight: 700;
-}
-
 .field-wide {
   min-width: 360px;
 }

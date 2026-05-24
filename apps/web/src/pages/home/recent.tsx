@@ -1,6 +1,6 @@
 import { ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { DeleteConfirmButton } from '../../components/ui/delete';
-import { ToolbarDropdown } from '../../components/ui/toolbar-dropdown';
+import { ToolbarDropdown } from '@i18nprune/ui/react/toolbar';
 import type { RecentProjectZipEntry } from '../../types/index.js';
 
 type Props = {

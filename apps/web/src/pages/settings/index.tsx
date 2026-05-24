@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { DeleteConfirmButton } from '../../components/ui/delete';
-import { ToolbarDropdown } from '../../components/ui/toolbar-dropdown';
+import { ToolbarDropdown } from '@i18nprune/ui/react/toolbar';
 import { DEFAULT_WORKER_API_URL } from '@i18nprune/core';
 import { ECOSYSTEM_LINKS } from '../../constants/index.js';
 import {

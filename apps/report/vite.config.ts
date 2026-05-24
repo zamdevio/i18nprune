@@ -27,6 +27,10 @@ export default defineConfig({
         repoRoot,
         'packages/ui/src/react/theme/index.ts',
       ),
+      '@i18nprune/ui/react/toolbar': path.join(
+        repoRoot,
+        'packages/ui/src/react/toolbar/index.ts',
+      ),
       '@i18nprune/ui/types/theme': path.join(
         repoRoot,
         'packages/ui/src/types/theme/index.ts',

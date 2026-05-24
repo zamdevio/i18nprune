@@ -134,81 +134,6 @@ button {
   outline-offset: 1px;
 }
 
-/* Shared shell dropdown (editor opener + theme). */
-.toolbar-dropdown {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.toolbar-dropdown__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  white-space: nowrap;
-}
-
-.toolbar-dropdown__current {
-  font-weight: 600;
-}
-
-.toolbar-dropdown__menu {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 4px);
-  z-index: 40;
-  margin: 0;
-  padding: 0.25rem;
-  list-style: none;
-  min-width: 10rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg-elevated);
-  box-shadow: var(--shadow);
-}
-
-.toolbar-dropdown--open-left .toolbar-dropdown__menu {
-  left: 0;
-  right: auto;
-}
-
-.toolbar-dropdown--open-up .toolbar-dropdown__menu {
-  top: auto;
-  bottom: calc(100% + 4px);
-}
-
-.toolbar-dropdown__option {
-  display: block;
-  width: 100%;
-  text-align: left;
-  border: none;
-  background: transparent;
-  color: var(--fg);
-  font: inherit;
-  font-size: 0.85rem;
-  padding: 0.4rem 0.55rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.toolbar-dropdown__option:hover,
-.toolbar-dropdown__option.is-active {
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-}
-
-/* Pagination: open upward so the menu stays above the bar near the viewport bottom. */
-.toolbar-dropdown--dropup .toolbar-dropdown__menu {
-  top: auto;
-  bottom: calc(100% + 4px);
-}
-
-/* Narrow header: theme sits under the title row; anchor menu to the left so it opens to the right. */
-@media (max-width: 639px) {
-  .toolbar-dropdown--theme .toolbar-dropdown__menu {
-    left: 0;
-    right: auto;
-  }
-}
-
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -346,19 +271,6 @@ button.nav-link {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.theme-btn {
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
-  color: var(--fg);
-  border-radius: var(--radius);
-  padding: 0.4rem 0.65rem;
-  font-size: 0.8rem;
-}
-
-.theme-btn:hover {
-  border-color: var(--accent);
 }
 
 .app-main {

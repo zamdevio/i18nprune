@@ -1,4 +1,91 @@
 /**
- * Shared runtime component styles (toolbar-dropdown, theme-btn, modal, pagination).
- * Phase 0 scaffold; populated in Phase 2+.
+ * Shared runtime toolbar + theme button styles (web + report).
+ * Uses app vars with fallbacks: web (--text, --panel), report (--fg, --bg-elevated).
  */
+
+.theme-btn {
+  border: 1px solid var(--ui-border, var(--border));
+  background: var(--ui-bg-elevated, var(--panel, var(--bg-elevated, transparent)));
+  color: var(--ui-fg, var(--text, var(--fg)));
+  border-radius: var(--ui-radius, var(--radius, 999px));
+  padding: 0.4rem 0.65rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.theme-btn:hover {
+  border-color: var(--ui-primary, var(--primary, var(--accent)));
+}
+
+.toolbar-dropdown {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.toolbar-dropdown__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.toolbar-dropdown__current {
+  font-weight: 600;
+}
+
+.toolbar-dropdown__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 40;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  min-width: 10rem;
+  border: 1px solid var(--ui-border, var(--border));
+  border-radius: var(--ui-radius, var(--radius, 10px));
+  background: var(--ui-bg-elevated, var(--panel, var(--bg-elevated)));
+  box-shadow: var(--shadow, 0 10px 30px color-mix(in hsl, hsl(170 30% 4%) 28%, transparent));
+}
+
+.toolbar-dropdown--open-left .toolbar-dropdown__menu {
+  left: 0;
+  right: auto;
+}
+
+.toolbar-dropdown--open-up .toolbar-dropdown__menu,
+.toolbar-dropdown--dropup .toolbar-dropdown__menu {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
+.toolbar-dropdown__option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ui-fg, var(--text, var(--fg)));
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.55rem;
+  cursor: pointer;
+}
+
+.toolbar-dropdown__option:hover,
+.toolbar-dropdown__option.is-active {
+  background: var(--ui-secondary, var(--secondary, color-mix(in srgb, var(--accent, var(--primary)) 14%, transparent)));
+}
+
+.toolbar-dropdown__option.is-active {
+  color: var(--ui-primary, var(--primary, var(--accent)));
+  font-weight: 700;
+}
+
+@media (max-width: 639px) {
+  .toolbar-dropdown--theme .toolbar-dropdown__menu {
+    left: 0;
+    right: auto;
+  }
+}

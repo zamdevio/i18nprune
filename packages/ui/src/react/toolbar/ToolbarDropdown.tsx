@@ -1,19 +1,12 @@
-import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
-
-export type ToolbarDropdownOption<T extends string = string> = {
-  value: T;
-  label: string;
-};
-
-type Props<T extends string> = {
-  prefix: string;
-  options: readonly ToolbarDropdownOption<T>[];
-  value: T;
-  onChange: (value: T) => void;
-  ariaLabel: string;
-  /** Extra class on the root (e.g. `toolbar-dropdown--dropup`, `toolbar-dropdown--theme`). */
-  className?: string;
-};
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
+import type { ToolbarDropdownProps } from '../../types/toolbar/index.js';
 
 export function ToolbarDropdown<T extends string>({
   prefix,
@@ -22,7 +15,7 @@ export function ToolbarDropdown<T extends string>({
   onChange,
   ariaLabel,
   className,
-}: Props<T>): JSX.Element {
+}: ToolbarDropdownProps<T>): JSX.Element {
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
   const [openLeft, setOpenLeft] = useState(false);
@@ -78,9 +71,9 @@ export function ToolbarDropdown<T extends string>({
 
   const selectIndex = useCallback(
     (i: number) => {
-      const o = options[i];
-      if (o) {
-        onChange(o.value);
+      const opt = options[i];
+      if (opt) {
+        onChange(opt.value);
         close();
       }
     },
@@ -97,12 +90,12 @@ export function ToolbarDropdown<T extends string>({
     [open, idxOfValue, options.length],
   );
 
-  const onTriggerKeyDown = (e: React.KeyboardEvent): void => {
+  const onTriggerKeyDown = (e: KeyboardEvent): void => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       if (!open) {
         setOpen(true);
-        setHighlight(e.key === 'ArrowDown' ? 0 : options.length - 1);
+        setHighlight(e.key === 'ArrowDown' ? 0 : Math.max(0, options.length - 1));
       } else {
         moveHighlight(e.key === 'ArrowDown' ? 1 : -1);
       }
@@ -119,7 +112,7 @@ export function ToolbarDropdown<T extends string>({
     }
   };
 
-  const onOptionKeyDown = (e: React.KeyboardEvent, i: number): void => {
+  const onOptionKeyDown = (e: KeyboardEvent, i: number): void => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (i < options.length - 1) {
@@ -138,7 +131,7 @@ export function ToolbarDropdown<T extends string>({
       optionRefs.current[0]?.focus();
     } else if (e.key === 'End') {
       e.preventDefault();
-      const last = options.length - 1;
+      const last = Math.max(0, options.length - 1);
       setHighlight(last);
       optionRefs.current[last]?.focus();
     } else if (e.key === 'Enter' || e.key === ' ') {
@@ -151,12 +144,17 @@ export function ToolbarDropdown<T extends string>({
   };
 
   const currentLabel = options.find((o) => o.value === value)?.label ?? value;
+  const rootClass = [
+    'toolbar-dropdown',
+    openLeft ? 'toolbar-dropdown--open-left' : '',
+    openUp ? 'toolbar-dropdown--open-up' : '',
+    className ?? '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <div
-      className={`toolbar-dropdown${openLeft ? ' toolbar-dropdown--open-left' : ''}${openUp ? ' toolbar-dropdown--open-up' : ''}${className ? ` ${className}` : ''}`}
-      ref={rootRef}
-    >
+    <div className={rootClass} ref={rootRef}>
       <button
         ref={btnRef}
         type="button"
@@ -167,7 +165,13 @@ export function ToolbarDropdown<T extends string>({
         onClick={() => setOpen((v) => !v)}
         onKeyDown={onTriggerKeyDown}
       >
-        {prefix} <span className="toolbar-dropdown__current">{currentLabel}</span>
+        {prefix ? (
+          <>
+            {prefix} <span className="toolbar-dropdown__current">{currentLabel}</span>
+          </>
+        ) : (
+          <span className="toolbar-dropdown__current">{currentLabel}</span>
+        )}
       </button>
       {open ? (
         <ul className="toolbar-dropdown__menu" role="listbox" id={listboxId} aria-label={ariaLabel} tabIndex={-1}>

@@ -4,7 +4,7 @@ import { useEditorOpener } from '../../context/editor/index.js';
 import { canUseEditorDeepLinks } from '../../lib/editor/index.js';
 import { useDesktopReportChrome } from '../../lib/desktop/index.js';
 import type { EditorOpener } from '../../lib/editor/index.js';
-import { ToolbarDropdown } from '../ToolbarDropdown.js';
+import { ToolbarDropdown } from '@i18nprune/ui/react/toolbar';
 
 const OPTIONS: { value: EditorOpener; label: string }[] = [
   { value: 'vscode', label: 'VS Code' },

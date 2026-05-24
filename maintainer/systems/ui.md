@@ -188,8 +188,8 @@ Mirror the [core purity contract](../agents/architecture.md#2-core-purity-contra
 | Phase | Scope | Status |
 |-------|-------|--------|
 | **0** | Scaffold, docs, purity gates | **Shipped** |
-| **1** | Theme + tokens + clipboard (`web`, `report`) | **In progress** |
-| **2** | `ToolbarDropdown` + `runtime.css` | Pending |
+| **1** | Theme + tokens + clipboard (`web`, `report`) | **Shipped** |
+| **2** | `ToolbarDropdown` + `runtime.css` | **Shipped** |
 | **3** | Confirm dialog + pagination | Pending |
 | **4** | Worker Swagger shell (optional pre/post v1) | Pending |
 

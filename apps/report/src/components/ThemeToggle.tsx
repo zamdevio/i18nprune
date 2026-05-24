@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from '@i18nprune/ui/react/theme';
 import type { ThemeMode } from '@i18nprune/ui/types/theme';
-import { ToolbarDropdown } from './ToolbarDropdown.js';
+import { ToolbarDropdown } from '@i18nprune/ui/react/toolbar';
 
 const OPTIONS: { value: ThemeMode; label: string }[] = [
   { value: 'system', label: 'System' },

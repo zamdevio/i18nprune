@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { PAGE_SIZE_OPTIONS } from '../../context/pagination/index.js';
-import { ToolbarDropdown } from '../ToolbarDropdown.js';
+import { ToolbarDropdown } from '@i18nprune/ui/react/toolbar';
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from '../icons.js';
 
 export type ListPaginationProps = {

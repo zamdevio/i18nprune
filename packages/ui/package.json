@@ -54,6 +54,10 @@
       "types": "./src/types/index.ts",
       "default": "./src/types/index.ts"
     },
+    "./types/toolbar": {
+      "types": "./src/types/toolbar/index.ts",
+      "default": "./src/types/toolbar/index.ts"
+    },
     "./types/theme": {
       "types": "./src/types/theme/index.ts",
       "default": "./src/types/theme/index.ts"
