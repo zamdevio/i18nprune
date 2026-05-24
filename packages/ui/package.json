@@ -70,6 +70,10 @@
       "types": "./src/types/pagination/index.ts",
       "default": "./src/types/pagination/index.ts"
     },
+    "./types/swagger": {
+      "types": "./src/types/swagger/index.ts",
+      "default": "./src/types/swagger/index.ts"
+    },
     "./swagger": {
       "types": "./src/swagger/index.ts",
       "default": "./src/swagger/index.ts"
@@ -79,6 +83,7 @@
       "default": "./src/utils/clipboard/index.ts"
     },
     "./styles/tokens.css": "./src/styles/tokens.css",
-    "./styles/runtime.css": "./src/styles/runtime.css"
+    "./styles/runtime.css": "./src/styles/runtime.css",
+    "./styles/swagger-overrides.css": "./src/styles/swagger-overrides.css"
   }
 }

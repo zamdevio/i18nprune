@@ -190,8 +190,8 @@ Mirror the [core purity contract](../agents/architecture.md#2-core-purity-contra
 | **0** | Scaffold, docs, purity gates | **Shipped** |
 | **1** | Theme + tokens + clipboard (`web`, `report`) | **Shipped** |
 | **2** | `ToolbarDropdown` + `runtime.css` | **Shipped** |
-| **3** | Confirm dialog + pagination | Pending |
-| **4** | Worker Swagger shell (optional pre/post v1) | Pending |
+| **3** | Confirm dialog + pagination | **Shipped** |
+| **4** | Worker Swagger shell (optional pre/post v1) | **Shipped** |
 
 **Timing:** Run Phases 1–3 in **hygiene PRs between C.3 share sub-slices** — not mixed into `packages/core/src/share/**` parity work.
 

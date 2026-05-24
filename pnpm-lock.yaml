@@ -297,15 +297,15 @@ importers:
 
   apps/workers/i18nprune:
     dependencies:
-      '@hono/swagger-ui':
-        specifier: ^0.5.2
-        version: 0.5.3(hono@4.12.12)
       '@i18nprune/core':
         specifier: workspace:*
         version: link:../../../packages/core
       '@i18nprune/report-schema':
         specifier: workspace:*
         version: link:../../../packages/report
+      '@i18nprune/ui':
+        specifier: workspace:*
+        version: link:../../../packages/ui
       hono:
         specifier: ^4.8.3
         version: 4.12.12
@@ -1025,11 +1025,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
-
-  '@hono/swagger-ui@0.5.3':
-    resolution: {integrity: sha512-Hn90DOOJ62ICJQplQvCDVpi9Jcn6EhtRaiffyJIS53wA5RmRLtMCDQGVc0bor8vQD7JIwpkweWjs+3cycp+IvA==}
-    peerDependencies:
-      hono: '>=4.0.0'
 
   '@iconify-json/simple-icons@1.2.79':
     resolution: {integrity: sha512-aNyO7Fd1qej9oQfIyohYFRv0lhQLaZ+6UkK1c1qwax0MDPUOZOdq65MlU500kow97pD/W+b2u1And3e25eE24Q==}
@@ -4297,10 +4292,6 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.7':
     optional: true
-
-  '@hono/swagger-ui@0.5.3(hono@4.12.12)':
-    dependencies:
-      hono: 4.12.12
 
   '@iconify-json/simple-icons@1.2.79':
     dependencies:
