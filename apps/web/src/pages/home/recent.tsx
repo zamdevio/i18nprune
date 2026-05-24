@@ -1,6 +1,6 @@
 import { ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { ListPagination } from '@i18nprune/ui/react/pagination';
 import { DeleteConfirmButton } from '../../components/ui/delete';
-import { ToolbarDropdown } from '@i18nprune/ui/react/toolbar';
 import type { RecentProjectZipEntry } from '../../types/index.js';
 
 type Props = {
@@ -23,6 +23,13 @@ type Props = {
 };
 
 const pageSizeOptions = [5, 10, 15, 20] as const;
+
+const paginationIcons = {
+  first: <ChevronsLeft size={16} aria-hidden />,
+  prev: <ChevronLeft size={16} aria-hidden />,
+  next: <ChevronRight size={16} aria-hidden />,
+  last: <ChevronsRight size={16} aria-hidden />,
+};
 
 export function Recent({
   recentQuery,
@@ -92,69 +99,19 @@ export function Recent({
               </li>
             ))}
           </ul>
-          <div className="recent-pagination" role="navigation" aria-label="Recent projects pagination">
-            <span className="muted">
-              Showing <strong>{rangeStart}</strong>–<strong>{rangeEnd}</strong> of <strong>{filteredRecent.length}</strong>
-            </span>
-            <div className="recent-pagination__controls">
-              <div className="recent-pagination__size">
-                <ToolbarDropdown
-                  className="toolbar-dropdown--dropup"
-                  prefix="Rows"
-                  ariaLabel="Rows per page"
-                  options={pageSizeOptions.map((n) => ({ value: String(n), label: String(n) }))}
-                  value={String(recentPageSize)}
-                  onChange={(next) => {
-                    const parsed = Number.parseInt(next, 10);
-                    if (Number.isFinite(parsed)) onPageSizeChange(parsed);
-                  }}
-                />
-              </div>
-              <button type="button" className="theme-btn" disabled={safePage <= 1} onClick={() => onSetPage(1)} aria-label="First page">
-                <ChevronsLeft size={16} />
-              </button>
-              <button
-                type="button"
-                className="theme-btn"
-                disabled={safePage <= 1}
-                onClick={() => onSetPage(safePage - 1)}
-                aria-label="Previous page"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <label className="recent-pagination__page-label">
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={String(safePage)}
-                  onChange={(e) => {
-                    const n = Number.parseInt(e.target.value, 10);
-                    if (Number.isFinite(n)) onSetPage(n);
-                  }}
-                  aria-label="Current page"
-                />
-                <span>/ {totalPages}</span>
-              </label>
-              <button
-                type="button"
-                className="theme-btn"
-                disabled={safePage >= totalPages}
-                onClick={() => onSetPage(safePage + 1)}
-                aria-label="Next page"
-              >
-                <ChevronRight size={16} />
-              </button>
-              <button
-                type="button"
-                className="theme-btn"
-                disabled={safePage >= totalPages}
-                onClick={() => onSetPage(totalPages)}
-                aria-label="Last page"
-              >
-                <ChevronsRight size={16} />
-              </button>
-            </div>
-          </div>
+          <ListPagination
+            className="list-pagination--plain"
+            total={filteredRecent.length}
+            page={safePage}
+            totalPages={totalPages}
+            pageSize={recentPageSize}
+            rangeStart={rangeStart}
+            rangeEnd={rangeEnd}
+            pageSizeOptions={pageSizeOptions}
+            icons={paginationIcons}
+            onPageChange={onSetPage}
+            onPageSizeChange={onPageSizeChange}
+          />
         </>
       )}
       {recentError ? <p className="error-text">{recentError}</p> : null}

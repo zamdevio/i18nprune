@@ -1,18 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { PAGE_SIZE_OPTIONS } from '../../context/pagination/index.js';
-import { ToolbarDropdown } from '@i18nprune/ui/react/toolbar';
-import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from '../icons.js';
-
-export type ListPaginationProps = {
-  total: number;
-  page: number;
-  totalPages: number;
-  pageSize: number;
-  rangeStart: number;
-  rangeEnd: number;
-  onPageChange: (page: number) => void;
-  onPageSizeChange: (size: number) => void;
-};
+import { useEffect, useMemo, useState } from 'react';
+import { ToolbarDropdown } from '../toolbar/index.js';
+import type { ListPaginationProps } from '../../types/pagination/index.js';
 
 export function ListPagination({
   total,
@@ -21,14 +9,19 @@ export function ListPagination({
   pageSize,
   rangeStart,
   rangeEnd,
+  pageSizeOptions,
+  icons,
   onPageChange,
   onPageSizeChange,
+  className,
+  summaryNoun = 'results',
 }: ListPaginationProps): JSX.Element {
   const [draft, setDraft] = useState(String(page));
   const rowOptions = useMemo(
-    () => PAGE_SIZE_OPTIONS.map((n) => ({ value: String(n), label: String(n) })),
-    [],
+    () => pageSizeOptions.map((n) => ({ value: String(n), label: String(n) })),
+    [pageSizeOptions],
   );
+
   useEffect(() => {
     setDraft(String(page));
   }, [page]);
@@ -44,11 +37,13 @@ export function ListPagination({
     setDraft(String(clamped));
   };
 
+  const rootClass = className ? `list-pagination ${className}` : 'list-pagination';
+
   return (
-    <div className="list-pagination" role="navigation" aria-label="Table pagination">
+    <div className={rootClass} role="navigation" aria-label="Table pagination">
       <div className="list-pagination__summary">
         {total === 0 ? (
-          <span>0 results</span>
+          <span>0 {summaryNoun}</span>
         ) : (
           <span>
             Showing <strong>{rangeStart}</strong>–<strong>{rangeEnd}</strong> of <strong>{total}</strong>
@@ -77,7 +72,7 @@ export function ListPagination({
             onClick={() => onPageChange(1)}
             aria-label="First page"
           >
-            <IconChevronsLeft />
+            {icons.first}
           </button>
           <button
             type="button"
@@ -86,7 +81,7 @@ export function ListPagination({
             onClick={() => onPageChange(page - 1)}
             aria-label="Previous page"
           >
-            <IconChevronLeft />
+            {icons.prev}
           </button>
           <label className="list-pagination__page-field">
             <span className="visually-hidden">Page</span>
@@ -114,7 +109,7 @@ export function ListPagination({
             onClick={() => onPageChange(page + 1)}
             aria-label="Next page"
           >
-            <IconChevronRight />
+            {icons.next}
           </button>
           <button
             type="button"
@@ -123,7 +118,7 @@ export function ListPagination({
             onClick={() => onPageChange(totalPages)}
             aria-label="Last page"
           >
-            <IconChevronsRight />
+            {icons.last}
           </button>
         </div>
       </div>

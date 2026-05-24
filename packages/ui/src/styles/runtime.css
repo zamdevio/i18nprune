@@ -13,8 +13,12 @@
   cursor: pointer;
 }
 
-.theme-btn:hover {
-  border-color: var(--ui-primary, var(--primary, var(--accent)));
+.theme-btn:hover:not(:disabled) {
+  background: color-mix(
+    in hsl,
+    var(--ui-fg, var(--text, var(--fg))) 8%,
+    var(--ui-bg-elevated, var(--panel, var(--bg-elevated, transparent)))
+  );
 }
 
 .toolbar-dropdown {
@@ -81,6 +85,272 @@
 .toolbar-dropdown__option.is-active {
   color: var(--ui-primary, var(--primary, var(--accent)));
   font-weight: 700;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: color-mix(in hsl, hsl(170 30% 4%) 55%, transparent);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow: auto;
+}
+
+.modal-panel {
+  width: min(520px, 100%);
+  background: var(--ui-bg-elevated, var(--panel, var(--bg-elevated)));
+  border: 1px solid var(--ui-border, var(--border));
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 40px;
+  box-shadow: 0 24px 60px color-mix(in hsl, hsl(170 30% 4%) 35%, transparent);
+}
+
+.modal-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-panel__head h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.modal-panel__description {
+  margin: 10px 0 0;
+  color: var(--ui-fg-muted, var(--muted, var(--fg-muted)));
+}
+
+.modal-panel__hint {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+
+.modal-panel__section {
+  margin-top: 18px;
+}
+
+.modal-panel__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-panel__foot button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--ui-border, var(--border));
+  background: var(--ui-bg-elevated, var(--panel, var(--bg-elevated, transparent)));
+  color: var(--ui-fg, var(--text, var(--fg)));
+  border-radius: var(--ui-radius, var(--radius, 10px));
+  padding: 0.45rem 0.85rem;
+}
+
+.modal-panel__foot button:hover:not(:disabled) {
+  background: color-mix(
+    in hsl,
+    var(--ui-fg, var(--text, var(--fg))) 8%,
+    var(--ui-bg-elevated, var(--panel, var(--bg-elevated, transparent)))
+  );
+}
+
+.modal-panel__foot button.danger:hover:not(:disabled) {
+  border-color: color-mix(in hsl, var(--danger) 65%, var(--ui-border, var(--border)));
+  background: color-mix(in hsl, var(--danger) 22%, transparent);
+}
+
+.modal-panel__foot button:focus {
+  outline: none;
+}
+
+.modal-panel__foot button:focus-visible {
+  outline: 2px solid color-mix(in hsl, var(--ui-fg, var(--text, var(--fg))) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.modal-panel__foot button.danger {
+  border-color: color-mix(in hsl, var(--danger) 55%, var(--ui-border, var(--border)));
+  background: color-mix(in hsl, var(--danger) 14%, transparent);
+}
+
+.modal-panel__foot button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.modal-panel--danger h2 {
+  color: var(--danger);
+}
+
+.error-text {
+  color: var(--danger);
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.delete-preview {
+  margin-top: 10px;
+  border: 1px solid var(--ui-border, var(--border));
+  border-radius: 10px;
+  background: var(--ui-panel-2, var(--panel-2, var(--bg)));
+  padding: 10px;
+}
+
+.delete-preview__item,
+.delete-preview__more {
+  font-size: 13px;
+  color: var(--ui-fg-muted, var(--muted, var(--fg-muted)));
+}
+
+.list-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-top: 0.75rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--ui-border, var(--border));
+  border-radius: var(--ui-radius, var(--radius, 10px));
+  background: var(--ui-bg-elevated, var(--panel, var(--bg-elevated)));
+  font-size: 0.82rem;
+}
+
+.list-pagination--plain {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin-top: 10px;
+  font-size: inherit;
+}
+
+.list-pagination--plain .list-pagination__summary {
+  color: var(--ui-fg-muted, var(--muted, var(--fg-muted)));
+}
+
+.list-pagination--plain .list-pagination__page-input {
+  width: 52px;
+}
+
+.list-pagination__summary {
+  color: var(--ui-fg-muted, var(--muted, var(--fg-muted)));
+}
+
+.list-pagination__summary strong {
+  color: var(--ui-fg, var(--text, var(--fg)));
+  font-weight: 600;
+}
+
+.list-pagination__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 0.85rem;
+}
+
+.list-pagination__size {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.list-pagination__size-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ui-fg-muted, var(--muted, var(--fg-muted)));
+}
+
+.list-pagination__rows-dropdown .toolbar-dropdown__btn {
+  min-height: 2.25rem;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.list-pagination__rows-dropdown .toolbar-dropdown__menu {
+  min-width: 5.5rem;
+}
+
+.list-pagination__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.list-pagination__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  min-width: 2rem;
+}
+
+.list-pagination__icon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.list-pagination__page-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0 0.15rem;
+  font-size: 0.82rem;
+}
+
+.list-pagination__page-input {
+  width: 2.5rem;
+  padding: 0.25rem 0.35rem;
+  border: 1px solid var(--ui-border, var(--border));
+  border-radius: 6px;
+  background: var(--ui-bg, var(--bg));
+  color: var(--ui-fg, var(--text, var(--fg)));
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+.list-pagination__of {
+  color: var(--ui-fg-muted, var(--muted, var(--fg-muted)));
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .modal-backdrop {
+    padding: 12px 8px;
+  }
+
+  .modal-panel {
+    margin-top: 12px;
+    padding: 16px;
+  }
+
+  .modal-panel__foot {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .modal-panel__foot button {
+    flex: 1 1 auto;
+  }
 }
 
 @media (max-width: 639px) {

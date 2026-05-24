@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { reportPageTitle } from '../../constants/brand.js';
 import { useReport } from '../../context/report/index.js';
 import { matchesSearch, useSearchQuery } from '../../context/search/index.js';
-import { usePaginatedList } from '../../context/pagination/index.js';
-import { ListPagination } from '../../components/pagination/index.js';
+import { usePaginatedList, PAGE_SIZE_OPTIONS } from '../../context/pagination/index.js';
+import { ListPagination } from '@i18nprune/ui/react/pagination';
+import { paginationNavIcons } from '../../components/icons.js';
 import { ListTableSection } from '../../components/ListTableSection.js';
 import { PrintTableDialog } from '../../components/PrintTableDialog.js';
 import { SearchNoMatches } from '../../components/search/SearchNoMatches.js';
@@ -165,6 +166,8 @@ export function ObservationsPage(): JSX.Element {
             rangeEnd={pag.rangeEnd}
             onPageChange={pag.setPage}
             onPageSizeChange={pag.setPageSize}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            icons={paginationNavIcons}
           />
         }
       />

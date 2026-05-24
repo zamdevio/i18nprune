@@ -31,6 +31,14 @@ export default defineConfig({
         repoRoot,
         'packages/ui/src/react/toolbar/index.ts',
       ),
+      '@i18nprune/ui/react/pagination': path.join(
+        repoRoot,
+        'packages/ui/src/react/pagination/index.ts',
+      ),
+      '@i18nprune/ui/types/pagination': path.join(
+        repoRoot,
+        'packages/ui/src/types/pagination/index.ts',
+      ),
       '@i18nprune/ui/types/theme': path.join(
         repoRoot,
         'packages/ui/src/types/theme/index.ts',

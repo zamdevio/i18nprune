@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { ConfirmDialog } from '@i18nprune/ui/react/overlay';
 
 type DeleteConfirmButtonProps = {
   title: string;
@@ -61,40 +62,23 @@ export function DeleteConfirmButton({
         </button>
       )}
 
-      {open ? (
-        <div className="modal-backdrop" role="presentation">
-          <div className="modal-panel modal-panel--danger" role="dialog" aria-modal aria-labelledby="delete-confirm-title">
-            <div className="modal-panel__head">
-              <h2 id="delete-confirm-title">
-                <AlertTriangle size={18} style={{ marginRight: 8, verticalAlign: 'text-bottom' }} />
-                {title}
-              </h2>
-            </div>
-            <p className="muted" style={{ marginTop: 10 }}>{description}</p>
-            {previewItems && previewItems.length > 0 ? (
-              <div className="delete-preview">
-                {previewItems.map((item) => (
-                  <div key={item} className="delete-preview__item">
-                    {item}
-                  </div>
-                ))}
-                {(previewMoreCount ?? 0) > 0 ? (
-                  <div className="delete-preview__more">... +{String(previewMoreCount)} more</div>
-                ) : null}
-              </div>
-            ) : null}
-            {error ? <p className="error-text">{error}</p> : null}
-            <div className="modal-panel__foot">
-              <button type="button" disabled={busy} onClick={() => setOpen(false)}>
-                {cancelLabel}
-              </button>
-              <button type="button" className="danger" disabled={busy} onClick={() => void confirm()}>
-                {busy ? 'Working…' : confirmLabel}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <ConfirmDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        title={title}
+        description={description}
+        confirmLabel={confirmLabel}
+        cancelLabel={cancelLabel}
+        variant="danger"
+        titleIcon={
+          <AlertTriangle size={18} style={{ marginRight: 8, verticalAlign: 'text-bottom' }} aria-hidden />
+        }
+        previewItems={previewItems}
+        previewMoreCount={previewMoreCount}
+        busy={busy}
+        error={error}
+        onConfirm={confirm}
+      />
     </>
   );
 }

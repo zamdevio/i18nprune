@@ -62,6 +62,14 @@
       "types": "./src/types/theme/index.ts",
       "default": "./src/types/theme/index.ts"
     },
+    "./types/overlay": {
+      "types": "./src/types/overlay/index.ts",
+      "default": "./src/types/overlay/index.ts"
+    },
+    "./types/pagination": {
+      "types": "./src/types/pagination/index.ts",
+      "default": "./src/types/pagination/index.ts"
+    },
     "./swagger": {
       "types": "./src/swagger/index.ts",
       "default": "./src/swagger/index.ts"

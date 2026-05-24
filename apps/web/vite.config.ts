@@ -13,6 +13,8 @@ export default defineConfig({
     alias: {
       '@i18nprune/ui/react/theme': path.join(repoRoot, 'packages/ui/src/react/theme/index.ts'),
       '@i18nprune/ui/react/toolbar': path.join(repoRoot, 'packages/ui/src/react/toolbar/index.ts'),
+      '@i18nprune/ui/react/overlay': path.join(repoRoot, 'packages/ui/src/react/overlay/index.ts'),
+      '@i18nprune/ui/react/pagination': path.join(repoRoot, 'packages/ui/src/react/pagination/index.ts'),
       '@i18nprune/ui/utils/clipboard': path.join(repoRoot, 'packages/ui/src/utils/clipboard/index.ts'),
     },
   },

@@ -1,2 +1,1 @@
-/** Phase 3+ — ListPagination. */
-export {};
+export { ListPagination } from './ListPagination.js';

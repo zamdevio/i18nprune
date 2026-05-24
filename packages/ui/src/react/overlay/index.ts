@@ -1,2 +1,1 @@
-/** Phase 3+ — Modal / ConfirmDialog. */
-export {};
+export { ConfirmDialog } from './ConfirmDialog.js';

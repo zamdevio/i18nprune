@@ -56,3 +56,10 @@ export function IconChevronsRight(props: React.SVGProps<SVGSVGElement>): JSX.Ele
     </svg>
   );
 }
+
+export const paginationNavIcons = {
+  first: <IconChevronsLeft />,
+  prev: <IconChevronLeft />,
+  next: <IconChevronRight />,
+  last: <IconChevronsRight />,
+} as const;
