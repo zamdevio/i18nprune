@@ -15,6 +15,7 @@
 | **`systems/extractor.md`** | Extractor subsystem map: bindings, call sites, in/out of scope vs `docs/extractor/README.md` |
 | **`systems/patching.md`** | Patching subsystem: core vs CLI, barrels, `LOCALE_REGISTRY` contract, orchestration note |
 | **`systems/health.md`** | Codebase health gates: `typecheck`, `test`, knip, madge, `empty:*` — when to run, barrel discipline |
+| **`systems/ui.md`** | Runtime UI kit (`@i18nprune/ui`): domain separation, purity rules, migration phases |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
@@ -39,6 +40,7 @@ maintainer/systems/
 ├── TEMPLATE.md
 ├── extractor.md
 ├── patching.md
+├── ui.md
 ├── health.md
 ├── knip.md
 ├── operations/
@@ -66,6 +68,7 @@ Keep this tree truthful with `git`; don't maintain a brittle wall of filenames h
 | **Extractor (maintainer)** | `maintainer/systems/extractor.md` |
 | **Patching (maintainer)** | `maintainer/systems/patching.md` |
 | **Health gates (typecheck, test, knip, madge)** | `maintainer/systems/health.md` |
+| **Runtime UI kit (`@i18nprune/ui`)** | `maintainer/systems/ui.md` |
 | **Knip config / ignore catalog** | `maintainer/systems/knip.md` |
 | **Agent authoring rules** | `maintainer/agents/` (architecture, rules, jsdoc, git) |
 

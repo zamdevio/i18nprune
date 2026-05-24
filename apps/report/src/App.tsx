@@ -1,6 +1,6 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ReportProvider } from './context/report/index.js';
-import { ThemeProvider } from './theme/ThemeContext.js';
+import { ThemeProvider } from '@i18nprune/ui/react/theme';
 import { AppShell } from './components/shell/index.js';
 import { OverviewPage } from './pages/overview/index.js';
 import { MissingPage } from './pages/missing/index.js';
@@ -11,7 +11,7 @@ import { NamespacesPage } from './pages/namespaces/index.js';
 
 export function App(): JSX.Element {
   return (
-    <ThemeProvider>
+    <ThemeProvider storageKey="i18nprune-report-theme" applyStrategy="class-and-data-theme" alwaysPersist>
       <ReportProvider>
         <HashRouter>
           <AppShell>

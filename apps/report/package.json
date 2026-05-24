@@ -13,6 +13,7 @@
   "dependencies": {
     "@i18nprune/core": "workspace:*",
     "@i18nprune/report-schema": "workspace:*",
+    "@i18nprune/ui": "workspace:*",
     "i18nprune": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

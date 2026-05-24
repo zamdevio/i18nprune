@@ -1,5 +1,6 @@
 import React from 'react';
-import { useTheme, type ThemeMode } from '../theme/ThemeContext.js';
+import { useTheme } from '@i18nprune/ui/react/theme';
+import type { ThemeMode } from '@i18nprune/ui/types/theme';
 import { ToolbarDropdown } from './ToolbarDropdown.js';
 
 const OPTIONS: { value: ThemeMode; label: string }[] = [

@@ -24,6 +24,10 @@
     },
     "apps/extension/src/webview": {
       "project": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/ui": {
+      "entry": ["src/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}"]
     }
   }
 }

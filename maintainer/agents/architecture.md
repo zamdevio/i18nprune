@@ -10,13 +10,16 @@ How code is organized, where things live, and the rules that keep the codebase h
 packages/
   core/          @i18nprune/core — domain logic, zero side effects
   cli/           i18nprune CLI — thin host (argv, prompts, banners, rendering)
-  report/        Report SPA data helpers
+  report/        Report schema (@i18nprune/report-schema)
+  ui/            @i18nprune/ui — runtime cluster UI kit (web, report, worker docs shell)
 
 apps/
   docs/          VitePress documentation site
   report/        Report SPA (reads core report payloads)
-  web/           Marketing site
-  workers/       Cloudflare Worker examples
+  web/           Web runtime (workspace, share)
+  landing/       Marketing site (isolated UI domain)
+  extension/     VS Code extension + webview (isolated UI domain)
+  workers/       Cloudflare Workers (API + Swagger /docs)
 
 examples/
   sdk/           Per-op SDK usage examples (runDoctor, runGenerate, …)
@@ -174,3 +177,19 @@ i18nprune ships one behavior across four surfaces:
 
 
 When changing core behavior, verify impact on all surfaces. Parity snapshot tests (`tests/parity/`) gate refactors.
+
+---
+
+## 11. UI domains
+
+Three UI domains; only the **runtime cluster** uses `@i18nprune/ui`:
+
+| Domain | Paths | `@i18nprune/ui` |
+|--------|-------|-----------------|
+| Marketing | `apps/landing` | **Never** |
+| Editor host | `apps/extension/src/webview` | **Never** |
+| Runtime cluster | `apps/web`, `apps/report`, worker `/docs` shell | **Yes** |
+
+**Purity rule:** If a component requires domain imports (`@i18nprune/core`, worker clients, routing, share/report logic), it does **not** belong in `packages/ui`. `@i18nprune/core` must never import `@i18nprune/ui`.
+
+**Canonical detail:** [`maintainer/systems/ui.md`](../systems/ui.md) · enforcement: `pnpm ui:purity`.

@@ -8,7 +8,8 @@ Guides for humans and coding agents working in this repo.
 | [**Rules**](./rules.md) | TypeScript, output contract, error handling, testing, logging, non-interactive safety, commit discipline |
 | [**JSDoc**](./jsdoc.md) | When/where/how to write JSDoc across core, CLI, and apps |
 | [**Git**](./git.md) | Commit style, bundling rules, Conventional Commits, pre-push checklist |
-| [**Health gates**](../systems/health.md) | `typecheck`, `test`, knip, madge, empty:* — when to run, barrel discipline |
+| [**Health gates**](../systems/health.md) | `typecheck`, `test`, knip, madge, `ui:purity`, `empty:*` — when to run, barrel discipline |
+| [**Runtime UI kit**](../systems/ui.md) | `@i18nprune/ui` domain boundaries, purity rules, migration phases |
 | [**Knip config**](../systems/knip.md) | `knip.json` ignore catalog (barrels, edge entries, type-only deps) |
 
 ## Onboarding (first steps)

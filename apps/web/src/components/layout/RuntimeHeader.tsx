@@ -1,6 +1,6 @@
 import { Home, LayoutDashboard, Moon, Settings, Sun } from 'lucide-react';
 import { useAppRoute, navigateHash, navigateWorkspace } from '../../hooks/useAppRoute';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '@i18nprune/ui/react/theme';
 import { EcosystemNavMenu } from './EcosystemNavMenu';
 
 export function RuntimeHeader() {

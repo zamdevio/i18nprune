@@ -42,6 +42,11 @@ extractor → init → locales → cache → translate-cache → apps (C.3+) →
 - No `process.*` access in core except via a passed-in `env` parameter.
 - File IO in core only via passed-in host adapters (or a core-side adapters re-export).
 
+## Runtime UI kit (`@i18nprune/ui`)
+- **Runtime cluster only:** `apps/web`, `apps/report`, worker `/docs` shell — **not** landing, extension, or VitePress docs.
+- **No domain imports in ui:** no `@i18nprune/core`, workers, routing, share/report logic. See [`maintainer/systems/ui.md`](./maintainer/systems/ui.md).
+- Gate: `pnpm ui:purity` (included in `pnpm typecheck`).
+
 ## Cache discipline (Session H-cache)
 - **Core owns** rebuild policy (`decideAnalysisRebuild`, `resolveCacheConfig`, patch/reuse in `analysis/` + `cache/dispatch.ts`). CLI/IDE are **hosts** — no forked delta/patch logic.
 - **`cache.rebuild: 'full'`** in config overrides profile defaults → always full scan; `--debug-cache` must say `full (config rebuild=full)`.

@@ -23,6 +23,14 @@ export default defineConfig({
         repoRoot,
         'packages/cli/src/constants/index.ts',
       ),
+      '@i18nprune/ui/react/theme': path.join(
+        repoRoot,
+        'packages/ui/src/react/theme/index.ts',
+      ),
+      '@i18nprune/ui/types/theme': path.join(
+        repoRoot,
+        'packages/ui/src/types/theme/index.ts',
+      ),
     },
   },
   plugins: [react(), viteSingleFile()],

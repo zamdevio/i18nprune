@@ -12,6 +12,7 @@
   "dependencies": {
     "@i18nprune/core": "workspace:*",
     "@i18nprune/report-schema": "workspace:*",
+    "@i18nprune/ui": "workspace:*",
     "fflate": "^0.8.2",
     "lucide-react": "^0.546.0",
     "prismjs": "^1.30.0",

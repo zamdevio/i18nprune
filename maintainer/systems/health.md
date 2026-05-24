@@ -38,7 +38,13 @@ Production artifact chain: **`cli:build`** (includes report SPA bundle for embed
 
 ## Structure-change gates
 
-Run these when you touch **`packages/core/src`**, **`packages/cli/src`**, or barrels under **`packages/report/src`**.
+Run these when you touch **`packages/core/src`**, **`packages/cli/src`**, barrels under **`packages/report/src`**, or **`packages/ui/src`**.
+
+### `pnpm ui:purity`
+
+Forbidden import guard for `@i18nprune/ui` — no `@i18nprune/core`, workers, `react-router-dom`, `hono`, `zod`, `fflate`. Script: [`scripts/ui/purity-check.mjs`](../../scripts/ui/purity-check.mjs). Rules: [`ui.md`](./ui.md).
+
+**When:** any change under `packages/ui/`. Included in root `pnpm typecheck`.
 
 ### `pnpm madge:circular`
 
@@ -48,6 +54,7 @@ Detects import cycles in:
 packages/core/src
 packages/cli/src
 packages/report/src
+packages/ui/src
 ```
 
 **When:** new cross-module imports, barrel re-exports, moving files between folders.
@@ -63,6 +70,8 @@ types/cache/index.ts      ← re-exports for @i18nprune/core consumers
 ### `pnpm knip`
 
 Dead code, unused exports, unused/missing dependencies. Config: [`knip.json`](../../knip.json). Ignore catalog and workspace overrides: **[`knip.md`](./knip.md)**.
+
+**Knip won't start** (missing `@oxc-parser/binding-*`): run **`pnpm install`** — see [`knip.md` § Knip fails to start](./knip.md#knip-fails-to-start-oxc-parserbinding--missing).
 
 **When:** deleted files, new dependencies, changed entrypoints, new public barrels, edge-only entries (Cloudflare functions).
 
@@ -116,6 +125,7 @@ Public API barrels listed in [`knip.md`](./knip.md) are **ignored by knip** beca
 |--------|--------|
 | New **`package.json`** health script | This file |
 | New **`knip.json`** ignore or workspace rule | [`knip.md`](./knip.md) |
+| `@i18nprune/ui` boundaries or migration phase | [`ui.md`](./ui.md) |
 | Agent onboarding / architecture summary | [`maintainer/agents/architecture.md` § 8](../agents/architecture.md#8-health-gates) (pointer only) |
 
 ---

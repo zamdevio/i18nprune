@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider } from '@i18nprune/ui/react/theme';
 import { EcosystemFooter } from './components/layout/EcosystemFooter';
 import { RuntimeHeader } from './components/layout/RuntimeHeader';
+import { THEME_STORAGE_KEY } from './constants/index.js';
 import { useAppRoute } from './hooks/useAppRoute';
 import { HomePage } from './pages/home';
 import { SettingsPage } from './pages/settings';
@@ -29,7 +30,7 @@ export default function App() {
   }, [route.path, route.workspaceProjectId]);
 
   return (
-    <ThemeProvider>
+    <ThemeProvider storageKey={THEME_STORAGE_KEY} applyStrategy="class" alwaysPersist={false}>
       <RuntimeHeader />
       <main className="page-shell page-shell--with-footer">
         {route.path === '/settings' ? (

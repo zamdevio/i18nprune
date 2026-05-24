@@ -1,0 +1,72 @@
+{
+  "name": "@i18nprune/ui",
+  "version": "0.1.0-scaffold",
+  "private": true,
+  "type": "module",
+  "description": "Presentational UI kit for the i18nprune runtime cluster (web, report, worker docs shell).",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.9.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./react": {
+      "types": "./src/react/index.ts",
+      "default": "./src/react/index.ts"
+    },
+    "./react/theme": {
+      "types": "./src/react/theme/index.ts",
+      "default": "./src/react/theme/index.ts"
+    },
+    "./react/toolbar": {
+      "types": "./src/react/toolbar/index.ts",
+      "default": "./src/react/toolbar/index.ts"
+    },
+    "./react/overlay": {
+      "types": "./src/react/overlay/index.ts",
+      "default": "./src/react/overlay/index.ts"
+    },
+    "./react/feedback": {
+      "types": "./src/react/feedback/index.ts",
+      "default": "./src/react/feedback/index.ts"
+    },
+    "./react/pagination": {
+      "types": "./src/react/pagination/index.ts",
+      "default": "./src/react/pagination/index.ts"
+    },
+    "./types": {
+      "types": "./src/types/index.ts",
+      "default": "./src/types/index.ts"
+    },
+    "./types/theme": {
+      "types": "./src/types/theme/index.ts",
+      "default": "./src/types/theme/index.ts"
+    },
+    "./swagger": {
+      "types": "./src/swagger/index.ts",
+      "default": "./src/swagger/index.ts"
+    },
+    "./utils/clipboard": {
+      "types": "./src/utils/clipboard/index.ts",
+      "default": "./src/utils/clipboard/index.ts"
+    },
+    "./styles/tokens.css": "./src/styles/tokens.css",
+    "./styles/runtime.css": "./src/styles/runtime.css"
+  }
+}
