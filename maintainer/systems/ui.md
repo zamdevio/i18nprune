@@ -174,6 +174,15 @@ Mirror the [core purity contract](../agents/architecture.md#2-core-purity-contra
 **UX included:** fixed header (theme + nav links), light/dark toggle, hidden servers section (default), stock Swagger styling in light mode, dark-mode readability layer, thin scrollbars, overflow-safe info block.
 
 **Explicit non-goals:** OpenAPI parsing in ui; `resolveSwaggerOrigin` (removed — relative paths instead).
+
+Whenever you update `packages/ui/src/styles/swagger-overrides.css`, run `pnpm ui:sync:swagger-css` to regenerate `packages/ui/src/swagger/overrides-css.ts`, and be sure to commit both files together.
+
+To confirm your overrides file is correctly synchronized, run:
+
+```bash
+pnpm ui:check:swagger-css
+```
+
 ---
 
 ## Non-goals / forbidden directions

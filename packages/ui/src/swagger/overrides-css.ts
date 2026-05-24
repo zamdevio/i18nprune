@@ -1,6 +1,7 @@
 /**
  * Bundled swagger-ui overrides (inlined for worker bundles).
  * Keep in sync with ../styles/swagger-overrides.css.
+ * Regenerate: pnpm ui:sync:swagger-css
  */
 export const swaggerOverridesCss = `/**
  * swagger-ui-dist overrides — i18nprune shell + dark-mode compat layer.

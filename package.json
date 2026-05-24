@@ -55,6 +55,8 @@
     "core:typecheck": "pnpm --filter @i18nprune/core typecheck",
     "ui:typecheck": "pnpm --filter @i18nprune/ui typecheck",
     "ui:purity": "node scripts/ui/purity-check.mjs",
+    "ui:sync:swagger-css": "node scripts/ui/sync-swagger-overrides.mjs",
+    "ui:check:swagger-css": "node scripts/ui/sync-swagger-overrides.mjs && git diff --exit-code packages/ui/src/swagger/overrides-css.ts",
     "generate:languages": "tsx --tsconfig tsconfig.json scripts/catalog/run.ts",
     "docs:sync": "node apps/docs/scripts/sync.js",
     "docs:dev": "pnpm --filter @i18nprune/docs dev",
