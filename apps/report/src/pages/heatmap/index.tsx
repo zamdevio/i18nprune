@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { reportPageTitle } from '../../constants/brand.js';
-import { useReport } from '../../context/report/index.js';
+import { useReport } from '../../context/report/hooks.js';
 import { matchesSearch, useSearchQuery } from '../../context/search/index.js';
 import { usePaginatedList, PAGE_SIZE_OPTIONS } from '../../context/pagination/index.js';
 import { ListPagination } from '@i18nprune/ui/react/pagination';
 import { paginationNavIcons } from '../../components/icons.js';
-import { ListTableSection } from '../../components/ListTableSection.js';
+import { ListTableSection, ListTableSearchToolbar } from '../../components/ListTableSection.js';
+import { ReportSearchBar } from '../../components/search/index.js';
 import { PrintTableDialog } from '../../components/PrintTableDialog.js';
 import { SearchNoMatches } from '../../components/search/SearchNoMatches.js';
 import { computeFolderHotspots, type FolderHotspot } from '../../lib/hotspots/index.js';
@@ -57,6 +58,7 @@ export function HeatmapPage(): JSX.Element {
     return (
       <div>
         <h1 className="page-title">Folder hotspots (0)</h1>
+        <ListTableSearchToolbar search={<ReportSearchBar />} />
         <SearchNoMatches noun="folders" onClear={() => setQuery('')} />
       </div>
     );
@@ -72,6 +74,7 @@ export function HeatmapPage(): JSX.Element {
       <ListTableSection
         printDisabled={rows.length === 0}
         onPrint={() => setPrintOpen(true)}
+        search={<ReportSearchBar />}
         table={
           <div className="table-wrap table-wrap--scroll">
             <table className="data">

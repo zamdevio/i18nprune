@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReport } from '../../context/report/index.js';
+import { useReport } from '../../context/report/hooks.js';
 import { useEditorOpener } from '../../context/editor/index.js';
 import { buildEditorHref, canUseEditorDeepLinks } from '../../lib/editor/index.js';
 import { toAbsolutePath } from '../../lib/paths/index.js';

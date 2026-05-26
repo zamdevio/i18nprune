@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { parseReportShareId } from '../share/parseReportShareId.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { parseReportShareId, readReportShareIdFromLocation } from '../share/parseReportShareId.js';
 
 describe('parseReportShareId', () => {
   it('parses hash share URL with /?id=', () => {
@@ -14,5 +14,21 @@ describe('parseReportShareId', () => {
     expect(parseReportShareId('')).toBeNull();
     expect(parseReportShareId('not-an-id')).toBeNull();
     expect(parseReportShareId('https://example.com/no-hash')).toBeNull();
+  });
+});
+
+describe('readReportShareIdFromLocation', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('reads id from #/?id= hash route', () => {
+    vi.stubGlobal('window', { location: { hash: '#/?id=a4da1f67c798a713' } });
+    expect(readReportShareIdFromLocation()).toBe('a4da1f67c798a713');
+  });
+
+  it('returns null when hash has no query', () => {
+    vi.stubGlobal('window', { location: { hash: '#/missing' } });
+    expect(readReportShareIdFromLocation()).toBeNull();
   });
 });

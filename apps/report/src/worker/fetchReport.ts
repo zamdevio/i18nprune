@@ -5,7 +5,7 @@ import {
   shareRemoteIssueFromWorker,
 } from '@i18nprune/core';
 import { validatePayloadValue, type PayloadLoadResult } from '../data/loader/validate.js';
-import type { WorkerReportDocumentResult, WorkerReportMetadataResult } from '../types/worker.js';
+import type { WorkerReportDocumentResult, WorkerReportMetadataResult } from '../types/worker/index.js';
 import { workerFetchJson } from './workerHttp.js';
 
 function normalizeBaseUrl(url: string): string {

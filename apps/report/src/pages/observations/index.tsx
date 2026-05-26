@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { reportPageTitle } from '../../constants/brand.js';
-import { useReport } from '../../context/report/index.js';
+import { useReport } from '../../context/report/hooks.js';
 import { matchesSearch, useSearchQuery } from '../../context/search/index.js';
 import { usePaginatedList, PAGE_SIZE_OPTIONS } from '../../context/pagination/index.js';
 import { ListPagination } from '@i18nprune/ui/react/pagination';
 import { paginationNavIcons } from '../../components/icons.js';
-import { ListTableSection } from '../../components/ListTableSection.js';
+import { ListTableSection, ListTableSearchToolbar } from '../../components/ListTableSection.js';
+import { ReportSearchBar } from '../../components/search/index.js';
 import { PrintTableDialog } from '../../components/PrintTableDialog.js';
 import { SearchNoMatches } from '../../components/search/SearchNoMatches.js';
 import { previewCell } from '../../lib/format/index.js';
@@ -100,6 +101,7 @@ export function ObservationsPage(): JSX.Element {
     return (
       <div>
         <h1 className="page-title">Key observations (0)</h1>
+        <ListTableSearchToolbar search={<ReportSearchBar />} />
         <SearchNoMatches noun="observations" onClear={() => setQuery('')} />
       </div>
     );
@@ -112,6 +114,7 @@ export function ObservationsPage(): JSX.Element {
       <ListTableSection
         printDisabled={filtered.length === 0}
         onPrint={() => setPrintOpen(true)}
+        search={<ReportSearchBar />}
         table={
           <div className="table-wrap table-wrap--scroll">
             <table className="data">

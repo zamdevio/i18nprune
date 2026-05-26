@@ -7,7 +7,9 @@ describe('buildEditorHref', () => {
     expect(buildEditorHref('/home/proj/src/a.ts', 'cursor')).toBe('cursor://file/home/proj/src/a.ts');
   });
 
-  it('builds file URLs', () => {
-    expect(buildEditorHref('/tmp/x', 'file')).toBe('file:///tmp/x');
+  it('builds antigravity, windsurf, and zed URIs', () => {
+    expect(buildEditorHref('/tmp/x', 'antigravity')).toBe('antigravity://file/tmp/x');
+    expect(buildEditorHref('/tmp/x', 'windsurf')).toBe('windsurf://file/tmp/x');
+    expect(buildEditorHref('/tmp/x', 'zed')).toBe('zed://file/tmp/x');
   });
 });

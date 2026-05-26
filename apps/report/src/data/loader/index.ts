@@ -33,7 +33,19 @@ function extractPayloadFromHtmlSource(): string {
   return html.slice(open + 1, close).trim();
 }
 
-/** Reads `#i18nprune-inline-payload`, parses JSON, validates with Zod. DEV falls back to mock data when unset. */
+/** True when CLI-injected `#i18nprune-inline-payload` is present (not the build placeholder). */
+export function hasEmbeddedReportPayload(): boolean {
+  const g = globalThis as {
+    document?: { getElementById?: (id: string) => { textContent?: string | null } | null };
+  };
+  const el = g.document?.getElementById?.('i18nprune-inline-payload');
+  const domPayload = el?.textContent?.trim() ?? '';
+  const htmlPayload = extractPayloadFromHtmlSource();
+  const raw = domPayload || htmlPayload;
+  return raw !== '' && raw !== REPORT_INLINE_PAYLOAD_PLACEHOLDER;
+}
+
+/** Reads `#i18nprune-inline-payload`, parses JSON, validates with Zod. */
 export function loadPayloadResult(): PayloadLoadResult {
   const g = globalThis as {
     document?: { getElementById?: (id: string) => { textContent?: string | null } | null };
@@ -44,7 +56,6 @@ export function loadPayloadResult(): PayloadLoadResult {
   const raw = domPayload || htmlPayload;
 
   if (raw === '' || raw === REPORT_INLINE_PAYLOAD_PLACEHOLDER) {
-    if (import.meta.env.DEV) return { ok: true, doc: MOCK_PROJECT_REPORT };
     return {
       ok: false,
       kind: 'missing',
@@ -61,10 +72,14 @@ export function loadPayloadResult(): PayloadLoadResult {
       const parsed = JSON.parse(raw) as unknown;
       if (looksLikeReport(parsed)) return { ok: true, doc: parsed };
     } catch {
-      /* use mock below */
+      /* fall through */
     }
-    return { ok: true, doc: MOCK_PROJECT_REPORT };
   }
 
   return strict;
+}
+
+/** Dev-only sample document for “Load demo” on the home page. */
+export function loadDemoPayloadResult(): PayloadLoadResult {
+  return { ok: true, doc: MOCK_PROJECT_REPORT };
 }

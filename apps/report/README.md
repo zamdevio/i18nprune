@@ -37,7 +37,7 @@ The SPA imports **`CLI_NAME`** and **`CLI_VERSION`** from **`src/constants/cli.t
 | **Search** | One global query filters list pages; **no matches** state with clear action |
 | **Pagination** | Per-section page + **persisted** rows-per-page (`localStorage`) |
 | **Theme** | Light / dark / system, persisted; **custom dropdown** (matches editor UX) |
-| **Editor links** | `vscode://`, `cursor://`, `file://` from report paths (desktop layout) |
+| **Editor links** | `vscode://`, `cursor://`, `antigravity://`, `windsurf://`, `zed://` from report paths (desktop layout) |
 | **Docs links** | Footer uses **`src/constants/docs.ts`** (same GitHub paths as CLI) |
 
 ---

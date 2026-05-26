@@ -12,13 +12,6 @@ export const MOCK_PROJECT_REPORT: ProjectReportDocument = {
     localesDir: '/example/project/locales',
     srcRoot: '/example/project/src',
     sourceLocaleTag: 'en',
-    environment: {
-      platform: 'linux',
-      arch: 'x64',
-      nodeVersion: 'v22.0.0',
-      osRelease: '6.6',
-      distro: 'Ubuntu',
-    },
   },
   summary: {
     missingKeysCount: 2,

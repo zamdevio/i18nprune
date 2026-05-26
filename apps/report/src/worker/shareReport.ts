@@ -11,7 +11,7 @@ import {
 } from '@i18nprune/core';
 import type { ProjectReportDocument } from '../types/index.js';
 import { buildHostedReportShareUrl } from '../lib/share/reportShareUrl.js';
-import type { ReportShareLinkOnlyOutcome, ReportShareUploadOutcome } from '../types/worker.js';
+import type { ReportShareLinkOnlyOutcome, ReportShareUploadOutcome } from '../types/worker/index.js';
 import { workerFetchJson } from './workerHttp.js';
 
 function normalizeBaseUrl(url: string): string {

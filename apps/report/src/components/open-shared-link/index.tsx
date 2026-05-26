@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link2, SearchCheck } from 'lucide-react';
 import { getDocsUrl } from '@i18nprune/core';
 import { parseReportShareId } from '../../lib/share/parseReportShareId.js';
 import { readWorkerUrl } from '../../storage/workerUrl.js';
@@ -63,8 +64,11 @@ export function OpenSharedLinkPanel({ onOpen }: OpenSharedLinkPanelProps): JSX.E
   const checking = check.kind === 'checking';
 
   return (
-    <section className="share-panel open-shared-link">
-      <h2 className="share-panel__title">Open shared report</h2>
+    <section className="panel open-shared-link">
+      <h2 className="open-shared-link__title">
+        <Link2 size={18} aria-hidden className="open-shared-link__icon" />
+        Open shared report
+      </h2>
       <p className="muted">
         Paste a link like <code className="mono">#/?id=…</code> from <strong>Copy link</strong> after sharing. The id
         stays in the URL on reload.
@@ -83,34 +87,41 @@ export function OpenSharedLinkPanel({ onOpen }: OpenSharedLinkPanelProps): JSX.E
           }}
         />
       </label>
-      {error ? <p className="share-panel__error">{error}</p> : null}
-      {check.kind === 'checking' ? <p className="status-pill">Checking worker metadata…</p> : null}
-      {check.kind === 'valid' ? (
-        <p className="status-pill status-pill--ok" role="status">
+      {error ? <p className="error-text">{error}</p> : null}
+      {check.kind === 'checking' ?
+        <p className="status-pill open-shared-link__status">Checking worker metadata…</p>
+      : null}
+      {check.kind === 'valid' ?
+        <p className="ok-pill open-shared-link__status" role="status">
           Valid · <code className="mono">{check.reportId}</code> — {check.detail}
         </p>
-      ) : null}
-      {check.kind === 'invalid' || check.kind === 'parse-error' ? (
-        <p className="status-pill status-pill--warn" role="status">
+      : null}
+      {check.kind === 'invalid' || check.kind === 'parse-error' ?
+        <p className="warn-pill open-shared-link__status" role="status">
           {check.message}
         </p>
-      ) : null}
-      <div className="share-panel__actions">
-        <button type="button" className="btn-secondary" disabled={checking || !draft.trim()} onClick={() => void checkLink()}>
+      : null}
+      <div className="row open-shared-link__actions">
+        <button type="button" className="ghost" disabled={checking || !draft.trim()} onClick={() => void checkLink()}>
+          <SearchCheck size={16} aria-hidden style={{ marginRight: 6, verticalAlign: 'middle' }} />
           Check link
         </button>
         <button
           type="button"
-          className="btn-primary"
+          className="primary"
           disabled={checking || !parseReportShareId(draft)}
           onClick={openLink}
         >
           Open report
         </button>
-        <a className="share-panel__docs" href={getDocsUrl('commands/share/README')} target="_blank" rel="noopener noreferrer">
+        <a className="btn-link" href={getDocsUrl('commands/share/README')} target="_blank" rel="noopener noreferrer">
           Share docs
         </a>
       </div>
+      <p className="muted open-shared-link__hint">
+        <strong>Check link</strong> calls the worker metadata endpoint (same probe as opening). <strong>Open</strong>{' '}
+        needs a parseable id or URL.
+      </p>
     </section>
   );
 }

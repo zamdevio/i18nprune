@@ -1,5 +1,5 @@
 import type { Issue } from '@i18nprune/core';
-import type { PayloadLoadResult } from '../data/loader/validate.js';
+import type { PayloadLoadResult } from '../../data/loader/validate.js';
 
 export type WorkerReportMetadataResult =
   | { ok: true; data: unknown }
@@ -14,3 +14,7 @@ export type ReportShareUploadOutcome =
 export type ReportShareLinkOnlyOutcome =
   | { ok: true; link: string; humanLines: string[] }
   | { ok: false; issue: Issue; humanLines: string[] };
+
+export type WorkerReportDeleteResult =
+  | { ok: true; alreadyAbsent: boolean; issue: Issue | null }
+  | { ok: false; issue: Issue };

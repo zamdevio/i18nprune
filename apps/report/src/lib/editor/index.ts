@@ -1,14 +1,34 @@
 export { canUseEditorDeepLinks, inferRuntimeFamily } from './deepLinks.js';
 export type { RuntimeFamily } from './deepLinks.js';
 
-export type EditorOpener = 'vscode' | 'cursor' | 'file';
+export const EDITOR_OPENER_OPTIONS = [
+  { value: 'vscode', label: 'VS Code' },
+  { value: 'cursor', label: 'Cursor' },
+  { value: 'antigravity', label: 'Antigravity' },
+  { value: 'windsurf', label: 'Windsurf' },
+  { value: 'zed', label: 'Zed' },
+] as const;
+
+export type EditorOpener = (typeof EDITOR_OPENER_OPTIONS)[number]['value'];
 
 const STORAGE_KEY = 'i18nprune-report-editor';
+
+const EDITOR_SCHEMES: Record<EditorOpener, string> = {
+  vscode: 'vscode',
+  cursor: 'cursor',
+  antigravity: 'antigravity',
+  windsurf: 'windsurf',
+  zed: 'zed',
+};
+
+function isEditorOpener(v: string): v is EditorOpener {
+  return v in EDITOR_SCHEMES;
+}
 
 export function getStoredEditorOpener(): EditorOpener {
   try {
     const v = localStorage.getItem(STORAGE_KEY);
-    if (v === 'vscode' || v === 'cursor' || v === 'file') return v;
+    if (v && isEditorOpener(v)) return v;
   } catch {
     /* ignore */
   }
@@ -50,19 +70,14 @@ function wslUncPathForEditor(unixAbsolute: string, distro: string): string {
   return `//wsl$/${distro}${tail}`;
 }
 
-/** Build a clickable href for opening a file in an editor or via file://. */
+/** Build a clickable href for opening a file in an editor. */
 export function buildEditorHref(
   absolutePathPosix: string,
   opener: EditorOpener,
   ctx: EditorLinkContext = {},
 ): string {
   const n = absolutePathPosix.replace(/\\/g, '/');
-
-  if (opener === 'file') {
-    if (n.startsWith('/')) return `file://${n}`;
-    if (/^[A-Za-z]:\//.test(n)) return `file:///${n}`;
-    return `file:///${n}`;
-  }
+  const scheme = EDITOR_SCHEMES[opener];
 
   const isWinPath = /^[A-Za-z]:\//.test(n);
   const useWslUnc =
@@ -73,11 +88,9 @@ export function buildEditorHref(
 
   if (useWslUnc && ctx.wslDistroName) {
     const unc = wslUncPathForEditor(n, ctx.wslDistroName);
-    if (opener === 'vscode') return `vscode://file${unc}`;
-    return `cursor://file${unc}`;
+    return `${scheme}://file${unc}`;
   }
 
   const pathPart = n.startsWith('/') ? n : `/${n}`;
-  if (opener === 'vscode') return `vscode://file${pathPart}`;
-  return `cursor://file${pathPart}`;
+  return `${scheme}://file${pathPart}`;
 }

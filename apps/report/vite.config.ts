@@ -11,6 +11,11 @@ export default defineConfig({
   root: dir,
   resolve: {
     alias: {
+      // Subpaths must be listed before the package root alias (Vite matches `@i18nprune/core` as a prefix).
+      '@i18nprune/core/runtime/web': path.join(
+        repoRoot,
+        'packages/core/src/runtime/exports/web.ts',
+      ),
       '@i18nprune/core': path.join(
         repoRoot,
         'packages/core/src/index.ts',
@@ -34,6 +39,21 @@ export default defineConfig({
       '@i18nprune/ui/react/pagination': path.join(
         repoRoot,
         'packages/ui/src/react/pagination/index.ts',
+      ),
+      '@i18nprune/ui/react/overlay': path.join(
+        repoRoot,
+        'packages/ui/src/react/overlay/index.ts',
+      ),
+      '@i18nprune/ui/react/surfaces': path.join(
+        repoRoot,
+        'packages/ui/src/react/surfaces/index.ts',
+      ),
+      '@i18nprune/ui/react/nav': path.join(repoRoot, 'packages/ui/src/react/nav/index.ts'),
+      '@i18nprune/ui/types/surfaces': path.join(repoRoot, 'packages/ui/src/types/surfaces/index.ts'),
+      '@i18nprune/ui/types/nav': path.join(repoRoot, 'packages/ui/src/types/nav/index.ts'),
+      '@i18nprune/ui/utils/clipboard': path.join(
+        repoRoot,
+        'packages/ui/src/utils/clipboard/index.ts',
       ),
       '@i18nprune/ui/types/pagination': path.join(
         repoRoot,

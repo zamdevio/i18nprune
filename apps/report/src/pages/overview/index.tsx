@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { CopyPathButton } from '../../components/CopyPathButton.js';
+import { OverviewShareActions } from '../../components/overview/OverviewShareActions.js';
 import { CLI_NAME } from '../../constants/cli.js';
 import { reportPageTitle } from '../../constants/brand.js';
-import { useReport } from '../../context/report/index.js';
+import { useReport, useReportBootstrap } from '../../context/report/hooks.js';
 import { inferRuntimeFamily } from '../../lib/editor/deepLinks.js';
 import { printReportTable } from '../../lib/printTable.js';
 import { computeRiskScore } from '../../lib/risk/index.js';
@@ -63,20 +64,23 @@ function overviewPrintRows(doc: ProjectReportDocument): string[][] {
 }
 
 export function OverviewPage(): JSX.Element {
+  const bootstrap = useReportBootstrap();
   const doc = useReport();
   const { summary, project } = doc;
   const risk = computeRiskScore(summary);
   const env = project.environment;
   const reportTitle = reportPageTitle(doc.toolVersion);
+  const hostedId = bootstrap.source === 'worker' ? bootstrap.workerReportId : null;
 
   return (
     <div>
       <div className="page-title-row">
         <h1 className="page-title page-title--inline">Overview</h1>
-        <div className="print-table-actions no-print">
+        <div className="overview-title-actions no-print">
+          <OverviewShareActions />
           <button
             type="button"
-            className="theme-btn"
+            className="theme-btn overview-action-btn"
             onClick={() =>
               printReportTable({
                 reportTitle,
@@ -91,6 +95,39 @@ export function OverviewPage(): JSX.Element {
           </button>
         </div>
       </div>
+
+      <section className="card overview-report-meta">
+        <h2 className="overview-report-meta__heading">This report</h2>
+        <dl className="overview-report-meta__list">
+          <div className="overview-report-meta__row">
+            <dt>Generated</dt>
+            <dd className="mono">{doc.generatedAt}</dd>
+          </div>
+          {doc.toolVersion ?
+            <div className="overview-report-meta__row">
+              <dt>CLI version</dt>
+              <dd className="mono">{doc.toolVersion}</dd>
+            </div>
+          : null}
+          <div className="overview-report-meta__row">
+            <dt>Source</dt>
+            <dd>
+              {bootstrap.source === 'worker' ?
+                'Hosted worker'
+              : bootstrap.source === 'import' ?
+                'Imported JSON'
+              : 'Embedded in HTML'}
+            </dd>
+          </div>
+          {hostedId ?
+            <div className="overview-report-meta__row">
+              <dt>Report id</dt>
+              <dd className="mono">{hostedId}</dd>
+            </div>
+          : null}
+        </dl>
+      </section>
+
       <div className="grid stats">
         <div className="card">
           <h2>Risk score (v1)</h2>

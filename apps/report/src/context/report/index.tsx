@@ -1,35 +1,29 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import type { Issue } from '@i18nprune/core';
-import { PayloadErrorScreen } from '../../components/error/payload.js';
-import { OpenSharedLinkPanel } from '../../components/open-shared-link/index.js';
-import { PayloadImportPanel } from '../../components/payload-import/index.js';
-import { WorkerUrlSettings } from '../../components/worker-settings/index.js';
 import {
+  hasEmbeddedReportPayload,
   loadPayloadResult,
   validatePayloadString,
   type PayloadLoadResult,
 } from '../../data/loader/index.js';
 import { readReportShareIdFromLocation } from '../../lib/share/parseReportShareId.js';
+import { buildHostedReportShareUrl } from '../../lib/share/reportShareUrl.js';
+import { recordShareHistory } from '../../storage/shareHistory.js';
 import { readWorkerUrl } from '../../storage/workerUrl.js';
+import { toast } from '@i18nprune/ui/react/feedback';
 import { fetchWorkerReportDocument, fetchWorkerReportMetadata } from '../../worker/index.js';
 import type { ProjectReportDocument } from '../../types/index.js';
-import { EditorPreferenceProvider } from '../editor/index.js';
 import { PaginationProvider } from '../pagination/index.js';
 import { SearchProvider } from '../search/index.js';
-
-export type ReportLoadSource = 'inline' | 'import' | 'worker';
-
-const ReportContext = createContext<ProjectReportDocument | null>(null);
+import type { ReportBootstrap, ReportLoadSource } from '../../types/report/index.js';
+import { ReportBootstrapContext } from './bootstrap.js';
 
 type LoaderState =
   | { phase: 'loading-remote'; reportId: string }
@@ -48,43 +42,60 @@ type LoaderState =
       remoteEvictionIssue: Issue | null;
     };
 
-type ReportImportContextValue = {
-  setDocFromRaw: (raw: string) => boolean;
-  importError: PayloadLoadResult | null;
-  clearImportError: () => void;
-};
-
-type ReportSessionContextValue = {
-  source: ReportLoadSource;
-  workerReportId: string | null;
-  remoteEvictionIssue: Issue | null;
-  clearRemoteEvictionIssue: () => void;
-  openSharedReport: (reportId: string) => void;
-  bindWorkerReport: (reportId: string) => void;
-  loadingRemote: boolean;
-};
-
-const ReportImportContext = createContext<ReportImportContextValue | null>(null);
-const ReportSessionContext = createContext<ReportSessionContextValue | null>(null);
-
 function initialInlineState(urlReportId: string | null): LoaderState {
   if (urlReportId) {
     return { phase: 'loading-remote', reportId: urlReportId };
   }
+  if (!hasEmbeddedReportPayload()) {
+    return {
+      phase: 'blocked',
+      bootstrapError: {
+        ok: false,
+        kind: 'missing',
+        message: 'No report loaded yet.',
+        detail: 'Import JSON, open a hosted link, or drop a project zip on the home page.',
+      },
+      importError: null,
+      remoteIssue: null,
+    };
+  }
   const r = loadPayloadResult();
   if (r.ok) {
-    return { phase: 'ready', doc: r.doc, source: 'inline', workerReportId: null, importError: null, remoteEvictionIssue: null };
+    return {
+      phase: 'ready',
+      doc: r.doc,
+      source: 'inline',
+      workerReportId: null,
+      importError: null,
+      remoteEvictionIssue: null,
+    };
   }
   return { phase: 'blocked', bootstrapError: r, importError: null, remoteIssue: null };
 }
 
+function rememberShareActivity(input: {
+  reportId: string;
+  activity: 'viewed' | 'shared';
+  doc?: ProjectReportDocument;
+}): void {
+  const workerBaseUrl = readWorkerUrl();
+  recordShareHistory({
+    reportId: input.reportId,
+    workerBaseUrl,
+    activity: input.activity,
+    shareUrl: buildHostedReportShareUrl(input.reportId),
+    toolVersion: input.doc?.toolVersion,
+    generatedAt: input.doc?.generatedAt,
+  });
+}
+
 export function ReportProvider({ children }: { children: ReactNode }): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const urlReportId = searchParams.get('id')?.trim() || readReportShareIdFromLocation();
 
   const [state, setState] = useState<LoaderState>(() => initialInlineState(urlReportId));
-  const loadedRemoteIdRef = useRef<string | null>(urlReportId);
 
   const syncShareIdToUrl = useCallback(
     (reportId: string | null) => {
@@ -92,71 +103,89 @@ export function ReportProvider({ children }: { children: ReactNode }): JSX.Eleme
       const target = reportId?.trim() ?? '';
       if (current === target) return;
       navigate(
-        { pathname: '/', search: target ? `?id=${encodeURIComponent(target)}` : '' },
+        {
+          pathname: location.pathname,
+          search: target ? `?id=${encodeURIComponent(target)}` : '',
+        },
         { replace: true },
       );
     },
-    [navigate, searchParams],
+    [location.pathname, navigate, searchParams],
   );
 
-  const hydrateRemote = useCallback(async (reportId: string) => {
-    loadedRemoteIdRef.current = reportId;
-    setState({ phase: 'loading-remote', reportId });
-    const workerBaseUrl = readWorkerUrl();
-    const meta = await fetchWorkerReportMetadata(workerBaseUrl, reportId);
-    if (!meta.ok) {
+  const hydrateRemote = useCallback(
+    async (reportId: string) => {
+      setState({ phase: 'loading-remote', reportId });
+      const workerBaseUrl = readWorkerUrl();
+      const meta = await fetchWorkerReportMetadata(workerBaseUrl, reportId);
+      if (!meta.ok) {
+        toast.error(meta.issue.message);
+        setState({
+          phase: 'blocked',
+          bootstrapError: {
+            ok: false,
+            kind: 'schema',
+            message: meta.issue.message,
+            detail: meta.issue.code,
+          },
+          importError: null,
+          remoteIssue: meta.issue,
+        });
+        return;
+      }
+      const docResult = await fetchWorkerReportDocument(workerBaseUrl, reportId);
+      if (!docResult.ok) {
+        toast.error(docResult.message);
+        setState({
+          phase: 'blocked',
+          bootstrapError: docResult,
+          importError: null,
+          remoteIssue: {
+            severity: 'error',
+            code: 'i18nprune.share.remote_error',
+            message: docResult.message,
+          },
+        });
+        return;
+      }
+      syncShareIdToUrl(reportId);
+      rememberShareActivity({ reportId, activity: 'viewed', doc: docResult.doc });
+      const versionLabel = docResult.doc.toolVersion ? ` (${docResult.doc.toolVersion})` : '';
+      toast.success(`Report loaded${versionLabel}`);
       setState({
-        phase: 'blocked',
-        bootstrapError: {
-          ok: false,
-          kind: 'schema',
-          message: meta.issue.message,
-          detail: meta.issue.code,
-        },
+        phase: 'ready',
+        doc: docResult.doc,
+        source: 'worker',
+        workerReportId: reportId,
         importError: null,
-        remoteIssue: meta.issue,
+        remoteEvictionIssue: null,
       });
-      return;
-    }
-    const docResult = await fetchWorkerReportDocument(workerBaseUrl, reportId);
-    if (!docResult.ok) {
-      setState({
-        phase: 'blocked',
-        bootstrapError: docResult,
-        importError: null,
-        remoteIssue: {
-          severity: 'error',
-          code: 'i18nprune.share.remote_error',
-          message: docResult.message,
-        },
-      });
-      return;
-    }
-    syncShareIdToUrl(reportId);
-    setState({
-      phase: 'ready',
-      doc: docResult.doc,
-      source: 'worker',
-      workerReportId: reportId,
-      importError: null,
-      remoteEvictionIssue: null,
-    });
-  }, [syncShareIdToUrl]);
+      navigate(
+        { pathname: '/overview', search: `?id=${encodeURIComponent(reportId)}` },
+        { replace: true },
+      );
+    },
+    [navigate, syncShareIdToUrl],
+  );
 
   useEffect(() => {
-    if (!urlReportId) {
-      loadedRemoteIdRef.current = null;
-      return;
-    }
-    if (loadedRemoteIdRef.current === urlReportId) return;
+    if (!urlReportId) return;
     void hydrateRemote(urlReportId);
   }, [urlReportId, hydrateRemote]);
+
+  useEffect(() => {
+    if (state.phase !== 'ready' || state.source !== 'inline' || !hasEmbeddedReportPayload()) return;
+    if (location.pathname !== '/') return;
+    navigate('/overview', { replace: true });
+  }, [state, location.pathname, navigate]);
 
   const setDocFromRaw = useCallback(
     (raw: string): boolean => {
       const r = validatePayloadString(raw);
       if (r.ok) {
         syncShareIdToUrl(null);
+        const versionLabel = r.doc.toolVersion ? ` (${r.doc.toolVersion})` : '';
+        toast.success(`Report imported${versionLabel}`);
         setState({
           phase: 'ready',
           doc: r.doc,
@@ -169,7 +198,8 @@ export function ReportProvider({ children }: { children: ReactNode }): JSX.Eleme
       }
       setState((prev) => {
         if (prev.phase === 'ready') return { ...prev, importError: r };
-        return { ...prev, importError: r };
+        if (prev.phase === 'blocked') return { ...prev, importError: r };
+        return prev;
       });
       return false;
     },
@@ -179,23 +209,46 @@ export function ReportProvider({ children }: { children: ReactNode }): JSX.Eleme
   const clearImportError = useCallback(() => {
     setState((prev) => {
       if (prev.phase === 'ready') return { ...prev, importError: null };
-      return { ...prev, importError: null };
+      if (prev.phase === 'blocked') return { ...prev, importError: null };
+      return prev;
     });
   }, []);
 
   const openSharedReport = useCallback(
     (reportId: string) => {
+      rememberShareActivity({ reportId, activity: 'viewed' });
       void hydrateRemote(reportId);
     },
     [hydrateRemote],
   );
 
-  const bindWorkerReport = useCallback(
-    (reportId: string) => {
-      syncShareIdToUrl(reportId);
-      setState((prev) => {
-        if (prev.phase !== 'ready') return prev;
-        return { ...prev, source: 'worker', workerReportId: reportId, remoteEvictionIssue: null };
+  const bindWorkerReport = useCallback((reportId: string) => {
+    setState((prev) => {
+      if (prev.phase !== 'ready') return prev;
+      rememberShareActivity({ reportId, activity: 'shared', doc: prev.doc });
+      return { ...prev, workerReportId: reportId, remoteEvictionIssue: null };
+    });
+  }, []);
+
+  const clearWorkerBinding = useCallback(() => {
+    setState((prev) => {
+      if (prev.phase !== 'ready') return prev;
+      return { ...prev, workerReportId: null, remoteEvictionIssue: null };
+    });
+  }, []);
+
+  const setDocFromDocument = useCallback(
+    (doc: ProjectReportDocument) => {
+      syncShareIdToUrl(null);
+      const versionLabel = doc.toolVersion ? ` (${doc.toolVersion})` : '';
+      toast.success(`Report loaded${versionLabel}`);
+      setState({
+        phase: 'ready',
+        doc,
+        source: 'import',
+        workerReportId: null,
+        importError: null,
+        remoteEvictionIssue: null,
       });
     },
     [syncShareIdToUrl],
@@ -208,97 +261,130 @@ export function ReportProvider({ children }: { children: ReactNode }): JSX.Eleme
     });
   }, []);
 
-  const importValue = useMemo<ReportImportContextValue>(
-    () => ({
-      setDocFromRaw,
-      importError: state.phase === 'ready' ? state.importError : null,
-      clearImportError,
-    }),
-    [setDocFromRaw, clearImportError, state],
-  );
+  const evictHostedReport = useCallback(() => {
+    syncShareIdToUrl(null);
+    setState({
+      phase: 'blocked',
+      bootstrapError: {
+        ok: false,
+        kind: 'schema',
+        message: 'This report is no longer on the worker.',
+        detail: 'removed',
+      },
+      importError: null,
+      remoteIssue: null,
+    });
+  }, [syncShareIdToUrl]);
 
-  const sessionValue = useMemo<ReportSessionContextValue>(() => {
-    if (state.phase === 'ready') {
+  const clearReportSession = useCallback(() => {
+    syncShareIdToUrl(null);
+    navigate('/');
+    setState({
+      phase: 'blocked',
+      bootstrapError: {
+        ok: false,
+        kind: 'missing',
+        message: 'No report loaded yet.',
+        detail: 'Import JSON, open a hosted link, or drop a project zip on the home page.',
+      },
+      importError: null,
+      remoteIssue: null,
+    });
+  }, [navigate, syncShareIdToUrl]);
+
+  const bootstrap = useMemo((): ReportBootstrap => {
+    if (state.phase === 'loading-remote') {
       return {
-        source: state.source,
-        workerReportId: state.workerReportId,
-        remoteEvictionIssue: state.remoteEvictionIssue,
-        clearRemoteEvictionIssue,
+        phase: 'loading-remote',
+        doc: null,
+        source: 'inline',
+        workerReportId: null,
+        loadingReportId: state.reportId,
+        bootstrapError: null,
+        remoteIssue: null,
+        importError: null,
+        remoteEvictionIssue: null,
+        setDocFromRaw,
+        clearImportError,
         openSharedReport,
         bindWorkerReport,
-        loadingRemote: false,
+        clearWorkerBinding,
+        setDocFromDocument,
+        clearRemoteEvictionIssue,
+        evictHostedReport,
+        clearReportSession,
+      };
+    }
+    if (state.phase === 'blocked') {
+      return {
+        phase: 'blocked',
+        doc: null,
+        source: 'inline',
+        workerReportId: null,
+        loadingReportId: null,
+        bootstrapError: state.bootstrapError,
+        remoteIssue: state.remoteIssue,
+        importError: state.importError,
+        remoteEvictionIssue: null,
+        setDocFromRaw,
+        clearImportError,
+        openSharedReport,
+        bindWorkerReport,
+        clearWorkerBinding,
+        setDocFromDocument,
+        clearRemoteEvictionIssue,
+        evictHostedReport,
+        clearReportSession,
       };
     }
     return {
-      source: 'inline' as const,
-      workerReportId: null,
-      remoteEvictionIssue: null,
-      clearRemoteEvictionIssue,
+      phase: 'ready',
+      doc: state.doc,
+      source: state.source,
+      workerReportId: state.workerReportId,
+      loadingReportId: null,
+      bootstrapError: null,
+      remoteIssue: null,
+      importError: state.importError,
+      remoteEvictionIssue: state.remoteEvictionIssue,
+      setDocFromRaw,
+      clearImportError,
       openSharedReport,
       bindWorkerReport,
-      loadingRemote: state.phase === 'loading-remote',
+      clearWorkerBinding,
+      setDocFromDocument,
+      clearRemoteEvictionIssue,
+      evictHostedReport,
+      clearReportSession,
     };
-  }, [state, clearRemoteEvictionIssue, openSharedReport, bindWorkerReport]);
+  }, [
+    state,
+    setDocFromRaw,
+    clearImportError,
+    openSharedReport,
+    bindWorkerReport,
+    clearWorkerBinding,
+    setDocFromDocument,
+    clearRemoteEvictionIssue,
+    evictHostedReport,
+    clearReportSession,
+  ]);
 
-  if (state.phase === 'loading-remote') {
-    return (
-      <div className="app-root app-root--centered">
-        <p className="status-pill">Loading hosted report <code className="mono">{state.reportId}</code>…</p>
-        <WorkerUrlSettings />
-      </div>
-    );
-  }
-
-  if (state.phase === 'blocked') {
-    const e = state.bootstrapError;
-    return (
-      <PayloadErrorScreen kind={e.kind} message={e.message} detail={e.detail}>
-        {state.remoteIssue ? (
-          <p className="share-panel__error" role="alert">
-            {state.remoteIssue.message}
-          </p>
-        ) : null}
-        <OpenSharedLinkPanel onOpen={openSharedReport} />
-        <WorkerUrlSettings />
-        <PayloadImportPanel
-          onApply={setDocFromRaw}
-          error={state.importError}
-          onClearError={clearImportError}
-          defaultOpen
-        />
-      </PayloadErrorScreen>
-    );
-  }
+  const docReady = state.phase === 'ready';
 
   return (
-    <ReportContext.Provider value={state.doc}>
-      <ReportImportContext.Provider value={importValue}>
-        <ReportSessionContext.Provider value={sessionValue}>
-          <EditorPreferenceProvider>
-            <SearchProvider>
-              <PaginationProvider>{children}</PaginationProvider>
-            </SearchProvider>
-          </EditorPreferenceProvider>
-        </ReportSessionContext.Provider>
-      </ReportImportContext.Provider>
-    </ReportContext.Provider>
+    <ReportBootstrapContext.Provider value={bootstrap}>
+      {docReady ?
+        <ReportDocumentProviders>{children}</ReportDocumentProviders>
+      : children}
+    </ReportBootstrapContext.Provider>
   );
 }
 
-export function useReport(): ProjectReportDocument {
-  const v = useContext(ReportContext);
-  if (!v) throw new Error('useReport outside ReportProvider');
-  return v;
-}
-
-export function useReportImport(): ReportImportContextValue {
-  const v = useContext(ReportImportContext);
-  if (!v) throw new Error('useReportImport outside ReportImportContext');
-  return v;
-}
-
-export function useReportSession(): ReportSessionContextValue {
-  const v = useContext(ReportSessionContext);
-  if (!v) throw new Error('useReportSession outside ReportSessionContext');
-  return v;
+function ReportDocumentProviders({ children }: { children: ReactNode }): JSX.Element {
+  return (
+    <SearchProvider>
+      <PaginationProvider>{children}</PaginationProvider>
+    </SearchProvider>
+  );
 }
