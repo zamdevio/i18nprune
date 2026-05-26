@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import '@i18nprune/ui/styles/runtime-shell.css';
 import '@i18nprune/ui/styles/runtime.css';
 import './styles.css';
 

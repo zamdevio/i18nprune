@@ -1,4 +1,5 @@
 import type { DragEvent } from 'react';
+import { FileDropZone } from '@i18nprune/ui/react/surfaces';
 
 type Props = {
   dropDepth: number;
@@ -8,17 +9,16 @@ type Props = {
   onDrop: (e: DragEvent) => void;
 };
 
-export function Dropdown({ dropDepth, onDragEnter, onDragLeave, onDragOver, onDrop }: Props) {
+export function Dropdown({ dropDepth, onDragEnter, onDragLeave, onDragOver, onDrop }: Props): JSX.Element {
   return (
-    <section
-      className={`drop-zone${dropDepth > 0 ? ' drop-zone--active' : ''}`}
+    <FileDropZone
+      dropDepth={dropDepth}
+      title="Drop files here"
+      hint="Zip archive or a folder selection — opens the process panel."
       onDragEnter={onDragEnter}
       onDragLeave={onDragLeave}
       onDragOver={onDragOver}
       onDrop={onDrop}
-    >
-      <p className="drop-zone__title">Drop files here</p>
-      <p className="muted">Zip archive or a folder selection — opens the process panel.</p>
-    </section>
+    />
   );
 }

@@ -16,6 +16,8 @@ export default defineConfig({
       '@i18nprune/ui/react/overlay': path.join(repoRoot, 'packages/ui/src/react/overlay/index.ts'),
       '@i18nprune/ui/react/pagination': path.join(repoRoot, 'packages/ui/src/react/pagination/index.ts'),
       '@i18nprune/ui/utils/clipboard': path.join(repoRoot, 'packages/ui/src/utils/clipboard/index.ts'),
+      '@i18nprune/ui/react/surfaces': path.join(repoRoot, 'packages/ui/src/react/surfaces/index.ts'),
+      '@i18nprune/ui/react/nav': path.join(repoRoot, 'packages/ui/src/react/nav/index.ts'),
     },
   },
   server: {

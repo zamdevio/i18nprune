@@ -18,7 +18,8 @@ import { Dropdown } from './dropdown';
 import { Hero } from './hero';
 import { OpenSharedLinkPanel } from './open-shared-link';
 import { Recent } from './recent';
-import { SurfacesStrip } from './surfaces-strip';
+import { SurfacesStrip } from '@i18nprune/ui/react/surfaces';
+import { ECOSYSTEM_SURFACES } from '../../constants/index.js';
 
 type Props = {
   onOpenWorkspace: (session: WorkspaceSession) => void;
@@ -142,6 +143,12 @@ export function HomePage({ onOpenWorkspace }: Props) {
 
   return (
     <div className="page page--home">
+      <SurfacesStrip
+        surfaces={ECOSYSTEM_SURFACES}
+        activeSurfaceId="web"
+        activeHereLabel="Hosted workspace"
+      />
+
       <Hero
         zipInputRef={zipInputRef}
         dirInputRef={dirInputRef}
@@ -154,8 +161,6 @@ export function HomePage({ onOpenWorkspace }: Props) {
       />
 
       <OpenSharedLinkPanel />
-
-      <SurfacesStrip />
 
       <Dropdown
         dropDepth={dropDepth}
