@@ -79,6 +79,21 @@ packages/ui/src/
 
 Call sites import **types** from `@i18nprune/ui/types/<area>` and **components** from `@i18nprune/ui/react/<area>`.
 
+### Shared runtime chrome (web + report)
+
+Both `apps/web` and `apps/report` import:
+
+| Asset | Path | Role |
+|-------|------|------|
+| **Runtime shell CSS** | `packages/ui/src/styles/runtime-shell.css` | Header nav, hero/home actions, surfaces strip, ecosystem dropdown, open-shared-link panel, drop zone — **single source** (apps must not duplicate these blocks in local CSS) |
+| **Runtime CSS** | `packages/ui/src/styles/runtime.css` | Toolbar dropdown, modals, pagination, theme controls |
+| **Sonner** | `packages/ui/src/styles/sonner.css` | Toasts (`@i18nprune/ui/react/feedback`) |
+| **SurfacesStrip** | `@i18nprune/ui/react/surfaces` | Ecosystem cards on home |
+| **EcosystemNavMenu** | `@i18nprune/ui/react/nav` | Header/sidebar external links menu |
+| **ToolbarDropdown** | `@i18nprune/ui/react/toolbar` | Workspace section picker, editor preference, pagination |
+
+Report-only layout (routing, `ReportDocGate`, share history, import/process modals) stays in `apps/report`.
+
 ---
 
 ## Core rule (non-negotiable)

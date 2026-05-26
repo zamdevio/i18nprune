@@ -13,24 +13,9 @@
 
 | # | Slice | Status | Notes |
 |---|-------|--------|-------|
-| **8** | **Report** `/#/?id=` + `/document` load + Share + error UX | **Shipped** | [`apps/report`](../../apps/report) — deep link, worker hydrate, share upload / link-only |
+| **8** | **Report** `/#/?id=` + `/document` load + Share + shell UX | **Shipped** | [`apps/report`](../../apps/report) — home/import, runtime shell parity with web, workspace nav, share history |
 | **9** | Worker **`runReport`** on `GET …/projects/:id/report` | **Todo** | Replace hand-built doc in `routes/v1/projects/report.ts` |
 | **W** | **Worker metadata response polish** | **Todo** (can parallel 8/9) | Compressed plan § [Worker metadata (W)](#worker-metadata-w) below |
-
----
-
-## Row 8 — `apps/report` (next PR)
-
-**URL:** `https://report.i18nprune.dev/#/?id={workerReportId}` (hash + query; no `/s/:id`).
-
-| Task | Detail |
-|------|--------|
-| Deep link | `parseReportShareId` (URL or raw 16-char id) |
-| Hydrate | `GET /v1/reports/:id` probe → `GET /v1/reports/:id/document` + schema validate |
-| Errors | `shareRemoteIssueFromWorker` — 404 eviction banner, upload too large / invalid, 5xx |
-| Share | `source: 'worker'` → **link-only** (no re-upload); paste/file → `POST /v1/reports` |
-| UI | Shell align with web; “Open shared link” on import; dev worker URL setting |
-| Core | `buildReportShareUrl` in `packages/core/src/share/util/links.ts` |
 
 ---
 
