@@ -94,7 +94,7 @@ Work delivered: **import binding resolution** (alias-aware per-file `functions` 
 
 ## Apps catch-up (**Session C.3 — after init + locales**)
 
-**When:** After **translate-cache (H.1)** per [`V1-RELEASE.md`](./V1-RELEASE.md). **Rows 0–7 shipped** (core share, worker CRUD, CLI **`i18nprune share`**, web `/#/workspace?id=`). **Active:** row **8** (report `/#/?id=`, mirror web share URL) per **[`apps.md`](./apps.md)**.
+**When:** After **translate-cache (H.1)** per [`V1-RELEASE.md`](./V1-RELEASE.md). **Rows 0–7 shipped** (core share, worker CRUD, CLI **`i18nprune share`**, web `/#/workspace?id=`). **Active:** row **9** (`runReport` on worker) and **W** (metadata polish) per **[`apps.md`](./apps.md)**. Report row **8** shipped.
 
 ---
 

@@ -13,7 +13,7 @@
 
 | # | Slice | Status | Notes |
 |---|-------|--------|-------|
-| **8** | **Report** `/#/?id=` + `/document` load + Share + error UX | **Todo** (**next PR**) | [`apps/report`](../../apps/report) — mirror web row 7 |
+| **8** | **Report** `/#/?id=` + `/document` load + Share + error UX | **Shipped** | [`apps/report`](../../apps/report) — deep link, worker hydrate, share upload / link-only |
 | **9** | Worker **`runReport`** on `GET …/projects/:id/report` | **Todo** | Replace hand-built doc in `routes/v1/projects/report.ts` |
 | **W** | **Worker metadata response polish** | **Todo** (can parallel 8/9) | Compressed plan § [Worker metadata (W)](#worker-metadata-w) below |
 

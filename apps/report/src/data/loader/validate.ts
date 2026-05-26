@@ -41,6 +41,38 @@ function schemaVersionMismatchHint(parsed: unknown): string | undefined {
 }
 
 /**
+ * Validate an already-parsed report document (e.g. worker `GET …/document`).
+ */
+export function validatePayloadValue(parsed: unknown): PayloadLoadResult {
+  const checked = projectReportDocumentSchema.safeParse(parsed);
+  if (checked.success) {
+    return { ok: true, doc: checked.data as ProjectReportDocument };
+  }
+
+  const versionHint = schemaVersionMismatchHint(parsed);
+
+  if (versionHint) {
+    return {
+      ok: false,
+      kind: 'version',
+      message: 'Report schema version does not match this viewer.',
+      detail: `${versionHint}\n\n---\nValidation detail:\n${formatZodDetail(checked.error)}`,
+    };
+  }
+
+  return {
+    ok: false,
+    kind: 'schema',
+    message: 'Payload does not match the project report schema.',
+    detail: [
+      'Use JSON from `i18nprune report --format json` without hand-editing, or compare shape with `docs/report/payload`.',
+      '',
+      formatZodDetail(checked.error),
+    ].join('\n'),
+  };
+}
+
+/**
  * Parse and validate a project report JSON string. No dev mock fallbacks — for manual import and tooling.
  */
 export function validatePayloadString(raw: string): PayloadLoadResult {
@@ -67,30 +99,5 @@ export function validatePayloadString(raw: string): PayloadLoadResult {
     };
   }
 
-  const checked = projectReportDocumentSchema.safeParse(parsed);
-  if (checked.success) {
-    return { ok: true, doc: checked.data as ProjectReportDocument };
-  }
-
-  const versionHint = schemaVersionMismatchHint(parsed);
-
-  if (versionHint) {
-    return {
-      ok: false,
-      kind: 'version',
-      message: 'Report schema version does not match this viewer.',
-      detail: `${versionHint}\n\n---\nValidation detail:\n${formatZodDetail(checked.error)}`,
-    };
-  }
-
-  return {
-    ok: false,
-    kind: 'schema',
-    message: 'Payload does not match the project report schema.',
-    detail: [
-      'Use JSON from `i18nprune report --format json` without hand-editing, or compare shape with `docs/report/payload` and `packages/report`.',
-      '',
-      formatZodDetail(checked.error),
-    ].join('\n'),
-  };
+  return validatePayloadValue(parsed);
 }

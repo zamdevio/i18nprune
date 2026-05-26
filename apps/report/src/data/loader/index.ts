@@ -5,7 +5,7 @@ import type { PayloadLoadResult } from './validate.js';
 import { validatePayloadString } from './validate.js';
 
 export type { PayloadErrorKind, PayloadLoadResult } from './validate.js';
-export { validatePayloadString } from './validate.js';
+export { validatePayloadString, validatePayloadValue } from './validate.js';
 
 function isRecord(x: unknown): x is Record<string, unknown> {
   return typeof x === 'object' && x !== null;

@@ -14,6 +14,7 @@
     "apps/workers/**/public/**"
   ],
   "ignoreExportsUsedInFile": true,
+  "ignoreBinaries": ["printf", "tail"],
   "workspaces": {
     "apps/landing": {
       "entry": ["src/**/*.{ts,tsx}"],

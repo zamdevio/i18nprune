@@ -2,7 +2,10 @@ import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { PayloadImportPanel } from '../payload-import/index.js';
-import { useReport, useReportImport } from '../../context/report/index.js';
+import { OpenSharedLinkPanel } from '../open-shared-link/index.js';
+import { ShareReportButton } from '../share-report/index.js';
+import { WorkerUrlSettings } from '../worker-settings/index.js';
+import { useReport, useReportImport, useReportSession } from '../../context/report/index.js';
 import { REPORT_SHELL_BRAND } from '../../constants/brand.js';
 import { getDocsUrl, GITHUB_BASE, GITHUB_REPO } from '@i18nprune/core';
 import { ThemeToggle } from '../ThemeToggle.js';
@@ -21,8 +24,11 @@ const nav = [
 export function AppShell({ children }: { children: ReactNode }): JSX.Element {
   const doc = useReport();
   const { setDocFromRaw, importError, clearImportError } = useReportImport();
+  const { source, workerReportId, remoteEvictionIssue, clearRemoteEvictionIssue, openSharedReport } =
+    useReportSession();
   const loc = useLocation();
   const [importOpen, setImportOpen] = useState(false);
+  const [sharedOpen, setSharedOpen] = useState(false);
 
   return (
     <div className="app-root">
@@ -38,16 +44,41 @@ export function AppShell({ children }: { children: ReactNode }): JSX.Element {
             </span>
           </div>
           <div className="app-actions">
+            <ShareReportButton doc={doc} source={source} workerReportId={workerReportId} />
+            <button type="button" className="btn-secondary" onClick={() => setSharedOpen((o) => !o)}>
+              {sharedOpen ? 'Hide open link' : 'Open shared link'}
+            </button>
             <ThemeToggle />
             <span className="badge" title="Current hash route">
               #{loc.pathname === '/' ? '/' : loc.pathname.replace(/^\//, '')}
             </span>
+            {source === 'worker' && workerReportId ?
+              <span className="badge" title="Loaded from hosted worker">
+                hosted · <code className="mono">{workerReportId}</code>
+              </span>
+            : null}
           </div>
         </div>
         <div className="app-header-row app-header-row--toolbar">
           <ReportSearchBar />
           <EditorPreferenceDropdown />
         </div>
+        {remoteEvictionIssue ?
+          <div className="share-eviction-banner" role="alert">
+            <p>{remoteEvictionIssue.message}</p>
+            <button type="button" className="btn-secondary" onClick={clearRemoteEvictionIssue}>
+              Dismiss
+            </button>
+          </div>
+        : null}
+        {sharedOpen ?
+          <OpenSharedLinkPanel
+            onOpen={(id) => {
+              openSharedReport(id);
+              setSharedOpen(false);
+            }}
+          />
+        : null}
         <nav className={`app-nav${importOpen ? ' app-nav--import-mode' : ''}`} aria-label="Report sections">
           {!importOpen ?
             <>
@@ -75,6 +106,7 @@ export function AppShell({ children }: { children: ReactNode }): JSX.Element {
       </header>
       <main className="app-main">{children}</main>
       <footer className="app-footer">
+        <WorkerUrlSettings />
         <div className="app-footer__links">
           <a href={getDocsUrl('commands/report')} target="_blank" rel="noreferrer">
             Report command

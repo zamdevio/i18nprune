@@ -12,8 +12,8 @@ import { NamespacesPage } from './pages/namespaces/index.js';
 export function App(): JSX.Element {
   return (
     <ThemeProvider storageKey="i18nprune-report-theme" applyStrategy="class-and-data-theme" alwaysPersist>
-      <ReportProvider>
-        <HashRouter>
+      <HashRouter>
+        <ReportProvider>
           <AppShell>
             <Routes>
               <Route path="/" element={<OverviewPage />} />
@@ -25,8 +25,8 @@ export function App(): JSX.Element {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AppShell>
-        </HashRouter>
-      </ReportProvider>
+        </ReportProvider>
+      </HashRouter>
     </ThemeProvider>
   );
 }

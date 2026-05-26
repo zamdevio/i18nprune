@@ -1019,3 +1019,161 @@ table.data tr:last-child td {
   background: color-mix(in srgb, var(--bg) 88%, var(--border));
   border-radius: calc(var(--radius) - 2px);
 }
+
+.app-root--centered {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.muted {
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.field-wide input {
+  width: 100%;
+  max-width: 42rem;
+}
+
+.field input {
+  font-weight: 400;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--fg);
+}
+
+.share-panel {
+  margin: 0.75rem 0;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+
+.share-panel__title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.share-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.share-panel__docs {
+  font-size: 0.85rem;
+  margin-left: 0.25rem;
+}
+
+.share-panel__error {
+  color: var(--err);
+  font-size: 0.88rem;
+  margin: 0.5rem 0 0;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.status-pill--ok {
+  border-color: color-mix(in srgb, var(--ok) 50%, var(--border));
+  color: var(--ok);
+}
+
+.status-pill--warn {
+  border-color: color-mix(in srgb, var(--warn) 50%, var(--border));
+  color: var(--warn);
+}
+
+.share-eviction-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--warn) 45%, var(--border));
+  background: color-mix(in srgb, var(--warn) 10%, var(--bg-elevated));
+}
+
+.share-eviction-banner p {
+  margin: 0;
+  flex: 1;
+  font-size: 0.88rem;
+}
+
+.worker-settings {
+  margin-bottom: 0.75rem;
+  font-size: 0.88rem;
+}
+
+.worker-settings__summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.worker-settings__body {
+  margin-top: 0.65rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  max-width: 32rem;
+  width: 100%;
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow);
+}
+
+.share-report-modal__link {
+  word-break: break-all;
+  font-size: 0.8rem;
+  margin: 0.5rem 0;
+}
+
+.share-report-modal__lines {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+  color: var(--fg-muted);
+}
+
+.share-report-trigger {
+  white-space: nowrap;
+}
