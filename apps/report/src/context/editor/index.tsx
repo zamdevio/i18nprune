@@ -3,7 +3,7 @@ import {
   type EditorOpener,
   getStoredEditorOpener,
   setStoredEditorOpener,
-} from '../../lib/open-in-editor/index.js';
+} from '../../lib/editor/index.js';
 
 const Ctx = createContext<{
   opener: EditorOpener;

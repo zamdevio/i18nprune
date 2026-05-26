@@ -1,13 +1,13 @@
 import React from 'react';
 import { CopyPathButton } from '../CopyPathButton.js';
 import { useEditorOpener } from '../../context/editor/index.js';
-import { useEditorLinkSession } from '../../lib/open-in-editor/hooks/useEditorLinkSession.js';
 import {
   buildOpenUri,
-  copyPathForFallback,
   linkPolicyReasonMessage,
   EDITOR_OPENER_OPTIONS,
-} from '../../lib/open-in-editor/index.js';
+  useEditorLinkSession,
+} from '../../lib/editor/index.js';
+import { copyPathForFallback } from '../../lib/paths/index.js';
 
 type Props = {
   /** Path as in the report (relative to cwd or absolute). */

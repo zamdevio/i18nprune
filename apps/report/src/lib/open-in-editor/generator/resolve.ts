@@ -66,11 +66,3 @@ export function generatorFamilyLabel(family: GeneratorRuntimeFamily): string {
       return 'unsupported';
   }
 }
-
-/** @deprecated Use {@link resolveGeneratorEnvironment} — display-only alias. */
-export function inferRuntimeFamily(
-  env: ProjectReportEnvironment | undefined,
-): GeneratorRuntimeFamily | undefined {
-  const { family } = resolveGeneratorEnvironment(env);
-  return family === 'unsupported' ? undefined : family;
-}

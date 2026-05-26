@@ -13,5 +13,3 @@ const ADAPTERS: Record<EditorId, EditorUriAdapter> = {
 export function getEditorAdapter(id: EditorId): EditorUriAdapter {
   return ADAPTERS[id];
 }
-
-export const EDITOR_IDS = Object.keys(ADAPTERS) as EditorId[];

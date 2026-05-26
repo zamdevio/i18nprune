@@ -3,6 +3,7 @@ import { Home, Settings } from 'lucide-react';
 import { NavLink, type NavLinkRenderProps } from 'react-router-dom';
 import { EcosystemNavMenu } from '@i18nprune/ui/react/nav';
 import { REPORT_ECOSYSTEM_NAV_LINKS } from '../../constants/ecosystemSurfaces.js';
+import { useDesktopReportChrome } from '../../lib/desktop/index.js';
 import { EditorPreferenceDropdown } from '../editor/index.js';
 import { ReportSectionsMenu } from './ReportSectionsMenu.js';
 import { ReportWorkspaceNav } from './ReportWorkspaceNav.js';
@@ -14,6 +15,8 @@ type Props = {
 };
 
 export function ReportNavSidebar({ open, onClose, hasDoc }: Props): JSX.Element {
+  const desktopChrome = useDesktopReportChrome();
+
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -89,10 +92,12 @@ export function ReportNavSidebar({ open, onClose, hasDoc }: Props): JSX.Element 
 
         {hasDoc ? <ReportSectionsMenu onNavigate={onClose} /> : null}
 
-        <div className="report-nav-sidebar__editor">
-          <p className="report-nav-sidebar__group-label">Editor</p>
-          <EditorPreferenceDropdown layout="sidebar" />
-        </div>
+        {desktopChrome ?
+          <div className="report-nav-sidebar__editor">
+            <p className="report-nav-sidebar__group-label">Editor</p>
+            <EditorPreferenceDropdown layout="sidebar" />
+          </div>
+        : null}
       </aside>
     </>
   );

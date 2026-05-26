@@ -7,6 +7,7 @@ import { EditorPreferenceDropdown } from '../editor/index.js';
 import { REPORT_ECOSYSTEM_NAV_LINKS } from '../../constants/ecosystemSurfaces.js';
 import { REPORT_SHELL_BRAND } from '../../constants/brand.js';
 import { useCompactReportHeader } from '../../hooks/useCompactReportHeader.js';
+import { useDesktopReportChrome } from '../../lib/desktop/index.js';
 import { useOptionalReport, useReportBootstrap } from '../../context/report/hooks.js';
 import { ThemeToggle } from '../ThemeToggle.js';
 import { ReportNavSidebar } from './ReportNavSidebar.js';
@@ -18,6 +19,7 @@ export function RuntimeHeader(): JSX.Element {
   const bootstrap = useReportBootstrap();
   const hasDoc = bootstrap.phase === 'ready' && doc !== null;
   const compactNav = useCompactReportHeader();
+  const desktopChrome = useDesktopReportChrome();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const homeActive = location.pathname === '/' || location.pathname === '';
@@ -83,7 +85,7 @@ export function RuntimeHeader(): JSX.Element {
           : null}
 
           <div className="runtime-header__actions">
-            {!compactNav ?
+            {!compactNav && desktopChrome ?
               <div className="report-header-editor">
                 <EditorPreferenceDropdown layout="header" />
               </div>

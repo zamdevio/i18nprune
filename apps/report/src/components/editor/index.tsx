@@ -2,8 +2,8 @@ import { useEditorOpener } from '../../context/editor/index.js';
 import {
   EDITOR_OPENER_OPTIONS,
   linkPolicyReasonMessage,
-} from '../../lib/open-in-editor/index.js';
-import { useEditorLinkSession } from '../../lib/open-in-editor/hooks/useEditorLinkSession.js';
+  useEditorLinkSession,
+} from '../../lib/editor/index.js';
 import { ToolbarDropdown } from '@i18nprune/ui/react/toolbar';
 
 type Props = {

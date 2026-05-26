@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { copyPathForFallback } from '../open-in-editor/paths/copyFallback.js';
+import { copyPathForFallback } from '../paths/index.js';
 
 describe('copyPathForFallback', () => {
   it('copies payload-relative path for synthetic cwd', () => {

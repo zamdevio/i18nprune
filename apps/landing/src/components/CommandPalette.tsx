@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Command,
@@ -162,7 +162,7 @@ export default function CommandPalette() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.96 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: MouseEvent) => e.stopPropagation()}
               className="w-full max-w-2xl rounded-2xl glass-panel shadow-2xl shadow-black/50 overflow-hidden"
               data-testid="cmdk-panel"
             >

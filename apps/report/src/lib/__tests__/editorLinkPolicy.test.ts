@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { resolveGeneratorEnvironment } from '../open-in-editor/generator/resolve.js';
-import { detectViewerEnvironment } from '../open-in-editor/viewer/detect.js';
-import { evaluateEditorLinkPolicy } from '../open-in-editor/policy/evaluate.js';
-import { evaluateEditorLinkPolicyFromPayload } from '../open-in-editor/policy/evaluate.js';
-import { policyForMissingEnvironment } from '../open-in-editor/policy/evaluate.js';
+import {
+  resolveGeneratorEnvironment,
+  detectViewerEnvironment,
+  evaluateEditorLinkPolicy,
+  evaluateEditorLinkPolicyFromPayload,
+  policyForMissingEnvironment,
+  type ViewerSignals,
+} from '../editor/index.js';
 import type { ProjectReportEnvironment } from '../../types/index.js';
-import type { ViewerSignals } from '../open-in-editor/viewer/detect.js';
 
 function env(partial: Partial<ProjectReportEnvironment> & Pick<ProjectReportEnvironment, 'platform'>): ProjectReportEnvironment {
   return {

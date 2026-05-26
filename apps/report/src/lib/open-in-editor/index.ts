@@ -9,7 +9,7 @@ export type {
   ViewerRuntimeFamily,
 } from './types.js';
 
-export { resolveGeneratorEnvironment, generatorFamilyLabel, inferRuntimeFamily } from './generator/resolve.js';
+export { resolveGeneratorEnvironment, generatorFamilyLabel } from './generator/resolve.js';
 export { detectViewerEnvironment, readViewerSignals, NARROW_MAX_WIDTH_PX } from './viewer/detect.js';
 export type { ViewerSignals } from './viewer/detect.js';
 export { isSyntheticCwd } from './policy/syntheticCwd.js';
@@ -25,7 +25,7 @@ export { presentPathForOpen } from './paths/present.js';
 export { copyPathForFallback } from './paths/copyFallback.js';
 export { buildOpenUri } from './buildOpenUri.js';
 export type { BuildOpenUriInput, BuildOpenUriResult } from './buildOpenUri.js';
-export { getEditorAdapter, EDITOR_IDS } from './adapters/registry.js';
+export { getEditorAdapter } from './adapters/registry.js';
 export type { EditorUriAdapter } from './adapters/types.js';
 
 export const EDITOR_OPENER_OPTIONS = [

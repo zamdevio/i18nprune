@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { getEditorAdapter } from '../open-in-editor/adapters/registry.js';
-import { presentPathForOpen } from '../open-in-editor/paths/present.js';
-import { buildOpenUri } from '../open-in-editor/buildOpenUri.js';
+import { getEditorAdapter, buildOpenUri } from '../editor/index.js';
+import { presentPathForOpen } from '../paths/index.js';
 
 describe('editor adapters', () => {
   it('vscode serializes posix paths', () => {
