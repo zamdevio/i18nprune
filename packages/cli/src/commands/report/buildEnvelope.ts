@@ -20,6 +20,7 @@ import { CLI_VERSION } from '@/constants/cli.js';
 import { buildReportEnvironmentSnapshot } from '@/commands/report/build.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import { randomUUID } from 'node:crypto';
+import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 
 function localTimestamp(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -55,7 +56,7 @@ function buildReportHostHooks(ctx: Context): ReportHostHooks {
     emit: createCliRunEmitter(ctx.run),
     runId: randomUUID(),
     environment: buildReportEnvironmentSnapshot(ctx.adapters.fs),
-    cwd: process.cwd(),
+    cwd: cliEnvelopeCwd(ctx),
     toolVersion: CLI_VERSION,
   };
 }
@@ -130,7 +131,7 @@ export async function runReportOperation(
   const envelope = buildCliJsonEnvelope('report', payload, {
     ok: true,
     issues,
-    cwd: process.cwd(),
+    cwd: cliEnvelopeCwd(ctx),
   });
   return { envelope, wrotePath, dynamicSitesCount: result.dynamicSitesCount, ctx };
 }

@@ -169,11 +169,25 @@ Goal: **8–10 top-level nav categories** on the docs site, not 35. Group relate
 
 ---
 
+## CI (repository)
+
+**Workflow:** [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)
+
+| Step | Command |
+|------|---------|
+| Type safety + ui purity + worker compile gates | `pnpm typecheck` |
+| Unit + integration tests | `pnpm test` |
+| CLI `--json` / stderr byte parity | `pnpm vitest run tests/parity` |
+
+Contributor onboarding (root scripts, reading order): [`maintainer/agents/onboarding.md`](../agents/onboarding.md).
+
+---
+
 ## Session E — Release polish + gates
 
 Execute **[`final.md`](./final.md)** §§1–2 (phase hygiene + ADR polish). Then:
 
-- `pnpm typecheck`, `pnpm test`, smoke: `validate`, `generate`, `sync` on fixture.
+- `pnpm typecheck`, `pnpm test`, `pnpm vitest run tests/parity`, smoke: `validate`, `generate`, `sync` on fixture.
 - Version/changelog: [`docs/versioning/README.md`](../../docs/versioning/README.md).
 - `pnpm docs:build` — verify no broken links.
 - Complete `final.md` §3 — delete `maintainer/phases/final.md` once the release is tagged.

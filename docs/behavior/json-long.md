@@ -1,6 +1,6 @@
 # `--json` and long-running commands (`generate`, `sync`, …)
 
-This page describes **how machine-readable mode and long-running work interact** with **prompts**, **progress**, and **stdout**. Release sequencing and **`stdout redirection`** are tracked in the **[Roadmap](../roadmap/README.md)** and maintainer **`maintainer/phases/README.md`**.
+This page describes **how machine-readable mode and long-running work interact** with **prompts**, **progress**, and **stdout**. Release sequencing and **`stdout redirection`** are tracked in the **[Roadmap](../roadmap/README.md)**.
 
 ## Two different meanings of “JSON mode”
 

@@ -3,6 +3,7 @@ import { docsCommandUrl, getDocsUrl } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
 import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
+import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 import {
   isLocaleTargetMissingMessage,
   issuesFromDiscoveryWarnings,
@@ -94,7 +95,7 @@ export async function localesDynamic(opts: LocalesDynamicOptions = {}, run?: Run
           buildCliJsonEnvelope('locales-dynamic', payload, {
             ok: true,
             issues: summaryIssues,
-            cwd: process.cwd(),
+            cwd: cliEnvelopeCwd(ctx),
           }),
         ),
       );
@@ -166,7 +167,7 @@ export async function localesDynamic(opts: LocalesDynamicOptions = {}, run?: Run
           ? buildCliJsonEnvelope('locales-dynamic', emptyPayload, {
               ok: false,
               issues: mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), usageIssues),
-              cwd: process.cwd(),
+              cwd: cliEnvelopeCwd(ctx),
             })
           : buildIoReadFailureEnvelope('locales-dynamic', emptyPayload, ctx, err);
       console.log(stringifyEnvelope(envelope));

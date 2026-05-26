@@ -15,7 +15,8 @@
 | **`systems/extractor.md`** | Extractor subsystem map: bindings, call sites, in/out of scope vs `docs/extractor/README.md` |
 | **`systems/patching.md`** | Patching subsystem: core vs CLI, barrels, `LOCALE_REGISTRY` contract, orchestration note |
 | **`systems/health.md`** | Codebase health gates: `typecheck`, `test`, knip, madge, `empty:*` — when to run, barrel discipline |
-| **`systems/ui.md`** | Runtime UI kit (`@i18nprune/ui`): domain separation, purity rules, migration phases |
+| **`systems/ui.md`** | Runtime UI kit (`@i18nprune/ui`): domain separation, purity rules, enforcement |
+| **`systems/share.md`** | Share ecosystem: core `runShare*`, CLI/web/report hosts, `workers/i18nprune` routes, DO storage, metadata builders |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
@@ -41,6 +42,7 @@ maintainer/systems/
 ├── extractor.md
 ├── patching.md
 ├── ui.md
+├── share.md
 ├── health.md
 ├── knip.md
 ├── operations/

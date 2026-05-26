@@ -39,6 +39,7 @@ import {
 } from '@/shared/result/index.js';
 import { buildCliJsonEnvelope } from '@i18nprune/core';
 import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
+import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 import { safeTranslationMetaForEnvelope } from '@/shared/translator/resolveProvider.js';
 import { ISSUE_GENERATE_USAGE } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
@@ -231,7 +232,7 @@ export async function runGenerateJsonEnvelope(
     const envelope = buildCliJsonEnvelope('generate', payload, {
       ok: true,
       issues,
-      cwd: process.cwd(),
+      cwd: cliEnvelopeCwd(ctx),
     });
     emitRunEvent(runtime.emit, {
       type: 'run.completed',
@@ -260,7 +261,7 @@ export async function runGenerateJsonEnvelope(
       const envelope = buildCliJsonEnvelope('generate', emptyGeneratePayload(ctx, merged), {
         ok: false,
         issues: mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), [usageIssue]),
-        cwd: process.cwd(),
+        cwd: cliEnvelopeCwd(ctx),
       });
       emitIssuesAsRunErrors(runtime.emit, {
         op: 'generate',
@@ -298,7 +299,7 @@ export async function runGenerateJsonEnvelope(
         const envelope = buildCliJsonEnvelope('generate', emptyGeneratePayload(ctx, merged), {
           ok: false,
           issues: mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), embedded),
-          cwd: process.cwd(),
+          cwd: cliEnvelopeCwd(ctx),
         });
         emitRunEvent(runtime.emit, {
           type: 'run.completed',

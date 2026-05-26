@@ -9,7 +9,7 @@ export const SHARE_WORKER_FETCH_MAX_ATTEMPTS = 4;
 
 const RETRYABLE_HTTP_STATUSES = new Set([0, 408, 429, 502, 503, 504]);
 
-/** Honored when the worker returns these codes in JSON `errors[]` (worker.md §B). */
+/** Honored when the worker returns these codes in JSON `errors[]` (systems/share.md). */
 const RETRYABLE_WORKER_CODES = new Set([
   'NETWORK_ERROR',
   'RATE_LIMITED',

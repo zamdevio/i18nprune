@@ -9,16 +9,19 @@ Guides for humans and coding agents working in this repo.
 | [**JSDoc**](./jsdoc.md) | When/where/how to write JSDoc across core, CLI, and apps |
 | [**Git**](./git.md) | Commit style, bundling rules, Conventional Commits, pre-push checklist |
 | [**Health gates**](../systems/health.md) | `typecheck`, `test`, knip, madge, `ui:purity`, `empty:*` — when to run, barrel discipline |
-| [**Runtime UI kit**](../systems/ui.md) | `@i18nprune/ui` domain boundaries, purity rules, migration phases |
+| [**Onboarding**](./onboarding.md) | First-day reading order, trace-a-command, PR checklist, host purity |
+| [**Share ecosystem**](../systems/share.md) | Core `runShare*`, CLI/web/report, `workers/i18nprune` API |
+| [**Runtime UI kit**](../systems/ui.md) | `@i18nprune/ui` domain boundaries, purity rules, enforcement |
 | [**Knip config**](../systems/knip.md) | `knip.json` ignore catalog (barrels, edge entries, type-only deps) |
 
 ## Onboarding (first steps)
 
-1. Read [`architecture.md`](./architecture.md) and [`rules.md`](./rules.md).
+**→ Full guide:** [`onboarding.md`](./onboarding.md)
+
+1. Read [`onboarding.md`](./onboarding.md) (reading order + trace-a-command).
 2. Run `pnpm install`, `pnpm typecheck`, `pnpm test`.
-3. Skim `packages/cli/bin/cli.ts` and one command end-to-end (e.g. `packages/cli/src/commands/validate/`).
-4. Check the active sprint: `maintainer/phases/active-phase.md`.
-5. Follow [`git.md`](./git.md) for commit hygiene.
+3. Check the active sprint: `maintainer/phases/active-phase.md`.
+4. Follow [`git.md`](./git.md) for commit hygiene.
 
 ## Docs site (VitePress)
 

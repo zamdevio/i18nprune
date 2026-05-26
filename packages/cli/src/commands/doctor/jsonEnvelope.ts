@@ -15,6 +15,7 @@ import type { CliJsonEnvelope, RunEmitter } from '@i18nprune/core';
 import type { Context } from '@/types/core/context/index.js';
 import type { DoctorOptions } from '@/types/commands/doctor/index.js';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
+import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 
 function buildDoctorHostHooks(runtime?: { emit?: RunEmitter; runId?: string }): DoctorHostHooks {
   return {
@@ -52,7 +53,7 @@ export function runDoctor(
     const envelope = buildCliJsonEnvelope('doctor', result.payload, {
       ok: result.exitCode === 0,
       issues,
-      cwd: process.cwd(),
+      cwd: cliEnvelopeCwd(ctx),
     });
     if (!envelope.ok) {
       emitIssuesAsRunErrors(runtime?.emit, {

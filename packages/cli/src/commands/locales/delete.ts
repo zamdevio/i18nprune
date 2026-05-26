@@ -9,6 +9,7 @@ import { canPrintDecorative, canPrintInfo } from '@/utils/logger/policy.js';
 import { printCommandSummary } from '@/output/index.js';
 import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
+import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 import {
   isLocaleTargetMissingMessage,
   issuesFromDiscoveryWarnings,
@@ -45,7 +46,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           buildCliJsonEnvelope('locales-delete', emptyPayload, {
             ok: false,
             issues,
-            cwd: process.cwd(),
+            cwd: cliEnvelopeCwd(ctx),
           }),
         ),
       );
@@ -102,7 +103,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
               buildCliJsonEnvelope('locales-delete', abortedPayload, {
                 ok: true,
                 issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
-                cwd: process.cwd(),
+                cwd: cliEnvelopeCwd(ctx),
               }),
             ),
           );
@@ -162,7 +163,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           buildCliJsonEnvelope('locales-delete', payload, {
             ok: true,
             issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
-            cwd: process.cwd(),
+            cwd: cliEnvelopeCwd(ctx),
           }),
         ),
       );
@@ -204,7 +205,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           ? buildCliJsonEnvelope('locales-delete', emptyPayload, {
               ok: false,
               issues: mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), usageIssues),
-              cwd: process.cwd(),
+              cwd: cliEnvelopeCwd(ctx),
             })
           : buildIoReadFailureEnvelope('locales-delete', emptyPayload, ctx, err);
       console.log(stringifyEnvelope(envelope));

@@ -2,6 +2,7 @@ import { issueCodeRepoDocPathForIssueCode } from '@i18nprune/core';
 import { normalizeUnknownError } from '@/shared/errors/normalize.js';
 import { ISSUE_IO_READ_FAILED } from '@i18nprune/core';
 import { buildCliJsonEnvelope } from '@i18nprune/core';
+import { cliEnvelopeCwd } from './envelopeCwd.js';
 import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/cliEnvelopeIssues.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { CliJsonEnvelope } from '@i18nprune/core';
@@ -37,6 +38,6 @@ export function buildIoReadFailureEnvelope<K extends string, D>(
   return buildCliJsonEnvelope(kind, emptyData, {
     ok: false,
     issues: base,
-    cwd: process.cwd(),
+    cwd: cliEnvelopeCwd(ctx),
   });
 }

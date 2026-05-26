@@ -2,6 +2,8 @@
 
 Material here supports **core contributors and repo automation**: ordered release sessions, extension planning, and niche backlog notes. **`pnpm docs:sync`** mirrors only **`docs/`** — nothing under **`maintainer/`** becomes **`docs.i18nprune.dev`** pages.
 
+**Contributor & agent guides → [`maintainer/agents/`](agents/README.md)** (onboarding, architecture, rules, Git discipline).
+
 ## Why this stays in git
 
 Ignoring all of **`maintainer/`** would strand clones without sequencing context. Instead:
@@ -13,6 +15,7 @@ Ignoring all of **`maintainer/`** would strand clones without sequencing context
 
 | Doc | Role |
 |-----|------|
+| [**`agents/onboarding.md`**](agents/onboarding.md) | **New contributor / agent** — reading order, trace-a-command, PR checklist |
 | [**`phases/V1-RELEASE.md`**](phases/V1-RELEASE.md) | Ordered v1 **sessions** (code + docs work) |
 | [**`phases/active-phase.md`**](phases/active-phase.md) | Active sprint + **locked** chain (extractor → init → locales → **cache** → translate-cache → extension) |
 | [**`phases/final.md`**](phases/final.md) | **One-time pre-publish checklist** (includes ADR polish + repo hygiene); **delete after completion** |

@@ -13,6 +13,7 @@ import { canPrintInfo } from '@/utils/logger/policy.js';
 import type { LocalesListJsonPayload } from '@/types/command/locales/json.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
+import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
@@ -73,7 +74,7 @@ export async function localesList(): Promise<void> {
       const envelope = buildCliJsonEnvelope('locales-list', payload, {
         ok: true,
         issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
-        cwd: process.cwd(),
+        cwd: cliEnvelopeCwd(ctx),
       });
       console.log(stringifyEnvelope(envelope));
     } else {
@@ -115,7 +116,7 @@ export async function localesList(): Promise<void> {
           ? buildCliJsonEnvelope('locales-list', emptyListPayload(localesDir, sourceLocale, ctx.adapters.path), {
               ok: false,
               issues: mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), usageIssues),
-              cwd: process.cwd(),
+              cwd: cliEnvelopeCwd(ctx),
             })
           : buildIoReadFailureEnvelope('locales-list', emptyListPayload(localesDir, sourceLocale, ctx.adapters.path), ctx, err);
       console.log(stringifyEnvelope(envelope));

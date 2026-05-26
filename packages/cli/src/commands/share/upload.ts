@@ -72,7 +72,7 @@ function emitUploadJsonEnvelope(
 
 function shareReportHost(ctx: Awaited<ReturnType<typeof resolveContext>>) {
   return {
-    cwd: process.cwd(),
+    cwd: ctx.adapters.system.cwd(),
     toolVersion: CLI_VERSION,
     environment: buildReportEnvironmentSnapshot(ctx.adapters.fs),
   };

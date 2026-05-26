@@ -1,6 +1,7 @@
 import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import type { Issue } from '@i18nprune/core';
 import type { EmitCliJsonOptionErrorInput } from '@/types/shared/result/index.js';
+import { cliEnvelopeCwd } from './envelopeCwd.js';
 
 /**
  * Emit a standardized JSON envelope for parse/option validation failures.
@@ -26,7 +27,7 @@ export function emitCliJsonOptionError(input: EmitCliJsonOptionErrorInput): bool
   const envelope = buildCliJsonEnvelope(input.command, data, {
     ok: false,
     issues: [issue],
-    cwd: process.cwd(),
+    cwd: cliEnvelopeCwd(),
   });
 
   console.log(stringifyEnvelope(envelope));

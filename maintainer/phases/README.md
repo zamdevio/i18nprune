@@ -32,11 +32,13 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 | [`cache.md`](./cache.md) | **Shipped (H-cache)** — Phases 0–4 (incremental analysis + invalidate policy) |
 | [`translate-cache.md`](./translate-cache.md) | **Shipped (H.1)** — L2 `translations/<code>.json`; same `config.cache` |
 | [`apps.md`](./apps.md) | **Active next (C.3+)** — core `share`, CLI `i18nprune share`, web/report/worker catch-up |
+| [`worker.md`](./worker.md) | **Planned / active next** — worker metadata response polish for GET/POST project/report routes |
 | [`jsdoc.md`](./jsdoc.md) | **Active** — JSDoc enforcement tiers |
 | [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |
 | [`final.md`](./final.md) | **Gate** — one-time pre-publish checklist (delete after release) |
 | [`V1-RELEASE.md`](./V1-RELEASE.md) | **Hub** — ordered v1 sessions |
 | [`docs-refactor.md`](./docs-refactor.md) | **Active** — v1-scoped docs nav reduction + SDK quickstart |
+| [`ui.md`](./ui.md) | **Shipped (0–4)** — `@i18nprune/ui` migration tracker; optional phases 5–6 backlog |
 
 ---
 

@@ -5,6 +5,7 @@ import { cliReadinessIssues } from '@/shared/project/index.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { ConfigSnapshot } from '@/types/commands/config/index.js';
 import type { CliJsonEnvelope } from '@i18nprune/core';
+import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 
 export function runConfig(ctx: Context): CliJsonEnvelope<'config', ConfigSnapshot> {
   const snap = buildConfigSnapshot(ctx);
@@ -13,6 +14,6 @@ export function runConfig(ctx: Context): CliJsonEnvelope<'config', ConfigSnapsho
   return buildCliJsonEnvelope('config', snap, {
     ok: readiness == null,
     issues,
-    cwd: process.cwd(),
+    cwd: cliEnvelopeCwd(ctx),
   });
 }

@@ -4,6 +4,8 @@
 **Audience is not:** end users (`docs/`).  
 **Companion:** [`maintainer/agents/architecture.md` § 11](../agents/architecture.md#11-ui-domains) · [`packages/ui/README.md`](../../packages/ui/README.md) · [`health.md`](./health.md).
 
+**Lifecycle:** `stable` (Phases 0–4 shipped). Open extraction/migration **tracker** lives in maintainer scratch or a short-lived phase note — not in this file.
+
 ---
 
 ## Purpose
@@ -55,15 +57,16 @@ The repository has **three UI domains**. Only one consumes `@i18nprune/ui`.
 
 | Surface | Stack (today) | `@i18nprune/ui` usage |
 |---------|---------------|------------------------|
-| `apps/web` | React 18, vanilla CSS | React primitives + shared CSS (Phase 1+) |
+| `apps/web` | React 18, vanilla CSS | React primitives + shared CSS |
 | `apps/report` | React 18, vanilla CSS, single-file CLI embed | Same |
-| `apps/workers/i18nprune` `/docs` | Hono + `@hono/swagger-ui` | Static HTML shell + CSS overrides only (Phase 4+) |
+| `apps/workers/i18nprune` `/docs` | Hono + `@hono/swagger-ui` | Static HTML shell + CSS overrides only |
+| `apps/workers/meta` `/docs` | Hono + `@hono/swagger-ui` | Static HTML shell + CSS overrides only |
 
-**Not members:** `apps/landing`, `apps/extension/src/webview`, `apps/docs`, `apps/workers/meta` (separate hygiene when touched).
+**Not members:** `apps/landing`, `apps/extension/src/webview`, `apps/docs` (VitePress uses its own theme).
 
 ---
 
-## Package layout (Phase 1+)
+## Package layout
 
 ```txt
 packages/ui/src/
@@ -78,7 +81,7 @@ Call sites import **types** from `@i18nprune/ui/types/<area>` and **components**
 
 ---
 
-### Core rule (non-negotiable)
+## Core rule (non-negotiable)
 
 > **If a component requires domain imports** (`@i18nprune/core`, worker clients, workspace state, routing orchestration, share logic, report ingestion, zip parsing, etc.), **it does NOT belong in `packages/ui`.**
 
@@ -106,33 +109,6 @@ Mirror the [core purity contract](../agents/architecture.md#2-core-purity-contra
 
 ---
 
-## Extraction boundaries
-
-### Should move (Phase 1+)
-
-| Item | Target export |
-|------|----------------|
-| `ToolbarDropdown` | `@i18nprune/ui/react/toolbar` |
-| `ThemeProvider` / `useTheme` | `@i18nprune/ui/react/theme` |
-| `copyText` / `CopyButton` | `@i18nprune/ui/utils/clipboard`, `@i18nprune/ui/react/feedback` |
-| Modal / confirm base | `@i18nprune/ui/react/overlay` |
-| List pagination controls | `@i18nprune/ui/react/pagination` |
-| Shared dropdown/modal CSS | `@i18nprune/ui/styles/runtime.css` |
-| Semantic tokens | `@i18nprune/ui/styles/tokens.css` |
-| Swagger HTML shell + overrides | `@i18nprune/ui/swagger`, `@i18nprune/ui/styles/swagger-overrides.css` |
-
-### Must remain app-local
-
-| Surface | Examples |
-|---------|----------|
-| **web** | `RuntimeHeader`, `EcosystemNavMenu`, workspace tree, zip/share modals, Prism `JsonViewer` |
-| **report** | `AppShell`, payload import, search/print contexts, inline SVG icons |
-| **landing** | All marketing sections, CommandPalette, ShikiCode, Motion |
-| **extension** | Dashboard chrome, FileExplorer, VSC `Badge`/`Button`/`Modal` |
-| **workers** | OpenAPI spec, route handlers, DO storage |
-
----
-
 ## Anti-patterns
 
 | Anti-pattern | Why it fails |
@@ -148,9 +124,9 @@ Mirror the [core purity contract](../agents/architecture.md#2-core-purity-contra
 
 ---
 
-### Phase 4 polish (worker `/docs` — reusable shell)
+## Worker `/docs` — Swagger shell (integration)
 
-**Shipped in ui package** — any worker with OpenAPI can reuse the same shell (`apps/workers/meta` is the next natural host).
+Reusable shell for any worker with OpenAPI (`apps/workers/meta` is the next natural host).
 
 | Concern | Owner |
 |---------|--------|
@@ -173,15 +149,9 @@ Mirror the [core purity contract](../agents/architecture.md#2-core-purity-contra
 
 **UX included:** fixed header (theme + nav links), light/dark toggle, hidden servers section (default), stock Swagger styling in light mode, dark-mode readability layer, thin scrollbars, overflow-safe info block.
 
-**Explicit non-goals:** OpenAPI parsing in ui; `resolveSwaggerOrigin` (removed — relative paths instead).
+**Explicit non-goals:** OpenAPI parsing in ui; origin resolution from request URL (use relative paths).
 
-Whenever you update `packages/ui/src/styles/swagger-overrides.css`, run `pnpm ui:sync:swagger-css` to regenerate `packages/ui/src/swagger/overrides-css.ts`, and be sure to commit both files together.
-
-To confirm your overrides file is correctly synchronized, run:
-
-```bash
-pnpm ui:check:swagger-css
-```
+Whenever you update `packages/ui/src/styles/swagger-overrides.css`, run `pnpm ui:sync:swagger-css` and commit both the CSS and generated `packages/ui/src/swagger/overrides-css.ts`. Verify with `pnpm ui:check:swagger-css`.
 
 ---
 
@@ -196,28 +166,7 @@ pnpm ui:check:swagger-css
 - **No routing, business, or domain logic inside ui** — no router, no worker fetch, no report ingest.
 - **Swagger integration is shell/CSS only** — no OpenAPI parsing or route logic in ui.
 - **No god barrel** — prefer subpath exports; avoid default re-export of all primitives from root.
-- **No landing/extension migration** as part of ui phases.
-
----
-
-## Migration phases
-
-| Phase | Scope | Status |
-|-------|-------|--------|
-| **0** | Scaffold, docs, purity gates | **Shipped** |
-| **1** | Theme + tokens + clipboard (`web`, `report`) | **Shipped** |
-| **2** | `ToolbarDropdown` + `runtime.css` | **Shipped** |
-| **3** | Confirm dialog + pagination | **Shipped** |
-| **4** | Worker Swagger shell + reusable `/docs` polish | **Shipped** |
-
-**Timing:** Run Phases 1–3 in **hygiene PRs between C.3 share sub-slices** — not mixed into `packages/core/src/share/**` parity work.
-
-**Validation after structural ui changes:**
-
-```bash
-pnpm typecheck && pnpm test && pnpm knip && pnpm madge:circular && pnpm ui:purity
-pnpm web:build && pnpm report:build && pnpm cli:build   # after app adoption
-```
+- **No landing/extension migration** as part of ui work.
 
 ---
 
@@ -243,7 +192,7 @@ Extend ESLint `no-restricted-imports` only if grep proves insufficient.
 - [ ] App orchestration stays in apps; ui receives data via props
 - [ ] CSS class names preserved when report embed parity matters
 - [ ] `pnpm typecheck` · `pnpm test` · `pnpm knip` · `pnpm madge:circular` · `pnpm ui:purity`
-- [ ] If report UI touched post-migration: `pnpm cli:build`
+- [ ] If report UI touched: `pnpm cli:build`
 
 ---
 
@@ -252,3 +201,10 @@ Extend ESLint `no-restricted-imports` only if grep proves insufficient.
 - [`maintainer/phases/apps.md`](../phases/apps.md) — C.3 scope (web, report, workers; not landing)
 - [`maintainer/systems/health.md`](./health.md) — health gates
 - [`packages/ui/README.md`](../../packages/ui/README.md) — package-local quick reference
+
+---
+
+## Change discipline
+
+- Update this file in the same PR that changes ui **rules**, allowlist, enforcement, or Swagger shell contract.
+- Update migration **tracker** rows in a separate phase note (not linked from here) when opening/closing extraction slices.

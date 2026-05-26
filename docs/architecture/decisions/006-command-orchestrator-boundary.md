@@ -9,8 +9,8 @@ The CLI has grown across multiple commands. To keep the codebase maintainable an
 ## Decision
 
 - `packages/cli/src/commands/*` modules are orchestration-only.
-- Reusable/business logic lives in `packages/cli/src/core/**`.
-- Shared helper behavior may live in `packages/cli/src/utils/**` when it is cross-cutting and not domain-specific.
+- Reusable/business logic lives in **`packages/core`** (`runXxx` entries under `packages/core/src/<op>/`).
+- Shared CLI helper behavior may live in `packages/cli/src/utils/**` when it is cross-cutting and not domain-specific.
 
 Command modules may keep user-flow concerns (prompts, confirmations, summaries), but not reusable domain behavior.
 

@@ -8,6 +8,7 @@ import {
 import type { Context } from '@/types/core/context/index.js';
 import type { LanguagesCommandOptions } from '@/types/commands/languages/index.js';
 import type { CliJsonEnvelope } from '@i18nprune/core';
+import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 
 export function runLanguages(
   ctx: Context,
@@ -21,6 +22,6 @@ export function runLanguages(
   return buildCliJsonEnvelope('languages', rows, {
     ok: true,
     issues,
-    cwd: process.cwd(),
+    cwd: cliEnvelopeCwd(ctx),
   });
 }

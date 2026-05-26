@@ -70,7 +70,7 @@ Status values: **planned** | **in progress** | **done** | **blocked** | **deferr
 | Completions | [completions.md](./completions.md) | planned | Workspace intelligence |
 | Dashboard | [dashboard.md](./dashboard.md) | planned | Workspace intelligence; **Generate** tab in [generate.md](./generate.md) |
 | Performance | [performance.md](./performance.md) | planned | Diagnostics + real usage data (informs budgets) |
-| Post-MVP backlog | [post-mvp.md](./post-mvp.md) | deferred | Hover / diagnostics / Generate maturity |
+| Post-MVP backlog | [post-mvp.md](./post-mvp.md) | deferred | Hover / diagnostics / Generate maturity; **share host** (see post-mvp § Share host surface) |
 
 **Sequencing note:** Hover and diagnostics both need the intelligence layer; diagnostics follow **hover** so key-at-cursor semantics and confidence thresholds are learned before widening to squiggles.
 

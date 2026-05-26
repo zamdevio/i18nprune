@@ -11,6 +11,7 @@ These items originated from the extension backlog; they are intentionally **out 
 
 | Item | Intent |
 |------|--------|
+| **Share host surface** | After extension foundation + core share are stable: wire **`runShare*`** (or CLI `--json` spawn) from the editor; document the extension as a fourth share host in [`maintainer/systems/share.md`](../../systems/share.md) (alongside CLI, web, worker). |
 | **Interactive diff view** | VS Code–like side-by-side or inline diff for translation changes. |
 | **Multi-language editor** | Multiple locale columns or synchronized editing where product fits. |
 | **Project breadcrumbs** | Deeper breadcrumb integration across workspace navigation. |

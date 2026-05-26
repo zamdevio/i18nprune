@@ -45,13 +45,13 @@ Start here if you want to use i18nprune fast: follow [Onboarding](./onboarding/R
 | [Vision](./vision/README.md) | Product direction |
 | [Roadmap](./roadmap/README.md) | High-level direction |
 | [Workflow](./workflow/README.md) | Local dev commands |
-| Agent notes (repo-only) | See `maintainer/agents/README.md` for contributor/agent workflows, analysis, and Git commit discipline (not published on the docs site) |
+| Agent notes (repo-only) | Clone the repo: `maintainer/agents/README.md` — [GitHub](https://github.com/zamdevio/i18nprune/blob/main/maintainer/agents/README.md) (not mirrored to the docs site) |
 | [Barriers](./barriers/README.md) | Adoption friction |
 | [Config](./config/README.md) | Config file formats, merge order, `defineConfig` |
 | [Policies](./config/policies/README.md) | `policies.preserve` / `policies.parity` |
 | [Exit codes & signals](./behavior/README.md) | Exit codes, SIGINT, interactive vs CI |
 | [Command behaviors](./behavior/commands.md) | Snapshot table: flags, JSON, translator commands |
-| [Maintainer phases (repo only)](../maintainer/phases/README.md) | Sprint / v1 sequencing — **`maintainer/phases/`** is **not** mirrored to **`apps/docs`** |
+| Maintainer phases (repo only) | Sprint / v1 sequencing: `maintainer/phases/README.md` — [GitHub](https://github.com/zamdevio/i18nprune/blob/main/maintainer/phases/README.md) (not mirrored to the docs site) |
 | [Translation progress](./progress/README.md) | Live bar policy (`-q` / `-s` / `--json`), `packages/cli/src/core/progress/*` |
 | [Patching](./patching/README.md) | Opt-in loader + config auto-patches ([ADR 004](./architecture/decisions/004-auto-patch.md)) |
 | [Journey](./journey/README.md) | First-person story: CepatEdge i18n pressure → why this toolkit exists → open source |

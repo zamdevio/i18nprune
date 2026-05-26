@@ -36,6 +36,27 @@ describe('stringifyCliCommandJson', () => {
     });
     expect(s).toContain('\n');
   });
+
+  it('omits meta.cwd when host does not pass cwd', () => {
+    const s = stringifyCliCommandJson({
+      kind: 'validate',
+      data: {},
+      ok: true,
+    });
+    const j = JSON.parse(s) as { meta: { cwd?: string } };
+    expect(j.meta.cwd).toBeUndefined();
+  });
+
+  it('includes meta.cwd when host passes cwd', () => {
+    const s = stringifyCliCommandJson({
+      kind: 'validate',
+      data: {},
+      ok: true,
+      cwd: '/tmp',
+    });
+    const j = JSON.parse(s) as { meta: { cwd?: string } };
+    expect(j.meta.cwd).toBe('/tmp');
+  });
 });
 
 describe('buildCliJsonEnvelope', () => {

@@ -31,8 +31,16 @@
 
 ---
 
-## 4 — Last step
+## 4 — Contributor operability
 
-- [ ] Verify **`maintainer/agents/`** docs match the final repo state (architecture, rules, jsdoc, git).
+- [ ] Confirm **`.github/workflows/ci.yml`** runs on PRs:
+  - `pnpm typecheck`
+  - `pnpm test`
+  - `pnpm vitest run tests/parity` (frozen CLI `--json` + stderr)
+- [ ] Verify **`maintainer/agents/onboarding.md`** matches repo layout, root scripts table, and [`systems/share.md`](../systems/share.md).
+
+## 5 — Last step
+
+- [ ] Verify **`maintainer/agents/`** docs match the final repo state (architecture, rules, jsdoc, git, onboarding).
 - [ ] Ensure **`maintainer/README.md`** and **`maintainer/phases/V1-RELEASE.md`** describe the post-v1 maintenance story (what lives where, which phases remain for extensions).
 - [ ] Delete **`maintainer/phases/final.md`** when you are ready to tag—this checklist must not linger after publish prep is finished.

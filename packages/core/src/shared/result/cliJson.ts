@@ -40,15 +40,17 @@ export function stringifyCliCommandJson(input: {
   data: unknown;
   ok: boolean;
   issues?: Issue[];
+  /** Working directory for `meta.cwd` — host supplies (CLI: `ctx.adapters.system.cwd()` or `process.cwd()`). */
+  cwd?: string;
   /** Pretty-print with indentation. Defaults to current runtime `jsonPretty` (true when unset). */
   pretty?: boolean;
 }): string {
-  const { kind, data, ok, issues, pretty } = input;
+  const { kind, data, ok, issues, cwd, pretty } = input;
   const resolvedPretty = pretty ?? getRunOptions().jsonPretty;
   const envelope = buildCliJsonEnvelope(kind, data, {
     ok,
     issues,
-    cwd: process.cwd(),
+    ...(cwd !== undefined ? { cwd } : {}),
   });
   return resolvedPretty ? JSON.stringify(envelope, null, 2) : JSON.stringify(envelope);
 }

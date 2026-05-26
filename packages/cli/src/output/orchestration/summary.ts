@@ -1,4 +1,5 @@
 import { stringifyCliCommandJson } from '@i18nprune/core';
+import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 import { issueCodeDocHref } from '@i18nprune/core';
 import { getRunOptions } from '@i18nprune/core';
 import type { Context } from '@/types/core/context/index.js';
@@ -12,7 +13,7 @@ export type { CommandSummary };
 /** Print a command summary (respects `Context.run` / global `--json`, `--quiet`, `--silent`). */
 export function printCommandSummary(
   summary: CommandSummary,
-  ctx?: Pick<Context, 'run'>,
+  ctx?: Pick<Context, 'run' | 'adapters'>,
   hooks?: CommandOutputHooks,
 ): void {
   const run = ctx?.run ?? getRunOptions();
@@ -39,6 +40,7 @@ export function printCommandSummary(
         data,
         ok: summary.ok !== false,
         issues: summaryIssues,
+        cwd: cliEnvelopeCwd(ctx),
         pretty: false,
       }),
     );
