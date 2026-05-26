@@ -1,6 +1,6 @@
 # Apps phase — remaining work (C.3+)
 
-**Status:** **Active** — share rows **0–7**, **6b**, **6c**, **10** are **shipped** ([`shipped-slices.md`](./shipped-slices.md)).  
+**Status:** **Active** — share rows **0–7**, **6b**, **6c**, **8**, **10** are **shipped** ([`shipped-slices.md`](./shipped-slices.md)). **Open:** rows **9**, **W**. **Next phase after apps:** [`cross-platform.md`](./cross-platform.md) (CLI/SDK + version/project/translate disk caches).  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) Session **C.3** · **Systems map:** [`maintainer/systems/share.md`](../systems/share.md) · **Active narrative:** [`active-phase.md`](./active-phase.md).
 
 **For agents:** read [`maintainer/systems/share.md`](../systems/share.md) for current wiring. This file is **only open tasks** — no re-implementing shipped slices.

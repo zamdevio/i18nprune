@@ -17,6 +17,7 @@
 | **`systems/health.md`** | Codebase health gates: `typecheck`, `test`, knip, madge, `empty:*` — when to run, barrel discipline |
 | **`systems/ui.md`** | Runtime UI kit (`@i18nprune/ui`): domain separation, purity rules, enforcement |
 | **`systems/share.md`** | Share ecosystem: core `runShare*`, CLI/web/report hosts, `workers/i18nprune` routes, DO storage, metadata builders |
+| **Phase [`cross-platform.md`](../phases/cross-platform.md)** | Cross-platform CLI + SDK hardening: project cache, translate cache, CLI version cache (`updatestate.json`) |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
