@@ -2,7 +2,7 @@
 
 **Audience:** Maintainers and agents touching **share** across core, CLI, web, report, or the hosted worker (`apps/workers/i18nprune`).  
 **Audience is not:** end users (`docs/commands/share/`, `docs/runtime/worker.md`).  
-**Companion:** [`operations/entrypoints.md`](./operations/entrypoints.md) · [`ui.md`](./ui.md) for worker `/docs` Swagger shell · [`maintainer/phases/worker.md`](../phases/worker.md) for metadata response polish slices · [`maintainer/phases/apps.md`](../phases/apps.md) for C.3 web/report catch-up.
+**Companion:** [`operations/entrypoints.md`](./operations/entrypoints.md) · [`ui.md`](./ui.md) for worker `/docs` Swagger shell · [`maintainer/phases/apps.md`](../phases/apps.md) for open C.3 tasks (report row 8, worker row 9, metadata **W**).
 
 ---
 
@@ -127,8 +127,7 @@ CLI/web/report parse worker envelopes and map errors through **`packages/core/sr
 
 ## Cross-links
 
-- **Apps / share phase:** [`maintainer/phases/apps.md`](../phases/apps.md)
-- **Worker metadata polish:** [`maintainer/phases/worker.md`](../phases/worker.md)
+- **Open apps tasks:** [`maintainer/phases/apps.md`](../phases/apps.md) (rows **8**, **9**, **W**)
 - **Shipped slices:** [`maintainer/phases/shipped-slices.md`](../phases/shipped-slices.md)
 - **User docs:** [`docs/commands/share/README.md`](../../docs/commands/share/README.md) · [`docs/runtime/worker.md`](../../docs/runtime/worker.md)
 
@@ -137,6 +136,6 @@ CLI/web/report parse worker envelopes and map errors through **`packages/core/sr
 ## Change discipline
 
 - Update **this file** when share wiring changes across core, CLI, web, report, or worker routes/storage/metadata/errors.
-- Update [`maintainer/phases/worker.md`](../phases/worker.md) only for planned worker **response-shape** slices.
+- Update [`maintainer/phases/apps.md`](../phases/apps.md) tracker when closing rows **8**, **9**, or **W**.
 - Update user docs (`docs/commands/share/`, `docs/runtime/worker.md`) for behavior visible to operators.
 - Update [`shipped-slices.md`](../phases/shipped-slices.md) only when a slice is actually closed.

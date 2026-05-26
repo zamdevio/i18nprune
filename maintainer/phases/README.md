@@ -31,8 +31,7 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 | [`locales.md`](./locales.md) | **Shipped (Session H)** — design reference; reader/writer; rows 0–10 done |
 | [`cache.md`](./cache.md) | **Shipped (H-cache)** — Phases 0–4 (incremental analysis + invalidate policy) |
 | [`translate-cache.md`](./translate-cache.md) | **Shipped (H.1)** — L2 `translations/<code>.json`; same `config.cache` |
-| [`apps.md`](./apps.md) | **Active next (C.3+)** — core `share`, CLI `i18nprune share`, web/report/worker catch-up |
-| [`worker.md`](./worker.md) | **Planned / active next** — worker metadata response polish for GET/POST project/report routes |
+| [`apps.md`](./apps.md) | **Active (C.3+)** — open: report row **8**, worker `runReport` row **9**, metadata polish **W** |
 | [`jsdoc.md`](./jsdoc.md) | **Active** — JSDoc enforcement tiers |
 | [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |
 | [`final.md`](./final.md) | **Gate** — one-time pre-publish checklist (delete after release) |
