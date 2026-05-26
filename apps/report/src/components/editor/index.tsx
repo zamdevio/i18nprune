@@ -1,10 +1,9 @@
 import { useEditorOpener } from '../../context/editor/index.js';
-import { useOptionalReport } from '../../context/report/hooks.js';
 import {
-  canUseEditorDeepLinks,
   EDITOR_OPENER_OPTIONS,
-} from '../../lib/editor/index.js';
-import { useDesktopReportChrome } from '../../lib/desktop/index.js';
+  linkPolicyReasonMessage,
+} from '../../lib/open-in-editor/index.js';
+import { useEditorLinkSession } from '../../lib/open-in-editor/hooks/useEditorLinkSession.js';
 import { ToolbarDropdown } from '@i18nprune/ui/react/toolbar';
 
 type Props = {
@@ -13,39 +12,29 @@ type Props = {
 };
 
 export function EditorPreferenceDropdown({ layout = 'header' }: Props): JSX.Element {
-  const desktop = useDesktopReportChrome();
-  const doc = useOptionalReport();
   const { opener, setOpener } = useEditorOpener();
-  const allowed = doc ? canUseEditorDeepLinks(doc.project.environment) : true;
+  const { policy, generator } = useEditorLinkSession();
 
-  if (!desktop) {
-    if (layout === 'sidebar') {
-      return (
-        <p className="muted settings-editor-hint">
-          Editor deep links are only available in the desktop report shell (not in a plain browser tab).
-        </p>
-      );
-    }
-    return <></>;
-  }
+  if (!policy.allow) {
+    const message = linkPolicyReasonMessage(
+      policy.reason,
+      generator.family === 'unsupported' ? undefined : generator.family,
+    );
 
-  if (doc && !allowed) {
     if (layout === 'header') {
       return (
         <span
           className="editor-unavailable editor-unavailable--compact"
-          title="Editor links off — report metadata is insufficient for vscode:// / cursor:// URLs."
+          title={message}
         >
           Editor off
         </span>
       );
     }
+
     return (
-      <div
-        className="editor-unavailable"
-        title="Open in editor is disabled because this report does not include enough environment metadata to build stable editor deep links for your OS (e.g. WSL distro name missing on WSL)."
-      >
-        <span className="editor-unavailable__text">Editor links off for this report</span>
+      <div className="editor-unavailable" title={message}>
+        <span className="editor-unavailable__text">Editor links unavailable</span>
       </div>
     );
   }

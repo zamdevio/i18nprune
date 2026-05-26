@@ -47,12 +47,19 @@ export function OverviewShareActions(): JSX.Element {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogError, setDialogError] = useState<string | null>(null);
   const [dialogLink, setDialogLink] = useState<string | null>(null);
+  const [dialogReportId, setDialogReportId] = useState<string | null>(null);
   const [dialogLines, setDialogLines] = useState<string[]>([]);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
 
-  function openShareDialog(link: string, lines: string[], error: string | null): void {
+  function openShareDialog(
+    link: string,
+    lines: string[],
+    error: string | null,
+    reportId: string | null = null,
+  ): void {
     setDialogLink(link);
+    setDialogReportId(reportId);
     setDialogLines(lines);
     setDialogError(error);
     setDialogOpen(true);
@@ -79,7 +86,7 @@ export function OverviewShareActions(): JSX.Element {
         toolVersion: doc.toolVersion,
         generatedAt: doc.generatedAt,
       });
-      openShareDialog(uploaded.link, uploaded.humanLines, null);
+      openShareDialog(uploaded.link, uploaded.humanLines, null, uploaded.reportId);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       toast.error(message);
@@ -99,7 +106,7 @@ export function OverviewShareActions(): JSX.Element {
       openShareDialog(link, outcome.humanLines, outcome.issue.message);
       return;
     }
-    openShareDialog(outcome.link, outcome.humanLines, null);
+    openShareDialog(outcome.link, outcome.humanLines, null, hostedId);
   }
 
   function clearWorkerAssociation(): void {
@@ -158,6 +165,7 @@ export function OverviewShareActions(): JSX.Element {
       <ReportShareLinkDialog
         open={dialogOpen}
         link={dialogLink}
+        reportId={dialogReportId ?? hostedId}
         humanLines={dialogLines}
         error={dialogError}
         busy={shareBusy}

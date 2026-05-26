@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { getDocsUrl } from '@i18nprune/core';
 import { toast } from '@i18nprune/ui/react/feedback';
+import { resolveCopyShareLink } from '../../lib/share/reportShareUrl.js';
 
 export type ReportShareLinkDialogProps = {
   open: boolean;
   onClose: () => void;
   title?: string;
+  /** Worker/upload link (may use a stale base); prefer {@link reportId} for copy UI. */
   link: string | null;
+  /** When set, copy/open URL uses `origin/#/?id=` on the current report app. */
+  reportId?: string | null;
   humanLines: string[];
   error: string | null;
   busy?: boolean;
@@ -17,11 +21,17 @@ export function ReportShareLinkDialog({
   onClose,
   title = 'Report share link',
   link,
+  reportId,
   humanLines,
   error,
   busy = false,
 }: ReportShareLinkDialogProps): JSX.Element | null {
   const [copied, setCopied] = useState(false);
+
+  const copyLink = useMemo(
+    () => resolveCopyShareLink({ reportId, link }),
+    [reportId, link],
+  );
 
   if (!open) return null;
 
@@ -58,10 +68,10 @@ export function ReportShareLinkDialog({
             ))}
           </ul>
         : null}
-        {link ?
+        {copyLink ?
           <label className="field field-wide">
             Share link
-            <input readOnly className="mono" value={link} onFocus={(e) => e.target.select()} />
+            <input readOnly className="mono" value={copyLink} onFocus={(e) => e.target.select()} />
           </label>
         : null}
         {error ?
@@ -77,15 +87,16 @@ export function ReportShareLinkDialog({
           </>
         : (
           <p className="muted modal-panel__hint">
-            Hosted reports expire after ~7 days without reads on the worker.{' '}
+            Hosted reports expire after ~7 days without reads on the worker. Share links use this page&apos;s origin
+            with <span className="mono">/#/?id=…</span>.{' '}
             <a href={getDocsUrl('commands/share/README')} target="_blank" rel="noopener noreferrer">
               Share docs
             </a>
           </p>
         )}
         <div className="modal-panel__foot">
-          {link ?
-            <button type="button" className="btn-primary" disabled={busy} onClick={() => void copyToClipboard(link)}>
+          {copyLink ?
+            <button type="button" className="btn-primary" disabled={busy} onClick={() => void copyToClipboard(copyLink)}>
               {copied ? 'Copied' : 'Copy link'}
             </button>
           : null}

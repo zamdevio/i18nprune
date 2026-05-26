@@ -50,6 +50,7 @@ export function ReportImportPanel({
   const [processFile, setProcessFile] = useState<File | null>(null);
   const [shareDialog, setShareDialog] = useState<{
     link: string | null;
+    reportId: string | null;
     humanLines: string[];
     error: string | null;
   } | null>(null);
@@ -244,7 +245,7 @@ export function ReportImportPanel({
               generatedAt: doc.generatedAt,
             });
             setProcessFile(null);
-            setShareDialog({ link, humanLines: [], error: null });
+            setShareDialog({ link, reportId, humanLines: [], error: null });
             finishLoad();
           }}
           onRemoteArchiveComplete={({ reportId, link, humanLines }) => {
@@ -256,10 +257,10 @@ export function ReportImportPanel({
               shareUrl: link,
             });
             setProcessFile(null);
-            setShareDialog({ link, humanLines, error: null });
+            setShareDialog({ link, reportId, humanLines, error: null });
           }}
           onRemoteError={(message, humanLines) => {
-            setShareDialog({ link: null, humanLines, error: message });
+            setShareDialog({ link: null, reportId: null, humanLines, error: message });
           }}
         />
       : null}
@@ -268,6 +269,7 @@ export function ReportImportPanel({
         <ReportShareLinkDialog
           open
           link={shareDialog.link}
+          reportId={shareDialog.reportId}
           humanLines={shareDialog.humanLines}
           error={shareDialog.error}
           onClose={() => setShareDialog(null)}

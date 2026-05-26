@@ -165,4 +165,4 @@ The print preview is built from the embedded JSON, not from re-fetching the proj
 
 ## Editor deep links (`vscode://` / `cursor://`)
 
-Editor links use **only** `project.environment` from the report (no browser OS detection). They are **hidden** when the payload cannot safely build URIs — notably **WSL** scans need `wslDistroName` when the runtime is treated as WSL so Windows-side editors can resolve paths. Regenerate the report with a current CLI if environment fields are missing.
+Editor links combine **generator** metadata (`project.environment`, `project.cwd`) with **viewer** browser signals (platform, user agent, desktop layout). A centralized policy enables links only when generator and viewer runtime families match (Windows↔Windows, Linux↔Linux, macOS↔macOS). **WSL-generated reports disable editor links in v1** (copy path instead). Reports missing `project.environment`, browser/cloud worker generators, synthetic `cwd` values (`/project`, `/example/project`, `/`), and mobile/coarse-pointer layouts are disabled with specific reason messages. Payload file paths are never rewritten — only resolved at click time for allowed opens.

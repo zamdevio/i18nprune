@@ -11,6 +11,7 @@ import {
   startRemoteDeleteQueue,
 } from '../../lib/share/deleteAllRemote.js';
 import { clearShareHistory, listShareHistory, removeShareHistoryEntry, shareHistoryStats } from '../../storage/index.js';
+import { resolveCopyShareLink } from '../../lib/share/reportShareUrl.js';
 import { readWorkerUrl } from '../../storage/workerUrl.js';
 import { deleteWorkerReport } from '../../worker/index.js';
 import type { ShareHistoryEntry } from '../../types/share/index.js';
@@ -186,7 +187,10 @@ export function ShareHistorySection(): JSX.Element {
                     <td>{new Date(row.lastSeenAt).toLocaleString()}</td>
                     <td className="mono share-history-table__worker">{row.workerBaseUrl}</td>
                     <td className="share-history-table__actions">
-                      <CopyPathButton text={row.shareUrl} label="Copy" />
+                      <CopyPathButton
+                        text={resolveCopyShareLink({ reportId: row.reportId, link: row.shareUrl }) ?? row.shareUrl}
+                        label="Copy"
+                      />
                       <button
                         type="button"
                         className="btn-secondary btn-danger-outline"

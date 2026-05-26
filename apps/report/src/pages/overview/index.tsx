@@ -4,7 +4,7 @@ import { OverviewShareActions } from '../../components/overview/OverviewShareAct
 import { CLI_NAME } from '../../constants/cli.js';
 import { reportPageTitle } from '../../constants/brand.js';
 import { useReport, useReportBootstrap } from '../../context/report/hooks.js';
-import { inferRuntimeFamily } from '../../lib/editor/deepLinks.js';
+import { envDisplayValue } from '../../lib/share/envDisplay.js';
 import { printReportTable } from '../../lib/printTable.js';
 import { computeRiskScore } from '../../lib/risk/index.js';
 import type { ProjectReportDocument } from '../../types/index.js';
@@ -52,14 +52,13 @@ function overviewPrintRows(doc: ProjectReportDocument): string[][] {
   if (project.sourceLocaleTag) {
     rows.push(['Source locale tag', project.sourceLocaleTag]);
   }
-  if (env) {
-    rows.push(['Platform', `${env.platform} (${env.arch})`]);
-    rows.push(['Runtime family', inferRuntimeFamily(env) ?? '—']);
-    if (env.wslDistroName) rows.push(['WSL distro name', env.wslDistroName]);
-    rows.push(['Node.js', env.nodeVersion]);
-    rows.push(['OS / kernel', env.osRelease]);
-    if (env.distro) rows.push(['Distro', env.distro]);
-  }
+  rows.push(['Platform', envDisplayValue(env?.platform)]);
+  rows.push(['Arch', envDisplayValue(env?.arch)]);
+  rows.push(['Runtime family', envDisplayValue(env?.runtimeFamily)]);
+  rows.push(['WSL distro name', envDisplayValue(env?.wslDistroName)]);
+  rows.push(['Node.js', envDisplayValue(env?.nodeVersion)]);
+  rows.push(['OS / kernel', envDisplayValue(env?.osRelease)]);
+  rows.push(['Distro', envDisplayValue(env?.distro)]);
   return rows;
 }
 
@@ -191,20 +190,25 @@ export function OverviewPage(): JSX.Element {
       </div>
       <div className="card" style={{ marginTop: '1rem' }}>
         <h2>Environment</h2>
-        {env ? (
-          <div className="path-list">
-            {envRow('Platform', `${env.platform} (${env.arch})`)}
-            {envRow('Runtime family', inferRuntimeFamily(env) ?? '—')}
-            {env.wslDistroName ? envRow('WSL distro name', env.wslDistroName) : null}
-            {envRow('Node.js', env.nodeVersion)}
-            {envRow('OS / kernel', env.osRelease)}
-            {envRow('Distro', env.distro)}
-          </div>
-        ) : (
-          <p className="overview-env-missing">
-            Not recorded in this report file. Regenerate with a current CLI build to embed OS and runtime details.
+        <p className="overview-paths__hint">
+          Values are exactly as embedded by the CLI or host that generated this report. Empty fields show as{' '}
+          <span className="mono">—</span>.
+        </p>
+        <div className="path-list">
+          {envRow('Platform', envDisplayValue(env?.platform))}
+          {envRow('Arch', envDisplayValue(env?.arch))}
+          {envRow('Runtime family', envDisplayValue(env?.runtimeFamily))}
+          {envRow('WSL distro name', envDisplayValue(env?.wslDistroName))}
+          {envRow('Node.js', envDisplayValue(env?.nodeVersion))}
+          {envRow('OS / kernel', envDisplayValue(env?.osRelease))}
+          {envRow('Distro', envDisplayValue(env?.distro))}
+        </div>
+        {!env ?
+          <p className="overview-env-missing muted">
+            No <span className="mono">project.environment</span> block in this file. Regenerate with a current CLI
+            build to embed OS and runtime details.
           </p>
-        )}
+        : null}
       </div>
     </div>
   );

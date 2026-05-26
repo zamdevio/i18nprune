@@ -1,6 +1,5 @@
 import {
   buildHostedReportUploadRequest,
-  buildReportShareLinks,
   ISSUE_SHARE_REMOTE_ERROR,
   parseWorkerShareEnvelope,
   resolveShareWorkerBaseUrl,
@@ -24,12 +23,12 @@ export function shareRemoteReportLinkOnly(input: {
   reportId: string;
 }): ReportShareLinkOnlyOutcome {
   const workerBaseUrl = normalizeBaseUrl(input.workerBaseUrl);
-  const links = buildReportShareLinks({ workerBaseUrl, reportId: input.reportId });
-  const link = links.report ?? buildHostedReportShareUrl(input.reportId);
+  const link = buildHostedReportShareUrl(input.reportId);
+  const workerMeta = `${workerBaseUrl}/v1/reports/${encodeURIComponent(input.reportId)}`;
   const humanLines = [
     'Link-only share: this report is already hosted on the worker.',
     `Report: ${link}`,
-    `Worker metadata: ${links.worker}`,
+    `Worker metadata: ${workerMeta}`,
     'Hosted reports expire after ~7 days without reads on the worker.',
   ];
   return { ok: true, link, humanLines };
@@ -76,8 +75,8 @@ export async function shareReportUpload(input: {
     return { ok: false, issue: missing, humanLines };
   }
 
-  const links = buildReportShareLinks({ workerBaseUrl, reportId });
-  const link = links.report ?? buildHostedReportShareUrl(reportId);
+  const link = buildHostedReportShareUrl(reportId);
+  const workerMeta = `${workerBaseUrl}/v1/reports/${encodeURIComponent(reportId)}`;
   const deduped = workerUploadWasDeduped(envelope);
   if (deduped) {
     humanLines.push('Worker reused existing report (HASH_ALREADY_EXISTS — same payload hash).');
@@ -85,7 +84,7 @@ export async function shareReportUpload(input: {
     humanLines.push('Uploaded to worker.');
   }
   humanLines.push(`Report: ${link}`);
-  humanLines.push(`Worker metadata: ${links.worker}`);
+  humanLines.push(`Worker metadata: ${workerMeta}`);
   humanLines.push('Hosted reports expire after ~7 days without reads on the worker.');
 
   return { ok: true, reportId, link, deduped, humanLines };
