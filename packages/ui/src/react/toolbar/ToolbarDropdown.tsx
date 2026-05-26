@@ -15,6 +15,11 @@ export function ToolbarDropdown<T extends string>({
   onChange,
   ariaLabel,
   className,
+  disabled = false,
+  triggerLabel,
+  suffixLabel,
+  icon,
+  showChevron = false,
 }: ToolbarDropdownProps<T>): JSX.Element {
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
@@ -91,6 +96,7 @@ export function ToolbarDropdown<T extends string>({
   );
 
   const onTriggerKeyDown = (e: KeyboardEvent): void => {
+    if (disabled) return;
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       if (!open) {
@@ -148,10 +154,30 @@ export function ToolbarDropdown<T extends string>({
     'toolbar-dropdown',
     openLeft ? 'toolbar-dropdown--open-left' : '',
     openUp ? 'toolbar-dropdown--open-up' : '',
+    disabled ? 'is-disabled' : '',
     className ?? '',
   ]
     .filter(Boolean)
     .join(' ');
+
+  const buttonText =
+    triggerLabel ?
+      <>
+        <span className="toolbar-dropdown__trigger-label">{triggerLabel}</span>
+        {suffixLabel ?
+          <>
+            <span className="toolbar-dropdown__sep" aria-hidden>
+              ●
+            </span>
+            <span className="toolbar-dropdown__current">{suffixLabel}</span>
+          </>
+        : null}
+      </>
+    : prefix ?
+      <>
+        {prefix} <span className="toolbar-dropdown__current">{currentLabel}</span>
+      </>
+    : <span className="toolbar-dropdown__current">{currentLabel}</span>;
 
   return (
     <div className={rootClass} ref={rootRef}>
@@ -162,16 +188,29 @@ export function ToolbarDropdown<T extends string>({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listboxId : undefined}
-        onClick={() => setOpen((v) => !v)}
+        disabled={disabled}
+        onClick={() => {
+          if (disabled) return;
+          setOpen((v) => !v);
+        }}
         onKeyDown={onTriggerKeyDown}
       >
-        {prefix ? (
-          <>
-            {prefix} <span className="toolbar-dropdown__current">{currentLabel}</span>
-          </>
-        ) : (
-          <span className="toolbar-dropdown__current">{currentLabel}</span>
-        )}
+        {icon}
+        {buttonText}
+        {showChevron ?
+          <svg
+            className="toolbar-dropdown__chevron"
+            viewBox="0 0 24 24"
+            width={14}
+            height={14}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        : null}
       </button>
       {open ? (
         <ul className="toolbar-dropdown__menu" role="listbox" id={listboxId} aria-label={ariaLabel} tabIndex={-1}>

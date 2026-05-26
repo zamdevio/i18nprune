@@ -47,6 +47,14 @@
       "types": "./src/react/pagination/index.ts",
       "default": "./src/react/pagination/index.ts"
     },
+    "./react/surfaces": {
+      "types": "./src/react/surfaces/index.ts",
+      "default": "./src/react/surfaces/index.ts"
+    },
+    "./react/nav": {
+      "types": "./src/react/nav/index.ts",
+      "default": "./src/react/nav/index.ts"
+    },
     "./types": {
       "types": "./src/types/index.ts",
       "default": "./src/types/index.ts"
@@ -67,6 +75,14 @@
       "types": "./src/types/pagination/index.ts",
       "default": "./src/types/pagination/index.ts"
     },
+    "./types/surfaces": {
+      "types": "./src/types/surfaces/index.ts",
+      "default": "./src/types/surfaces/index.ts"
+    },
+    "./types/nav": {
+      "types": "./src/types/nav/index.ts",
+      "default": "./src/types/nav/index.ts"
+    },
     "./types/swagger": {
       "types": "./src/types/swagger/index.ts",
       "default": "./src/types/swagger/index.ts"
@@ -80,8 +96,13 @@
       "default": "./src/utils/clipboard/index.ts"
     },
     "./styles/tokens.css": "./src/styles/tokens.css",
+    "./styles/runtime-shell.css": "./src/styles/runtime-shell.css",
     "./styles/runtime.css": "./src/styles/runtime.css",
     "./styles/scrollbars.css": "./src/styles/scrollbars.css",
-    "./styles/swagger-overrides.css": "./src/styles/swagger-overrides.css"
+    "./styles/swagger-overrides.css": "./src/styles/swagger-overrides.css",
+    "./styles/sonner.css": "./src/styles/sonner.css"
+  },
+  "dependencies": {
+    "sonner": "^2.0.7"
   }
 }

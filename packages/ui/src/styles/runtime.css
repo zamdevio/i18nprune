@@ -148,6 +148,49 @@
   margin-top: 18px;
 }
 
+.modal-panel .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ui-fg, var(--text, var(--fg)));
+}
+
+.modal-panel .field-wide {
+  width: 100%;
+  min-width: 0;
+}
+
+.modal-panel .field input,
+.modal-panel .field textarea,
+.modal-panel .field select {
+  font: inherit;
+  font-weight: 400;
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  color: var(--ui-fg, var(--text, var(--fg)));
+  border: 1px solid var(--ui-border, var(--border));
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.modal-panel .field textarea {
+  min-height: 84px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.modal-panel .field input:focus,
+.modal-panel .field textarea:focus,
+.modal-panel .field select:focus {
+  outline: 2px solid color-mix(in hsl, var(--ui-primary, var(--primary, var(--accent))) 35%, transparent);
+  outline-offset: 1px;
+}
+
 .modal-panel__foot {
   display: flex;
   justify-content: flex-end;

@@ -1,5 +1,5 @@
 /**
- * Semantic runtime tokens — apps map local accent via a thin bridge (web: green, report: blue).
+ * Semantic runtime tokens — apps map local accent via a thin bridge (web + report: green primary).
  * Import before app styles: @i18nprune/ui/styles/tokens.css
  */
 :root {

@@ -1,0 +1,14 @@
+/**
+ * Sonner toast host — import after tokens.css in runtime apps.
+ * Maps toast chrome to semantic runtime tokens.
+ */
+[data-sonner-toaster] {
+  --normal-bg: var(--ui-bg-elevated, var(--panel, var(--bg-elevated)));
+  --normal-border: var(--ui-border, var(--border));
+  --normal-text: var(--ui-fg, var(--text, var(--fg)));
+}
+
+[data-sonner-toast].i18nprune-toast {
+  font-family: inherit;
+  border-radius: var(--ui-radius, var(--radius, 10px));
+}
