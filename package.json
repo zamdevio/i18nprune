@@ -98,7 +98,7 @@
     "empty:dir:del": "find . -type d -empty ! -path '*/node_modules' ! -path '*/node_modules/*' ! -path '*/.wrangler' ! -path '*/.wrangler/*' ! -path './.git' ! -path './.git/*' -print -delete",
     "empty:file:del": "find . -type f -empty ! -path '*/node_modules/*' ! -path '*/.wrangler/*' ! -path './.git/*' -print -delete",
     "files": "printf \"Source files (.ts, .tsx):\" && find . -path './node_modules' -prune -o -path './.git' -prune -o -path './dist' -prune -o -path './build' -prune -o -path './coverage' -prune -prune -o -path './out' -prune -o -path '*/.wrangler' -prune -o \\( -name '*.ts' -o -name '*.tsx' \\) -print | wc -l",
-    "lines": "printf \"Lines of code (.ts, .tsx):\" && find . -path './node_modules' -prune -o -path './.git' -prune -o -path './dist' -prune -o -path './build' -prune -o -path './coverage' -prune prune -o -path './out' -prune -o -path '*/.wrangler' -prune -o \\( -name '*.ts' -o -name '*.tsx' \\) -print | xargs wc -l 2>/dev/null | tail -1",
+    "lines": "printf \"Lines of code (.ts, .tsx):\" && find . \\( -path './node_modules' -o -path './.git' -o -path './dist' -o -path './build' -o -path './coverage' -o -path './out' -o -path '*/.wrangler' \\) -prune -o \\( -name '*.ts' -o -name '*.tsx' \\) -print | xargs wc -l 2>/dev/null | tail -1",
     "stats": "pnpm files && echo '' && pnpm lines"
   },
   "keywords": [
@@ -147,13 +147,8 @@
   "devDependencies": {
     "@i18nprune/core": "workspace:*",
     "@types/node": "^22.10.0",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
     "knip": "^6.12.0",
     "madge": "^8.0.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
     "tsup": "^8.5.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0",

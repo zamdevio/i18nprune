@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Home, Settings } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, type NavLinkRenderProps } from 'react-router-dom';
 import { EcosystemNavMenu } from '@i18nprune/ui/react/nav';
 import { REPORT_ECOSYSTEM_NAV_LINKS } from '../../constants/ecosystemSurfaces.js';
 import { EditorPreferenceDropdown } from '../editor/index.js';
@@ -62,7 +62,7 @@ export function ReportNavSidebar({ open, onClose, hasDoc }: Props): JSX.Element 
               <NavLink
                 to="/"
                 end
-                className={({ isActive }) =>
+                className={({ isActive }: NavLinkRenderProps) =>
                   `report-nav-sidebar__link${isActive ? ' is-active' : ''}`
                 }
                 onClick={onClose}
@@ -76,7 +76,7 @@ export function ReportNavSidebar({ open, onClose, hasDoc }: Props): JSX.Element 
             <li>
               <NavLink
                 to="/settings"
-                className={({ isActive }) =>
+                className={({ isActive }: NavLinkRenderProps) =>
                   `report-nav-sidebar__link${isActive ? ' is-active' : ''}`
                 }
                 onClick={onClose}

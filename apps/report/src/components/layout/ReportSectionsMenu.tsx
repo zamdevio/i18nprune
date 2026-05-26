@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, type NavLinkRenderProps } from 'react-router-dom';
 import { reportSectionNav } from '../../constants/reportNav.js';
 
 type Props = {
@@ -16,7 +16,7 @@ export function ReportSectionsMenu({ onNavigate }: Props): JSX.Element {
             <NavLink
               to={item.to}
               end={'end' in item ? item.end : false}
-              className={({ isActive }) =>
+              className={({ isActive }: NavLinkRenderProps) =>
                 `report-nav-sidebar__link${isActive ? ' is-active' : ''}`
               }
               onClick={onNavigate}

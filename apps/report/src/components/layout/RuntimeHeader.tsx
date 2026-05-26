@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Home, Settings } from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, type NavLinkRenderProps } from 'react-router-dom';
 import { EcosystemNavMenu } from '@i18nprune/ui/react/nav';
 import { ReportBrandIcon } from '../brand/ReportBrandIcon.js';
 import { EditorPreferenceDropdown } from '../editor/index.js';
@@ -91,7 +91,7 @@ export function RuntimeHeader(): JSX.Element {
             <ThemeToggle />
             <NavLink
               to="/settings"
-              className={({ isActive }) =>
+              className={({ isActive }: NavLinkRenderProps) =>
                 `runtime-header__icon-btn${isActive ? ' is-active' : ''}`
               }
               aria-label="Settings"

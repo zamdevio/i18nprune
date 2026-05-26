@@ -24,10 +24,10 @@ The **`report`** command can emit a **single self-contained HTML file** (`--form
 |------|------|
 | **`data/loader`** | Reads `#i18nprune-inline-payload`, `JSON.parse`, validates with Zod (`@i18nprune/report-schema` / `packages/report`). **Manual import** (paste / file) uses the same validation (`validatePayloadString`). Dev server without payload uses `data/mock`. |
 | **`context/report`** | Provides validated `ProjectReportDocument`; wraps editor preference, search, and pagination providers. |
-| **`components/payload-import`** | Collapsible panel (collapsed by default on the main shell; open on the missing-payload screen; auto-expands on validation error): paste or choose `.json`, load with schema + version errors. |
+| **`components/report-import`** | Home drop zone (zip/json), collapsible paste JSON, process modal for zip, share link dialog; same validation on the missing-payload gate. |
 | **`context/search`** | Global filter string; list routes use `matchesSearch` on row text. |
 | **`context/pagination`** | Per-list page + page size; **rows per page** persisted in `localStorage` (`i18nprune-report-page-size`). |
-| **`context/editor`** | Preferred editor for `file://` / `vscode://` / `cursor://` links (`lib/editor`, `localStorage`). |
+| **`context/editor`** | Preferred editor for `vscode://` / `cursor://` / `antigravity://` / `windsurf://` / `zed://` links (`lib/editor`, `localStorage`). |
 | **Doc links in UI** | Import **`getDocsUrl`**, **`GITHUB_BASE`**, **`GITHUB_REPO`** from **`@i18nprune/core`** (same as CLI; Vite alias in `vite.config.ts`). |
 | **`components/shell`** | Header (brand, **toolbar**: search + editor dropdown, theme dropdown, route badge), nav, footer links. |
 

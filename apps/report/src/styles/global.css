@@ -955,39 +955,6 @@ table.data tr:last-child td {
   white-space: nowrap;
 }
 
-/* Full-width import UI when it replaces the section nav */
-.payload-import-shell {
-  flex: 1 1 100%;
-  min-width: min(100%, 720px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--bg-elevated) 94%, var(--accent) 6%);
-  overflow: hidden;
-}
-
-.payload-import-shell__toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
-  padding: 0.55rem 0.75rem;
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg) 35%, transparent);
-}
-
-.payload-import-shell__title {
-  flex: 1 1 auto;
-  font-weight: 600;
-  font-size: 0.88rem;
-  color: var(--fg);
-  min-width: 8rem;
-}
-
-.payload-import-shell__close,
-.payload-import-shell__collapse-btn {
-  font-size: 0.8rem;
-}
-
 /* --- Demo badge (hosted demo build only; show on the demo page) --- */
 .demo-badge {
   position: relative;
