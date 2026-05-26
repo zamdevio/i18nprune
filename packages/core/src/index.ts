@@ -572,11 +572,10 @@ export {
   PROJECT_UPLOAD_MAX_ZIP_BYTES,
   PROJECT_UPLOAD_ZIP_LIMITS,
 } from './shared/constants/project.js';
-export { REPORT_SHARE_MAX_BYTES } from './shared/constants/share.js';
+export { PROJECT_SHARE_PREPARED_MAX_BYTES, REPORT_SHARE_MAX_BYTES } from './shared/constants/share.js';
 export { SDK_PACKAGE_NAME, SDK_VERSION } from './shared/constants/sdk.js';
 export {
   buildWorkerApiError,
-  HOSTED_PROJECT_PREPARED_MAX_BYTES,
   workerBusyError,
   workerErrorFromIssue,
   workerErrorFromCode,
@@ -607,7 +606,6 @@ export {
   buildHostedProjectUploadRequest,
   buildHostedReportUploadRequest,
 } from './shared/workerApi/ingestRequest.js';
-export type { WorkerErrorHttpStatus } from './shared/workerApi/errors.js';
 export { EMPTY_INPUT_FILES_EPOCH, isEmptyInputFilesEpoch } from './cache/emptyEpoch.js';
 export type {
   NormalizedProjectConfig,
@@ -649,6 +647,7 @@ export type {
   WorkerApiErrorItem,
   WorkerApiWarningItem,
   WorkerErrorAction,
+  WorkerErrorHttpStatus,
   WorkerHealthResult,
   WorkspaceConfigHintState,
   WorkspaceSession,

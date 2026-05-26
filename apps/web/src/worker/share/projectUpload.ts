@@ -114,16 +114,27 @@ export async function uploadProjectToWorker(input: {
     };
   }
 
-  const artifacts = await buildHostedProjectShareArtifacts({
+  const built = await buildHostedProjectShareArtifacts({
     ctx: createWebShareCoreContext(),
     prepare: prepared,
     processorContext: webProcessorContext('prepared'),
   });
+  if (!built.ok) {
+    const first = built.issues[0];
+    return {
+      ok: false,
+      issue: first ?? {
+        severity: 'error',
+        code: ISSUE_SHARE_REMOTE_ERROR,
+        message: 'Prepared project snapshot exceeds worker size limits.',
+      },
+    };
+  }
 
   const req = buildHostedProjectUploadRequest({
     workerBaseUrl,
-    envelope: artifacts.envelope,
-    serialized: artifacts.serialized,
+    envelope: built.envelope,
+    serialized: built.serialized,
     force: input.force,
   });
 

@@ -15,7 +15,11 @@ export {
   buildHostedProjectShareArtifacts,
   buildHostedReportShareArtifacts,
 } from './payload/buildHostedShareArtifacts.js';
-export type { HostedProjectShareArtifacts, HostedReportShareArtifacts } from './payload/buildHostedShareArtifacts.js';
+export type {
+  BuildHostedProjectShareArtifactsResult,
+  HostedProjectShareArtifacts,
+  HostedReportShareArtifacts,
+} from '../types/share/hostedArtifacts.js';
 export {
   hostedIngestEnvelopeForShareContentHash,
   hostedSnapshotForShareContentHash,

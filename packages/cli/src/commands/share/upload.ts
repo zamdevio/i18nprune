@@ -175,11 +175,28 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
         return;
       }
 
-      const projectArtifacts = await buildHostedProjectShareArtifacts({
+      const projectBuilt = await buildHostedProjectShareArtifacts({
         ctx: coreCtx,
         prepare: hosted.project!,
         processorContext: hooks.processorContext,
       });
+      if (!projectBuilt.ok) {
+        if (json) {
+          emitUploadJsonEnvelope(emptyUploadPayload('project'), {
+            ok: false,
+            issues: projectBuilt.issues,
+            cwd: ctx.adapters.system.cwd(),
+          });
+          return;
+        }
+        for (const issue of projectBuilt.issues) logger.err(issue.message);
+        printCommandSummary(
+          { command: 'share upload', ok: false, durationMs: wall.elapsedMs(), counts: {}, issues: projectBuilt.issues },
+          ctx,
+        );
+        applyCliCiExitGate(false);
+        return;
+      }
       const reportArtifacts = buildHostedReportShareArtifacts(hosted.report!);
 
       const projectRes = await runShare({
@@ -190,7 +207,11 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
         source: 'build',
         force: Boolean(opts.force),
         hooks,
-        prepared: projectArtifacts,
+        prepared: {
+          envelope: projectBuilt.envelope,
+          serialized: projectBuilt.serialized,
+          manifest: projectBuilt.manifest,
+        },
       });
       const reportRes = await runShare({
         ctx: coreCtx,

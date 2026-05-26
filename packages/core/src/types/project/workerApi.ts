@@ -7,6 +7,8 @@ import type {
 
 export type WorkerErrorAction = 'reduce_payload' | 'fix_payload' | 'retry' | 'reupload' | 'self_host';
 
+export type WorkerErrorHttpStatus = 400 | 404 | 413 | 429 | 503 | 507;
+
 export type WorkerApiErrorItem = {
   code: string;
   message: string;

@@ -1,5 +1,5 @@
 import {
-  HOSTED_PROJECT_PREPARED_MAX_BYTES,
+  PROJECT_SHARE_PREPARED_MAX_BYTES,
   validateHostedProjectIngestBody,
   workerPayloadTooLargeError,
 } from '@i18nprune/core';
@@ -38,13 +38,13 @@ export function ingestProjectRoute(app: Hono<WorkerEnv>): void {
     }
 
     const raw = await c.req.arrayBuffer();
-    if (raw.byteLength > HOSTED_PROJECT_PREPARED_MAX_BYTES) {
+    if (raw.byteLength > PROJECT_SHARE_PREPARED_MAX_BYTES) {
       return ApiResponse.structuredError(
         c,
         workerPayloadTooLargeError({
           kind: 'project_prepared',
           receivedBytes: raw.byteLength,
-          maxBytes: HOSTED_PROJECT_PREPARED_MAX_BYTES,
+          maxBytes: PROJECT_SHARE_PREPARED_MAX_BYTES,
         }),
       );
     }

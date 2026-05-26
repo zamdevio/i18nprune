@@ -9,8 +9,6 @@ import type { ShareCacheEntry, ShareJsonFile, ShareJsonHealKind, ShareJsonHealRe
 import { normalizeShareCacheEntry, shareEntryRawNeedsIdRepair } from '../canonicalEntry.js';
 import { shareJsonFileSchema } from '../schema.js';
 
-export { DEFAULT_MAX_SHARE_JSON_BYTES, SHARE_JSON_BASENAME };
-
 function emptyShareFile(): ShareJsonFile {
   return { version: 1, entries: [] };
 }

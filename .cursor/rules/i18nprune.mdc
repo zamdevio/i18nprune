@@ -9,9 +9,9 @@ alwaysApply: true
 - **Shipped receipts:** `maintainer/phases/shipped-slices.md` (check before re-implementing).
 - **Current core vertical:** `maintainer/phases/apps.md` (**C.3+ active next**). **Translate-cache (H.1)** and **cache** Phases 0–4 **shipped**.
 - **Next slice scope:** core **`share`** + CLI **`i18nprune share`** per [`apps.md`](./apps.md) — not unrelated cache work.
-- Other phase docs: `extractor.md`, `init.md`, `locales.md` (design reference when touching locales/cache).
+- Other phase docs: `extractor.md`, `cache.md` (shipped reference when touching cache). Shipped vertical receipts: `maintainer/phases/shipped-slices.md`.
 - Contributor maps: `maintainer/systems/README.md`.
-- Agent guides: `maintainer/agents/README.md` · **Architecture:** `maintainer/agents/architecture.md` · **Git:** `maintainer/agents/git.md` · **JSDoc:** `maintainer/agents/jsdoc.md` · Checklist: `maintainer/phases/jsdoc.md`.
+- Agent guides: `maintainer/agents/README.md` · **Architecture:** `maintainer/agents/architecture.md` · **Git:** `maintainer/agents/git.md` · **JSDoc:** `maintainer/agents/jsdoc.md`.
 
 ## Vertical sequencing (locked)
 ```txt

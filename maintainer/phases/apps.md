@@ -96,13 +96,15 @@ Legacy fields (`projectId`, `reportId`, `expiresAt`, `timing`, `processor`, `ext
 | Constant | Location | Values |
 |----------|----------|--------|
 | **`PROJECT_UPLOAD_ZIP_LIMITS`** | `packages/core/src/shared/constants/project.ts` | **50 MiB** zip · **15_000** files · **60 MiB** total text |
-| **`REPORT_SHARE_MAX_BYTES`** | `packages/core/src/shared/constants/share.ts` | **8 MiB** report JSON |
+| **`PROJECT_SHARE_PREPARED_MAX_BYTES`** | `packages/core/src/shared/constants/share.ts` | **50 MiB** prepared project JSON (`POST /v1/projects`) |
+| **`REPORT_SHARE_MAX_BYTES`** | `packages/core/src/shared/constants/share.ts` | **8 MiB** report JSON (`POST /v1/reports`) |
 
 **Enforcement:**
 
 - **Web local zip preview / prepare:** `parseZipToSnapshot` → `PROJECT_UPLOAD_ZIP_LIMITS` (`apps/web/src/project/mergeZipConfig.ts`).
-- **Web/CLI worker upload:** `buildProjectPayload` / `collectSnapshotPaths` pre-checks same limits; worker returns `UPLOAD_ZIP_TOO_LARGE` / `UPLOAD_TOO_MANY_FILES` / `UPLOAD_TEXT_LIMIT_EXCEEDED` → core `share_remote_payload_too_large`.
-- **Report upload:** worker `REPORT_PAYLOAD_TOO_LARGE` → `share_remote_report_rejected`.
+- **Web/CLI worker upload (zip):** `buildProjectPayload` / `collectSnapshotPaths` pre-checks zip limits; worker returns `UPLOAD_ZIP_TOO_LARGE` / etc. → `share_remote_payload_too_large`.
+- **Web/CLI worker upload (prepared JSON):** `assertHostedProjectPreparedWithinLimit` in `buildPreparedProjectPayload` / `buildHostedProjectShareArtifacts` before POST.
+- **Report upload:** `assertReportShareWithinLimit` in `validateReportIngest`; worker `REPORT_PAYLOAD_TOO_LARGE` → `share_remote_report_rejected`.
 
 **Web-only (IndexedDB recent zips — not worker limits):** `apps/web/src/storage/recentProjectZips.ts` — default **512 MiB** total quota (`maxTotalMb`), **1000** max zip count; user-configurable in Settings. Oversize zips can still open workspace but may skip cache with a warning.
 

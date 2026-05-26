@@ -1,8 +1,8 @@
 # Project cache phase — disk index + analysis rebuild (**shipped — Phases 0–4**)
 
-**Status:** Phases **0–4** are **shipped** (core + CLI). **Deferred:** worker segment index → locales follow-up. **Translate cache L2:** **shipped** in [`translate-cache.md`](./translate-cache.md) (H.1).  
+**Status:** Phases **0–4** are **shipped** (core + CLI). **Deferred:** worker segment index → locales follow-up. **Translate cache L2:** **shipped** (H.1) — [`shipped-slices.md`](./shipped-slices.md).  
 **Public user docs:** [`docs/cli/cache.md`](../../docs/cli/cache.md).  
-**Related:** [`locales.md`](./locales.md) · [`translate-cache.md`](./translate-cache.md) (**shipped**) · [`apps.md`](./apps.md) (**C.3+**, active next)
+**Related:** [`shipped-slices.md`](./shipped-slices.md) (locales + translate-cache receipts) · [`apps.md`](./apps.md) (**C.3+**, active next)
 
 **For agents (zero chat context):** Phases 0–4 and **H.1 translate cache** are **done** — see [`shipped-slices.md`](./shipped-slices.md). **Next vertical:** [`apps.md`](./apps.md).
 
@@ -123,7 +123,7 @@ each path in delta.added | .changed | .deleted
 
 ## Locale modes vs analysis fields
 
-Locked leaf identity: [`locales.md` § Leaf identity](./locales.md#leaf-identity-no-cross-file-merge).
+Locked leaf identity: reader/writer contract in core (`packages/core/src/shared/locales/`) — shipped Session H.
 
 | `locales.mode` | Leaf identity | Impact on `analysis.json` |
 |----------------|---------------|---------------------------|
@@ -212,8 +212,8 @@ Use existing extractors — **no new detection algorithms** (`scanProjectKeyObse
 
 | Item | Doc |
 |------|-----|
-| Worker/web segment index convergence | [`locales.md` § After row 10](./locales.md#after-row-10-same-pattern--not-in-row-10-pr) — align hosted snapshot with `localeSegments` keys |
-| Translate cache L2 | [`translate-cache.md`](./translate-cache.md) — **shipped** — `translations/<code>.json`; uses `inputFilesEpoch` |
+| Worker/web segment index convergence | Deferred — align hosted snapshot with `localeSegments` keys (Session H baseline shipped) |
+| Translate cache L2 | **Shipped** — `translations/<code>.json`; uses `inputFilesEpoch` — [`shipped-slices.md`](./shipped-slices.md) |
 | Optional cached `sourceLeafKeys` index | Only if profiling shows JSON re-read dominates |
 
 ---
@@ -299,8 +299,8 @@ flowchart TD
 | Phase 2 — locale source/target classification | **Done** |
 | Phase 3 — profiles + `cache.rebuild` + threshold | **Done** |
 | Phase 4 — invalidate cleanup | **Done** |
-| Phase 5 — worker/web segment index | **Deferred** → [`locales.md`](./locales.md) |
-| Phase 5 — `translations/` L2 (translate cache) | **Shipped** → [`translate-cache.md`](./translate-cache.md) |
+| Phase 5 — worker/web segment index | **Deferred** (hosted snapshot vs `localeSegments`) |
+| Phase 5 — `translations/` L2 (translate cache) | **Shipped** → [`shipped-slices.md`](./shipped-slices.md) |
 
 ---
 

@@ -9,6 +9,7 @@ import type { PrepareProjectSnapshotFromRootInput } from '../../types/project/pr
 import type { ShareProjectManifest } from '../../types/share/manifest.js';
 import type { ProjectAnalysisResolveOptions } from '../../types/analysis/index.js';
 import { computeShareProjectConfigHash } from './buildProjectPayload.js';
+import { assertHostedProjectPreparedWithinLimit } from './limits.js';
 import { hostedIngestEnvelopeForShareContentHash } from './hostedSnapshotSemantic.js';
 import { sha256HexBytes } from '../util/sha256.js';
 import { stableStringify } from '../util/stableJson.js';
@@ -79,6 +80,10 @@ export async function buildPreparedProjectPayload(
 
   const serialized = stableStringify(envelope);
   const uploadBytes = utf8Bytes(serialized);
+  const preparedTooLarge = assertHostedProjectPreparedWithinLimit(uploadBytes.byteLength);
+  if (preparedTooLarge) {
+    return { ok: false, issues: [preparedTooLarge] };
+  }
   const configHash = computeShareProjectConfigHash(input.ctx);
 
   const manifest: ShareProjectManifest = {

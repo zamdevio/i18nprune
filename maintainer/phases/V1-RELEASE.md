@@ -19,10 +19,10 @@ Ship **init → locales → cache → translate-cache** on **`@i18nprune/core`**
 
 | Step | Session | What |
 |------|---------|------|
-| **1** | **F — Init** (**shipped** — core + CLI) | [`init.md`](./init.md) — core-owned detection, presets, generated config |
-| **2** | **H — Locales** (**shipped** — core + CLI) | [`locales.md`](./locales.md) — reader/writer, multi-topology storage |
+| **1** | **F — Init** (**shipped** — core + CLI) | [`shipped-slices.md`](./shipped-slices.md) — `runInit`, presets, CLI **`init`** |
+| **2** | **H — Locales** (**shipped** — core + CLI) | [`shipped-slices.md`](./shipped-slices.md) · [`docs/commands/locales`](../../docs/commands/locales/README.md) |
 | **2a** | **H-cache — Project cache** (**shipped**) | [`cache.md`](./cache.md) — Phases 0–4 (incremental analysis + invalidate policy) |
-| **2b** | **H.1 — Translate cache** (**shipped**) | [`translate-cache.md`](./translate-cache.md) — L1 + L2 `translations/<code>.json` |
+| **2b** | **H.1 — Translate cache** (**shipped**) | [`shipped-slices.md`](./shipped-slices.md) · [`docs/cli/cache.md`](../../docs/cli/cache.md) |
 | **3** | **C.3 — Apps + share** | [`apps.md`](./apps.md) — worker + core **`share`** + CLI **`i18nprune share`** (**rows 0–6 shipped**); web/report UX rows **7–8** next |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) — nav trim, SDK quickstart, tree flattening |
 | **5** | **D.2 — Landing** | `apps/landing` — lean onboarding + value proposition |
@@ -56,33 +56,19 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 **Patching / auto-patching.** **User docs:** [`docs/patching/README.md`](../../docs/patching/README.md). Maintainer map: [`maintainer/systems/patching.md`](../systems/patching.md). Delivered: integration tests (core chain + CLI **`patch --fix` → `--patch sync` → `--patch generate`**), shared CLI **`Context` → `runPatching`** wiring (`fromContext.ts`), resolver preservation tests, **`config.json`** injection-status docs, core patching types and barrel layout.
 
-**Next (core):** **C.3+ apps / share** ([`apps.md`](./apps.md)). **Translate cache (H.1):** [`translate-cache.md`](./translate-cache.md) — **shipped**.
+**Next (core):** **C.3+ apps / share** ([`apps.md`](./apps.md)).
 
 ---
 
 ## Session F — Init phase (**shipped — core + CLI**)
 
-**Docs:** [`init.md`](./init.md)
-
-**Goal:** Best-in-class onboarding — **core-owned** detection, scoring, and config/preset generation; CLI and extension remain **hosts** only (**one intelligence layer, many hosts**).
-
-**Delivered:** Core **`runInit`** surface, preset detection/scoring, config template generation, CLI **`init`** (`--auto`, `--preset`, `--json`) with parity tests. **Extension** onboarding UI (I1–I3) remains planned in [`extension/README.md`](./extension/README.md).
-
-**Dependencies:** **Extractor** (Session **C.1**, shipped) remains the authoritative usage/call-site signal layer; init **consumes** extractor capabilities where runtime evidence is required — no duplicate detection engines in hosts.
-
-**Blocks:** **Session H (Locales)** must not ship core storage work until init **schema + preset** alignment from [`init.md`](./init.md) is in place.
+**Receipt:** [`shipped-slices.md`](./shipped-slices.md). **Extension** onboarding UI (I1–I3) remains planned in [`extension/README.md`](./extension/README.md).
 
 ---
 
 ## Session H — Locales phase (**shipped**)
 
-**Docs:** [`locales.md`](./locales.md) — tracker rows **0–10** done (reader/writer, op migration, web/worker enumeration, docs, segment-aware **`files.json`** index).
-
-**Goal:** Multi-topology locale **storage** via **reader/writer**; ops consume **normalized locale surfaces**.
-
-**Dependencies:** **Session F (Init)** — **shipped**.
-
-**Keep doc:** [`locales.md`](./locales.md) is the **design reference** (leaf identity, modes) — do not delete.
+**Receipt:** [`shipped-slices.md`](./shipped-slices.md) · user docs [`docs/commands/locales`](../../docs/commands/locales/README.md).
 
 ---
 
@@ -98,11 +84,7 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 ## Session H.1 — Translate cache (**shipped**)
 
-**Docs:** [`translate-cache.md`](./translate-cache.md)
-
-**Delivered:** **L1** in-process memo + **L2** per-target **`translations/<code>.json`** beside **`analysis.json`**; `cacheHits` on generate progress; startup heal for corrupt translation cache files; port types in `types/translator/cache.ts` (no circular deps). Reuses **`config.cache`** and CLI **`--no-cache`**.
-
-**Dependencies:** **H-cache** Phases 0–4 — **shipped**. Receipt: [`shipped-slices.md`](./shipped-slices.md).
+**Receipt:** [`shipped-slices.md`](./shipped-slices.md) · [`docs/cli/cache.md`](../../docs/cli/cache.md).
 
 ---
 

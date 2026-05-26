@@ -162,7 +162,7 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
           readinessIssues ?? [],
         ),
       },
-      { run },
+      { run, adapters: ctx.adapters },
     );
 
     applyCliCiExitGate(

@@ -108,4 +108,4 @@ Only when the call shape is non-obvious. Skip for `fn(x)` patterns.
 
 ## Task checklist
 
-The ongoing JSDoc enforcement backlog (which functions still need Tier 2 coverage) is tracked separately in `maintainer/phases/jsdoc.md`. This file is the **how**; that file is the **what's left**.
+This file is the **how** for JSDoc. Tier-2 coverage gaps are closed opportunistically in the same PR as the touched module — no separate phase checklist.

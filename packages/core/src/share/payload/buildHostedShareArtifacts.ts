@@ -3,8 +3,13 @@ import type { HostedIngestProcessorContext } from '../../types/project/metadata.
 import type { HostedProjectIngestEnvelope } from '../../types/project/prepare.js';
 import type { PrepareProjectSnapshotResult } from '../../types/project/prepare.js';
 import type { ValidateReportIngestResult } from '../../types/report/ingest.js';
-import type { ShareProjectManifest, ShareReportManifest } from '../../types/share/manifest.js';
+import type { ShareProjectManifest } from '../../types/share/manifest.js';
+import type {
+  BuildHostedProjectShareArtifactsResult,
+  HostedReportShareArtifacts,
+} from '../../types/share/hostedArtifacts.js';
 import { computeShareProjectConfigHash } from './buildProjectPayload.js';
+import { assertHostedProjectPreparedWithinLimit } from './limits.js';
 import type { CoreContext } from '../../types/context/index.js';
 import { hostedIngestEnvelopeForShareContentHash } from './hostedSnapshotSemantic.js';
 import { sha256HexBytes } from '../util/sha256.js';
@@ -26,18 +31,12 @@ function topLevelPrefixesFromSnapshot(snapshot: { tree: readonly { path: string 
   return [...set].sort();
 }
 
-export type HostedProjectShareArtifacts = {
-  envelope: HostedProjectIngestEnvelope;
-  serialized: string;
-  manifest: ShareProjectManifest;
-};
-
 /** Builds upload envelope + share manifest from an already-prepared project snapshot. */
 export async function buildHostedProjectShareArtifacts(input: {
   ctx: CoreContext;
   prepare: PrepareProjectSnapshotResult & { ok: true };
   processorContext?: HostedIngestProcessorContext;
-}): Promise<HostedProjectShareArtifacts> {
+}): Promise<BuildHostedProjectShareArtifactsResult> {
   const envelope: HostedProjectIngestEnvelope = {
     schemaVersion: HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION,
     snapshot: input.prepare.parsed.snapshot,
@@ -51,6 +50,10 @@ export async function buildHostedProjectShareArtifacts(input: {
 
   const serialized = stableStringify(envelope);
   const uploadBytes = utf8Bytes(serialized);
+  const preparedTooLarge = assertHostedProjectPreparedWithinLimit(uploadBytes.byteLength);
+  if (preparedTooLarge) {
+    return { ok: false, issues: [preparedTooLarge] };
+  }
 
   const manifest: ShareProjectManifest = {
     kind: 'project',
@@ -64,13 +67,8 @@ export async function buildHostedProjectShareArtifacts(input: {
     detectedConfigRelPath: envelope.snapshot.detectedConfigPath,
   };
 
-  return { envelope, serialized, manifest };
+  return { ok: true, envelope, serialized, manifest };
 }
-
-export type HostedReportShareArtifacts = {
-  document: unknown;
-  manifest: ShareReportManifest;
-};
 
 /** Report branch from combined {@link prepareShareHostedFromContext}. */
 export function buildHostedReportShareArtifacts(

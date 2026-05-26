@@ -27,17 +27,14 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 | Doc | Status |
 |-----|--------|
 | [`extractor.md`](./extractor.md) | **Active** — JS/TS extractor improvement plan (false-positive hardening, future languages) |
-| [`init.md`](./init.md) | **Shipped (Session F — core + CLI)** — presets, `runInit`, `init --json`; extension host follow-ups in [`extension/README.md`](./extension/README.md) |
-| [`locales.md`](./locales.md) | **Shipped (Session H)** — design reference; reader/writer; rows 0–10 done |
-| [`cache.md`](./cache.md) | **Shipped (H-cache)** — Phases 0–4 (incremental analysis + invalidate policy) |
-| [`translate-cache.md`](./translate-cache.md) | **Shipped (H.1)** — L2 `translations/<code>.json`; same `config.cache` |
+| [`cache.md`](./cache.md) | **Shipped (H-cache)** — Phases 0–4 (incremental analysis + invalidate policy); user copy: [`docs/cli/cache.md`](../../docs/cli/cache.md) |
 | [`apps.md`](./apps.md) | **Active (C.3+)** — open: report row **8**, worker `runReport` row **9**, metadata polish **W** |
-| [`jsdoc.md`](./jsdoc.md) | **Active** — JSDoc enforcement tiers |
 | [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |
 | [`final.md`](./final.md) | **Gate** — one-time pre-publish checklist (delete after release) |
 | [`V1-RELEASE.md`](./V1-RELEASE.md) | **Hub** — ordered v1 sessions |
 | [`docs-refactor.md`](./docs-refactor.md) | **Active** — v1-scoped docs nav reduction + SDK quickstart |
-| [`ui.md`](./ui.md) | **Shipped (0–4)** — `@i18nprune/ui` migration tracker; optional phases 5–6 backlog |
+
+**Shipped verticals** (init, locales, translate-cache, UI kit): receipts in [`shipped-slices.md`](./shipped-slices.md) — phase checklists removed after close. **UI rules:** [`maintainer/systems/ui.md`](../systems/ui.md). **JSDoc how-to:** [`maintainer/agents/jsdoc.md`](../agents/jsdoc.md).
 
 ---
 

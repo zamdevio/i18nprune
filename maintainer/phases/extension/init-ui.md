@@ -39,7 +39,7 @@ Then: editable config preview → user confirms → **Write config** via core (o
 ## Dependencies
 
 - **Foundation** — settings, workspace binding, logging ([`foundation.md`](./foundation.md)).
-- **Core init** — **Session F shipped** (`runInit`, presets, `--json`); extension must not ship before stable init result types ([`../init.md`](../init.md)).
+- **Core init** — **Session F shipped** (`runInit`, presets, `--json`); extension must not ship before stable init result types ([`../shipped-slices.md`](../shipped-slices.md)).
 
 **Schedule:** Init UI is **extension** work **after** core **locales** contracts stabilize ([`../active-phase.md`](../active-phase.md) locked chain). Do not block Session **H** on the webview.
 

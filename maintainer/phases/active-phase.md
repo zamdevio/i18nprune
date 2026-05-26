@@ -6,7 +6,7 @@
 
 **Narrative focus:** **apps / share (C.3+)** per [`apps.md`](./apps.md) → **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
 
-**Verticals:** **[`init.md`](./init.md)** (**shipped**) → **[`locales.md`](./locales.md)** (**shipped**) → **[`cache.md`](./cache.md)** (**shipped**) → **[`translate-cache.md`](./translate-cache.md)** (**shipped**) → **[`apps.md`](./apps.md)** (**active next**) → **docs (D)** — extension per **[`extension/README.md`](./extension/README.md)**.
+**Verticals:** init / locales / cache / translate-cache (**shipped** — [`shipped-slices.md`](./shipped-slices.md)) → **[`apps.md`](./apps.md)** (**active next**) → **docs (D)** — extension per **[`extension/README.md`](./extension/README.md)**.
 
 ---
 
@@ -25,7 +25,7 @@ locales          (shipped — Session H)
     ↓
 cache            (shipped — cache.md Phases 0–4)
     ↓
-translate-cache  (shipped — translations/<code>.json; translate-cache.md)
+translate-cache  (shipped — translations/<code>.json)
     ↓
 apps             (C.3+ active next — share op + hosted catch-up; apps.md)
     ↓
@@ -35,10 +35,10 @@ extension
 | Phase | Role | Maintainer doc |
 |-------|------|----------------|
 | **extractor** | Strengthens key detection and runtime-facing signals (bindings, call sites, dynamic classification). **Session C.1 shipped** — contracts are stable for **init** / **locales** / **extension**; downstream phases **must respect** extractor contracts and must not fork parallel detection “truth”. | [`extractor.md`](./extractor.md) |
-| **init** | Best-in-class onboarding: **core-owned** detection + preset/config generation; **CLI and extension are hosts only**. **Session F shipped** (core + CLI); extension init UI remains planned. **Config schema** + preset model are the contract **locales** builds on. | [`init.md`](./init.md) |
-| **locales** | Multi-topology locale **storage** via **reader/writer**; **normalized locale surface** for ops. **Shipped** (Session **H**). Design reference: [`locales.md`](./locales.md). | [`locales.md`](./locales.md) |
+| **init** | Best-in-class onboarding: **core-owned** detection + preset/config generation; **CLI and extension are hosts only**. **Session F shipped** (core + CLI); extension init UI remains planned. | [`shipped-slices.md`](./shipped-slices.md) |
+| **locales** | Multi-topology locale **storage** via **reader/writer**; **normalized locale surface** for ops. **Shipped** (Session **H**). | [`shipped-slices.md`](./shipped-slices.md) |
 | **cache** | **`files.json`** + **`analysis.json`**; incremental rebuild + profiles + Phase 4 invalidation **shipped** — [`cache.md`](./cache.md). | [`cache.md`](./cache.md) |
-| **translate-cache** | L1 + L2 **`translations/<code>.json`** beside **`analysis.json`**; same **`config.cache`**. **Shipped** (Session **H.1**). | [`translate-cache.md`](./translate-cache.md) |
+| **translate-cache** | L1 + L2 **`translations/<code>.json`** beside **`analysis.json`**; same **`config.cache`**. **Shipped** (Session **H.1**). | [`shipped-slices.md`](./shipped-slices.md) |
 | **apps** | **`apps/web`**, **`apps/report`**, worker; core **`share`** op + CLI **`i18nprune share`**. **Active next** (C.3+). | [`apps.md`](./apps.md) |
 | **extension** | Hosts core APIs only — **no parallel scan truth**. | [`extension/README.md`](./extension/README.md) |
 
@@ -53,14 +53,14 @@ extension
 
 ### Explicit boundaries
 
-- **Preset ≠ locale mode:** presets bundle *opinionated defaults* (paths, patterns, locale layout hints, extractor defaults). Locale **mode/structure** remain explicit config concerns; see [`init.md`](./init.md) and [`locales.md`](./locales.md).
+- **Preset ≠ locale mode:** presets bundle *opinionated defaults* (paths, patterns, locale layout hints, extractor defaults). Locale **mode/structure** remain explicit config concerns (`config.locales`).
 - **Locales config does not own extractor behavior:** reader/writer handle **storage**; extractor stays separate.
-- **Missing-key file placement** is **not** a new config surface in v1 of this plan — **core-owned suggestions** inside the **`missing`** operation; hosts handle UX only ([`locales.md`](./locales.md) § Missing key placement).
+- **Missing-key file placement** is **not** a new config surface in v1 — **core-owned suggestions** inside the **`missing`** operation; hosts handle UX only.
 
 ### Risk notes
 
-- **Locales** work that ignores the **init** preset + schema contract (see [`init.md`](./init.md)) risks churn in `CoreResolvedPaths` / config shape and double-migration pain.
-- Letting **`if (mode === …)`** leak into every op **bypasses** the reader/writer contract — high regression risk; keep ops on **normalized surfaces** ([`locales.md`](./locales.md)).
+- **Locales** work that ignores the **init** preset + schema contract risks churn in `CoreResolvedPaths` / config shape and double-migration pain.
+- Letting **`if (mode === …)`** leak into every op **bypasses** the reader/writer contract — high regression risk; keep ops on **normalized surfaces**.
 - Extension shipping **before** locales stabilization invites **duplicated** filesystem intelligence in the host — explicitly **out of scope** for the agreed model.
 
 ---
@@ -114,10 +114,10 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **Phase dependency chain** | **Locked** | **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** (this file) |
 | **Core-op migrations** | **Shipped — Session A.2** | [`shipped-slices.md`](./shipped-slices.md) |
 | **Extractor hardening** | **Shipped — Session C.1** | [`extractor.md`](./extractor.md) |
-| **Init phase (onboarding)** | **Shipped — Session F** (core + CLI; extension host I1–I3 in [`extension/README.md`](./extension/README.md)) | [`init.md`](./init.md) |
-| **Locales phase (multi-topology)** | **Shipped — Session H** (rows 0–10) | [`locales.md`](./locales.md) |
+| **Init phase (onboarding)** | **Shipped — Session F** (core + CLI; extension host I1–I3 in [`extension/README.md`](./extension/README.md)) | [`shipped-slices.md`](./shipped-slices.md) |
+| **Locales phase (multi-topology)** | **Shipped — Session H** | [`shipped-slices.md`](./shipped-slices.md) |
 | **Project cache (analysis incremental)** | **Shipped — Phases 0–4** | [`cache.md`](./cache.md) |
-| **Translate cache** | **Shipped — H.1** | [`translate-cache.md`](./translate-cache.md) |
+| **Translate cache** | **Shipped — H.1** | [`shipped-slices.md`](./shipped-slices.md) |
 | **Apps catch-up (web + report + worker + share)** | **Active next — C.3+** (plan in [`apps.md`](./apps.md)) | [`apps.md`](./apps.md) |
 | **Patching hardening** | **Shipped** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |

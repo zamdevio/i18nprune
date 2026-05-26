@@ -4,17 +4,14 @@ import {
   ISSUE_REPORT_HOSTED_REPORT_INVALID,
 } from '../constants/issueCodes.js';
 import { GITHUB_REPO_URL } from '../constants/links.js';
-import { PROJECT_UPLOAD_MAX_ZIP_BYTES } from '../constants/project.js';
-import { REPORT_SHARE_MAX_BYTES } from '../constants/share.js';
+import { PROJECT_SHARE_PREPARED_MAX_BYTES, REPORT_SHARE_MAX_BYTES } from '../constants/share.js';
 import type { Issue } from '../../types/json/envelope/index.js';
-import type { WorkerApiErrorItem, WorkerApiWarningItem, WorkerErrorAction } from '../../types/project/workerApi.js';
-
-/** Max UTF-8 bytes for `POST /v1/projects` prepared JSON body (aligned with zip cap). */
-export const HOSTED_PROJECT_PREPARED_MAX_BYTES = PROJECT_UPLOAD_MAX_ZIP_BYTES;
-
-export type WorkerErrorHttpStatus = 400 | 404 | 413 | 429 | 503 | 507;
-
-export type { WorkerErrorAction };
+import type {
+  WorkerApiErrorItem,
+  WorkerApiWarningItem,
+  WorkerErrorAction,
+  WorkerErrorHttpStatus,
+} from '../../types/project/workerApi.js';
 
 const PAYLOAD_TOO_LARGE_CODES = new Set(['PAYLOAD_TOO_LARGE', 'REPORT_PAYLOAD_TOO_LARGE']);
 
@@ -84,7 +81,7 @@ function reducePayloadError(
       : code === 'EXTRACTION_LIMIT_EXCEEDED'
         ? ['Shrink locale/source scope or split the project before sharing.']
         : [
-            `Prepared payloads must stay under ${String(HOSTED_PROJECT_PREPARED_MAX_BYTES)} bytes (projects) or ${String(REPORT_SHARE_MAX_BYTES)} bytes (reports).`,
+            `Prepared project JSON must stay under ${String(PROJECT_SHARE_PREPARED_MAX_BYTES)} bytes; report JSON under ${String(REPORT_SHARE_MAX_BYTES)} bytes.`,
             'Run share upload after a smaller prepare, or use archive upload with a trimmed zip.',
           ];
   return buildWorkerApiError({

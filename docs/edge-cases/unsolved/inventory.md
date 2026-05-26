@@ -48,6 +48,6 @@ Use this shape for every new inventory item:
 - **Current behavior:** No model of hook return shapes; `t` from destructuring is invisible unless listed in `functions` **and** the call site uses that binding name from an import binding we can see (still won’t connect hook-only locals without extra config).
 - **Target behavior:** Framework-specific presets or optional AST-backed assist **after** JS/TS extractor is stable; see init / extension phases.
 - **Workaround:** Configure explicit `functions` entries for locals you use, or re-export a thin wrapper `export const t = …` that import scan can see.
-- **Owner / phase:** `maintainer/phases/extractor.md` §0; `maintainer/phases/init.md` / extension docs for presets.
+- **Owner / phase:** `maintainer/phases/extractor.md` §0; `maintainer/phases/shipped-slices.md` (init) / extension docs for presets.
 
 Add entries as soon as an unresolved behavior is accepted as known, even if implementation is not scheduled.

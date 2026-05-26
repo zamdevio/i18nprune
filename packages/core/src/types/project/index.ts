@@ -61,6 +61,7 @@ export type {
   WorkerApiErrorItem,
   WorkerApiWarningItem,
   WorkerErrorAction,
+  WorkerErrorHttpStatus,
   WorkerHealthResult,
 } from './workerApi.js';
 export type {

@@ -1,4 +1,5 @@
 export type * from './entry.js';
+export type * from './hostedArtifacts.js';
 export type * from './hostOptions.js';
 export type * from './json.js';
 export type * from './manifest.js';

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { PROJECT_SHARE_PREPARED_MAX_BYTES } from '../../constants/share.js';
 import {
-  HOSTED_PROJECT_PREPARED_MAX_BYTES,
   workerErrorFromIssue,
   workerErrorFromCode,
   workerErrorHttpStatus,
@@ -43,11 +43,11 @@ describe('workerApi errors', () => {
   it('builds prepared project payload too large details', () => {
     const err = workerPayloadTooLargeError({
       kind: 'project_prepared',
-      receivedBytes: HOSTED_PROJECT_PREPARED_MAX_BYTES + 1,
-      maxBytes: HOSTED_PROJECT_PREPARED_MAX_BYTES,
+      receivedBytes: PROJECT_SHARE_PREPARED_MAX_BYTES + 1,
+      maxBytes: PROJECT_SHARE_PREPARED_MAX_BYTES,
     });
-    expect(err.details?.maxBytes).toBe(HOSTED_PROJECT_PREPARED_MAX_BYTES);
-    expect(err.details?.receivedBytes).toBe(HOSTED_PROJECT_PREPARED_MAX_BYTES + 1);
+    expect(err.details?.maxBytes).toBe(PROJECT_SHARE_PREPARED_MAX_BYTES);
+    expect(err.details?.receivedBytes).toBe(PROJECT_SHARE_PREPARED_MAX_BYTES + 1);
   });
 
   it('maps not-found codes to 404 without PAYLOAD_EXPIRED', () => {

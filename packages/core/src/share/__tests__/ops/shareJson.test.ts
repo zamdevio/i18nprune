@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_MAX_SHARE_JSON_BYTES,
   loadShareJsonFile,
   mergeDuplicateShareEntries,
   resolveShareJsonPath,
   saveShareJsonFile,
 } from '../../cache/io/shareJson.js';
+import { DEFAULT_MAX_SHARE_JSON_BYTES } from '../../../shared/constants/share.js';
 import { ISSUE_SHARE_JSON_REPAIRED, ISSUE_SHARE_JSON_WRITE_FAILED } from '../../../shared/constants/issueCodes.js';
 import type { CacheRuntime } from '../../../types/cache/index.js';
 import type { RuntimeDirEntry, RuntimeFsPort, RuntimePathPort } from '../../../types/runtime/index.js';

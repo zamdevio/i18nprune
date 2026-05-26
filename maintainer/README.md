@@ -23,4 +23,4 @@ Ignoring all of **`maintainer/`** would strand clones without sequencing context
 
 **Execution order (v1):** **init (F)** (**shipped**) → **locales (H)** (**shipped**) → **cache (H-cache)** (**shipped**) → **translate-cache (H.1)** (**shipped**) → **apps (C.3)** (**active next**) → **docs (D)** → **landing (D.2)** → **release (E)** + **`final.md` (G)**. See **[`phases/V1-RELEASE.md` § Recommended sequence](phases/V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
 
-**Phase narrative:** [`phases/README.md`](phases/README.md) · **active:** [`phases/apps.md`](phases/apps.md) · **locales reference (H — shipped):** [`phases/locales.md`](phases/locales.md) · **scratch:** **`maintainer/temp/`** only.
+**Phase narrative:** [`phases/README.md`](phases/README.md) · **active:** [`phases/apps.md`](phases/apps.md) · **shipped receipts:** [`phases/shipped-slices.md`](phases/shipped-slices.md) · **scratch:** **`maintainer/temp/`** only.
