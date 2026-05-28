@@ -547,6 +547,7 @@ export {
   normalizeProjectConfig,
   parseProjectUploadFailure,
   buildProjectUploadSnapshotMeta,
+  buildReportDocumentFromPreparedSnapshot,
   parseZipToSnapshot,
   prepareProjectSnapshotFromArchive,
   prepareProjectSnapshotFromRoot,

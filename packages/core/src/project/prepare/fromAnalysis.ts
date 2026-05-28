@@ -3,6 +3,7 @@ import { readLocaleJsonFromContextSync } from '../../shared/locales/read/bundle.
 import { buildLocaleJsonByTagFromArchive, listLocaleCodesFromArchive } from '../../shared/locales/archive/buildLocaleJsonByTag.js';
 import { ISSUE_PROJECT_SOURCE_LOCALE_INVALID_SHAPE } from '../../shared/constants/issueCodes.js';
 import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '../../shared/constants/report.js';
+import { computeMissingLiteralKeysFromResolvedKeys } from '../../validate/index.js';
 import type { CoreContext } from '../../types/context/index.js';
 import type { ProjectAnalysis, ProjectAnalysisResolveOptions } from '../../types/analysis/index.js';
 import type { ApplyProjectAnalysisInput } from '../../types/project/applyAnalysis.js';
@@ -130,6 +131,11 @@ export function buildReportDocumentFromPreparedSnapshot(
 ): Record<string, unknown> {
   const extraction = snapshot.extraction;
   if (!extraction) throw new Error('snapshot.extraction is required');
+  if (!snapshot.sourceLocaleJson) throw new Error('snapshot.sourceLocaleJson is required');
+  const missing = computeMissingLiteralKeysFromResolvedKeys(
+    snapshot.sourceLocaleJson,
+    new Set(extraction.resolvedKeys),
+  );
   const sourceLocaleTag =
     extraction.sourceLocalePath.split('/').pop()?.replace(/\.json$/i, '') ?? 'source';
 
@@ -147,14 +153,14 @@ export function buildReportDocumentFromPreparedSnapshot(
       environment: host.environment,
     },
     summary: {
-      missingKeysCount: 0,
+      missingKeysCount: missing.length,
       dynamicSitesCount: extraction.dynamicSitesCount,
       keyObservationsCount: extraction.keyObservationsCount,
       sourceFilesScannedCount: 0,
-      ok: true,
+      ok: missing.length === 0,
     },
     details: {
-      missingKeys: [],
+      missingKeys: missing,
       dynamicSites: extraction.dynamicSitesPreview ?? [],
       keyObservations: extraction.keyObservationsPreview ?? [],
     },

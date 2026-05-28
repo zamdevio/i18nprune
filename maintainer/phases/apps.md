@@ -14,14 +14,14 @@
 | # | Slice | Status | Notes |
 |---|-------|--------|-------|
 | **8** | **Report** `/#/?id=` + `/document` load + Share + shell UX | **Shipped** | [`apps/report`](../../apps/report) — home/import, runtime shell parity with web, workspace nav, share history |
-| **9** | Worker **`runReport`** on `GET …/projects/:id/report` | **Todo** | Replace hand-built doc in `routes/v1/projects/report.ts` |
+| **9** | Worker **`runReport`** on `GET …/projects/:id/report` | **Shipped** | `routes/v1/projects/report.ts` now routes through core `runReport` with a preloaded snapshot document |
 | **W** | **Worker metadata response polish** | **Todo** (can parallel 8/9) | Compressed plan § [Worker metadata (W)](#worker-metadata-w) below |
 
 ---
 
 ## Row 9 — worker project report route
 
-- [ ] `apps/workers/i18nprune/src/routes/v1/projects/report.ts` calls **`runReport`** with edge adapters (no hand-built document).
+- [x] `apps/workers/i18nprune/src/routes/v1/projects/report.ts` calls **`runReport`** with edge adapters (no hand-built document).
 
 ---
 
