@@ -1,13 +1,5 @@
 import { createBundledHighlighter } from 'shiki/core';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
-import javascript from '@shikijs/langs/javascript';
-import typescript from '@shikijs/langs/typescript';
-import tsx from '@shikijs/langs/tsx';
-import jsx from '@shikijs/langs/jsx';
-import json from '@shikijs/langs/json';
-import jsonc from '@shikijs/langs/jsonc';
-import vue from '@shikijs/langs/vue';
-import svelte from '@shikijs/langs/svelte';
 import vitesseDark from '@shikijs/themes/vitesse-dark';
 import vitesseLight from '@shikijs/themes/vitesse-light';
 
@@ -18,36 +10,24 @@ import vitesseLight from '@shikijs/themes/vitesse-light';
 export type ShikiLang =
   | 'javascript'
   | 'typescript'
-  | 'tsx'
-  | 'jsx'
   | 'json'
-  | 'jsonc'
-  | 'vue'
-  | 'svelte';
+  | 'jsonc';
 
 const THEMES = ['vitesse-dark', 'vitesse-light'] as const;
 
 const LANGS: ShikiLang[] = [
   'javascript',
   'typescript',
-  'tsx',
-  'jsx',
   'json',
   'jsonc',
-  'vue',
-  'svelte',
 ];
 
 const createHighlighter = createBundledHighlighter({
   langs: {
-    javascript: () => javascript,
-    typescript: () => typescript,
-    tsx: () => tsx,
-    jsx: () => jsx,
-    json: () => json,
-    jsonc: () => jsonc,
-    vue: () => vue,
-    svelte: () => svelte,
+    javascript: () => import('@shikijs/langs/javascript').then((m) => m.default),
+    typescript: () => import('@shikijs/langs/typescript').then((m) => m.default),
+    json: () => import('@shikijs/langs/json').then((m) => m.default),
+    jsonc: () => import('@shikijs/langs/jsonc').then((m) => m.default),
   },
   themes: {
     'vitesse-dark': () => vitesseDark,
@@ -70,10 +50,8 @@ export function fileNameToShikiLang(fileName: string): ShikiLang {
   const lower = fileName.toLowerCase();
   if (lower.endsWith('.json')) return 'json';
   if (lower.endsWith('.jsonc')) return 'jsonc';
-  if (lower.endsWith('.tsx')) return 'tsx';
-  if (lower.endsWith('.jsx')) return 'jsx';
-  if (lower.endsWith('.vue')) return 'vue';
-  if (lower.endsWith('.svelte')) return 'svelte';
+  if (lower.endsWith('.tsx') || lower.endsWith('.jsx')) return 'typescript';
+  if (lower.endsWith('.vue') || lower.endsWith('.svelte')) return 'typescript';
   if (lower.endsWith('.ts') || lower.endsWith('.mts') || lower.endsWith('.cts')) return 'typescript';
   if (lower.endsWith('.js') || lower.endsWith('.mjs') || lower.endsWith('.cjs')) return 'javascript';
   return 'typescript';

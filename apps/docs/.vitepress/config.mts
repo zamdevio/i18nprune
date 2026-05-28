@@ -6,12 +6,34 @@ import { sidebar } from './sidebar.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+function docsChunkByPackage(id: string): string | undefined {
+  if (!id.includes('node_modules')) return undefined
+  if (id.includes('/@shikijs/langs/')) {
+    const lang = id.match(/@shikijs\/langs\/([^/.]+)/)?.[1]
+    return lang ? `vendor-shiki-lang-${lang}` : 'vendor-shiki-langs'
+  }
+  const match = id.match(/node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?(@[^/]+\/[^/]+|[^/]+)/)
+  const pkg = match?.[1]
+  if (!pkg) return undefined
+  if (pkg === 'motion' || pkg === 'shiki') return undefined
+  if (pkg === 'vue' || pkg === '@vue/runtime-core' || pkg === '@vue/runtime-dom') return 'vendor-vue'
+  if (pkg === 'vitepress') return 'vendor-vitepress'
+  return `vendor-${pkg.replace('@', '').replace('/', '-')}`
+}
+
 export default defineConfig({
   title: 'i18nprune',
   description: 'Docs for I18nprune repo',
   srcDir: 'content',
   vite: {
-    publicDir: resolve(__dirname, 'public')
+    publicDir: resolve(__dirname, 'public'),
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: docsChunkByPackage,
+        },
+      },
+    },
   },
   cleanUrls: true,
   ignoreDeadLinks: true,
