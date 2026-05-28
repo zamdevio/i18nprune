@@ -1,4 +1,4 @@
-import type { HostedProjectIngestEnvelope } from '../../types/project/prepare.js';
+import type { HostedProjectIngestEnvelope } from '../../types/project/prepare/index.js';
 import type { ProjectSnapshot } from '../../types/project/upload.js';
 
 function snapshotForShareContentHash(snapshot: ProjectSnapshot): Record<string, unknown> {

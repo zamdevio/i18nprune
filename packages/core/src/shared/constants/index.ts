@@ -9,4 +9,5 @@ export * from './result.js';
 export * from './project.js';
 export * from './report.js';
 export * from './share.js';
+export * from './worker.js';
 export * from './translate.js';

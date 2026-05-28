@@ -1,11 +1,10 @@
 import type { Issue } from '../../types/json/envelope/index.js';
-import type { PrepareProjectSnapshotResult } from '../../types/project/prepare.js';
-import type { PrepareProjectSnapshotFromArchiveInput } from '../../types/project/prepareArchive.js';
+import type { PrepareProjectSnapshotResult } from '../../types/project/prepare/index.js';
+import type { PrepareProjectSnapshotFromArchiveInput } from '../../types/project/prepare/index.js';
 import { parseProjectUploadFailure } from '../normalizeConfig.js';
 import { parseZipToSnapshot } from '../parseZip.js';
 import { createArchiveProjectFs } from './archiveFs.js';
 import { fillProjectSnapshotExtraction } from './extract.js';
-import { METADATA_DASH } from '../../types/project/metadata.js';
 import type { HostPrepareCacheMeta } from '../../types/project/metadata.js';
 import { alignArchiveSnapshotTimings } from './alignArchiveTimings.js';
 import { resolveArchiveInputFilesEpoch } from './resolveArchiveInputFilesEpoch.js';
@@ -16,7 +15,7 @@ function archiveHostCache(filesEpoch: string | undefined): HostPrepareCacheMeta 
     analysis: 'disabled',
     analysisReason: 'archive_ingest_no_project_cache',
     timingsTrustworthy: true,
-    filesEpoch: filesEpoch ?? METADATA_DASH,
+    filesEpoch: filesEpoch ?? null,
     projectCacheEnabled: false,
   };
 }

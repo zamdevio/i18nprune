@@ -6,13 +6,20 @@ import {
 } from '../../shared/constants/issueCodes.js';
 import type { RunMessageLevel } from '../../types/shared/run/index.js';
 import type { ShareCacheEntry, ShareJsonHealReport } from '../../types/share/entry.js';
-import { METADATA_DASH } from '../../types/project/metadata.js';
 import type { ProjectStoredMetadata } from '../../types/project/metadata.js';
-import type { StoredReportMetadata } from '../../types/project/reportStore.js';
+import type { StoredReportMetadata } from '../../types/project/report/index.js';
 import type { ShareRunResult, ShareViewResult } from '../../types/share/shareRun.js';
 import type { ShareHumanMessageHost } from './host.js';
 import { buildShareViewVerboseDetail } from '../view/buildVerboseDetail.js';
 import { emitShareViewVerboseHumanMessages } from '../view/emitVerboseHuman.js';
+import {
+  displayCacheReason,
+  displayScalar,
+  formatArtifactSummary,
+  formatExpirySummary,
+  formatProcessorSummary,
+  previewHashLike,
+} from '../view/format.js';
 import {
   SHARE_JSON_HEAL_BACKUP_LABEL,
   SHARE_JSON_HEAL_CANONICAL_SAVED,
@@ -144,23 +151,22 @@ export function emitShareListHumanMessages(host: ShareHumanMessageHost, entries:
 }
 
 function emitProjectRemoteMetadata(host: ShareHumanMessageHost, meta: ProjectStoredMetadata): void {
-  const p = meta.processor;
   shareMessage(
     host,
     'info',
-    `Remote: ${meta.fileCount} files, ${meta.zipBytes} bytes, expires ${String(meta.expiresAt)}`,
+    `Remote: ${formatArtifactSummary(meta)}, ${formatExpirySummary(meta.retention.expiresAt)}`,
   );
   shareMessage(
     host,
     'detail',
-    `  processor: ${String(p.surface)} (${String(p.surfaceLabel)}) · route ${String(p.route)} · SDK ${String(p.sdk)}@${String(p.sdkVersion)} · host ${String(p.toolVersion)}`,
+    `  processor: ${formatProcessorSummary(meta)}`,
   );
-  if (meta.extraction?.cache) {
-    const c = meta.extraction.cache;
+  {
+    const c = meta.cache;
     shareMessage(
       host,
       'detail',
-      `  cache: analysis=${String(c.analysis)} (${String(c.analysisReason)}), timingsTrustworthy=${String(c.timingsTrustworthy)}, filesEpoch=${String(c.filesEpoch).slice(0, 12)}${c.filesEpoch === METADATA_DASH ? '' : '…'}`,
+      `  cache: analysis=${displayScalar(c.analysis)} (${displayCacheReason(c.analysisReason)}), timingsTrustworthy=${String(c.timingsTrustworthy)}, filesEpoch=${previewHashLike(c.filesEpoch)}`,
     );
   }
   const prep = meta.timing.prepare;
@@ -172,16 +178,15 @@ function emitProjectRemoteMetadata(host: ShareHumanMessageHost, meta: ProjectSto
 }
 
 function emitReportRemoteMetadata(host: ShareHumanMessageHost, meta: StoredReportMetadata): void {
-  const p = meta.processor;
   shareMessage(
     host,
     'info',
-    `Remote: schema v${meta.schemaVersion}, ${meta.byteSize} bytes, ok=${meta.summary.ok}, expires ${String(meta.expiresAt)}`,
+    `Remote: ${formatArtifactSummary(meta)}, ${formatExpirySummary(meta.retention.expiresAt)}`,
   );
   shareMessage(
     host,
     'detail',
-    `  processor: ${String(p.surface)} · SDK ${String(p.sdk)}@${String(p.sdkVersion)} · host ${String(p.toolVersion)}`,
+    `  processor: ${formatProcessorSummary(meta)}`,
   );
 }
 
@@ -227,13 +232,13 @@ export function emitShareViewHumanMessages(
       shareMessage(
         host,
         'info',
-        `Remote: ${String(r.fileCount ?? '?')} files, ${String(r.zipBytes ?? r.byteSize ?? '?')} bytes`,
+        `Remote: ${String((r.artifact as Record<string, unknown> | undefined)?.fileCount ?? r.fileCount ?? '?')} files, ${String((r.artifact as Record<string, unknown> | undefined)?.byteSize ?? r.zipBytes ?? r.byteSize ?? '?')} bytes`,
       );
     } else {
       shareMessage(
         host,
         'info',
-        `Remote: schema v${String(r.schemaVersion ?? '?')}, ${String(r.byteSize ?? '?')} bytes, ok=${String((r.summary as Record<string, unknown> | undefined)?.ok ?? '?')}`,
+        `Remote: format v${String((r.artifact as Record<string, unknown> | undefined)?.formatVersion ?? r.formatVersion ?? r.schemaVersion ?? '?')}, ${String((r.artifact as Record<string, unknown> | undefined)?.byteSize ?? r.byteSize ?? '?')} bytes, ok=${String((r.summary as Record<string, unknown> | undefined)?.ok ?? '?')}`,
       );
     }
   }
@@ -250,14 +255,14 @@ export function emitShareViewHumanMessages(
       shareMessage(
         host,
         'info',
-        `Remote: ${m.fileCount} files, ${m.zipBytes} bytes, expires ${String(m.expiresAt)}`,
+        `Remote: ${m.artifact.fileCount} files, ${m.artifact.byteSize} bytes, expires ${String(m.retention.expiresAt)}`,
       );
     } else {
       const m = res.remoteMetadata as StoredReportMetadata;
       shareMessage(
         host,
         'info',
-        `Remote: schema v${m.schemaVersion}, ${m.byteSize} bytes, ok=${m.summary.ok}, expires ${String(m.expiresAt)}`,
+        `Remote: format v${m.artifact.formatVersion}, ${m.artifact.byteSize} bytes, ok=${m.summary.ok}, expires ${String(m.retention.expiresAt)}`,
       );
     }
   }

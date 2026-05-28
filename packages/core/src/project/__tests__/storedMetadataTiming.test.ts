@@ -44,14 +44,18 @@ describe('buildProjectStoredMetadata timing fallbacks', () => {
     expect(meta.timing.prepare.totalMs).toBe(900);
     expect(meta.timing.prepare.extractionMs).toBe(890);
     expect(meta.timing.edge.persistMs).toBe(100);
-    expect(meta.localeTags).toEqual([]);
+    expect(meta.artifact.localeTags).toEqual([]);
+    expect(meta.schemaVersion).toBe(1);
+    expect(meta.formatVersion).toBe(1);
+    expect(meta.cache.analysis).toBe('disabled');
+    expect(meta.capabilities.readOperations).toContain('report');
   });
 
-  it('reads legacy snapshot uploadedAt as preparedAt', () => {
-    const legacySnapshot = {
+  it('uses snapshot preparedAt for metadata timing', () => {
+    const snapshot = {
       projectId: 'p1',
       projectHash: 'h1',
-      uploadedAt: '2026-02-01T12:00:00.000Z',
+      preparedAt: '2026-02-01T12:00:00.000Z',
       zipBytes: 1,
       fileCount: 1,
       textFileCount: 1,
@@ -67,10 +71,10 @@ describe('buildProjectStoredMetadata timing fallbacks', () => {
       projectId: 'p1',
       projectHash: 'h1',
       ingestRoute: 'prepared',
-      snapshot: legacySnapshot,
+      snapshot,
     };
     const meta = buildProjectStoredMetadata(row);
-    expect(meta.preparedAt).toBe('2026-02-01T12:00:00.000Z');
     expect(meta.timing.preparedAt).toBe('2026-02-01T12:00:00.000Z');
+    expect(meta.analysis).toBeNull();
   });
 });

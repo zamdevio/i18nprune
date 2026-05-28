@@ -1,6 +1,6 @@
 import { readRuntimeFsTextSync } from '../../runtime/helpers/sync/fs.js';
 import type { CoreContext } from '../../types/context/index.js';
-import type { BuildProjectSnapshotShellResult } from '../../types/project/snapshotShell.js';
+import type { BuildProjectSnapshotShellResult } from '../../types/project/snapshot/shell.js';
 import type { ParsedProjectUpload, ProjectUploadFileMeta } from '../../types/project/upload.js';
 import type { ProjectZipFileMetaForTree } from '../../types/project/tree.js';
 import {

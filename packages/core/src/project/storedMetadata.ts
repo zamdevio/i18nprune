@@ -1,5 +1,6 @@
 import type { ReportEnvironmentSnapshot } from '../types/report/reportDocument.js';
 import type {
+  CacheAnalysisState,
   HostedIngestProcessorContext,
   HostPrepareCacheMeta,
   IngestRouteKind,
@@ -7,23 +8,20 @@ import type {
   PayloadProcessorEnvironment,
   PayloadProcessorInfo,
   ProjectExtractionCacheMeta,
-  ProjectExtractionSummaryMeta,
   ProjectMetadataPrepareTiming,
   ProjectMetadataTiming,
   ProjectStoredMetadata,
 } from '../types/project/metadata.js';
-import { METADATA_DASH } from '../types/project/metadata.js';
-import type { ProjectPrepareMeta } from '../types/project/prepare.js';
+import type { ProjectPrepareMeta } from '../types/project/prepare/index.js';
 import type { ProjectStoreRow } from '../types/project/store.js';
 import type { ProjectSnapshot } from '../types/project/upload.js';
+import { WORKER_IDLE_RETENTION_MS } from '../shared/constants/worker.js';
 import { resolveProcessorPresentation } from './processorPresets.js';
+import { computeMissingLiteralKeysFromResolvedKeys } from '../validate/index.js';
 
-const IDLE_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
-
-/** ISO `preparedAt` on snapshot rows (read compat for legacy `uploadedAt` in stored DO JSON). */
+/** ISO `preparedAt` on snapshot rows. */
 export function snapshotPreparedAtIso(snapshot: ProjectSnapshot): string {
-  const legacy = snapshot as ProjectSnapshot & { uploadedAt?: string };
-  const raw = snapshot.preparedAt ?? legacy.uploadedAt ?? '';
+  const raw = snapshot.preparedAt ?? '';
   return typeof raw === 'string' ? raw : '';
 }
 
@@ -57,37 +55,43 @@ export function resolveProjectLocaleTags(snapshot: ProjectSnapshot): string[] {
 }
 
 export function isoOrDash(value: unknown): MetadataScalar {
-  if (typeof value !== 'string' || value.trim().length === 0) return METADATA_DASH;
+  if (typeof value !== 'string' || value.trim().length === 0) return null;
   const ms = Date.parse(value);
-  if (!Number.isFinite(ms)) return METADATA_DASH;
+  if (!Number.isFinite(ms)) return null;
   return value;
 }
 
 export function msOrDash(value: unknown): MetadataScalar {
-  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return METADATA_DASH;
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return null;
   return Math.round(value);
 }
 
 export function isoMsDelta(start: unknown, end: unknown): MetadataScalar {
   const s = isoOrDash(start);
   const e = isoOrDash(end);
-  if (s === METADATA_DASH || e === METADATA_DASH) return METADATA_DASH;
+  if (s === null || e === null) return null;
   return msOrDash(Date.parse(e as string) - Date.parse(s as string));
 }
 
 function environmentDisplay(env: ReportEnvironmentSnapshot | undefined): PayloadProcessorEnvironment | null {
   if (!env) return null;
   return {
-    platform: typeof env.platform === 'string' && env.platform.length > 0 ? env.platform : METADATA_DASH,
-    arch: typeof env.arch === 'string' && env.arch.length > 0 ? env.arch : METADATA_DASH,
-    nodeVersion: typeof env.nodeVersion === 'string' && env.nodeVersion.length > 0 ? env.nodeVersion : METADATA_DASH,
-    osRelease: typeof env.osRelease === 'string' && env.osRelease.length > 0 ? env.osRelease : METADATA_DASH,
-    ...(env.distro !== undefined ? { distro: env.distro.length > 0 ? env.distro : METADATA_DASH } : {}),
+    platform: typeof env.platform === 'string' && env.platform.length > 0 && env.platform !== '-' ? env.platform : null,
+    arch: typeof env.arch === 'string' && env.arch.length > 0 && env.arch !== '-' ? env.arch : null,
+    nodeVersion:
+      typeof env.nodeVersion === 'string' && env.nodeVersion.length > 0 && env.nodeVersion !== '-'
+        ? env.nodeVersion
+        : null,
+    osRelease:
+      typeof env.osRelease === 'string' && env.osRelease.length > 0 && env.osRelease !== '-'
+        ? env.osRelease
+        : null,
+    ...(env.distro !== undefined ? { distro: env.distro.length > 0 && env.distro !== '-' ? env.distro : null } : {}),
     ...(env.wslDistroName !== undefined
-      ? { wslDistroName: env.wslDistroName.length > 0 ? env.wslDistroName : METADATA_DASH }
+      ? { wslDistroName: env.wslDistroName.length > 0 && env.wslDistroName !== '-' ? env.wslDistroName : null }
       : {}),
     runtimeFamily:
-      typeof env.runtimeFamily === 'string' && env.runtimeFamily.length > 0 ? env.runtimeFamily : METADATA_DASH,
+      typeof env.runtimeFamily === 'string' && env.runtimeFamily.length > 0 ? env.runtimeFamily : null,
   };
 }
 
@@ -95,13 +99,16 @@ export function buildExtractionCacheMeta(
   hostCache: HostPrepareCacheMeta | undefined,
   ingestRoute: IngestRouteKind,
 ): ProjectExtractionCacheMeta {
+  const normalizeAnalysis = (value: HostPrepareCacheMeta['analysis']): CacheAnalysisState =>
+    value === 'bypass' ? 'bypassed' : value;
   if (hostCache) {
     return {
-      analysis: hostCache.analysis,
+      analysis: normalizeAnalysis(hostCache.analysis),
       analysisReason: hostCache.analysisReason,
       timingsTrustworthy: hostCache.timingsTrustworthy,
       filesEpoch: hostCache.filesEpoch,
       projectCacheEnabled: hostCache.projectCacheEnabled,
+      available: true,
     };
   }
   if (ingestRoute === 'archive') {
@@ -109,16 +116,18 @@ export function buildExtractionCacheMeta(
       analysis: 'disabled',
       analysisReason: 'archive_ingest_no_project_cache',
       timingsTrustworthy: true,
-      filesEpoch: METADATA_DASH,
+      filesEpoch: null,
       projectCacheEnabled: false,
+      available: true,
     };
   }
   return {
-    analysis: METADATA_DASH,
-    analysisReason: METADATA_DASH,
+    analysis: null,
+    analysisReason: null,
     timingsTrustworthy: false,
-    filesEpoch: METADATA_DASH,
+    filesEpoch: null,
     projectCacheEnabled: false,
+    available: false,
   };
 }
 
@@ -165,7 +174,7 @@ export function buildProjectMetadataPrepareTiming(
   if (
     typeof totalMs === 'number' &&
     totalMs > 0 &&
-    (extractionMs === 0 || extractionMs === METADATA_DASH) &&
+    (extractionMs === 0 || extractionMs === null) &&
     typeof zipParsedMs === 'number'
   ) {
     return {
@@ -225,24 +234,29 @@ export function buildProjectMetadataTiming(input: {
 
 function expiresAtFromLastAccess(lastAccessedAt: string | undefined, storedAt: string | undefined): MetadataScalar {
   const base = isoOrDash(lastAccessedAt ?? storedAt);
-  if (base === METADATA_DASH) return METADATA_DASH;
-  return new Date(Date.parse(base as string) + IDLE_RETENTION_MS).toISOString();
+  if (base === null) return null;
+  return new Date(Date.parse(base as string) + WORKER_IDLE_RETENTION_MS).toISOString();
 }
 
-export function buildProjectExtractionSummary(
+function buildProjectExtractionSummary(
   snapshot: ProjectSnapshot,
-  cache: ProjectExtractionCacheMeta,
-): ProjectExtractionSummaryMeta | null {
+): {
+  configHash: MetadataScalar;
+  sourceLocalePath: MetadataScalar;
+  srcRoot: MetadataScalar;
+  localesDir: MetadataScalar;
+  keyObservationsCount: number;
+  dynamicSitesCount: number;
+} | null {
   const extraction = snapshot.extraction;
   if (!extraction) return null;
   return {
-    configHash: extraction.configHash.length > 0 ? extraction.configHash : METADATA_DASH,
-    sourceLocalePath: extraction.sourceLocalePath.length > 0 ? extraction.sourceLocalePath : METADATA_DASH,
-    srcRoot: extraction.srcRoot.length > 0 ? extraction.srcRoot : METADATA_DASH,
-    localesDir: extraction.localesDir.length > 0 ? extraction.localesDir : METADATA_DASH,
+    configHash: extraction.configHash.length > 0 ? extraction.configHash : null,
+    sourceLocalePath: extraction.sourceLocalePath.length > 0 ? extraction.sourceLocalePath : null,
+    srcRoot: extraction.srcRoot.length > 0 ? extraction.srcRoot : null,
+    localesDir: extraction.localesDir.length > 0 ? extraction.localesDir : null,
     keyObservationsCount: extraction.keyObservationsCount,
     dynamicSitesCount: extraction.dynamicSitesCount,
-    cache,
   };
 }
 
@@ -250,29 +264,95 @@ export function buildProjectExtractionSummary(
 export function buildProjectStoredMetadata(row: ProjectStoreRow): ProjectStoredMetadata {
   const ingestRoute = row.ingestRoute ?? 'prepared';
   const lastAccessedAt = row.lastAccessedAt ?? row.snapshot.storedAt ?? snapshotPreparedAtIso(row.snapshot);
+  const localeTags = resolveProjectLocaleTags(row.snapshot);
+  const extractionCache = buildExtractionCacheMeta(row.prepareMeta?.hostCache, ingestRoute);
+  const extraction = buildProjectExtractionSummary(row.snapshot);
+  const missingKeysCount =
+    row.snapshot.extraction && row.snapshot.sourceLocaleJson
+      ? computeMissingLiteralKeysFromResolvedKeys(
+          row.snapshot.sourceLocaleJson,
+          new Set(row.snapshot.extraction.resolvedKeys),
+        ).length
+      : null;
+  const processor = buildPayloadProcessorInfo({
+    ingestRoute,
+    prepareMeta: row.prepareMeta,
+    processorContext: row.processorContext,
+  });
+  const timing = buildProjectMetadataTiming({
+    snapshot: row.snapshot,
+    prepareMeta: row.prepareMeta,
+    lastAccessedAt,
+  });
+  const readOperations = [
+    'metadata',
+    'snapshot',
+    'tree',
+    'validate',
+    'review',
+    'missing',
+    'locales',
+    'doctor',
+    'report',
+  ] as const;
+  const expiresAt = expiresAtFromLastAccess(row.lastAccessedAt, row.snapshot.storedAt);
   return {
-    projectId: row.projectId,
-    projectHash: row.projectHash,
-    preparedAt: isoOrDash(snapshotPreparedAtIso(row.snapshot)),
-    zipBytes: row.snapshot.zipBytes,
-    fileCount: row.snapshot.fileCount,
-    textFileCount: row.snapshot.textFileCount,
-    detectedConfigPath: row.snapshot.detectedConfigPath,
-    localeTags: resolveProjectLocaleTags(row.snapshot),
-    expiresAt: expiresAtFromLastAccess(row.lastAccessedAt, row.snapshot.storedAt),
-    timing: buildProjectMetadataTiming({
-      snapshot: row.snapshot,
-      prepareMeta: row.prepareMeta,
-      lastAccessedAt,
-    }),
-    processor: buildPayloadProcessorInfo({
-      ingestRoute,
-      prepareMeta: row.prepareMeta,
-      processorContext: row.processorContext,
-    }),
-    extraction: buildProjectExtractionSummary(
-      row.snapshot,
-      buildExtractionCacheMeta(row.prepareMeta?.hostCache, ingestRoute),
-    ),
+    schemaVersion: 1,
+    formatVersion: 1,
+    artifact: {
+      kind: 'project',
+      id: row.projectId,
+      contentHash: row.projectHash,
+      byteSize: row.snapshot.zipBytes,
+      fileCount: row.snapshot.fileCount,
+      textFileCount: row.snapshot.textFileCount,
+      detectedConfigPath: row.snapshot.detectedConfigPath,
+      localeTags,
+    },
+    timing,
+    processor,
+    summary: {
+      localeCount: localeTags.length,
+      missingKeysCount,
+      ok: missingKeysCount === null ? null : missingKeysCount === 0,
+    },
+    execution: {
+      surface: processor.surface,
+      host: processor.prepareHost,
+      route: processor.route,
+      transport: 'https-json',
+      computeLocation: 'edge',
+    },
+    analysis:
+      extraction === null
+        ? null
+        : {
+            localeTags,
+            detectedConfigPath: row.snapshot.detectedConfigPath,
+            configHash: extraction.configHash,
+            sourceLocalePath: extraction.sourceLocalePath,
+            srcRoot: extraction.srcRoot,
+            localesDir: extraction.localesDir,
+            keyObservationsCount: extraction.keyObservationsCount,
+            dynamicSitesCount: extraction.dynamicSitesCount,
+          },
+    cache: extractionCache,
+    storage: {
+      backend: 'durable-object',
+      dedupByContentHash: true,
+      contentAddressed: true,
+    },
+    retention: {
+      policy: 'idle-7d',
+      expiresAt,
+      lastAccessedAt: timing.lastAccessedAt,
+    },
+    capabilities: {
+      preparedUploads: true,
+      archiveUploads: true,
+      readOperations,
+      project: true,
+      report: false,
+    },
   };
 }

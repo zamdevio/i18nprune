@@ -1,102 +1,90 @@
-import { METADATA_DASH } from '../../types/project/metadata.js';
 import type { ProjectStoredMetadata } from '../../types/project/metadata.js';
-import type { StoredReportMetadata } from '../../types/project/reportStore.js';
+import type { StoredReportMetadata } from '../../types/project/report/index.js';
 import type { ShareCacheEntry } from '../../types/share/entry.js';
 import type { ShareViewResult } from '../../types/share/shareRun.js';
 import type { ShareViewVerboseDetail, ShareViewVerboseSection } from '../../types/share/viewDetail.js';
 
-function dash(v: unknown): string {
-  if (v === METADATA_DASH) return '—';
-  if (typeof v === 'string' && v.length === 0) return '—';
-  return String(v);
-}
-
-function epochPreview(epoch: unknown): string {
-  const s = dash(epoch);
-  if (s === '—' || s.length <= 12) return s;
-  return `${s.slice(0, 12)}…`;
-}
-
 function projectProcessorSection(p: ProjectStoredMetadata['processor']): ShareViewVerboseSection {
   const env = p.environment;
   const section: ShareViewVerboseSection = {
-    surface: dash(p.surface),
-    surfaceLabel: dash(p.surfaceLabel),
-    route: dash(p.route),
-    routeLabel: dash(p.routeLabel),
-    prepareHost: dash(p.prepareHost),
-    sdk: dash(p.sdk),
-    sdkVersion: dash(p.sdkVersion),
-    toolVersion: dash(p.toolVersion),
-    prepareSummary: dash(p.prepareSummary),
+    surface: p.surface,
+    surfaceLabel: p.surfaceLabel,
+    route: p.route,
+    routeLabel: p.routeLabel,
+    prepareHost: p.prepareHost,
+    sdk: p.sdk,
+    sdkVersion: p.sdkVersion,
+    toolVersion: p.toolVersion,
+    prepareSummary: p.prepareSummary,
   };
   if (env) {
-    section.runtime = dash(env.runtimeFamily);
-    section.platform = dash(env.platform);
-    section.arch = dash(env.arch);
-    section.node = dash(env.nodeVersion);
-    section.osRelease = dash(env.osRelease);
-    if (env.distro !== undefined) section.distro = dash(env.distro);
-    if (env.wslDistroName !== undefined) section.wslDistro = dash(env.wslDistroName);
+    section.runtime = env.runtimeFamily;
+    section.platform = env.platform;
+    section.arch = env.arch;
+    section.node = env.nodeVersion;
+    section.osRelease = env.osRelease;
+    if (env.distro !== undefined) section.distro = env.distro;
+    if (env.wslDistroName !== undefined) section.wslDistro = env.wslDistroName;
   }
   return section;
 }
 
-function projectExtractionSection(ex: ProjectStoredMetadata['extraction']): ShareViewVerboseSection | undefined {
+function projectExtractionSection(ex: ProjectStoredMetadata['analysis']): ShareViewVerboseSection | undefined {
   if (!ex) return undefined;
   return {
-    configHash: epochPreview(ex.configHash),
-    srcRoot: dash(ex.srcRoot),
-    localesDir: dash(ex.localesDir),
-    sourceLocale: dash(ex.sourceLocalePath),
+    configHash: ex.configHash,
+    srcRoot: ex.srcRoot,
+    localesDir: ex.localesDir,
+    sourceLocale: ex.sourceLocalePath,
     observations: ex.keyObservationsCount,
     dynamicSites: ex.dynamicSitesCount,
   };
 }
 
-function projectCacheSection(ex: ProjectStoredMetadata['extraction']): ShareViewVerboseSection | undefined {
-  const c = ex?.cache;
-  if (!c) return undefined;
+function projectCacheSection(c: ProjectStoredMetadata['cache']): ShareViewVerboseSection {
   return {
-    analysis: dash(c.analysis),
-    reason: dash(c.analysisReason),
+    analysis: c.analysis,
+    reason: c.analysisReason,
     timingsTrustworthy: c.timingsTrustworthy,
-    filesEpoch: epochPreview(c.filesEpoch),
+    filesEpoch: c.filesEpoch,
     projectCacheEnabled: c.projectCacheEnabled,
+    available: c.available,
   };
 }
 
 function projectTimingsSection(t: ProjectStoredMetadata['timing']): ShareViewVerboseSection {
   return {
-    preparedAt: dash(t.preparedAt),
-    requestReceivedAt: dash(t.requestReceivedAt),
-    storedAt: dash(t.storedAt),
-    lastAccessedAt: dash(t.lastAccessedAt),
-    'prepare.totalMs': dash(t.prepare.totalMs),
-    'prepare.zipParsedMs': dash(t.prepare.zipParsedMs),
-    'prepare.analysisMs': dash(t.prepare.analysisMs),
-    'prepare.extractionMs': dash(t.prepare.extractionMs),
-    'extraction.startedAt': dash(t.extraction.startedAt),
-    'extraction.computedAt': dash(t.extraction.computedAt),
-    'extraction.durationMs': dash(t.extraction.durationMs),
+    preparedAt: t.preparedAt,
+    requestReceivedAt: t.requestReceivedAt,
+    storedAt: t.storedAt,
+    lastAccessedAt: t.lastAccessedAt,
+    'prepare.totalMs': t.prepare.totalMs,
+    'prepare.zipParsedMs': t.prepare.zipParsedMs,
+    'prepare.analysisMs': t.prepare.analysisMs,
+    'prepare.extractionMs': t.prepare.extractionMs,
+    'extraction.startedAt': t.extraction.startedAt,
+    'extraction.computedAt': t.extraction.computedAt,
+    'extraction.durationMs': t.extraction.durationMs,
   };
 }
 
 function projectEdgeSection(t: ProjectStoredMetadata['timing']): ShareViewVerboseSection {
   return {
-    persistMs: dash(t.edge.persistMs),
+    persistMs: t.edge.persistMs,
   };
 }
 
 function projectSnapshotSection(m: ProjectStoredMetadata): ShareViewVerboseSection {
   return {
-    projectHash: epochPreview(m.projectHash),
-    zipBytes: m.zipBytes,
-    fileCount: m.fileCount,
-    textFileCount: m.textFileCount,
-    detectedConfigPath: dash(m.detectedConfigPath),
-    localeTags: m.localeTags.join(','),
-    expiresAt: dash(m.expiresAt),
+    projectHash: m.artifact.contentHash,
+    zipBytes: m.artifact.byteSize,
+    fileCount: m.artifact.fileCount,
+    textFileCount: m.artifact.textFileCount,
+    detectedConfigPath: m.artifact.detectedConfigPath,
+    localeTags: m.artifact.localeTags,
+    expiresAt: m.retention.expiresAt,
+    schemaVersion: m.schemaVersion,
+    formatVersion: m.formatVersion,
   };
 }
 
@@ -104,14 +92,14 @@ function localSection(local: ShareCacheEntry): ShareViewVerboseSection {
   const base: ShareViewVerboseSection = {
     kind: local.kind,
     workerBaseUrl: local.workerBaseUrl,
-    payloadContentHash: epochPreview(local.payloadContentHash),
+    payloadContentHash: local.payloadContentHash,
     byteSize: local.byteSize,
     uploadedAt: local.uploadedAt,
     lastUsedAt: local.lastUsedAt,
   };
   if (local.kind === 'project') {
-    if (local.configHash) base.configHash = epochPreview(local.configHash);
-    if (local.inputFilesEpoch) base.inputFilesEpoch = epochPreview(local.inputFilesEpoch);
+    if (local.configHash) base.configHash = local.configHash;
+    if (local.inputFilesEpoch) base.inputFilesEpoch = local.inputFilesEpoch;
     if (local.workerProjectId) base.workerProjectId = local.workerProjectId;
   } else if (local.workerReportId) {
     base.workerReportId = local.workerReportId;
@@ -140,22 +128,22 @@ function minimalVerboseFromRemote(
     processor: { note: 'remote metadata parse unavailable — raw worker row' },
     links,
     edge: {
-      persistMs: dash(edge?.persistMs),
+      persistMs: (edge?.persistMs ?? null) as string | number | boolean | null,
     },
   };
   if (res.kind === 'project') {
     detail.snapshot = {
-      fileCount: dash(r.fileCount),
-      zipBytes: dash(r.zipBytes),
-      expiresAt: dash(r.expiresAt),
-      projectHash: epochPreview(r.projectHash),
+      fileCount: r.fileCount as string | number | boolean | null,
+      zipBytes: r.zipBytes as string | number | boolean | null,
+      expiresAt: r.expiresAt as string | number | boolean | null,
+      projectHash: r.projectHash as string | number | boolean | null,
     };
   } else {
     const summary = r.summary as Record<string, unknown> | undefined;
     detail.extraction = {
-      schemaVersion: dash(r.schemaVersion),
-      byteSize: dash(r.byteSize),
-      ok: dash(summary?.ok),
+      schemaVersion: r.schemaVersion as string | number | boolean | null,
+      byteSize: r.byteSize as string | number | boolean | null,
+      ok: (summary?.ok ?? null) as string | number | boolean | null,
     };
   }
   if (res.local) detail.local = localSection(res.local);
@@ -168,8 +156,8 @@ export function buildShareViewVerboseDetail(res: ShareViewResult): ShareViewVerb
 
   if (res.kind === 'project' && res.remoteMetadata) {
     const m = res.remoteMetadata as ProjectStoredMetadata;
-    const extraction = projectExtractionSection(m.extraction);
-    const cache = projectCacheSection(m.extraction);
+    const extraction = projectExtractionSection(m.analysis);
+    const cache = projectCacheSection(m.cache);
     return {
       kind: 'project',
       workerId: res.workerId,
@@ -189,55 +177,60 @@ export function buildShareViewVerboseDetail(res: ShareViewResult): ShareViewVerb
     const p = m.processor;
     const env = p.environment;
     const processor: ShareViewVerboseSection = {
-      surface: dash(p.surface),
-      route: dash(p.route),
-      sdk: dash(p.sdk),
-      sdkVersion: dash(p.sdkVersion),
-      toolVersion: dash(p.toolVersion),
-      prepareHost: dash(p.prepareHost),
+      surface: p.surface,
+      route: p.route,
+      sdk: p.sdk,
+      sdkVersion: p.sdkVersion,
+      toolVersion: p.toolVersion,
+      prepareHost: p.prepareHost,
     };
     if (env) {
-      processor.runtime = dash(env.runtimeFamily);
-      processor.platform = dash(env.platform);
-      processor.node = dash(env.nodeVersion);
+      processor.runtime = env.runtimeFamily;
+      processor.platform = env.platform;
+      processor.node = env.nodeVersion;
+      processor.arch = env.arch;
+      processor.osRelease = env.osRelease;
     }
     return {
       kind: 'report',
       workerId: res.workerId,
       processor,
       extraction: {
-        schemaVersion: m.schemaVersion,
-        byteSize: m.byteSize,
+        formatVersion: m.artifact.formatVersion,
+        byteSize: m.artifact.byteSize,
         missingKeys: m.summary.missingKeysCount,
         dynamicSites: m.summary.dynamicSitesCount,
         keyObservations: m.summary.keyObservationsCount,
         ok: m.summary.ok,
-        sourceLocale: dash(m.project.sourceLocalePath),
-        localesDir: dash(m.project.localesDir),
-        srcRoot: dash(m.project.srcRoot),
+        sourceLocale: m.analysis.sourceLocalePath,
+        localesDir: m.analysis.localesDir,
+        srcRoot: m.analysis.srcRoot,
       },
       snapshot: {
-        payloadContentHash: epochPreview(m.payloadContentHash),
-        expiresAt: dash(m.expiresAt),
+        payloadContentHash: m.artifact.contentHash,
+        expiresAt: m.retention.expiresAt,
+        schemaVersion: m.schemaVersion,
+        formatVersion: m.formatVersion,
       },
+      cache: projectCacheSection(m.cache),
       timings: {
         ...(m.timing.requestReceivedAt !== undefined
-          ? { requestReceivedAt: dash(m.timing.requestReceivedAt) }
+          ? { requestReceivedAt: m.timing.requestReceivedAt }
           : {}),
-        generatedAt: dash(m.timing.generatedAt),
-        storedAt: dash(m.timing.storedAt),
-        lastAccessedAt: dash(m.timing.lastAccessedAt),
+        preparedAt: m.timing.preparedAt,
+        storedAt: m.timing.storedAt,
+        lastAccessedAt: m.timing.lastAccessedAt,
         ...(m.timing.prepare
           ? {
-              'prepare.totalMs': dash(m.timing.prepare.totalMs),
-              'prepare.zipParsedMs': dash(m.timing.prepare.zipParsedMs),
-              'prepare.analysisMs': dash(m.timing.prepare.analysisMs),
-              'prepare.extractionMs': dash(m.timing.prepare.extractionMs),
+              'prepare.totalMs': m.timing.prepare.totalMs,
+              'prepare.zipParsedMs': m.timing.prepare.zipParsedMs,
+              'prepare.analysisMs': m.timing.prepare.analysisMs,
+              'prepare.extractionMs': m.timing.prepare.extractionMs,
             }
           : {}),
       },
       edge: {
-        persistMs: dash(m.timing.edge.persistMs),
+        persistMs: m.timing.edge.persistMs,
       },
       ...(res.local ? { local: localSection(res.local) } : {}),
       links,

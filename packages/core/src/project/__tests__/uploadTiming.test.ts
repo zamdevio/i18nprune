@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { buildProjectUploadSnapshotMeta } from '../uploadTiming.js';
 import type { ProjectSnapshot } from '../../types/project/upload.js';
 import type { ProjectStoreRow } from '../../types/project/store.js';
-import { METADATA_DASH } from '../../types/project/metadata.js';
 
 function baseSnapshot(overrides: Partial<ProjectSnapshot> = {}): ProjectSnapshot {
   return {
@@ -127,7 +126,7 @@ describe('buildProjectUploadSnapshotMeta', () => {
     expect(meta.timing.edge.persistMs).toBe(200);
   });
 
-  it('uses dash for invalid or missing timestamps', () => {
+  it('uses null for invalid or missing timestamps', () => {
     const meta = buildProjectUploadSnapshotMeta(
       baseRow({
         snapshot: baseSnapshot({
@@ -144,7 +143,7 @@ describe('buildProjectUploadSnapshotMeta', () => {
     );
     expect(meta.timing.requestReceivedAt).toBe('2026-01-01T00:00:00.050Z');
     expect(meta.timing.extraction.startedAt).toBe('2026-01-01T00:00:00.050Z');
-    expect(meta.timing.extraction.computedAt).toBe(METADATA_DASH);
-    expect(meta.timing.prepare.zipParsedMs).toBe(METADATA_DASH);
+    expect(meta.timing.extraction.computedAt).toBeNull();
+    expect(meta.timing.prepare.zipParsedMs).toBeNull();
   });
 });

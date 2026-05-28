@@ -1,4 +1,4 @@
-import type { ProjectPrepareMeta } from '../../types/project/prepare.js';
+import type { ProjectPrepareMeta } from '../../types/project/prepare/index.js';
 import type { ProjectSnapshot } from '../../types/project/upload.js';
 
 function finiteMs(value: unknown): number | undefined {

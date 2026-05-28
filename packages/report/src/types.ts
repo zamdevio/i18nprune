@@ -25,7 +25,7 @@ export type ProjectReportEnvironment = {
   /**
    * Distinguishes native Linux from WSL. Omitted in older reports (inferred from `wslDistroName` when possible).
    */
-  runtimeFamily?: 'windows' | 'darwin' | 'linux' | 'linux-wsl';
+  runtimeFamily?: 'windows' | 'darwin' | 'linux' | 'linux-wsl' | 'edge-worker';
 };
 
 export type ProjectReportProjectMeta = {

@@ -104,15 +104,19 @@ describe('runShareList/view/delete', () => {
               code: 'OK',
               success: true,
               data: {
-                projectId: 'p123',
-                projectHash: 'h',
-                preparedAt: '2026-01-01T00:00:00.000Z',
-                zipBytes: 100,
-                fileCount: 2,
-                textFileCount: 2,
-                detectedConfigPath: 'i18nprune.config.json',
-                localeTags: ['en'],
-                expiresAt: '2026-01-08T00:00:00.000Z',
+                version: 1,
+                schemaVersion: 1,
+                formatVersion: 1,
+                artifact: {
+                  kind: 'project',
+                  id: 'p123',
+                  contentHash: 'h',
+                  byteSize: 100,
+                  fileCount: 2,
+                  textFileCount: 2,
+                  detectedConfigPath: 'i18nprune.config.json',
+                  localeTags: ['en'],
+                },
                 timing: {
                   preparedAt: '2026-01-01T00:00:00.000Z',
                   requestReceivedAt: '2026-01-01T00:00:00.000Z',
@@ -138,20 +142,46 @@ describe('runShareList/view/delete', () => {
                   prepareSummary: 'Prepared on disk',
                   environment: null,
                 },
-                extraction: {
+                analysis: {
                   configHash: 'cfg',
                   sourceLocalePath: 'locales/en.json',
                   srcRoot: 'src',
                   localesDir: 'locales',
                   keyObservationsCount: 1,
                   dynamicSitesCount: 0,
-                  cache: {
-                    analysis: 'hit',
-                    analysisReason: 'cache_hit',
-                    timingsTrustworthy: false,
-                    filesEpoch: 'abc123',
-                    projectCacheEnabled: true,
-                  },
+                },
+                summary: {
+                  localeCount: 1,
+                  missingKeysCount: 0,
+                  ok: true,
+                },
+                execution: {
+                  surface: 'cli',
+                  host: 'cli-share',
+                  route: 'prepared',
+                  transport: 'https-json',
+                  computeLocation: 'edge',
+                },
+                cache: {
+                  available: true,
+                  analysis: 'hit',
+                  analysisReason: 'cache_hit',
+                  timingsTrustworthy: false,
+                  filesEpoch: 'abc123',
+                  projectCacheEnabled: true,
+                },
+                storage: { backend: 'durable-object', dedupByContentHash: true, contentAddressed: true },
+                retention: {
+                  policy: 'idle-7d',
+                  expiresAt: '2026-01-08T00:00:00.000Z',
+                  lastAccessedAt: '2026-01-01T00:00:01.000Z',
+                },
+                capabilities: {
+                  preparedUploads: true,
+                  archiveUploads: true,
+                  readOperations: ['metadata', 'snapshot', 'tree', 'validate', 'review', 'missing', 'locales', 'doctor', 'report'],
+                  project: true,
+                  report: false,
                 },
               },
               errors: [],
@@ -161,9 +191,14 @@ describe('runShareList/view/delete', () => {
       });
       expect(viewed.local?.workerProjectId).toBe('p123');
       expect(viewed.links.web).toContain('/#/workspace?id=p123');
-      expect(viewed.remoteMetadata && 'projectId' in viewed.remoteMetadata && viewed.remoteMetadata.projectId).toBe(
-        'p123',
-      );
+      expect(
+        viewed.remoteMetadata &&
+          'artifact' in viewed.remoteMetadata &&
+          viewed.remoteMetadata.artifact &&
+          typeof viewed.remoteMetadata.artifact === 'object' &&
+          'id' in viewed.remoteMetadata.artifact &&
+          viewed.remoteMetadata.artifact.id,
+      ).toBe('p123');
       if (viewed.remoteMetadata && 'processor' in viewed.remoteMetadata) {
         expect(viewed.remoteMetadata.processor.sdkVersion).toBe('0.1.0');
       }

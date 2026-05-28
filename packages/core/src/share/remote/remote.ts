@@ -75,6 +75,11 @@ export function workerUploadExpiresAt(data: unknown, kind: 'project' | 'report')
     }
     return undefined;
   }
+  const retention = d.retention;
+  if (retention && typeof retention === 'object' && !Array.isArray(retention)) {
+    const exp = (retention as Record<string, unknown>).expiresAt;
+    if (typeof exp === 'string' && exp.length > 0) return exp;
+  }
   const exp = d.expiresAt;
   return typeof exp === 'string' && exp.length > 0 ? exp : undefined;
 }

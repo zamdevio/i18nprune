@@ -38,10 +38,10 @@ export function workerArchiveProcessorContext(): HostedIngestProcessorContext {
     toolVersion: 'i18nprune-worker',
     environment: {
       platform: 'cloudflare-workers',
-      arch: 'edge',
-      nodeVersion: 'workers',
-      osRelease: 'edge',
-      runtimeFamily: 'linux',
+      arch: '',
+      nodeVersion: '',
+      osRelease: '',
+      runtimeFamily: 'edge-worker',
     } satisfies ReportEnvironmentSnapshot,
   };
 }

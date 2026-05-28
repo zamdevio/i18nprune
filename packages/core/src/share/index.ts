@@ -57,8 +57,8 @@ export {
 export {
   buildHostedProjectUploadRequest,
   buildHostedReportUploadRequest,
-  resolveShareUploadForce,
 } from '../shared/workerApi/ingestRequest.js';
+export { resolveShareUploadForce } from '../shared/workerApi/ingestForce.js';
 export {
   parseWorkerProjectStoredMetadata,
   parseWorkerReportStoredMetadata,

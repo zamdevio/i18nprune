@@ -16,18 +16,13 @@ export type { ProjectStoreRow } from './store.js';
 export type { ArchiveProjectFs } from './archiveFs.js';
 export type { ApplyProjectAnalysisInput } from './applyAnalysis.js';
 export type { FillProjectSnapshotExtractionInput, FillProjectSnapshotExtractionResult } from './extract.js';
-export type { PrepareHostKind, PrepareHostPolicy } from './prepareHost.js';
-export type { PrepareProjectSnapshotFromArchiveInput } from './prepareArchive.js';
-export type { PrepareProjectSnapshotFromRootInput } from './prepareRoot.js';
-export type { BuildProjectSnapshotShellResult } from './snapshotShell.js';
-export type { PrepareTimer, PrepareTimerMark } from './prepareTimer.js';
+export type { BuildProjectSnapshotShellResult } from './snapshot/shell.js';
 export type {
   HostedIngestProcessorContext,
   HostPrepareCacheMeta,
   IngestRouteKind,
   KnownIngestRouteKind,
   KnownPayloadProcessorSurface,
-  MetadataDash,
   MetadataScalar,
   PayloadProcessorEnvironment,
   PayloadProcessorInfo,
@@ -44,10 +39,16 @@ export type {
 export { METADATA_DASH } from './metadata.js';
 export type {
   HostedProjectIngestEnvelope,
+  PrepareHostKind,
+  PrepareHostPolicy,
+  PrepareProjectSnapshotFromArchiveInput,
+  PrepareProjectSnapshotFromRootInput,
   PrepareProjectSnapshotResult,
+  PrepareTimer,
+  PrepareTimerMark,
   ProjectPrepareMeta,
   ValidateHostedProjectIngestResult,
-} from './prepare.js';
+} from './prepare/index.js';
 export type {
   ParsedProjectUpload,
   ProjectSnapshot,
@@ -80,4 +81,4 @@ export type {
   StoredReportMetadata,
   StoredReportProjectMeta,
   StoredReportSummary,
-} from './reportStore.js';
+} from './report/index.js';

@@ -2,8 +2,7 @@ import type { CoreContext } from '../context/index.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { ProjectAnalysis } from '../analysis/index.js';
 import type { ProjectAnalysisResolveOptions } from '../analysis/index.js';
-import type { PrepareHostKind } from '../project/prepareHost.js';
-import type { PrepareProjectSnapshotResult, ProjectPrepareMeta } from '../project/prepare.js';
+import type { PrepareHostKind, PrepareProjectSnapshotResult, ProjectPrepareMeta } from '../project/prepare/index.js';
 import type { ReportEnvironmentSnapshot } from '../report/reportDocument.js';
 import type { ValidateReportIngestResult } from '../report/ingest.js';
 

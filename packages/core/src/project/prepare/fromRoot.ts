@@ -3,8 +3,8 @@ import {
   ISSUE_SHARE_PREPARE_ANALYSIS_FAILED,
 } from '../../shared/constants/issueCodes.js';
 import type { Issue } from '../../types/json/envelope/index.js';
-import type { PrepareProjectSnapshotResult } from '../../types/project/prepare.js';
-import type { PrepareProjectSnapshotFromRootInput } from '../../types/project/prepareRoot.js';
+import type { PrepareProjectSnapshotResult } from '../../types/project/prepare/index.js';
+import type { PrepareProjectSnapshotFromRootInput } from '../../types/project/prepare/index.js';
 import { normalizeProjectConfig } from '../normalizeConfig.js';
 import { applyProjectAnalysisToSnapshot, resolveShareProjectAnalysis } from './fromAnalysis.js';
 import { buildProjectSnapshotShellFromContext } from './snapshotShell.js';

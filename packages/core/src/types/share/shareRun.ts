@@ -2,8 +2,8 @@ import type { CoreContext } from '../context/index.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { RunEmitter } from '../shared/run/index.js';
 import type { HostedIngestProcessorContext, ProjectStoredMetadata } from '../project/metadata.js';
-import type { StoredReportMetadata } from '../project/reportStore.js';
-import type { HostedProjectIngestEnvelope } from '../project/prepare.js';
+import type { StoredReportMetadata } from '../project/report/index.js';
+import type { HostedProjectIngestEnvelope } from '../project/prepare/index.js';
 import type { ShareCacheEntry, ShareJsonFile, ShareJsonHealReport, ShareLinks } from './entry.js';
 
 /** Reused across multiple {@link runShare} calls in one host command (e.g. CLI `--project` + `--report`). */

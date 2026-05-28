@@ -8,8 +8,6 @@ import {
   workerDataProjectId,
   workerProjectArchiveIngestUrl,
   workerUploadWasDeduped,
-  METADATA_DASH,
-  type Issue,
   type ProjectUploadSnapshotMeta,
 } from '@i18nprune/core';
 import { webPathRuntime } from '@i18nprune/core/runtime/web';
@@ -17,8 +15,8 @@ import { hex16Id, sha256Hex, createWebShareCoreContext, webProcessorContext } fr
 import type { ProjectIngestMode, ProjectUploadMeta, ProjectUploadResult } from '../../types/index.js';
 import { workerFetchJson, zipBytesToArrayBuffer } from './workerHttp.js';
 
-function metadataScalarIso(value: string | number | undefined): string | undefined {
-  return typeof value === 'string' && value.length > 0 && value !== METADATA_DASH ? value : undefined;
+function metadataScalarIso(value: string | number | null | undefined): string | undefined {
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
 }
 
 function uploadMetaFromSnapshotMeta(meta: ProjectUploadSnapshotMeta | undefined): ProjectUploadMeta {

@@ -1,7 +1,6 @@
 import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../shared/constants/project.js';
 import type { HostedIngestProcessorContext } from '../../types/project/metadata.js';
-import type { HostedProjectIngestEnvelope } from '../../types/project/prepare.js';
-import type { PrepareProjectSnapshotResult } from '../../types/project/prepare.js';
+import type { HostedProjectIngestEnvelope, PrepareProjectSnapshotResult } from '../../types/project/prepare/index.js';
 import type { ValidateReportIngestResult } from '../../types/report/ingest.js';
 import type { ShareProjectManifest } from '../../types/share/manifest.js';
 import type {

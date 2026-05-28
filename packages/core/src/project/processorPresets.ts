@@ -7,7 +7,6 @@ import type {
   PayloadProcessorSurface,
 } from '../types/project/metadata.js';
 import { SDK_VERSION } from '../shared/constants/sdk.js';
-import { METADATA_DASH } from '../types/project/metadata.js';
 
 type SurfacePreset = {
   surfaceLabel: string;
@@ -81,7 +80,7 @@ export function resolveProcessorSurface(
 }
 
 function labelOrDash(value: string | undefined): MetadataScalar {
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : METADATA_DASH;
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
 }
 
 export function resolveProcessorPresentation(input: {
@@ -126,7 +125,7 @@ export function resolveProcessorPresentation(input: {
     routeLabel = route;
   }
 
-  const sdk = input.processorContext?.sdk?.trim() ?? preset?.sdk ?? METADATA_DASH;
+  const sdk = input.processorContext?.sdk?.trim() ?? preset?.sdk ?? null;
   const sdkVersion = input.processorContext?.sdkVersion?.trim() ?? SDK_VERSION;
 
   const prepareSummary =

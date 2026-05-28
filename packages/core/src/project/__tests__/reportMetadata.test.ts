@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildStoredReportMetadata } from '../reportMetadata.js';
-import type { ReportStoreRow } from '../../types/project/reportStore.js';
+import type { ReportStoreRow } from '../../types/project/report/index.js';
 
 describe('buildStoredReportMetadata', () => {
   it('omits document body and surfaces summary fields', () => {
@@ -33,11 +33,14 @@ describe('buildStoredReportMetadata', () => {
       },
     };
     const meta = buildStoredReportMetadata(row);
-    expect(meta.reportId).toBe('abc');
+    expect(meta.artifact.id).toBe('abc');
     expect(meta.timing.lastAccessedAt).toBe('2026-01-02T00:00:00.000Z');
     expect(meta.processor.surface).toBe('cli');
     expect(meta.summary.ok).toBe(false);
-    expect(meta.project.sourceLocaleTag).toBe('en');
+    expect(meta.analysis.sourceLocalePath).toBe('locales/en.json');
+    expect(meta.schemaVersion).toBe(1);
+    expect(meta.formatVersion).toBe(1);
+    expect(meta.capabilities.readOperations).toEqual(['metadata', 'document']);
     expect('document' in meta).toBe(false);
   });
 
@@ -66,5 +69,7 @@ describe('buildStoredReportMetadata', () => {
     expect(meta.timing.requestReceivedAt).toBe('2026-01-01T00:00:00.000Z');
     expect(meta.timing.prepare?.extractionMs).toBe(800);
     expect(meta.timing.edge.persistMs).toBe(188);
+    expect(meta.execution.route).toBe('archive');
+    expect(meta.artifact.formatVersion).toBe(1);
   });
 });

@@ -6,13 +6,24 @@ import { buildProjectStoredMetadata } from './storedMetadata.js';
 export function buildProjectUploadSnapshotMeta(row: ProjectStoreRow): ProjectUploadSnapshotMeta {
   const meta = buildProjectStoredMetadata(row);
   return {
-    fileCount: meta.fileCount,
-    textFileCount: meta.textFileCount,
-    detectedConfigPath: meta.detectedConfigPath,
-    extractionReady: meta.extraction !== null,
-    expiresAt: meta.expiresAt,
+    fileCount: meta.artifact.fileCount,
+    textFileCount: meta.artifact.textFileCount,
+    detectedConfigPath: meta.artifact.detectedConfigPath,
+    extractionReady: meta.analysis !== null,
+    expiresAt: meta.retention.expiresAt,
     timing: meta.timing,
     processor: meta.processor,
-    extraction: meta.extraction,
+    extraction:
+      meta.analysis === null
+        ? null
+        : {
+            configHash: meta.analysis.configHash,
+            sourceLocalePath: meta.analysis.sourceLocalePath,
+            srcRoot: meta.analysis.srcRoot,
+            localesDir: meta.analysis.localesDir,
+            keyObservationsCount: meta.analysis.keyObservationsCount,
+            dynamicSitesCount: meta.analysis.dynamicSitesCount,
+            cache: meta.cache,
+          },
   };
 }

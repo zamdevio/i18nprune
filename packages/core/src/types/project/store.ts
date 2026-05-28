@@ -1,6 +1,6 @@
 import type { HostedIngestProcessorContext } from './metadata.js';
 import type { IngestRouteKind } from './metadata.js';
-import type { ProjectPrepareMeta } from './prepare.js';
+import type { ProjectPrepareMeta } from './prepare/index.js';
 import type { ProjectSnapshot } from './upload.js';
 
 /** Durable Object row for a cached worker project upload. */

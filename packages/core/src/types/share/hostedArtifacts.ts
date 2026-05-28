@@ -1,5 +1,5 @@
 import type { Issue } from '../json/envelope/index.js';
-import type { HostedProjectIngestEnvelope } from '../project/prepare.js';
+import type { HostedProjectIngestEnvelope } from '../project/prepare/index.js';
 import type { ShareProjectManifest, ShareReportManifest } from './manifest.js';
 
 export type HostedProjectShareArtifacts = {

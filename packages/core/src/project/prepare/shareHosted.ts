@@ -5,7 +5,7 @@ import {
   ISSUE_SHARE_PREPARE_REPORT_HOST_REQUIRED,
 } from '../../shared/constants/issueCodes.js';
 import type { Issue } from '../../types/json/envelope/index.js';
-import type { PrepareProjectSnapshotResult } from '../../types/project/prepare.js';
+import type { PrepareProjectSnapshotResult } from '../../types/project/prepare/index.js';
 import type { ParsedProjectUpload } from '../../types/project/upload.js';
 import type { PrepareShareHostedInput, PrepareShareHostedResult } from '../../types/share/prepareHosted.js';
 import { normalizeProjectConfig } from '../normalizeConfig.js';

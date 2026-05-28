@@ -1,6 +1,6 @@
 import { ISSUE_SHARE_PREPARE_REPORT_FROM_ARCHIVE_FAILED } from '../../shared/constants/issueCodes.js';
 import type { Issue } from '../../types/json/envelope/index.js';
-import type { PrepareProjectSnapshotFromArchiveInput } from '../../types/project/prepareArchive.js';
+import type { PrepareProjectSnapshotFromArchiveInput } from '../../types/project/prepare/index.js';
 import type { ValidateReportIngestResult } from '../../types/report/ingest.js';
 import { prepareProjectSnapshotFromArchive } from './fromArchive.js';
 import { buildReportDocumentFromPreparedSnapshot } from './fromAnalysis.js';
@@ -25,11 +25,11 @@ export async function prepareReportFromArchive(
       cwd: '/',
       toolVersion: 'unknown',
       environment: {
-        platform: 'linux',
-        arch: 'x64',
-        nodeVersion: 'v0.0.0',
-        osRelease: '0',
-        runtimeFamily: 'linux',
+        platform: 'archive-hosted',
+        arch: '',
+        nodeVersion: '',
+        osRelease: '',
+        runtimeFamily: 'edge-worker',
       },
     });
   } catch (err) {

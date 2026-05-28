@@ -1,5 +1,6 @@
 /** One key=value block in share view verbose output (`--verbose` / `--json`). */
-export type ShareViewVerboseSection = Record<string, string | number | boolean>;
+export type ShareViewVerboseSectionValue = string | number | boolean | null | readonly string[];
+export type ShareViewVerboseSection = Record<string, ShareViewVerboseSectionValue>;
 
 /** Structured sections returned on `share view --verbose` (human + JSON `verbose` field). */
 export type ShareViewVerboseDetail = {

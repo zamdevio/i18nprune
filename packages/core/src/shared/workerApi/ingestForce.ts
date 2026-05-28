@@ -1,7 +1,6 @@
 import { stableStringify } from '../../share/util/stableJson.js';
-import type { HostedProjectIngestEnvelope } from '../../types/project/prepare.js';
-
-export const WORKER_INGEST_FORCE_QUERY = 'force';
+import { WORKER_INGEST_FORCE_QUERY } from '../constants/worker.js';
+import type { HostedProjectIngestEnvelope } from '../../types/project/prepare/index.js';
 
 /**
  * Force ingest does **not** change the content hash — `projectHash` / `payloadContentHash` stay the

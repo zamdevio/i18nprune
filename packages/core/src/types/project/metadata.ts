@@ -1,12 +1,11 @@
 import type { CacheDispatchReason, CacheDispatchStatus } from '../cache/index.js';
 import type { ReportEnvironmentSnapshot } from '../report/reportDocument.js';
 
-/** Display placeholder when a timestamp or metric is missing or invalid. */
+/** Display placeholder (presentation-only, never serialized in transport). */
 export const METADATA_DASH = '—' as const;
 
-export type MetadataDash = typeof METADATA_DASH;
-
-export type MetadataScalar = string | number | MetadataDash;
+/** Machine-facing scalar for transport payloads. */
+export type MetadataScalar = string | number | null;
 
 /** Built-in ingest routes; hosts/SDKs may send other route ids via `processorContext.route`. */
 export type KnownIngestRouteKind = 'prepared' | 'archive';
@@ -106,12 +105,15 @@ export type ProjectMetadataTiming = {
 };
 
 export type ProjectExtractionCacheMeta = {
-  analysis: CacheDispatchStatus | 'unavailable' | MetadataDash;
+  available: boolean;
+  analysis: CacheAnalysisState;
   analysisReason: MetadataScalar;
   timingsTrustworthy: boolean;
   filesEpoch: MetadataScalar;
   projectCacheEnabled: boolean;
 };
+
+export type CacheAnalysisState = 'hit' | 'miss' | 'disabled' | 'unavailable' | 'bypassed' | null;
 
 export type ProjectExtractionSummaryMeta = {
   configHash: MetadataScalar;
@@ -123,9 +125,65 @@ export type ProjectExtractionSummaryMeta = {
   cache: ProjectExtractionCacheMeta;
 };
 
+export type ProjectStoredSummary = {
+  localeCount: number;
+  missingKeysCount: number | null;
+  ok: boolean | null;
+};
+
+export type ProjectStoredArtifactMeta = {
+  kind: 'project';
+  id: string;
+  contentHash: string;
+  byteSize: number;
+  fileCount: number;
+  textFileCount: number;
+  detectedConfigPath: string | null;
+  localeTags: string[];
+};
+
+export type ProjectStoredExecutionMeta = {
+  surface: MetadataScalar;
+  host: MetadataScalar;
+  route: MetadataScalar;
+  transport: 'https-json';
+  computeLocation: 'edge';
+};
+
+export type ProjectStoredAnalysisMeta = {
+  localeTags: string[];
+  detectedConfigPath: string | null;
+  configHash: MetadataScalar;
+  sourceLocalePath: MetadataScalar;
+  srcRoot: MetadataScalar;
+  localesDir: MetadataScalar;
+  keyObservationsCount: number;
+  dynamicSitesCount: number;
+};
+
+export type ProjectStoredStorageMeta = {
+  backend: 'durable-object';
+  dedupByContentHash: true;
+  contentAddressed: true;
+};
+
+export type ProjectStoredRetentionMeta = {
+  policy: 'idle-7d';
+  expiresAt: MetadataScalar;
+  lastAccessedAt: MetadataScalar;
+};
+
+export type ProjectStoredCapabilitiesMeta = {
+  preparedUploads: true;
+  archiveUploads: true;
+  readOperations: readonly ['metadata', 'snapshot', 'tree', 'validate', 'review', 'missing', 'locales', 'doctor', 'report'];
+  project: true;
+  report: false;
+};
+
 export type ReportMetadataDocumentTiming = {
   requestReceivedAt?: MetadataScalar;
-  generatedAt: MetadataScalar;
+  preparedAt: MetadataScalar;
   storedAt: MetadataScalar;
   lastAccessedAt: MetadataScalar;
   prepare?: ProjectMetadataPrepareTiming;
@@ -133,18 +191,36 @@ export type ReportMetadataDocumentTiming = {
 };
 
 export type ProjectStoredMetadata = {
-  projectId: string;
-  projectHash: string;
-  preparedAt: MetadataScalar;
-  zipBytes: number;
-  fileCount: number;
-  textFileCount: number;
-  detectedConfigPath: string | null;
-  localeTags: string[];
-  expiresAt: MetadataScalar;
+  /** Metadata envelope contract version. */
+  schemaVersion: 1;
+  /** Underlying hosted artifact format version. */
+  formatVersion: 1;
+
+  // 1) Identity / artifact
+  artifact: ProjectStoredArtifactMeta;
+  // 2) Lifecycle / timestamps
   timing: ProjectMetadataTiming;
+
+  // 3) Processor / provenance
   processor: PayloadProcessorInfo;
-  extraction: ProjectExtractionSummaryMeta | null;
+  // 4) Execution / transport
+  execution: ProjectStoredExecutionMeta;
+
+  // 5) Analysis / extraction
+  analysis: ProjectStoredAnalysisMeta | null;
+  summary: ProjectStoredSummary;
+
+  // 6) Cache / trust
+  cache: ProjectExtractionCacheMeta;
+
+  // 7) Storage
+  storage: ProjectStoredStorageMeta;
+
+  // 8) Retention
+  retention: ProjectStoredRetentionMeta;
+
+  // 9) Capabilities
+  capabilities: ProjectStoredCapabilitiesMeta;
 };
 
 /** Re-export for consumers documenting cache reasons on metadata. */

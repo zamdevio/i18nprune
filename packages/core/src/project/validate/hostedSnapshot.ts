@@ -8,7 +8,7 @@ import { parseWorkerIngestForceField } from '../../shared/workerApi/ingestForce.
 import type {
   HostedProjectIngestEnvelope,
   ValidateHostedProjectIngestResult,
-} from '../../types/project/prepare.js';
+} from '../../types/project/prepare/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { ProjectSnapshot } from '../../types/project/upload.js';
 

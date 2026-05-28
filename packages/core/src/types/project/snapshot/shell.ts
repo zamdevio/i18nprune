@@ -1,5 +1,5 @@
-import type { Issue } from '../json/envelope/index.js';
-import type { ParsedProjectUpload } from './upload.js';
+import type { Issue } from '../../json/envelope/index.js';
+import type { ParsedProjectUpload } from '../upload.js';
 
 export type BuildProjectSnapshotShellResult =
   | { ok: true; parsed: ParsedProjectUpload }

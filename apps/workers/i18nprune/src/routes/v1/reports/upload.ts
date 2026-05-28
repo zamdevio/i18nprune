@@ -38,7 +38,8 @@ function processorContextFromDocument(document: Record<string, unknown>): Hosted
     runtimeFamily !== 'windows' &&
     runtimeFamily !== 'darwin' &&
     runtimeFamily !== 'linux' &&
-    runtimeFamily !== 'linux-wsl'
+    runtimeFamily !== 'linux-wsl' &&
+    runtimeFamily !== 'edge-worker'
   ) {
     return toolVersion ? { toolVersion } : undefined;
   }

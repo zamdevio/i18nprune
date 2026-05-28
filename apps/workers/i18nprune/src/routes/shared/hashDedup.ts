@@ -55,7 +55,7 @@ export function reportUploadSuccessPayload(row: ReportStoreRow): {
   payloadContentHash: string;
   byteSize: number;
   storedAt: string;
-  expiresAt: ReturnType<typeof buildStoredReportMetadata>['expiresAt'];
+  expiresAt: ReturnType<typeof buildStoredReportMetadata>['retention']['expiresAt'];
 } {
   const meta = buildStoredReportMetadata(row);
   return {
@@ -63,7 +63,7 @@ export function reportUploadSuccessPayload(row: ReportStoreRow): {
     payloadContentHash: row.payloadContentHash,
     byteSize: row.byteSize,
     storedAt: row.storedAt,
-    expiresAt: meta.expiresAt,
+    expiresAt: meta.retention.expiresAt,
   };
 }
 

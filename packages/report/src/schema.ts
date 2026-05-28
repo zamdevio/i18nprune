@@ -20,7 +20,7 @@ export const projectReportDocumentSchema = z.object({
         osRelease: z.string(),
         distro: z.string().optional(),
         wslDistroName: z.string().optional(),
-        runtimeFamily: z.enum(['windows', 'darwin', 'linux', 'linux-wsl']).optional(),
+        runtimeFamily: z.enum(['windows', 'darwin', 'linux', 'linux-wsl', 'edge-worker']).optional(),
       })
       .optional(),
   }),

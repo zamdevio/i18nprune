@@ -1,4 +1,4 @@
-import type { PrepareTimer, PrepareTimerMark } from '../../types/project/prepareTimer.js';
+import type { PrepareTimer, PrepareTimerMark } from '../../types/project/prepare/index.js';
 
 function monotonicMs(): number {
   if (typeof performance !== 'undefined' && typeof performance.now === 'function') {

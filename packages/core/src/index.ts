@@ -601,8 +601,8 @@ export {
   workerProjectIngestUrl,
   workerReportArchiveIngestUrl,
   workerReportIngestUrl,
-  WORKER_INGEST_FORCE_QUERY,
 } from './shared/workerApi/ingestForce.js';
+export { WORKER_INGEST_FORCE_QUERY } from './shared/constants/worker.js';
 export {
   buildHostedProjectUploadRequest,
   buildHostedReportUploadRequest,

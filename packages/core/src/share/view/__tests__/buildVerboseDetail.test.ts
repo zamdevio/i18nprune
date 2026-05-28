@@ -5,15 +5,18 @@ import type { ProjectStoredMetadata } from '../../../types/project/metadata.js';
 
 function projectView(overrides?: Partial<ShareViewResult>): ShareViewResult {
   const meta: ProjectStoredMetadata = {
-    projectId: 'p1',
-    projectHash: 'abcdef1234567890',
-    preparedAt: '2026-01-01T00:00:00.000Z',
-    zipBytes: 100,
-    fileCount: 2,
-    textFileCount: 2,
-    detectedConfigPath: 'i18nprune.config.json',
-    localeTags: ['en'],
-    expiresAt: '2026-01-08T00:00:00.000Z',
+    schemaVersion: 1,
+    formatVersion: 1,
+    artifact: {
+      kind: 'project',
+      id: 'p1',
+      contentHash: 'abcdef1234567890',
+      byteSize: 100,
+      fileCount: 2,
+      textFileCount: 2,
+      detectedConfigPath: 'i18nprune.config.json',
+      localeTags: ['en'],
+    },
     timing: {
       preparedAt: '2026-01-01T00:00:00.000Z',
       requestReceivedAt: '2026-01-01T00:00:00.000Z',
@@ -45,20 +48,52 @@ function projectView(overrides?: Partial<ShareViewResult>): ShareViewResult {
         runtimeFamily: 'linux-wsl',
       },
     },
-    extraction: {
+    summary: {
+      localeCount: 1,
+      missingKeysCount: 0,
+      ok: true,
+    },
+    execution: {
+      surface: 'cli',
+      host: 'cli-share',
+      route: 'prepared',
+      transport: 'https-json',
+      computeLocation: 'edge',
+    },
+    analysis: {
+      localeTags: ['en'],
+      detectedConfigPath: 'i18nprune.config.json',
       configHash: 'cfgcfgcfgcfg',
       sourceLocalePath: 'locales/en.json',
       srcRoot: 'src',
       localesDir: 'locales',
       keyObservationsCount: 1177,
       dynamicSitesCount: 88,
-      cache: {
-        analysis: 'hit',
-        analysisReason: 'cache_hit',
-        timingsTrustworthy: false,
-        filesEpoch: 'fbd828fbd828fbd828',
-        projectCacheEnabled: true,
-      },
+    },
+    cache: {
+      available: true,
+      analysis: 'hit',
+      analysisReason: 'cache_hit',
+      timingsTrustworthy: false,
+      filesEpoch: 'fbd828fbd828fbd828',
+      projectCacheEnabled: true,
+    },
+    storage: {
+      backend: 'durable-object',
+      dedupByContentHash: true,
+      contentAddressed: true,
+    },
+    retention: {
+      policy: 'idle-7d',
+      expiresAt: '2026-01-08T00:00:00.000Z',
+      lastAccessedAt: '2026-01-01T00:00:01.000Z',
+    },
+    capabilities: {
+      preparedUploads: true,
+      archiveUploads: true,
+      readOperations: ['metadata', 'snapshot', 'tree', 'validate', 'review', 'missing', 'locales', 'doctor', 'report'],
+      project: true,
+      report: false,
     },
   };
   return {
@@ -81,10 +116,10 @@ describe('buildShareViewVerboseDetail', () => {
     expect(verbose?.extraction?.observations).toBe(1177);
     expect(verbose?.cache?.analysis).toBe('hit');
     expect(verbose?.cache?.timingsTrustworthy).toBe(false);
-    expect(verbose?.timings?.['prepare.totalMs']).toBe('153');
-    expect(verbose?.edge?.persistMs).toBe('1866');
-    expect(String(verbose?.cache?.filesEpoch)).toMatch(/…$/);
-    expect(String(verbose?.snapshot?.projectHash)).toMatch(/…$/);
+    expect(verbose?.timings?.['prepare.totalMs']).toBe(153);
+    expect(verbose?.edge?.persistMs).toBe(1866);
+    expect(verbose?.cache?.filesEpoch).toBe('fbd828fbd828fbd828');
+    expect(verbose?.snapshot?.projectHash).toBe('abcdef1234567890');
   });
 
   it('falls back to minimal sections when metadata parse is missing', () => {
@@ -96,6 +131,6 @@ describe('buildShareViewVerboseDetail', () => {
       issues: [],
     });
     expect(verbose?.processor.note).toContain('parse unavailable');
-    expect(verbose?.snapshot?.fileCount).toBe('3');
+    expect(verbose?.snapshot?.fileCount).toBe(3);
   });
 });

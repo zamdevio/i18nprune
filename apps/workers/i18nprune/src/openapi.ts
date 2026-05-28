@@ -161,6 +161,15 @@ export const openApiDocument = {
         summary: 'Ingest prepared project snapshot JSON (primary)',
         description:
           'Validates `HostedProjectIngestEnvelope` from CLI/web prepare (`schemaVersion`, `snapshot` with extraction, optional `prepareMeta`). No analysis cache on the worker.',
+        parameters: [
+          {
+            name: 'force',
+            in: 'query',
+            required: false,
+            schema: { type: 'boolean' },
+            description: 'When true, bypass hash dedup and replace any existing row for the same content hash.',
+          },
+        ],
         requestBody: {
           required: true,
           content: {
@@ -211,6 +220,15 @@ export const openApiDocument = {
         summary: 'Upload project archive (.zip) and prepare snapshot (secondary)',
         description:
           'Worker-side zip prepare via core `prepareProjectSnapshotFromArchive` (cache off). Optional `configJson` form field overrides zip-detected config.',
+        parameters: [
+          {
+            name: 'force',
+            in: 'query',
+            required: false,
+            schema: { type: 'boolean' },
+            description: 'When true, bypass hash dedup and replace any existing row for the same content hash.',
+          },
+        ],
         requestBody: {
           required: true,
           content: {
@@ -431,6 +449,15 @@ export const openApiDocument = {
         summary: 'Store a shared project report document',
         description:
           'Validates `document` against `projectReportDocumentSchema` and caches it for report.i18nprune.dev share links. Max body size: REPORT_SHARE_MAX_BYTES (8 MiB).',
+        parameters: [
+          {
+            name: 'force',
+            in: 'query',
+            required: false,
+            schema: { type: 'boolean' },
+            description: 'When true, bypass hash dedup and replace any existing row for the same content hash.',
+          },
+        ],
         requestBody: {
           required: true,
           content: {
@@ -478,6 +505,15 @@ export const openApiDocument = {
         summary: 'Upload project zip and store derived report (secondary)',
         description:
           'Prepares report document from archive via core `prepareReportFromArchive` (no analysis cache). Same multipart shape as project archive.',
+        parameters: [
+          {
+            name: 'force',
+            in: 'query',
+            required: false,
+            schema: { type: 'boolean' },
+            description: 'When true, bypass hash dedup and replace any existing row for the same content hash.',
+          },
+        ],
         requestBody: {
           required: true,
           content: {

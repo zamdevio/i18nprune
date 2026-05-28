@@ -20,6 +20,9 @@ export type ReportEnvironmentSnapshot = {
   distro?: string;
   /** WSL distribution name from `WSL_DISTRO_NAME` env var, if running under WSL. */
   wslDistroName?: string;
-  /** Resolved runtime family for editor deep-link path mapping. */
-  runtimeFamily: 'windows' | 'darwin' | 'linux' | 'linux-wsl';
+  /**
+   * Runtime/filesystem compatibility family.
+   * `edge-worker` is a synthetic hosted runtime (no local filesystem assumptions).
+   */
+  runtimeFamily: 'windows' | 'darwin' | 'linux' | 'linux-wsl' | 'edge-worker';
 };

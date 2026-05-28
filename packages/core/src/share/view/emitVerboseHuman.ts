@@ -1,6 +1,7 @@
 import { emitRunMessage } from '../../shared/run/index.js';
 import type { ShareHumanMessageHost } from '../emit/host.js';
 import type { ShareViewVerboseDetail, ShareViewVerboseSection } from '../../types/share/viewDetail.js';
+import { buildVerboseRows, type VerboseSection } from './format.js';
 
 const VERBOSE_SECTION_ORDER: (keyof ShareViewVerboseDetail)[] = [
   'processor',
@@ -33,10 +34,14 @@ function shareVerboseDetailLine(host: ShareHumanMessageHost, message: string): v
   });
 }
 
-function emitSection(host: ShareHumanMessageHost, title: string, section: ShareViewVerboseSection): void {
-  shareVerboseHeader(host, `${title}:`);
-  for (const [key, value] of Object.entries(section)) {
-    shareVerboseDetailLine(host, `  ${key}=${String(value)}`);
+function toVerboseSection(title: string, section: ShareViewVerboseSection): VerboseSection {
+  return { title, rows: buildVerboseRows(section) };
+}
+
+function emitSection(host: ShareHumanMessageHost, section: VerboseSection): void {
+  shareVerboseHeader(host, `${section.title}:`);
+  for (const row of section.rows) {
+    shareVerboseDetailLine(host, `  ${row.key}=${row.value}`);
   }
 }
 
@@ -46,7 +51,7 @@ export function emitShareViewVerboseHumanMessages(host: ShareHumanMessageHost, d
   for (const key of VERBOSE_SECTION_ORDER) {
     const section = detail[key];
     if (section && typeof section === 'object' && !Array.isArray(section)) {
-      emitSection(host, key, section as ShareViewVerboseSection);
+      emitSection(host, toVerboseSection(key, section as ShareViewVerboseSection));
     }
   }
 }

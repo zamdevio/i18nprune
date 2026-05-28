@@ -2,8 +2,7 @@ import { resolveShareInputFilesEpoch } from '../share/cache/resolveInputFilesEpo
 import type { CoreContext } from '../types/context/index.js';
 import type { ProjectAnalysis } from '../types/analysis/index.js';
 import type { HostPrepareCacheMeta } from '../types/project/metadata.js';
-import { METADATA_DASH } from '../types/project/metadata.js';
-import type { ProjectPrepareMeta } from '../types/project/prepare.js';
+import type { ProjectPrepareMeta } from '../types/project/prepare/index.js';
 
 /** Host-side cache snapshot for worker metadata (`extraction.cache`). */
 export function buildHostPrepareCacheMeta(
@@ -29,7 +28,7 @@ export function buildHostPrepareCacheMeta(
     analysis: analysisStatus,
     analysisReason,
     timingsTrustworthy,
-    filesEpoch: filesEpoch ?? METADATA_DASH,
+    filesEpoch: filesEpoch ?? null,
     projectCacheEnabled,
   };
 }

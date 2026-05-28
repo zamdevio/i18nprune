@@ -1,5 +1,5 @@
 import type { Issue } from '../json/envelope/index.js';
-import type { ProjectPrepareMeta } from '../project/prepare.js';
+import type { ProjectPrepareMeta } from '../project/prepare/index.js';
 import type { ShareReportManifest } from '../share/manifest.js';
 
 export type ValidateReportIngestResult =

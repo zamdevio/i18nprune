@@ -1,5 +1,5 @@
 import { normalizeWorkerBaseUrl } from '../../share/policy/policy.js';
-import type { HostedProjectIngestEnvelope } from '../../types/project/prepare.js';
+import type { HostedProjectIngestEnvelope } from '../../types/project/prepare/index.js';
 import {
   resolveShareUploadForce,
   serializeHostedProjectIngestBody,
@@ -8,8 +8,6 @@ import {
   workerProjectIngestUrl,
   workerReportIngestUrl,
 } from './ingestForce.js';
-
-export { resolveShareUploadForce } from './ingestForce.js';
 
 export function buildHostedProjectUploadRequest(input: {
   workerBaseUrl: string;
