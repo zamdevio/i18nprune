@@ -28,8 +28,9 @@ Planning for core contributors. **`docs/`** is what **`pnpm docs:sync`** mirrors
 |-----|--------|
 | [`extractor.md`](./extractor.md) | **Active** — JS/TS extractor improvement plan (false-positive hardening, future languages) |
 | [`cache.md`](./cache.md) | **Shipped (H-cache)** — Phases 0–4 (incremental analysis + invalidate policy); user copy: [`docs/cli/cache.md`](../../docs/cli/cache.md) |
-| [`apps.md`](./apps.md) | **Active (C.3+)** — open: worker `runReport` row **9**, metadata polish **W** (report row **8** shipped) |
+| [`apps.md`](./apps.md) | **Shipped (C.3+)** — rows **0–10** complete (worker `runReport` row **9** + metadata polish **W**) |
 | [`standard-toolkit.md`](./standard-toolkit.md) | **Active** — CLI toolkit conventions |
+| [`tree.md`](./tree.md) | **Active** — repo tree, naming, and logic/type/test parity plan |
 | [`final.md`](./final.md) | **Gate** — one-time pre-publish checklist (delete after release) |
 | [`V1-RELEASE.md`](./V1-RELEASE.md) | **Hub** — ordered v1 sessions |
 | [`docs-refactor.md`](./docs-refactor.md) | **Active** — v1-scoped docs nav reduction + SDK quickstart |

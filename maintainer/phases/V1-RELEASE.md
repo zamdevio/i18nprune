@@ -15,7 +15,7 @@
 
 ## Recommended v1 sequence (start here after shipped Session C)
 
-Ship **init → locales → cache → translate-cache** on **`@i18nprune/core`** before **hosted app** catch-up. **F**, **H**, **H-cache**, and **H.1** are **shipped**; **active:** **C.3+** ([`apps.md`](./apps.md) rows **9**, **W**). Then **cross-platform** ([`cross-platform.md`](./cross-platform.md)), **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**.
+Ship **init → locales → cache → translate-cache** on **`@i18nprune/core`** before **hosted app** catch-up. **F**, **H**, **H-cache**, **H.1**, and **C.3+ apps** are **shipped**; **active next:** **cross-platform** ([`cross-platform.md`](./cross-platform.md)). Then **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**.
 
 | Step | Session | What |
 |------|---------|------|
@@ -23,7 +23,7 @@ Ship **init → locales → cache → translate-cache** on **`@i18nprune/core`**
 | **2** | **H — Locales** (**shipped** — core + CLI) | [`shipped-slices.md`](./shipped-slices.md) · [`docs/commands/locales`](../../docs/commands/locales/README.md) |
 | **2a** | **H-cache — Project cache** (**shipped**) | [`cache.md`](./cache.md) — Phases 0–4 (incremental analysis + invalidate policy) |
 | **2b** | **H.1 — Translate cache** (**shipped**) | [`shipped-slices.md`](./shipped-slices.md) · [`docs/cli/cache.md`](../../docs/cli/cache.md) |
-| **3** | **C.3 — Apps + share** | [`apps.md`](./apps.md) — rows **0–8 shipped**; **open:** row **9** (`runReport` on worker), row **W** (metadata) |
+| **3** | **C.3 — Apps + share** | [`apps.md`](./apps.md) — rows **0–10 shipped** (including row **9** worker `runReport` route and row **W** metadata polish) |
 | **3b** | **XP — Cross-platform** | [`cross-platform.md`](./cross-platform.md) — CLI + SDK on Win/macOS/Linux/WSL; **version cache** (`~/.config/i18nprune/updatestate.json`), **project cache** (`~/.i18nprune/cache`), **translate cache** |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) — nav trim, SDK quickstart, tree flattening |
 | **5** | **D.2 — Landing** | `apps/landing` — lean onboarding + value proposition |
@@ -57,7 +57,7 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 **Patching / auto-patching.** **User docs:** [`docs/patching/README.md`](../../docs/patching/README.md). Maintainer map: [`maintainer/systems/patching.md`](../systems/patching.md). Delivered: integration tests (core chain + CLI **`patch --fix` → `--patch sync` → `--patch generate`**), shared CLI **`Context` → `runPatching`** wiring (`fromContext.ts`), resolver preservation tests, **`config.json`** injection-status docs, core patching types and barrel layout.
 
-**Next (core):** **C.3+ apps / share** ([`apps.md`](./apps.md)).
+**Next (core):** **cross-platform** ([`cross-platform.md`](./cross-platform.md)).
 
 ---
 
@@ -95,13 +95,13 @@ All ops shipped — see [`shipped-slices.md`](./shipped-slices.md).
 
 **Scope:** Update **`apps/web`**, **`apps/report`**, and **`apps/workers/i18nprune`** — imports, types, runtime adapter usage vs **`@i18nprune/core`**. Add **core `share` op** (`packages/core/src/share/`), CLI **`i18nprune share`** (+ `list` / `delete`), worker **`/v1/reports`**, and hosted share links. **`apps/workers/meta`** stays separate unless shared worker tooling changes.
 
-**Plan (authoritative):** **[`apps.md`](./apps.md)**. Report row **8** shipped; **open:** worker **`runReport`** (row **9**), metadata grouping (row **W**).
+**Plan (authoritative):** **[`apps.md`](./apps.md)**. All C.3+ rows are shipped, including worker **`runReport`** (row **9**) and metadata grouping (row **W**).
 
 ---
 
 ## Session XP — Cross-platform hardening (**planned**)
 
-**When:** After **apps.md** rows **9** and **W** complete (or defer with tracker note).
+**When:** After **apps C.3+** completion (fulfilled; rows **0–10** shipped).
 
 **Scope:** Prove and harden **CLI** + **`@i18nprune/core` SDK** on Windows, macOS, native Linux, and WSL. All **disk caches**:
 

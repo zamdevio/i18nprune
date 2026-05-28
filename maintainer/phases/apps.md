@@ -1,6 +1,6 @@
-# Apps phase — remaining work (C.3+)
+# Apps phase — closure notes (C.3+)
 
-**Status:** **Active** — share rows **0–7**, **6b**, **6c**, **8**, **10** are **shipped** ([`shipped-slices.md`](./shipped-slices.md)). **Open:** rows **9**, **W**. **Next phase after apps:** [`cross-platform.md`](./cross-platform.md) (CLI/SDK + version/project/translate disk caches).  
+**Status:** **Shipped** — rows **0–10**, including **9** (`runReport` worker route) and **W** (worker metadata response polish), are complete ([`shipped-slices.md`](./shipped-slices.md)). **Next phase:** [`cross-platform.md`](./cross-platform.md) (CLI/SDK + version/project/translate disk caches).  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) Session **C.3** · **Systems map:** [`maintainer/systems/share.md`](../systems/share.md) · **Active narrative:** [`active-phase.md`](./active-phase.md).
 
 **For agents:** read [`maintainer/systems/share.md`](../systems/share.md) for current wiring. This file is **only open tasks** — no re-implementing shipped slices.
@@ -9,13 +9,13 @@
 
 ---
 
-## Tracker (open only)
+## Tracker (final state)
 
 | # | Slice | Status | Notes |
 |---|-------|--------|-------|
 | **8** | **Report** `/#/?id=` + `/document` load + Share + shell UX | **Shipped** | [`apps/report`](../../apps/report) — home/import, runtime shell parity with web, workspace nav, share history |
 | **9** | Worker **`runReport`** on `GET …/projects/:id/report` | **Shipped** | `routes/v1/projects/report.ts` now routes through core `runReport` with a preloaded snapshot document |
-| **W** | **Worker metadata response polish** | **Todo** (can parallel 8/9) | Compressed plan § [Worker metadata (W)](#worker-metadata-w) below |
+| **W** | **Worker metadata response polish** | **Shipped** | Grouped/typed project+report metadata, worker edge runtime family support, nullable transport scalars, force query parity |
 
 ---
 
@@ -71,6 +71,14 @@ Legacy fields (`projectId`, `reportId`, `expiresAt`, `timing`, `processor`, `ext
 **Code map:** `packages/core/src/project/storedMetadata.ts` · `reportMetadata.ts` · `types/project/metadata.ts` · `types/project/reportStore.ts` · `share/remote/parseMetadata.ts` · `apps/workers/i18nprune/src/routes/v1/{projects,reports}/` · `openapi.ts`
 
 **Done when:** GET + POST share grouped metadata; strict timings; OpenAPI updated; CLI/web/report still work during migration.
+
+**Receipt (completed):**
+
+- [x] Shared runtime/environment contract accepts worker/edge families in validation and ingestion flows.
+- [x] Metadata schema cleanup landed (`schemaVersion` canonical naming and artifact `formatVersion` usage).
+- [x] Transport placeholders removed (`null`/omit in payloads; CLI keeps human placeholders at render time).
+- [x] Project/report response envelopes aligned around canonical sections (artifact/analysis/execution/timing/cache/storage/retention/capabilities).
+- [x] `?force=true|false` parsing and OpenAPI coverage aligned across project/report + archive upload routes.
 
 ---
 

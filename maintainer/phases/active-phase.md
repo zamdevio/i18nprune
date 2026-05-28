@@ -2,11 +2,11 @@
 
 **v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** — use first for sequencing.
 
-**Locked vertical order (extractor → init → locales → cache → translate-cache → apps → cross-platform → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below. **Init (F)**, **Locales (H)**, **Cache (Phases 0–4)**, and **Translate-cache (H.1)** are **shipped**. **Active next:** **[`apps.md`](./apps.md)** (C.3+ rows **9**, **W**).
+**Locked vertical order (extractor → init → locales → cache → translate-cache → apps → cross-platform → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below. **Init (F)**, **Locales (H)**, **Cache (Phases 0–4)**, **Translate-cache (H.1)**, and **Apps (C.3+)** are **shipped**. **Active next:** **[`cross-platform.md`](./cross-platform.md)**.
 
-**Narrative focus:** **apps / share** per [`apps.md`](./apps.md) → **[`cross-platform.md`](./cross-platform.md)** (CLI + SDK + all disk caches) → **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
+**Narrative focus:** **cross-platform** per [`cross-platform.md`](./cross-platform.md) (CLI + SDK + all disk caches) → **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
 
-**Verticals:** init / locales / cache / translate-cache (**shipped**) → **[`apps.md`](./apps.md)** (**active**) → **[`cross-platform.md`](./cross-platform.md)** (**planned**) → **docs (D)** — extension per **[`extension/README.md`](./extension/README.md)**.
+**Verticals:** init / locales / cache / translate-cache / apps (**shipped**) → **[`cross-platform.md`](./cross-platform.md)** (**active next**) → **docs (D)** — extension per **[`extension/README.md`](./extension/README.md)**.
 
 ---
 
@@ -27,7 +27,7 @@ cache            (shipped — cache.md Phases 0–4)
     ↓
 translate-cache  (shipped — translations/<code>.json)
     ↓
-apps             (C.3+ active — rows 9 + W; apps.md)
+apps             (C.3+ shipped — rows 0–10 complete; apps.md)
     ↓
 cross-platform   (planned — CLI/SDK + version + project + translate caches; cross-platform.md)
     ↓
@@ -41,7 +41,7 @@ extension
 | **locales** | Multi-topology locale **storage** via **reader/writer**; **normalized locale surface** for ops. **Shipped** (Session **H**). | [`shipped-slices.md`](./shipped-slices.md) |
 | **cache** | **`files.json`** + **`analysis.json`**; incremental rebuild + profiles + Phase 4 invalidation **shipped** — [`cache.md`](./cache.md). | [`cache.md`](./cache.md) |
 | **translate-cache** | L1 + L2 **`translations/<code>.json`** beside **`analysis.json`**; same **`config.cache`**. **Shipped** (Session **H.1**). | [`shipped-slices.md`](./shipped-slices.md) |
-| **apps** | **`apps/web`**, **`apps/report`**, worker; core **`share`** op + CLI **`i18nprune share`**. **Active** (C.3+ rows **9**, **W**). | [`apps.md`](./apps.md) |
+| **apps** | **`apps/web`**, **`apps/report`**, worker; core **`share`** op + CLI **`i18nprune share`**. **Shipped** (C.3+ rows **0–10**). | [`apps.md`](./apps.md) |
 | **cross-platform** | Prove + harden **CLI** and **`@i18nprune/core`** on Windows/macOS/Linux/WSL; **version cache** (`updatestate.json`), **project cache** (`~/.i18nprune/cache`), **translate cache**. | [`cross-platform.md`](./cross-platform.md) |
 | **extension** | Hosts core APIs only — **no parallel scan truth**. | [`extension/README.md`](./extension/README.md) |
 
@@ -97,7 +97,7 @@ Work delivered: **import binding resolution** (alias-aware per-file `functions` 
 
 ## Apps catch-up (**Session C.3 — after init + locales**)
 
-**When:** After **translate-cache (H.1)** per [`V1-RELEASE.md`](./V1-RELEASE.md). **Rows 0–7 shipped** (core share, worker CRUD, CLI **`i18nprune share`**, web `/#/workspace?id=`). **Active:** row **9** (`runReport` on worker) and **W** (metadata polish) per **[`apps.md`](./apps.md)**. Report row **8** shipped.
+**When:** After **translate-cache (H.1)** per [`V1-RELEASE.md`](./V1-RELEASE.md). **Rows 0–10 shipped** (core share, worker CRUD + report route, CLI **`i18nprune share`**, web/report hosted UX, worker metadata polish) per **[`apps.md`](./apps.md)**.
 
 ---
 
@@ -121,8 +121,8 @@ Target: ~10 top-level nav categories. Root README rewrite. SDK quickstart. Tree 
 | **Locales phase (multi-topology)** | **Shipped — Session H** | [`shipped-slices.md`](./shipped-slices.md) |
 | **Project cache (analysis incremental)** | **Shipped — Phases 0–4** | [`cache.md`](./cache.md) |
 | **Translate cache** | **Shipped — H.1** | [`shipped-slices.md`](./shipped-slices.md) |
-| **Apps catch-up (web + report + worker + share)** | **Active — C.3+** rows **9**, **W** (report row **8** shipped) | [`apps.md`](./apps.md) |
-| **Cross-platform (CLI + SDK + disk caches)** | **Planned** — after apps **9**/**W** | [`cross-platform.md`](./cross-platform.md) |
+| **Apps catch-up (web + report + worker + share)** | **Shipped — C.3+** rows **0–10** | [`apps.md`](./apps.md) |
+| **Cross-platform (CLI + SDK + disk caches)** | **Active next** — follows shipped apps C.3+ | [`cross-platform.md`](./cross-platform.md) |
 | **Patching hardening** | **Shipped** | [`docs/patching/README.md`](../../docs/patching/README.md) |
 | **Standard toolkit** | **Parallel** | [`standard-toolkit.md`](./standard-toolkit.md) |
 
