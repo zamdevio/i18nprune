@@ -1,4 +1,7 @@
 {
   "app.title": "Bonjour",
-  "app.greeting": "Bienvenue"
+  "app.greeting": "Bienvenue",
+  "app.subtitle": "Mise en page locale_per_dir",
+  "help.faq": "FAQ",
+  "help.docs": "Documentation"
 }

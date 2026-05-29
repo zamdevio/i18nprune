@@ -43,5 +43,26 @@
     "success": "Action was successful.",
     "error": "Something went wrong. Please try again.",
     "logout": "You have been logged out."
+  },
+  "widgets": {
+    "stats": {
+      "views": "Page views",
+      "users": "Active users",
+      "sessions": "Sessions"
+    },
+    "banner": {
+      "title": "Welcome back",
+      "subtitle": "Your dashboard is ready"
+    }
+  },
+  "help": {
+    "faq": "FAQ",
+    "contact": "Contact support",
+    "docs": "Documentation"
+  },
+  "settings": {
+    "profile": "Profile",
+    "security": "Security",
+    "notifications": "Notification preferences"
   }
 }

@@ -1,3 +1,5 @@
 {
-  "common.ok": "OK"
+  "common.ok": "OK",
+  "common.cancel": "Cancel",
+  "common.loading": "Loading…"
 }

@@ -1,0 +1,6 @@
+{
+  "app.title": "SvelteKit fixture",
+  "app.tagline": "Minimal Svelte scan smoke",
+  "nav.home": "Home",
+  "nav.settings": "Settings"
+}

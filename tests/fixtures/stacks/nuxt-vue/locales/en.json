@@ -1,0 +1,6 @@
+{
+  "pages.home.title": "Nuxt Vue fixture",
+  "pages.home.lead": "Pages and components under src/",
+  "layout.brand": "i18nprune",
+  "layout.signIn": "Sign in"
+}

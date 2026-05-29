@@ -1,4 +1,8 @@
 {
   "app.title": "Flat layout demo",
-  "app.cta": "Get started"
+  "app.cta": "Get started",
+  "app.tagline": "flat_file + locale_file",
+  "nav.home": "Home",
+  "nav.about": "About",
+  "nav.contact": "Contact"
 }

@@ -4,7 +4,7 @@
     "dynamicKeySites": 3,
     "files": [
       {
-        "changed": false,
+        "changed": true,
         "path": "<fixture>/locales/ar.json"
       }
     ],
@@ -29,8 +29,8 @@
         "repairedCorruptLeaves": 0,
         "strippedStructuredLeaves": 0,
         "structuredLeavesWritten": 0,
-        "totalSourceLeafPaths": 29,
-        "unchangedLeaves": 29
+        "totalSourceLeafPaths": 40,
+        "unchangedLeaves": 40
       }
     },
     "localesDir": "<fixture>/locales",

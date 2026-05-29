@@ -1,4 +1,8 @@
 import { t } from './i18n.js';
+import { bannerText } from './widgets/banner.js';
+import { statsLine } from './widgets/stats.js';
+import { helpLinks } from './views/help.js';
+import { settingsLabels } from './views/settings.js';
 
 const NS = 'app';
 
@@ -36,6 +40,10 @@ export function main(): string {
     greeting,
     registerUsername,
     notFound,
-    notifications
+    notifications,
+    statsLine(),
+    bannerText(),
+    helpLinks(),
+    settingsLabels(),
   ].join('\n');
 }

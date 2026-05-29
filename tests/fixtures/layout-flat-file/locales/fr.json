@@ -1,4 +1,7 @@
 {
-  "app.title": "Démo flat",
-  "app.cta": "Commencer"
+  "app.title": "Démo mise en page plate",
+  "app.cta": "Commencer",
+  "app.tagline": "flat_file + locale_file",
+  "nav.home": "Accueil",
+  "nav.about": "À propos"
 }

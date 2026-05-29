@@ -1,0 +1,15 @@
+{
+  "app": {
+    "title": "Application i18n exemple",
+    "description": "Une application internationalisée d'exemple",
+    "greeting": "Bienvenue !"
+  },
+  "widgets": {
+    "stats": {
+      "views": "Pages vues"
+    }
+  },
+  "help": {
+    "faq": "FAQ"
+  }
+}

@@ -1,1 +1,6 @@
-{ "app.title": "Hello" }
+{
+  "app.title": "Structure missing demo",
+  "app.subtitle": "Config omits locales.structure",
+  "app.cta": "Continue",
+  "app.footer": "Footer"
+}

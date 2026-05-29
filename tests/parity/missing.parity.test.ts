@@ -105,7 +105,7 @@ describe('missing parity (sample-i18n)', () => {
     const parsed = JSON.parse(r.stdout) as {
       data: { targets: Array<{ selectedLocaleCode?: string }>; skippedTargets: unknown[] };
     };
-    expect(parsed.data.targets.map((target) => target.selectedLocaleCode).sort()).toEqual(['ar', 'so']);
+    expect(parsed.data.targets.map((target) => target.selectedLocaleCode).sort()).toEqual(['ar', 'fr', 'so']);
     expect(parsed.data.skippedTargets).toEqual([]);
   });
 });

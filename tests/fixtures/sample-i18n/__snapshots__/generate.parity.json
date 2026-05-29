@@ -3,7 +3,7 @@
     "dryRun": true,
     "dynamicKeySites": 3,
     "force": false,
-    "leavesProcessed": 29,
+    "leavesProcessed": 40,
     "providerId": "google",
     "targetResults": [
       {
@@ -717,6 +717,270 @@
               "path": "notifications.logout",
               "reasons": [],
               "sourceValue": "You have been logged out."
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Page views"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Page views"
+              },
+              "path": "widgets.stats.views",
+              "reasons": [],
+              "sourceValue": "Page views"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Active users"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Active users"
+              },
+              "path": "widgets.stats.users",
+              "reasons": [],
+              "sourceValue": "Active users"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Sessions"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Sessions"
+              },
+              "path": "widgets.stats.sessions",
+              "reasons": [],
+              "sourceValue": "Sessions"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Welcome back"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Welcome back"
+              },
+              "path": "widgets.banner.title",
+              "reasons": [],
+              "sourceValue": "Welcome back"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Your dashboard is ready"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Your dashboard is ready"
+              },
+              "path": "widgets.banner.subtitle",
+              "reasons": [],
+              "sourceValue": "Your dashboard is ready"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "FAQ"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "FAQ"
+              },
+              "path": "help.faq",
+              "reasons": [],
+              "sourceValue": "FAQ"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Contact support"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Contact support"
+              },
+              "path": "help.contact",
+              "reasons": [],
+              "sourceValue": "Contact support"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Documentation"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Documentation"
+              },
+              "path": "help.docs",
+              "reasons": [],
+              "sourceValue": "Documentation"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Profile"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Profile"
+              },
+              "path": "settings.profile",
+              "reasons": [],
+              "sourceValue": "Profile"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Security"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Security"
+              },
+              "path": "settings.security",
+              "reasons": [],
+              "sourceValue": "Security"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Notification preferences"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Notification preferences"
+              },
+              "path": "settings.notifications",
+              "reasons": [],
+              "sourceValue": "Notification preferences"
             }
           ],
           "missingPathsHydratedFromSource": 0,
@@ -725,8 +989,8 @@
           "repairedCorruptLeaves": 0,
           "strippedStructuredLeaves": 0,
           "structuredLeavesWritten": 0,
-          "totalSourceLeafPaths": 29,
-          "unchangedLeaves": 29
+          "totalSourceLeafPaths": 40,
+          "unchangedLeaves": 40
         },
         "markedForReview": 0,
         "paritySkip": 0,
@@ -738,13 +1002,13 @@
           "forced": false,
           "paritySkipCount": 0,
           "preserveCount": 0,
-          "processedLeafCount": 29,
+          "processedLeafCount": 40,
           "requestAttempts": 0,
           "requestFailures": 0,
           "requestRetries": 0,
           "requestSuccesses": 0,
-          "sourceLeafCount": 29,
-          "translatedLeafCount": 28
+          "sourceLeafCount": 40,
+          "translatedLeafCount": 39
         },
         "providerAttempts": [
           {
@@ -752,7 +1016,7 @@
             "providerId": "google"
           }
         ],
-        "sourceLeafCount": 29,
+        "sourceLeafCount": 40,
         "status": "dry_run",
         "target": "ar",
         "winnerProviderId": "google"

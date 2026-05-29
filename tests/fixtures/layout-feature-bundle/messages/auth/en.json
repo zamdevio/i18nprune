@@ -1,4 +1,6 @@
 {
   "auth.login": "Log in",
-  "auth.logout": "Log out"
+  "auth.logout": "Log out",
+  "auth.register": "Create account",
+  "auth.reset": "Reset password"
 }

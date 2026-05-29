@@ -1,0 +1,6 @@
+{
+  "routes.index.title": "Remix routes fixture",
+  "routes.index.subtitle": "app/routes scan smoke",
+  "routes.about.heading": "About",
+  "routes.about.body": "Route-level copy"
+}

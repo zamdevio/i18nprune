@@ -1,4 +1,6 @@
 {
   "auth.login": "Connexion",
-  "auth.logout": "Déconnexion"
+  "auth.logout": "Déconnexion",
+  "auth.register": "Créer un compte",
+  "auth.reset": "Réinitialiser le mot de passe"
 }
