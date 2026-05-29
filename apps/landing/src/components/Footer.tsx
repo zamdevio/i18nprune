@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2">
             <div className="flex items-center gap-2.5 mb-3">
-              <img src="/i18nprune.svg" alt="i18nprune" className="w-6 h-6 rounded-md" />
+              <img src="/icons/i18nprune.svg" alt="i18nprune" className="w-6 h-6 rounded-md" />
               <span className="font-display font-semibold tracking-tight">i18nprune</span>
             </div>
             <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">

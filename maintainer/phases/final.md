@@ -28,6 +28,7 @@
 
 - [ ] Quick pass: confirm workspace UI, **`i18nprune`** worker routes, and API typings still match the shipped CLI JSON contracts (validate, locales, report, etc.); fix any drift you find.
 - [ ] **`apps/workers/meta`** (`@i18nprune/worker-meta`): smoke **`pnpm meta:build`** / route list if you change shared worker tooling.
+- [ ] **`apps/workers/meta` CodeSandbox SDK link:** update **`DEFAULT_LINKS.sandbox`** in `apps/workers/meta/src/constants/urls.ts` (and any `/v1/meta` `links` consumer) so the embedded CodeSandbox points at the **latest SDK** example — not a stale sandbox id — before tagging the release.
 
 ---
 

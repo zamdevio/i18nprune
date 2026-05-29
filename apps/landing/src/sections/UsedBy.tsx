@@ -157,8 +157,8 @@ export default function UsedBy() {
             <span className="stat-highlight">you ship.</span>
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-muted-foreground leading-relaxed text-balance">
-            One SDK on Node, in the browser, and on edge isolates — plus the bundlers, frameworks, and CI
-            already in your pipeline.
+            Ten curated stacks backed by repo fixtures — Vue, Nuxt, SvelteKit, Remix, Next, Vite, and the
+            runtimes and CI hooks you already ship on.
           </p>
         </motion.div>
 

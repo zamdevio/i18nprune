@@ -79,7 +79,7 @@ export default function Header() {
           className="flex items-center gap-2.5 shrink-0 group"
           data-testid="logo-link"
         >
-          <img src="/i18nprune.svg" alt="i18nprune" className="w-8 h-8 rounded-lg" />
+          <img src="/icons/i18nprune.svg" alt="i18nprune" className="w-8 h-8 rounded-lg" />
           <span className="font-display font-bold text-[15px] tracking-tight">
             i18nprune
           </span>

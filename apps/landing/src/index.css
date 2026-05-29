@@ -262,7 +262,9 @@
     display: block;
   }
 
-  .dark .used-by-brand-icon--nextjs {
+  .dark .used-by-brand-icon--nextjs,
+  .dark .used-by-brand-icon--remix,
+  .dark .used-by-brand-icon--sveltekit {
     filter: brightness(0) invert(1);
   }
 

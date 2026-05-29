@@ -1,14 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { Check, AlertTriangle, Cpu } from 'lucide-react';
+import { Check, AlertTriangle, Cpu, MessageSquareOff } from 'lucide-react';
 import CountUp from '../components/CountUp';
 
-interface KeyEntry { key: string; label: string; type: 'literal' | 'dynamic'; line: number; }
+type KeyEntryType = 'literal' | 'dynamic' | 'commented';
+
+interface KeyEntry {
+  key: string;
+  label: string;
+  type: KeyEntryType;
+  line: number;
+  lineEnd?: number;
+  multiline?: boolean;
+}
 
 const KEYS: KeyEntry[] = [
-  { key: 'welcome_title', label: 'welcome_title', type: 'literal', line: 7 },
-  { key: 'stats.active_users', label: 'stats.active_users', type: 'literal', line: 8 },
-  { key: 'dynamic.${status}', label: 'dynamic.*', type: 'dynamic', line: 9 },
+  { key: 'legacy.banner', label: 'legacy.banner', type: 'commented', line: 6 },
+  { key: 'welcome_title', label: 'welcome_title', type: 'literal', line: 8 },
+  { key: 'stats.active_users', label: 'stats.active_users', type: 'literal', line: 9 },
+  { key: 'dynamic.${status}', label: 'dynamic.*', type: 'dynamic', line: 10 },
+  { key: 'pages.hero.title', label: 'pages.hero.title', type: 'literal', line: 11, lineEnd: 14, multiline: true },
 ];
 
 const CODE_LINES = [
@@ -18,7 +29,7 @@ const CODE_LINES = [
       <>
         <span className="text-pink-400">import</span> {'{ '}
         <span className="text-sky-300">t</span> <span className="text-pink-400">as</span> <span className="text-sky-300">renameT</span>
-        {' }'} <span className="text-pink-400">from</span> <span className="text-amber-300">'@/i18n'</span>;
+        {' }'} <span className="text-pink-400">from</span> <span className="text-amber-300">&apos;@/i18n&apos;</span>;
       </>
     ),
   },
@@ -27,7 +38,7 @@ const CODE_LINES = [
     content: (
       <>
         <span className="text-pink-400">import</span> <span className="text-pink-400">*</span> <span className="text-pink-400">as</span>{' '}
-        <span className="text-sky-300">i18n</span> <span className="text-pink-400">from</span> <span className="text-amber-300">'@/i18n'</span>;
+        <span className="text-sky-300">i18n</span> <span className="text-pink-400">from</span> <span className="text-amber-300">&apos;@/i18n&apos;</span>;
       </>
     ),
   },
@@ -42,9 +53,26 @@ const CODE_LINES = [
       </>
     ),
   },
-  { ln: 6, content: <>  <span className="text-pink-400">return</span> (</> },
   {
-    ln: 7,
+    ln: 6,
+    content: (
+      <>
+        {'  '}
+        <span className="text-muted-foreground/55">{'// '}</span>
+        <span
+          className="bg-muted/50 text-muted-foreground/80 px-1 rounded-sm line-through decoration-muted-foreground/40"
+          data-key="legacy.banner"
+        >
+          {'renameT('}
+          <span className="text-amber-300/80">&apos;legacy.banner&apos;</span>
+          {');'}
+        </span>
+      </>
+    ),
+  },
+  { ln: 7, content: <>  <span className="text-pink-400">return</span> (</> },
+  {
+    ln: 8,
     content: (
       <>
         {'    '}
@@ -58,7 +86,7 @@ const CODE_LINES = [
     ),
   },
   {
-    ln: 8,
+    ln: 9,
     content: (
       <>
         {'    '}
@@ -72,7 +100,7 @@ const CODE_LINES = [
     ),
   },
   {
-    ln: 9,
+    ln: 10,
     content: (
       <>
         {'    '}
@@ -85,9 +113,83 @@ const CODE_LINES = [
       </>
     ),
   },
-  { ln: 10, content: <>  );</> },
-  { ln: 11, content: <>{'}'}</> },
+  {
+    ln: 11,
+    content: (
+      <>
+        {'    '}
+        {'<h1>'}
+        <span className="bg-primary/10 text-primary px-1 rounded-sm" data-key="pages.hero.title">
+          {'{renameT('}
+        </span>
+      </>
+    ),
+  },
+  {
+    ln: 12,
+    content: (
+      <>
+        {'      '}
+        <span className="bg-primary/10 text-primary px-1 rounded-sm">
+          <span className="text-amber-300">&apos;pages.hero.title&apos;</span>,
+        </span>
+      </>
+    ),
+  },
+  {
+    ln: 13,
+    content: (
+      <>
+        {'      '}
+        <span className="text-muted-foreground/70">{'{ count: 1 },'}</span>
+      </>
+    ),
+  },
+  {
+    ln: 14,
+    content: (
+      <>
+        {'    '}
+        <span className="bg-primary/10 text-primary px-1 rounded-sm">{')}'}</span>
+        {'</h1>'}
+      </>
+    ),
+  },
+  { ln: 15, content: <>  );</> },
+  { ln: 16, content: <>{'}'}</> },
 ];
+
+function keyTypeTone(type: KeyEntryType): { text: string; badge: string } {
+  if (type === 'literal') return { text: 'text-foreground', badge: 'text-primary' };
+  if (type === 'dynamic') return { text: 'text-amber-300', badge: 'text-amber-400' };
+  return { text: 'text-muted-foreground', badge: 'text-muted-foreground' };
+}
+
+function KeyTypeBadge({ type }: { type: KeyEntryType }) {
+  const tone = keyTypeTone(type);
+  if (type === 'literal') {
+    return (
+      <span className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider ${tone.badge}`}>
+        <Check className="w-3 h-3" />
+        literal
+      </span>
+    );
+  }
+  if (type === 'dynamic') {
+    return (
+      <span className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider ${tone.badge}`}>
+        <AlertTriangle className="w-3 h-3" />
+        dynamic
+      </span>
+    );
+  }
+  return (
+    <span className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider ${tone.badge}`}>
+      <MessageSquareOff className="w-3 h-3" />
+      commented
+    </span>
+  );
+}
 
 export default function CodeIntelligence() {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -101,17 +203,21 @@ export default function CodeIntelligence() {
         if (e.isIntersecting) {
           setScanning(true);
           obs.disconnect();
-          // build the tree as scan progresses
           KEYS.forEach((_, i) => {
             setTimeout(() => setRevealed(i + 1), 800 + i * 600);
           });
         }
       }),
-      { threshold: 0.4 }
+      { threshold: 0.4 },
     );
     obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
+
+  const lineSpan =
+    revealed > 0
+      ? `L${KEYS[0]!.line}–L${KEYS[KEYS.length - 1]!.lineEnd ?? KEYS[KEYS.length - 1]!.line}`
+      : 'L-';
 
   return (
     <section
@@ -137,8 +243,12 @@ export default function CodeIntelligence() {
           <p className="mt-5 text-muted-foreground leading-relaxed text-balance">
             Per-file scanning resolves literals on every effective helper—renamed imports like{' '}
             <code className="font-mono text-primary text-sm">t as renameT</code>, namespace calls like{' '}
-            <code className="font-mono text-primary text-sm">i18n.t(...)</code>, and more. A binding pass expands your configured function list before call-site detection, so extraction and dynamic classification share the same symbol set as{' '}
-            <code className="font-mono text-foreground/90 text-xs">validate</code> / <code className="font-mono text-foreground/90 text-xs">sync</code>—via staged text analysis, not a full TypeScript program checker.
+            <code className="font-mono text-primary text-sm">i18n.t(...)</code>, and calls that span
+            multiple lines. A binding pass expands your configured function list before call-site detection,
+            so extraction and dynamic classification share the same symbol set as{' '}
+            <code className="font-mono text-foreground/90 text-xs">validate</code> /{' '}
+            <code className="font-mono text-foreground/90 text-xs">sync</code>—via staged text analysis,
+            not a full TypeScript program checker.
           </p>
           <div className="mt-8 rounded-xl border border-border/50 bg-card/25 backdrop-blur-md px-4 py-3 text-sm text-muted-foreground leading-relaxed">
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary/90">Extractor architecture</span>
@@ -149,6 +259,23 @@ export default function CodeIntelligence() {
               <span className="text-foreground font-semibold">template rebuild</span> for{' '}
               <code className="font-mono text-xs text-foreground/90">{['`', '${NS}', '.key', '`'].join('')}</code> keys—without a whole-program TS AST.
             </p>
+            <ul className="mt-3 space-y-1.5 text-[13px] list-none p-0 m-0">
+              <li>
+                <span className="text-foreground font-semibold">Multi-line calls</span> — first-argument parsing
+                follows balanced parentheses across lines, so formatted{' '}
+                <code className="font-mono text-xs text-foreground/90">t(...)</code> blocks still resolve.
+              </li>
+              <li>
+                <span className="text-foreground font-semibold">Commented-out calls</span> — every configured{' '}
+                <code className="font-mono text-xs text-foreground/90">t()</code>-family call inside line or block
+                comments is detected and reported. Those sites are never mutated—no{' '}
+                <code className="font-mono text-xs text-foreground/90">validate</code>,{' '}
+                <code className="font-mono text-xs text-foreground/90">missing</code>,{' '}
+                <code className="font-mono text-xs text-foreground/90">sync</code>, or{' '}
+                <code className="font-mono text-xs text-foreground/90">generate</code> writes touch commented
+                lines; report-only visibility for dead code.
+              </li>
+            </ul>
           </div>
         </motion.div>
 
@@ -164,7 +291,6 @@ export default function CodeIntelligence() {
               <span className="text-[10px] font-mono text-muted-foreground">TypeScript · UTF-8</span>
             </div>
             <div className="relative terminal-bg font-mono text-[13px] leading-[1.7] py-4">
-              {/* scanline */}
               {scanning && (
                 <motion.div
                   initial={{ top: 0, opacity: 0 }}
@@ -180,13 +306,14 @@ export default function CodeIntelligence() {
                 </div>
               ))}
             </div>
-            <div className="px-4 py-2.5 border-t border-border/50 bg-card/70 flex items-center justify-between text-[11px] font-mono">
-              <span className="text-primary">● Scan complete</span>
-              <span className="text-muted-foreground">3 keys · 2 literal · 1 dynamic · <span className="text-primary">0.8ms</span></span>
+            <div className="px-4 py-2.5 border-t border-border/50 bg-card/70 flex items-center justify-between text-[11px] font-mono gap-3">
+              <span className="text-primary shrink-0">● Scan complete</span>
+              <span className="text-muted-foreground text-right">
+                5 sites · 3 literal · 1 dynamic · 1 commented · <span className="text-primary">0.8ms</span>
+              </span>
             </div>
           </div>
 
-          {/* Key tree panel */}
           <div className="rounded-2xl glass-panel p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-semibold text-sm tracking-wide">Extracted Keys</h3>
@@ -196,36 +323,40 @@ export default function CodeIntelligence() {
             </div>
             <div className="font-mono text-[13px] space-y-1">
               <div className="text-muted-foreground">dashboard/</div>
-              {KEYS.map((k, i) => (
-                <motion.div
-                  key={k.key}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={revealed > i ? { opacity: 1, x: 0 } : { opacity: 0, x: -8 }}
-                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="flex items-center justify-between pl-4 py-1.5 border-l border-border/50 ml-2"
-                  data-testid={`key-entry-${k.key}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground/60">├─</span>
-                    <span className={k.type === 'literal' ? 'text-foreground' : 'text-amber-300'}>
-                      {k.label}
-                    </span>
-                  </div>
-                  <span className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider ${
-                    k.type === 'literal' ? 'text-primary' : 'text-amber-400'
-                  }`}>
-                    {k.type === 'literal' ? <Check className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
-                    {k.type}
-                  </span>
-                </motion.div>
-              ))}
-              <div className="text-muted-foreground pl-4 mt-2">L{revealed > 0 ? '7' : '-'}–L{revealed >= KEYS.length ? '9' : '-'}</div>
+              {KEYS.map((k, i) => {
+                const tone = keyTypeTone(k.type);
+                return (
+                  <motion.div
+                    key={k.key}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={revealed > i ? { opacity: 1, x: 0 } : { opacity: 0, x: -8 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex items-center justify-between pl-4 py-1.5 border-l border-border/50 ml-2"
+                    data-testid={`key-entry-${k.key}`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-muted-foreground/60 shrink-0">├─</span>
+                      <span className={`truncate ${tone.text}`}>
+                        {k.label}
+                        {k.multiline ? (
+                          <span className="ml-1.5 text-[10px] uppercase tracking-wider text-primary/70">
+                            multiline
+                          </span>
+                        ) : null}
+                      </span>
+                    </div>
+                    <KeyTypeBadge type={k.type} />
+                  </motion.div>
+                );
+              })}
+              <div className="text-muted-foreground pl-4 mt-2">{lineSpan}</div>
             </div>
 
             <div className="mt-6 pt-5 border-t border-border/40">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
-                <Stat n={2} label="Literal" tone="primary" />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <Stat n={3} label="Literal" tone="primary" />
                 <Stat n={1} label="Dynamic" tone="amber" />
+                <Stat n={1} label="Commented" tone="muted" />
                 <Stat n={0.8} unit="ms" label="Scan time" tone="primary" />
               </div>
             </div>
@@ -236,8 +367,19 @@ export default function CodeIntelligence() {
   );
 }
 
-function Stat({ n, label, tone, unit }: { n: number; label: string; tone: 'primary' | 'amber'; unit?: string }) {
-  const color = tone === 'primary' ? 'text-primary' : 'text-amber-400';
+function Stat({
+  n,
+  label,
+  tone,
+  unit,
+}: {
+  n: number;
+  label: string;
+  tone: 'primary' | 'amber' | 'muted';
+  unit?: string;
+}) {
+  const color =
+    tone === 'primary' ? 'text-primary' : tone === 'amber' ? 'text-amber-400' : 'text-muted-foreground';
   const decimals = n % 1 !== 0 ? 1 : 0;
   return (
     <div>

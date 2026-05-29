@@ -201,7 +201,7 @@ export default function RuntimeEcosystem() {
                 </circle>
                 <foreignObject x="332" y="332" width="136" height="136">
                   <div className="w-full h-full flex flex-col items-center justify-center text-center">
-                    <img src="/i18nprune.svg" alt="" className="w-11 h-11 mb-2 rounded-lg" aria-hidden="true" />
+                    <img src="/icons/i18nprune.svg" alt="" className="w-11 h-11 mb-2 rounded-lg" aria-hidden="true" />
                     <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">@core</div>
                     <div className="font-mono text-[9px] text-muted-foreground mt-0.5">runtime-neutral</div>
                   </div>
