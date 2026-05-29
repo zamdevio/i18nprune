@@ -1,7 +1,7 @@
 # Monorepo: `apps/*` and `packages/*` are tracked except generated paths below.
 # Canonical docs prose: `docs/`; VitePress copy: `apps/docs/content/` (ignored — run `pnpm docs:sync`).
 
-node_modules/
+*node_modules/
 dist/
 *.log
 *.tsbuildinfo
@@ -24,19 +24,16 @@ coverage/
 # Docs site (VitePress)
 # Mirrored from repo `docs/` by `pnpm docs:sync` (also runs before `pnpm docs:build`). Do not commit.
 apps/docs/content/
-apps/docs/node_modules/
 apps/docs/.vitepress/.temp/
 apps/docs/.vitepress/cache/
 apps/docs/.vitepress/dist/
 apps/docs/package-lock.json
 
 # Landing site (Vite + React — install deps inside apps/web/)
-apps/web/node_modules/
 apps/web/dist/
 apps/web/package-lock.json
 
 # Report site (Vite — install deps inside apps/report/)
-apps/report/node_modules/
 apps/report/dist/
 apps/report/package-lock.json
 
@@ -47,6 +44,10 @@ apps/extension/pnpm-lock.yaml
 # Maintainer scratch (never commit). Rest of `maintainer/` stays tracked for collaborators.
 # Do not gitignore all of `maintainer/` — see `maintainer/README.md`.
 maintainer/temp/
+
+# Landing site (Vite + React + Pages Functions)
+apps/landing/dist/
+apps/landing/_worker.bundle
 
 # Cloudflare Workers — local Wrangler caches (sqlite, DO state)
 apps/workers/**/.wrangler/
