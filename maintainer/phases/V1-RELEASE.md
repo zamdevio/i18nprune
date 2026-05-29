@@ -15,7 +15,7 @@
 
 ## Recommended v1 sequence (start here after shipped Session C)
 
-Ship **init → locales → cache → translate-cache** on **`@i18nprune/core`** before **hosted app** catch-up. **F**, **H**, **H-cache**, **H.1**, and **C.3+ apps** are **shipped**; **active next:** **cross-platform** ([`cross-platform.md`](./cross-platform.md)). Then **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**.
+Ship **init → locales → cache → translate-cache** on **`@i18nprune/core`** before **hosted app** catch-up. **F**, **H**, **H-cache**, **H.1**, **C.3+ apps**, and **landing (D.2)** are **shipped**; **active next:** **cross-platform** ([`cross-platform.md`](./cross-platform.md)). Then **docs (D)**, **release (E)**, **`final.md` (G)**.
 
 | Step | Session | What |
 |------|---------|------|
@@ -26,7 +26,7 @@ Ship **init → locales → cache → translate-cache** on **`@i18nprune/core`**
 | **3** | **C.3 — Apps + share** | [`apps.md`](./apps.md) — rows **0–10 shipped** (including row **9** worker `runReport` route and row **W** metadata polish) |
 | **3b** | **XP — Cross-platform** | [`cross-platform.md`](./cross-platform.md) — CLI + SDK on Win/macOS/Linux/WSL; **version cache** (`~/.config/i18nprune/updatestate.json`), **project cache** (`~/.i18nprune/cache`), **translate cache** |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) — nav trim, SDK quickstart, tree flattening |
-| **5** | **D.2 — Landing** | `apps/landing` — lean onboarding + value proposition |
+| **5** | **D.2 — Landing** (**shipped**) | [`shipped-slices.md`](./shipped-slices.md) — `apps/landing` locale layouts, Used By, report surface, mobile |
 | **6** | **E + G** | Release polish + execute / delete [`final.md`](./final.md) when tagging |
 
 The **locked dependency chain** (extractor → init → locales → extension) still governs **core** work — see [`active-phase.md` § Locked chain](./active-phase.md#locked-cross-phase-dependency-chain). **Extension** follows stabilized init/locales contracts; **C.3** is a **host** refresh, not a prerequisite for **F**/**H**.
@@ -146,11 +146,11 @@ Goal: **8–10 top-level nav categories** on the docs site, not 35. Group relate
 
 ---
 
-## Session D.2 — Landing page (`apps/landing`)
+## Session D.2 — Landing page (`apps/landing`) (**shipped**)
 
-**When:** After **Session H (locales)** and **Session D (docs)** — same slot as [`active-phase.md`](./active-phase.md) narrative (hosted apps catch-up is **C.3**, not this slice).
+**Receipt:** [`shipped-slices.md`](./shipped-slices.md). **When:** After **Session H (locales)**; shipped on **`main`** (commit `feat(landing): locale layouts, Used By, report surface, and mobile polish`).
 
-**Scope:** One **architecture-adjacent** section in **`apps/landing`** — **no** `PRIMARY_NAV` entry (discoverable from architecture / deep links, not a top-level marketing page).
+**Scope (delivered):** **`apps/landing`** marketing site — locale-layouts section (architecture-adjacent, **no** `PRIMARY_NAV` entry), Used By stack marquee, report surface callouts, mobile polish, shared section utilities.
 
 **Content (locked):**
 

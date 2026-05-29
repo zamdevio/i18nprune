@@ -2,11 +2,11 @@
 
 **v1 consolidated plan:** **[`V1-RELEASE.md`](./V1-RELEASE.md)** — use first for sequencing.
 
-**Locked vertical order (extractor → init → locales → cache → translate-cache → apps → cross-platform → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below. **Init (F)**, **Locales (H)**, **Cache (Phases 0–4)**, **Translate-cache (H.1)**, and **Apps (C.3+)** are **shipped**. **Active next:** **[`cross-platform.md`](./cross-platform.md)**.
+**Locked vertical order (extractor → init → locales → cache → translate-cache → apps → cross-platform → extension):** **[§ Locked cross-phase dependency chain](#locked-cross-phase-dependency-chain)** below. **Init (F)**, **Locales (H)**, **Cache (Phases 0–4)**, **Translate-cache (H.1)**, **Apps (C.3+)**, and **Landing (D.2)** are **shipped**. **Active next:** **[`cross-platform.md`](./cross-platform.md)**.
 
-**Narrative focus:** **cross-platform** per [`cross-platform.md`](./cross-platform.md) (CLI + SDK + all disk caches) → **docs (D)**, **landing (D.2)**, **release (E)**, **`final.md` (G)**. Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
+**Narrative focus:** **cross-platform** per [`cross-platform.md`](./cross-platform.md) (CLI + SDK + all disk caches) → **docs (D)** → **release (E)**, **`final.md` (G)**. **Landing (D.2)** is **shipped** (`apps/landing`). Hub: **[`V1-RELEASE.md` § Recommended sequence](./V1-RELEASE.md#recommended-v1-sequence-start-here-after-shipped-session-c)**.
 
-**Verticals:** init / locales / cache / translate-cache / apps (**shipped**) → **[`cross-platform.md`](./cross-platform.md)** (**active next**) → **docs (D)** — extension per **[`extension/README.md`](./extension/README.md)**.
+**Verticals:** init / locales / cache / translate-cache / apps / landing (**shipped**) → **[`cross-platform.md`](./cross-platform.md)** (**active next**) → **docs (D)** — extension per **[`extension/README.md`](./extension/README.md)**.
 
 ---
 
