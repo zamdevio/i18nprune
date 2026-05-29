@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { aggregateReviewRows } from '../aggregate.js';
+import { aggregateReviewRows, mergeReviewLocaleStats } from '../aggregate.js';
 import type { TranslationSurfaceLeaf } from '../../types/locales/leaves/index.js';
 
 describe('aggregateReviewRows', () => {
@@ -44,5 +44,24 @@ describe('aggregateReviewRows', () => {
     expect(s.structuredLeavesMissingNeedsReview).toBe(1);
     expect(s.structuredLeavesMissingConfidence).toBe(1);
     expect(s.confidenceBuckets.none).toBe(1);
+  });
+});
+
+describe('mergeReviewLocaleStats', () => {
+  it('sums per-segment stats for one locale code', () => {
+    const a = aggregateReviewRows(
+      [{ path: 'a', shape: 'legacy_string', value: 'A', confidence: null, needsReview: null }],
+      new Map([['a', 'A']]),
+      undefined,
+    );
+    const b = aggregateReviewRows(
+      [{ path: 'b', shape: 'legacy_string', value: 'B', confidence: null, needsReview: null }],
+      new Map([['b', 'B']]),
+      undefined,
+    );
+    const merged = mergeReviewLocaleStats([a, b]);
+    expect(merged.stringPaths).toBe(2);
+    expect(merged.legacyLeaves).toBe(2);
+    expect(merged.englishIdentical).toBe(2);
   });
 });

@@ -1,4 +1,5 @@
 import { collectTranslationSurfaceLeaves, localeSegmentSourceForFile } from '../shared/locales/leaves/index.js';
+import type { LocalesLayoutStructure } from '../types/locales/layout.js';
 import type { ParityPolicy } from '../types/policies/index.js';
 import type { LocaleLeafPathApi } from '../types/locales/leaves/segmentSource.js';
 import type { ReviewJsonData } from '../types/review/index.js';
@@ -22,38 +23,49 @@ export type BuildReviewJsonDataInput = {
   parity?: ParityPolicy;
   sourceLocaleJson: unknown;
   targetLocaleJsonByFile: Readonly<Record<string, unknown>>;
+  /** When set, each target file is compared to its paired source segment instead of the primary source file. */
+  pairedSourceLocaleJsonByTargetFile?: Readonly<Record<string, unknown>>;
   /**
    * When set, leaf collection attaches segment `fileOrigin` for each logical row; review JSON aggregates stay unchanged.
    */
   path?: LocaleLeafPathApi;
+  layoutStructure?: LocalesLayoutStructure;
 };
 
 /** Pure review payload builder from already-loaded locale JSON inputs. */
 export function buildReviewJsonData(input: BuildReviewJsonDataInput): ReviewJsonData {
   const pathApi = input.path;
+  const layoutStructure = input.layoutStructure ?? 'locale_file';
   const sourceOrigin =
     pathApi !== undefined
       ? localeSegmentSourceForFile({
           path: pathApi,
           absoluteFile: input.sourceLocalePath,
           localesDir: input.localesDir,
-          structure: 'locale_file',
+          structure: layoutStructure,
         }) ?? undefined
       : undefined;
-  const sourceLeaves = collectTranslationSurfaceLeaves(input.sourceLocaleJson, '', [], sourceOrigin);
-  const sourceMap = new Map(sourceLeaves.map((l) => [l.path, l.value]));
+  const defaultSourceLeaves = collectTranslationSurfaceLeaves(input.sourceLocaleJson, '', [], sourceOrigin);
+  const defaultSourceMap = new Map(defaultSourceLeaves.map((l) => [l.path, l.value]));
   const sourceBase = basenameNoExt(input.sourceLocalePath);
   const locales: ReviewJsonData['locales'] = {};
 
   for (const [file, raw] of Object.entries(input.targetLocaleJsonByFile)) {
     if (file === `${sourceBase}.json`) continue;
+    const pairedSourceJson = input.pairedSourceLocaleJsonByTargetFile?.[file];
+    const sourceMap =
+      pairedSourceJson !== undefined
+        ? new Map(
+            collectTranslationSurfaceLeaves(pairedSourceJson).map((leaf) => [leaf.path, leaf.value] as const),
+          )
+        : defaultSourceMap;
     const targetOrigin =
       pathApi !== undefined
         ? localeSegmentSourceForFile({
             path: pathApi,
             absoluteFile: pathApi.join(input.localesDir, file),
             localesDir: input.localesDir,
-            structure: 'locale_file',
+            structure: layoutStructure,
           }) ?? undefined
         : undefined;
     const rows = collectTranslationSurfaceLeaves(raw, '', [], targetOrigin);

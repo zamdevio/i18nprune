@@ -24,9 +24,18 @@ import { ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT } from '../../shared/constants/is
 import type { TranslationSurfaceLeaf } from '../../types/locales/leaves/translationSurface.js';
 import { I18nPruneError } from '../../shared/errors/index.js';
 import { applyLocaleLeafNormalization } from '../../shared/locales/leaves/index.js';
+import { localeJsonContentEquals } from '../../shared/json/sortKeys.js';
+import { normalizeLocaleDocumentToNestedCanonical } from '../../shared/json/localeLeafPath.js';
 import { emitRunMessage } from '../../shared/run/index.js';
 import { existsRuntimeFsSync } from '../../runtime/helpers/sync/fs.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../../shared/locales/index.js';
+import { readLocalePerDirLocaleSurface } from '../../shared/locales/read/bundle.js';
+import {
+  localeJsonFromTranslationSurfaceLeaves,
+  materializeGenerateWorkingBySegment,
+  sourceLocaleCodeFromContext,
+} from '../../shared/locales/targets/index.js';
+import type { LocaleSegmentWritePlan } from '../../types/locales/segmentWritePlan.js';
 import { formatGenerateTranslateProgress } from '../translateProgressSummary.js';
 import { listResumeTranslationJobs, translateResumeCandidateLeaves } from '../localeTranslate.js';
 import type { GenerateTranslateCache } from '../../types/translator/cache.js';
@@ -44,9 +53,11 @@ export type RunGenerateResumeLocaleInput = {
   host: GenerateHostHooks;
   target: string;
   sourceMap: Map<string, string>;
+  sourceLeaves: readonly TranslationSurfaceLeaf[];
   eff: EffectiveReferenceConfig;
   refCtx: GenerateResumeRefContext;
   targetPath: string;
+  writePlan: LocaleSegmentWritePlan;
   targetStarted: number;
   translationCache?: GenerateTranslateCache;
 };
@@ -60,10 +71,26 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
   issues: Issue[];
   leavesProcessed: number;
 }> {
-  const { ctx, opts, host, target, sourceMap, eff, refCtx, targetPath, translationCache } = input;
+  const { ctx, opts, host, target, sourceMap, sourceLeaves, eff, refCtx, targetPath, writePlan, translationCache } =
+    input;
   const { fs } = ctx.adapters;
-  const targetMissing = !existsRuntimeFsSync(targetPath, fs);
-  const targetRaw = targetMissing ? {} : readLocaleJsonFromContextSync(ctx, targetPath);
+  const targetMissing = !writePlan.segments.some((s) => existsRuntimeFsSync(s.absolutePath, fs));
+  let targetRaw: unknown = {};
+  if (!targetMissing) {
+    if (writePlan.layout.mode === 'flat_file') {
+      targetRaw = readLocaleJsonFromContextSync(ctx, targetPath);
+    } else {
+      const read = readLocalePerDirLocaleSurface({
+        layout: writePlan.layout,
+        fs,
+        path: ctx.adapters.path,
+        localeCode: target,
+      });
+      targetRaw = read.ok && read.leaves.length > 0 ? localeJsonFromTranslationSurfaceLeaves(read.leaves) : {};
+    }
+  }
+  const resumeLeafPaths = sourceLeaves.map((leaf) => leaf.path);
+  targetRaw = normalizeLocaleDocumentToNestedCanonical(targetRaw, resumeLeafPaths);
   let tLeaves = collectTranslationSurfaceLeaves(targetRaw);
   if (targetMissing && tLeaves.length === 0 && sourceMap.size > 0) {
     emitGenerateMessage(
@@ -220,11 +247,23 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
         },
       });
       next = normalized.next;
-      const localeWouldChange = JSON.stringify(targetRaw) !== JSON.stringify(next);
+      const localeWouldChange = !localeJsonContentEquals(targetRaw, next);
 
       if (!opts.dryRun && localeWouldChange) {
-        emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: targetPath });
-        writeLocaleJsonFromContextSync(ctx, targetPath, next);
+        const parts = materializeGenerateWorkingBySegment({
+          working: next,
+          sourceLeaves,
+          segments: writePlan.segments,
+          structure: writePlan.layout.structure,
+          sourceLocaleCode: sourceLocaleCodeFromContext(ctx),
+          layout: writePlan.layout,
+          fs: ctx.adapters.fs,
+          path: ctx.adapters.path,
+        });
+        for (const { segment, document } of parts) {
+          emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: segment.absolutePath });
+          writeLocaleJsonFromContextSync(ctx, segment.absolutePath, document);
+        }
       }
 
       providerAttempts?.push({ providerId, outcome: 'success' });

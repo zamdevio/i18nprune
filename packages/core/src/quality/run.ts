@@ -1,10 +1,3 @@
-import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
-import {
-  listLocaleSegmentTargets,
-  sourceLocaleCodeFromContext,
-} from '../shared/locales/targets/index.js';
-import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import {
   ISSUE_QUALITY_ENGLISH_IDENTICAL_LEAVES,
@@ -19,7 +12,11 @@ import {
   issuesFromTargetPlaceholderLeaves,
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
-import { computeEnglishIdenticalCounts } from './englishIdentical.js';
+import { listLocaleSegmentTargets, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
+import { normalizeLanguageCode } from '../shared/languages/normalize.js';
+import { buildQualityLocaleReport, formatQualityLocaleRowLabel } from './localeReport.js';
 import { buildQualityJsonData } from './payload.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
@@ -58,10 +55,15 @@ export function runQuality(
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'quality', runId: host.runId });
   const dynamicKeySites = analysis.dynamicSites.length;
   const sourcePath = ctx.paths.sourceLocale;
-  const sourceRaw = readLocaleJsonFromContextSync(ctx, sourcePath);
-  const sourceLeaves = collectTranslationSurfaceLeaves(sourceRaw);
   const sourceCode = sourceLocaleCodeFromContext(ctx);
   const placeholderValues = sourcePlaceholderValues(ctx.config.missing?.placeholder);
+
+  const report = buildQualityLocaleReport(ctx, {
+    target: opts.target,
+    parity: ctx.config.policies?.parity,
+  });
+  const { sourceLeaves, rows, perFile, total, segmentFileCount, layoutMode } = report;
+
   const sourcePlaceholderLeaves: SourcePlaceholderLeaf[] = detectLocalePlaceholderLeaves({
     leaves: sourceLeaves,
     placeholderValues,
@@ -77,11 +79,9 @@ export function runQuality(
     const want = normalizeLanguageCode(opts.target);
     segmentTargets = segmentTargets.filter((s) => normalizeLanguageCode(s.locale) === want);
   }
-
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
-  const targets = segmentTargets.map((segment) => {
-    const targetRaw = readLocaleJsonFromContextSync(ctx, segment.absolutePath);
-    const leaves = collectTranslationSurfaceLeaves(targetRaw);
+  for (const segment of segmentTargets) {
+    const leaves = collectTranslationSurfaceLeaves(readLocaleJsonFromContextSync(ctx, segment.absolutePath));
     targetPlaceholderLeaves.push(
       ...detectLocalePlaceholderLeaves({
         leaves,
@@ -91,58 +91,44 @@ export function runQuality(
         localePath: segment.absolutePath,
       }),
     );
-    return { fileBasename: segment.reportKey, locale: segment.locale, leaves };
-  });
+  }
 
-  const { total, perFile } = computeEnglishIdenticalCounts({
-    sourceLeaves,
-    targets,
-    parity: ctx.config.policies?.parity,
-  });
-  const files = [
-    {
-      code: sourceCode,
-      file: ctx.adapters.path.basename(sourcePath),
-      leafCount: sourceLeaves.length,
-      isSourceLocale: true,
-      sourceIdenticalLeafCount: null,
-    },
-    ...targets.map((target) => ({
-      code: normalizeLanguageCode(target.locale),
-      file: target.fileBasename,
-      leafCount: target.leaves.length,
-      isSourceLocale: false,
-      sourceIdenticalLeafCount: perFile[target.fileBasename] ?? 0,
-    })),
-  ];
+  const targetLocaleCount = rows.filter((row) => !row.isSourceLocale).length;
   const payload = buildQualityJsonData({
     total,
     perFile,
     dynamicKeySites,
     sourceLocale: sourceCode,
     localesDir: ctx.paths.localesDir,
-    localeCount: files.length,
-    targetLocaleCount: targets.length,
-    files,
+    localeCount: rows.length,
+    targetLocaleCount,
+    files: rows,
   });
+
+  const scopeLabel =
+    layoutMode === 'flat_file'
+      ? `${String(rows.length)} locale(s) in ${payload.localesDir}`
+      : `${String(rows.length)} locale(s) in ${payload.localesDir} · ${String(segmentFileCount)} segment files`;
+
   emitRunMessage(host.emit, {
     op: 'quality',
     runId: host.runId,
     level: 'info',
-    message: `${String(payload.localeCount)} locale file(s) in ${payload.localesDir}`,
-    data: { locales: payload.localeCount },
+    message: scopeLabel,
+    data: { locales: rows.length, segmentFiles: segmentFileCount },
   });
-  for (const row of payload.files) {
-    const extras = row.isSourceLocale
-      ? 'source locale'
-      : `source-identical: ${String(row.sourceIdenticalLeafCount ?? 0)}`;
+  for (const row of rows) {
     emitRunMessage(host.emit, {
       op: 'quality',
       runId: host.runId,
       level: 'detail',
-      message: `  ${row.file} · leaves ${String(row.leafCount)} · ${extras}`,
+      message: `  ${formatQualityLocaleRowLabel(row)}`,
       target: row.code,
-      data: { leaves: row.leafCount, sourceIdentical: row.sourceIdenticalLeafCount ?? 0 },
+      data: {
+        leaves: row.leafCount,
+        sourceIdentical: row.sourceIdenticalLeafCount ?? 0,
+        segmentCount: row.segmentCount,
+      },
     });
   }
   emitRunMessage(host.emit, {
@@ -194,6 +180,7 @@ export function runQuality(
       });
     }
   }
+
   const issues = [
     ...issuesFromDynamicScanCount(dynamicKeySites),
     ...issuesFromQualityEnglishIdentical(total),

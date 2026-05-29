@@ -16,6 +16,8 @@ describe('quality index helpers', () => {
           {
             code: 'en',
             file: 'en.json',
+            segmentCount: 1,
+            segmentRelativePaths: ['en.json'],
             leafCount: 3,
             isSourceLocale: true,
             sourceIdenticalLeafCount: null,
@@ -34,6 +36,8 @@ describe('quality index helpers', () => {
         {
           code: 'en',
           file: 'en.json',
+          segmentCount: 1,
+          segmentRelativePaths: ['en.json'],
           leafCount: 3,
           isSourceLocale: true,
           sourceIdenticalLeafCount: null,

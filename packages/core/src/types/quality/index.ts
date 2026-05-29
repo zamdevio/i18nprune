@@ -20,7 +20,10 @@ export type QualityJsonData = {
 
 export type QualityFileLine = {
   code: string;
+  /** Primary segment report key (`fr.json`, `app/fr.json`, …). */
   file: string;
+  segmentCount: number;
+  segmentRelativePaths: string[];
   leafCount: number;
   isSourceLocale: boolean;
   sourceIdenticalLeafCount: number | null;
