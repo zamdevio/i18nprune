@@ -115,11 +115,11 @@ export default function TerminalDemo() {
   return (
     <section
       id="terminal"
-      className="relative py-28 border-t border-border/30"
+      className="section"
       data-testid="terminal-section"
     >
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="section-inner">
         <div className="grid lg:grid-cols-[1.4fr_1fr] gap-10 items-start">
           {/* Terminal */}
           <motion.div

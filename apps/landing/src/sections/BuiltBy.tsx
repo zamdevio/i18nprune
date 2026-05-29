@@ -19,9 +19,9 @@ function githubProfileUrl(repoUrl: string): string {
 
 interface Stat { icon: React.ComponentType<{ className?: string }>; label: string; value: number; suffix?: string }
 const STATS: Stat[] = [
-  { icon: GitBranch, label: 'Weeks · solo',         value: 8 },
+  { icon: GitBranch, label: 'Weeks · solo',         value: 10 },
   { icon: Boxes,     label: 'SDK package',          value: 1 },
-  { icon: Layers,    label: 'Surfaces shipped',     value: 4 },
+  { icon: Layers,    label: 'Surfaces shipped',     value: 5 },
   { icon: Server,    label: 'Runtime adapters',     value: 3 },
 ];
 
@@ -31,7 +31,7 @@ const QA: QA[] = [
     q: 'Why a separate SDK instead of just a CLI?',
     a: (
       <>
-        Because the same problem shows up in four places. A CLI for the local dev loop. An IDE extension for live drift. A browser playground for first-touch onboarding. An edge worker for hosted validators. <code className="font-mono text-foreground bg-card/60 border border-border/50 rounded px-1 py-0.5 text-[12px]">@i18nprune/core</code> is the one engine; the four surfaces just bring it different food.
+        Because the same problem shows up in five places. A CLI for the local dev loop. An IDE extension for live drift. Browser apps for playground and report UIs. An edge worker for hosted validators. <code className="font-mono text-foreground bg-card/60 border border-border/50 rounded px-1 py-0.5 text-[12px]">@i18nprune/core</code> is the one engine; the five surfaces just bring it different food.
       </>
     ),
   },
@@ -45,7 +45,7 @@ const QA: QA[] = [
   },
   {
     q: 'Why a 19-year-old solo developer?',
-    a: 'No legacy to defend, no committee to convince. Eight weeks of constraint and one obsession. The trade-off is fewer hands — so every line of code earned its place. If you find an opinion you disagree with, file an issue; the design is opinionated but not closed.',
+    a: 'No legacy to defend, no committee to convince. Ten weeks of constraint and one obsession. The trade-off is fewer hands — so every line of code earned its place. If you find an opinion you disagree with, file an issue; the design is opinionated but not closed.',
   },
 ];
 
@@ -68,10 +68,10 @@ export default function BuiltBy() {
   return (
     <section
       id="built-by"
-      className="relative py-24 border-t border-border/30"
+      className="section"
       data-testid="builtby-section"
     >
-      <div className="mx-auto max-w-5xl px-6">
+      <div className="section-inner-narrow">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -100,7 +100,7 @@ export default function BuiltBy() {
             {' · '}solo · 19.
           </h2>
           <p className="mt-4 text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed text-balance">
-            Solo-built in 8 weeks from real frustration — 1,200 translation keys across 5 languages in a production app. Then rebuilt as an SDK so the same engine could ship four ways.
+            Solo-built in 10 weeks from real frustration — 1,200 translation keys across 5 languages in a production app. Then rebuilt as an SDK so the same engine could ship five ways.
           </p>
           <div className="mt-5 flex items-center justify-center gap-2">
             <a

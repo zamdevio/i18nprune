@@ -10,6 +10,7 @@ import {
   Github,
   Package,
   Box,
+  BarChart3,
   type LucideIcon,
 } from 'lucide-react';
 import { linkHref } from '../lib/meta';
@@ -52,6 +53,7 @@ export default function CommandPalette() {
   const EXTERNAL_ITEMS: PaletteItem[] = useMemo(
     () => [
       { id: 'ext-web', title: 'web.i18nprune.dev', desc: 'Browser playground & explorer', href: linkHref(links, 'webApp'), group: 'external', Icon: Globe2 },
+      { id: 'ext-report', title: 'report.i18nprune.dev', desc: 'Report UI · hosted share links', href: linkHref(links, 'report'), group: 'external', Icon: BarChart3 },
       { id: 'ext-worker', title: 'worker.i18nprune.dev', desc: 'Edge validators · Swagger docs', href: linkHref(links, 'workerDocs'), group: 'external', Icon: Cloud },
       { id: 'ext-github', title: 'GitHub repository', desc: 'Source & issues', href: linkHref(links, 'githubRepo'), group: 'external', Icon: Github },
       { id: 'ext-npm', title: 'npm · i18nprune', desc: 'CLI package on npm', href: linkHref(links, 'npmCli'), group: 'external', Icon: Package },
@@ -138,12 +140,12 @@ export default function CommandPalette() {
         onClick={() => setOpen(true)}
         aria-label="Open command palette (Cmd+K)"
         data-testid="cmdk-trigger"
-        className="hidden md:inline-flex fixed bottom-5 right-5 z-40 items-center gap-1.5 px-3 h-9 rounded-full border border-border/60 bg-card/70 backdrop-blur-xl text-[11px] font-mono text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+        className="fixed bottom-5 right-4 sm:right-5 z-40 items-center justify-center rounded-full border border-border/60 bg-card/70 backdrop-blur-xl text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all max-md:w-11 max-md:h-11 md:inline-flex md:gap-1.5 md:px-3 md:h-9 md:text-[11px] md:font-mono"
       >
-        <Command className="w-3 h-3" />
-        <span>K</span>
-        <span className="text-border">·</span>
-        <span>palette</span>
+        <Command className="w-4 h-4 md:w-3 md:h-3" />
+        <span className="hidden md:inline">K</span>
+        <span className="hidden md:inline text-border">·</span>
+        <span className="hidden md:inline">palette</span>
       </button>
 
       <AnimatePresence>
@@ -153,7 +155,7 @@ export default function CommandPalette() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[70] flex items-start justify-center pt-24 px-4 bg-background/70 backdrop-blur-md"
+            className="fixed inset-0 z-[70] flex items-start justify-center pt-20 sm:pt-24 px-3 sm:px-4 pb-[env(safe-area-inset-bottom)] bg-background/70 backdrop-blur-md"
             onClick={() => setOpen(false)}
             data-testid="cmdk-overlay"
           >

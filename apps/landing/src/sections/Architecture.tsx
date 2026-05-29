@@ -153,7 +153,7 @@ const NODES: DiagramNode[] = [
       bullets: [
         'Stable programmatic API · types-first',
         'Runtime-neutral · ships node, web, and edge adapters',
-        'Powers 4 surfaces: CLI · IDE extension · web.i18nprune.dev · worker.i18nprune.dev',
+        'Powers 5 surfaces: CLI · IDE extension · web.i18nprune.dev · report.i18nprune.dev · worker.i18nprune.dev',
       ],
       code: {
         lang: 'ts',
@@ -205,7 +205,7 @@ const NODES: DiagramNode[] = [
     y: 360,
     path: '@i18nprune/core/runtime/web',
     detail: {
-      summary: 'Browser runtime adapter. Powers web.i18nprune.dev — the playground and analysis dashboards. Filesystem behaviors stream via fetch / virtual FS.',
+      summary: 'Browser runtime adapter. Powers web.i18nprune.dev (playground & explorer) and report.i18nprune.dev (report UI & share links). Filesystem behaviors stream via fetch / virtual FS.',
       bullets: [
         'Tier A · read / analyze',
         'No node: imports in this bundle graph',
@@ -511,29 +511,37 @@ export default function Architecture() {
   return (
     <section
       id="architecture"
-      className="relative py-28 border-t border-border/30 overflow-hidden"
+      className="section overflow-hidden"
       data-testid="architecture-section"
     >
       <div className="absolute inset-0 grid-texture opacity-30" aria-hidden="true" />
-      <div className="relative mx-auto max-w-7xl px-6">
+      <div className="section-inner relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10"
+          className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12"
         >
           <div className="max-w-2xl">
             <div className="font-mono text-xs uppercase tracking-[0.2em] text-primary/80 mb-3">
               The blueprint
             </div>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.05]">
               Source code in.{' '}
               <span className="stat-highlight">Confidence out.</span>
             </h2>
             <p className="mt-5 text-muted-foreground leading-relaxed text-balance">
-              Three inputs feed a single SDK. One SDK powers four surfaces across three runtimes. Six commands return structured outcomes you can ship to CI, agents, or dashboards.
+              Three inputs feed a single SDK. One SDK powers five surfaces across three runtimes. Six commands return structured outcomes you can ship to CI, agents, or dashboards.
             </p>
+            <a
+              href="#locale-layouts"
+              className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              data-testid="architecture-locale-layouts-link"
+            >
+              How locale layouts map to disk
+              <span aria-hidden="true">→</span>
+            </a>
           </div>
           <div className="hidden md:flex items-center gap-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
             {PHASES.map((p, i) => (
@@ -559,8 +567,11 @@ export default function Architecture() {
             <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" aria-hidden="true" />
             <div className="absolute inset-0 hero-glow opacity-30 pointer-events-none" aria-hidden="true" />
 
-            <div className="overflow-x-auto">
-              <svg viewBox="0 0 870 520" className="w-full min-w-[820px] block">
+            <p className="md:hidden px-1 pb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Scroll diagram →
+            </p>
+            <div className="landing-scroll-x rounded-xl md:overflow-visible">
+              <svg viewBox="0 0 870 520" className="block w-[820px] max-w-none md:w-full md:max-w-full md:h-auto">
                 <defs>
                   <linearGradient id="edge-grad" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.15" />
@@ -717,6 +728,33 @@ export default function Architecture() {
                   );
                 })}
               </svg>
+            </div>
+
+            <div className="md:hidden mt-4 border-t border-border/40 pt-4">
+              <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                Explore nodes
+              </p>
+              <div className="landing-scroll-x flex gap-2 pb-1">
+                {NODES.map((n) => {
+                  const isActive = active === n.id;
+                  return (
+                    <button
+                      key={n.id}
+                      type="button"
+                      onClick={() => setActive(n.id)}
+                      className={`shrink-0 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-left transition-colors ${
+                        isActive
+                          ? 'border-primary/40 bg-primary/10 text-foreground'
+                          : 'border-border/50 bg-card/40 text-muted-foreground hover:text-foreground'
+                      }`}
+                      data-testid={`arch-mobile-node-${n.id}`}
+                    >
+                      <n.icon className="w-3.5 h-3.5 shrink-0" />
+                      <span className="font-mono text-[11px] whitespace-nowrap">{n.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </motion.div>

@@ -74,10 +74,10 @@ export default function ExtractionFlow() {
   return (
     <section
       id="extraction-flow"
-      className="relative py-28 border-t border-border/30"
+      className="section"
       data-testid="extraction-section"
     >
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="section-inner">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -121,7 +121,7 @@ export default function ExtractionFlow() {
           </div>
         </motion.div>
 
-        <div className="grid lg:grid-cols-[1fr_1fr_1fr] gap-4 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
           {/* Panel 1: Source */}
           <Panel title="Source code" subtitle="Dashboard.tsx" testId="extraction-source">
             <div className="font-mono text-[12px] space-y-1.5">

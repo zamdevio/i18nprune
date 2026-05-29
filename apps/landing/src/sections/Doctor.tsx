@@ -47,10 +47,10 @@ export default function Doctor() {
   return (
     <section
       id="doctor"
-      className="relative py-20 border-t border-border/30"
+      className="section"
       data-testid="doctor-section"
     >
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="section-inner">
         <div className="grid lg:grid-cols-[1fr_1fr] gap-8 items-center">
           {/* Copy */}
           <motion.div

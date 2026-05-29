@@ -46,10 +46,10 @@ export default function Pruning() {
   return (
     <section
       id="pruning"
-      className="relative py-28 border-t border-border/30"
+      className="section"
       data-testid="pruning-section"
     >
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="section-inner">
         <div className="grid lg:grid-cols-[1fr_1.3fr] gap-10 items-start">
           {/* Copy */}
           <motion.div
@@ -70,7 +70,7 @@ export default function Pruning() {
               i18nprune walks your AST to find every <code className="font-mono text-foreground bg-card/60 border border-border/50 rounded px-1.5 py-0.5 text-sm">t()</code> call site, then quietly removes any locale key that no source file references. Optional ripgrep verification before deletion, so nothing important slips out.
             </p>
 
-            <div className="mt-8 grid grid-cols-3 gap-3" data-testid="pruning-stats">
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-3" data-testid="pruning-stats">
               <Stat label="Keys" before={total} after={alive} unit="" pruned={pruned} />
               <Stat label="Removed" before={0} after={dead} unit="" pruned={pruned} accent="red" />
               <Stat label="Saved" before={0} after={savedBytes} unit="B" pruned={pruned} accent="primary" />

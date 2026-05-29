@@ -38,10 +38,10 @@ export default function Features() {
   return (
     <section
       id="features"
-      className="relative py-28 border-t border-border/30"
+      className="section"
       data-testid="features-section"
     >
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="section-inner">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

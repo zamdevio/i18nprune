@@ -77,6 +77,32 @@
   ::-webkit-scrollbar-thumb:hover { background: hsl(var(--accent)); }
 }
 
+@layer components {
+  /** Shared section rhythm — Hero keeps its own max-w-6xl shell for tighter headline measure */
+  .section {
+    @apply relative py-16 sm:py-20 lg:py-28 border-t border-border/30 scroll-mt-[4.5rem] sm:scroll-mt-20;
+  }
+
+  .section-inner {
+    @apply mx-auto max-w-7xl px-4 sm:px-6;
+  }
+
+  .section-inner-narrow {
+    @apply mx-auto max-w-5xl px-4 sm:px-6;
+  }
+
+  .section-inner-tight {
+    @apply mx-auto max-w-4xl px-4 sm:px-6;
+  }
+
+  /** Horizontal scroll regions (diagrams, marquees) — momentum on touch */
+  .landing-scroll-x {
+    @apply overflow-x-auto overscroll-x-contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+}
+
 @layer utilities {
   .font-display { font-family: 'Outfit', sans-serif; }
   .font-mono { font-family: 'JetBrains Mono', monospace; }
@@ -211,6 +237,73 @@
     font-family: inherit;
     font-size: inherit;
     line-height: inherit;
+  }
+
+  .used-by-static {
+    display: none;
+  }
+
+  .used-by-marquee-mask {
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      black 6%,
+      black 94%,
+      transparent 100%
+    );
+  }
+
+  .used-by-marquee-track {
+    width: max-content;
+    will-change: transform;
+  }
+
+  .used-by-brand-icon {
+    display: block;
+  }
+
+  .dark .used-by-brand-icon--nextjs {
+    filter: brightness(0) invert(1);
+  }
+
+  .used-by-marquee-track--forward {
+    animation: used-by-scroll-forward 52s linear infinite;
+  }
+
+  .used-by-marquee-track--reverse {
+    animation: used-by-scroll-reverse 52s linear infinite;
+  }
+
+  .used-by-marquee-row:hover .used-by-marquee-track--forward,
+  .used-by-marquee-row:hover .used-by-marquee-track--reverse,
+  .used-by-animated:hover .used-by-marquee-track--forward,
+  .used-by-animated:hover .used-by-marquee-track--reverse {
+    animation-play-state: paused;
+  }
+
+  @keyframes used-by-scroll-forward {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(calc(-1 * var(--marquee-distance, 50%)), 0, 0); }
+  }
+
+  @keyframes used-by-scroll-reverse {
+    from { transform: translate3d(calc(-1 * var(--marquee-distance, 50%)), 0, 0); }
+    to { transform: translate3d(0, 0, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .used-by-animated {
+      display: none;
+    }
+
+    .used-by-static {
+      display: block;
+    }
+
+    .used-by-marquee-track--forward,
+    .used-by-marquee-track--reverse {
+      animation: none;
+    }
   }
 }
 

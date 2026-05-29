@@ -39,7 +39,7 @@ const RUNTIMES: Runtime[] = [
     label: 'Web',
     badge: 'browser bundle',
     icon: Globe2,
-    surfaces: 'Backs web.i18nprune.dev — playground & analysis dashboards. Tier A.',
+    surfaces: 'Backs web.i18nprune.dev & report.i18nprune.dev — playground, explorer & report UI. Tier A.',
   },
   {
     id: 'edge',
@@ -67,12 +67,12 @@ export default function Install() {
   return (
     <section
       id="install"
-      className="relative py-28 border-t border-border/30 overflow-hidden"
+      className="section overflow-hidden"
       data-testid="install-section"
     >
       <div className="absolute inset-0 hero-glow" aria-hidden="true" />
       <div className="absolute inset-0 grid-texture opacity-30" aria-hidden="true" />
-      <div className="relative mx-auto max-w-5xl px-6">
+      <div className="section-inner-narrow relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -83,7 +83,7 @@ export default function Install() {
           <div className="font-mono text-xs uppercase tracking-[0.2em] text-primary/80 mb-3">
             Ship it
           </div>
-          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] text-balance">
+          <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] text-balance">
             One install.{' '}
             <span className="stat-highlight">Every surface.</span>
           </h2>

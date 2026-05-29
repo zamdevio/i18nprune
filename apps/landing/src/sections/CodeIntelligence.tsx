@@ -116,10 +116,10 @@ export default function CodeIntelligence() {
   return (
     <section
       id="code-intelligence"
-      className="relative py-28 border-t border-border/30"
+      className="section"
       data-testid="code-intelligence-section"
     >
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="section-inner">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -135,18 +135,19 @@ export default function CodeIntelligence() {
             <span className="stat-highlight">key extraction.</span>
           </h2>
           <p className="mt-5 text-muted-foreground leading-relaxed text-balance">
-            Per-file key-site scanning resolves literal arguments on every effective translation helper—including renamed imports such as{' '}
-            <code className="font-mono text-primary text-sm">t as renameT</code> and namespace patterns like{' '}
-            <code className="font-mono text-primary text-sm">import * as i18n</code> followed by{' '}
-            <code className="font-mono text-primary text-sm">i18n.t(...)</code>. An import binding pass expands the configured function list before call-site detection runs, so key extraction and dynamic classification consume the same richer symbol set as{' '}
-            <code className="font-mono text-foreground/90 text-xs">validate</code> / <code className="font-mono text-foreground/90 text-xs">sync</code>. The pipeline is intentionally lightweight: staged text analysis rather than a full TypeScript program AST or type checker.
+            Per-file scanning resolves literals on every effective helper—renamed imports like{' '}
+            <code className="font-mono text-primary text-sm">t as renameT</code>, namespace calls like{' '}
+            <code className="font-mono text-primary text-sm">i18n.t(...)</code>, and more. A binding pass expands your configured function list before call-site detection, so extraction and dynamic classification share the same symbol set as{' '}
+            <code className="font-mono text-foreground/90 text-xs">validate</code> / <code className="font-mono text-foreground/90 text-xs">sync</code>—via staged text analysis, not a full TypeScript program checker.
           </p>
           <div className="mt-8 rounded-xl border border-border/50 bg-card/25 backdrop-blur-md px-4 py-3 text-sm text-muted-foreground leading-relaxed">
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary/90">Extractor architecture</span>
             <p className="mt-2 text-[13px]">
-              Three coordinated layers feed the scanner: an <span className="text-foreground font-semibold">import binding resolver</span> (ESM and CJS import shapes, including aliases and <code className="font-mono text-xs text-foreground/90">* as</code> namespaces with a configured{' '}
-              <code className="font-mono text-xs text-foreground/90">.t</code> member), the shipped <span className="text-foreground font-semibold">const-map</span> for per-file string constants, and the <span className="text-foreground font-semibold">template rebuild</span> path for{' '}
-              <code className="font-mono text-xs text-foreground/90">{['`', '${NS}', '.key', '`'].join('')}</code>-style keys. Together they keep key-site and dynamic pipelines aligned with real import patterns—without relying on a heavyweight TS AST walk or whole-program semantic analysis.
+              Three layers feed the scanner: <span className="text-foreground font-semibold">import binding</span> (ESM/CJS aliases and{' '}
+              <code className="font-mono text-xs text-foreground/90">* as</code> namespaces with <code className="font-mono text-xs text-foreground/90">.t</code>),{' '}
+              <span className="text-foreground font-semibold">const-map</span> for per-file constants, and{' '}
+              <span className="text-foreground font-semibold">template rebuild</span> for{' '}
+              <code className="font-mono text-xs text-foreground/90">{['`', '${NS}', '.key', '`'].join('')}</code> keys—without a whole-program TS AST.
             </p>
           </div>
         </motion.div>
@@ -222,7 +223,7 @@ export default function CodeIntelligence() {
             </div>
 
             <div className="mt-6 pt-5 border-t border-border/40">
-              <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
                 <Stat n={2} label="Literal" tone="primary" />
                 <Stat n={1} label="Dynamic" tone="amber" />
                 <Stat n={0.8} unit="ms" label="Scan time" tone="primary" />

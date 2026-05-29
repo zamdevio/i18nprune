@@ -6,7 +6,7 @@ export default function Footer() {
   const { links, cliVersion } = useMeta();
   return (
     <footer className="relative border-t border-border/40 bg-background" data-testid="site-footer">
-      <div className="mx-auto max-w-7xl px-6 py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2">
             <div className="flex items-center gap-2.5 mb-3">

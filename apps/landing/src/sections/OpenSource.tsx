@@ -37,10 +37,10 @@ export default function OpenSource() {
   return (
     <section
       id="open-source"
-      className="relative py-28 border-t border-border/30"
+      className="section"
       data-testid="opensource-section"
     >
-      <div className="mx-auto max-w-4xl px-6">
+      <div className="section-inner-tight">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}

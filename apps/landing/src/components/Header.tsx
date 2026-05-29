@@ -47,6 +47,16 @@ export default function Header() {
     return () => document.removeEventListener('keydown', onKey);
   }, []);
 
+  // lock page scroll while mobile nav is open
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
+
   const stars = gh && gh.stars != null ? formatCount(gh.stars) : null;
 
   return (
@@ -62,7 +72,7 @@ export default function Header() {
       }`}
       data-testid="site-header"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-full flex items-center justify-between gap-4">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-full flex items-center justify-between gap-2 sm:gap-4">
         {/* Logo */}
         <a
           href="#top"
@@ -188,7 +198,17 @@ export default function Header() {
             className="lg:hidden overflow-hidden border-t border-border/40 bg-background/95 backdrop-blur-xl"
             data-testid="mobile-menu"
           >
-            <nav className="mx-auto max-w-7xl px-6 py-4 flex flex-col gap-1">
+            <nav className="mx-auto max-w-7xl px-4 sm:px-6 py-4 flex flex-col gap-1 max-h-[min(70vh,calc(100dvh-5rem))] overflow-y-auto">
+              <a
+                href={linkHref(links, 'docs')}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileOpen(false)}
+                className="mb-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-[0_0_24px_-4px_hsl(var(--primary))]"
+              >
+                Get Started
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
               {PRIMARY_NAV.map((item) => (
                 <a
                   key={item.id}

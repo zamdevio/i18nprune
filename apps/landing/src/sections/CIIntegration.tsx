@@ -55,10 +55,10 @@ export default function CIIntegration() {
   return (
     <section
       id="ci"
-      className="relative py-28 border-t border-border/30"
+      className="section"
       data-testid="ci-section"
     >
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="section-inner">
         <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-16 items-center">
           {/* Copy */}
           <motion.div

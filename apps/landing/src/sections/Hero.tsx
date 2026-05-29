@@ -26,7 +26,7 @@ export default function Hero() {
       {/* Bottom fade */}
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background" aria-hidden="true" />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-6 w-full">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 w-full">
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -34,7 +34,7 @@ export default function Hero() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="flex justify-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/60 bg-card/60 backdrop-blur-xl text-xs">
+          <div className="inline-flex max-w-[min(100%,20rem)] items-center gap-2 px-3 py-1.5 rounded-full border border-border/60 bg-card/60 backdrop-blur-xl text-xs text-center sm:max-w-none">
             <span className="relative flex w-2 h-2">
               <span className="absolute inset-0 rounded-full bg-primary animate-pulse-dot" />
               <span className="relative rounded-full w-2 h-2 bg-primary" />
@@ -47,7 +47,7 @@ export default function Hero() {
 
         {/* Headline — staggered lines */}
         <motion.h1
-          className="font-display font-bold text-balance text-center leading-[1.02] tracking-[-0.04em] text-5xl sm:text-6xl md:text-7xl lg:text-[5.25rem]"
+          className="font-display font-bold text-balance text-center leading-[1.02] tracking-[-0.04em] text-[2.35rem] min-[400px]:text-5xl sm:text-6xl md:text-7xl lg:text-[5.25rem]"
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } } }}

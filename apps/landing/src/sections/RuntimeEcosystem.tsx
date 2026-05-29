@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Terminal, Globe, Cloud, Code2, Server, ExternalLink, type LucideIcon } from 'lucide-react';
+import { Terminal, Globe, Cloud, Code2, Server, ExternalLink, BarChart3, type LucideIcon } from 'lucide-react';
 
 type RuntimeId = 'node' | 'web' | 'edge';
 
@@ -65,8 +65,9 @@ const SURFACES: Surface[] = [
   { id: 'cli', label: 'CLI', sub: 'i18nprune', runtime: 'node', tier: 'B', icon: Terminal, angle: 320 },
   { id: 'ide', label: 'IDE extension', sub: 'cursor · vscode', runtime: 'node', tier: 'B', icon: Code2, angle: 40 },
 
-  // Web ring (right side)
+  // Web ring (right side) — web + report twins
   { id: 'web', label: 'web.i18nprune.dev', sub: 'playground · explorer', url: 'https://web.i18nprune.dev', runtime: 'web', tier: 'A', icon: Globe, angle: 90 },
+  { id: 'report', label: 'report.i18nprune.dev', sub: 'report UI · share links', url: 'https://report.i18nprune.dev', runtime: 'web', tier: 'A', icon: BarChart3, angle: 130 },
 
   // Edge ring (bottom)
   { id: 'worker', label: 'worker.i18nprune.dev', sub: 'edge validators', url: 'https://worker.i18nprune.dev/docs', runtime: 'edge', tier: 'A', icon: Cloud, angle: 220 },
@@ -84,11 +85,11 @@ export default function RuntimeEcosystem() {
   return (
     <section
       id="runtime"
-      className="relative py-28 border-t border-border/30 overflow-hidden"
+      className="section overflow-hidden"
       data-testid="runtime-section"
     >
       <div className="absolute inset-0 dot-grid opacity-40" aria-hidden="true" />
-      <div className="relative mx-auto max-w-7xl px-6">
+      <div className="section-inner relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -104,7 +105,7 @@ export default function RuntimeEcosystem() {
             <span className="stat-highlight">Every runtime.</span>
           </h2>
           <p className="mt-5 text-muted-foreground leading-relaxed text-balance">
-            <code className="font-mono text-foreground bg-card/60 border border-border/50 rounded px-1.5 py-0.5 text-sm">@i18nprune/core</code> is the SDK — one engine powering four surfaces across three runtimes. Same algorithms, different bundles. Filesystem, networking, and bundle hygiene shift per host; behavior never does.
+            <code className="font-mono text-foreground bg-card/60 border border-border/50 rounded px-1.5 py-0.5 text-sm">@i18nprune/core</code> is the SDK — one engine powering five surfaces across three runtimes. Same algorithms, different bundles. Filesystem, networking, and bundle hygiene shift per host; behavior never does.
           </p>
         </motion.div>
 
@@ -117,7 +118,7 @@ export default function RuntimeEcosystem() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="relative flex justify-center"
           >
-            <svg viewBox="0 0 800 800" className="w-full max-w-[680px] aspect-square">
+            <svg viewBox="0 0 800 800" className="mx-auto w-full max-w-[min(100%,420px)] sm:max-w-[520px] lg:max-w-[680px] aspect-square">
               <defs>
                 <radialGradient id="hub-glow-rt" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.45" />
