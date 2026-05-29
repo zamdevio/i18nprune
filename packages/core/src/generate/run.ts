@@ -9,7 +9,7 @@ import { languageOftenRtl } from '../shared/languages/rtlHint.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { targetLocaleCoversAllSourcePaths } from '../shared/json/targetCoverage.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
-import { primarySegmentForLocale } from '../shared/locales/targets/index.js';
+import { resolvePrimaryTargetWritePath } from '../shared/locales/targets/index.js';
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
 import { assertGenerateTargetCodes } from '../locales/generateTargets.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
@@ -215,9 +215,7 @@ export async function runGenerate(
       }
     }
 
-    const targetPath =
-      primarySegmentForLocale(ctx, target)?.absolutePath ??
-      ctx.adapters.path.join(ctx.paths.localesDir, `${target}.json`);
+    const targetPath = resolvePrimaryTargetWritePath(ctx, target);
     const targetJsonExists = existsRuntimeFsSync(targetPath, ctx.adapters.fs);
 
     const existingRaw = targetJsonExists ? readLocaleJsonFromContextSync(ctx, targetPath) : null;
