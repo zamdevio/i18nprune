@@ -4,7 +4,6 @@ import { getCliYesFlag } from '@/shared/context/globals.js';
 import { resolveMissingHumanDefaultTop } from '@/commands/missing/summary.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import {
-  emitMissingPathsPreview,
   emitMissingPlaceholderLeavesPreview,
   emitMissingTargetActionMessage,
   emitMissingTargetWriteIntro,
@@ -24,8 +23,9 @@ import type { MissingPathDisplayOpts } from '@/types/command/missing/summary.js'
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
+import { formatLocaleSegmentFilesLabel } from '@/shared/locales/segmentLabel.js';
 import { logger } from '@/utils/logger/index.js';
-import type { RunEmitter } from '@i18nprune/core';
+import type { MissingTargetPlan, RunEmitter } from '@i18nprune/core';
 
 function resolveMissingData(
   ctx: Awaited<ReturnType<typeof resolveContext>>,
@@ -125,8 +125,10 @@ export async function missing(opts: MissingOptions): Promise<void> {
     if (opts.dryRun) {
       for (const entry of plansWithAdds) {
         emitMissingTargetWriteIntro(runtime, entry);
-        emitMissingTargetActionMessage(runtime, entry, 'would_add', missingPlaceholder);
-        emitMissingPathsPreview(runtime, { paths: entry.toAdd, fullList: display.fullList, top: display.top });
+        emitMissingTargetActionMessage(runtime, entry, 'would_add', missingPlaceholder, {
+          fullList: display.fullList,
+          top: display.top,
+        });
       }
       printCommandSummary(
         {
@@ -161,15 +163,17 @@ export async function missing(opts: MissingOptions): Promise<void> {
 
     for (const entry of plansWithAdds) {
       emitMissingTargetWriteIntro(runtime, entry);
-      emitMissingTargetActionMessage(runtime, entry, 'will_add');
-      emitMissingPathsPreview(runtime, { paths: entry.toAdd, fullList: display.fullList, top: display.top });
+      emitMissingTargetActionMessage(runtime, entry, 'will_add', undefined, {
+        fullList: display.fullList,
+        top: display.top,
+      });
 
       if (canAsk(run) && !getCliYesFlag()) {
         const preview =
           missingPlaceholder === '' ? 'empty string values' : `placeholder ${JSON.stringify(missingPlaceholder)}`;
         const ok = await duringPrompt(() =>
           confirm({
-            message: `Add ${String(entry.toAdd.length)} key path(s) with ${preview} to ${entry.target.targetPath}?`,
+            message: `Add ${String(entry.toAdd.length)} key path(s) with ${preview} to ${missingWriteTargetLabel(entry)}?`,
             default: false,
           }),
         );
@@ -183,14 +187,18 @@ export async function missing(opts: MissingOptions): Promise<void> {
       writeMissingPaths(coreCtx, {
         targetPath: entry.target.targetPath,
         localeJson: entry.target.localeJson,
+        localeCode: entry.target.selectedLocaleCode,
         paths: entry.toAdd,
         placeholder: missingPlaceholder,
+        writePlan: entry.writePlan,
       });
       added += entry.toAdd.length;
-      filesWritten += 1;
+      filesWritten += entry.writePlan.length > 0 ? entry.writePlan.length : 1;
 
-      emitMissingTargetActionMessage(runtime, entry, 'added');
-      emitMissingPathsPreview(runtime, { paths: entry.toAdd, fullList: display.fullList, top: display.top });
+      emitMissingTargetActionMessage(runtime, entry, 'added', undefined, {
+        fullList: display.fullList,
+        top: display.top,
+      });
     }
 
     printCommandSummary(
@@ -214,6 +222,20 @@ export async function missing(opts: MissingOptions): Promise<void> {
   } finally {
     wall.dispose();
   }
+}
+
+function missingWriteTargetLabel(entry: MissingTargetPlan): string {
+  if (entry.writePlan.length === 0) {
+    return entry.target.targetDisplayPath ?? entry.target.targetPath;
+  }
+  if (entry.writePlan.length === 1) {
+    return entry.writePlan[0]!.relativePath;
+  }
+  const localeCode = entry.target.selectedLocaleCode ?? 'locale';
+  return formatLocaleSegmentFilesLabel(
+    localeCode,
+    entry.writePlan.map((w) => w.relativePath),
+  );
 }
 
 function assertMissingTop(opts: MissingOptions): void {

@@ -4,7 +4,6 @@
  */
 export { DEFAULT_MISSING_LEAF_PLACEHOLDER, MAX_MISSING_TARGET_SUGGESTIONS } from '../shared/constants/missing.js';
 export {
-  applyMissingPaths,
   emitMissingPathsPreview,
   emitMissingPlaceholderLeavesPreview,
   emitMissingTargetActionMessage,
@@ -12,6 +11,8 @@ export {
   runMissing,
   writeMissingPaths,
 } from './run.js';
+export { applyMissingPaths } from './apply.js';
+export { createMissingWritePlan, writeMissingWritePlan } from './writePlan.js';
 export { MISSING_LEAF_PLACEHOLDER_MAX_LEN, resolveMissingLeafPlaceholder } from './placeholder.js';
 export { parseMissingArrayFromValidateReportJson, planMissingPathsFromReport } from './validateReport.js';
 export { resolveMissingPathsPlan } from './resolvePaths.js';
@@ -23,6 +24,7 @@ export type {
   MissingPlaceholderLeafList,
   MissingRunOptions,
   MissingRunResult,
+  MissingSegmentWrite,
   MissingSkippedTarget,
   MissingTargetKind,
   MissingTargetPlan,

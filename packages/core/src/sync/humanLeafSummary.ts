@@ -1,5 +1,5 @@
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
-import { getAtPath } from '../shared/json/path.js';
+import { getLocaleLeafAtPath } from '../shared/json/localeLeafPath.js';
 import type { StringLeaf } from '../types/json/index.js';
 
 function isPlainObject(x: unknown): x is Record<string, unknown> {
@@ -10,7 +10,7 @@ function isPlainObject(x: unknown): x is Record<string, unknown> {
  * Human-readable leaf string at a source template dotted path (plain terminal or `{ value }` object).
  */
 export function readLeafDisplayString(root: unknown, pathStr: string): string | undefined {
-  const v = getAtPath(root, pathStr);
+  const v = getLocaleLeafAtPath(root, pathStr);
   if (typeof v === 'string') return v;
   if (isPlainObject(v) && typeof v.value === 'string') return v.value;
   return undefined;

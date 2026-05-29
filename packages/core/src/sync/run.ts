@@ -6,7 +6,15 @@ import { resolveProjectAnalysis } from '../analysis/index.js';
 import { parseSyncLangSelection } from '../locales/targets.js';
 import { assertNotSourceTargetLocale } from '../locales/source.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
+import {
+  readSourceLocaleLeaves,
+  resolveGlobalSyncSchemaPaths,
+  resolveSyncSegmentSourcePlan,
+  buildSegmentTemplateFromSource,
+} from '../shared/locales/surface/index.js';
+import { normalizeLocaleDocumentToNestedCanonical } from '../shared/json/localeLeafPath.js';
 import { resolveLocaleSegmentTargets } from '../shared/locales/targets/index.js';
+import { localeJsonContentEquals } from '../shared/json/sortKeys.js';
 import { setAtPath } from '../shared/json/path.js';
 import {
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
@@ -266,7 +274,6 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
 
   const sourcePath = ctx.paths.sourceLocale;
   host.emitProgress({ type: 'run.progress.sync', phase: 'read_source', label: sourcePath });
-  const sourceRaw = readLocaleJsonFromContextSync(ctx, sourcePath);
   const dir = ctx.paths.localesDir;
   const sel = parseSyncLangSelection(opts.target);
   if (sel.mode === 'codes') {
@@ -293,23 +300,13 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     metadataFlag: explicitMetadata,
     stripMetadataFlag: explicitStripMetadata,
   });
-  const allSourceLeaves = collectTranslationSurfaceLeaves(sourceRaw);
-  const effectiveSchemaPaths =
-    schemaPaths.size > 0 ? schemaPaths : new Set(allSourceLeaves.map((l) => l.path));
-  const sourceLeaves = allSourceLeaves.filter((l) => effectiveSchemaPaths.has(l.path));
+  const effectiveSchemaPaths = resolveGlobalSyncSchemaPaths(ctx, schemaPaths);
+  const mergedSourceLeaves = readSourceLocaleLeaves(ctx);
   const sourcePlaceholderLeaves = detectSourcePlaceholderLeaves(
-    sourceLeaves,
+    mergedSourceLeaves,
     sourcePlaceholderValues(ctx.config.missing?.placeholder),
   );
   const sourcePlaceholderPaths = new Set(sourcePlaceholderLeaves.map((leaf) => leaf.path));
-  const effectiveSourceLeaves = sourceLeaves.filter((leaf) => !sourcePlaceholderPaths.has(leaf.path));
-  const sourceMap = new Map(effectiveSourceLeaves.map((leaf) => [leaf.path, leaf.value]));
-
-  // Schema-first: build a template that contains only schema leaf paths (no source structural mirroring).
-  let template: unknown = {};
-  for (const leaf of effectiveSourceLeaves) {
-    template = setAtPath(template, leaf.path, leaf.value);
-  }
   const localeMetadataReports: Record<string, LocaleMetadataReport> = {};
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
 
@@ -317,6 +314,16 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     const segment = targets[i]!;
     const file = segment.reportKey;
     const full = segment.absolutePath;
+    const segmentSource = resolveSyncSegmentSourcePlan(ctx, {
+      targetSegmentRelativePath: segment.relativePath,
+      targetLocaleCode: segment.locale,
+      schemaPaths: effectiveSchemaPaths,
+    });
+    const segmentFillLeaves = segmentSource.effectiveSourceLeaves.filter(
+      (leaf) => !sourcePlaceholderPaths.has(leaf.path),
+    );
+    let segmentTemplate = buildSegmentTemplateFromSource(segmentSource.sourceRaw, segmentFillLeaves);
+    const segmentSourceMap = new Map(segmentFillLeaves.map((leaf) => [leaf.path, leaf.value]));
     host.emitProgress({
       type: 'run.progress.sync',
       phase: 'build_target',
@@ -324,7 +331,9 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       current: i + 1,
       total: targets.length,
     });
-    const cur = readLocaleJsonFromContextSync(ctx, full);
+    const segmentLeafPaths = segmentFillLeaves.map((leaf) => leaf.path);
+    const curRaw = readLocaleJsonFromContextSync(ctx, full);
+    const cur = normalizeLocaleDocumentToNestedCanonical(curRaw, segmentLeafPaths);
     const targetCode = segment.locale;
     const targetPlaceholdersForFile = detectLocalePlaceholderLeaves({
       leaves: collectTranslationSurfaceLeaves(cur),
@@ -350,7 +359,12 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       current: i + 1,
       total: targets.length,
     });
-    const { next } = computeSyncedLocaleJson(template, cur, ctx.config.policies?.preserve, mergeOpts);
+    const { next } = computeSyncedLocaleJson(
+      segmentTemplate,
+      cur,
+      ctx.config.policies?.preserve,
+      mergeOpts,
+    );
     host.emitProgress({
       type: 'run.progress.sync',
       phase: 'prune',
@@ -358,7 +372,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       current: i + 1,
       total: targets.length,
     });
-    humanLeafSummaryByLocaleFile[file] = summarizeSyncLeavesForHumanLog(effectiveSourceLeaves, cur, next);
+    humanLeafSummaryByLocaleFile[file] = summarizeSyncLeavesForHumanLog(segmentFillLeaves, cur, next);
     let finalNext: unknown = next;
     if (explicitStripMetadata || explicitMetadata) {
       let metadataInput = next;
@@ -367,13 +381,18 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
           metadataInput = setAtPath(metadataInput, placeholderPath, null);
         }
       }
-      const normalized = applyLocaleLeafMode({ localeJson: metadataInput, sourceMap, mode: modeDecision.mode });
+      const normalized = applyLocaleLeafMode({
+        localeJson: metadataInput,
+        sourceMap: segmentSourceMap,
+        mode: modeDecision.mode,
+      });
       finalNext = normalized.next;
       localeMetadataReports[file] = normalized.report;
     } else {
-      localeMetadataReports[file] = idleLocaleMetadataReportForSkippedSync(sourceMap.size);
+      localeMetadataReports[file] = idleLocaleMetadataReportForSkippedSync(segmentSourceMap.size);
     }
-    const finalWouldChange = JSON.stringify(cur) !== JSON.stringify(finalNext);
+    finalNext = normalizeLocaleDocumentToNestedCanonical(finalNext, segmentLeafPaths);
+    const finalWouldChange = !localeJsonContentEquals(curRaw, finalNext);
 
     if (opts.dryRun) {
       fileLines.push({ path: full, changed: finalWouldChange });

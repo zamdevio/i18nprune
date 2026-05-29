@@ -6,13 +6,18 @@ import type { Issue } from '../../types/json/envelope/index.js';
 
 export type DeleteTargetResult = {
   target: string;
-  jsonPath: string;
+  /** Segment paths removed for this locale code (e.g. `app/ar.json`). */
+  deletedSegmentRelativePaths: string[];
+  deletedJsonCount: number;
 };
 
 export type DeleteJsonPayload = {
   kind: 'locales-delete';
   targets: string[];
+  /** JSON segment files removed on disk. */
   deletedJson: number;
+  /** Distinct locale codes that had at least one segment file removed. */
+  deletedLocaleCount: number;
   aborted: boolean;
   supportsAutoPatching: false;
 };
@@ -36,25 +41,38 @@ export async function deleteLocaleFiles(
   const dir = ctx.paths.localesDir;
   const deletedTargets: DeleteTargetResult[] = [];
   let deletedJson = 0;
+  let deletedLocaleCount = 0;
 
   for (const target of targets) {
     const code = normalizeLanguageCode(target);
     const segments = segmentsForLocaleCode(ctx, code);
-    const paths =
+    const segmentEntries =
       segments.length > 0
-        ? segments.map((s) => s.absolutePath)
-        : [ctx.adapters.path.join(dir, `${code}.json`)];
+        ? segments.map((s) => ({ absolutePath: s.absolutePath, relativePath: s.relativePath }))
+        : [
+            {
+              absolutePath: ctx.adapters.path.join(dir, `${code}.json`),
+              relativePath: `${code}.json`,
+            },
+          ];
 
-    for (const jsonPath of paths) {
-      if (existsRuntimeFsSync(jsonPath, ctx.adapters.fs)) {
-        await Promise.resolve(ctx.adapters.fs.deleteFile(jsonPath));
+    const deletedSegmentRelativePaths: string[] = [];
+    for (const segment of segmentEntries) {
+      if (existsRuntimeFsSync(segment.absolutePath, ctx.adapters.fs)) {
+        await Promise.resolve(ctx.adapters.fs.deleteFile(segment.absolutePath));
         deletedJson += 1;
+        deletedSegmentRelativePaths.push(segment.relativePath);
       }
     }
 
+    if (deletedSegmentRelativePaths.length > 0) {
+      deletedLocaleCount += 1;
+    }
+
     deletedTargets.push({
-      target,
-      jsonPath: paths[0] ?? ctx.adapters.path.join(dir, `${code}.json`),
+      target: code,
+      deletedSegmentRelativePaths,
+      deletedJsonCount: deletedSegmentRelativePaths.length,
     });
   }
 
@@ -62,6 +80,7 @@ export async function deleteLocaleFiles(
     kind: 'locales-delete',
     targets,
     deletedJson,
+    deletedLocaleCount,
     aborted: false,
     supportsAutoPatching: false,
   };

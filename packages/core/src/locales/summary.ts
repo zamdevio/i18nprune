@@ -8,6 +8,9 @@ import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 export type LocaleListRow = {
   code: string;
   localePath: string;
+  /** On-disk JSON segments for this locale code (e.g. `app/en.json`, `common/en.json`). */
+  segmentCount: number;
+  segmentRelativePaths: string[];
   leafCount: number;
   englishIdenticalLeafCount: number | null;
   isSourceLocale: boolean;
@@ -50,9 +53,13 @@ export function buildLocaleListRows(ctx: CoreContext, localeCodes: string[]): Lo
         englishIdenticalLeafCount = identical;
       }
 
+      const segmentRelativePaths = segments.map((s) => s.relativePath).sort((a, b) => a.localeCompare(b));
+
       return {
         code: normalized,
         localePath,
+        segmentCount: segments.length,
+        segmentRelativePaths,
         leafCount,
         englishIdenticalLeafCount,
         isSourceLocale,

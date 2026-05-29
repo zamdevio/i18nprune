@@ -78,8 +78,10 @@ export function runMissingJsonEnvelope(
         writeMissingPaths(coreCtx, {
           targetPath: entry.target.targetPath,
           localeJson: entry.target.localeJson,
+          localeCode: entry.target.selectedLocaleCode,
           paths: entry.toAdd,
           placeholder,
+          writePlan: entry.writePlan,
         });
       }
     }

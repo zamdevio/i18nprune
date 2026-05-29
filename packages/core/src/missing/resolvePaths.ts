@@ -1,5 +1,8 @@
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
-import { computeMissingLiteralKeysFromResolvedKeys } from '../validate/index.js';
+import {
+  computeMissingLiteralKeysFromLeaves,
+  computeMissingLiteralKeysFromResolvedKeys,
+} from '../validate/index.js';
 import type { ResolveMissingPathsPlanInput } from '../types/missing/index.js';
 import { planMissingPathsFromReport } from './validateReport.js';
 
@@ -10,12 +13,21 @@ import { planMissingPathsFromReport } from './validateReport.js';
 export function resolveMissingPathsPlan(
   input: ResolveMissingPathsPlanInput,
 ): { toAdd: string[]; skippedNotInScan: string[] } {
-  const existingLeafPaths = new Set(collectTranslationSurfaceLeaves(input.localeJson).map((l) => l.path));
+  const existingLeafPaths =
+    input.localeLeaves !== undefined
+      ? new Set(input.localeLeaves.map((l) => l.path))
+      : new Set(collectTranslationSurfaceLeaves(input.localeJson ?? {}).map((l) => l.path));
   if (input.reportMissingPaths) {
     return planMissingPathsFromReport(input.reportMissingPaths as string[], input.resolvedKeys, existingLeafPaths);
   }
+  if (input.localeLeaves !== undefined) {
+    return {
+      toAdd: computeMissingLiteralKeysFromLeaves(input.localeLeaves, input.resolvedKeys),
+      skippedNotInScan: [],
+    };
+  }
   return {
-    toAdd: computeMissingLiteralKeysFromResolvedKeys(input.localeJson, input.resolvedKeys),
+    toAdd: computeMissingLiteralKeysFromResolvedKeys(input.localeJson ?? {}, input.resolvedKeys),
     skippedNotInScan: [],
   };
 }

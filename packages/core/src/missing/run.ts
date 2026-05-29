@@ -9,8 +9,6 @@ import {
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { MAX_MISSING_TARGET_SUGGESTIONS } from '../shared/constants/missing.js';
 import { I18nPruneError } from '../shared/errors/index.js';
-import { setAtPath } from '../shared/json/path.js';
-import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
 import { readLocaleBundle } from '../shared/locales/index.js';
 import {
@@ -35,7 +33,10 @@ import {
   ISSUE_MISSING_PATHS_NOT_IN_SCAN,
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
 } from '../shared/constants/issueCodes.js';
+import { readLocaleLeavesForCode, readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.js';
 import { resolveMissingPathsPlan } from './resolvePaths.js';
+import { applyMissingPaths } from './apply.js';
+import { createMissingWritePlan, writeMissingWritePlan } from './writePlan.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
@@ -48,6 +49,7 @@ import type {
   MissingRunOptions,
   MissingRunResult,
   MissingSkippedTarget,
+  MissingSegmentWrite,
   MissingTargetPlan,
   MissingTargetState,
   MissingWriteInput,
@@ -145,11 +147,16 @@ function readTargetState(
 }
 
 function resolveSourceTargetState(ctx: CoreContext): MissingTargetState {
-  const sourcePath = ctx.paths.sourceLocale;
-  if (!existsRuntimeFsSync(sourcePath, ctx.adapters.fs)) {
-    throw new I18nPruneError(`Source locale file not found: ${sourcePath}`, 'USAGE');
+  const sourceCode = sourceLocaleCodeFromContext(ctx);
+  if (segmentsForLocaleCode(ctx, sourceCode).length === 0) {
+    throw new I18nPruneError(`Source locale not found: ${ctx.paths.sourceLocale}`, 'USAGE');
   }
-  return readTargetState(ctx, sourcePath, 'source');
+  const primary =
+    primarySegmentForLocale(ctx, sourceCode) ?? segmentsForLocaleCode(ctx, sourceCode)[0];
+  if (!primary) {
+    throw new I18nPruneError(`Source locale not found: ${ctx.paths.sourceLocale}`, 'USAGE');
+  }
+  return readTargetState(ctx, primary.absolutePath, 'source', sourceCode);
 }
 
 function resolveLocaleTargetStates(ctx: CoreContext, rawTarget: string): {
@@ -245,19 +252,48 @@ function issuesFromSkippedTargets(skippedTargets: readonly MissingSkippedTarget[
   });
 }
 
+function missingPlanSegmentWrites(entry: MissingTargetPlan): MissingSegmentWrite[] {
+  if (entry.writePlan.length > 0) {
+    return entry.writePlan;
+  }
+  return [
+    {
+      targetPath: entry.target.targetPath,
+      relativePath:
+        entry.target.targetDisplayPath ??
+        entry.target.targetPath.split('/').pop() ??
+        entry.target.targetPath,
+      paths: [...entry.toAdd],
+    },
+  ];
+}
+
+function missingPlanFilesLabel(entry: MissingTargetPlan): string {
+  const writes = missingPlanSegmentWrites(entry);
+  if (writes.length === 1) {
+    return writes[0]!.relativePath;
+  }
+  return `${String(writes.length)} segment files (${writes.map((w) => w.relativePath).join(', ')})`;
+}
+
 export function emitMissingTargetWriteIntro(host: Pick<MissingHostHooks, 'emit' | 'runId'>, entry: MissingTargetPlan): void {
   if (entry.target.targetKind !== 'locale' || entry.target.selectedLocaleCode === undefined) return;
   emitMissingMessage(host, {
     level: 'info',
-    message: `target ${entry.target.selectedLocaleEnglishName ?? entry.target.selectedLocaleCode} (${entry.target.selectedLocaleCode}) has ${String(entry.toAdd.length)} missing path(s); preparing ${entry.target.targetDisplayPath ?? entry.target.targetPath}`,
+    message: `target ${entry.target.selectedLocaleEnglishName ?? entry.target.selectedLocaleCode} (${entry.target.selectedLocaleCode}) has ${String(entry.toAdd.length)} missing path(s); preparing ${missingPlanFilesLabel(entry)}`,
     target: entry.target.selectedLocaleCode,
     path: entry.target.targetPath,
-    data: { paths: entry.toAdd.length },
+    data: { paths: entry.toAdd.length, segmentFiles: missingPlanSegmentWrites(entry).length },
   });
+  const localeCode = entry.target.selectedLocaleCode;
+  const filesLabel =
+    missingPlanSegmentWrites(entry).length === 1
+      ? missingPlanSegmentWrites(entry)[0]!.relativePath
+      : `${localeCode} locale segment files`;
   emitMissingMessage(host, {
     level: 'warn',
-    message: `writing ${entry.target.selectedLocaleCode}.json — validate still compares code to the source locale file until it matches.`,
-    target: entry.target.selectedLocaleCode,
+    message: `writing ${filesLabel} — validate still compares code to the source locale file until it matches.`,
+    target: localeCode,
     path: entry.target.targetPath,
   });
 }
@@ -267,39 +303,45 @@ export function emitMissingTargetActionMessage(
   entry: MissingTargetPlan,
   action: 'would_add' | 'will_add' | 'added' | 'declined',
   placeholder?: string,
+  preview?: { fullList: boolean; top?: number },
 ): void {
-  if (action === 'would_add') {
+  if (action === 'declined') {
     emitMissingMessage(host, {
       level: 'info',
-      message: `would add ${String(entry.toAdd.length)} path(s) to ${entry.target.targetPath} (placeholder ${JSON.stringify(placeholder ?? '')}):`,
+      message: `skipped ${missingPlanFilesLabel(entry)} (user declined).`,
       path: entry.target.targetPath,
-      data: { paths: entry.toAdd.length },
     });
     return;
   }
-  if (action === 'will_add') {
-    emitMissingMessage(host, {
-      level: 'info',
-      message: `will add ${String(entry.toAdd.length)} path(s) to ${entry.target.targetPath}:`,
-      path: entry.target.targetPath,
-      data: { paths: entry.toAdd.length },
-    });
-    return;
+
+  for (const write of missingPlanSegmentWrites(entry)) {
+    const count = write.paths.length;
+    if (action === 'would_add') {
+      emitMissingMessage(host, {
+        level: 'info',
+        message: `would add ${String(count)} path(s) to ${write.relativePath} (placeholder ${JSON.stringify(placeholder ?? '')}):`,
+        path: write.targetPath,
+        data: { paths: count },
+      });
+    } else if (action === 'will_add') {
+      emitMissingMessage(host, {
+        level: 'info',
+        message: `will add ${String(count)} path(s) to ${write.relativePath}:`,
+        path: write.targetPath,
+        data: { paths: count },
+      });
+    } else {
+      emitMissingMessage(host, {
+        level: 'info',
+        message: `added ${String(count)} path(s) to ${write.relativePath}`,
+        path: write.targetPath,
+        data: { paths: count },
+      });
+    }
+    if (preview) {
+      emitMissingPathsPreview(host, { paths: write.paths, fullList: preview.fullList, top: preview.top });
+    }
   }
-  if (action === 'added') {
-    emitMissingMessage(host, {
-      level: 'info',
-      message: `added ${String(entry.toAdd.length)} path(s) to ${entry.target.targetPath}`,
-      path: entry.target.targetPath,
-      data: { paths: entry.toAdd.length },
-    });
-    return;
-  }
-  emitMissingMessage(host, {
-    level: 'info',
-    message: `skipped ${entry.target.targetPath} (user declined).`,
-    path: entry.target.targetPath,
-  });
 }
 
 export function emitMissingPathsPreview(
@@ -402,16 +444,16 @@ function placeholderLeafForTarget(
   };
 }
 
-export function applyMissingPaths(input: Omit<MissingWriteInput, 'targetPath'>): unknown {
-  let next: unknown = input.localeJson;
-  for (const path of input.paths) {
-    next = setAtPath(next, path, input.placeholder);
-  }
-  return next;
-}
-
+/** Write missing paths using per-segment planning (multi-segment layouts). */
 export function writeMissingPaths(ctx: CoreContext, input: MissingWriteInput): void {
-  const next = applyMissingPaths(input);
+  const localeCode = input.localeCode ?? sourceLocaleCodeFromContext(ctx);
+  const plan =
+    input.writePlan ?? createMissingWritePlan(ctx, localeCode, input.paths);
+  if (plan.length > 0) {
+    writeMissingWritePlan(ctx, plan, input.placeholder);
+    return;
+  }
+  const next = applyMissingPaths({ localeJson: input.localeJson, paths: input.paths, placeholder: input.placeholder });
   writeLocaleJsonFromContextSync(ctx, input.targetPath, next);
 }
 
@@ -427,11 +469,14 @@ export function runMissing(
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'missing', runId: host.runId });
   const resolvedKeys = analysis.usage.resolvedKeys;
   const targets = targetStates.map((target) => {
+    const localeCode = target.selectedLocaleCode ?? sourceCode;
+    const localeLeaves = readLocaleLeavesForCode(ctx, localeCode);
     const { toAdd, skippedNotInScan } = resolveMissingPathsPlan({
-      localeJson: target.localeJson,
+      localeLeaves,
       resolvedKeys,
     });
-    return { target, toAdd, skippedNotInScan };
+    const writePlan = createMissingWritePlan(ctx, localeCode, toAdd);
+    return { target, toAdd, skippedNotInScan, writePlan };
   });
   const placeholderValues = sourcePlaceholderValues(ctx.config.missing?.placeholder);
   const sourcePlaceholderLeaves: SourcePlaceholderLeaf[] = [];
@@ -443,8 +488,12 @@ export function runMissing(
   const placeholderLeaves: MissingPlaceholderLeaf[] = [];
   for (const target of placeholderListTargets) {
     const localeCode = target.selectedLocaleCode ?? sourceCode;
+    const surfaceLeaves =
+      target.targetKind === 'source'
+        ? readSourceLocaleLeaves(ctx)
+        : readLocaleLeavesForCode(ctx, localeCode);
     const leaves = detectLocalePlaceholderLeaves({
-      leaves: collectTranslationSurfaceLeaves(target.localeJson),
+      leaves: surfaceLeaves,
       placeholderValues,
       localeRole: target.targetKind === 'source' ? 'source' : 'target',
       localeCode,
@@ -496,7 +545,7 @@ export function runMissing(
   const targetPayloads: MissingJsonTarget[] = targets.map((entry) => ({
     targetPath: relativeToCwd(ctx, entry.target.targetPath),
     targetKind: entry.target.targetKind,
-    ...(entry.target.selectedLocaleCode !== undefined
+    ...(entry.target.targetKind === 'locale' && entry.target.selectedLocaleCode !== undefined
       ? { selectedLocaleCode: entry.target.selectedLocaleCode }
       : {}),
     pathsAdded: entry.toAdd.length,

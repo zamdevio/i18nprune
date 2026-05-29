@@ -1,6 +1,7 @@
 import { mergeToTemplateShape } from '../shared/json/merge.js';
 import type { MergeToTemplateOptions } from '../shared/json/merge.js';
 import { pruneToTemplateShape } from '../shared/json/prune.js';
+import { localeJsonContentEquals } from '../shared/json/sortKeys.js';
 import type { PreservePolicy } from '../types/policies/index.js';
 
 /**
@@ -15,7 +16,7 @@ export function computeSyncedLocaleJson(
 ): { next: unknown; wouldChange: boolean } {
   let next = mergeToTemplateShape(template, cur, preserve, mergeOpts);
   next = pruneToTemplateShape(template, next, mergeOpts);
-  const wouldChange = JSON.stringify(cur) !== JSON.stringify(next);
+  const wouldChange = !localeJsonContentEquals(cur, next);
   return { next, wouldChange };
 }
 

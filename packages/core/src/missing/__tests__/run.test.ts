@@ -54,7 +54,7 @@ describe('runMissing', () => {
         events.some(
           (event) =>
             event.type === 'run.message' &&
-            event.message === 'target Japanese (ja) has 1 missing path(s); preparing locales/ja.json',
+            event.message === 'target Japanese (ja) has 1 missing path(s); preparing ja.json',
         ),
       ).toBe(true);
     } finally {

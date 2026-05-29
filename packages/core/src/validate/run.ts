@@ -3,13 +3,13 @@ import type { ProjectAnalysis } from '../types/analysis/index.js';
 import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js';
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
-import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
+import { readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.js';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
-import { emitRunEvent, nowMs } from '../shared/run/index.js';
+import { emitRunEvent, emitRunMessage, nowMs } from '../shared/run/index.js';
 import {
   detectSourcePlaceholderLeaves,
+  formatSourcePlaceholderMessage,
   issuesFromSourcePlaceholderLeaves,
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
@@ -69,9 +69,9 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
     runtime: ctx.adapters,
     exclude: ctx.config.exclude,
   };
-  let raw: unknown;
+  let sourceLeaves;
   try {
-    raw = readLocaleJsonFromContextSync(ctx, sourcePath);
+    sourceLeaves = readSourceLocaleLeaves(ctx);
   } catch (err: unknown) {
     const keyObservations = scanProjectKeyObservations(scanInputEarly);
     const dynamicSites = scanProjectDynamicKeySites(scanInputEarly);
@@ -115,23 +115,34 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
   });
 
   const data = buildValidateScanPayload({
-    sourceLocaleJson: raw,
+    sourceLocaleLeaves: sourceLeaves,
     resolvedKeys: usage.resolvedKeys,
     keyObservations,
     dynamicSites,
   });
+  const sourcePlaceholderLeaves = detectSourcePlaceholderLeaves(
+    sourceLeaves,
+    sourcePlaceholderValues(ctx.config.missing?.placeholder),
+  );
+  if (sourcePlaceholderLeaves.length > 0) {
+    emitRunMessage(host.emit, {
+      op: 'validate',
+      runId,
+      level: 'warn',
+      message: formatSourcePlaceholderMessage({
+        count: sourcePlaceholderLeaves.length,
+        samplePaths: sourcePlaceholderLeaves.slice(0, 5).map((leaf) => leaf.path),
+      }),
+      data: { sourcePlaceholderLeaves: sourcePlaceholderLeaves.length },
+    });
+  }
   const issues: Issue[] = [
     ...buildValidateIssues({
       missingCount: data.missing.length,
       dynamicSiteCount: dynamicSites.length,
       sourceLocalePath: sourcePath,
     }),
-    ...issuesFromSourcePlaceholderLeaves(
-      detectSourcePlaceholderLeaves(
-        collectTranslationSurfaceLeaves(raw),
-        sourcePlaceholderValues(ctx.config.missing?.placeholder),
-      ),
-    ),
+    ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
   ];
 
   return {

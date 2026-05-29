@@ -50,10 +50,18 @@ export type MissingSkippedTarget = {
   suggestions?: string[];
 };
 
+export type MissingSegmentWrite = {
+  targetPath: string;
+  relativePath: string;
+  paths: string[];
+};
+
 export type MissingTargetPlan = {
   target: MissingTargetState;
   toAdd: string[];
   skippedNotInScan: string[];
+  /** Per-segment file writes (multi-segment layouts). */
+  writePlan: MissingSegmentWrite[];
 };
 
 export type MissingJsonTarget = {
@@ -104,6 +112,8 @@ export type MissingRunResult = {
 export type MissingWriteInput = {
   targetPath: string;
   localeJson: unknown;
+  localeCode?: string;
   paths: readonly string[];
   placeholder: string;
+  writePlan?: MissingSegmentWrite[];
 };
