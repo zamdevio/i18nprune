@@ -20,9 +20,8 @@ import type {
 
 export function toCleanupRunOptions(opts: CleanupOptions): CleanupRunOptions {
   return {
-    checkOnly: opts.checkOnly,
-    dryRun: opts.dryRun,
-    skipStringPresenceCheck: opts.skipStringPresenceCheck ?? opts.skipRg,
+    dryRun: opts.dryRun === true,
+    skipStringPresenceCheck: opts.skipStringPresenceCheck ?? opts.noRg === true,
   };
 }
 
@@ -44,7 +43,11 @@ export function executeCore(
   emitRunEvent(emit, { type: 'run.started', op: 'cleanup', runId, at: nowMs() });
   try {
     const coreCtx = createCliCoreContext(ctx);
-    const out = runCoreCleanup(coreCtx, toCleanupRunOptions(opts), buildCleanupHostHooks(ctx, runtime));
+    const out = runCoreCleanup(
+      coreCtx,
+      toCleanupRunOptions(opts),
+      buildCleanupHostHooks(ctx, runtime, { noRg: opts.noRg === true }),
+    );
     const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), out.issues);
     const envelope = buildCliJsonEnvelope('cleanup', out.payload, {
       ok: true,
@@ -74,14 +77,14 @@ export function executeCore(
   }
 }
 
-/** Same `cleanup --json` / `--check-only` payload (no writes). */
+/** `cleanup --json` payload (core does not write; CLI applies writes only on human runs). */
 export function runCleanupJsonEnvelope(
   ctx: Context,
   opts: CleanupOptions,
   runtime?: CleanupRuntime,
 ): CleanupJsonEnvelopeResult {
   try {
-    const result = executeCore(ctx, { ...opts, checkOnly: true, dryRun: true }, runtime ?? {});
+    const result = executeCore(ctx, opts, runtime ?? {});
     return { envelope: result.envelope, result };
   } catch (err) {
     return { envelope: buildIoReadFailureEnvelope('cleanup', emptyCleanupPayload(), ctx, err) };

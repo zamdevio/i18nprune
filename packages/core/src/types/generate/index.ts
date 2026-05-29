@@ -6,6 +6,7 @@ export type { GenerateLocaleDisplay } from './localeDisplay.js';
 export type {
   GenerateFinalizeSummaryInput,
   GenerateHostHooks,
+  GeneratePartialTargetChoice,
   GenerateHostSession,
   GenerateJsonPayload,
   GenerateProgressEmit,

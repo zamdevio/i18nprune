@@ -46,6 +46,9 @@ export type GenerateHostSession = {
   fail(): void;
 };
 
+/** Interactive choice when a target locale is only partially translated. */
+export type GeneratePartialTargetChoice = 'skip' | 'fill_missing' | 'retranslate_all';
+
 export type GenerateFinalizeSummaryInput = {
   target: string;
   englishName: string;
@@ -53,7 +56,11 @@ export type GenerateFinalizeSummaryInput = {
   direction: 'ltr' | 'rtl';
   targetPath: string;
   leafCount: number;
+  /** When more than one segment file was written, finalize uses an aggregate summary line. */
+  wroteSegmentCount?: number;
   dryRun?: boolean;
+  /** Pre-formatted locale line (e.g. `ar · Arabic · العربية · RTL`) when the host already resolved catalog labels. */
+  localeSubtitle?: string;
 };
 
 /**
@@ -85,6 +92,16 @@ export type GenerateHostHooks = {
   canAskInteractive: () => boolean;
 
   promptFullRetranslate: () => Promise<boolean>;
+
+  /**
+   * Target locale exists but is incomplete (missing segment files and/or keys vs source).
+   * Host should offer skip, fill missing keys/segments, or full re-translate.
+   */
+  promptPartialTargetGenerate: (input: {
+    target: string;
+    missingSegmentPaths: string[];
+    missingKeyPaths: string[];
+  }) => Promise<GeneratePartialTargetChoice>;
 
   printPreserveParityReport: (preserveCount: number, paritySkip: number) => void;
   printFinalizeSummary: (input: GenerateFinalizeSummaryInput) => void;

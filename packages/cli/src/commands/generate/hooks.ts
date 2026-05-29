@@ -6,8 +6,13 @@
  * their own progress / prompt strategies — core messages flow through `RunEmitter`.
  */
 
-import { emitRunEvent, nowMs } from '@i18nprune/core';
-import type { GenerateHostHooks, RunEvent } from '@i18nprune/core';
+import {
+  emitRunEvent,
+  formatGenerateFinalizeSummaryLines,
+  getRunOptions,
+  nowMs,
+} from '@i18nprune/core';
+import type { GenerateFinalizeSummaryInput, GenerateHostHooks, RunEvent, RunOptions } from '@i18nprune/core';
 
 import { canAsk } from '@/shared/ask/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
@@ -17,15 +22,39 @@ import {
   createIdentityStreakGuard,
   logIdentityStreakAbortNoWriteNotice,
 } from '@/shared/translator/identity.js';
+import { joinMetaSubtitle } from '@/utils/ansi/index.js';
+import { logger } from '@/utils/logger/index.js';
+import { canPrintDetail, canPrintInfo } from '@/utils/logger/policy.js';
 
-import { promptFullRetranslate } from '@/commands/generate/prompts.js';
-import {
-  printGenerateFinalizeSummary,
-  printPreserveParityReport,
-} from '@/commands/generate/summary/index.js';
+import { promptFullRetranslate, promptPartialTargetGenerate } from '@/commands/generate/prompts.js';
 
 import type { Context } from '@/types/core/context/index.js';
 import type { GenerateRuntime } from '@/types/command/generate/index.js';
+
+function printPreserveParityReport(
+  preserveCount: number,
+  paritySkip: number,
+  run?: RunOptions,
+): void {
+  const r = run ?? getRunOptions();
+  if (!canPrintDetail(r)) return;
+  if (preserveCount > 0) {
+    logger.detail(`  Preserved (verbatim from source): ${String(preserveCount)}`, r);
+  }
+  if (paritySkip > 0) {
+    logger.detail(`  Skipped (parity policy): ${String(paritySkip)}`, r);
+  }
+}
+
+function printGenerateFinalizeSummary(opts: GenerateFinalizeSummaryInput, run?: RunOptions): void {
+  const r = run ?? getRunOptions();
+  const localeSubtitle =
+    opts.localeSubtitle ?? joinMetaSubtitle(opts.target, opts.englishName, opts.nativeName, opts.direction);
+  if (!canPrintInfo(r)) return;
+  for (const line of formatGenerateFinalizeSummaryLines({ ...opts, localeSubtitle })) {
+    logger.info(line, r);
+  }
+}
 
 export function buildGenerateHostHooks(ctx: Context, runtime: GenerateRuntime): GenerateHostHooks {
   const { emit, runId } = runtime;
@@ -55,6 +84,7 @@ export function buildGenerateHostHooks(ctx: Context, runtime: GenerateRuntime): 
     canAskInteractive: () => canAsk(ctx.run),
 
     promptFullRetranslate,
+    promptPartialTargetGenerate,
 
     printPreserveParityReport: (preserve, parity) =>
       printPreserveParityReport(preserve, parity, ctx.run),

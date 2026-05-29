@@ -1,5 +1,36 @@
 import { describe, expect, it } from 'vitest';
-import { resolveCleanupKeysWithStringPresencePolicy } from '../stringPresence.js';
+import {
+  cleanupStringPresenceProbe,
+  resolveCleanupKeysWithStringPresencePolicy,
+} from '../stringPresence.js';
+
+describe('cleanupStringPresenceProbe', () => {
+  it('returns null for short translation values (trust static scan)', () => {
+    expect(cleanupStringPresenceProbe('as', 'a')).toBe(null);
+    expect(cleanupStringPresenceProbe('s', 'a')).toBe(null);
+  });
+
+  it('returns value when long enough for rg probe', () => {
+    expect(cleanupStringPresenceProbe('app.title', 'Next app')).toBe('Next app');
+  });
+});
+
+describe('cleanup stringPresence policy (short value)', () => {
+  it('guard mode removes key when value probe is skipped', () => {
+    const out = resolveCleanupKeysWithStringPresencePolicy({
+      candidates: ['s'],
+      leaves: [{ path: 's', value: 'a' }],
+      stringPresence: 'guard',
+      stringPresenceMaxHitsPerKey: 3,
+      skipStringPresenceCheck: false,
+      stringPresenceAvailable: true,
+      hasStringPresence: () => true,
+      getStringPresenceLocations: () => ['src/a.ts:1'],
+    });
+    expect(out.safeToRemove).toEqual(['s']);
+    expect(out.evidence).toEqual([]);
+  });
+});
 
 describe('cleanup stringPresence policy', () => {
   const leaves = [{ path: 'home.title', value: 'Home' }];

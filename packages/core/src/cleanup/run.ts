@@ -2,7 +2,10 @@ import { applyCleanupKeysToLocaleJson } from './apply.js';
 import { computeCleanupCandidateKeys } from './candidates.js';
 import { resolveCleanupKeysWithStringPresencePolicy } from './stringPresence.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
-import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
+import {
+  listCleanupSourceSegmentsForKeys,
+  readCleanupSourceLeaves,
+} from './sourceSurface.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { buildKeyReferenceContextFromLiteralUsageAndDynamicSites } from '../shared/reference/context.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
@@ -77,31 +80,35 @@ export function createCleanupSourceWritePlan(
   ctx: CoreContext,
   keysToRemove: readonly string[],
 ): CleanupWritePlan {
-  const sourcePath = ctx.paths.sourceLocale;
-  const sourceJson = readLocaleJsonFromContextSync(ctx, sourcePath);
-  const applied = applyCleanupKeysToLocaleJson(sourceJson, keysToRemove);
+  const writes = listCleanupSourceSegmentsForKeys(ctx, keysToRemove).flatMap((segment) => {
+    const sourceJson = readLocaleJsonFromContextSync(ctx, segment.absolutePath);
+    const applied = applyCleanupKeysToLocaleJson(sourceJson, keysToRemove);
+    if (applied.removedPaths.length === 0) return [];
+    return [
+      {
+        sourcePath: segment.absolutePath,
+        relativePath: segment.relativePath,
+        nextSourceJson: applied.next,
+        removedPaths: applied.removedPaths,
+      },
+    ];
+  });
+  const removedPaths = writes.flatMap((w) => w.removedPaths);
+  const primary = writes[0];
   return {
-    sourcePath,
+    writes,
     keys: [...keysToRemove],
-    nextSourceJson: applied.next,
-    removedPaths: applied.removedPaths,
+    sourcePath: primary?.sourcePath ?? ctx.paths.sourceLocale,
+    nextSourceJson: primary?.nextSourceJson ?? readLocaleJsonFromContextSync(ctx, ctx.paths.sourceLocale),
+    removedPaths,
   };
 }
 
 export function writeCleanupPlan(ctx: CoreContext, plan: CleanupWritePlan): void {
-  if (plan.removedPaths.length === 0) return;
-  writeLocaleJsonFromContextSync(ctx, plan.sourcePath, plan.nextSourceJson);
-}
-
-export function emitCleanupCheckOnlyMessage(
-  host: Pick<CleanupHostHooks, 'emit' | 'runId'>,
-  removeCount: number,
-): void {
-  emitCleanupMessage(host, {
-    level: 'info',
-    message: `Would remove ${String(removeCount)} unused path(s) (check-only)`,
-    data: { removeCount },
-  });
+  for (const write of plan.writes) {
+    if (write.removedPaths.length === 0) continue;
+    writeLocaleJsonFromContextSync(ctx, write.sourcePath, write.nextSourceJson);
+  }
 }
 
 export function emitCleanupAbortMessage(
@@ -124,12 +131,16 @@ export function emitCleanupAskIgnoredMessage(host: Pick<CleanupHostHooks, 'emit'
 
 export function emitCleanupWriteIntro(
   host: Pick<CleanupHostHooks, 'emit' | 'runId'>,
-  removeCount: number,
+  input: { removeCount: number; segmentFileCount: number },
 ): void {
+  const fileHint =
+    input.segmentFileCount > 1
+      ? `${String(input.segmentFileCount)} source segment file(s)`
+      : 'source locale file';
   emitCleanupMessage(host, {
     level: 'warn',
-    message: `removing ${String(removeCount)} path(s) from source locale file. Run \`i18nprune sync\` afterwards to align target locale files.`,
-    data: { removeCount },
+    message: `removing ${String(input.removeCount)} path(s) from ${fileHint}. Run \`i18nprune sync\` afterwards to align target locale files.`,
+    data: { removeCount: input.removeCount, segmentFileCount: input.segmentFileCount },
   });
 }
 
@@ -138,16 +149,19 @@ export function emitCleanupWriteDone(
   input: { plan: CleanupWritePlan; wrote: boolean },
 ): void {
   if (input.wrote) {
-    emitCleanupMessage(host, {
-      level: 'detail',
-      message: `wrote ${input.plan.sourcePath}`,
-      path: input.plan.sourcePath,
-    });
+    for (const write of input.plan.writes) {
+      emitCleanupMessage(host, {
+        level: 'detail',
+        message: `wrote ${write.sourcePath}`,
+        path: write.sourcePath,
+      });
+    }
   }
+  const filesWritten = input.plan.writes.length;
   emitCleanupMessage(host, {
     level: 'info',
-    message: `finished — ${input.wrote ? '1' : '0'} source locale file(s) updated on disk.`,
-    data: { filesWritten: input.wrote ? 1 : 0 },
+    message: `finished — ${String(filesWritten)} source locale file(s) updated on disk.`,
+    data: { filesWritten },
   });
 }
 
@@ -166,9 +180,7 @@ export function runCleanup(
     dynamicSites,
     eff,
   );
-  const sourcePath = ctx.paths.sourceLocale;
-  const sourceRaw = readLocaleJsonFromContextSync(ctx, sourcePath);
-  const leaves = collectTranslationSurfaceLeaves(sourceRaw);
+  const leaves = readCleanupSourceLeaves(ctx);
   const filterUncertain = eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only';
   const { allKeyPaths, candidates, excludedUncertain } = computeCleanupCandidateKeys({
     leaves,
@@ -201,6 +213,17 @@ export function runCleanup(
     data: { keyPaths: allKeyPaths.size, candidates: candidates.length },
   });
 
+  if (candidates.length > 0) {
+    const affected = listCleanupSourceSegmentsForKeys(ctx, candidates);
+    if (affected.length > 0) {
+      emitCleanupMessage(host, {
+        level: 'info',
+        message: `unused key path(s) only in: ${affected.map((s) => s.relativePath).join(', ')}`,
+        data: { segmentCount: affected.length },
+      });
+    }
+  }
+
   if (dynamicSites.length > 0) {
     emitCleanupMessage(host, {
       level: 'warn',
@@ -218,6 +241,7 @@ export function runCleanup(
     stringPresenceAvailable,
     hasStringPresence: host.hasStringPresence,
     getStringPresenceLocations: host.getStringPresenceLocations,
+    shouldRunStringPresenceForKey: host.shouldRunStringPresenceForKey,
   });
 
   for (const ev of stringPresence.evidence) {
@@ -226,8 +250,8 @@ export function runCleanup(
       level: 'detail',
       message:
         ev.kind === 'guard_skipped'
-          ? `cleanup: skipping key (string presence in src — not proof of static key): ${ev.key}${hint ? ` — e.g. ${hint}` : ''}`
-          : `cleanup: string presence in src (removal still allowed — reference.stringPresence=warn): ${ev.key}${hint ? ` — ${hint}` : ''}`,
+          ? `cleanup: skipping key (probe text still in src — not proof of static key usage): ${ev.key}${hint ? ` — e.g. ${hint}` : ''}`
+          : `cleanup: probe text in src (removal still allowed — reference.stringPresence=warn): ${ev.key}${hint ? ` — ${hint}` : ''}`,
       data: { key: ev.key, kind: ev.kind },
     });
   }
@@ -246,9 +270,7 @@ export function runCleanup(
     uncertainPrefixes: refCtx.uncertainPrefixes,
   };
 
-  if (opts.checkOnly || opts.dryRun) {
-    emitCleanupCheckOnlyMessage(host, safeToRemove.length);
-  } else if (safeToRemove.length === 0) {
+  if (safeToRemove.length === 0) {
     emitCleanupMessage(host, { level: 'info', message: 'nothing to remove (no unused keys after filters).' });
   }
 

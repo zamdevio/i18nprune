@@ -18,6 +18,7 @@ import {
   nowMs,
   parseLocaleCodesList,
   pickTargetSelector,
+  resolveLocalesLayoutFromContext,
   resolveReferenceConfig,
   resolveResumeAllTargetCodes,
   resolveResumeTargetCodesFromRaw,
@@ -102,24 +103,24 @@ export async function executeCore(
     );
   }
 
+  const coreCtx = createCliCoreContext(ctx);
+  const layout = resolveLocalesLayoutFromContext(coreCtx);
   const sourcePath = merged.source ? resolveFromCwd(merged.source) : ctx.paths.sourceLocale;
   emitProgress({ type: 'run.progress.generate', phase: 'read_source', label: sourcePath });
-  const raw = readHostJsonUnknown(sourcePath, ctx.adapters.fs);
+  /** Let core read all locale segments for `locale_directory` layouts (not only `locales.source`). */
+  const preloadedRaw =
+    layout.mode === 'flat_file' ? readHostJsonUnknown(sourcePath, ctx.adapters.fs) : undefined;
 
-  const projectFs = { fs: ctx.adapters.fs, path: ctx.adapters.path };
-  const sourceBase = ctx.adapters.path.basename(ctx.paths.sourceLocale, '.json');
-
-  let resumeReference: import('@i18nprune/core').GenerateResumeRefContext | undefined;
-  if (merged.resume) {
-    const eff = resolveReferenceConfig('generate', ctx.config);
-    const refCtx = buildKeyReferenceContext(ctx, eff);
-    resumeReference = { uncertainPrefixes: refCtx.uncertainPrefixes };
-  }
+  const eff = resolveReferenceConfig('generate', ctx.config);
+  const refCtx = buildKeyReferenceContext(ctx, eff);
+  const resumeReference: import('@i18nprune/core').GenerateResumeRefContext = {
+    uncertainPrefixes: refCtx.uncertainPrefixes,
+  };
 
   let targets: string[];
   if (merged.resume) {
     if (merged.all) {
-      targets = resolveResumeAllTargetCodes(projectFs, ctx.paths.localesDir, sourceBase, 'generate');
+      targets = resolveResumeAllTargetCodes(coreCtx, 'generate');
     } else {
       const rawTarget = pickTargetSelector(merged.target);
       if (!rawTarget) {
@@ -129,26 +130,17 @@ export async function executeCore(
             'USAGE',
           );
         }
-        const picked = await promptGenerateResumeLanguageSelection(
-          ctx.paths.localesDir,
-          sourceBase,
-          projectFs,
-          ctx.run,
-        );
+        const picked = await promptGenerateResumeLanguageSelection(coreCtx, ctx.run);
         targets = resolveResumeTargetCodesFromRaw({
           commandName: 'generate',
           raw: picked,
-          localesDir: ctx.paths.localesDir,
-          sourceLocalePath: ctx.paths.sourceLocale,
-          runtime: projectFs,
+          ctx: coreCtx,
         });
       } else {
         targets = resolveResumeTargetCodesFromRaw({
           commandName: 'generate',
           raw: rawTarget,
-          localesDir: ctx.paths.localesDir,
-          sourceLocalePath: ctx.paths.sourceLocale,
-          runtime: projectFs,
+          ctx: coreCtx,
         });
       }
     }
@@ -174,8 +166,6 @@ export async function executeCore(
     throw new I18nPruneError('generate: no target locale codes provided', 'USAGE');
   }
 
-  const coreCtx = createCliCoreContext(ctx);
-
   const generateHooks: GenerateRunHooks = {
     onHandoffPick: (offer) => promptGenerateHandoffPick(offer, ctx.run),
     onIncomplete: async (info) => {
@@ -193,7 +183,7 @@ export async function executeCore(
       targets,
       dynamicKeySites: dynamicSites.length,
       source: merged.source,
-      preloadedRaw: raw,
+      preloadedRaw,
       provider: merged.provider,
       workers: merged.workers,
       force: merged.force,

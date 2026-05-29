@@ -7,9 +7,15 @@ import { buildLanguageCatalog, generatedLanguageCatalog, getLanguageByCodeFromCa
 import { resolveGenerateLocaleDisplay } from '../shared/languages/resolveGenerateLocaleDisplay.js';
 import { languageOftenRtl } from '../shared/languages/rtlHint.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
-import { targetLocaleCoversAllSourcePaths } from '../shared/json/targetCoverage.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
-import { resolvePrimaryTargetWritePath } from '../shared/locales/targets/index.js';
+import { readLocalePerDirLocaleSurface } from '../shared/locales/read/bundle.js';
+import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
+import {
+  localeJsonFromTranslationSurfaceLeaves,
+  materializeGenerateWorkingBySegment,
+  resolveTargetLocaleWritePlan,
+  sourceLocaleCodeFromContext,
+} from '../shared/locales/targets/index.js';
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
 import { assertGenerateTargetCodes } from '../locales/generateTargets.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
@@ -49,6 +55,9 @@ import { TRANSLATE_POLICY_DEFAULTS } from '../types/translator/policy.js';
 import { createProviderHealthMonitor } from '../shared/translator/utils/providerHealth.js';
 import { IdentityAbortError } from '../translator/identity/error.js';
 import type { IdentityStreakGuard } from '../translator/identity/guard.js';
+import { assessGenerateTargetPreflight } from './assessTargetPreflight.js';
+import { buildGenerateSourceLeavesFromSchema } from './buildSourceLeaves.js';
+import { sourceLeavesMissingFromTarget, workingLocaleForGenerate } from './missingTargetLeaves.js';
 import { runGenerateResumeLocale } from './resume/run.js';
 import {
   bindGenerateTranslateCache,
@@ -90,6 +99,28 @@ function resolveGenerateSourcePath(ctx: CoreContext, sourceOverride: string | un
     : ctx.adapters.path.resolve(cwd, sourceOverride);
 }
 
+function readMergedTargetLocaleRawForGenerate(
+  ctx: CoreContext,
+  target: string,
+  writePlan: ReturnType<typeof resolveTargetLocaleWritePlan>,
+): unknown | null {
+  const { fs } = ctx.adapters;
+  if (!writePlan.segments.some((s) => existsRuntimeFsSync(s.absolutePath, fs))) {
+    return null;
+  }
+  if (writePlan.layout.mode === 'flat_file') {
+    return readLocaleJsonFromContextSync(ctx, writePlan.segments[0]!.absolutePath);
+  }
+  const read = readLocalePerDirLocaleSurface({
+    layout: writePlan.layout,
+    fs,
+    path: ctx.adapters.path,
+    localeCode: target,
+  });
+  if (!read.ok || read.leaves.length === 0) return null;
+  return localeJsonFromTranslationSurfaceLeaves(read.leaves);
+}
+
 /**
  * Best-effort error summary for {@link IncompleteRunInfo.lastError}. Prefer the first issue code
  * attached by **`translateLeaf`**'s structured failures; fall back to **`I18nPruneError.code`**;
@@ -120,20 +151,51 @@ export async function runGenerate(
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'generate', runId: host.runId });
   const schemaPaths = analysis.usage.resolvedKeys;
 
+  const layout = resolveLocalesLayoutFromContext(ctx);
   const sourcePath = resolveGenerateSourcePath(ctx, opts.source);
-  let raw: unknown;
+  let allSourceLeaves: ReturnType<typeof collectTranslationSurfaceLeaves>;
   if (opts.preloadedRaw !== undefined) {
-    raw = opts.preloadedRaw;
-  } else {
+    allSourceLeaves = collectTranslationSurfaceLeaves(opts.preloadedRaw);
+  } else if (layout.mode === 'flat_file') {
     emitProgress({ type: 'run.progress.generate', phase: 'read_source', label: sourcePath });
-    raw = readLocaleJsonFromContextSync(ctx, sourcePath);
+    const raw = readLocaleJsonFromContextSync(ctx, sourcePath);
+    allSourceLeaves = collectTranslationSurfaceLeaves(raw);
+  } else {
+    const sourceCode = sourceLocaleCodeFromContext(ctx);
+    emitProgress({ type: 'run.progress.generate', phase: 'read_source', label: sourceCode });
+    const read = readLocalePerDirLocaleSurface({
+      layout,
+      fs: ctx.adapters.fs,
+      path: ctx.adapters.path,
+      localeCode: sourceCode,
+    });
+    if (!read.ok) {
+      const message = read.diagnostics.map((d) => d.message).join(' · ') || 'failed to read source locale';
+      throw new I18nPruneError(`generate: ${message}`, 'USAGE');
+    }
+    allSourceLeaves = read.leaves;
   }
-  const allSourceLeaves = collectTranslationSurfaceLeaves(raw);
-  const sourceLeaves =
-    schemaPaths.size > 0
-      ? allSourceLeaves.filter((l) => schemaPaths.has(l.path))
-      : allSourceLeaves;
+  const { leaves: sourceLeaves, missingInSourceBundles } = buildGenerateSourceLeavesFromSchema(
+    schemaPaths,
+    allSourceLeaves,
+  );
+  if (missingInSourceBundles.length > 0) {
+    const sample = missingInSourceBundles.slice(0, 6).join(', ');
+    const tail = missingInSourceBundles.length > 6 ? ` (+${String(missingInSourceBundles.length - 6)} more)` : '';
+    emitGenerateMessage(
+      host,
+      'notice',
+      `generate: ${String(missingInSourceBundles.length)} schema key(s) missing from source locale file(s) on disk — run \`i18nprune sync\` first. Sample: ${sample}${tail}`,
+    );
+  }
   const sourceMap = new Map(sourceLeaves.map((leaf) => [leaf.path, leaf.value]));
+  if (schemaPaths.size > sourceLeaves.length) {
+    emitGenerateMessage(
+      host,
+      'notice',
+      `generate: ${String(schemaPaths.size)} schema key(s) from source scan, ${String(sourceLeaves.length)} with values in locale file(s) — run \`i18nprune sync\` for keys missing from disk, or clear analysis cache if the scan is stale.`,
+    );
+  }
 
   const targets = [...opts.targets];
   if (targets.length === 0) {
@@ -215,24 +277,107 @@ export async function runGenerate(
       }
     }
 
-    const targetPath = resolvePrimaryTargetWritePath(ctx, target);
-    const targetJsonExists = existsRuntimeFsSync(targetPath, ctx.adapters.fs);
-
-    const existingRaw = targetJsonExists ? readLocaleJsonFromContextSync(ctx, targetPath) : null;
+    const writePlan = resolveTargetLocaleWritePlan(ctx, target);
+    const targetPath = writePlan.segments[0]?.absolutePath;
+    if (!targetPath) {
+      throw new I18nPruneError(`generate: no write path for target locale ${target}`, 'USAGE');
+    }
+    const existingRaw = readMergedTargetLocaleRawForGenerate(ctx, target, writePlan);
     let forceTarget = Boolean(opts.force);
     let forceReason: 'flag' | 'prompt' | undefined = forceTarget ? 'flag' : undefined;
+    let runResumeForTarget = opts.resume === true;
+    let fillMissingOnly = false;
 
-    if (
-      !opts.resume &&
-      existingRaw &&
-      targetLocaleCoversAllSourcePaths(raw, existingRaw) &&
-      !forceTarget &&
-      !opts.dryRun
-    ) {
-      if (!host.shouldSkipInteractivePrompts() && host.canAskInteractive()) {
-        const ok = await host.promptFullRetranslate();
-        if (!ok) {
-          emitGenerateMessage(host, 'info', `skipped for ${target} (target already complete).`);
+    if (!runResumeForTarget && !forceTarget && !opts.dryRun) {
+      const preflight = assessGenerateTargetPreflight({
+        sourceLeaves,
+        writePlan,
+        existingRaw,
+        fs: ctx.adapters.fs,
+      });
+      const canPrompt = !host.shouldSkipInteractivePrompts() && host.canAskInteractive();
+      if (canPrompt) {
+        if (preflight.status === 'fully_complete') {
+          const ok = await host.promptFullRetranslate();
+          if (!ok) {
+            emitGenerateMessage(host, 'info', `skipped for ${target} (target already complete).`);
+            emitProgress({ type: 'run.progress.generate', phase: 'done', target, label: 'skipped_user_declined' });
+            targetResults.push({
+              target,
+              status: 'skipped_user_declined',
+              progress: {
+                sourceLeafCount: sourceLeaves.length,
+                processedLeafCount: 0,
+                translatedLeafCount: 0,
+                preserveCount: 0,
+                paritySkipCount: 0,
+                forced: Boolean(opts.force),
+                durationMs: Date.now() - targetStarted,
+              },
+            });
+            continue;
+          }
+          forceTarget = true;
+          forceReason = 'prompt';
+        } else if (preflight.status === 'partial') {
+          const choice = await host.promptPartialTargetGenerate({
+            target,
+            missingSegmentPaths: preflight.missingSegmentPaths,
+            missingKeyPaths: preflight.missingKeyPaths,
+          });
+          if (choice === 'skip') {
+            emitGenerateMessage(host, 'info', `skipped for ${target} (partial target; user declined).`);
+            emitProgress({ type: 'run.progress.generate', phase: 'done', target, label: 'skipped_user_declined' });
+            targetResults.push({
+              target,
+              status: 'skipped_user_declined',
+              progress: {
+                sourceLeafCount: sourceLeaves.length,
+                processedLeafCount: 0,
+                translatedLeafCount: 0,
+                preserveCount: 0,
+                paritySkipCount: 0,
+                forced: Boolean(opts.force),
+                durationMs: Date.now() - targetStarted,
+              },
+            });
+            continue;
+          }
+          if (choice === 'fill_missing') {
+            fillMissingOnly = true;
+          } else if (choice === 'retranslate_all') {
+            forceTarget = true;
+            forceReason = 'prompt';
+          }
+        }
+      } else if (preflight.status === 'fully_complete') {
+        emitGenerateMessage(
+          host,
+          'info',
+          `skipped for ${target} (target already complete; pass --force to re-translate, or run interactively).`,
+        );
+        emitProgress({ type: 'run.progress.generate', phase: 'done', target, label: 'skipped_user_declined' });
+        targetResults.push({
+          target,
+          status: 'skipped_user_declined',
+          progress: {
+            sourceLeafCount: sourceLeaves.length,
+            processedLeafCount: 0,
+            translatedLeafCount: 0,
+            preserveCount: 0,
+            paritySkipCount: 0,
+            forced: Boolean(opts.force),
+            durationMs: Date.now() - targetStarted,
+          },
+        });
+        continue;
+      } else if (preflight.status === 'partial') {
+        if (host.shouldSkipInteractivePrompts()) {
+          emitGenerateMessage(
+            host,
+            'info',
+            `skipped for ${target} (partial target; --yes skips — omit --yes to choose interactively, or pass --force for a full re-translate).`,
+          );
           emitProgress({ type: 'run.progress.generate', phase: 'done', target, label: 'skipped_user_declined' });
           targetResults.push({
             target,
@@ -249,8 +394,7 @@ export async function runGenerate(
           });
           continue;
         }
-        forceTarget = true;
-        forceReason = 'prompt';
+        fillMissingOnly = true;
       }
     }
 
@@ -258,18 +402,20 @@ export async function runGenerate(
     const translationCache = bindGenerateTranslateCache(translateCacheBase, targetL2);
 
     try {
-    if (opts.resume) {
+    if (runResumeForTarget) {
       const eff = resolveReferenceConfig('generate', ctx.config);
       emitGenerateMessage(host, 'info', `generate (${target}): translating string leaves (schema leaf paths; canonical nested output).`);
       const { row, issues: resumeIssues, leavesProcessed: resumeLeaves } = await runGenerateResumeLocale({
         ctx,
-        opts,
+        opts: { ...opts, resume: true },
         host,
         target,
         sourceMap,
+        sourceLeaves,
         eff,
         refCtx: opts.resumeReference!,
         targetPath,
+        writePlan,
         targetStarted,
         translationCache,
       });
@@ -289,7 +435,36 @@ export async function runGenerate(
       continue;
     }
 
-    emitGenerateMessage(host, 'info', `generate (${target}): translating string leaves (schema leaf paths; canonical nested output).`);
+    const activeSourceLeaves = fillMissingOnly
+      ? sourceLeavesMissingFromTarget(sourceLeaves, existingRaw)
+      : sourceLeaves;
+    if (fillMissingOnly && activeSourceLeaves.length === 0) {
+      emitGenerateMessage(host, 'info', `generate (${target}): no missing keys or segment files to translate.`);
+      emitProgress({ type: 'run.progress.generate', phase: 'done', target, label: 'skipped_nothing_missing' });
+      targetResults.push({
+        target,
+        status: 'skipped_user_declined',
+        progress: {
+          sourceLeafCount: sourceLeaves.length,
+          processedLeafCount: 0,
+          translatedLeafCount: 0,
+          preserveCount: 0,
+          paritySkipCount: 0,
+          forced: false,
+          durationMs: Date.now() - targetStarted,
+        },
+      });
+      continue;
+    }
+    if (fillMissingOnly) {
+      emitGenerateMessage(
+        host,
+        'info',
+        `generate (${target}): translating ${String(activeSourceLeaves.length)} missing leaf path(s) (segment files and keys not yet on target).`,
+      );
+    } else {
+      emitGenerateMessage(host, 'info', `generate (${target}): translating string leaves (schema leaf paths; canonical nested output).`);
+    }
     if (forceReason === 'flag') {
       emitGenerateMessage(
         host,
@@ -304,7 +479,7 @@ export async function runGenerate(
       );
     }
     // Schema-first: only write leaves that are translated/preserved; do not mirror source locale structure.
-    let working: unknown = {};
+    let working = workingLocaleForGenerate({ fillMissingOnly, existingRaw });
     let preserveCount = 0;
     let paritySkip = 0;
     let targetStreakIssues: Issue[] = [];
@@ -382,13 +557,13 @@ export async function runGenerate(
           ...providerMeta,
         });
         translateResult = await translateAndNormalizeGenerateLocale({
-          sourceLeaves,
+          sourceLeaves: activeSourceLeaves,
           working,
           existingRaw,
           preserve: ctx.config.policies?.preserve,
           parity: ctx.config.policies?.parity,
           dryRun: Boolean(opts.dryRun),
-          force: forceTarget,
+          force: fillMissingOnly ? false : forceTarget,
           provider,
           providerId: translation.provider,
           targetLang: target,
@@ -694,9 +869,36 @@ export async function runGenerate(
     const modeDecision = translateResult.modeDecision;
     const normalizedReport = translateResult.report;
 
+    let wroteSegmentCount = 0;
+    let wroteLeafCount = 0;
     if (!opts.dryRun) {
-      emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: targetPath });
-      writeLocaleJsonFromContextSync(ctx, targetPath, working);
+      const parts = materializeGenerateWorkingBySegment({
+        working: translateResult.next,
+        sourceLeaves,
+        segments: writePlan.segments,
+        structure: writePlan.layout.structure,
+        sourceLocaleCode: sourceLocaleCodeFromContext(ctx),
+        layout: writePlan.layout,
+        fs: ctx.adapters.fs,
+        path: ctx.adapters.path,
+      });
+      wroteSegmentCount = parts.length;
+      for (const { segment, document } of parts) {
+        emitProgress({ type: 'run.progress.generate', phase: 'write_files', target, label: segment.absolutePath });
+        writeLocaleJsonFromContextSync(ctx, segment.absolutePath, document);
+        const segmentLeafCount = collectTranslationSurfaceLeaves(document).length;
+        wroteLeafCount += segmentLeafCount;
+        emitGenerateMessage(
+          host,
+          'info',
+          segmentLeafCount === 0
+            ? `Wrote ${segment.absolutePath} (empty — no schema keys mapped to this segment; keys may live in another file or need \`sync\` first).`
+            : `Wrote ${segment.absolutePath} (${String(segmentLeafCount)} leaves).`,
+        );
+      }
+    } else {
+      wroteSegmentCount = writePlan.segments.length;
+      wroteLeafCount = collectTranslationSurfaceLeaves(translateResult.next).length;
     }
 
     host.printPreserveParityReport(preserveCount, paritySkip);
@@ -706,7 +908,8 @@ export async function runGenerate(
       nativeName,
       direction,
       targetPath,
-      leafCount: sourceLeaves.length,
+      leafCount: wroteLeafCount,
+      wroteSegmentCount,
       dryRun: opts.dryRun,
     });
 

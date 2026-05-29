@@ -8,13 +8,18 @@ export {
   createCleanupSourceWritePlan,
   emitCleanupAbortMessage,
   emitCleanupAskIgnoredMessage,
-  emitCleanupCheckOnlyMessage,
   emitCleanupWriteDone,
   emitCleanupWriteIntro,
   runCleanup,
   writeCleanupPlan,
 } from './run.js';
 export { resolveCleanupKeysWithStringPresencePolicy } from './stringPresence.js';
+export {
+  listCleanupSourceSegmentsForKeys,
+  listCleanupSourceSegmentPaths,
+  readCleanupSourceLeaves,
+} from './sourceSurface.js';
+export type { CleanupSourceSegmentRef } from '../types/cleanup/sourceSurface.js';
 export type { CleanupCandidateInput } from './candidates.js';
 export type {
   CleanupHostHooks,
@@ -22,6 +27,7 @@ export type {
   CleanupJsonRunSummary,
   CleanupRunOptions,
   CleanupRunResult,
+  CleanupSegmentWrite,
   CleanupWritePlan,
 } from '../types/cleanup/index.js';
 export type {

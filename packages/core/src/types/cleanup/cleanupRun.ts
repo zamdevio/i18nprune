@@ -21,11 +21,9 @@ export type CleanupJsonOutput = {
 };
 
 export type CleanupRunOptions = {
-  /** Report only; do not write. */
-  checkOnly?: boolean;
-  /** Alias for report-only behavior in SDK/CLI callers. */
+  /** Report candidates only; do not write (CLI `--dry-run`). */
   dryRun?: boolean;
-  /** Skip string-presence safety probes supplied by the host. */
+  /** Skip host string-presence (ripgrep) probes — static unused-key list only. */
   skipStringPresenceCheck?: boolean;
 };
 
@@ -35,11 +33,26 @@ export type CleanupHostHooks = {
   isStringPresenceAvailable: () => boolean;
   hasStringPresence: (sample: string) => boolean;
   getStringPresenceLocations: (sample: string, maxHits: number) => string[];
+  /**
+   * When false, core skips the string-presence guard for this key (CLI sets false for all keys when `--no-rg`).
+   * Default: apply guard per {@link reference.stringPresence} when probes are enabled.
+   */
+  shouldRunStringPresenceForKey?: (input: { key: string; value: string }) => boolean;
+};
+
+export type CleanupSegmentWrite = {
+  sourcePath: string;
+  relativePath: string;
+  nextSourceJson: unknown;
+  removedPaths: string[];
 };
 
 export type CleanupWritePlan = {
-  sourcePath: string;
+  /** Segment file writes (one for flat_file, many for locale_directory layouts). */
+  writes: CleanupSegmentWrite[];
   keys: string[];
+  /** Primary path for legacy messages (first write). */
+  sourcePath: string;
   nextSourceJson: unknown;
   removedPaths: string[];
 };

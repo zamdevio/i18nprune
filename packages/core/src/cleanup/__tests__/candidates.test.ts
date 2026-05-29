@@ -27,6 +27,27 @@ describe('cleanup candidates', () => {
     expect([...r.candidates].sort()).toEqual(['orphan']);
   });
 
+  it('does not treat keys under a used root namespace as used unless scanned literally', () => {
+    const usage = {
+      resolvedKeys: new Set<string>(['app.title', 'app.description']),
+      uncertainPrefixes: new Set<string>(),
+      usedRoots: new Set<string>(['app']),
+    };
+    const leaves = [
+      { path: 'app.title', value: '1' },
+      { path: 'app.description', value: '2' },
+      { path: 'app.header', value: '3' },
+      { path: 'apap.header', value: '4' },
+    ];
+    const r = computeCleanupCandidateKeys({
+      leaves,
+      usage,
+      uncertainPrefixes: [],
+      filterUncertainPrefixes: false,
+    });
+    expect([...r.candidates].sort()).toEqual(['apap.header', 'app.header']);
+  });
+
   it('filterUncertainPrefixes removes candidates under uncertain static prefixes', () => {
     const usage = {
       resolvedKeys: new Set<string>(),

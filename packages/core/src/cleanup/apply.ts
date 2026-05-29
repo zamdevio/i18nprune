@@ -1,4 +1,4 @@
-import { deleteAtPath, getAtPath } from '../shared/json/path.js';
+import { deleteLocaleLeafAtPath, hasLocaleLeafAtPath } from '../shared/json/localeLeafPath.js';
 
 /**
  * Pure cleanup application: remove candidate key paths from one locale JSON object.
@@ -10,8 +10,8 @@ export function applyCleanupKeysToLocaleJson(
   let next = localeJson;
   const removedPaths: string[] = [];
   for (const key of keysToRemove) {
-    if (getAtPath(next, key) !== undefined) {
-      next = deleteAtPath(next, key);
+    if (hasLocaleLeafAtPath(next, key)) {
+      next = deleteLocaleLeafAtPath(next, key);
       removedPaths.push(key);
     }
   }

@@ -33,7 +33,6 @@ export function computeCleanupCandidateKeys(input: CleanupCandidateInput): {
   const used = new Set<string>();
   for (const k of allKeyPaths) {
     if (input.usage.resolvedKeys.has(k)) used.add(k);
-    else if (pathUnderRoot(k, input.usage.usedRoots)) used.add(k);
   }
   const unused = [...allKeyPaths].filter((k) => !used.has(k));
   let candidates = unused.filter((k) => !isPreservePath(k, input.preserve));

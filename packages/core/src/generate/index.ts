@@ -4,6 +4,7 @@
  */
 export { createCoreContext, translateContextFromCore } from './context.js';
 export { runGenerate } from './run.js';
+export { formatGenerateFinalizeSummaryLines } from './formatFinalizeSummary.js';
 export { resolveGenerateLocaleDisplay, resolveLocaleDirection } from '../shared/languages/resolveGenerateLocaleDisplay.js';
 export { buildTranslatedLocaleFromSourceLeaves, localeJsonHasKeyPath } from './localeTranslate.js';
 export { translateAndNormalizeGenerateLocale } from './normalize.js';

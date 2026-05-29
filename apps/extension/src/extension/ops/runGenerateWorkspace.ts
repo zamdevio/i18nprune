@@ -176,6 +176,7 @@ export async function runGenerateForActiveProject(
     canAskInteractive: () => false,
 
     promptFullRetranslate: async () => false,
+    promptPartialTargetGenerate: async () => 'fill_missing' as const,
 
     printPreserveParityReport: () => {},
     printFinalizeSummary: () => {},
