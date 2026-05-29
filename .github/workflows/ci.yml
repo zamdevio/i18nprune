@@ -29,6 +29,8 @@ jobs:
 
       - run: pnpm typecheck
 
+      - run: pnpm cli:build
+
       - run: pnpm test
 
       - run: pnpm vitest run tests/parity
