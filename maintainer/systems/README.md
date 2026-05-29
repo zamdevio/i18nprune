@@ -14,6 +14,7 @@
 | **`systems/commands/`** | Operator sheets keyed by **`i18nprune help <op>`** — entrypoints, programmatic surfaces, envelopes, **`run.*` emitters**, pointers for parity |
 | **`systems/extractor.md`** | Extractor subsystem map: bindings, call sites, in/out of scope vs `docs/extractor/README.md` |
 | **`systems/patching.md`** | Patching subsystem: core vs CLI, barrels, `LOCALE_REGISTRY` contract, orchestration note |
+| **`systems/locales-schema.md`** | Schema-first locale model: projection, generate/sync/resume vs on-disk layout |
 | **`systems/health.md`** | Codebase health gates: `typecheck`, `test`, knip, madge, `empty:*` — when to run, barrel discipline |
 | **`systems/ui.md`** | Runtime UI kit (`@i18nprune/ui`): domain separation, purity rules, enforcement |
 | **`systems/share.md`** | Share ecosystem: core `runShare*`, CLI/web/report hosts, `workers/i18nprune` routes, DO storage, metadata builders |

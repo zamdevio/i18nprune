@@ -193,3 +193,9 @@ Three UI domains; only the **runtime cluster** uses `@i18nprune/ui`:
 **Purity rule:** If a component requires domain imports (`@i18nprune/core`, worker clients, routing, share/report logic), it does **not** belong in `packages/ui`. `@i18nprune/core` must never import `@i18nprune/ui`.
 
 **Canonical detail:** [`maintainer/systems/ui.md`](../systems/ui.md) · enforcement: `pnpm ui:purity`.
+
+---
+
+## 12. Schema-first locales
+
+Locale JSON shape is driven by **scan/schema leaf paths**, not by mirroring the source file tree. Generate, sync, and resume behavior: [`maintainer/systems/locales-schema.md`](../systems/locales-schema.md) (implementation: `packages/core/src/shared/locales/projection.ts`, `generate/run.ts`, `sync/run.ts`).

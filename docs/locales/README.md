@@ -1,5 +1,9 @@
 # Locales
 
+## Schema-first shape
+
+How keys are chosen and written (generate, sync, resume) is documented in **[Schema-first locale files](./schema-first.md)** — structure comes from your code scan, not from cloning the source JSON tree.
+
 ## Filesystem layouts
 
 How locale JSON is arranged on disk (`flat_file`, `locale_directory`, `locale_per_dir`, `feature_bundle`) is documented in **[Locale filesystem layouts](./layouts.md)**. When **`mode`** is **`locale_directory`**, **`structure`** is required.
