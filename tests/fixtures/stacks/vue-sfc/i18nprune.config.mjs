@@ -1,4 +1,6 @@
 /** Vue SFC stack smoke — `.vue` with `t()` in `<script setup>`. */
+import { fixtureTranslate } from '../../shared/fixtureTranslate.mjs';
+
 export default {
   locales: {
     source: 'locales/en.json',
@@ -6,5 +8,6 @@ export default {
   },
   src: 'src',
   functions: ['t'],
+  translate: fixtureTranslate,
   policies: { preserve: {}, parity: {} },
 };

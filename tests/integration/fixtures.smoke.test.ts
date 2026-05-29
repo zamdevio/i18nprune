@@ -15,6 +15,9 @@ const SKIP_DIR_NAMES = new Set(['__snapshots__', 'reports', 'node_modules']);
 /** Fixtures that intentionally return ok:false or non-zero exit for some commands. */
 const INTENTIONALLY_BROKEN = new Set(['layout-structure-missing', 'missing-cli']);
 
+/** Skip generate dry-run — broken config or no non-source locale to target. */
+const SKIP_GENERATE_DRY_RUN = new Set(['layout-structure-missing', 'missing-cli']);
+
 function hasFixtureConfig(dir: string): boolean {
   return CONFIG_NAMES.some((name) => fs.existsSync(path.join(dir, name)));
 }
@@ -117,6 +120,23 @@ describe('CLI fixture apps smoke', () => {
         expect(Array.isArray(j.issues)).toBe(true);
         expect(j.data).toBeDefined();
       });
+
+      if (!SKIP_GENERATE_DRY_RUN.has(label)) {
+        it('generate --json --dry-run returns parseable generate envelope', () => {
+          const { stdout, status } = runCliAllowNonZero(
+            ['generate', '--json', '--dry-run', '--target', 'fr'],
+            cwd,
+          );
+          const j = parseEnvelope(stdout);
+          expect(j.kind).toBe('generate');
+          expect(j.meta.apiVersion).toBe('1');
+          expect((j.data as { dryRun?: boolean }).dryRun).toBe(true);
+          if (!broken) {
+            expect(j.ok).toBe(true);
+            expect(status).toBe(0);
+          }
+        });
+      }
     });
   }
 });

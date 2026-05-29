@@ -1,4 +1,6 @@
 /** flat_file + locale_file — one JSON file per locale at the bundle root. */
+import { fixtureTranslate } from '../shared/fixtureTranslate.mjs';
+
 export default {
   locales: {
     source: 'locales/en.json',
@@ -8,5 +10,6 @@ export default {
   },
   src: 'src',
   functions: ['t'],
+  translate: fixtureTranslate,
   policies: { preserve: {}, parity: {} },
 };

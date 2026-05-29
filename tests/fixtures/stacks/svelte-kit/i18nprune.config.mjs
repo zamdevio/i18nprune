@@ -1,4 +1,6 @@
 /** SvelteKit-shaped smoke — `.svelte` + locale_directory / locale_per_dir. */
+import { fixtureTranslate } from '../../shared/fixtureTranslate.mjs';
+
 export default {
   locales: {
     source: 'messages/en/app.json',
@@ -8,5 +10,6 @@ export default {
   },
   src: 'src',
   functions: ['t'],
+  translate: fixtureTranslate,
   policies: { preserve: {}, parity: {} },
 };

@@ -2,7 +2,9 @@
 
 Minimal **framework-shaped** trees under `tests/fixtures/stacks/` — no `node_modules`, no real framework installs. Each directory is a standalone i18nprune project (`i18nprune.config.mjs` + `src` or `app` + locale files).
 
-Integration smoke (`tests/integration/fixtures.smoke.test.ts`) discovers every fixture app under `tests/fixtures/` and runs `config --json`, `doctor --json`, and `validate --json`.
+Integration smoke (`tests/integration/fixtures.smoke.test.ts`) discovers every fixture app under `tests/fixtures/` and runs `config --json`, `doctor --json`, `validate --json`, and `generate --json --dry-run --target fr` (when the fixture has a valid config).
+
+Stack `.tsx` files share `tests/fixtures/stacks/tsconfig.json` (`jsx: react-jsx`) so the IDE does not require `React` in scope per fixture.
 
 ## Index
 

@@ -1,4 +1,6 @@
 /** locale_directory + locale_per_dir — one folder per locale code. */
+import { fixtureTranslate } from '../shared/fixtureTranslate.mjs';
+
 export default {
   locales: {
     source: 'messages/en/common.json',
@@ -8,5 +10,6 @@ export default {
   },
   src: 'src',
   functions: ['t'],
+  translate: fixtureTranslate,
   policies: { preserve: {}, parity: {} },
 };
