@@ -1,6 +1,6 @@
 # next-app-dir
 
-Minimal **Next.js App Router** tree: `t()` in `app/page.tsx`.
+Minimal **Next.js App Router** tree: `t()` in `app/page.tsx`; `locale_directory` + `feature_bundle` (`messages/app/en.json`).
 
 ```bash
 cd tests/fixtures/stacks/next-app-dir

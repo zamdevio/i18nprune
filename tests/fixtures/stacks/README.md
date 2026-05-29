@@ -10,12 +10,12 @@ Stack `.tsx` files share `tests/fixtures/stacks/tsconfig.json` (`jsx: react-jsx`
 
 | Fixture | What it proves |
 | --- | --- |
-| `vue-sfc/` | Vue 3 SFC (`.vue`) with `t()` in `<script setup>`; flat `locales/*.json`. |
-| `react-tsx/` | React / Vite-shaped `.tsx` under `src/`; optional `cache.profile` in config. |
-| `next-app-dir/` | Next.js App Router layout: `app/**/*.tsx`, `src: 'app'`. |
+| `vue-sfc/` | Vue 3 SFC (`.vue`) with `t()` in `<script setup>`; `flat_file` + `locale_file` (`locales/en.json`). |
+| `react-tsx/` | React / Vite-shaped `.tsx` under `src/`; `flat_file` + `locale_file`; optional `cache.profile`. |
+| `next-app-dir/` | Next.js App Router layout: `app/**/*.tsx`; `locale_directory` + `feature_bundle` (`messages/app/en.json`). |
 | `svelte-kit/` | Svelte (`.svelte`) with `t()`; `locale_directory` + `locale_per_dir` under `messages/`. |
-| `nuxt-vue/` | Nuxt-like paths (`src/pages/`, `src/components/`) with Vue SFCs; flat locales. |
-| `remix-routes/` | Remix-style `app/routes/*.tsx` route modules with `t()`. |
+| `nuxt-vue/` | Nuxt-like paths (`src/pages/`, `src/components/`) with Vue SFCs; `locale_per_dir` (`locales/en/messages.json`). |
+| `remix-routes/` | Remix-style `app/routes/*.tsx` route modules; `locale_per_dir` (`locales/en/messages.json`). |
 
 ## Skipped (extractor)
 
