@@ -19,7 +19,7 @@ export const FALLBACK_LINKS = {
 export type MetaLinkKey = keyof typeof FALLBACK_LINKS;
 
 /** Shown until `/v1/meta` returns a CLI version. */
-export const FALLBACK_CLI_VERSION = "0.4.2";
+export const FALLBACK_CLI_VERSION = "0.1.0";
 
 export type MetaV1Ok = {
   ok: true;
