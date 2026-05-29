@@ -80,27 +80,26 @@ These **`index.ts`** files are **intentionally ignored as files** because knip�
 
 **In-repo rule:** call sites import from the **barrel**; sibling modules use **leaf files** only — see [`health.md` § Barrel import discipline](./health.md#barrel-import-discipline-shared).
 
-### Cloudflare Pages function (landing OG image)
+### Cloudflare Pages Functions (landing OG images)
 
 | Path | Why |
 |------|-----|
-| `apps/landing/functions/og.svg.ts` | Cloudflare Pages **Functions** entry; not part of the Vite `src/**` graph. Also under `workspaces.apps/landing.ignore`. |
+| `apps/landing/functions/**` | Pages **Functions** routes (`/og.svg`, `/og.png`) and `_shared/` helpers; not part of the Vite `src/**` entry graph. Listed under `workspaces.apps/landing.ignore`. |
+
+OG fonts ship as static files in **`apps/landing/public/fonts/og/`** (not npm imports).
 
 ---
 
 ## Ignored dependencies (`ignoreDependencies`)
 
-### `@cloudflare/workers-types` (`apps/landing`)
+### `apps/landing`
 
-Declared in **`apps/landing/package.json`** as a devDependency but consumed only via a **triple-slash reference** in `apps/landing/functions/og.svg.ts`:
+| Package | Why |
+|---------|-----|
+| `@cloudflare/workers-types` | Triple-slash `/// <reference types="@cloudflare/workers-types" />` in `functions/*.ts` — knip does not count reference directives as import edges. |
+| `@resvg/resvg-wasm` | Used only from `functions/_shared/svgToPng.ts` (Pages bundle), outside the Vite `src/**` graph. |
 
-```ts
-/// <reference types="@cloudflare/workers-types" />
-```
-
-Knip does not treat `/// <reference types="…" />` as a dependency edge, so it would report `@cloudflare/workers-types` as unused. The types are required for Workers globals in that edge function.
-
-Worker packages under **`apps/workers/*`** use the same types via `tsconfig.json` `"types"` — add workspace **`ignoreDependencies`** there if knip flags them.
+Worker packages under **`apps/workers/*`** use Workers types via `tsconfig.json` `"types"` — add workspace **`ignoreDependencies`** there if knip flags them.
 
 ---
 
