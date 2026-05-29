@@ -1,6 +1,6 @@
 import { t } from './i18n';
 
-export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
+export default function RootLayout({ children }: { children: unknown }) {
   return (
     <html lang="en">
       <body>

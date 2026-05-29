@@ -1,6 +1,6 @@
 import { t } from '../i18n';
 
-export function FormActions(): JSX.Element {
+export function FormActions() {
   return (
     <div>
       <button type="submit">{t('actions.save')}</button>

@@ -1,6 +1,6 @@
 import { t } from './i18n';
 
-export default function Page(): JSX.Element {
+export default function Page() {
   return (
     <main>
       <h1>{t('app.title')}</h1>

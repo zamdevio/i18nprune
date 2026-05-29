@@ -1,6 +1,6 @@
 import { t } from './i18n';
 
-export function App(): JSX.Element {
+export function App() {
   return (
     <main>
       <h1>{t('app.title')}</h1>

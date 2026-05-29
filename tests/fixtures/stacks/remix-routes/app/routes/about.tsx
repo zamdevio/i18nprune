@@ -1,6 +1,6 @@
 import { t } from '../i18n';
 
-export default function AboutRoute(): JSX.Element {
+export default function AboutRoute() {
   return (
     <section>
       <h2>{t('routes.about.heading')}</h2>

@@ -1,6 +1,6 @@
 import { t } from '../i18n';
 
-export function Sidebar(): JSX.Element {
+export function Sidebar() {
   return (
     <aside>
       <a href="/">{t('sidebar.dashboard')}</a>
