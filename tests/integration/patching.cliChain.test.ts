@@ -163,7 +163,8 @@ describe('patching CLI chain (patch --fix → --patch sync → --patch generate)
 
       const enPath = path.join(dir, 'locales', 'en.json');
       const en = JSON.parse(fs.readFileSync(enPath, 'utf8')) as Record<string, string>;
-      en.k2 = 'synced-value';
+      // Schema-first sync: only keys referenced in src (k1, k3) propagate — not unused k2.
+      en.k1 = 'synced-value';
       fs.writeFileSync(enPath, `${JSON.stringify(en, null, 2)}\n`, 'utf8');
 
       const sync = runCliCapture(['--patch', 'sync', '--yes', '--target', 'fr'], dir);
@@ -174,7 +175,7 @@ describe('patching CLI chain (patch --fix → --patch sync → --patch generate)
         string,
         unknown
       >;
-      expect(frAfterSync.k2).toBeDefined();
+      expect(frAfterSync.k1).toBe('synced-value');
 
       const gen = spawnSync(process.execPath, [cliJs, '--patch', 'generate', '--yes', '--target', 'fr'], {
         cwd: dir,
