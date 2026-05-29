@@ -113,33 +113,70 @@ export function listSourceLocaleWriteTargets(ctx: CoreContext): LocaleSegmentWri
 /**
  * Resolve which segment file(s) generate should use for a target locale.
  *
- * @remarks PR 1: prefers an existing primary segment; otherwise mirrors `ctx.paths.sourceLocale` path shape.
+ * @remarks One row per source segment (mirrored path shape). `flat_file` keeps a single segment.
  */
 export function resolveTargetLocaleWritePlan(ctx: CoreContext, targetLocale: string): LocaleSegmentWritePlan {
   const layout = resolveLocalesLayoutFromContext(ctx);
   const target = normalizeLanguageCode(targetLocale);
   const { fs } = ctx.adapters;
 
-  const existing = segmentsForLocaleCode(ctx, target);
-  if (existing.length > 0) {
-    const primary = primarySegmentForLocale(ctx, target)!;
-    const segments = [segmentTargetFromRef(primary, 'existing_target')];
-    return {
-      targetLocale: target,
-      layout,
-      segments,
-      missingSegments: existsRuntimeFsSync(primary.absolutePath, fs) ? [] : segments,
-    };
+  if (layout.mode === 'flat_file') {
+    const existing = segmentsForLocaleCode(ctx, target);
+    if (existing.length > 0) {
+      const primary = primarySegmentForLocale(ctx, target)!;
+      const segments = [segmentTargetFromRef(primary, 'existing_target')];
+      return {
+        targetLocale: target,
+        layout,
+        segments,
+        missingSegments: existsRuntimeFsSync(primary.absolutePath, fs) ? [] : segments,
+      };
+    }
+    const derived = deriveTargetSegmentFromSource(ctx, layout, target);
+    const missingSegments = existsRuntimeFsSync(derived.absolutePath, fs) ? [] : [derived];
+    return { targetLocale: target, layout, segments: [derived], missingSegments };
   }
 
-  const derived = deriveTargetSegmentFromSource(ctx, layout, target);
-  const missingSegments = existsRuntimeFsSync(derived.absolutePath, fs) ? [] : [derived];
-  return {
-    targetLocale: target,
-    layout,
-    segments: [derived],
-    missingSegments,
-  };
+  const sourceSegments = listSourceLocaleWriteTargets(ctx);
+  const existingByRel = new Map(
+    segmentsForLocaleCode(ctx, target).map((s) => [s.relativePath, s] as const),
+  );
+
+  const segments: LocaleSegmentWriteTarget[] = [];
+  for (const src of sourceSegments) {
+    const targetRel = swapLocaleInSegmentRelativePath({
+      structure: layout.structure,
+      relativePath: src.relativePath,
+      targetLocale: target,
+    });
+    if (targetRel === null) {
+      throw new I18nPruneError(
+        `generate: cannot derive target segment from source ${src.relativePath} for structure=${layout.structure}`,
+        'USAGE',
+      );
+    }
+    const onDisk = existingByRel.get(targetRel);
+    if (onDisk) {
+      segments.push(segmentTargetFromRef(onDisk, 'existing_target'));
+      continue;
+    }
+    const absolutePath = resolveLocaleSegmentAbsolutePath({
+      layout,
+      path: ctx.adapters.path,
+      locale: target,
+      segmentRelativePath: targetRel,
+    });
+    segments.push({
+      locale: target,
+      relativePath: targetRel,
+      absolutePath,
+      role: 'target',
+    });
+  }
+
+  segments.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
+  const missingSegments = segments.filter((s) => !existsRuntimeFsSync(s.absolutePath, fs));
+  return { targetLocale: target, layout, segments, missingSegments };
 }
 
 /** Absolute path for the primary segment file generate/resume writes for one target locale. */

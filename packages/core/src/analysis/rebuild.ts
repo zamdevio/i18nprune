@@ -2,7 +2,7 @@ import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js'
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
 import { readRuntimeFsTextSync } from '../runtime/helpers/sync/index.js';
-import { readSourceLocaleLeavesForMissing } from './sourceLocaleLeaves.js';
+import { readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.js';
 import { computeMissingLiteralKeysFromLeaves } from '../validate/missingLiterals.js';
 import type { ClassifiedSrcDelta } from '../types/cache/index.js';
 import type { ProjectAnalysisCacheData } from '../types/analysis/index.js';
@@ -93,7 +93,7 @@ export function patchProjectAnalysisFromSrcDelta(
   ];
 
   const usage = literalKeyUsageFromObservations(keyObservations);
-  const sourceLeaves = readSourceLocaleLeavesForMissing(ctx);
+  const sourceLeaves = readSourceLocaleLeaves(ctx);
   const missingKeys = computeMissingLiteralKeysFromLeaves(sourceLeaves, usage.resolvedKeys);
   const sourceFilesScanned = previous.counts.sourceFilesScanned + srcDelta.added.length - srcDelta.deleted.length;
 
@@ -120,7 +120,7 @@ export function patchProjectAnalysisFromSourceLocaleDelta(
   previous: ProjectAnalysisCacheData,
 ): ProjectAnalysisCacheData {
   const usage = literalKeyUsageFromObservations(previous.keyObservations);
-  const sourceLeaves = readSourceLocaleLeavesForMissing(ctx);
+  const sourceLeaves = readSourceLocaleLeaves(ctx);
   const missingKeys = computeMissingLiteralKeysFromLeaves(sourceLeaves, usage.resolvedKeys);
 
   return {

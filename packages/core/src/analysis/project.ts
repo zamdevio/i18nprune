@@ -5,7 +5,7 @@ import { emitCacheDispatchMessages, getOrBuildCachedProjectData } from '../cache
 import { resolveCacheRebuildConfig } from '../cache/rebuildPolicy.js';
 import { listSourceFiles } from '../shared/scanner/files.js';
 import { computeMissingLiteralKeysFromLeaves } from '../validate/missingLiterals.js';
-import { readSourceLocaleLeavesForMissing } from './sourceLocaleLeaves.js';
+import { readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.js';
 import { patchProjectAnalysisFromSourceLocaleDelta, patchProjectAnalysisFromSrcDelta } from './rebuild.js';
 import type { CacheProducerContext } from '../types/cache/index.js';
 import type {
@@ -65,7 +65,7 @@ function scanProjectAnalysis(ctx: CoreContext): ProjectAnalysisCacheData {
   const keyObservations = scanProjectKeyObservations(scanInput);
   const dynamicSites = scanProjectDynamicKeySites(scanInput);
   const usage = literalKeyUsageFromObservations(keyObservations);
-  const sourceLeaves = readSourceLocaleLeavesForMissing(ctx);
+  const sourceLeaves = readSourceLocaleLeaves(ctx);
   const missingKeys = computeMissingLiteralKeysFromLeaves(sourceLeaves, usage.resolvedKeys);
   const projectFs = { fs: ctx.adapters.fs, path: ctx.adapters.path };
   const sourceFilesScanned = listSourceFiles(projectFs, ctx.paths.srcRoot, ctx.config.exclude).length;

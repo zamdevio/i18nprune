@@ -1,4 +1,5 @@
-import { getAtPath, setAtPath } from '../../../json/path.js';
+import { getLocaleLeafAtPath, normalizeLocaleDocumentToNestedCanonical } from '../../../json/localeLeafPath.js';
+import { setAtPath } from '../../../json/path.js';
 import type {
   LocaleMetadataLeafDecision,
   LocaleMetadataPathChange,
@@ -28,7 +29,7 @@ export function applyLocaleLeafMode(input: ApplyLocaleMetadataModeInput): { next
   const sampleLimit = input.sampleLimit ?? 40;
 
   for (const [leafPath, sourceValue] of input.sourceMap.entries()) {
-    const cur = getAtPath(next, leafPath);
+    const cur = getLocaleLeafAtPath(next, leafPath);
     const beforeKind = classifyLeafRuntimeKind(cur);
     const beforeValue = cur;
     if (input.mode === 'legacy_string') {
@@ -46,7 +47,7 @@ export function applyLocaleLeafMode(input: ApplyLocaleMetadataModeInput): { next
       }
       if (cur === nextValue) unchangedLeaves += 1;
       else next = setAtPath(next, leafPath, nextValue);
-      const afterValue = getAtPath(next, leafPath);
+      const afterValue = getLocaleLeafAtPath(next, leafPath);
       const afterKind = classifyLeafRuntimeKind(afterValue);
       leafDecisions.push({
         path: leafPath,
@@ -86,7 +87,7 @@ export function applyLocaleLeafMode(input: ApplyLocaleMetadataModeInput): { next
       unchangedLeaves += 1;
     }
     if (typeof cur === 'undefined') missingPathsHydratedFromSource += 1;
-    const afterValue = getAtPath(next, leafPath);
+    const afterValue = getLocaleLeafAtPath(next, leafPath);
     const afterKind = classifyLeafRuntimeKind(afterValue);
     leafDecisions.push({
       path: leafPath,
@@ -99,6 +100,9 @@ export function applyLocaleLeafMode(input: ApplyLocaleMetadataModeInput): { next
       afterValue,
     });
   }
+
+  const leafPaths = [...input.sourceMap.keys()];
+  next = normalizeLocaleDocumentToNestedCanonical(next, leafPaths);
 
   return {
     next,

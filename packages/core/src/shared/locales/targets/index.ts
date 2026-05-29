@@ -14,3 +14,7 @@ export {
   resolveTargetLocaleWritePlan,
   swapLocaleInSegmentRelativePath,
 } from './segmentWritePlan.js';
+export {
+  localeJsonFromTranslationSurfaceLeaves,
+  materializeGenerateWorkingBySegment,
+} from './segmentMaterialize.js';

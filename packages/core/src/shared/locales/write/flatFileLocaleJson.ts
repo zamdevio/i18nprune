@@ -1,6 +1,7 @@
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
+import { sortJsonObjectKeysAsc } from '../../json/sortKeys.js';
 
 export type WriteFlatLocaleJsonDocumentResult =
   | { ok: true; diagnostics: LocaleReadDiagnostic[] }
@@ -29,7 +30,7 @@ export function writeFlatLocaleJsonDocument(input: {
   const indent = input.indent ?? 2;
   let body: string;
   try {
-    body = `${JSON.stringify(input.data, null, indent)}\n`;
+    body = `${JSON.stringify(sortJsonObjectKeysAsc(input.data), null, indent)}\n`;
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     emit({ level: 'error', code: 'locale_json_serialize_failed', message, path: input.absoluteFile });

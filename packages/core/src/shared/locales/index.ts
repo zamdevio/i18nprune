@@ -12,3 +12,4 @@ export {
   segmentsForLocaleCode,
   primarySegmentForLocale,
 } from './targets/index.js';
+export * from './surface/index.js';
