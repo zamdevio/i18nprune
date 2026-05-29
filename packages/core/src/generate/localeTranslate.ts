@@ -1,5 +1,6 @@
 import { getAtPath, setAtPath } from '../shared/json/index.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
+import { getProjectedLeafString, projectLocaleLeaves } from '../shared/locales/projection.js';
 import { isParityExcluded } from '../policies/parity.js';
 import { isPreservePath } from '../policies/preserve.js';
 import { localeJsonValueFromTranslation } from '../shared/translator/index.js';
@@ -193,6 +194,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
   /** Count of translated leaves classified as review-needed by policy/meta pipeline. */
   markedForReview: number;
 }> {
+  const existingProj = input.existingRaw ? projectLocaleLeaves(input.existingRaw) : undefined;
   const maxParallel = Math.max(1, Math.min(64, Math.floor(input.maxParallelTranslates ?? 1)));
   const rows: GenerateLeafRow[] = [];
   const emptySourceLeafPaths: string[] = [];
@@ -214,7 +216,10 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
       continue;
     }
     if (input.existingRaw && !input.force && typeof input.existingRaw === 'object') {
-      const cur = getAtPath(input.existingRaw, leaf.path);
+      const cur =
+        existingProj !== undefined
+          ? getProjectedLeafString(existingProj, leaf.path)
+          : (getAtPath(input.existingRaw, leaf.path) as unknown);
       if (typeof cur === 'string' && cur !== leaf.value) {
         rows.push({ k: 'existing_manual' });
         continue;

@@ -6,7 +6,6 @@
 import { buildLanguageCatalog, generatedLanguageCatalog, getLanguageByCodeFromCatalog } from '../shared/languages/catalog/index.js';
 import { resolveGenerateLocaleDisplay } from '../shared/languages/resolveGenerateLocaleDisplay.js';
 import { languageOftenRtl } from '../shared/languages/rtlHint.js';
-import { deepClone } from '../shared/json/index.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { targetLocaleCoversAllSourcePaths } from '../shared/json/targetCoverage.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
@@ -63,6 +62,7 @@ import { emitRunMessage } from '../shared/run/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
 import type { CoreContext } from '../types/context/index.js';
+import { resolveProjectAnalysis } from '../analysis/index.js';
 import type {
   GenerateHostHooks,
   GenerateJsonPayload,
@@ -117,6 +117,9 @@ export async function runGenerate(
 ): Promise<GenerateRunResult> {
   const emitProgress = host.emitProgress;
 
+  const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'generate', runId: host.runId });
+  const schemaPaths = analysis.usage.resolvedKeys;
+
   const sourcePath = resolveGenerateSourcePath(ctx, opts.source);
   let raw: unknown;
   if (opts.preloadedRaw !== undefined) {
@@ -125,7 +128,11 @@ export async function runGenerate(
     emitProgress({ type: 'run.progress.generate', phase: 'read_source', label: sourcePath });
     raw = readLocaleJsonFromContextSync(ctx, sourcePath);
   }
-  const sourceLeaves = collectTranslationSurfaceLeaves(raw);
+  const allSourceLeaves = collectTranslationSurfaceLeaves(raw);
+  const sourceLeaves =
+    schemaPaths.size > 0
+      ? allSourceLeaves.filter((l) => schemaPaths.has(l.path))
+      : allSourceLeaves;
   const sourceMap = new Map(sourceLeaves.map((leaf) => [leaf.path, leaf.value]));
 
   const targets = [...opts.targets];
@@ -255,7 +262,7 @@ export async function runGenerate(
     try {
     if (opts.resume) {
       const eff = resolveReferenceConfig('generate', ctx.config);
-      emitGenerateMessage(host, 'info', `generate (${target}): translating string leaves (nested shape preserved).`);
+      emitGenerateMessage(host, 'info', `generate (${target}): translating string leaves (schema leaf paths; canonical nested output).`);
       const { row, issues: resumeIssues, leavesProcessed: resumeLeaves } = await runGenerateResumeLocale({
         ctx,
         opts,
@@ -284,7 +291,7 @@ export async function runGenerate(
       continue;
     }
 
-    emitGenerateMessage(host, 'info', `generate (${target}): translating string leaves (nested shape preserved).`);
+    emitGenerateMessage(host, 'info', `generate (${target}): translating string leaves (schema leaf paths; canonical nested output).`);
     if (forceReason === 'flag') {
       emitGenerateMessage(
         host,
@@ -298,7 +305,8 @@ export async function runGenerate(
         `generate (${target}): full re-translate confirmed — existing target strings will be re-translated for this target where policies allow.`,
       );
     }
-    let working: unknown = deepClone(raw);
+    // Schema-first: only write leaves that are translated/preserved; do not mirror source locale structure.
+    let working: unknown = {};
     let preserveCount = 0;
     let paritySkip = 0;
     let targetStreakIssues: Issue[] = [];

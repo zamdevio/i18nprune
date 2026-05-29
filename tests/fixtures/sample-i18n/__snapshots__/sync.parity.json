@@ -29,8 +29,8 @@
         "repairedCorruptLeaves": 0,
         "strippedStructuredLeaves": 0,
         "structuredLeavesWritten": 0,
-        "totalSourceLeafPaths": 40,
-        "unchangedLeaves": 40
+        "totalSourceLeafPaths": 15,
+        "unchangedLeaves": 15
       }
     },
     "localesDir": "<fixture>/locales",

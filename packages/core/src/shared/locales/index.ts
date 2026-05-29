@@ -5,6 +5,7 @@ export * from './diagnostics/index.js';
 export * from './read/index.js';
 export * from './write/index.js';
 export * from './leaves/index.js';
+export * from './projection.js';
 export { buildLocaleJsonByTagFromArchive, listLocaleCodesFromArchive } from './archive/buildLocaleJsonByTag.js';
 export {
   listLocaleSegmentTargets,

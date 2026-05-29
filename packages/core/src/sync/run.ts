@@ -253,6 +253,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'sync', runId: host.runId });
   const observations = analysis.keyObservations;
   const dynamicSites = analysis.dynamicSites;
+  const schemaPaths = analysis.usage.resolvedKeys;
   const eff = resolveReferenceConfig('sync', ctx.config);
   const refCtx = buildKeyReferenceContextFromReportDetails(observations, dynamicSites, eff);
   host.emitProgress({
@@ -265,7 +266,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
 
   const sourcePath = ctx.paths.sourceLocale;
   host.emitProgress({ type: 'run.progress.sync', phase: 'read_source', label: sourcePath });
-  const template = readLocaleJsonFromContextSync(ctx, sourcePath);
+  const sourceRaw = readLocaleJsonFromContextSync(ctx, sourcePath);
   const dir = ctx.paths.localesDir;
   const sel = parseSyncLangSelection(opts.target);
   if (sel.mode === 'codes') {
@@ -292,7 +293,10 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     metadataFlag: explicitMetadata,
     stripMetadataFlag: explicitStripMetadata,
   });
-  const sourceLeaves = collectTranslationSurfaceLeaves(template);
+  const allSourceLeaves = collectTranslationSurfaceLeaves(sourceRaw);
+  const effectiveSchemaPaths =
+    schemaPaths.size > 0 ? schemaPaths : new Set(allSourceLeaves.map((l) => l.path));
+  const sourceLeaves = allSourceLeaves.filter((l) => effectiveSchemaPaths.has(l.path));
   const sourcePlaceholderLeaves = detectSourcePlaceholderLeaves(
     sourceLeaves,
     sourcePlaceholderValues(ctx.config.missing?.placeholder),
@@ -300,6 +304,12 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
   const sourcePlaceholderPaths = new Set(sourcePlaceholderLeaves.map((leaf) => leaf.path));
   const effectiveSourceLeaves = sourceLeaves.filter((leaf) => !sourcePlaceholderPaths.has(leaf.path));
   const sourceMap = new Map(effectiveSourceLeaves.map((leaf) => [leaf.path, leaf.value]));
+
+  // Schema-first: build a template that contains only schema leaf paths (no source structural mirroring).
+  let template: unknown = {};
+  for (const leaf of effectiveSourceLeaves) {
+    template = setAtPath(template, leaf.path, leaf.value);
+  }
   const localeMetadataReports: Record<string, LocaleMetadataReport> = {};
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
 

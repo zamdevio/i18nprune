@@ -1,45 +1,20 @@
 [i18nprune] [warn] 3 translation call(s) use a non-literal key — generation follows source JSON paths only; computed keys are not enumerated here.
 
-  [1/40] app.title
-  [2/40] app.description
-  [3/40] app.greeting
-  [4/40] app.footer.copyright
-  [5/40] app.footer.privacy
-  [6/40] app.footer.terms
-  [7/40] app.nav.home
-  [8/40] app.nav.about
-  [9/40] app.nav.contact
-  [10/40] app.nav.profile
-  [11/40] app.nav.logout
-  [12/40] app.does_not_exist
-  [13/40] user.login.title
-  [14/40] user.login.email
-  [15/40] user.login.password
-  [16/40] user.login.submit
-  [17/40] user.login.forgot
-  [18/40] user.register.title
-  [19/40] user.register.username
-  [20/40] user.register.email
-  [21/40] user.register.password
-  [22/40] user.register.submit
-  [23/40] user.profile.edit
-  [24/40] user.profile.save
-  [25/40] user.profile.cancel
-  [26/40] user.profile.delete
-  [27/40] notifications.success
-  [28/40] notifications.error
-  [29/40] notifications.logout
-  [30/40] widgets.stats.views
-  [31/40] widgets.stats.users
-  [32/40] widgets.stats.sessions
-  [33/40] widgets.banner.title
-  [34/40] widgets.banner.subtitle
-  [35/40] help.faq
-  [36/40] help.contact
-  [37/40] help.docs
-  [38/40] settings.profile
-  [39/40] settings.security
-  [40/40] settings.notifications
+  [1/15] app.title
+  [2/15] app.nav.about
+  [3/15] app.does_not_exist
+  [4/15] user.register.username
+  [5/15] widgets.stats.views
+  [6/15] widgets.stats.users
+  [7/15] widgets.stats.sessions
+  [8/15] widgets.banner.title
+  [9/15] widgets.banner.subtitle
+  [10/15] help.faq
+  [11/15] help.contact
+  [12/15] help.docs
+  [13/15] settings.profile
+  [14/15] settings.security
+  [15/15] settings.notifications
 [i18nprune] [notice] Source locale has 1 string leaf value(s) that are empty or whitespace-only — they were copied without calling the translator. Use `i18nprune sync --metadata` when your project persists structured locale leaves. Sample paths: app.does_not_exist
 [i18nprune] [warn] issue: i18nprune.scan.dynamic_key_sites · https://docs.i18nprune.dev/issues/scan#dynamic-key-sites
 [i18nprune] [warn] issue: i18nprune.generate.source_empty_string_leaves · https://docs.i18nprune.dev/issues/generate#source-empty-string-leaves
