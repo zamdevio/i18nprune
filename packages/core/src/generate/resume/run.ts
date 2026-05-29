@@ -20,7 +20,8 @@ import { classifyProviderFailureOutcome, isRetryableProviderFailure } from '../.
 import { TranslateRunInterruptedError } from '../../translator/errors/interrupted.js';
 import { IdentityAbortError } from '../../translator/identity/error.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
-import { ISSUE_LOCALE_TARGET_NOT_FOUND, ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT } from '../../shared/constants/issueCodes.js';
+import { ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT } from '../../shared/constants/issueCodes.js';
+import type { TranslationSurfaceLeaf } from '../../types/locales/leaves/translationSurface.js';
 import { I18nPruneError } from '../../shared/errors/index.js';
 import { applyLocaleLeafNormalization } from '../../shared/locales/leaves/index.js';
 import { emitRunMessage } from '../../shared/run/index.js';
@@ -61,13 +62,25 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
 }> {
   const { ctx, opts, host, target, sourceMap, eff, refCtx, targetPath, translationCache } = input;
   const { fs } = ctx.adapters;
-  if (!existsRuntimeFsSync(targetPath, fs)) {
-    throw new I18nPruneError(`generate: locale file missing for --resume: ${targetPath}`, 'USAGE', {
-      issueCode: ISSUE_LOCALE_TARGET_NOT_FOUND,
-    });
+  const targetMissing = !existsRuntimeFsSync(targetPath, fs);
+  const targetRaw = targetMissing ? {} : readLocaleJsonFromContextSync(ctx, targetPath);
+  let tLeaves = collectTranslationSurfaceLeaves(targetRaw);
+  if (targetMissing && tLeaves.length === 0 && sourceMap.size > 0) {
+    emitGenerateMessage(
+      host,
+      'info',
+      `generate (${target}): target locale file not found — treating source strings as stale for --resume (same as a new target).`,
+    );
+    tLeaves = Array.from(sourceMap.entries()).map(
+      ([path, value]): TranslationSurfaceLeaf => ({
+        path,
+        value,
+        shape: 'legacy_string',
+        confidence: null,
+        needsReview: null,
+      }),
+    );
   }
-  const targetRaw = readLocaleJsonFromContextSync(ctx, targetPath);
-  const tLeaves = collectTranslationSurfaceLeaves(targetRaw);
   const translateCfg = ctx.config.translate;
   if (!translateCfg) {
     throw new I18nPruneError('config.translate is required for generate --resume', 'USAGE');
