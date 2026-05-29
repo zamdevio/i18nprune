@@ -1,0 +1,20 @@
+{
+  "app": {
+    "description": {
+      "confidence": 0.68,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Arbre en forme de routeur d'application"
+    },
+    "title": {
+      "confidence": 0.62,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Appareil du répertoire d'application suivant"
+    }
+  }
+}

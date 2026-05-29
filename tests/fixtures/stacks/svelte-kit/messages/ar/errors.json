@@ -1,0 +1,12 @@
+{
+  "errors": {
+    "load_failed": {
+      "confidence": 0.84,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "لا يمكن تحميل بيانات الصفحة"
+    }
+  }
+}

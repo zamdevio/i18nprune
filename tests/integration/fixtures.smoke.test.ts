@@ -13,7 +13,7 @@ const CONFIG_NAMES = ['i18nprune.config.mjs', 'i18nprune.config.ts', 'i18nprune.
 const SKIP_DIR_NAMES = new Set(['__snapshots__', 'reports', 'node_modules']);
 
 /** Fixtures that intentionally return ok:false or non-zero exit for some commands. */
-const INTENTIONALLY_BROKEN = new Set(['layout-structure-missing', 'missing-cli']);
+const INTENTIONALLY_BROKEN = new Set(['layout-structure-missing', 'missing-cli', 'patching']);
 
 /** Skip generate dry-run — broken config or no non-source locale to target. */
 const SKIP_GENERATE_DRY_RUN = new Set(['layout-structure-missing', 'missing-cli']);

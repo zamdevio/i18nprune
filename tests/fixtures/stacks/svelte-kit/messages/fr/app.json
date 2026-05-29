@@ -1,6 +1,6 @@
 {
-  "app.title": "Fixture SvelteKit",
-  "app.tagline": "Fumée d'analyse Svelte",
-  "nav.home": "Accueil",
-  "nav.settings": "Paramètres"
+  "app": {
+    "tagline": "Fumée de scan Svelte minimale",
+    "title": "Appareil SvelteKit"
+  }
 }

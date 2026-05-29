@@ -1,0 +1,40 @@
+{
+  "routes": {
+    "about": {
+      "body": {
+        "confidence": 0.81,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Nuqul heerka-dariiqa"
+      },
+      "heading": {
+        "confidence": 0.62,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Ku saabsan"
+      }
+    },
+    "index": {
+      "subtitle": {
+        "confidence": 0.79,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "abka/wadooyinka qiiqa iskaan"
+      },
+      "title": {
+        "confidence": 0.85,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Isku dhafka wadooyinka"
+      }
+    }
+  }
+}

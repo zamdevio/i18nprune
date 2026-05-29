@@ -1,0 +1,40 @@
+{
+  "layout": {
+    "brand": {
+      "confidence": null,
+      "needsReview": true,
+      "needsTranslationAgain": false,
+      "source": "manual",
+      "status": "translated",
+      "value": "i18nprune"
+    },
+    "signIn": {
+      "confidence": 0.87,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Soo gal"
+    }
+  },
+  "pages": {
+    "home": {
+      "lead": {
+        "confidence": 0.82,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Bogagga iyo qaybaha hoos yimaada src/"
+      },
+      "title": {
+        "confidence": 0.87,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Nuxt Vue qalabka"
+      }
+    }
+  }
+}

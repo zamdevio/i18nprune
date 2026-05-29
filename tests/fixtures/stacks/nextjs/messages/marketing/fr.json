@@ -1,0 +1,20 @@
+{
+  "marketing": {
+    "headline": {
+      "confidence": 0.67,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Semaine de lancement"
+    },
+    "offer": {
+      "confidence": 0.62,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "20 % de réduction sur les forfaits annuels"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "app": {
+    "tagline": {
+      "confidence": 0.78,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "الحد الأدنى من الدخان المسح Svelte"
+    },
+    "title": {
+      "confidence": 0.87,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "تركيبات SvelteKit"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "layout": {
+    "brand": {
+      "confidence": null,
+      "needsReview": true,
+      "needsTranslationAgain": false,
+      "source": "manual",
+      "status": "translated",
+      "value": "i18nprune"
+    },
+    "signIn": {
+      "confidence": 0.69,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "تسجيل الدخول"
+    }
+  },
+  "pages": {
+    "home": {
+      "lead": {
+        "confidence": 0.83,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "الصفحات والمكونات ضمن src/"
+      },
+      "title": {
+        "confidence": 0.87,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "تركيبات Nuxt Vue"
+      }
+    }
+  }
+}

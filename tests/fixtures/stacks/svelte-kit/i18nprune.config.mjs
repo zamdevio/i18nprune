@@ -12,4 +12,11 @@ export default {
   functions: ['t'],
   translate: fixtureTranslate,
   policies: { preserve: {}, parity: {} },
+  patching: {
+    enabled: true,
+    recipe: "loader_generated",
+    configPath: "src/i18n/config.json",
+    loaderPath: "src/i18n/loaders.generated.ts",
+    localeJsonImportBase: "messages",
+  },
 };

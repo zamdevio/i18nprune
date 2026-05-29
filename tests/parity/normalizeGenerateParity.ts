@@ -15,7 +15,14 @@ export function stripVolatileEnvelope(value: unknown, fixtureAbs: string): unkno
     return value;
   }
   if (Array.isArray(value)) {
-    return value.map((x) => stripVolatileEnvelope(x, fixtureAbs));
+    const mapped = value.map((x) => stripVolatileEnvelope(x, fixtureAbs));
+    const first = mapped[0];
+    if (first && typeof first === 'object' && first !== null && 'path' in first) {
+      return [...mapped].sort((a, b) =>
+        String((a as { path: string }).path).localeCompare(String((b as { path: string }).path)),
+      );
+    }
+    return mapped;
   }
   const obj = value as Record<string, unknown>;
   const out: Record<string, unknown> = {};
@@ -71,5 +78,27 @@ export function normalizeGenerateHumanStderr(raw: string, fixtureAbs: string): s
   out = out.replace(/wall=\d+ms/g, 'wall=<ms>');
   out = out.replace(/avgRequest=\d+ms/g, 'avgRequest=<ms>');
   out = out.replace(/generate · ok · \d+ms/g, 'generate · ok · <ms>');
+  const progressBlock = out.match(
+    /(\[i18nprune\] \[warn\] 3 translation call\(s\)[\s\S]*?)(?=\[i18nprune\])/,
+  );
+  if (progressBlock) {
+    const header = progressBlock[1]!.split('\n')[0]!;
+    const pathLines = progressBlock[1]!
+      .split('\n')
+      .slice(1)
+      .map((line) => line.trim())
+      .filter((line) => /^\[\d+\/\d+\]/.test(line))
+      .sort((a, b) => {
+        const pathA = a.replace(/^\[\d+\/\d+\]\s*/, '');
+        const pathB = b.replace(/^\[\d+\/\d+\]\s*/, '');
+        return pathA.localeCompare(pathB);
+      })
+      .map((line, index, sorted) => {
+        const path = line.replace(/^\[\d+\/\d+\]\s*/, '');
+        return `  [${String(index + 1)}/${String(sorted.length)}] ${path}`;
+      });
+    const reordered = `${header}\n\n${pathLines.join('\n')}\n`;
+    out = out.replace(progressBlock[1]!, reordered);
+  }
   return `${out}\n`;
 }

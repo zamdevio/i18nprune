@@ -1,0 +1,56 @@
+{
+  "actions": {
+    "cancel": {
+      "confidence": 0.83,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Annuler"
+    },
+    "save": {
+      "confidence": 0.62,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Sauvegarder"
+    }
+  },
+  "app": {
+    "subtitle": {
+      "confidence": 0.8,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Arbre src en forme de Vite"
+    },
+    "title": {
+      "confidence": 0.84,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Luminaire React TSX"
+    }
+  },
+  "sidebar": {
+    "dashboard": {
+      "confidence": 0.7,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Tableau de bord"
+    },
+    "settings": {
+      "confidence": 0.81,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Paramètres"
+    }
+  }
+}

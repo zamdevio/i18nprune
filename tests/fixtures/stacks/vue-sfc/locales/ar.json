@@ -1,0 +1,48 @@
+{
+  "app": {
+    "subtitle": {
+      "confidence": 0.8,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "إعداد البرنامج النصي + القالب"
+    },
+    "title": {
+      "confidence": 0.87,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "تركيبات Vue SFC"
+    }
+  },
+  "footer": {
+    "copyright": {
+      "confidence": 0.87,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "© تركيبات"
+    }
+  },
+  "nav": {
+    "about": {
+      "confidence": 0.72,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "عن"
+    },
+    "home": {
+      "confidence": 0.81,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "بيت"
+    }
+  }
+}

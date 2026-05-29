@@ -5,6 +5,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 
+const patchingFixtureRoot = path.join(
+  fileURLToPath(new URL('.', import.meta.url)),
+  '../fixtures/patching',
+);
+
 /**
  * Spawns **`dist/cli.js`** (requires **`pnpm build`** / CI build). **`generate`** hits the public
  * MyMemory HTTP API — use **`{ retry, timeout }`** for transient quota; air‑gapped CI may need to
@@ -44,102 +49,9 @@ function readLocaleRegistryCodes(loaderPath: string): string[] {
   return rows.map((r) => r.code);
 }
 
-/**
- * Minimal project: **`en` + `ar` + `fr`** locale JSON on disk, **`config.json`** lists **`en` only**
- * (file-only drift). **`patch --fix`** aligns config + loader; **`--patch sync`** and **`--patch generate`**
- * exercise **`applyCommandPatching`** after real writes.
- */
-function writePatchingChainFixture(dir: string): void {
-  const i18nDir = path.join(dir, 'src', 'i18n');
-  const localesDir = path.join(dir, 'locales');
-  fs.mkdirSync(i18nDir, { recursive: true });
-  fs.mkdirSync(localesDir, { recursive: true });
-  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
-
-  fs.writeFileSync(
-    path.join(dir, 'locales', 'en.json'),
-    `${JSON.stringify({ k1: 'Hello', k2: 'initial', k3: 'Translate me' }, null, 2)}\n`,
-    'utf8',
-  );
-  fs.writeFileSync(path.join(dir, 'locales', 'fr.json'), '{}\n', 'utf8');
-  fs.writeFileSync(path.join(dir, 'locales', 'ar.json'), '{}\n', 'utf8');
-
-  fs.writeFileSync(
-    path.join(i18nDir, 'config.json'),
-    `${JSON.stringify(
-      {
-        locales: [
-          {
-            code: 'en',
-            englishName: 'English',
-            nativeName: 'English',
-            direction: 'ltr',
-          },
-        ],
-      },
-      null,
-      2,
-    )}\n`,
-    'utf8',
-  );
-  fs.writeFileSync(path.join(i18nDir, 'loaders.generated.ts'), '', 'utf8');
-
-  fs.writeFileSync(
-    path.join(dir, 'src', 'i18n.ts'),
-    `/** Minimal stub — translation calls live in main.ts. */\nfunction translate(key: string): string {\n  return key;\n}\nexport const t = translate;\n`,
-    'utf8',
-  );
-  fs.writeFileSync(
-    path.join(dir, 'src', 'main.ts'),
-    `import { t } from './i18n.js';\nexport const a = () => t('k1');\nexport const b = () => t('k3');\n`,
-    'utf8',
-  );
-
-  fs.writeFileSync(
-    path.join(dir, 'i18nprune.config.mjs'),
-    `export default {
-  locales: {
-    source: 'locales/en.json',
-    directory: 'locales',
-  },
-  src: 'src',
-  functions: ['t'],
-  cache: { enabled: false },
-  localeLeaves: { mode: 'legacy_string' },
-  translate: {
-    primary: 'mymemory',
-    workers: 2,
-    providers: [
-      {
-        id: 'mymemory',
-        enabled: true,
-        rateLimit: { maxConcurrency: 2, rpm: 30, rps: 0.5, intervalMs: 500 },
-      },
-    ],
-    policy: {
-      routing: 'single',
-      onRateLimit: 'backoff',
-      onTransientFailure: 'retry',
-      onQuotaExceeded: 'fallback',
-      onAuthFailure: 'abort',
-      onProviderUnavailable: 'fallback',
-      onIdentityOutput: 'flag',
-      onIncompleteRun: 'confirm',
-      handoff: 'auto',
-    },
-  },
-  patching: {
-    enabled: true,
-    recipe: 'loader_generated',
-    mode: 'warn_skip',
-    loaderPath: 'src/i18n/loaders.generated.ts',
-    configPath: 'src/i18n/config.json',
-    localeJsonImportBase: 'locales',
-  },
-};
-`,
-    'utf8',
-  );
+/** Copy committed `tests/fixtures/patching/` tree (intentional config/registry drift). */
+function copyPatchingFixture(dir: string): void {
+  fs.cpSync(patchingFixtureRoot, dir, { recursive: true });
 }
 
 describe('patching CLI chain (patch --fix → --patch sync → --patch generate)', () => {
@@ -148,7 +60,7 @@ describe('patching CLI chain (patch --fix → --patch sync → --patch generate)
     { retry: 2, timeout: 120_000 },
     () => {
       const dir = mkTemp();
-      writePatchingChainFixture(dir);
+      copyPatchingFixture(dir);
 
       const fix = runCliCapture(['patch', '--fix', '--yes'], dir);
       expect(fix.status).toBe(0);
@@ -177,7 +89,10 @@ describe('patching CLI chain (patch --fix → --patch sync → --patch generate)
       >;
       expect(frAfterSync.k1).toBe('synced-value');
 
-      const gen = spawnSync(process.execPath, [cliJs, '--patch', 'generate', '--yes', '--target', 'fr'], {
+      const gen = spawnSync(
+        process.execPath,
+        [cliJs, '--patch', 'generate', '--yes', '--force', '--target', 'fr'],
+        {
         cwd: dir,
         encoding: 'utf8',
         env: { ...process.env, CI: '1', FORCE_COLOR: '0' },

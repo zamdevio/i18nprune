@@ -1,0 +1,22 @@
+{
+  "locales": [
+    {
+      "code": "en",
+      "englishName": "English",
+      "nativeName": "English",
+      "direction": "ltr"
+    },
+    {
+      "code": "ar",
+      "englishName": "Arabic",
+      "nativeName": "العربية",
+      "direction": "rtl"
+    },
+    {
+      "code": "fr",
+      "englishName": "French",
+      "nativeName": "français",
+      "direction": "ltr"
+    }
+  ]
+}

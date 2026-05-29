@@ -7,6 +7,10 @@
         "file": "en.json",
         "isSourceLocale": true,
         "leafCount": 40,
+        "segmentCount": 1,
+        "segmentRelativePaths": [
+          "en.json"
+        ],
         "sourceIdenticalLeafCount": null
       },
       {
@@ -14,6 +18,10 @@
         "file": "ar.json",
         "isSourceLocale": false,
         "leafCount": 29,
+        "segmentCount": 1,
+        "segmentRelativePaths": [
+          "ar.json"
+        ],
         "sourceIdenticalLeafCount": 4
       }
     ],

@@ -1,0 +1,56 @@
+{
+  "actions": {
+    "cancel": {
+      "confidence": 0.83,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Jooji"
+    },
+    "save": {
+      "confidence": 0.62,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Badbaadin"
+    }
+  },
+  "app": {
+    "subtitle": {
+      "confidence": 0.83,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Geed src-qaabeeya"
+    },
+    "title": {
+      "confidence": 0.78,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Ka fal celi qalabka TSX"
+    }
+  },
+  "sidebar": {
+    "dashboard": {
+      "confidence": 0.79,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Dashboard-ka"
+    },
+    "settings": {
+      "confidence": 0.84,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Dejinta"
+    }
+  }
+}

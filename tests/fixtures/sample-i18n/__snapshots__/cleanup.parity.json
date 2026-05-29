@@ -2,6 +2,25 @@
   "data": {
     "dynamicKeySites": 3,
     "keys": [
+      "app.description",
+      "app.greeting",
+      "app.nav.home",
+      "app.nav.contact",
+      "app.nav.profile",
+      "app.nav.logout",
+      "user.login.title",
+      "user.login.email",
+      "user.login.password",
+      "user.login.submit",
+      "user.login.forgot",
+      "user.register.title",
+      "user.register.email",
+      "user.register.password",
+      "user.register.submit",
+      "user.profile.edit",
+      "user.profile.save",
+      "user.profile.cancel",
+      "user.profile.delete",
       "notifications.success",
       "notifications.error",
       "notifications.logout"
@@ -10,14 +29,14 @@
       "command": "cleanup",
       "counts": {
         "dynamicKeySites": 3,
-        "remove": 3
+        "remove": 22
       },
       "ok": true
     },
     "uncertainPrefixes": [
       "app.footer"
     ],
-    "wouldRemove": 3
+    "wouldRemove": 22
   },
   "issues": [
     {
@@ -26,6 +45,13 @@
       "docPath": "docs/dynamic/README",
       "message": "3 translation call(s) use a non-literal key — static analysis cannot enumerate computed keys as fixed paths.",
       "severity": "warning"
+    },
+    {
+      "code": "i18nprune.cleanup.uncertain_paths_excluded",
+      "docHref": "https://docs.i18nprune.dev/issues/cleanup#uncertain-paths-excluded",
+      "docPath": "docs/commands/cleanup/README",
+      "message": "3 path(s) excluded under uncertain key prefix policy.",
+      "severity": "info"
     }
   ],
   "kind": "cleanup",

@@ -25,7 +25,7 @@ describe('cleanup parity (sample-i18n)', () => {
 
   it('matches normalized JSON envelope snapshot', () => {
     const fixtureAbs = path.resolve(fixture);
-    const r = spawnSync(process.execPath, [cliJs, 'cleanup', '--json', '--check-only'], {
+    const r = spawnSync(process.execPath, [cliJs, 'cleanup', '--json'], {
       cwd: fixture,
       encoding: 'utf8',
       env: paritySpawnEnv(),
@@ -37,9 +37,9 @@ describe('cleanup parity (sample-i18n)', () => {
     expect(normalized).toBe(fs.readFileSync(snapshotJson, 'utf8'));
   });
 
-  it('matches normalized human [i18nprune] stderr snapshot', () => {
+  it('matches normalized human [i18nprune] stderr snapshot (report-only via --json)', () => {
     const fixtureAbs = path.resolve(fixture);
-    const r = spawnSync(process.execPath, [cliJs, 'cleanup', '--dry-run'], {
+    const r = spawnSync(process.execPath, [cliJs, 'cleanup', '--json'], {
       cwd: fixture,
       encoding: 'utf8',
       env: paritySpawnEnv(),

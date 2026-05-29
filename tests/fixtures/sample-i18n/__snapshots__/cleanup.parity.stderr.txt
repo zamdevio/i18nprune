@@ -1,2 +1,1 @@
-[i18nprune] [warn] 3 translation call(s) use a non-literal key — cleanup literal-key inference may miss usage; tighten `reference` uncertain-key rules or inspect `i18nprune validate` / `locales dynamic`.
-[i18nprune] [warn] issue: i18nprune.scan.dynamic_key_sites · https://docs.i18nprune.dev/issues/scan#dynamic-key-sites
+

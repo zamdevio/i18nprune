@@ -31,7 +31,7 @@
                 "needsTranslationAgain": false,
                 "source": "manual",
                 "status": "pending",
-                "value": "Sample i18n App"
+                "value": ""
               },
               "beforeKind": "structured_valid",
               "beforeValue": {
@@ -40,11 +40,11 @@
                 "needsTranslationAgain": false,
                 "source": "manual",
                 "status": "pending",
-                "value": "Sample i18n App"
+                "value": ""
               },
-              "path": "app.title",
+              "path": "app.does_not_exist",
               "reasons": [],
-              "sourceValue": "Sample i18n App"
+              "sourceValue": ""
             },
             {
               "action": "unchanged",
@@ -79,7 +79,7 @@
                 "needsTranslationAgain": false,
                 "source": "manual",
                 "status": "pending",
-                "value": ""
+                "value": "Sample i18n App"
               },
               "beforeKind": "structured_valid",
               "beforeValue": {
@@ -88,179 +88,11 @@
                 "needsTranslationAgain": false,
                 "source": "manual",
                 "status": "pending",
-                "value": ""
+                "value": "Sample i18n App"
               },
-              "path": "app.does_not_exist",
+              "path": "app.title",
               "reasons": [],
-              "sourceValue": ""
-            },
-            {
-              "action": "unchanged",
-              "afterKind": "structured_valid",
-              "afterValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Username"
-              },
-              "beforeKind": "structured_valid",
-              "beforeValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Username"
-              },
-              "path": "user.register.username",
-              "reasons": [],
-              "sourceValue": "Username"
-            },
-            {
-              "action": "unchanged",
-              "afterKind": "structured_valid",
-              "afterValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Page views"
-              },
-              "beforeKind": "structured_valid",
-              "beforeValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Page views"
-              },
-              "path": "widgets.stats.views",
-              "reasons": [],
-              "sourceValue": "Page views"
-            },
-            {
-              "action": "unchanged",
-              "afterKind": "structured_valid",
-              "afterValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Active users"
-              },
-              "beforeKind": "structured_valid",
-              "beforeValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Active users"
-              },
-              "path": "widgets.stats.users",
-              "reasons": [],
-              "sourceValue": "Active users"
-            },
-            {
-              "action": "unchanged",
-              "afterKind": "structured_valid",
-              "afterValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Sessions"
-              },
-              "beforeKind": "structured_valid",
-              "beforeValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Sessions"
-              },
-              "path": "widgets.stats.sessions",
-              "reasons": [],
-              "sourceValue": "Sessions"
-            },
-            {
-              "action": "unchanged",
-              "afterKind": "structured_valid",
-              "afterValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Welcome back"
-              },
-              "beforeKind": "structured_valid",
-              "beforeValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Welcome back"
-              },
-              "path": "widgets.banner.title",
-              "reasons": [],
-              "sourceValue": "Welcome back"
-            },
-            {
-              "action": "unchanged",
-              "afterKind": "structured_valid",
-              "afterValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Your dashboard is ready"
-              },
-              "beforeKind": "structured_valid",
-              "beforeValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "Your dashboard is ready"
-              },
-              "path": "widgets.banner.subtitle",
-              "reasons": [],
-              "sourceValue": "Your dashboard is ready"
-            },
-            {
-              "action": "unchanged",
-              "afterKind": "structured_valid",
-              "afterValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "FAQ"
-              },
-              "beforeKind": "structured_valid",
-              "beforeValue": {
-                "confidence": null,
-                "needsReview": false,
-                "needsTranslationAgain": false,
-                "source": "manual",
-                "status": "pending",
-                "value": "FAQ"
-              },
-              "path": "help.faq",
-              "reasons": [],
-              "sourceValue": "FAQ"
+              "sourceValue": "Sample i18n App"
             },
             {
               "action": "unchanged",
@@ -319,6 +151,54 @@
                 "needsTranslationAgain": false,
                 "source": "manual",
                 "status": "pending",
+                "value": "FAQ"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "FAQ"
+              },
+              "path": "help.faq",
+              "reasons": [],
+              "sourceValue": "FAQ"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Notification preferences"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Notification preferences"
+              },
+              "path": "settings.notifications",
+              "reasons": [],
+              "sourceValue": "Notification preferences"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
                 "value": "Profile"
               },
               "beforeKind": "structured_valid",
@@ -367,7 +247,7 @@
                 "needsTranslationAgain": false,
                 "source": "manual",
                 "status": "pending",
-                "value": "Notification preferences"
+                "value": "Username"
               },
               "beforeKind": "structured_valid",
               "beforeValue": {
@@ -376,11 +256,131 @@
                 "needsTranslationAgain": false,
                 "source": "manual",
                 "status": "pending",
-                "value": "Notification preferences"
+                "value": "Username"
               },
-              "path": "settings.notifications",
+              "path": "user.register.username",
               "reasons": [],
-              "sourceValue": "Notification preferences"
+              "sourceValue": "Username"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Your dashboard is ready"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Your dashboard is ready"
+              },
+              "path": "widgets.banner.subtitle",
+              "reasons": [],
+              "sourceValue": "Your dashboard is ready"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Welcome back"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Welcome back"
+              },
+              "path": "widgets.banner.title",
+              "reasons": [],
+              "sourceValue": "Welcome back"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Sessions"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Sessions"
+              },
+              "path": "widgets.stats.sessions",
+              "reasons": [],
+              "sourceValue": "Sessions"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Active users"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Active users"
+              },
+              "path": "widgets.stats.users",
+              "reasons": [],
+              "sourceValue": "Active users"
+            },
+            {
+              "action": "unchanged",
+              "afterKind": "structured_valid",
+              "afterValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Page views"
+              },
+              "beforeKind": "structured_valid",
+              "beforeValue": {
+                "confidence": null,
+                "needsReview": false,
+                "needsTranslationAgain": false,
+                "source": "manual",
+                "status": "pending",
+                "value": "Page views"
+              },
+              "path": "widgets.stats.views",
+              "reasons": [],
+              "sourceValue": "Page views"
             }
           ],
           "missingPathsHydratedFromSource": 0,

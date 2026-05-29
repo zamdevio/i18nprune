@@ -11,5 +11,5 @@ export default {
   src: 'src',
   functions: ['t'],
   translate: fixtureTranslate,
-  policies: { preserve: {}, parity: {} },
+  policies: { preserve: {}, parity: { excludeKeys: ['layout.brand']} },
 };

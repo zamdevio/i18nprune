@@ -1,0 +1,20 @@
+{
+  "app": {
+    "tagline": {
+      "confidence": 0.83,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Humo mínimo de escaneo Svelte"
+    },
+    "title": {
+      "confidence": 0.84,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Accesorio SvelteKit"
+    }
+  }
+}

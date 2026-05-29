@@ -1,0 +1,12 @@
+{
+  "forms": {
+    "save": {
+      "confidence": 0.85,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "حفظ التغييرات"
+    }
+  }
+}

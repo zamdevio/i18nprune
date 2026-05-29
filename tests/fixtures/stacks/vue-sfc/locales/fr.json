@@ -1,0 +1,48 @@
+{
+  "app": {
+    "subtitle": {
+      "confidence": 0.77,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Configuration du script + modèle"
+    },
+    "title": {
+      "confidence": 0.85,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Fixation Vue SFC"
+    }
+  },
+  "footer": {
+    "copyright": {
+      "confidence": 0.81,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "© luminaire"
+    }
+  },
+  "nav": {
+    "about": {
+      "confidence": 0.72,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "À propos"
+    },
+    "home": {
+      "confidence": 0.75,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Maison"
+    }
+  }
+}

@@ -259,8 +259,8 @@ describe('CLI against sample-i18n fixture', () => {
     expect(d.localeMetadataReports?.['ar.json']?.mode).toBe('legacy_string');
   });
 
-  it('cleanup --json --check-only returns cleanup envelope payload', () => {
-    const out = runCli(['cleanup', '--json', '--check-only']);
+  it('cleanup --json returns cleanup envelope payload without writes', () => {
+    const out = runCli(['cleanup', '--json']);
     const j = parseFirstEnvelope(out);
     expect(j.kind).toBe('cleanup');
     expect(j.meta.apiVersion).toBe('1');

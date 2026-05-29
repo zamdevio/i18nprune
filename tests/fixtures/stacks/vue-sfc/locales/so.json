@@ -1,0 +1,48 @@
+{
+  "app": {
+    "subtitle": {
+      "confidence": 0.82,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Habaynta qoraalka + template"
+    },
+    "title": {
+      "confidence": 0.87,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Vue kulanka SFC"
+    }
+  },
+  "footer": {
+    "copyright": {
+      "confidence": 0.87,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "© qalabka"
+    }
+  },
+  "nav": {
+    "about": {
+      "confidence": 0.62,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Ku saabsan"
+    },
+    "home": {
+      "confidence": 0.75,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Guriga"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "locales": [
+    {
+      "code": "ar",
+      "englishName": "Arabic",
+      "nativeName": "العربية",
+      "direction": "rtl"
+    },
+    {
+      "code": "en",
+      "englishName": "English",
+      "nativeName": "English",
+      "direction": "ltr"
+    },
+    {
+      "code": "es",
+      "englishName": "Spanish",
+      "nativeName": "español",
+      "direction": "ltr"
+    },
+    {
+      "code": "fr",
+      "englishName": "French",
+      "nativeName": "français",
+      "direction": "ltr"
+    },
+    {
+      "code": "so",
+      "englishName": "Somali",
+      "nativeName": "Soomaali",
+      "direction": "ltr"
+    }
+  ]
+}

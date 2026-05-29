@@ -1,0 +1,56 @@
+{
+  "actions": {
+    "cancel": {
+      "confidence": 0.79,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "يلغي"
+    },
+    "save": {
+      "confidence": 0.87,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "يحفظ"
+    }
+  },
+  "app": {
+    "subtitle": {
+      "confidence": 0.86,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "شجرة src على شكل Vite"
+    },
+    "title": {
+      "confidence": 0.78,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "رد فعل لاعبا اساسيا TSX"
+    }
+  },
+  "sidebar": {
+    "dashboard": {
+      "confidence": 0.79,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "لوحة القيادة"
+    },
+    "settings": {
+      "confidence": 0.84,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "إعدادات"
+    }
+  }
+}

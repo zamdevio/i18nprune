@@ -1,0 +1,40 @@
+{
+  "routes": {
+    "about": {
+      "body": {
+        "confidence": 0.79,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "نسخة على مستوى الطريق"
+      },
+      "heading": {
+        "confidence": 0.72,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "عن"
+      }
+    },
+    "index": {
+      "subtitle": {
+        "confidence": 0.86,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "التطبيق/طرق مسح الدخان"
+      },
+      "title": {
+        "confidence": 0.83,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "ريمكس طرق تركيبات"
+      }
+    }
+  }
+}

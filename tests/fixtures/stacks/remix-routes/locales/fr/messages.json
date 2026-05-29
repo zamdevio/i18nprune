@@ -1,0 +1,40 @@
+{
+  "routes": {
+    "about": {
+      "body": {
+        "confidence": 0.64,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Copie au niveau de l'itinéraire"
+      },
+      "heading": {
+        "confidence": 0.72,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "À propos"
+      }
+    },
+    "index": {
+      "subtitle": {
+        "confidence": 0.63,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "application/itinéraires scannant la fumée"
+      },
+      "title": {
+        "confidence": 0.71,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Fixation des itinéraires de remix"
+      }
+    }
+  }
+}
