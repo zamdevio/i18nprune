@@ -1,10 +1,9 @@
-import { analyzePatchingState, runPatching } from '@i18nprune/core';
+import { analyzePatchingState, resolveLocalesLayout, runPatching, sourceLocaleCodeForLayout } from '@i18nprune/core';
 import type {
   PatchingAnalyzeOutput,
   PatchingResult,
   PatchingRunInput,
 } from '@i18nprune/core';
-import { getDisplaySourceLocaleCode } from '@/shared/locales/index.js';
 import { resolvePatchingProjectRoot } from '@/shared/patching/scaffoldI18nLayout.js';
 import type { Context } from '@/types/core/context/index.js';
 
@@ -20,12 +19,18 @@ export type PatchingRunInputFromContextParams = Pick<
  */
 export function patchingRunInputBaseFromContext(
   ctx: Context,
-): Pick<PatchingRunInput, 'sourceLocaleCode' | 'config' | 'runtime' | 'projectRoot'> {
+): Pick<PatchingRunInput, 'sourceLocaleCode' | 'config' | 'runtime' | 'projectRoot' | 'localesLayout'> {
+  const localesLayout = resolveLocalesLayout(ctx.config.locales, ctx.paths.localesDir);
   return {
-    sourceLocaleCode: getDisplaySourceLocaleCode(ctx),
+    sourceLocaleCode: sourceLocaleCodeForLayout({
+      layout: localesLayout,
+      path: ctx.adapters.path,
+      sourceLocaleAbsolute: ctx.paths.sourceLocale,
+    }),
     config: ctx.config.patching,
     runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
     projectRoot: resolvePatchingProjectRoot(ctx),
+    localesLayout,
   };
 }
 

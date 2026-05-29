@@ -64,7 +64,7 @@ export async function config(): Promise<void> {
     logger.primary(`  ${style.dim('localesDir'.padEnd(16))} ${snap.resolvedPaths.localesDir}`, run);
     logger.primary(`  ${style.dim('srcRoot'.padEnd(16))} ${snap.resolvedPaths.srcRoot}`, run);
     logger.primary('', run);
-    logger.primary(style.dim('  Tip: i18nprune config --json  ·  see docs for I18NPRUNE_* env vars'), run);
+    logger.tip('i18nprune config --json  ·  see docs for I18NPRUNE_* env vars', run);
     logger.primary('', run);
 
     printCommandSummary(

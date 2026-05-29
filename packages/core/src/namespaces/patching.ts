@@ -10,6 +10,11 @@ export {
   renderGeneratedInnerBlock,
   runPatching,
 } from '../patching/index.js';
+export {
+  listPatchingLocaleCodesOnDisk,
+  patchingLocaleDiskPathLabel,
+  resolvePatchingLocaleImportSpec,
+} from '../patching/localeDiscovery.js';
 export type {
   LocaleConfigMismatch,
   PatchingAction,
@@ -19,6 +24,7 @@ export type {
   PatchingDiagnostic,
   PatchingFileEdit,
   PatchingLocaleRecord,
+  PatchingLocaleImportSpec,
   PatchingMode,
   PatchingPlan,
   PatchingRecipeId,

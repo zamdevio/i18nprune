@@ -35,6 +35,7 @@ export type LocalesDeleteJsonPayload = {
   kind: 'locales-delete';
   targets: string[];
   deletedJson: number;
+  deletedLocaleCount: number;
   aborted: boolean;
   supportsAutoPatching: false;
 };

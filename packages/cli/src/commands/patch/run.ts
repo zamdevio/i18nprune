@@ -1,4 +1,4 @@
-import { resolveContext } from '@/shared/context/index.js';
+import { resolveContext, clearContextCache } from '@/shared/context/index.js';
 import { resolveConfigFilePath } from '@/shared/config/index.js';
 import { confirm } from '@inquirer/prompts';
 import {
@@ -21,7 +21,14 @@ import {
 } from '@/shared/patching/scaffoldI18nLayout.js';
 import { analyzePatchingStateFromContext, runPatchingFromContext } from '@/shared/patching/fromContext.js';
 import { repairPatchingConfigLocales } from '@/shared/patching/configLocales.js';
-import { replaceStartBeforePropertyKey } from '@/shared/patching/replaceConfigPatchingBlock.js';
+import {
+  buildPatchingSnippet,
+  ensurePatchingConfigBlock,
+  formatPatchingSnippetForManualCopy,
+  tryInjectPatchingConfig,
+  tryReplacePatchingConfig,
+} from '@/shared/patching/injectConfigBlock.js';
+import type { EnsurePatchingConfigBlockResult } from '@/types/shared/patching/injectConfigBlock.js';
 import { PATCH_RENEW_CLI_FILES } from '@/shared/patching/guidance.js';
 import { canAsk } from '@/shared/ask/index.js';
 import { duringPrompt } from '@/utils/timer/index.js';
@@ -35,88 +42,27 @@ function warnForceWithoutInit(): void {
   logger.warn('`--force` only applies with `patch --init`; ignoring `--force`.', run);
 }
 
-/** Indent for `patching:` at defineConfig depth (2 spaces → inner fields at 4, closing brace at 2). */
-const PATCHING_CONFIG_BODY_INDENT = '  ';
-
-function toProjectRelativePath(
-  pathMod: Awaited<ReturnType<typeof resolveContext>>['adapters']['path'],
-  projectRoot: string,
-  absolutePath: string,
-): string {
-  return pathMod.relative(projectRoot, absolutePath).replace(/\\/g, '/') || '.';
-}
-
-function buildPatchingSnippet(
-  pathMod: Awaited<ReturnType<typeof resolveContext>>['adapters']['path'],
-  paths: {
-    configPath: string;
-    loaderPath: string;
-    localeJsonImportBase: string;
-  },
-  projectRoot: string,
-): string {
-  const bi = PATCHING_CONFIG_BODY_INDENT;
-  const rel = (abs: string): string => toProjectRelativePath(pathMod, projectRoot, abs);
-  const inner = `${bi}  `;
-  return [
-    `${bi}patching: {`,
-    `${inner}enabled: true,`,
-    `${inner}recipe: "loader_generated",`,
-    `${inner}configPath: "${rel(paths.configPath)}",`,
-    `${inner}loaderPath: "${rel(paths.loaderPath)}",`,
-    `${inner}localeJsonImportBase: "${paths.localeJsonImportBase}",`,
-    `${bi}},`,
-  ].join('\n');
-}
-
-function tryInjectPatchingConfig(fileText: string, snippet: string): {
-  kind: 'updated' | 'skipped_existing' | 'skipped_unrecognized';
-  text: string;
-} {
-  if (/\bpatching\s*:/.test(fileText)) return { kind: 'skipped_existing', text: fileText };
-  const marker = /export\s+default\s+defineConfig\(\{\n?/;
-  const matched = fileText.match(marker);
-  if (!matched || matched.index == null) return { kind: 'skipped_unrecognized', text: fileText };
-  const insertAt = matched.index + matched[0].length;
-  return { kind: 'updated', text: `${fileText.slice(0, insertAt)}${snippet}\n${fileText.slice(insertAt)}` };
-}
-
-function tryReplacePatchingConfig(fileText: string, snippet: string): {
-  kind: 'updated' | 'skipped_missing' | 'skipped_unrecognized';
-  text: string;
-} {
-  const keyRe = /\bpatching\s*:\s*\{/g;
-  const m = keyRe.exec(fileText);
-  if (!m || m.index == null) return { kind: 'skipped_missing', text: fileText };
-  const braceStart = fileText.indexOf('{', m.index);
-  if (braceStart < 0) return { kind: 'skipped_unrecognized', text: fileText };
-  let depth = 0;
-  let end = -1;
-  for (let i = braceStart; i < fileText.length; i += 1) {
-    const ch = fileText[i];
-    if (ch === '{') depth += 1;
-    if (ch === '}') {
-      depth -= 1;
-      if (depth === 0) {
-        end = i + 1;
-        break;
-      }
-    }
+function logManualPatchingConfigSnippet(prefix: string, inject: EnsurePatchingConfigBlockResult, run: ReturnType<typeof getRunOptions>): void {
+  if (inject.configUpdated || inject.status === 'skipped_existing') return;
+  const reason = inject.skipReason ?? inject.status.replace(/^skipped_/, '').replace(/_/g, ' ');
+  logger.warn(`${prefix}: skipped automatic patching config injection (${reason}).`, run);
+  logger.tip('Add this patching block to i18nprune.config.* manually:', run);
+  for (const line of formatPatchingSnippetForManualCopy(inject.suggestedSnippet).split('\n')) {
+    logger.detail(line, run);
   }
-  if (end < 0) return { kind: 'skipped_unrecognized', text: fileText };
-  let tailEnd = end;
-  while (tailEnd < fileText.length && /\s/.test(fileText[tailEnd]!)) tailEnd += 1;
-  if (fileText[tailEnd] === ',') tailEnd += 1;
-  const replaceStart = replaceStartBeforePropertyKey(fileText, m.index);
-  return {
-    kind: 'updated',
-    text: `${fileText.slice(0, replaceStart)}${snippet}${fileText.slice(tailEnd)}`,
-  };
+}
+
+function logManualPatchingSnippetFromText(prefix: string, reason: string, snippet: string, run: ReturnType<typeof getRunOptions>): void {
+  logger.warn(`${prefix}: skipped automatic patching config injection (${reason}).`, run);
+  logger.tip('Add this patching block to i18nprune.config.* manually:', run);
+  for (const line of formatPatchingSnippetForManualCopy(snippet).split('\n')) {
+    logger.detail(line, run);
+  }
 }
 
 export async function patch(opts: PatchCommandOptions): Promise<void> {
   const run = getRunOptions();
-  const ctx = await resolveContext();
+  let ctx = await resolveContext();
 
   const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'patch' });
   if (readiness) {
@@ -174,10 +120,15 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
           await Promise.resolve(ctx.adapters.fs.writeText(cfgPath, replaced.text));
           configInjectStatus = 'updated';
           configUpdated = true;
+        } else if (replaced.kind === 'skipped_unsure') {
+          configInjectStatus = 'skipped_unrecognized';
+          logManualPatchingSnippetFromText('patch --init --force', replaced.reason ?? 'unsafe to replace patching block', snippet, run);
         } else {
           const injected = tryInjectPatchingConfig(current, snippet);
-          configInjectStatus = injected.kind;
-          if (injected.kind === 'updated' && injected.text !== current) {
+          configInjectStatus = injected.kind === 'skipped_unsure' ? 'skipped_unrecognized' : injected.kind;
+          if (injected.kind === 'skipped_unsure') {
+            logManualPatchingSnippetFromText('patch --init --force', injected.reason ?? 'unsafe to inject patching block', snippet, run);
+          } else if (injected.kind === 'updated' && injected.text !== current) {
             await Promise.resolve(ctx.adapters.fs.writeText(cfgPath, injected.text));
             configUpdated = true;
           }
@@ -307,8 +258,18 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
           localeJsonImportBase: localeJsonImportBaseProjectInject,
         }, projectRoot),
       );
-      configInjectStatus = patched.kind;
-      if (patched.kind === 'updated' && patched.text !== current) {
+      configInjectStatus = patched.kind === 'skipped_unsure' ? 'skipped_unrecognized' : patched.kind;
+      if (patched.kind === 'skipped_unsure') {
+        logManualPatchingSnippetFromText(
+          'patch --init',
+          patched.reason ?? 'unsafe to inject patching block',
+          buildPatchingSnippet(ctx.adapters.path, {
+            ...paths,
+            localeJsonImportBase: localeJsonImportBaseProjectInject,
+          }, projectRoot),
+          run,
+        );
+      } else if (patched.kind === 'updated' && patched.text !== current) {
         await Promise.resolve(ctx.adapters.fs.writeText(cfgPath, patched.text));
         configUpdated = true;
       }
@@ -357,6 +318,22 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
       `patch: scaffold appears incomplete under ${scaffold.i18nDir} (missing: ${missingScaffoldParts.join(', ')}). Run "i18nprune patch --init" first.`,
       run,
     );
+  }
+
+  if (opts.fix && !opts.init) {
+    const needsBlock =
+      !patchingBlockPresent(ctx.config.patching) ||
+      Boolean(buildPatchingSectionIncompleteDiagnostic(ctx.config.patching, { effectiveWantsRun: true }));
+    if (needsBlock) {
+      const inject = await ensurePatchingConfigBlock(ctx, { refreshIfIncomplete: true });
+      if (inject.configUpdated) {
+        clearContextCache();
+        ctx = await resolveContext();
+        logger.info('patch --fix: added patching config block to i18nprune.config.* automatically.', run);
+      } else {
+        logManualPatchingConfigSnippet('patch --fix', inject, run);
+      }
+    }
   }
 
   if (patchingBlockPresent(ctx.config.patching)) {
@@ -494,7 +471,7 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
     analysis.hasError &&
     analysis.diagnostics.some((d) => d.severity === 'error' && renewScaffoldErrorCodes.has(d.code))
   ) {
-    logger.info(PATCH_RENEW_CLI_FILES, run);
+    logger.tip(PATCH_RENEW_CLI_FILES, run);
   }
 
   if (run.json) {
@@ -537,7 +514,7 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
       else logger.detail(d.message, run);
     }
     if (hasFixableWarnings) {
-      logger.info('patch: detected fixable inconsistencies. Run "i18nprune patch --fix" to apply automatic corrections.', run);
+      logger.tip('Run "i18nprune patch --fix" to apply automatic corrections for the issues above.', run);
     } else if (!analysis.hasError) {
       const hasWarnOrErr = analysis.diagnostics.some((d) => d.severity === 'error' || d.severity === 'warn');
       if (!hasWarnOrErr) {
@@ -559,8 +536,8 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
               `patch: ${String(n)} configured locale(s) — no config ↔ locale file drift and no catalog metadata mismatches. (Recipe: ${recipe}.)`,
               run,
             );
-            logger.detail(
-              'Tip: pass `--patch` on generate/sync/locales (or set patching.enabled) so the generated loader stays aligned after mutations.',
+            logger.tip(
+              'Pass `--patch` on generate/sync/locales (or set patching.enabled) so the generated loader stays aligned after mutations.',
               run,
             );
           }

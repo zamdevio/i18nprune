@@ -6,8 +6,11 @@ import {
   generatedLanguageCatalog,
   getLanguageByCodeFromCatalog,
   languageOftenRtl,
-  listRuntimeFsDirSync,
+  listLocaleCodes,
   renderGeneratedInnerBlock,
+  resolveLocalesLayout,
+  resolvePatchingLocaleImportSpec,
+  sourceLocaleCodeForLayout,
   type PatchingLocaleRecord,
 } from '@i18nprune/core';
 
@@ -59,22 +62,34 @@ export function resolvePatchingProjectRoot(ctx: Context): string {
 }
 
 export function collectLocaleCodesFromDisk(ctx: Context): string[] {
-  const entries = listRuntimeFsDirSync(ctx.paths.localesDir, ctx.adapters.fs);
-  const codes = entries
-    .filter((e) => e.kind === 'file' && e.name.endsWith('.json'))
-    .map((e) => e.name.slice(0, -5));
-  return [...new Set(codes)].sort();
+  const layout = resolveLocalesLayout(ctx.config.locales, ctx.paths.localesDir);
+  if (layout.mode === 'flat_file' && layout.structure === 'locale_file') {
+    const entries = ctx.adapters.fs.listDir(ctx.paths.localesDir);
+    const codes = (Array.isArray(entries) ? entries : [])
+      .filter((e) => e.kind === 'file' && e.name.endsWith('.json'))
+      .map((e) => e.name.slice(0, -5));
+    return [...new Set(codes)].sort();
+  }
+  return listLocaleCodes({
+    layout,
+    fs: ctx.adapters.fs,
+    path: ctx.adapters.path,
+  }).codes;
 }
 
-function sourceSlug(ctx: Context): string {
-  const base = ctx.adapters.path.basename(ctx.paths.sourceLocale);
-  return base.endsWith('.json') ? base.slice(0, -5) : base;
+function sourceLocaleCode(ctx: Context): string {
+  const layout = resolveLocalesLayout(ctx.config.locales, ctx.paths.localesDir);
+  return sourceLocaleCodeForLayout({
+    layout,
+    path: ctx.adapters.path,
+    sourceLocaleAbsolute: ctx.paths.sourceLocale,
+  });
 }
 
 export function buildLocaleRecordsForScaffold(ctx: Context): PatchingLocaleRecord[] {
   const catalog = buildLanguageCatalog(generatedLanguageCatalog);
   const codes = collectLocaleCodesFromDisk(ctx);
-  const source = sourceSlug(ctx);
+  const source = sourceLocaleCode(ctx);
   const ordered = [...new Set([source, ...codes.filter((c) => c !== source)])];
   return ordered.map((code) => {
     const cat = getLanguageByCodeFromCatalog(catalog, code);
@@ -104,11 +119,19 @@ export function buildScaffoldFileContents(ctx: Context): {
   const localeJsonImportBase = computeLocaleJsonImportBase(ctx, paths.loaderPath);
   const records = buildLocaleRecordsForScaffold(ctx);
   const configText = `${JSON.stringify({ locales: records }, null, 2)}\n`;
-  const sourceLocaleCode = sourceSlug(ctx);
+  const sourceCode = sourceLocaleCode(ctx);
+  const layout = resolveLocalesLayout(ctx.config.locales, ctx.paths.localesDir);
+  const localeImportSpec = resolvePatchingLocaleImportSpec({
+    layout,
+    runtime: { fs: ctx.adapters.fs, path: ctx.adapters.path },
+    localesDir: ctx.paths.localesDir,
+    sourceLocaleCode: sourceCode,
+  });
   const inner = renderGeneratedInnerBlock({
     records,
     importBase: localeJsonImportBase,
-    defaultLocaleCode: sourceLocaleCode,
+    defaultLocaleCode: sourceCode,
+    localeImportSpec,
   });
   const generatedText = composeLoadersGeneratedFile(inner, '// Optional: add small helpers or re-exports here.\n');
   return { configText, generatedText, localeJsonImportBase };

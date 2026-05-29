@@ -68,6 +68,11 @@ export function canPrintVerbose(run: RunOptions): boolean {
   return !run.json && !run.silent;
 }
 
+/** Actionable hints — same visibility as detail / info. */
+export function canPrintTip(run: RunOptions): boolean {
+  return canPrintDetail(run);
+}
+
 /** Single entry for gate checks — use in custom code paths if needed. */
 export function canEmit(run: RunOptions, gate: LogGate): boolean {
   switch (gate) {
@@ -93,6 +98,8 @@ export function canEmit(run: RunOptions, gate: LogGate): boolean {
       return canPrintScanDebug(run);
     case 'verbose':
       return canPrintVerbose(run);
+    case 'tip':
+      return canPrintTip(run);
     default:
       return false;
   }

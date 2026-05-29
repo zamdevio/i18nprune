@@ -81,13 +81,17 @@ export async function localesList(): Promise<void> {
       const window = resolveCliListWindow(ctx.config, { defaultFull: true });
       const shownRows = payload.rows.slice(0, window.limit);
       if (canPrintInfo(ctx.run)) {
-        logger.info(`${String(payload.localeCount)} locale file(s) in ${localesDir}`, ctx.run);
+        logger.info(`${String(payload.localeCount)} locale(s) in ${localesDir}`, ctx.run);
         for (const row of shownRows) {
           const extras =
             row.englishIdenticalLeafCount === null
               ? 'source locale'
               : `source-identical: ${String(row.englishIdenticalLeafCount)}`;
-          logger.detail(`  ${row.code}.json · leaves ${String(row.leafCount)} · ${extras}`, ctx.run);
+          const files =
+            row.segmentCount > 1
+              ? `${String(row.segmentCount)} segment files`
+              : (row.segmentRelativePaths[0] ?? `${row.code}.json`);
+          logger.detail(`  ${row.code} · ${files} · leaves ${String(row.leafCount)} · ${extras}`, ctx.run);
         }
         if (payload.rows.length > shownRows.length) {
           logger.detail(`  ... ${String(payload.rows.length - shownRows.length)} more locale(s) hidden`, ctx.run);

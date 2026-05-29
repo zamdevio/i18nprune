@@ -7,7 +7,7 @@ import { translateSchema } from './translate.js';
 import type { ReferenceConfig as CoreReferenceConfig } from '../../types/reference/index.js';
 import type { ParityPolicy, PreservePolicy } from '../../types/policies/index.js';
 import type { ScanExcludeConfig, ScannerConfigInput } from '../../types/scanner/index.js';
-import type { PatchingConfigInput } from '../../types/patching/index.js';
+import type { PatchingConfigInput } from '../../types/patching/config.js';
 import type { TranslationProviderId } from '../../types/translator/providers.js';
 import type { TranslatePolicy } from '../../types/translator/policy.js';
 

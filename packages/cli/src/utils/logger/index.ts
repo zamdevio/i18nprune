@@ -1,4 +1,4 @@
-import { cacheLine, line, scanLine, style, verboseLine } from '@/utils/ansi/index.js';
+import { cacheLine, line, scanLine, style, tipLine, verboseLine } from '@/utils/ansi/index.js';
 import { getRunOptions } from '@i18nprune/core';
 import type { RunOptions } from '@i18nprune/core';
 import type { LoggerMask } from '@/types/core/logger/index.js';
@@ -74,6 +74,13 @@ export const logger = {
       return;
     }
     console.log(verboseLine(msg, options?.dim !== false));
+  },
+
+  /** `[i18nprune] [tip] …` — actionable hints (orange tag; hidden under `--quiet` / `--json`). */
+  tip(msg: string, run?: RunOptions, mask?: LoggerMask): void {
+    const r = effective(run, mask);
+    if (!canEmit(r, 'tip')) return;
+    console.log(tipLine(msg));
   },
 
   /** Always prints (stderr). */

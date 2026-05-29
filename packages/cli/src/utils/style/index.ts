@@ -11,4 +11,6 @@ export const style = {
   err: (s: string) => chalk.red(s),
   magenta: (s: string) => chalk.magenta(s),
   blue: (s: string) => chalk.blue(s),
+  /** Orange — tip / hint channel (distinct from yellow warn). */
+  tip: (s: string) => chalk.hex('#FF8C00')(s),
 };

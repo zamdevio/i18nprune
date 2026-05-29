@@ -51,6 +51,11 @@ export function verboseLine(message: string, dimBody = true): string {
   return `${appPrefix()} ${tag} ${body}`;
 }
 
+/** `[i18nprune] [tip] message` — actionable hints (orange; not warn-styled). */
+export function tipLine(message: string): string {
+  return `${appPrefix()} ${bracketTag('tip', style.tip)} ${message}`;
+}
+
 /**
  * Box header that **sizes to content** (ANSI-safe) — dim frame, bold title.
  * Uses **`CLI_MARK`** when `mark` is omitted; pass **`mark: ''`** to hide the icon.

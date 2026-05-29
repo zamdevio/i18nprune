@@ -27,6 +27,7 @@ import { validate } from '@/commands/validate/index.js';
 import { missing } from '@/commands/missing/index.js';
 import { quality } from '@/commands/quality/index.js';
 import { cleanup } from '@/commands/cleanup/index.js';
+import { resolveCleanupNoRg } from '@/commands/cleanup/flags.js';
 import { languages } from '@/commands/languages/index.js';
 import { providers } from '@/commands/providers/index.js';
 import { config } from '@/commands/config/index.js';
@@ -407,22 +408,20 @@ program
 
 program
   .command('cleanup')
-  .description('Remove unused keys (optional ripgrep safety on src/)')
-  .option('--check-only', 'report only, no writes', false)
-  .option('--dry-run', 'report only, no writes (alias for --check-only behavior)', false)
-  .option('--skip-rg', 'do not run ripgrep (static unused-key list only)', false)
+  .description('Remove unused keys (ripgrep safety on src/ by default; --no-rg to skip)')
+  .option('--dry-run', 'preview removals; no writes', false)
+  .option('--no-rg', 'skip ripgrep string-presence guard (static unused-key list only)', false)
   .option(
     '--ask',
     'interactive TTY: confirm removals in batches (grouped by top-level key namespace); overridden by global --yes',
     false,
   )
-  .option('--ask-per-key', 'with --ask, confirm each key separately (noisy)', false)
+  .option('--ask-per-key', 'interactive TTY: confirm each unused key path separately', false)
   .action(
-    async (opts: { checkOnly?: boolean; dryRun?: boolean; skipRg?: boolean; ask?: boolean; askPerKey?: boolean }) => {
+    async (opts: { dryRun?: boolean; rg?: boolean; ask?: boolean; askPerKey?: boolean }) => {
       await cleanup({
-        checkOnly: Boolean(opts.checkOnly),
         dryRun: Boolean(opts.dryRun),
-        skipRg: Boolean(opts.skipRg),
+        noRg: resolveCleanupNoRg(opts),
         ask: Boolean(opts.ask),
         askPerKey: Boolean(opts.askPerKey),
       });

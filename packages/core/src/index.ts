@@ -120,6 +120,7 @@ export { runGenerate } from './generate/run.js';
 export { resolveGenerateLocaleDisplay, resolveLocaleDirection } from './shared/languages/resolveGenerateLocaleDisplay.js';
 export type { CoreContext, CoreResolvedPaths } from './types/context/index.js';
 export type {
+  GenerateFinalizeSummaryInput,
   GenerateHostHooks,
   GenerateJsonPayload,
   GenerateRunHooks,
@@ -193,9 +194,9 @@ export {
   createCleanupSourceWritePlan,
   emitCleanupAbortMessage,
   emitCleanupAskIgnoredMessage,
-  emitCleanupCheckOnlyMessage,
   emitCleanupWriteDone,
   emitCleanupWriteIntro,
+  listCleanupSourceSegmentsForKeys,
   pathUnderRoot,
   resolveCleanupKeysWithStringPresencePolicy,
   runCleanup,
@@ -220,6 +221,7 @@ export {
   detectPatchingRecipe,
   patchingBlockPresent,
   resolvePatchingConfigLocales,
+  resolvePatchingLocaleImportSpec,
   renderGeneratedInnerBlock,
   runPatching,
 } from './namespaces/patching.js';
@@ -243,6 +245,7 @@ export type {
 export * as generate from './namespaces/generate.js';
 export {
   buildTranslatedLocaleFromSourceLeaves,
+  formatGenerateFinalizeSummaryLines,
   localeJsonHasKeyPath,
   translateAndNormalizeGenerateLocale,
   TranslateRunInterruptedError,
@@ -473,6 +476,7 @@ export {
   writeLocaleJsonFromContextSync,
   resolveLocalesLayout,
   resolveLocalesLayoutFromContext,
+  sourceLocaleCodeForLayout,
   isLocalesLayoutReadSupported,
   isLocalesLayoutWriteSupported,
   listLocaleCodes,
@@ -485,7 +489,10 @@ export {
 export type { ListJsonPayload, ListRunResult } from './locales/list/index.js';
 export {
   buildLocaleJsonByTagFromArchive,
+  localeCodesFromContext,
   segmentsForLocaleCode,
+  sourceLocaleCodeFromContext,
+  targetLocaleCodesFromContext,
 } from './shared/locales/index.js';
 export type {
   ReadFlatLocaleJsonSurfaceResult,
@@ -988,6 +995,7 @@ export type {
   PatchingDiagnostic,
   PatchingFileEdit,
   PatchingLocaleRecord,
+  PatchingLocaleImportSpec,
   PatchingMode,
   PatchingPlan,
   PatchingRecipeId,

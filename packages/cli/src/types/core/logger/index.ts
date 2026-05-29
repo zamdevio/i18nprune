@@ -12,7 +12,8 @@ export type LogGate =
   | 'progress'
   | 'cache'
   | 'scan'
-  | 'verbose';
+  | 'verbose'
+  | 'tip';
 
 /** Per-call merge on top of resolved `RunOptions`. */
 export type LoggerMask = Partial<RunOptions>;

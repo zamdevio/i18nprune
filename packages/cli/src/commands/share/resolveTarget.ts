@@ -45,15 +45,15 @@ export function shareCacheEmptyIssue(): Issue {
 /** Info + dim detail lines when share.json has no rows and no worker id flags were passed. */
 export function emitShareCacheEmptyHints(ctx: Context, command: 'view' | 'delete'): void {
   logger.info('No uploads recorded in share.json for this project.', ctx.run);
-  logger.detail('  Upload first: i18nprune share upload --project', ctx.run);
-  logger.detail('  Or report:     i18nprune share upload --report --from <file>', ctx.run);
+  logger.tip('Upload first: i18nprune share upload --project', ctx.run);
+  logger.tip('Or report:     i18nprune share upload --report --from <file>', ctx.run);
   if (command === 'delete') {
-    logger.detail('  Bulk cleanup:  i18nprune share delete --all', ctx.run);
-    logger.detail('  Or one id:     i18nprune share delete --project <id>  |  --report <id>', ctx.run);
+    logger.tip('Bulk cleanup:  i18nprune share delete --all', ctx.run);
+    logger.tip('Or one id:     i18nprune share delete --project <id>  |  --report <id>', ctx.run);
   } else {
-    logger.detail('  Or one id:     i18nprune share view --project <id>  |  --report <id>', ctx.run);
+    logger.tip('Or one id:     i18nprune share view --project <id>  |  --report <id>', ctx.run);
   }
-  logger.detail('  List cache:    i18nprune share list', ctx.run);
+  logger.tip('List cache:    i18nprune share list', ctx.run);
 }
 
 export function shareBothKindsIssue(): Issue {

@@ -1,4 +1,4 @@
-import type { PatchingLocaleRecord } from '../types/patching/index.js';
+import type { PatchingLocaleImportSpec, PatchingLocaleRecord } from '../types/patching/index.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import {
   GENERATED_MODULE_END,
@@ -15,9 +15,37 @@ const FILE_HEADER = `/**
  */
 `;
 
-function jsonImportPath(importBase: string, code: string): string {
+function importPathsForLocale(
+  importBase: string,
+  code: string,
+  spec: PatchingLocaleImportSpec,
+): string[] {
   const base = importBase.replace(/\/+$/, '').replace(/\\/g, '/');
-  return `${base}/${code}.json`;
+  if (spec.kind === 'flat_file') {
+    return [`${base}/${code}.json`];
+  }
+  if (spec.kind === 'locale_per_dir') {
+    return spec.segmentBasenames.map((segment) => `${base}/${code}/${segment}.json`);
+  }
+  return spec.featureBasenames.map((feature) => `${base}/${feature}/${code}.json`);
+}
+
+function renderLoaderEntry(code: string, importBase: string, spec: PatchingLocaleImportSpec): string {
+  let paths = importPathsForLocale(importBase, code, spec);
+  if (paths.length === 0) {
+    paths = [`${importBase.replace(/\/+$/, '').replace(/\\/g, '/')}/${code}.json`];
+  }
+  if (paths.length === 1) {
+    return `  ${JSON.stringify(code)}: () => import(${JSON.stringify(paths[0]!)}),`;
+  }
+  const importsList = paths.map((p) => `import(${JSON.stringify(p)})`).join(', ');
+  return [
+    `  ${JSON.stringify(code)}: async () => {`,
+    `    const mods = await Promise.all([${importsList}]);`,
+    `    const messages = Object.assign({}, ...mods.map((m) => m.default));`,
+    `    return { default: messages };`,
+    `  },`,
+  ].join('\n');
 }
 
 /** Machine-owned block only (between generated markers in the output file). */
@@ -25,15 +53,17 @@ export function renderGeneratedInnerBlock(params: {
   records: readonly PatchingLocaleRecord[];
   importBase: string;
   defaultLocaleCode?: string;
+  localeImportSpec?: PatchingLocaleImportSpec;
 }): string {
   const { records, importBase } = params;
+  const importSpec = params.localeImportSpec ?? { kind: 'flat_file' as const };
   const codes = records.map((r) => r.code);
   const preferred = params.defaultLocaleCode ? normalizeLanguageCode(params.defaultLocaleCode) : undefined;
   const defaultCode = preferred && codes.includes(preferred) ? preferred : (codes[0] ?? 'en');
   const registryJson = JSON.stringify(records, null, 2);
 
   const loaderEntries = records
-    .map((r) => `  ${JSON.stringify(r.code)}: () => import(${JSON.stringify(jsonImportPath(importBase, r.code))}),`)
+    .map((r) => renderLoaderEntry(r.code, importBase, importSpec))
     .join('\n');
 
   return [

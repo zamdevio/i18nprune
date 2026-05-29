@@ -3,6 +3,7 @@ import { resolveContext } from '@/shared/context/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import { I18nPruneError, deleteLocaleFiles, segmentsForLocaleCode } from '@i18nprune/core';
 import { resolveLocalesTargetCodes } from '@/shared/locales/index.js';
+import { formatLocaleSegmentFilesLabel } from '@/shared/locales/segmentLabel.js';
 import { canAsk } from '@/shared/ask/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintDecorative, canPrintInfo } from '@/utils/logger/policy.js';
@@ -34,6 +35,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
     kind: 'locales-delete',
     targets: [],
     deletedJson: 0,
+    deletedLocaleCount: 0,
     aborted: false,
     supportsAutoPatching: false,
   };
@@ -94,6 +96,7 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           kind: 'locales-delete',
           targets,
           deletedJson: 0,
+          deletedLocaleCount: 0,
           aborted: true,
           supportsAutoPatching: false,
         };
@@ -170,11 +173,15 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
     } else {
       if (canPrintDecorative(ctx.run)) {
         logger.primary('', ctx.run);
-        logger.primary(formatSectionTitle(`Deleted locale(s) · ${targets.join(', ')}`), ctx.run);
+        logger.primary(formatSectionTitle('Deleted locale(s)'), ctx.run);
       }
       if (canPrintInfo(ctx.run)) {
         for (const row of deletedTargets) {
-          logger.info(`Removed ${row.jsonPath}`, ctx.run);
+          if (row.deletedJsonCount === 0) continue;
+          logger.info(
+            formatLocaleSegmentFilesLabel(row.target, row.deletedSegmentRelativePaths),
+            ctx.run,
+          );
         }
       }
       printCommandSummary(
@@ -182,7 +189,10 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           command: 'locales delete',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { deletedJson: payload.deletedJson },
+          counts: {
+            deletedJson: payload.deletedJson,
+            deletedLocales: payload.deletedLocaleCount,
+          },
           issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
         },
         ctx,

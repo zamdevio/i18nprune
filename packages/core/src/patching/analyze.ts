@@ -4,10 +4,13 @@ import { resolvePatchingConfig } from './config.js';
 import { buildPatchingSectionIncompleteDiagnostic } from './sectionCompleteness.js';
 import {
   readFileSafe,
-  listLocaleFilesFromDir,
   resolveLocalesDir,
   resolvePatchingFilePath,
 } from './io.js';
+import {
+  listPatchingLocaleCodesOnDisk,
+  patchingLocaleDiskPathLabel,
+} from './localeDiscovery.js';
 import { catalogDiagnostics, configSizeDiagnostics, parseLocaleRecords } from './locales.js';
 import { detectPatchingRecipe } from './recipe.js';
 import { codeSet, toMessage } from './utils.js';
@@ -129,24 +132,32 @@ export async function analyzePatchingState(input: PatchingRunInput): Promise<Pat
   diagnostics.push(...configSizeDiagnostics(configRead.content, records.length, resolved.sizeLimitBytes));
   diagnostics.push(...catalogDiagnostics(records));
   const localesDir = resolveLocalesDir(input.runtime, resolved, root);
-  const fileCodes = codeSet(listLocaleFilesFromDir(input.runtime, localesDir));
+  const fileCodes = codeSet(
+    listPatchingLocaleCodesOnDisk({
+      runtime: input.runtime,
+      localesDir,
+      layout: input.localesLayout,
+    }),
+  );
   const localesDirDisplay = input.runtime.path.relative(input.runtime.path.dirname(configAbs), localesDir) || '.';
   const configCodes = codeSet(records.map((r) => r.code));
   const configOnlyCodes = configCodes.filter((code) => !fileCodes.includes(code));
   const fileOnlyCodes = fileCodes.filter((code) => !configCodes.includes(code));
   for (const code of configOnlyCodes) {
+    const pathLabel = patchingLocaleDiskPathLabel(localesDirDisplay, code, input.localesLayout);
     diagnostics.push({
       severity: 'warn',
       code: 'i18nprune.patching.config_locale_missing_file',
-      message: `patching: config contains locale "${code}" but ${localesDirDisplay}/${code}.json is missing`,
+      message: `patching: config contains locale "${code}" but ${pathLabel} is missing`,
       docPath: 'patching/loader.md',
     });
   }
   for (const code of fileOnlyCodes) {
+    const pathLabel = patchingLocaleDiskPathLabel(localesDirDisplay, code, input.localesLayout);
     diagnostics.push({
       severity: 'warn',
       code: 'i18nprune.patching.file_locale_missing_config',
-      message: `patching: ${localesDirDisplay}/${code}.json exists but config has no "${code}" locale record`,
+      message: `patching: ${pathLabel} exists but config has no "${code}" locale record`,
       docPath: 'patching/loader.md',
     });
   }

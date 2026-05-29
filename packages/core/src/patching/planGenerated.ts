@@ -1,4 +1,5 @@
 import type {
+  PatchingLocaleImportSpec,
   PatchingAction,
   PatchingDiagnostic,
   PatchingFileEdit,
@@ -28,6 +29,7 @@ export function buildPlanFromGeneratedFiles(input: {
   importBase: string;
   sourceLocaleCode?: string;
   upsertLocaleRecords?: readonly PatchingLocaleRecord[];
+  localeImportSpec?: PatchingLocaleImportSpec;
 }): { ok: true; plan: PatchingPlan; diagnostics: PatchingDiagnostic[] } | {
   ok: false;
   diagnostics: PatchingDiagnostic[];
@@ -122,6 +124,7 @@ export function buildPlanFromGeneratedFiles(input: {
     records: nextLocales,
     importBase: input.importBase,
     defaultLocaleCode: selectedDefault,
+    localeImportSpec: input.localeImportSpec,
   });
   const nextGeneratedText = composeLoadersGeneratedFile(inner, userIsland);
 

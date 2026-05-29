@@ -136,8 +136,8 @@ export async function localesDynamic(opts: LocalesDynamicOptions = {}, run?: Run
           );
         }
       }
-      logger.primary(style.dim(`  Patterns: ${getDocsUrl('dynamic/README.md')}`), r);
-      logger.primary(style.dim(`  Command docs: ${docsCommandUrl('locales/dynamic')}`), r);
+      logger.tip(`Patterns: ${getDocsUrl('dynamic/README.md')}`, r);
+      logger.tip(`Command docs: ${docsCommandUrl('locales/dynamic')}`, r);
     }
 
     printCommandSummary(

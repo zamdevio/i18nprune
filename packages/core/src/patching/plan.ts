@@ -5,7 +5,8 @@ import type {
   PatchingRunInput,
   ResolvedPatchingConfig,
 } from '../types/patching/index.js';
-import { computeGeneratedModuleImportBase, readFileSafe, readTextFileOrEmpty, resolvePatchingFilePath } from './io.js';
+import { computeGeneratedModuleImportBase, readFileSafe, readTextFileOrEmpty, resolveLocalesDir, resolvePatchingFilePath } from './io.js';
+import { resolvePatchingLocaleImportSpec } from './localeDiscovery.js';
 import { buildPlanFromGeneratedFiles } from './planGenerated.js';
 import { detectPatchingRecipe } from './recipe.js';
 
@@ -59,6 +60,12 @@ export async function buildPatchPlan(
     importBase: computeGeneratedModuleImportBase(input.runtime, resolved, root),
     sourceLocaleCode: input.sourceLocaleCode,
     upsertLocaleRecords: input.upsertLocaleRecords,
+    localeImportSpec: resolvePatchingLocaleImportSpec({
+      layout: input.localesLayout,
+      runtime: input.runtime,
+      localesDir: resolveLocalesDir(input.runtime, resolved, root),
+      sourceLocaleCode: input.sourceLocaleCode ?? 'en',
+    }),
   });
   if (!planned.ok) {
     return { ok: false, config: resolved, skipReason: planned.skipReason, diagnostics: planned.diagnostics };
