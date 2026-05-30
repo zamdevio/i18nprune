@@ -27,7 +27,7 @@ export function buildInconsistencyPreview(input: {
     ...mismatches.map((item) => `${item.code}.${item.field}: "${item.current}" -> "${item.recommended}"`),
   ];
   const total = all.length;
-  const window = resolveCliListWindow(config, { top, full, defaultTop: 5 });
+  const window = resolveCliListWindow(config, { top, full });
   const limit = window.limit;
   const shown = limit > 0 ? all.slice(0, limit) : [];
   return { total, shown, remaining: Math.max(0, total - shown.length) };

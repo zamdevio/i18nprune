@@ -1,7 +1,6 @@
 import { confirm } from '@inquirer/prompts';
 import { createCliCoreContext, resolveContext } from '@/shared/context/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
-import { resolveMissingHumanDefaultTop } from '@/commands/missing/summary.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import {
   emitMissingPlaceholderLeavesPreview,
@@ -35,8 +34,12 @@ function resolveMissingData(
   return executeCore(ctx, opts, runtime);
 }
 
+function missingListOpts(config: I18nPruneConfig): Pick<MissingOptions, 'top' | 'full'> {
+  const window = resolveCliListWindow(config);
+  return window.full ? { full: true } : { top: window.limit };
+}
+
 export async function missing(opts: MissingOptions): Promise<void> {
-  assertMissingTop(opts);
   const wall = attachWallTimer();
   try {
     const runId = String(Date.now());
@@ -44,13 +47,19 @@ export async function missing(opts: MissingOptions): Promise<void> {
     const { run } = ctx;
     const emit = createCliRunEmitter(run);
     const runtime = { emit, runId };
+    const listOpts = missingListOpts(ctx.config);
+    const coreOpts: MissingOptions = {
+      target: opts.target,
+      dryRun: opts.dryRun,
+      ...listOpts,
+    };
 
     const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'missing' });
     if (readiness) {
       if (run.json) {
         console.log(
           stringifyEnvelope(
-            buildCliJsonEnvelope('missing', emptyMissingPayload(opts), {
+            buildCliJsonEnvelope('missing', emptyMissingPayload(coreOpts), {
               ok: false,
               issues: readiness,
               cwd: ctx.adapters.system.cwd(),
@@ -76,7 +85,7 @@ export async function missing(opts: MissingOptions): Promise<void> {
     }
 
     if (run.json) {
-      const { envelope } = runMissingJsonEnvelope(ctx, opts, { emit: noopRunEmitter, runId }, {
+      const { envelope } = runMissingJsonEnvelope(ctx, coreOpts, { emit: noopRunEmitter, runId }, {
         applyWrites: getCliYesFlag(),
       });
       console.log(stringifyEnvelope(envelope));
@@ -84,9 +93,9 @@ export async function missing(opts: MissingOptions): Promise<void> {
       return;
     }
 
-    const display = missingDisplayOpts(opts, ctx.config);
+    const display = missingDisplayOpts(ctx.config);
 
-    const resolved = resolveMissingData(ctx, opts, runtime);
+    const resolved = resolveMissingData(ctx, coreOpts, runtime);
     const extractionBaseline = {
       dynamic: resolved.dynamicSites,
       keyObservations: resolved.keyObservationsCount,
@@ -238,17 +247,7 @@ function missingWriteTargetLabel(entry: MissingTargetPlan): string {
   );
 }
 
-function assertMissingTop(opts: MissingOptions): void {
-  if (opts.top === undefined) return;
-  if (typeof opts.top !== 'number' || !Number.isInteger(opts.top) || opts.top < 1) {
-    throw new I18nPruneError('missing: top must be a positive integer', 'USAGE');
-  }
-}
-
-function missingDisplayOpts(opts: MissingOptions, config: I18nPruneConfig): MissingPathDisplayOpts {
-  const window = resolveCliListWindow(config, {
-    top: opts.top ?? resolveMissingHumanDefaultTop(config),
-    full: opts.full === true,
-  });
+function missingDisplayOpts(config: I18nPruneConfig): MissingPathDisplayOpts {
+  const window = resolveCliListWindow(config);
   return { fullList: window.full, top: window.limit };
 }

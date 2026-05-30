@@ -1,3 +1,4 @@
+import { DEFAULT_LIST_TOP } from '../shared/constants/listDisplay.js';
 import type { DynamicKeySite } from '../types/extractor/dynamic/index.js';
 
 export type BuildValidateHumanViewInput = {
@@ -18,7 +19,7 @@ export type ValidateHumanView = {
 
 /** Pure human-log view builder for validate command output. */
 export function buildValidateHumanView(input: BuildValidateHumanViewInput): ValidateHumanView {
-  const missingLimit = input.missingPreviewLimit ?? 50;
+  const missingLimit = input.missingPreviewLimit ?? DEFAULT_LIST_TOP;
   const missingPreview = input.missing.slice(0, missingLimit);
   return {
     dynamicWarning:

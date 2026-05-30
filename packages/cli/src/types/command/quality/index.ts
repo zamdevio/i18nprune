@@ -1,7 +1,7 @@
 import type { CliJsonEnvelope, QualityJsonData, QualityRunOptions, QualityRunResult, RunEmitter } from '@i18nprune/core';
 
 export type QualityOptions = QualityRunOptions;
-export type QualityRuntime = { emit?: RunEmitter; runId?: string };
+export type QualityRuntime = { emit?: RunEmitter; runId?: string; listLimit?: number };
 
 export type QualityJsonRunResult = QualityRunResult & {
   envelope: CliJsonEnvelope<'quality', QualityJsonData>;

@@ -1111,6 +1111,12 @@ export {
   ISSUE_DOCTOR_TOOLS_RG_NOT_ON_PATH,
 } from './shared/constants/index.js';
 export {
+  DEFAULT_LIST_TOP,
+  LIST_MORE_HINT,
+  formatListOmittedSuffix,
+  formatListShownOmitted,
+} from './shared/constants/listDisplay.js';
+export {
   detectLocalePlaceholderLeaves,
   detectSourcePlaceholderLeaves,
   formatSourcePlaceholderMessage,

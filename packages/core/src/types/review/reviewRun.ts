@@ -37,6 +37,8 @@ export type ReviewJsonData = {
 export type ReviewHostHooks = {
   emit?: RunEmitter;
   runId?: string;
+  /** Max locale blocks in human output (from CLI list window). */
+  listLimit?: number;
 };
 
 export type ReviewRunResult = {

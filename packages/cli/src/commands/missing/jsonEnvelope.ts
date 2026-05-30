@@ -1,4 +1,5 @@
 import {
+  DEFAULT_LIST_TOP,
   buildCliJsonEnvelope,
   emitRunErrorFromUnknown,
   emitRunEvent,
@@ -27,7 +28,7 @@ export function emptyMissingPayload(opts: MissingRunOptions): MissingJsonOutput 
     targetKind: 'source',
     pathsAdded: 0,
     shown: 0,
-    top: opts.full === true ? null : (opts.top ?? 10),
+    top: opts.full === true ? null : (opts.top ?? DEFAULT_LIST_TOP),
     full: opts.full === true,
     paths: [],
     dryRun: Boolean(opts.dryRun),
@@ -37,7 +38,7 @@ export function emptyMissingPayload(opts: MissingRunOptions): MissingJsonOutput 
     placeholderLeaves: {
       count: 0,
       shown: 0,
-      top: opts.full === true ? null : (opts.top ?? 10),
+      top: opts.full === true ? null : (opts.top ?? DEFAULT_LIST_TOP),
       full: opts.full === true,
       leaves: [],
     },

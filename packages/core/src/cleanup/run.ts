@@ -116,11 +116,11 @@ export function emitCleanupAbortMessage(
   reason: 'no_keys_approved' | 'declined_confirmation',
 ): void {
   emitCleanupMessage(host, {
-    level: 'info',
+    level: 'notice',
     message:
       reason === 'no_keys_approved'
-        ? 'aborted (no keys approved for removal).'
-        : 'aborted (no files changed).',
+        ? 'aborted: no keys approved for removal.'
+        : 'aborted: user declined confirmation.',
     data: { reason },
   });
 }

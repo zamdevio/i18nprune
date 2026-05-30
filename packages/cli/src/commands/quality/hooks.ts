@@ -6,5 +6,6 @@ export function buildQualityHostHooks(runtime: QualityRuntime = {}): QualityHost
   return {
     emit: runtime.emit,
     runId: runtime.runId,
+    listLimit: runtime.listLimit,
   };
 }

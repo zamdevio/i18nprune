@@ -30,6 +30,9 @@ export function renderRunEvent(event: RunEvent, run: RunOptions): void {
     case 'notice':
       logger.notice(event.message, run);
       return;
+    case 'tip':
+      logger.tip(event.message, run);
+      return;
     case 'warn':
       logger.warn(event.message, run);
       return;

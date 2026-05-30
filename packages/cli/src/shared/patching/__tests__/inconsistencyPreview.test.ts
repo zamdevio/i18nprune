@@ -14,7 +14,7 @@ function makeConfig(): I18nPruneConfig {
 }
 
 describe('buildInconsistencyPreview', () => {
-  it('uses default top of 5', () => {
+  it('uses default top of 3', () => {
     const preview = buildInconsistencyPreview({
       config: makeConfig(),
       autofilled: [],
@@ -28,8 +28,8 @@ describe('buildInconsistencyPreview', () => {
       ],
     });
     expect(preview.total).toBe(6);
-    expect(preview.shown.length).toBe(5);
-    expect(preview.remaining).toBe(1);
+    expect(preview.shown.length).toBe(3);
+    expect(preview.remaining).toBe(3);
   });
 
   it('supports full list output', () => {

@@ -6,5 +6,6 @@ export function buildReviewHostHooks(runtime: ReviewRuntime = {}): ReviewHostHoo
   return {
     emit: runtime.emit,
     runId: runtime.runId,
+    listLimit: runtime.listLimit,
   };
 }

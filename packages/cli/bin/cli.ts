@@ -144,7 +144,7 @@ program
     'log source scan skip decisions to stderr (built-in skips, exclude rules, non-scanned extensions)',
     false,
   )
-  .option('--top <n>', 'global list limit override for human/list outputs')
+  .option('--top <n>', 'global list limit for human/list outputs (default: 3 per command; use --full for all)')
   .option('--full', 'global full list mode (still bounded by core hard cap)', false)
   .hook('preAction', async (_thisCommand, actionCommand) => {
     const opts = program.opts<{
@@ -215,9 +215,8 @@ program
             }
           : undefined,
     });
-    const globalTop = jsonOutput ? undefined : parseCliPositiveIntTop(opts.top, 'global: --top');
-    setCliListTopFlag(globalTop);
-    setCliListFullFlag(jsonOutput ? false : Boolean(opts.full));
+    setCliListTopFlag(parseCliPositiveIntTop(opts.top, 'global: --top'));
+    setCliListFullFlag(Boolean(opts.full));
     await ensureUpdateCacheRefreshed({ jsonOutput });
     const excludeDirs = parseExcludeDirsCsv(opts.exclude);
     const cacheProfile = parseCacheProfileOption(opts.cacheProfile);
@@ -280,22 +279,12 @@ program
   .description('Add keys used in code but missing from source or a locale JSON (placeholders)')
   .option('--target <codes>', 'target locale code(s): one code, comma-separated list, or "all" (default: source locale file)')
   .option('--dry-run', 'list paths only; do not write', false)
-  .option(
-    '--top <n>',
-    `max key paths / placeholder leaves to show in output (human and --json; default: 10; use --full for all)`,
-  )
-  .option('--full', 'show every key path / placeholder leaf in output (human and --json; overrides --top)', false)
-  .action(
-    async (opts: { target?: string; dryRun?: boolean; top?: string; full?: boolean }) => {
-      const top = parseCliPositiveIntTop(opts.top, 'missing: --top');
-      await missing({
-        target: opts.target,
-        dryRun: Boolean(opts.dryRun),
-        top,
-        full: Boolean(opts.full),
-      });
-    },
-  );
+  .action(async (opts: { target?: string; dryRun?: boolean }) => {
+    await missing({
+      target: opts.target,
+      dryRun: Boolean(opts.dryRun),
+    });
+  });
 
 program
   .command('sync')
@@ -582,18 +571,8 @@ localesCmd
   .description(
     'List heuristic non-literal translation key sites under src (read-only; no locale writes)',
   )
-  .option(
-    '--top <n>',
-    'max dynamic sites listed in output (human and `--json`; default: 10 unless `--full`)',
-  )
-  .option('--full', 'list every dynamic site in output (human and `--json`; overrides `--top`)', false)
-  .action(async (opts: { top?: string; full?: boolean }, cmd: Command) => {
-    const root = cmd.parent?.parent;
-    const rootOpts =
-      typeof root?.opts === 'function' ? (root.opts() as { top?: string; full?: boolean }) : {};
-    const top = parseCliPositiveIntTop(opts.top ?? rootOpts.top, 'locales dynamic: --top');
-    const rootFull = Boolean(rootOpts.full);
-    await localesDynamic({ top, full: Boolean(opts.full) || rootFull });
+  .action(async () => {
+    await localesDynamic();
   });
 
 localesCmd

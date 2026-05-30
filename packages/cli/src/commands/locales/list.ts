@@ -12,6 +12,7 @@ import { logger } from '@/utils/logger/index.js';
 import { canPrintInfo } from '@/utils/logger/policy.js';
 import type { LocalesListJsonPayload } from '@/types/command/locales/json.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
+import { formatListShownOmitted } from '@i18nprune/core';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
@@ -78,7 +79,7 @@ export async function localesList(): Promise<void> {
       });
       console.log(stringifyEnvelope(envelope));
     } else {
-      const window = resolveCliListWindow(ctx.config, { defaultFull: true });
+      const window = resolveCliListWindow(ctx.config);
       const shownRows = payload.rows.slice(0, window.limit);
       if (canPrintInfo(ctx.run)) {
         logger.info(`${String(payload.localeCount)} locale(s) in ${localesDir}`, ctx.run);
@@ -93,8 +94,12 @@ export async function localesList(): Promise<void> {
               : (row.segmentRelativePaths[0] ?? `${row.code}.json`);
           logger.detail(`  ${row.code} · ${files} · leaves ${String(row.leafCount)} · ${extras}`, ctx.run);
         }
-        if (payload.rows.length > shownRows.length) {
-          logger.detail(`  ... ${String(payload.rows.length - shownRows.length)} more locale(s) hidden`, ctx.run);
+        const omittedLocales = payload.rows.length - shownRows.length;
+        if (omittedLocales > 0) {
+          logger.detail(
+            formatListShownOmitted(`  · ${String(shownRows.length)} locale(s) shown`, omittedLocales),
+            ctx.run,
+          );
         }
       }
       printCommandSummary(

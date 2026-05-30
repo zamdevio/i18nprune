@@ -5,6 +5,7 @@ import {
   stringifyEnvelope,
 } from '@i18nprune/core';
 import { resolveContext } from '@/shared/context/index.js';
+import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import { printCommandSummary } from '@/output/index.js';
 import { logger } from '@/utils/logger/index.js';
@@ -83,7 +84,8 @@ export async function shareList(opts: ShareListOptions): Promise<void> {
       logger.warn(issue.message, ctx.run);
     }
   }
-  emitShareListHumanMessages(runHost, entries);
+  const listWindow = resolveCliListWindow(ctx.config);
+  emitShareListHumanMessages(runHost, entries, { listLimit: listWindow.limit });
   printCommandSummary(
     {
       command: 'share list',

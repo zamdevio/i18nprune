@@ -52,6 +52,8 @@ export type QualityRunOptions = {
 export type QualityHostHooks = {
   emit?: RunEmitter;
   runId?: string;
+  /** Max locale rows in human output (from CLI list window). */
+  listLimit?: number;
 };
 
 export type QualityRunResult = {

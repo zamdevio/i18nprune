@@ -1,4 +1,4 @@
-import { resolveCoreConfigLayers } from '@i18nprune/core';
+import { DEFAULT_LIST_TOP, resolveCoreConfigLayers } from '@i18nprune/core';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
 import { getCliListFullFlag, getCliListTopFlag } from '@/shared/context/globals.js';
 
@@ -23,9 +23,7 @@ export function resolveCliListWindow(config: I18nPruneConfig, command?: CommandL
       ? command.top
       : globalTop !== undefined
         ? globalTop
-      : command?.defaultTop !== undefined
-        ? command.defaultTop
-        : undefined;
+      : (command?.defaultTop ?? DEFAULT_LIST_TOP);
   const useDefaultFull =
     command?.defaultFull === true &&
     command?.full !== true &&

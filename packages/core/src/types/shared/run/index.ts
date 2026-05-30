@@ -144,7 +144,7 @@ export type RunErrorEvent = RunEventBase & {
   recoverable: boolean;
 };
 
-export type RunMessageLevel = 'detail' | 'info' | 'notice' | 'warn';
+export type RunMessageLevel = 'detail' | 'info' | 'notice' | 'tip' | 'warn';
 export type RunMessageChannel = 'default' | 'cache' | 'verbose';
 
 export type RunMessageEvent = RunEventBase & {

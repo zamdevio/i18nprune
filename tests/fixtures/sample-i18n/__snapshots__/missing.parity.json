@@ -9,7 +9,7 @@
       "full": false,
       "leaves": [],
       "shown": 0,
-      "top": 10
+      "top": 3
     },
     "shown": 0,
     "skippedNotInScan": [],
@@ -25,7 +25,7 @@
         "targetPath": "locales/en.json"
       }
     ],
-    "top": 10
+    "top": 3
   },
   "issues": [
     {

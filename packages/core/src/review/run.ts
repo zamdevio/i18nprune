@@ -6,6 +6,7 @@ import { readLocaleJsonOrEmpty, resolvePairedSourceSegmentAbsolutePath } from '.
 import { listLocaleSegmentTargets, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../shared/constants/issueCodes.js';
+import { formatListShownOmitted } from '../shared/constants/listDisplay.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import {
@@ -215,7 +216,9 @@ export function runReview(
     bucket.stats.push(stats);
     groupedByLocale.set(localeCode, bucket);
   }
-  for (const localeCode of localeCodesInRun) {
+  const listLimit = host.listLimit ?? localeCodesInRun.length;
+  const shownLocaleCodes = localeCodesInRun.slice(0, listLimit);
+  for (const localeCode of shownLocaleCodes) {
     const bucket = groupedByLocale.get(localeCode);
     if (!bucket) continue;
     bucket.files.sort((a, b) => a.localeCompare(b));
@@ -225,6 +228,13 @@ export function runReview(
     } else {
       emitReviewLocaleBlock(host, reviewLocaleGroupLabel(localeCode, bucket.files), merged, localeCode);
     }
+  }
+  const omittedLocales = localeCodesInRun.length - shownLocaleCodes.length;
+  if (omittedLocales > 0) {
+    emitReviewMessage(host, {
+      level: 'detail',
+      message: formatListShownOmitted(`  · ${String(shownLocaleCodes.length)} locale(s) shown`, omittedLocales),
+    });
   }
   if (sourcePlaceholderLeaves.length > 0) {
     emitReviewMessage(host, {
@@ -257,9 +267,9 @@ export function runReview(
   }
   if (Object.values(payload.locales).some((v) => v.englishIdentical > 0)) {
     emitReviewMessage(host, {
-      level: 'info',
+      level: 'tip',
       message:
-        'Tip: source-identical leaves match the source locale string at the same path — use `generate --resume` (or a full `generate`) to refresh translations.',
+        'source-identical leaves match the source locale string at the same path — use `generate --resume` (or a full `generate`) to refresh translations.',
     });
   }
 

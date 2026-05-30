@@ -8,6 +8,7 @@ import {
 } from '../shared/languages/catalog/index.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { MAX_MISSING_TARGET_SUGGESTIONS } from '../shared/constants/missing.js';
+import { DEFAULT_LIST_TOP, formatListOmittedSuffix } from '../shared/constants/listDisplay.js';
 import { I18nPruneError } from '../shared/errors/index.js';
 import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
 import { readLocaleBundle } from '../shared/locales/index.js';
@@ -348,7 +349,7 @@ export function emitMissingPathsPreview(
   host: Pick<MissingHostHooks, 'emit' | 'runId'>,
   input: { paths: readonly string[]; fullList: boolean; top?: number },
 ): void {
-  const cap = input.top ?? 10;
+  const cap = input.top ?? DEFAULT_LIST_TOP;
   const visible = input.fullList ? input.paths : input.paths.slice(0, cap);
   for (const path of visible) {
     emitMissingMessage(host, { level: 'detail', message: `  ${path}`, path });
@@ -357,7 +358,7 @@ export function emitMissingPathsPreview(
   if (omitted > 0) {
     emitMissingMessage(host, {
       level: 'detail',
-      message: `  … and ${String(omitted)} more (use --full or --top <n>)`,
+      message: `  · ${String(visible.length)} key path(s) shown + ${formatListOmittedSuffix(omitted)}`,
       data: { omitted },
     });
   }
@@ -368,7 +369,7 @@ export function emitMissingPlaceholderLeavesPreview(
   input: { leaves: readonly MissingPlaceholderLeaf[]; fullList: boolean; top?: number },
 ): void {
   if (input.leaves.length === 0) return;
-  const cap = input.top ?? 10;
+  const cap = input.top ?? DEFAULT_LIST_TOP;
   const visible = input.fullList ? input.leaves : input.leaves.slice(0, cap);
   emitMissingMessage(host, {
     level: 'info',
@@ -393,7 +394,7 @@ export function emitMissingPlaceholderLeavesPreview(
   if (omitted > 0) {
     emitMissingMessage(host, {
       level: 'detail',
-      message: `  … and ${String(omitted)} more placeholder leaf/leaves (use --full or --top <n>)`,
+      message: `  · ${String(visible.length)} placeholder leaf/leaves shown + ${formatListOmittedSuffix(omitted)}`,
       data: { omitted },
     });
   }
@@ -405,7 +406,7 @@ function relativeToCwd(ctx: CoreContext, filePath: string): string {
 }
 
 function missingPayloadListWindow(opts: MissingRunOptions): { full: boolean; limit: number } {
-  return { full: opts.full === true, limit: opts.top ?? 10 };
+  return { full: opts.full === true, limit: opts.top ?? DEFAULT_LIST_TOP };
 }
 
 function locatePlaceholderLine(text: string, path: string, value: string): number | null {

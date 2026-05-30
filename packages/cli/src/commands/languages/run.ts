@@ -8,6 +8,7 @@ import type { LanguagesCommandOptions } from '@/types/commands/languages/index.j
 import { stringifyEnvelope } from '@i18nprune/core';
 import { runLanguages } from '@/commands/languages/jsonEnvelope.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
+import { formatListShownOmitted } from '@i18nprune/core';
 
 function resolveLanguagesData(opts: LanguagesCommandOptions): ReturnType<typeof filterLanguages> {
   return filterLanguages(opts.filter);
@@ -23,7 +24,7 @@ export async function languages(opts: LanguagesCommandOptions): Promise<void> {
   }
 
   const rows = resolveLanguagesData(opts);
-  const window = resolveCliListWindow(ctx.config, { defaultFull: true });
+  const window = resolveCliListWindow(ctx.config);
   const shownRows = rows.slice(0, window.limit);
 
   if (canPrintDecorative(ctx.run)) {
@@ -48,8 +49,9 @@ export async function languages(opts: LanguagesCommandOptions): Promise<void> {
     } else {
       printLanguagesNumberedList(shownRows);
     }
-    if (rows.length > shownRows.length) {
-      logger.primary(`  ... ${String(rows.length - shownRows.length)} more row(s) hidden`, ctx.run);
+    const omittedRows = rows.length - shownRows.length;
+    if (omittedRows > 0) {
+      logger.primary(formatListShownOmitted(`  · ${String(shownRows.length)} language code(s) shown`, omittedRows), ctx.run);
     }
   }
   if (canPrintDecorative(ctx.run)) {

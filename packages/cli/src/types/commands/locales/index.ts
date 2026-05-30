@@ -3,8 +3,3 @@ export type LocalesDeleteOptions = {
   /** Ask for an additional safety confirmation in TTY mode. */
   ask?: boolean;
 };
-
-export type LocalesDynamicOptions = {
-  top?: number;
-  full?: boolean;
-};

@@ -274,8 +274,8 @@ describe('CLI against sample-i18n fixture', () => {
     expect(typeof d.dynamicKeySites).toBe('number');
   });
 
-  it('locales dynamic --json respects --top and --full', () => {
-    const fullRaw = runCli(['--json', 'locales', 'dynamic', '--full']);
+  it('locales dynamic --json respects global --top and --full', () => {
+    const fullRaw = runCli(['--json', '--full', 'locales', 'dynamic']);
     const full = parseFirstEnvelope(fullRaw) as unknown as {
       kind: string;
       data: { dynamic: { count: number; sites: unknown[] }; full: boolean };
@@ -284,7 +284,7 @@ describe('CLI against sample-i18n fixture', () => {
     expect(full.data.full).toBe(true);
     expect(full.data.dynamic.sites).toHaveLength(full.data.dynamic.count);
 
-    const topRaw = runCli(['--json', 'locales', 'dynamic', '--top', '2']);
+    const topRaw = runCli(['--json', '--top', '2', 'locales', 'dynamic']);
     const top = parseFirstEnvelope(topRaw) as unknown as {
       kind: string;
       data: { dynamic: { count: number; sites: unknown[] }; shown: number; full: boolean };

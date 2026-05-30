@@ -111,13 +111,14 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
             ),
           );
         } else {
-          if (canPrintInfo(ctx.run)) logger.info('aborted.', ctx.run);
+          if (canPrintInfo(ctx.run)) {
+            logger.notice('aborted: user declined confirmation.', ctx.run);
+          }
           printCommandSummary(
             {
               command: 'locales delete',
               ok: true,
               durationMs: wall.elapsedMs(),
-              notes: ['aborted: user declined confirmation'],
               issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
             },
             ctx,
@@ -133,13 +134,14 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           }),
         );
         if (!secondOk) {
-          if (canPrintInfo(ctx.run)) logger.info('aborted by --ask confirmation.', ctx.run);
+          if (canPrintInfo(ctx.run)) {
+            logger.notice('aborted: user declined --ask confirmation.', ctx.run);
+          }
           printCommandSummary(
             {
               command: 'locales delete',
               ok: true,
               durationMs: wall.elapsedMs(),
-              notes: ['aborted: user declined --ask confirmation'],
               issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
             },
             ctx,

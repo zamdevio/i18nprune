@@ -10,6 +10,7 @@ import type { ValidateOptions, ValidateJsonOutput } from '@/types/command/valida
 import type { CliJsonEnvelope } from '@i18nprune/core';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '@i18nprune/core';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
+import { formatListOmittedSuffix } from '@i18nprune/core';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
 import type { DynamicKeySite, KeyObservation } from '@i18nprune/core';
 import { analyzePatchingState } from '@i18nprune/core';
@@ -117,7 +118,12 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
       return;
     }
 
-    const humanView = buildValidateHumanView({ missing: envelope.data.missing, dynamicSites: fullDynamicSites });
+    const listWindow = resolveCliListWindow(ctx.config);
+    const humanView = buildValidateHumanView({
+      missing: envelope.data.missing,
+      dynamicSites: fullDynamicSites,
+      missingPreviewLimit: listWindow.limit,
+    });
     const readFailed = envelope.issues.some((i) => i.code === ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED);
     if (humanView.dynamicWarning) {
       logger.warn(humanView.dynamicWarning, ctx.run);
@@ -130,7 +136,12 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
     } else {
       logger.warn(humanView.missingMessage, ctx.run);
       for (const m of humanView.missingPreview) logger.detail(`  ${m}`, ctx.run);
-      if (humanView.missingHiddenCount > 0) logger.detail(`  … and ${String(humanView.missingHiddenCount)} more`, ctx.run);
+      if (humanView.missingHiddenCount > 0) {
+        logger.detail(
+          `  · ${String(humanView.missingPreview.length)} missing key(s) shown + ${formatListOmittedSuffix(humanView.missingHiddenCount)}`,
+          ctx.run,
+        );
+      }
     }
     printCommandSummary(
       {

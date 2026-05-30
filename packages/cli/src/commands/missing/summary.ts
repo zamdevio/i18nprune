@@ -1,16 +1,5 @@
-import type { I18nPruneConfig } from '@i18nprune/core/config';
+import { DEFAULT_LIST_TOP, formatListOmittedSuffix } from '@i18nprune/core';
 import type { MissingPathDisplayOpts } from '@/types/command/missing/summary.js';
-
-/** Fallback when env, config, and CLI omit a cap. */
-export const MISSING_DISPLAY_DEFAULT_TOP = 10;
-
-/**
- * Effective default list cap for **`missing`** human output when **`--top`** is omitted.
- * Precedence: internal default {@link MISSING_DISPLAY_DEFAULT_TOP} unless CLI **`--top`** / **`--full`** is set.
- */
-export function resolveMissingHumanDefaultTop(_config: I18nPruneConfig): number {
-  return MISSING_DISPLAY_DEFAULT_TOP;
-}
 
 export function sliceMissingPathsForDisplay(
   paths: string[],
@@ -19,7 +8,7 @@ export function sliceMissingPathsForDisplay(
   if (opts.fullList) {
     return { visible: paths, omitted: 0 };
   }
-  const cap = opts.top ?? MISSING_DISPLAY_DEFAULT_TOP;
+  const cap = opts.top ?? DEFAULT_LIST_TOP;
   if (!Number.isFinite(cap) || cap < 1) {
     return { visible: [], omitted: paths.length };
   }
@@ -34,7 +23,7 @@ export function formatMissingPathsDetailLines(paths: string[], opts: MissingPath
   const { visible, omitted } = sliceMissingPathsForDisplay(paths, opts);
   const lines = visible.map((p) => `  ${p}`);
   if (omitted > 0) {
-    lines.push(`  … and ${String(omitted)} more (use --full or --top <n>)`);
+    lines.push(`  · ${String(visible.length)} key path(s) shown + ${formatListOmittedSuffix(omitted)}`);
   }
   return lines;
 }

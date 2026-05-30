@@ -60,7 +60,10 @@ export function printCommandSummary(
     logger.info(`summary: ${countsLine}`, run);
   }
   if (summary.notes) {
-    for (const n of summary.notes) logger.detail(n, run);
+    for (const n of summary.notes) {
+      if (n.toLowerCase().startsWith('aborted')) logger.notice(n, run);
+      else logger.detail(n, run);
+    }
   }
   printIssueGuidance();
   const parts = [summary.command];

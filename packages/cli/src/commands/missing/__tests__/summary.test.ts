@@ -1,30 +1,14 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_CONFIG } from '@i18nprune/core/config';
-import type { I18nPruneConfig } from '@i18nprune/core/config';
-import {
-  MISSING_DISPLAY_DEFAULT_TOP,
-  formatMissingPathsDetailLines,
-  resolveMissingHumanDefaultTop,
-  sliceMissingPathsForDisplay,
-} from '@/commands/missing/summary.js';
-
-describe('resolveMissingHumanDefaultTop', () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  it('returns internal default', () => {
-    expect(resolveMissingHumanDefaultTop(DEFAULT_CONFIG as I18nPruneConfig)).toBe(MISSING_DISPLAY_DEFAULT_TOP);
-  });
-});
+import { describe, expect, it } from 'vitest';
+import { DEFAULT_LIST_TOP } from '@i18nprune/core';
+import { formatMissingPathsDetailLines, sliceMissingPathsForDisplay } from '@/commands/missing/summary.js';
 
 describe('missing summary', () => {
   const paths = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
 
-  it('defaults to first MISSING_DISPLAY_DEFAULT_TOP paths', () => {
+  it('defaults to DEFAULT_LIST_TOP paths', () => {
     const s = sliceMissingPathsForDisplay(paths, { fullList: false });
-    expect(s.visible.length).toBe(MISSING_DISPLAY_DEFAULT_TOP);
-    expect(s.omitted).toBe(paths.length - MISSING_DISPLAY_DEFAULT_TOP);
+    expect(s.visible.length).toBe(DEFAULT_LIST_TOP);
+    expect(s.omitted).toBe(paths.length - DEFAULT_LIST_TOP);
   });
 
   it('--full shows all', () => {
@@ -42,6 +26,7 @@ describe('missing summary', () => {
     const lines = formatMissingPathsDetailLines(paths, { fullList: false, top: 2 });
     expect(lines[0]).toBe('  a');
     expect(lines[1]).toBe('  b');
-    expect(lines[2]).toMatch(/… and \d+ more/);
+    expect(lines[2]).toContain('2 key path(s) shown +');
+    expect(lines[2]).toContain('… 10 more (use --full or --top');
   });
 });

@@ -81,6 +81,8 @@ export async function sync(opts: SyncOptions): Promise<void> {
       return;
     }
 
+    const summaryListWindow = resolveCliListWindow(ctx.config);
+    const humanSummaryLocaleLimit = summaryListWindow.full ? undefined : summaryListWindow.limit;
     const {
       fileLines,
       targets,
@@ -92,11 +94,13 @@ export async function sync(opts: SyncOptions): Promise<void> {
       humanLeafSummaryByLocaleFile,
       sourcePlaceholderLeaves,
       targetPlaceholderLeaves,
-    } = resolveSyncData(ctx, opts, { emit: createCliRunEmitter(ctx.run), runId });
+    } = resolveSyncData(ctx, opts, {
+      emit: createCliRunEmitter(ctx.run),
+      runId,
+      humanSummaryLocaleLimit,
+    });
     const explicitStripMetadata = opts.stripMetadata === true;
     const explicitMetadata = opts.metadata === true;
-
-    const summaryListWindow = resolveCliListWindow(ctx.config, { defaultTop: 14 });
     const summaryIssues = envelope.issues;
 
     emitSyncHumanMessages(

@@ -11,7 +11,11 @@ export type SyncOptions = {
   stripMetadata?: boolean;
 };
 
-export type SyncRuntime = { emit?: RunEmitter; runId?: string };
+export type SyncRuntime = {
+  emit?: RunEmitter;
+  runId?: string;
+  humanSummaryLocaleLimit?: number;
+};
 
 export type SyncJsonRunResult = SyncRunResult & {
   envelope: CliJsonEnvelope<'sync', SyncJsonOutput>;

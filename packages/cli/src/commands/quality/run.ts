@@ -13,6 +13,7 @@ import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
+import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import { logger } from '@/utils/logger/index.js';
 
 export async function quality(opts: QualityOptions): Promise<void> {
@@ -58,7 +59,12 @@ export async function quality(opts: QualityOptions): Promise<void> {
       return;
     }
 
-    const { payload, keyObservationsCount, envelope } = executeCore(ctx, opts, { emit: createCliRunEmitter(ctx.run), runId });
+    const listWindow = resolveCliListWindow(ctx.config);
+    const { payload, keyObservationsCount, envelope } = executeCore(ctx, opts, {
+      emit: createCliRunEmitter(ctx.run),
+      runId,
+      listLimit: listWindow.limit,
+    });
     const { total, dynamicKeySites } = payload;
     const summaryIssues = mergeIssues(
       issuesFromDiscoveryWarnings(ctx.meta.warnings),

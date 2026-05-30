@@ -7,6 +7,7 @@ import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
+import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import { logger } from '@/utils/logger/index.js';
 
 /** Locale-level review: paths vs source, source-identical counts, structured leaf metadata when present. */
@@ -54,7 +55,12 @@ export async function review(opts: { target?: string }): Promise<void> {
       return;
     }
 
-    const { payload, envelope, keyObservationsCount } = executeCore(ctx, opts, { emit: createCliRunEmitter(run), runId });
+    const listWindow = resolveCliListWindow(ctx.config);
+    const { payload, envelope, keyObservationsCount } = executeCore(ctx, opts, {
+      emit: createCliRunEmitter(run),
+      runId,
+      listLimit: listWindow.limit,
+    });
     const { locales } = payload;
 
     printCommandSummary(

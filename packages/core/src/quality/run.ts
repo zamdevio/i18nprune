@@ -16,6 +16,7 @@ import { listLocaleSegmentTargets, sourceLocaleCodeFromContext } from '../shared
 import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
+import { formatListShownOmitted } from '../shared/constants/listDisplay.js';
 import { buildQualityLocaleReport, formatQualityLocaleRowLabel } from './localeReport.js';
 import { buildQualityJsonData } from './payload.js';
 import type { CoreContext } from '../types/context/index.js';
@@ -117,7 +118,9 @@ export function runQuality(
     message: scopeLabel,
     data: { locales: rows.length, segmentFiles: segmentFileCount },
   });
-  for (const row of rows) {
+  const listLimit = host.listLimit ?? rows.length;
+  const shownRows = rows.slice(0, listLimit);
+  for (const row of shownRows) {
     emitRunMessage(host.emit, {
       op: 'quality',
       runId: host.runId,
@@ -129,6 +132,15 @@ export function runQuality(
         sourceIdentical: row.sourceIdenticalLeafCount ?? 0,
         segmentCount: row.segmentCount,
       },
+    });
+  }
+  const omittedLocales = rows.length - shownRows.length;
+  if (omittedLocales > 0) {
+    emitRunMessage(host.emit, {
+      op: 'quality',
+      runId: host.runId,
+      level: 'detail',
+      message: formatListShownOmitted(`  · ${String(shownRows.length)} locale(s) shown`, omittedLocales),
     });
   }
   emitRunMessage(host.emit, {

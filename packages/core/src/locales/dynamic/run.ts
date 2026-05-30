@@ -1,6 +1,7 @@
 import { resolveProjectAnalysis } from '../../analysis/index.js';
 import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
+import { DEFAULT_LIST_TOP } from '../../shared/constants/listDisplay.js';
 import { resolveListWindow, applyListWindow } from '../../shared/options/listWindow.js';
 import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
@@ -37,8 +38,6 @@ export type DynamicRunResult = {
 };
 
 const DYNAMIC_OP: OperationId = 'locales-dynamic';
-const DYNAMIC_DEFAULT_TOP = 10;
-
 /**
  * Core entry for the `locales dynamic` operation.
  *
@@ -65,7 +64,7 @@ export function runDynamic(
 
   const window = resolveListWindow(
     { top: opts.top, full: opts.full },
-    { defaultTop: DYNAMIC_DEFAULT_TOP },
+    { defaultTop: DEFAULT_LIST_TOP },
   );
   const shownSites = applyListWindow(allSites, window);
 

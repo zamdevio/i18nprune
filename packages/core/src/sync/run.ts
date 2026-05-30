@@ -33,6 +33,15 @@ import {
 import { emitRunMessage } from '../shared/run/index.js';
 import { computeSyncedLocaleJson } from './apply.js';
 import { summarizeSyncLeavesForHumanLog } from './humanLeafSummary.js';
+import {
+  buildSyncLocaleDisplayGroups,
+  formatSyncFileListOmittedLine,
+  formatSyncLeafSummaryLabel,
+  formatSyncLocaleFileDetailLine,
+  isSegmentedSyncLayout,
+  mergeSyncHumanLeafSummaries,
+  parseSyncReportKey,
+} from './humanEmit.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocaleMetadataRepairReason, LocaleMetadataReport } from '../types/locales/leaves/index.js';
@@ -204,24 +213,27 @@ export function emitSyncHumanMessages(
     level: 'info',
     message: `${verb}: ${String(changed)} · Unchanged: ${String(result.fileLines.length - changed)}`,
   });
-  for (const f of result.fileLines.slice(0, input.listLimit)) {
-    const mark = f.changed ? '✓' : '·';
-    const tail = f.changed ? (input.dryRun ? ' (would write)' : ' (written)') : ' (unchanged)';
+  const localeGroups = buildSyncLocaleDisplayGroups(result);
+  const segmentedLayout = isSegmentedSyncLayout(localeGroups);
+  const shownLocaleGroups = localeGroups.slice(0, input.listLimit);
+  for (const group of shownLocaleGroups) {
     emitRunMessage(host.emit, {
       op: 'sync',
       runId: host.runId,
       level: 'detail',
-      message: `  ${mark} ${f.path}${tail}`,
-      path: f.path,
-      data: { changed: f.changed },
+      message: formatSyncLocaleFileDetailLine(group, segmentedLayout, input.dryRun),
+      target: group.localeCode,
+      data: { changed: group.changedCount > 0, segmentCount: group.reportKeys.length },
     });
   }
-  if (result.fileLines.length > input.listLimit) {
+  const omittedLocales = localeGroups.length - shownLocaleGroups.length;
+  const omittedLine = formatSyncFileListOmittedLine(shownLocaleGroups.length, omittedLocales);
+  if (omittedLine) {
     emitRunMessage(host.emit, {
       op: 'sync',
       runId: host.runId,
       level: 'detail',
-      message: `  … ${String(result.fileLines.length - input.listLimit)} more file(s) not listed`,
+      message: omittedLine,
     });
   }
   if (result.dynamicSites.length > 0) {
@@ -233,25 +245,49 @@ export function emitSyncHumanMessages(
     });
   }
   const reports = result.payload.localeMetadataReports;
-  for (const file of result.targets) {
-    const s = result.humanLeafSummaryByLocaleFile[file];
-    if (!s) continue;
+  const leafGroups = localeGroups.slice(0, input.listLimit);
+  for (const group of leafGroups) {
+    if (group.summaries.length === 0) continue;
+    const merged = mergeSyncHumanLeafSummaries(group.summaries);
+    const label = formatSyncLeafSummaryLabel(group, segmentedLayout);
     emitRunMessage(host.emit, {
       op: 'sync',
       runId: host.runId,
       level: 'info',
-      message: `${file}: ${String(s.hydratedFromSource)} leaf path(s) filled from source · ${String(s.preservedExistingLeaves)} kept · ${String(s.prunedExtraLeaves)} extra path(s) removed (not in source)`,
-      target: file,
+      message: `${label}: ${String(merged.hydratedFromSource)} leaf path(s) filled from source · ${String(merged.preservedExistingLeaves)} kept · ${String(merged.prunedExtraLeaves)} extra path(s) removed (not in source)`,
+      target: group.localeCode,
     });
-    const metaLine = syncLocaleMetadataDetailLine(reports?.[file], input.explicitStripMetadata, input.explicitMetadata);
-    if (metaLine !== undefined) {
-      emitRunMessage(host.emit, {
-        op: 'sync',
-        runId: host.runId,
-        level: 'detail',
-        message: `  ● ${metaLine}`,
-        target: file,
-      });
+    if (segmentedLayout && group.reportKeys.length > 1) {
+      for (const reportKey of group.reportKeys) {
+        const metaLine = syncLocaleMetadataDetailLine(
+          reports?.[reportKey],
+          input.explicitStripMetadata,
+          input.explicitMetadata,
+        );
+        if (metaLine === undefined) continue;
+        emitRunMessage(host.emit, {
+          op: 'sync',
+          runId: host.runId,
+          level: 'detail',
+          message: `  ● ${reportKey} · ${metaLine}`,
+          target: group.localeCode,
+        });
+      }
+    } else {
+      const reportKey = group.reportKeys[0];
+      const metaLine =
+        reportKey !== undefined
+          ? syncLocaleMetadataDetailLine(reports?.[reportKey], input.explicitStripMetadata, input.explicitMetadata)
+          : undefined;
+      if (metaLine !== undefined) {
+        emitRunMessage(host.emit, {
+          op: 'sync',
+          runId: host.runId,
+          level: 'detail',
+          message: `  ● ${metaLine}`,
+          target: group.localeCode,
+        });
+      }
     }
   }
 }
@@ -309,6 +345,18 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
   const sourcePlaceholderPaths = new Set(sourcePlaceholderLeaves.map((leaf) => leaf.path));
   const localeMetadataReports: Record<string, LocaleMetadataReport> = {};
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
+  const humanSummaryLocaleCodes = new Set<string>();
+  const humanSummaryLocaleLimit = host.humanSummaryLocaleLimit;
+
+  const shouldCollectHumanLeafSummary = (reportKey: string): boolean => {
+    if (humanSummaryLocaleLimit === 0) return false;
+    if (humanSummaryLocaleLimit === undefined) return true;
+    const { localeCode } = parseSyncReportKey(reportKey);
+    if (humanSummaryLocaleCodes.has(localeCode)) return true;
+    if (humanSummaryLocaleCodes.size >= humanSummaryLocaleLimit) return false;
+    humanSummaryLocaleCodes.add(localeCode);
+    return true;
+  };
 
   for (let i = 0; i < targets.length; i++) {
     const segment = targets[i]!;
@@ -372,7 +420,9 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       current: i + 1,
       total: targets.length,
     });
-    humanLeafSummaryByLocaleFile[file] = summarizeSyncLeavesForHumanLog(segmentFillLeaves, cur, next);
+    if (shouldCollectHumanLeafSummary(file)) {
+      humanLeafSummaryByLocaleFile[file] = summarizeSyncLeavesForHumanLog(segmentFillLeaves, cur, next);
+    }
     let finalNext: unknown = next;
     if (explicitStripMetadata || explicitMetadata) {
       let metadataInput = next;

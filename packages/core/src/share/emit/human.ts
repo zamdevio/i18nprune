@@ -1,3 +1,4 @@
+import { formatListShownOmitted } from '../../shared/constants/listDisplay.js';
 import { emitRunMessage } from '../../shared/run/index.js';
 import {
   ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND,
@@ -129,7 +130,11 @@ export function emitShareJsonHealHumanMessages(host: ShareHumanMessageHost, heal
 }
 
 /** Emits human-oriented lines for {@link runShareList} output. */
-export function emitShareListHumanMessages(host: ShareHumanMessageHost, entries: readonly ShareCacheEntry[]): void {
+export function emitShareListHumanMessages(
+  host: ShareHumanMessageHost,
+  entries: readonly ShareCacheEntry[],
+  options?: { listLimit?: number },
+): void {
   if (entries.length === 0) {
     shareMessage(
       host,
@@ -138,7 +143,9 @@ export function emitShareListHumanMessages(host: ShareHumanMessageHost, entries:
     );
     return;
   }
-  for (const e of entries) {
+  const limit = options?.listLimit ?? entries.length;
+  const shown = entries.slice(0, limit);
+  for (const e of shown) {
     const id = e.kind === 'project' ? e.workerProjectId : e.workerReportId;
     const link = e.links.web ?? e.links.report ?? e.links.worker ?? '-';
     shareMessage(
@@ -147,6 +154,14 @@ export function emitShareListHumanMessages(host: ShareHumanMessageHost, entries:
       `[${e.kind}] ${id ?? '-'} @ ${e.workerBaseUrl} — ${String(e.byteSize)} B, uploaded ${e.uploadedAt}, last used ${e.lastUsedAt}`,
     );
     shareMessage(host, 'detail', `  ${link}`);
+  }
+  const omitted = entries.length - shown.length;
+  if (omitted > 0) {
+    shareMessage(
+      host,
+      'detail',
+      formatListShownOmitted(`  · ${String(shown.length)} share cache entr${shown.length === 1 ? 'y' : 'ies'} shown`, omitted),
+    );
   }
 }
 
