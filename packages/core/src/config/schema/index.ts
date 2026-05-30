@@ -4,6 +4,7 @@ export { collectLocalesFilesystemConfigWarnings } from './localesCompat.js';
 export {
   configSchema,
   ConfigValidationError,
+  isConfigValidationError,
   localesFilesystemSchema,
   parseI18nPruneConfig,
 } from './root.js';

@@ -2,6 +2,7 @@ export {
   clampTranslateMaxWorkers,
   configSchema,
   ConfigValidationError,
+  isConfigValidationError,
   DEFAULT_CONFIG,
   defineConfig,
   loadCoreConfigFromPath,

@@ -488,6 +488,18 @@ export class ConfigValidationError extends Error {
 }
 
 /**
+ * Recognize {@link ConfigValidationError} across bundle boundaries (CLI loads
+ * `i18nprune/core/config` for `defineConfig` while handling errors from `dist/cli.js`).
+ */
+export function isConfigValidationError(err: unknown): err is ConfigValidationError {
+  if (err instanceof ConfigValidationError) return true;
+  if (typeof err !== 'object' || err === null || !(err instanceof Error)) return false;
+  if (err.name !== 'ConfigValidationError') return false;
+  const code = (err as ConfigValidationError).issueCode;
+  return code === undefined || typeof code === 'string';
+}
+
+/**
  * Validate a raw object against the zod-backed config schema and return the public friendly
  * **`I18nPruneConfig`**. Throws **`ConfigValidationError`** on invalid input.
  *

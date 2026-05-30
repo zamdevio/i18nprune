@@ -1,5 +1,5 @@
 import { getRunOptions, I18nPruneError } from '@i18nprune/core';
-import { ConfigValidationError } from '@i18nprune/core/config';
+import { ConfigValidationError, isConfigValidationError } from '@i18nprune/core/config';
 import { resolveActiveCliCommandFromArgv } from '@/argv/index.js';
 import { COMMANDS_WITH_JSON_OUTPUT } from '@/constants/jsonoutput.js';
 import { emitCliJsonOptionError } from '@/shared/result/optionErrorEnvelope.js';
@@ -19,6 +19,15 @@ function tryEmitJsonCommandError(message: string, issueCode: string): boolean {
   });
 }
 
+function reportConfigValidationError(err: ConfigValidationError): number {
+  if (err.issueCode && tryEmitJsonCommandError(err.message, err.issueCode)) {
+    return codeToExitCode('CONFIG_INVALID');
+  }
+  logger.err(err.message);
+  if (err.issueCode) logCliIssueGuidance(err.issueCode);
+  return codeToExitCode('CONFIG_INVALID');
+}
+
 export function reportCliError(err: unknown): number {
   if (err instanceof I18nPruneError) {
     if (err.issueCode && tryEmitJsonCommandError(err.message, err.issueCode)) {
@@ -28,13 +37,8 @@ export function reportCliError(err: unknown): number {
     if (err.issueCode) logCliIssueGuidance(err.issueCode);
     return codeToExitCode(err.code);
   }
-  if (err instanceof ConfigValidationError) {
-    if (err.issueCode && tryEmitJsonCommandError(err.message, err.issueCode)) {
-      return codeToExitCode('CONFIG_INVALID');
-    }
-    logger.err(err.message);
-    if (err.issueCode) logCliIssueGuidance(err.issueCode);
-    return codeToExitCode('CONFIG_INVALID');
+  if (isConfigValidationError(err)) {
+    return reportConfigValidationError(err);
   }
   const n = normalizeUnknownError(err);
   logger.err(n.message);

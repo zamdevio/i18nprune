@@ -1,9 +1,9 @@
 import { ZodError } from 'zod';
-import { ConfigValidationError } from '@i18nprune/core/config';
+import { isConfigValidationError } from '@i18nprune/core/config';
 import type { NormalizedCliError, CliErrorCode } from '@i18nprune/core';
 
 export function normalizeUnknownError(err: unknown): NormalizedCliError {
-  if (err instanceof ConfigValidationError) {
+  if (isConfigValidationError(err)) {
     return { code: 'CONFIG_INVALID', message: err.message, cause: err };
   }
   if (err instanceof ZodError) {

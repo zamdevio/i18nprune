@@ -2,6 +2,7 @@ export {
   clampTranslateMaxWorkers,
   configSchema,
   ConfigValidationError,
+  isConfigValidationError,
   defineConfig,
   localesFilesystemSchema,
   parseI18nPruneConfig,

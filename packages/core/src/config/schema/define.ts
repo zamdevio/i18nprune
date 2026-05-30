@@ -1,6 +1,4 @@
 import { DEFAULT_CONFIG } from '../defaults/app.js';
-import { validateLocalesSourceConfigValue } from '../locales/sourceValidate.js';
-import { ConfigValidationError } from './root.js';
 import { clampTranslateMaxWorkers } from './translate.js';
 import type { I18nPruneConfig } from './root.js';
 
@@ -34,9 +32,9 @@ import type { I18nPruneConfig } from './root.js';
  * @remarks
  * - **`.json`** configs are intentionally not loaded by the CLI - see
  *   **`SUPPORTED_CONFIG_EXTENSIONS`** in **`packages/cli/src/shared/config/paths.ts`**.
- * - For runtime-validated input from REST / DB / generated sources, use
- *   **`parseI18nPruneConfig`** instead - it runs the same zod schema and surfaces field errors via
- *   **`ConfigValidationError`**.
+ * - **`locales.source`** and the zod schema are validated when the CLI loads the file via
+ *   **`parseI18nPruneConfig`** (same path as a plain `export default { … }` config). Use
+ *   **`parseI18nPruneConfig`** directly for REST / DB / generated sources.
  * - Call this once per project; the file is loaded by the CLI host (or by an SDK consumer with
  *   **`loadCoreConfigFromPath`**).
  */
@@ -55,14 +53,7 @@ export function defineConfig(config: Partial<I18nPruneConfig>): I18nPruneConfig 
       commands: { ...refCmd, ...config.reference?.commands },
     },
     missing: { ...DEFAULT_CONFIG.missing, ...config.missing },
-    locales: (() => {
-      const mergedLocales = { ...DEFAULT_CONFIG.locales, ...config.locales };
-      const sourceCheck = validateLocalesSourceConfigValue(mergedLocales.source);
-      if (!sourceCheck.ok) {
-        throw new ConfigValidationError(sourceCheck.message, undefined, sourceCheck.issueCode);
-      }
-      return { ...mergedLocales, source: sourceCheck.code };
-    })(),
+    locales: { ...DEFAULT_CONFIG.locales, ...config.locales },
     translate:
       config.translate !== undefined
         ? {
