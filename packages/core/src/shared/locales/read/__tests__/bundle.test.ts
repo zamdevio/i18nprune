@@ -64,7 +64,7 @@ function createMemFs(files: Record<string, string>): RuntimeFsPort {
 
 describe('readLocaleBundle', () => {
   const layout = resolveLocalesLayout(
-    { source: 'locales/en.json', directory: 'locales' },
+    { source: 'en', directory: 'locales' },
     '/proj/locales',
   );
 
@@ -98,7 +98,7 @@ describe('readLocaleBundle', () => {
 
   it('reads locale_directory segments via flat reader when path matches', () => {
     const dirLayout = resolveLocalesLayout(
-      { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
+      { source: 'en', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
       '/proj/messages',
     );
     const absoluteFile = '/proj/messages/en/auth.json';
@@ -119,7 +119,7 @@ describe('readLocaleBundle feature_bundle', () => {
   it('reads feature_bundle segment paths', () => {
     const layout = resolveLocalesLayout(
       {
-        source: 'locales/auth/en.json',
+        source: 'en',
         directory: 'locales',
         mode: 'locale_directory',
         structure: 'feature_bundle',
@@ -143,7 +143,7 @@ describe('readLocaleBundle feature_bundle', () => {
 describe('readLocalePerDirLocaleSurface', () => {
   it('merges leaves across segments for one locale code', () => {
     const layout = resolveLocalesLayout(
-      { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
+      { source: 'en', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
       '/proj/messages',
     );
     const root = '/proj/messages';
@@ -166,7 +166,7 @@ describe('readLocalePerDirLocaleSurface', () => {
   it('merges feature_bundle segments and surfaces structural parity warnings', () => {
     const layout = resolveLocalesLayout(
       {
-        source: 'locales/auth/en.json',
+        source: 'en',
         directory: 'locales',
         mode: 'locale_directory',
         structure: 'feature_bundle',

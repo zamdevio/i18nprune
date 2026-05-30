@@ -38,7 +38,7 @@ describe('runSync feature_bundle', () => {
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',
@@ -94,7 +94,7 @@ describe('runSync feature_bundle', () => {
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',
@@ -182,7 +182,7 @@ describe('runSync feature_bundle', () => {
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',
@@ -261,7 +261,7 @@ describe('runSync feature_bundle', () => {
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',

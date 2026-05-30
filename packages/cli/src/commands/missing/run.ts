@@ -23,7 +23,6 @@ import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
 import { formatLocaleSegmentFilesLabel } from '@/shared/locales/segmentLabel.js';
-import { logger } from '@/utils/logger/index.js';
 import type { MissingTargetPlan, RunEmitter } from '@i18nprune/core';
 
 function resolveMissingData(
@@ -69,7 +68,6 @@ export async function missing(opts: MissingOptions): Promise<void> {
         applyCliCiExitGate(false);
         return;
       }
-      if (readiness[0]) logger.warn(readiness[0].message, run);
       printCommandSummary(
         {
           command: 'missing',

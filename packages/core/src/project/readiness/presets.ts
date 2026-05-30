@@ -4,15 +4,22 @@ import type {
   ProjectReadinessRequest,
 } from '../../types/project/index.js';
 
+/** Catalog + bundle checks for `locales.source` (language code only). */
+const LOCALES_SOURCE_LANG: Pick<ProjectReadinessChecks, 'localesSourceLanguageCode'> = {
+  localesSourceLanguageCode: true,
+};
+
 const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> = {
   validate: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesStructureRequired: true,
     srcRootDirectory: true,
   },
   quality: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -20,6 +27,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   sync: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -27,6 +35,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   missing: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -34,6 +43,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   review: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -41,6 +51,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   report: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -48,6 +59,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   cleanup: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -55,6 +67,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   generate: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -62,11 +75,13 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   'locales-list': {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
   },
   'locales-dynamic': {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -74,6 +89,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   'locales-delete': {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -81,6 +97,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   config: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -88,6 +105,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   patch: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -95,6 +113,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   init: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,
@@ -102,6 +121,7 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
   },
   doctor: {
     configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
     sourceLocaleJsonObject: true,
     localesDirectoryAccessible: true,
     localesStructureRequired: true,

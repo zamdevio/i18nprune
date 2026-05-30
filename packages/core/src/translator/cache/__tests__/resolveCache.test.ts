@@ -6,7 +6,7 @@ function ctx(partial: Partial<NonNullable<CoreContext['cache']>> & { configCache
   const enabled = partial.state?.enabled ?? true;
   return {
     config: {
-      locales: { source: 'locales/en.json', directory: 'locales' },
+      locales: { source: 'en', directory: 'locales' },
       src: 'src',
       functions: ['t'],
       translate: { primary: 'google', providers: [{ id: 'google' }] },

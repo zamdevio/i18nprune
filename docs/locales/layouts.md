@@ -1,6 +1,8 @@
 # Locale filesystem layouts
 
-i18nprune reads and writes locale JSON using **`locales.mode`** and **`locales.structure`** in your config. The CLI, web upload, and worker all use the same enumeration rules from **`@i18nprune/core`**.
+i18nprune reads and writes locale JSON using **`locales.source`** (source locale **language code**, e.g. `en`), **`locales.directory`**, **`locales.mode`**, and **`locales.structure`**. The CLI, web upload, and worker all use the same enumeration rules from **`@i18nprune/core`**.
+
+**`locales.source` must be a language code only** (not `en.json` and not `messages/en/app.json`). Invalid values fail config load and project readiness; unknown codes get the same catalog hints as **`i18nprune generate`** (run **`i18nprune languages`** for the full list). For **`locale_per_dir`** / **`feature_bundle`**, readiness **warns** when the source locale is missing segment files that other locales already have under **`locales.directory`**.
 
 ## Quick reference
 
@@ -19,7 +21,7 @@ Typical for small apps and many starter templates.
 ```ts
 export default {
   locales: {
-    source: 'locales/en.json',
+    source: 'en',
     directory: 'locales',
     // mode: 'flat_file' — default
     // structure: 'locale_file' — default when mode is flat_file
@@ -45,7 +47,7 @@ One directory per locale code; multiple JSON segment files inside each (i18next-
 ```ts
 export default {
   locales: {
-    source: 'messages/en/common.json',
+    source: 'en',
     directory: 'messages',
     mode: 'locale_directory',
     structure: 'locale_per_dir',
@@ -74,7 +76,7 @@ Feature (namespace) folders; locale code is the **basename** of each JSON file.
 ```ts
 export default {
   locales: {
-    source: 'messages/auth/en.json',
+    source: 'en',
     directory: 'messages',
     mode: 'locale_directory',
     structure: 'feature_bundle',

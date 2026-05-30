@@ -15,7 +15,7 @@ import { projectConfigHash } from '../normalizeConfig.js';
 export async function applyProjectAnalysisToSnapshot(input: ApplyProjectAnalysisInput): Promise<void> {
   const { snapshot, analysis, normalized, ctx, textFiles, projectRoot } = input;
   const absRoot = ctx.adapters.path.resolve(projectRoot);
-  const sourceAbs = ctx.adapters.path.resolve(absRoot, normalized.source);
+  const sourceAbs = ctx.paths.sourceLocale;
   const sourceRel = ctx.adapters.path.relative(absRoot, sourceAbs).replace(/\\/g, '/');
   const sourceRaw = textFiles[sourceRel] ?? readLocaleJsonFromContextSync(ctx, ctx.paths.sourceLocale);
   const sourceLocaleJson = typeof sourceRaw === 'string' ? (JSON.parse(sourceRaw) as unknown) : sourceRaw;
@@ -57,7 +57,7 @@ export async function applyProjectAnalysisToSnapshot(input: ApplyProjectAnalysis
   const extractionStartedAt = new Date().toISOString();
   snapshot.extraction = {
     configHash: await projectConfigHash(normalized),
-    sourceLocalePath: normalized.source,
+    sourceLocalePath: sourceRel,
     srcRoot: normalized.src,
     localesDir: normalized.localesDir,
     resolvedKeys: [...analysis.usage.resolvedKeys],

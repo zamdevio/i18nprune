@@ -23,6 +23,15 @@ export const ISSUE_PROJECT_SRC_ROOT_UNAVAILABLE = 'i18nprune.project.src_root_un
 /** `locales.mode` is `locale_directory` but `locales.structure` is missing (required — no implicit guess). */
 export const ISSUE_PROJECT_LOCALES_STRUCTURE_REQUIRED =
   'i18nprune.project.locales_structure_required' as const;
+/** `locales.source` is a file path or `*.json` basename — must be a language code (e.g. en). */
+export const ISSUE_PROJECT_LOCALES_SOURCE_NOT_LANGUAGE_CODE =
+  'i18nprune.project.locales_source_not_language_code' as const;
+/** `locales.source` is a valid catalog code but no locale segments exist for it under `locales.directory`. */
+export const ISSUE_PROJECT_LOCALES_SOURCE_NOT_IN_BUNDLE =
+  'i18nprune.project.locales_source_not_in_bundle' as const;
+/** Source locale code exists but is missing JSON segment slot(s) other locales have (`locale_per_dir` / `feature_bundle`). */
+export const ISSUE_PROJECT_SOURCE_LOCALE_MISSING_SEGMENTS =
+  'i18nprune.project.source_locale_missing_segments' as const;
 /** Scan / report pipeline: dynamic (non-literal) key sites counted for reporting. */
 export const ISSUE_SCAN_DYNAMIC_KEY_SITES = 'i18nprune.scan.dynamic_key_sites' as const;
 /** Missing op: requested paths are not covered by the current scan surface. */

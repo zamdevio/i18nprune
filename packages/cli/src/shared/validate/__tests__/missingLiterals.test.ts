@@ -22,7 +22,7 @@ describe('computeMissingLiteralKeys', () => {
       path.join(dir, 'i18nprune.config.mjs'),
       `export default {
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',

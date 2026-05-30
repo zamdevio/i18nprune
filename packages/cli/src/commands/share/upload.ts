@@ -121,7 +121,6 @@ export async function shareUpload(opts: ShareUploadOptions): Promise<void> {
           });
           return;
         }
-        if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
         printCommandSummary(
           {
             command: 'share upload',

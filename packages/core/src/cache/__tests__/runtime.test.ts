@@ -138,7 +138,7 @@ describe('core cache runtime', () => {
     const rt = runtime(fs);
     const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
     let builds = 0;
-    const locales = { source: 'locales/en.json', directory: 'locales' };
+    const locales = { source: 'en', directory: 'locales' };
     const input: CachedProjectInput<{ builds: number }> = {
       state,
       runtime: rt,
@@ -169,7 +169,7 @@ describe('core cache runtime', () => {
     const rt = runtime(fs);
     const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
     let builds = 0;
-    const locales = { source: 'locales/en.json', directory: 'locales' };
+    const locales = { source: 'en', directory: 'locales' };
     const input: CachedProjectInput<{ builds: number }> = {
       state,
       runtime: rt,
@@ -208,7 +208,7 @@ describe('core cache runtime', () => {
     const rt = runtime(fs);
     const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
     let builds = 0;
-    const locales = { source: 'locales/en.json', directory: 'locales' };
+    const locales = { source: 'en', directory: 'locales' };
     const input: CachedProjectInput<{ builds: number }> = {
       state,
       runtime: rt,
@@ -230,7 +230,7 @@ describe('core cache runtime', () => {
       mode: 'flat_file',
       structure: 'locale_file',
       directory: 'locales',
-      source: 'locales/en.json',
+      source: 'en',
     });
     expect(index.localeSegments).toHaveProperty('en.json');
     expect(index.localeSegments).toHaveProperty('fr.json');
@@ -255,7 +255,7 @@ describe('core cache runtime', () => {
     const rt = runtime(fs);
     const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
     let builds = 0;
-    const flatLocales = { source: 'locales/en.json', directory: 'locales' };
+    const flatLocales = { source: 'en', directory: 'locales' };
     const inputFlat: CachedProjectInput<{ builds: number }> = {
       state,
       runtime: rt,
@@ -273,7 +273,7 @@ describe('core cache runtime', () => {
 
     fs.writeText('/project/src/app.ts', 't("app.title")');
     const dirLocales = {
-      source: 'messages/en/common.json',
+      source: 'en',
       directory: 'messages',
       mode: 'locale_directory' as const,
       structure: 'locale_per_dir' as const,
@@ -307,7 +307,7 @@ describe('core cache runtime', () => {
     });
     const rt = runtime(fs);
     const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
-    const locales = { source: 'locales/en.json', directory: 'locales' };
+    const locales = { source: 'en', directory: 'locales' };
     type Payload = {
       version: 1;
       keyObservations: unknown[];

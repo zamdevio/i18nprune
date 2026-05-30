@@ -21,7 +21,7 @@ English label, native endonym, and layout direction for app loaders live in **`s
 
 ```ts
 export default {
-  source: 'locales/en.json',
+  source: 'en',
   localesDir: 'locales',
   src: 'src',
   functions: ['t'],

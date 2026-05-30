@@ -73,7 +73,7 @@ export type TranslateHandoffMode = 'auto' | 'on' | 'off';
  *
  * export default defineConfig({
  *   locales: {
- *     source: 'locales/en.json',
+ *     source: 'en',
  *     directory: 'locales',
  *   },
  *   src: 'src',

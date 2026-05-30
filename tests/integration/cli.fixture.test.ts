@@ -169,7 +169,7 @@ describe('CLI against sample-i18n fixture', () => {
     tempDirs.push(dir);
     const cfg = `export default {
   locales: {
-    source: 'locales/en.json',
+    source: 'en',
     directory: 'locales',
   },
   src: 'src',
@@ -191,6 +191,60 @@ describe('CLI against sample-i18n fixture', () => {
     expect(j.kind).toBe('validate');
     expect(Array.isArray(j.issues)).toBe(true);
     expect(j.issues.some((i) => i.code === 'i18nprune.validate.source_locale_unreadable')).toBe(true);
+  });
+
+  it('validate --json on invalid locales.source emits envelope only (no logger error on stderr)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-validate-bad-source-'));
+    tempDirs.push(dir);
+    const cfg = `export default {
+  locales: { source: 'soo.json', directory: 'locales' },
+  src: 'src',
+  functions: ['t'],
+  policies: { preserve: {}, parity: {} },
+};
+`;
+    fs.writeFileSync(path.join(dir, 'i18nprune.config.mjs'), cfg, 'utf8');
+    fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+    const r = spawnSync(process.execPath, [cliJs, 'validate', '--json'], {
+      cwd: dir,
+      encoding: 'utf8',
+      env: { ...process.env, FORCE_COLOR: '0' },
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr ?? '').not.toMatch(/\[i18nprune\].*\[error\]/);
+    const j = parseFirstEnvelope(r.stdout ?? '');
+    expect(j.ok).toBe(false);
+    expect(j.kind).toBe('validate');
+    expect(j.issues.some((i) => i.code === 'i18nprune.languages.unsupported_language_code')).toBe(true);
+  });
+
+  it('languages --json works without a valid project config', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-languages-json-'));
+    tempDirs.push(dir);
+    const r = spawnSync(process.execPath, [cliJs, 'languages', '--json', '--filter', 'en'], {
+      cwd: dir,
+      encoding: 'utf8',
+      env: { ...process.env, FORCE_COLOR: '0' },
+    });
+    expect(r.status).toBe(0);
+    expect(r.stderr ?? '').not.toMatch(/\[i18nprune\].*\[error\]/);
+    const j = parseFirstEnvelope(r.stdout ?? '');
+    expect(j.ok).toBe(true);
+    expect(j.kind).toBe('languages');
+    expect(Array.isArray(j.data)).toBe(true);
+  });
+
+  it('langs alias runs languages --json without config', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-langs-json-'));
+    tempDirs.push(dir);
+    const r = spawnSync(process.execPath, [cliJs, 'langs', '--json', '--filter', 'ja'], {
+      cwd: dir,
+      encoding: 'utf8',
+      env: { ...process.env, FORCE_COLOR: '0' },
+    });
+    expect(r.status).toBe(0);
+    const j = parseFirstEnvelope(r.stdout ?? '');
+    expect(j.kind).toBe('languages');
   });
 
   it('config --json returns envelope; data has i18nprune.config snapshot', () => {

@@ -87,7 +87,7 @@ describe('resolveContext CLI scan exclude flags', () => {
       cfgPath,
       `export default {
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',
@@ -114,7 +114,7 @@ describe('resolveContext CLI scan exclude flags', () => {
       cfgPath,
       `export default {
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',
@@ -139,7 +139,7 @@ describe('resolveContext CLI scan exclude flags', () => {
       cfgPath,
       `export default {
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',
@@ -165,7 +165,7 @@ describe('resolveContext CLI scan exclude flags', () => {
       cfgPath,
       `export default {
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',
@@ -189,7 +189,7 @@ describe('resolveContext CLI scan exclude flags', () => {
       cfgPath,
       `export default {
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',
@@ -212,7 +212,7 @@ describe('resolveContext CLI scan exclude flags', () => {
       cfgPath,
       `export default {
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',

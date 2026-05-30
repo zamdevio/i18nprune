@@ -1,3 +1,4 @@
+import { classifyLocalesSourceInput } from '../../config/locales/index.js';
 import type { InitLocaleLayoutHint } from '../../types/init/index.js';
 
 const LIKELY_LOCALE_CODE = /^[a-z]{2}(-[A-Z]{2})?$/i;
@@ -22,6 +23,9 @@ export function inferLocaleLayoutFromConfigPaths(
   directory: string,
   source: string,
 ): InitLocaleLayoutHint | null {
+  if (classifyLocalesSourceInput(source) === 'language_code') {
+    return null;
+  }
   const rel = relativeSourcePath(directory, source);
   if (!rel.endsWith('.json')) {
     return null;

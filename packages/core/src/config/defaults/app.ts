@@ -17,7 +17,7 @@ export const REFERENCE_POLICY_SAFE_DEFAULTS: ReferenceCommandOverrides = {
 /** Canonical app config defaults (shared by all hosts). */
 export const DEFAULT_CONFIG: I18nPruneConfigParsed = {
   locales: {
-    source: 'locales/en.json',
+    source: 'en',
     directory: 'locales',
   },
   src: 'src',

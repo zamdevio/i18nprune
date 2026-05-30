@@ -10,7 +10,7 @@ function minimalProjectZip(): Uint8Array {
   return zipSync({
     'i18nprune.config.json': strToU8(
       JSON.stringify({
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
       }),

@@ -21,7 +21,7 @@ describe('runInit', () => {
     }
   });
 
-  it('infers mode and structure from preset paths when bundle tree is empty', () => {
+  it('emits language-code source when bundle tree is empty (layout from on-disk detect only)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-init-'));
     try {
       const adapters = createNodeRuntimeAdapters();
@@ -30,9 +30,9 @@ describe('runInit', () => {
         { preset: 'next-intl' },
       );
       expect(r.exitCode).toBe(0);
-      expect(r.payload.proposedConfigSource).toContain("mode: 'flat_file'");
-      expect(r.payload.proposedConfigSource).toContain("structure: 'locale_file'");
-      expect(r.payload.detection?.localeLayout?.mode).toBe('flat_file');
+      expect(r.payload.proposedConfigSource).toContain("source: 'en'");
+      expect(r.payload.proposedConfigSource).toContain('messages');
+      expect(r.payload.detection?.localeLayout).toBeNull();
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
@@ -76,7 +76,8 @@ describe('runInit', () => {
       );
       expect(r.exitCode).toBe(0);
       expect(r.payload.preset).toBe('next-intl');
-      expect(r.payload.proposedConfigSource).toContain('messages/en.json');
+      expect(r.payload.proposedConfigSource).toContain("source: 'en'");
+      expect(r.payload.proposedConfigSource).toContain('messages');
       expect(r.payload.detection?.ambiguous).toBe(false);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });

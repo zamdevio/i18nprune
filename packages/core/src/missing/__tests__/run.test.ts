@@ -30,7 +30,7 @@ describe('runMissing', () => {
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',
@@ -87,7 +87,7 @@ describe('runMissing', () => {
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',

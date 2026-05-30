@@ -11,7 +11,7 @@ export function runDiscovery(config: I18nPruneConfig, cwd = process.cwd(), fsPor
   const warnings: string[] = [];
   const patch: Partial<I18nPruneConfig> = {};
   const en = path.join(cwd, 'locales', 'en.json');
-  if (existsRuntimeFsSync(en, fsPort) && config.locales.source === 'locales/en.json') {
+  if (existsRuntimeFsSync(en, fsPort) && config.locales.source === 'en') {
     /* already aligned */
   }
   if (

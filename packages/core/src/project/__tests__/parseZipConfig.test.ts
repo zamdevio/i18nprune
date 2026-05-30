@@ -14,7 +14,7 @@ describe('parseZipToSnapshot config detection', () => {
       'i18nprune.config.ts': strToU8(`
         export default {
           locales: {
-            source: 'messages/en/common.json',
+            source: 'en',
             directory: 'messages',
             mode: 'locale_directory',
             structure: 'locale_per_dir',

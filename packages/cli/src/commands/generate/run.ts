@@ -57,7 +57,6 @@ export async function generate(opts: GenerateOptions): Promise<void> {
         applyCliCiExitGate(false);
         return;
       }
-      if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
       printCommandSummary(
         { command: 'generate', ok: false, durationMs: wall.elapsedMs(), issues: readiness },
         ctx,

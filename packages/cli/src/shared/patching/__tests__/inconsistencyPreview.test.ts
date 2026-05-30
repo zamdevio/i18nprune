@@ -5,7 +5,7 @@ import type { I18nPruneConfig } from '@i18nprune/core/config';
 function makeConfig(): I18nPruneConfig {
   return {
     locales: {
-      source: './locales/en.json',
+      source: 'en',
       directory: './locales',
     },
     src: './src',

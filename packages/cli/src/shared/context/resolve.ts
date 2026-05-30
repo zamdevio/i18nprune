@@ -1,6 +1,12 @@
 import { loadConfig, configExists } from '@/shared/config/load.js';
 import { configPathForContext, resolveConfigFilePath, resetConfigPathResolution } from '@/shared/config/paths.js';
-import { getRunOptions, loadProjectFilesState, mergeTrackedFileMaps, omitSyntheticSourceKey } from '@i18nprune/core';
+import {
+  getRunOptions,
+  loadProjectFilesState,
+  mergeTrackedFileMaps,
+  omitSyntheticSourceKey,
+  resolveSourceLocaleAbsolutePath,
+} from '@i18nprune/core';
 import type { ScanExcludeConfig } from '@i18nprune/core';
 import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 import type { I18nPruneConfig } from '@i18nprune/core/config';
@@ -141,9 +147,15 @@ export async function resolveContext(cwd = process.cwd()): Promise<Context> {
     overlay(sources, beforeCli, merged, 'cli');
 
     const run = getRunOptions();
+    const localesDir = resolveFromCwd(merged.locales.directory, projectRoot);
     const paths = {
-      sourceLocale: resolveFromCwd(merged.locales.source, projectRoot),
-      localesDir: resolveFromCwd(merged.locales.directory, projectRoot),
+      sourceLocale: resolveSourceLocaleAbsolutePath({
+        locales: merged.locales,
+        directoryAbsolute: localesDir,
+        path: adapters.path,
+        fs: adapters.fs,
+      }),
+      localesDir,
       srcRoot: resolveFromCwd(merged.src, projectRoot),
     };
 

@@ -44,7 +44,7 @@ describe('analysis incremental rebuild', () => {
       const adapters = createNodeRuntimeAdapters();
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
       });
@@ -99,7 +99,7 @@ describe('analysis incremental rebuild', () => {
       }
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
         cache: { fullRescanThresholdPercent: 40 },
@@ -147,7 +147,7 @@ describe('analysis incremental rebuild', () => {
       const adapters = createNodeRuntimeAdapters();
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
         cache: { fullRescanThresholdPercent: 40 },
@@ -197,7 +197,7 @@ describe('analysis incremental rebuild', () => {
       const adapters = createNodeRuntimeAdapters();
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
       });

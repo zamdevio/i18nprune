@@ -1,5 +1,5 @@
 /**
- * Canonical subcommand names (no short aliases). Optional `--langs` → `languages` only.
+ * Canonical subcommand names. Positional alias: `langs` → `languages` (see preprocess + Commander alias).
  */
 export const CANONICAL_SUBCOMMANDS = [
   'init',
@@ -15,8 +15,8 @@ export const CANONICAL_SUBCOMMANDS = [
   'help',
 ] as const;
 
-/** `--<name>` when `name` is shorthand for a canonical subcommand. */
-export const DOUBLE_DASH_TO_CANONICAL: Readonly<Record<string, string>> = {
+/** Positional subcommand shorthand → canonical name. */
+export const POSITIONAL_COMMAND_ALIASES: Readonly<Record<string, string>> = {
   langs: 'languages',
 };
 
@@ -39,6 +39,7 @@ const KNOWN_COMMAND_FIRST_TOKEN = new Set([
   'review',
   'cleanup',
   'languages',
+  'langs',
   'doctor',
   'report',
   'version',
@@ -104,40 +105,31 @@ function rewriteVersionFlagsToVersionSubcommand(argv: string[]): string[] {
 
 export function resolveArgvCommandToken(input: string): string | null {
   const k = input.toLowerCase().trim();
-  if (DOUBLE_DASH_TO_CANONICAL[k]) return DOUBLE_DASH_TO_CANONICAL[k]!;
+  if (POSITIONAL_COMMAND_ALIASES[k]) return POSITIONAL_COMMAND_ALIASES[k]!;
   if (SUB_SET.has(k)) return k;
   return null;
 }
 
-/**
- * Map `--<subcommand-or-shorthand>` to the canonical subcommand. Leaves `--help` unchanged.
- */
-function normalizeDoubleDashCommandToken(tok: string): string | null {
-  if (!tok.startsWith('--')) {
-    return null;
-  }
-  const rest = tok.slice(2);
-  if (rest === '' || rest === 'help') {
-    return null;
-  }
-  return resolveArgvCommandToken(rest);
+/** First subcommand token after global options (post-{@link preprocessArgv}). */
+export function resolveActiveCliCommandFromArgv(argv: string[] = process.argv): string | null {
+  const token = findFirstCommandToken(preprocessArgv(argv).slice(2));
+  if (!token) return null;
+  return resolveArgvCommandToken(token) ?? token;
 }
 
 /**
- * Normalizes argv before Commander: e.g. `--langs` → `languages`; `-v` / `--version` → `version` subcommand.
+ * Normalizes argv before Commander: `langs` → `languages`; `-v` / `--version` → `version` subcommand.
  */
 export function preprocessArgv(argv: string[]): string[] {
   const out = [...argv];
   const idx = 2;
   if (idx >= out.length) {
-    return out;
+    return rewriteVersionFlagsToVersionSubcommand(out);
   }
   const tok = out[idx];
-
-  const doubled = tok !== undefined ? normalizeDoubleDashCommandToken(tok) : null;
-  if (doubled !== null) {
-    out[idx] = doubled;
+  const positional = tok !== undefined ? resolveArgvCommandToken(tok) : null;
+  if (positional !== null && positional !== tok) {
+    out[idx] = positional;
   }
-
   return rewriteVersionFlagsToVersionSubcommand(out);
 }

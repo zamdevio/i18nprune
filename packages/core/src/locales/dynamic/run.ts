@@ -7,6 +7,7 @@ import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { DynamicKeySite } from '../../types/extractor/dynamic/index.js';
 import type { RunEmitter, OperationId } from '../../types/shared/run/index.js';
+import { sourceLocaleCodeFromContext } from '../../shared/locales/targets/context.js';
 
 export type DynamicRunOptions = {
   top?: number;
@@ -68,7 +69,7 @@ export function runDynamic(
   );
   const shownSites = applyListWindow(allSites, window);
 
-  const sourceLocaleCode = ctx.adapters.path.basename(ctx.paths.sourceLocale, '.json');
+  const sourceLocaleCode = sourceLocaleCodeFromContext(ctx);
 
   const payload: DynamicJsonPayload = {
     kind: 'locales-dynamic',

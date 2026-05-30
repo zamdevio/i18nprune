@@ -4,7 +4,7 @@ import { collectLocalesFilesystemConfigWarnings } from '../schema/localesCompat.
 describe('collectLocalesFilesystemConfigWarnings', () => {
   it('warns when structure is set under flat_file mode', () => {
     const warnings = collectLocalesFilesystemConfigWarnings({
-      source: 'locales/en.json',
+      source: 'en',
       directory: 'locales',
       mode: 'flat_file',
       structure: 'locale_per_dir',
@@ -16,7 +16,7 @@ describe('collectLocalesFilesystemConfigWarnings', () => {
 
   it('warns when locale_file structure is set under locale_directory mode', () => {
     const warnings = collectLocalesFilesystemConfigWarnings({
-      source: 'messages/en/auth.json',
+      source: 'en',
       directory: 'messages',
       mode: 'locale_directory',
       structure: 'locale_file',
@@ -28,7 +28,7 @@ describe('collectLocalesFilesystemConfigWarnings', () => {
   it('returns no warnings for compatible pairs', () => {
     expect(
       collectLocalesFilesystemConfigWarnings({
-        source: 'locales/en.json',
+        source: 'en',
         directory: 'locales',
         mode: 'flat_file',
         structure: 'locale_file',
@@ -36,7 +36,7 @@ describe('collectLocalesFilesystemConfigWarnings', () => {
     ).toHaveLength(0);
     expect(
       collectLocalesFilesystemConfigWarnings({
-        source: 'messages/en/auth.json',
+        source: 'en',
         directory: 'messages',
         mode: 'locale_directory',
         structure: 'locale_per_dir',

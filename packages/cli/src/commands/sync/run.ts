@@ -11,7 +11,6 @@ import { attachWallTimer } from '@/utils/timer/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
-import { logger } from '@/utils/logger/index.js';
 import type { SyncRuntime } from '@/types/command/sync/index.js';
 
 function resolveSyncData(
@@ -43,7 +42,6 @@ export async function sync(opts: SyncOptions): Promise<void> {
         applyCliCiExitGate(false);
         return;
       }
-      if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
       printCommandSummary(
         {
           command: 'sync',

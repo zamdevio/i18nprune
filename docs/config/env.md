@@ -8,7 +8,7 @@ Merged **after** defaults and the config **file**, **before** discovery and CLI 
 
 | Variable | Effect |
 |----------|--------|
-| **`I18NPRUNE_SOURCE`** | Override **`config.locales.source`** (path to source locale JSON). |
+| **`I18NPRUNE_SOURCE`** | Override **`config.locales.source`** with a **language code** (e.g. `en`, `pt-br`) — not a JSON path. |
 | **`I18NPRUNE_LOCALES_DIR`** | Override **`config.locales.directory`**. |
 | **`I18NPRUNE_SRC`** | Override **`config.src`** (scan root). |
 | **`I18NPRUNE_FUNCTIONS`** | Comma-separated list overriding **`config.functions`**. |

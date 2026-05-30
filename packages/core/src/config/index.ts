@@ -30,6 +30,14 @@ export type {
   TranslateProviderRowMymemory,
   TranslateRateLimitConfig,
 } from './schema/index.js';
+export {
+  classifyLocalesSourceInput,
+  issueLocalesSourceNotInBundle,
+  resolveSourceLocaleAbsoluteFromRelPaths,
+  resolveSourceLocaleAbsolutePath,
+  validateLocalesSourceConfigValue,
+} from './locales/index.js';
+export type { LocalesSourceInputKind, LocalesSourceValidationResult } from './locales/index.js';
 
 export { CORE_CONFIG_DEFAULT_INPUT } from './defaults/index.js';
 export { DEFAULT_CONFIG, REFERENCE_POLICY_SAFE_DEFAULTS } from './defaults/index.js';

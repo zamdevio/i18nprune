@@ -22,7 +22,7 @@ describe('preprocessArgv', () => {
     expect(preprocessArgv(argv('doctor', '-v'))).toEqual(argv('doctor', '-v'));
   });
 
-  it('still maps --langs to languages', () => {
-    expect(preprocessArgv(argv('--langs'))).toEqual(argv('languages'));
+  it('maps langs positional alias to languages', () => {
+    expect(preprocessArgv(argv('langs'))).toEqual(argv('languages'));
   });
 });

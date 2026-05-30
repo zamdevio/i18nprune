@@ -8,7 +8,6 @@ import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
-import { logger } from '@/utils/logger/index.js';
 
 /** Locale-level review: paths vs source, source-identical counts, structured leaf metadata when present. */
 export async function review(opts: { target?: string }): Promise<void> {
@@ -33,7 +32,6 @@ export async function review(opts: { target?: string }): Promise<void> {
         applyCliCiExitGate(false);
         return;
       }
-      if (readiness[0]) logger.warn(readiness[0].message, run);
       printCommandSummary(
         {
           command: 'review',

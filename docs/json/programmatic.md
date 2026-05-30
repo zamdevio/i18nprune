@@ -19,7 +19,7 @@ Every command in `COMMANDS_WITH_JSON_OUTPUT` (`packages/cli/src/constants/jsonou
 | **`runDoctor(ctx, opts)`** | **`doctor --json`** |
 | **`runQuality(ctx, opts, host)`** | Core **`quality`** checker (CLI wraps returned `{ payload, issues }` in the stable JSON envelope) |
 | **`runReview(ctx, opts, host)`** | Core **`review`** aggregator (CLI wraps returned `{ payload, issues }` in the stable JSON envelope) |
-| **`runLanguages(ctx, opts)`** | **`languages --json`** |
+| **`runLanguages(opts)`** | **`languages --json`** |
 | **`runGenerate(ctx, opts)`** | **`generate --json`** (async; writes locales unless **`dryRun`**). Pass **`opts.resume`** + **`opts.resumeReference`** for **`generate --resume`** (not config). |
 | **`runReport(opts)`** | **`report`** with global **`--json`** (async; **`opts.format`** selects file body; envelope includes full **`document`**) |
 

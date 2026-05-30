@@ -36,7 +36,7 @@ describe('buildQualityLocaleReport', () => {
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',

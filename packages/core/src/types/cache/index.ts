@@ -1,4 +1,4 @@
-import type { LocalesFilesystemConfig } from '../../config/schema/root.js';
+import type { LocalesFilesystemConfig } from '../config/localesFilesystem.js';
 import type { LocalesLayoutMode, LocalesLayoutStructure } from '../locales/layout.js';
 import type { RuntimeFsPort, RuntimePathPort, RuntimeSystemPort } from '../runtime/index.js';
 import type { ScanExcludeConfig } from '../scanner/index.js';

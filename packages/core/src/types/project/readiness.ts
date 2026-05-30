@@ -41,6 +41,11 @@ export type ProjectReadinessChecks = {
    * (`locale_per_dir` or `feature_bundle`) — layout resolution does not guess.
    */
   localesStructureRequired?: boolean;
+  /**
+   * `locales.source` is a supported catalog language code and matches a locale present
+   * under `locales.directory` (when layout can be resolved).
+   */
+  localesSourceLanguageCode?: boolean;
 };
 
 export type ProjectReadinessRequest =

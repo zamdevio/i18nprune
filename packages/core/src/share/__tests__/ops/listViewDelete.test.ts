@@ -42,7 +42,7 @@ function makeCtx(root: string) {
   const adapters = createNodeRuntimeAdapters();
   const config = parseI18nPruneConfig({
     ...DEFAULT_CONFIG,
-    locales: { source: 'locales/en.json', directory: 'locales' },
+    locales: { source: 'en', directory: 'locales' },
     src: 'src',
     functions: ['t'],
   });

@@ -12,7 +12,7 @@ This subpath exposes **`defineConfig`** (merges partial input with CLI defaults)
 import { defineConfig, type I18nPruneConfig } from 'i18nprune/core/config';
 
 export default defineConfig({
-  source: 'locales/en.json',
+  source: 'en',
   localesDir: 'locales',
   src: 'src',
   functions: ['t', 'i18n.t'],

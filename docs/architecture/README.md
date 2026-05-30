@@ -3,7 +3,7 @@
 Use [docs/README.md](../README.md) as the central topic index.
 
 1. **`packages/cli/bin/cli.ts`** — Commander program, global flags, `preprocessArgv`, `preAction`.
-2. **`packages/cli/src/argv/`** — Argv preprocessing (`--langs` → `languages`).
+2. **`packages/cli/src/argv/`** — Argv preprocessing (`langs` → `languages`, version flags).
 3. **`packages/cli/src/config/`** — Schema, load (TS/JS via jiti), resolve (duplicate config handling), init prompts.
 4. **`packages/cli/src/core/`** — Context, JSON merge/prune, extractor, **`dynamic/`** heuristics, scanner, translator, progress, errors, **languages** catalog.
 5. **`packages/cli/src/commands/`** — One folder per command; **`logger`** for output.

@@ -20,7 +20,7 @@ describe('assessGenerateTargetPreflight', () => {
       fs.writeFileSync(path.join(messages, 'app', 'ar.json'), '{"app":{"title":"x"}}', 'utf8');
       const config = parseI18nPruneConfig({
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',

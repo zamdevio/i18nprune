@@ -8,7 +8,7 @@ import {
 describe('resolveLocalesLayout', () => {
   it('defaults mode flat_file and structure locale_file', () => {
     const layout = resolveLocalesLayout(
-      { source: 'locales/en.json', directory: '/proj/locales' },
+      { source: 'en', directory: '/proj/locales' },
       '/proj/locales',
     );
     expect(layout.mode).toBe('flat_file');
@@ -19,7 +19,7 @@ describe('resolveLocalesLayout', () => {
   it('throws when locale_directory mode omits structure', () => {
     expect(() =>
       resolveLocalesLayout(
-        { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory' },
+        { source: 'en', directory: 'messages', mode: 'locale_directory' },
         '/proj/messages',
       ),
     ).toThrow(/locales\.structure is required/);
@@ -27,7 +27,7 @@ describe('resolveLocalesLayout', () => {
 
   it('supports flat_file + locale_file for read and write', () => {
     const layout = resolveLocalesLayout(
-      { source: 'locales/en.json', directory: 'locales', mode: 'flat_file', structure: 'locale_file' },
+      { source: 'en', directory: 'locales', mode: 'flat_file', structure: 'locale_file' },
       '/proj/locales',
     );
     expect(isLocalesLayoutWriteSupported(layout)).toBe(true);
@@ -37,7 +37,7 @@ describe('resolveLocalesLayout', () => {
   it('supports locale_directory + feature_bundle for read and write', () => {
     const layout = resolveLocalesLayout(
       {
-        source: 'locales/auth/en.json',
+        source: 'en',
         directory: 'locales',
         mode: 'locale_directory',
         structure: 'feature_bundle',

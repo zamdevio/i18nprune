@@ -4,7 +4,7 @@ These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a smal
 
 **Not the same as `doctor`:** **`doctor`** adds Node version, **`rg`**, its own config-file row, and path summaries (`i18nprune.doctor.*`). **`project.*`** is the shared readiness layer used before heavy work; **`project.config_file_missing`** is distinct from **`i18nprune.config.missing`** (the latter is for **explicit** config path load failures in core **`tryLoadCoreConfigFromPath`**, not “no default-discovered config in cwd”).
 
-**Where paths come from:** With a config file, **`i18nprune.config.ts`** (or sibling) sets **`locales.source`** (source locale JSON path), **`locales.directory`** (locale bundle root), and **`src`**. Without one, the engine still merges **built-in defaults** plus env / discovery / CLI — paths may look valid but not match your app. **`config --json`** includes **`configFileLoaded`** on the snapshot payload.
+**Where paths come from:** With a config file, **`i18nprune.config.ts`** (or sibling) sets **`locales.source`** (source locale **language code**, e.g. `en`), **`locales.directory`** (locale bundle root), and **`src`**. Resolved **`paths.sourceLocale`** is the primary on-disk JSON file for that code. Without one, the engine still merges **built-in defaults** plus env / discovery / CLI — paths may look valid but not match your app. **`config --json`** includes **`configFileLoaded`** on the snapshot payload.
 
 ---
 
@@ -72,6 +72,35 @@ These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a smal
 3. **`patch --init`** writes under **`<src>/i18n/`**; without a valid **`srcRoot`**, scaffold paths are wrong.
 
 **Commands:** Any preset that includes **`srcRootDirectory`** (most pipeline commands, **`locales delete`**, **`patch`**, **`init`**, **`config --json`**, …).
+
+---
+
+## `locales_source_not_language_code`
+
+**Code:** `i18nprune.project.locales_source_not_language_code`  
+**Severity:** `error`  
+**When:** **`locales.source`** looks like a file path, an invalid tag shape, or a basename with no catalog match and no close suggestions.  
+**What to do:** Set **`locales.source`** to a BCP47-style tag only (e.g. **`en`**, **`pt-br`**). Use **`locales.directory`**, **`mode`**, and **`structure`** to locate JSON on disk — see [Locale filesystem layouts](../locales/layouts.md).
+
+---
+
+## `locales_source_not_in_bundle`
+
+**Code:** `i18nprune.project.locales_source_not_in_bundle`  
+**Severity:** `error`  
+**When:** **`locales.source`** is a valid catalog code, but no locale JSON segments for that code exist under **`locales.directory`** (readiness lists codes found on disk).  
+**What to do:** Fix the code, add the missing locale files, or align **`mode`** / **`structure`** with your tree.
+
+Unknown or mistyped codes use **`i18nprune.languages.unsupported_language_code`** with the same **`— try: …`** hints as **`i18nprune generate`**. List every supported target code with **`i18nprune languages`** (alias **`langs`**); see [languages command](../commands/languages/README.md).
+
+---
+
+## `source_locale_missing_segments`
+
+**Code:** `i18nprune.project.source_locale_missing_segments`  
+**Severity:** `warning` (does not fail the command by itself)  
+**When:** **`locales.mode`** is **`locale_directory`** with **`locale_per_dir`** or **`feature_bundle`**, and the configured source locale is missing a segment file that exists for another locale under **`locales.directory`**.  
+**What to do:** Add the missing JSON under the source locale folder (e.g. `messages/en/auth.json` when `messages/fr/auth.json` exists), or fix **`locales.source`** if it points at the wrong code.
 
 ---
 

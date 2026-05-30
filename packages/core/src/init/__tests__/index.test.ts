@@ -51,7 +51,8 @@ describe('init core helpers', () => {
 
   it('next-intl preset targets messages/ + hook names', () => {
     const tpl = buildInitConfigTemplate({ preset: 'next-intl' });
-    expect(tpl).toContain('messages/en.json');
+    expect(tpl).toContain("source: 'en'");
+    expect(tpl).toContain('messages');
     expect(tpl).toContain('messages');
     expect(tpl).toContain('"useTranslations"');
     expect(tpl).toContain('"t"');

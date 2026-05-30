@@ -26,7 +26,7 @@ beforeEach(() => {
 function makeConfig(): I18nPruneConfig {
   return {
     locales: {
-      source: './locales/en.json',
+      source: 'en',
       directory: './locales',
     },
     src: './src',

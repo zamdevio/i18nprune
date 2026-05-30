@@ -69,9 +69,6 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
         applyCliCiExitGate(false);
         return;
       }
-      if (readinessIssues[0]) {
-        logger.warn(readinessIssues[0].message, ctx.run);
-      }
       printCommandSummary(
         {
           command: 'validate',

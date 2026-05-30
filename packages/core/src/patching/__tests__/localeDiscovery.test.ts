@@ -37,7 +37,7 @@ function writeLocalePerDirFixture(root: string): {
   }
   const layout = resolveLocalesLayout(
     {
-      source: 'messages/en/app.json',
+      source: 'en',
       directory: 'messages',
       mode: 'locale_directory',
       structure: 'locale_per_dir',
@@ -89,7 +89,7 @@ describe('patching locale layout discovery', () => {
       mode: 'locale_directory',
       structure: 'locale_per_dir',
       directoryAbsolute: messages,
-      config: { source: 'messages/en/app.json', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
+      config: { source: 'en', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
     };
     const codes = listPatchingLocaleCodesOnDisk({ runtime: rt, localesDir: messages, layout });
     expect(codes).toEqual(['en', 'fr']);
@@ -107,7 +107,7 @@ describe('patching locale layout discovery', () => {
       mode: 'locale_directory',
       structure: 'locale_per_dir',
       directoryAbsolute: messages,
-      config: { source: 'messages/en/app.json', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
+      config: { source: 'en', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
     };
     const spec = resolvePatchingLocaleImportSpec({
       layout,

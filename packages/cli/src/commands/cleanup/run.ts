@@ -80,7 +80,6 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
         applyCliCiExitGate(false);
         return;
       }
-      if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
       printCommandSummary(
         {
           command: 'cleanup',

@@ -1,4 +1,4 @@
-import type { LocalesFilesystemConfig } from '../../config/schema/root.js';
+import type { LocalesFilesystemConfig } from '../config/localesFilesystem.js';
 
 /** Resolved filesystem layout for locale bundle I/O (after defaults). */
 export type LocalesLayoutMode = NonNullable<LocalesFilesystemConfig['mode']>;

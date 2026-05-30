@@ -6,7 +6,7 @@ describe('classifyCacheFileDelta', () => {
     mode: 'flat_file' as const,
     structure: 'locale_file' as const,
     directory: 'locales',
-    source: 'locales/en.json',
+    source: 'en',
   };
 
   it('routes src and locale paths into separate buckets', () => {

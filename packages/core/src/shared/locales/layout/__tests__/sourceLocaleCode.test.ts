@@ -9,7 +9,7 @@ describe('sourceLocaleCodeForLayout', () => {
     const root = '/proj/messages';
     const layout = resolveLocalesLayout(
       {
-        source: 'messages/en/app.json',
+        source: 'en',
         directory: 'messages',
         mode: 'locale_directory',
         structure: 'locale_per_dir',
@@ -28,7 +28,7 @@ describe('sourceLocaleCodeForLayout', () => {
   it('returns basename for flat_file source', () => {
     const root = '/proj/locales';
     const layout = resolveLocalesLayout(
-      { source: 'locales/en.json', directory: 'locales', mode: 'flat_file', structure: 'locale_file' },
+      { source: 'en', directory: 'locales', mode: 'flat_file', structure: 'locale_file' },
       root,
     );
     expect(

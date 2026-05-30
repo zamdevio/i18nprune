@@ -26,7 +26,7 @@ time i18nprune validate --json | jq '.meta.apiVersion'
 i18nprune -c i18nprune.config.ts --json validate --json-pretty false
 
 # override scanner-related globals
-i18nprune --source locales/en.json --src src --functions t,i18n.t validate --json | jq '{ok, dynamic: .data.dynamic.count}'
+i18nprune --source en --src src --functions t,i18n.t validate --json | jq '{ok, dynamic: .data.dynamic.count}'
 ```
 
 See also: [jq cookbook](../../jq-cookbook/README.md)

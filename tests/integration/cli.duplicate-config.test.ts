@@ -10,7 +10,7 @@ const cliJs = path.join(root, 'dist/cli.js');
 
 const MINIMAL = `export default {
   locales: {
-    source: 'locales/en.json',
+    source: 'en',
     directory: 'locales',
   },
   src: 'src',

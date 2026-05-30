@@ -8,7 +8,7 @@ import { defineConfig } from '@i18nprune/core';
 
 export default defineConfig({
   locales: {
-    source: 'examples/sdk/sync/locales/en.json',
+    source: 'en',
     directory: 'examples/sdk/sync/locales',
   },
   src: 'examples/sdk/sync/src',

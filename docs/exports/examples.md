@@ -46,7 +46,7 @@ console.log('Unused keys:', unused);
 import { defineConfig, type I18nPruneConfig } from 'i18nprune/core/config';
 
 export default defineConfig({
-  source: 'packages/design-system/locales/en.json',
+  source: 'en',
   localesDir: 'packages/design-system/locales',
   src: 'packages/**/*.{ts,tsx}',
   functions: ['t'],

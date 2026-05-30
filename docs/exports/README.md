@@ -32,7 +32,7 @@ See the dedicated page: **[Configuration API](./config.md)**
 import { defineConfig, type I18nPruneConfig } from 'i18nprune/core/config';
 
 export default defineConfig({
-  source: 'locales/en.json',
+  source: 'en',
   localesDir: 'locales',
   src: 'src',
   functions: ['t'],

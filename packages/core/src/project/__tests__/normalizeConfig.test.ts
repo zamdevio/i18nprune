@@ -4,12 +4,12 @@ import { normalizeProjectConfig } from '../normalizeConfig.js';
 describe('normalizeProjectConfig', () => {
   it('accepts nested locales config', () => {
     const out = normalizeProjectConfig({
-      locales: { source: 'locales/en.json', directory: 'locales' },
+      locales: { source: 'en', directory: 'locales' },
       src: 'src',
       functions: ['t'],
     });
     expect(out).toMatchObject({
-      source: 'locales/en.json',
+      source: 'en',
       localesDir: 'locales',
       src: 'src',
       functions: ['t'],

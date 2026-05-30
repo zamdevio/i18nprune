@@ -22,7 +22,7 @@ function fixtureContext(): Context {
     },
     config: {
       locales: {
-        source: './locales/en.json',
+        source: 'en',
         directory: './locales',
       },
       src: './src',

@@ -4,13 +4,13 @@ import { mergePartialConfigIntoBase } from '../resolve/index.js';
 describe('mergePartialConfigIntoBase', () => {
   it('deep-merges nested `locales` object', () => {
     const base = {
-      locales: { source: 'locales/en.json', directory: 'locales' },
+      locales: { source: 'en', directory: 'locales' },
       src: 'src',
       functions: ['t'],
     };
     const out = mergePartialConfigIntoBase(base, { locales: { directory: 'localesA' } });
     expect((out.locales as { source: string; directory: string }).directory).toBe('localesA');
-    expect((out.locales as { source: string; directory: string }).source).toBe('locales/en.json');
+    expect((out.locales as { source: string; directory: string }).source).toBe('en');
   });
 
   it('deep-merges nested plain objects', () => {

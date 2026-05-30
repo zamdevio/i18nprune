@@ -8,7 +8,7 @@ import { createNodeRuntimeAdapters } from '../../runtime/exports/node.js';
 import { I18nPruneError } from '../../shared/errors/index.js';
 import { resolveResumeAllTargetCodes, resolveResumeTargetCodesFromRaw } from '../resumeTargets.js';
 
-function flatFileCtx(root: string, dir: string, sourceName = 'en.json') {
+function flatFileCtx(root: string, dir: string, sourceCode = 'en', sourceFile = 'en.json') {
   const nodeAdapters = createNodeRuntimeAdapters();
   const adapters = {
     ...nodeAdapters,
@@ -16,7 +16,7 @@ function flatFileCtx(root: string, dir: string, sourceName = 'en.json') {
   };
   const config = parseI18nPruneConfig({
     ...DEFAULT_CONFIG,
-    locales: { source: sourceName, directory: path.basename(dir) },
+    locales: { source: sourceCode, directory: path.basename(dir) },
     src: 'src',
     functions: ['t'],
   });
@@ -26,7 +26,7 @@ function flatFileCtx(root: string, dir: string, sourceName = 'en.json') {
     adapters,
     env: {},
     paths: {
-      sourceLocale: path.join(dir, sourceName),
+      sourceLocale: path.join(dir, sourceFile),
       localesDir: dir,
       srcRoot: path.join(root, 'src'),
     },
@@ -68,7 +68,7 @@ describe('generate --resume target resolution', () => {
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',

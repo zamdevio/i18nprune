@@ -12,7 +12,7 @@ function ctxWithFs(fs: CoreContext['adapters']['fs']): CoreContext {
     config: {
       functions: [],
       exclude: [],
-      locales: { source: 'locales/en.json', directory: 'locales' },
+      locales: { source: 'en', directory: 'locales' },
       src: 'src',
     } as CoreContext['config'],
     adapters: {
@@ -60,7 +60,7 @@ describe('runProjectReadiness', () => {
     };
     const out = runProjectReadiness(ctxWithFs(fs), { mode: 'preset', preset: 'validate' });
     expect(out.ok).toBe(false);
-    expect(out.issues[0]?.code).toBe('i18nprune.validate.source_locale_unreadable');
+    expect(out.issues.some((i) => i.code === 'i18nprune.validate.source_locale_unreadable')).toBe(true);
   });
 
   it('emits locales_structure_required when locale_directory omits structure', () => {
@@ -78,7 +78,7 @@ describe('runProjectReadiness', () => {
       config: {
         functions: ['t'],
         exclude: [],
-        locales: { source: 'messages/en/x.json', directory: 'messages', mode: 'locale_directory' },
+        locales: { source: 'en', directory: 'messages', mode: 'locale_directory' },
         src: 'src',
       },
     } as CoreContext;

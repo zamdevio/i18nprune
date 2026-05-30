@@ -32,32 +32,32 @@ export function formatInitPresetIdList(): string {
 
 const PRESET_FIELDS: Record<InitPresetId, InitPresetConfigFields> = {
   generic: {
-    locales: { source: 'locales/en.json', directory: 'locales' },
+    locales: { source: 'en', directory: 'locales' },
     src: 'src',
     functions: ['t'],
   },
   'next-intl': {
-    locales: { source: 'messages/en.json', directory: 'messages' },
+    locales: { source: 'en', directory: 'messages' },
     src: 'src',
     functions: ['useTranslations', 't'],
   },
   'next-i18next': {
-    locales: { source: 'public/locales/en.json', directory: 'public/locales' },
+    locales: { source: 'en', directory: 'public/locales' },
     src: 'src',
     functions: ['useTranslation', 't'],
   },
   i18next: {
-    locales: { source: 'locales/en.json', directory: 'locales' },
+    locales: { source: 'en', directory: 'locales' },
     src: 'src',
     functions: ['t', 'i18n.t'],
   },
   lingui: {
-    locales: { source: 'locales/en.json', directory: 'locales' },
+    locales: { source: 'en', directory: 'locales' },
     src: 'src',
     functions: ['t', 'Trans'],
   },
   'react-intl': {
-    locales: { source: 'locales/en.json', directory: 'locales' },
+    locales: { source: 'en', directory: 'locales' },
     src: 'src',
     functions: ['useIntl', 'FormattedMessage'],
   },

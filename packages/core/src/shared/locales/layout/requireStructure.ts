@@ -1,4 +1,4 @@
-import type { LocalesFilesystemConfig } from '../../../config/schema/root.js';
+import type { LocalesFilesystemConfig } from '../../../types/config/localesFilesystem.js';
 import type { LocalesLayoutMode, LocalesLayoutStructure } from '../../../types/locales/layout.js';
 
 export function localesMode(config: LocalesFilesystemConfig): LocalesLayoutMode {

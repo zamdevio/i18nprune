@@ -24,7 +24,7 @@ function makeContext(root: string): Context {
   const adapters = createNodeRuntimeAdapters();
   return {
     config: {
-      locales: { source: './locales/en.json', directory: './locales' },
+      locales: { source: 'en', directory: './locales' },
       src: './src',
       functions: ['t'],
     },

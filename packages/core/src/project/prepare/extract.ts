@@ -1,5 +1,6 @@
 import { mergePartialConfigIntoBase } from '../../config/index.js';
 import * as extractor from '../../namespaces/extractor.js';
+import { resolveSourceLocaleAbsoluteFromRelPaths } from '../../config/locales/index.js';
 import { buildLocaleJsonByTagFromArchive, listLocaleCodesFromArchive } from '../../shared/locales/index.js';
 import {
   ISSUE_PROJECT_SOURCE_LOCALE_INVALID_JSON,
@@ -48,13 +49,26 @@ export async function fillProjectSnapshotExtraction(
   }
 
   const srcRootAbs = fs.path.resolve(fs.cwd, normalized.src);
-  const sourceAbs = fs.path.resolve(fs.cwd, normalized.source);
+  const localesRootAbs = fs.path.resolve(fs.cwd, normalized.localesDir);
+  const localesConfig = {
+    source: normalized.source,
+    directory: normalized.localesDir,
+    mode: normalized.localesMode,
+    structure: normalized.localesStructure,
+  };
+  const sourceAbs = resolveSourceLocaleAbsoluteFromRelPaths({
+    locales: localesConfig,
+    directoryAbsolute: localesRootAbs,
+    projectRootAbsolute: fs.cwd,
+    path: fs.path,
+    relPaths: Object.keys(textFiles),
+  });
   const sourceRel = relativeProjectPath(sourceAbs);
   const sourceRaw = textFiles[sourceRel];
   if (!sourceRaw) {
     return workerIssue(
       ISSUE_PROJECT_SOURCE_LOCALE_NOT_FOUND,
-      `Configured source locale file not found in uploaded zip: ${normalized.source}`,
+      `Configured source locale (${normalized.source}) not found in uploaded zip at ${sourceRel}`,
     );
   }
 
@@ -62,7 +76,7 @@ export async function fillProjectSnapshotExtraction(
   try {
     sourceLocaleJson = JSON.parse(sourceRaw) as unknown;
   } catch {
-    return workerIssue(ISSUE_PROJECT_SOURCE_LOCALE_INVALID_JSON, `Configured source locale is invalid JSON: ${normalized.source}`);
+    return workerIssue(ISSUE_PROJECT_SOURCE_LOCALE_INVALID_JSON, `Configured source locale is invalid JSON: ${sourceRel}`);
   }
   if (!sourceLocaleJson || typeof sourceLocaleJson !== 'object' || Array.isArray(sourceLocaleJson)) {
     return workerIssue(ISSUE_PROJECT_SOURCE_LOCALE_INVALID_SHAPE, 'Configured source locale must be a JSON object.');
@@ -90,13 +104,6 @@ export async function fillProjectSnapshotExtraction(
   });
 
   snapshot.sourceLocaleJson = sourceLocaleJson as Record<string, unknown>;
-  const localesRootAbs = fs.path.resolve(fs.cwd, normalized.localesDir);
-  const localesConfig = {
-    source: normalized.source,
-    directory: normalized.localesDir,
-    mode: normalized.localesMode,
-    structure: normalized.localesStructure,
-  };
   const archiveRelPaths = Object.keys(textFiles);
   const resolveArchiveAbsolute = (rel: string) => fs.path.resolve(fs.cwd, rel);
   snapshot.localeJsonByTag = buildLocaleJsonByTagFromArchive({
@@ -123,7 +130,7 @@ export async function fillProjectSnapshotExtraction(
   const computedAt = new Date().toISOString();
   snapshot.extraction = {
     configHash: await projectConfigHash(normalized),
-    sourceLocalePath: normalized.source,
+    sourceLocalePath: sourceRel,
     srcRoot: normalized.src,
     localesDir: normalized.localesDir,
     resolvedKeys: [...resolvedKeys],

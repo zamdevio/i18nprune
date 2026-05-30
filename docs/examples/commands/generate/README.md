@@ -20,7 +20,7 @@ cd tests/fixtures/simple-i18n-app
 | `-c, --config` | Explicit config file | `... -c i18nprune.config.ts --json generate --target ja --dry-run` |
 | `--json` / `--json-pretty` | Machine envelope + compact/pretty formatting | `... --json generate --target ja --dry-run --json-pretty false` |
 | `stdout redirection` + `--format` | Persist run artifact independent of stdout | `... stdout redirection ./out/generate-run.json --format json generate --target ja --dry-run` |
-| `--source` / `--locales-dir` / `--src` / `--functions` | Global path/scanner overrides | `... --source locales/en.json --locales-dir locales --src src --functions t,tt generate --target ja --dry-run` |
+| `--source` / `--locales-dir` / `--src` / `--functions` | Global path/scanner overrides | `... --source en --locales-dir locales --src src --functions t,tt generate --target ja --dry-run` |
 
 ## Dry-run with metadata mode
 
@@ -59,7 +59,7 @@ pnpm exec tsx ../../../packages/cli/bin/cli.ts -c i18nprune.config.ts --json gen
 pnpm exec tsx ../../../packages/cli/bin/cli.ts --config i18nprune.config.ts stdout redirection ./out/generate-run.json --format json generate --target ja --dry-run
 
 # path/function overrides (useful when running outside default project layout)
-pnpm exec tsx ../../../packages/cli/bin/cli.ts --config i18nprune.config.ts --source locales/en.json --locales-dir locales --src src --functions t,tt generate --target ja --dry-run
+pnpm exec tsx ../../../packages/cli/bin/cli.ts --config i18nprune.config.ts --source en --locales-dir locales --src src --functions t,tt generate --target ja --dry-run
 ```
 
 ## JSON payload keys used here

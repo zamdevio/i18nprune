@@ -28,7 +28,7 @@ function captureFs(): { fs: RuntimeFsPort; writes: Array<{ path: string; body: s
 describe('writeLocaleBundle', () => {
   it('writes flat locale_file segment', () => {
     const layout = resolveLocalesLayout(
-      { source: 'locales/en.json', directory: 'locales' },
+      { source: 'en', directory: 'locales' },
       '/proj/locales',
     );
     const absoluteFile = path.join('/proj/locales', 'de.json');
@@ -46,7 +46,7 @@ describe('writeLocaleBundle', () => {
 
   it('warn-skips on layout path mismatch', () => {
     const layout = resolveLocalesLayout(
-      { source: 'locales/en.json', directory: 'locales' },
+      { source: 'en', directory: 'locales' },
       '/proj/locales',
     );
     const res = writeLocaleBundle({
@@ -63,7 +63,7 @@ describe('writeLocaleBundle', () => {
 
   it('writes locale_directory + locale_per_dir segment paths', () => {
     const layout = resolveLocalesLayout(
-      { source: 'messages/en.json', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
+      { source: 'en', directory: 'messages', mode: 'locale_directory', structure: 'locale_per_dir' },
       '/proj/messages',
     );
     const absoluteFile = '/proj/messages/fr/auth.json';
@@ -83,7 +83,7 @@ describe('writeLocaleBundle', () => {
   it('writes locale_directory + feature_bundle segment paths', () => {
     const layout = resolveLocalesLayout(
       {
-        source: 'locales/auth/en.json',
+        source: 'en',
         directory: 'locales',
         mode: 'locale_directory',
         structure: 'feature_bundle',
@@ -105,7 +105,7 @@ describe('writeLocaleBundle', () => {
 
   it('rejects unsupported layout combinations', () => {
     const layout = resolveLocalesLayout(
-      { source: 'locales/en.json', directory: 'locales', mode: 'flat_file', structure: 'locale_per_dir' },
+      { source: 'en', directory: 'locales', mode: 'flat_file', structure: 'locale_per_dir' },
       '/proj/locales',
     );
     const res = writeLocaleBundle({

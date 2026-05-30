@@ -175,7 +175,7 @@ describe('invalidateProjectAnalysisCacheAfterLocaleWrites', () => {
     const rt = runtime(fs);
     const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
     let builds = 0;
-    const locales = { source: 'locales/en.json', directory: 'locales' };
+    const locales = { source: 'en', directory: 'locales' };
     const input: CachedProjectInput<{ builds: number }> = {
       state,
       runtime: rt,
@@ -217,7 +217,7 @@ describe('invalidateProjectAnalysisCacheAfterLocaleWrites', () => {
     const rt = runtime(fs);
     const { state } = initializeCacheState({ projectRoot: '/project', cacheRootDir: '/cache', runtime: rt });
     let builds = 0;
-    const locales = { source: 'locales/en.json', directory: 'locales' };
+    const locales = { source: 'en', directory: 'locales' };
     const input: CachedProjectInput<{ builds: number }> = {
       state,
       runtime: rt,

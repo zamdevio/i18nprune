@@ -14,7 +14,6 @@ import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
 import { resolveCliListWindow } from '@/shared/context/listWindow.js';
-import { logger } from '@/utils/logger/index.js';
 
 export async function quality(opts: QualityOptions): Promise<void> {
   const wall = attachWallTimer();
@@ -37,7 +36,6 @@ export async function quality(opts: QualityOptions): Promise<void> {
         applyCliCiExitGate(false);
         return;
       }
-      if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
       printCommandSummary(
         {
           command: 'quality',

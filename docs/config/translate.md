@@ -27,7 +27,7 @@ Use **`translate`** in **`i18nprune.config.*`** as a **roster** of backends (**`
 
 ```typescript
 export default defineConfig({
-  source: 'locales/en.json',
+  source: 'en',
   localesDir: 'locales',
   src: 'src',
   functions: ['t'],

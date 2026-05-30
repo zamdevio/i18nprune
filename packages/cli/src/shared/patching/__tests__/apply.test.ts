@@ -57,7 +57,7 @@ describe('applyCommandPatching', () => {
   it('returns undefined for empty locale list', async () => {
     const ctx = makeContext({
       locales: {
-        source: './locales/en.json',
+        source: 'en',
         directory: './locales',
       },
       src: './src',
@@ -77,7 +77,7 @@ describe('applyCommandPatching', () => {
     const root = makeTempDir();
     const ctx = makeContext({
       locales: {
-        source: './locales/en.json',
+        source: 'en',
         directory: './locales',
       },
       src: './src',
@@ -104,7 +104,7 @@ describe('applyCommandPatching', () => {
     setCliGlobalOverrides({ patch: true });
     const ctx = makeContext({
       locales: {
-        source: './locales/en.json',
+        source: 'en',
         directory: './locales',
       },
       src: './src',
@@ -129,7 +129,7 @@ describe('applyCommandPatching', () => {
     const root = makeTempDir();
     const ctx = makeContext({
       locales: {
-        source: './locales/en.json',
+        source: 'en',
         directory: './locales',
       },
       src: './src',

@@ -38,6 +38,6 @@ Domain behavior stays in `packages/cli/src/core/**`. Table and rationale: [Comma
 
 Global **`--version`** / **`-v`**: [version](./version/README.md).
 
-Subcommands use **full names only** (no short aliases like `gen` / `val`). Optional argv normalization: **`--langs`** as the first token is accepted as **`languages`**.
+Subcommands use **full names only** (no short aliases like `gen` / `val`). Exception: **`languages`** also accepts the positional alias **`langs`** (`i18nprune langs`).
 
 See also [CLI overview](../cli/README.md).

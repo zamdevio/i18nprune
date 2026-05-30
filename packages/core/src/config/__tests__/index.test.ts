@@ -104,7 +104,7 @@ describe('locales filesystem config', () => {
   it('parses required paths plus optional topology fields', () => {
     const cfg = parseI18nPruneConfig({
       locales: {
-        source: 'locales/en.json',
+        source: 'en',
         directory: 'locales',
         mode: 'flat_file',
         structure: 'locale_file',
@@ -114,13 +114,27 @@ describe('locales filesystem config', () => {
     });
     expect(cfg.locales.mode).toBe('flat_file');
     expect(cfg.locales.structure).toBe('locale_file');
+    expect(cfg.locales.source).toBe('en');
+  });
+
+  it('rejects locales.source file paths at parse time', () => {
+    expect(() =>
+      parseI18nPruneConfig({
+        locales: {
+          source: 'locales/en.json',
+          directory: 'locales',
+        },
+        src: 'src',
+        functions: ['t'],
+      }),
+    ).toThrow(/use the language code "en"/);
   });
 
   it('rejects unknown keys under locales', () => {
     expect(() =>
       configSchema.parse({
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
           mode: 'flat_file',
           extra: true,

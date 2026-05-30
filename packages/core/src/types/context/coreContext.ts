@@ -1,4 +1,4 @@
-import type { I18nPruneConfig } from '../../config/index.js';
+import type { I18nPruneConfig } from '../../config/schema/root.js';
 import type { CacheRuntime, CacheState } from '../cache/index.js';
 import type { RuntimeAdapters } from '../runtime/adapters.js';
 import type { RunOptions } from '../runtime/index.js';

@@ -3,7 +3,7 @@ import { fixtureTranslate } from '../../shared/fixtureTranslate.mjs';
 
 export default {
   locales: {
-    source: 'messages/app/en.json',
+    source: 'en',
     directory: 'messages',
     mode: 'locale_directory',
     structure: 'feature_bundle',

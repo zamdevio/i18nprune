@@ -106,3 +106,45 @@ export function collectLocaleStructuralParityDiagnostics(input: {
   diagnostics.sort((a, b) => a.message.localeCompare(b.message));
   return diagnostics;
 }
+
+/**
+ * Warn when the configured source locale is missing segment slots that exist for other locales
+ * (`locale_per_dir` / `feature_bundle` only).
+ */
+export function collectSourceLocaleMissingSegmentDiagnostics(input: {
+  structure: LocalesLayoutStructure;
+  segments: readonly LocaleSegmentRef[];
+  sourceLocale: string;
+}): LocaleReadDiagnostic[] {
+  const { structure, segments, sourceLocale } = input;
+  if (structure !== 'locale_per_dir' && structure !== 'feature_bundle') {
+    return [];
+  }
+
+  const byLocale = slotsByLocale(structure, segments);
+  const sourceSlots = byLocale.get(sourceLocale);
+  if (!sourceSlots) return [];
+
+  const peerSlots = new Set<string>();
+  for (const [locale, slots] of byLocale) {
+    if (locale === sourceLocale) continue;
+    for (const slot of slots) {
+      peerSlots.add(slot);
+    }
+  }
+  if (peerSlots.size === 0) return [];
+
+  const diagnostics: LocaleReadDiagnostic[] = [];
+  for (const slot of peerSlots) {
+    if (!sourceSlots.has(slot)) {
+      diagnostics.push({
+        level: 'warn',
+        code: 'source_locale_segment_slot_missing',
+        message: `source locale ${sourceLocale} is missing segment ${slot} (present for other locale(s) under locales.directory)`,
+      });
+    }
+  }
+
+  diagnostics.sort((a, b) => a.message.localeCompare(b.message));
+  return diagnostics;
+}

@@ -23,7 +23,7 @@ describe('locale targets from context', () => {
       fs.writeFileSync(path.join(messages, 'fr', 'a.json'), '{"x":"B"}', 'utf8');
       const config = parseI18nPruneConfig({
         locales: {
-          source: 'messages/en/a.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'locale_per_dir',

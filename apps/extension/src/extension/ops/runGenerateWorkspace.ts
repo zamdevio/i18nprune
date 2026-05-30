@@ -5,6 +5,7 @@ import {
   createIdentityStreakGuard as createIdentityGuard,
   extractor,
   IdentityAbortError,
+  resolveSourceLocaleAbsolutePath,
   runGenerate,
   type GenerateHostHooks,
   type GenerateRunHooks,
@@ -82,9 +83,15 @@ export async function runGenerateForActiveProject(
   }
 
   const { projectRoot: cfgRoot } = loaded;
+  const localesDir = resolveFromRoot(mergedConfig.locales.directory, cfgRoot);
   const paths = {
-    sourceLocale: resolveFromRoot(mergedConfig.locales.source, cfgRoot),
-    localesDir: resolveFromRoot(mergedConfig.locales.directory, cfgRoot),
+    sourceLocale: resolveSourceLocaleAbsolutePath({
+      locales: mergedConfig.locales,
+      directoryAbsolute: localesDir,
+      path: pathPort,
+      fs,
+    }),
+    localesDir,
     srcRoot: resolveFromRoot(mergedConfig.src, cfgRoot),
   };
 

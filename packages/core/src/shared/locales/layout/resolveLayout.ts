@@ -1,4 +1,4 @@
-import type { LocalesFilesystemConfig } from '../../../config/schema/root.js';
+import type { LocalesFilesystemConfig } from '../../../types/config/localesFilesystem.js';
 import type { CoreContext } from '../../../types/context/index.js';
 import type { LocalesLayoutMode, ResolvedLocalesLayout } from '../../../types/locales/layout.js';
 import { localesMode, resolveLocalesStructure } from './requireStructure.js';

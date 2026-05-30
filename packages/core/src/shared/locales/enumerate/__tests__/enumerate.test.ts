@@ -71,7 +71,7 @@ function createMemFs(files: Record<string, string>): RuntimeFsPort {
 describe('listLocaleSegments / listLocaleCodes', () => {
   it('flat_file + locale_file lists root json files', () => {
     const root = '/proj/locales';
-    const layout = resolveLocalesLayout({ source: 'locales/en.json', directory: 'locales' }, root);
+    const layout = resolveLocalesLayout({ source: 'en', directory: 'locales' }, root);
     const fs = createMemFs({
       [`${root}/en.json`]: '{}',
       [`${root}/fr.json`]: '{}',
@@ -86,7 +86,7 @@ describe('listLocaleSegments / listLocaleCodes', () => {
     const root = '/proj/messages';
     const layout = resolveLocalesLayout(
       {
-        source: 'messages/en/auth.json',
+        source: 'en',
         directory: 'messages',
         mode: 'locale_directory',
         structure: 'locale_per_dir',
@@ -112,7 +112,7 @@ describe('listLocaleSegments / listLocaleCodes', () => {
     const root = '/proj/locales';
     const layout = resolveLocalesLayout(
       {
-        source: 'locales/auth/en.json',
+        source: 'en',
         directory: 'locales',
         mode: 'locale_directory',
         structure: 'feature_bundle',
@@ -136,7 +136,7 @@ describe('listLocaleSegments / listLocaleCodes', () => {
 
 describe('resolveLocaleSegmentAbsolutePath / localeSegmentRefFromAbsolute', () => {
   const root = '/proj/locales';
-  const layout = resolveLocalesLayout({ source: 'locales/en.json', directory: 'locales' }, root);
+  const layout = resolveLocalesLayout({ source: 'en', directory: 'locales' }, root);
 
   it('resolves default flat segment path', () => {
     expect(

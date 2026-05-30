@@ -32,7 +32,7 @@ function writeMinimalProject(root: string): { sourcePath: string; localesDir: st
   fs.writeFileSync(
     path.join(root, 'i18nprune.config.json'),
     JSON.stringify({
-      locales: { source: 'locales/en.json', directory: 'locales' },
+      locales: { source: 'en', directory: 'locales' },
       src: 'src',
       functions: ['t'],
     }),
@@ -53,7 +53,7 @@ describe('buildProjectPayload', () => {
       const adapters = createNodeRuntimeAdapters();
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
       });
@@ -162,7 +162,7 @@ describe('runShare (project / build)', () => {
       const adapters = createNodeRuntimeAdapters();
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
       });
@@ -211,7 +211,7 @@ describe('runShare (project / build)', () => {
       const adapters = createNodeRuntimeAdapters();
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
       });
@@ -269,7 +269,7 @@ describe('runShare (project / build)', () => {
       const adapters = createNodeRuntimeAdapters();
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
       });

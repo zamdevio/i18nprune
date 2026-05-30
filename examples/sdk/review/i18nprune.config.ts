@@ -5,7 +5,7 @@ import { defineConfig } from '@i18nprune/core';
 
 export default defineConfig({
   locales: {
-    source: 'examples/sdk/review/locales/en.json',
+    source: 'en',
     directory: 'examples/sdk/review/locales',
   },
   src: 'examples/sdk/review/src',

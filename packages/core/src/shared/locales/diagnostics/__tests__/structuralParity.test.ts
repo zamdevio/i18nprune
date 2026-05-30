@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   collectLocaleStructuralParityDiagnostics,
+  collectSourceLocaleMissingSegmentDiagnostics,
   localeStructuralSlot,
 } from '../structuralParity.js';
 import type { LocaleSegmentRef } from '../../../../types/locales/enumerate.js';
@@ -62,5 +63,29 @@ describe('collectLocaleStructuralParityDiagnostics', () => {
     expect(
       collectLocaleStructuralParityDiagnostics({ structure: 'locale_per_dir', segments }),
     ).toHaveLength(0);
+  });
+});
+
+describe('collectSourceLocaleMissingSegmentDiagnostics', () => {
+  const seg = (locale: string, relativePath: string): LocaleSegmentRef => ({
+    locale,
+    relativePath,
+    absolutePath: `/proj/${relativePath}`,
+  });
+
+  it('warns when source locale lacks a segment other locales have', () => {
+    const segments: LocaleSegmentRef[] = [
+      seg('en', 'en/app.json'),
+      seg('fr', 'fr/app.json'),
+      seg('fr', 'fr/auth.json'),
+    ];
+    const diagnostics = collectSourceLocaleMissingSegmentDiagnostics({
+      structure: 'locale_per_dir',
+      segments,
+      sourceLocale: 'en',
+    });
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0]?.message).toContain('auth.json');
+    expect(diagnostics[0]?.message).toContain('source locale en');
   });
 });

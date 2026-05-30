@@ -8,13 +8,22 @@ import {
   ISSUE_PROJECT_SOURCE_LOCALE_UNAVAILABLE,
   ISSUE_PROJECT_SRC_ROOT_UNAVAILABLE,
   ISSUE_PROJECT_LOCALES_STRUCTURE_REQUIRED,
+  ISSUE_PROJECT_SOURCE_LOCALE_MISSING_SEGMENTS,
   ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED,
 } from '../../shared/constants/issueCodes.js';
+import {
+  issueLocalesSourceNotInBundle,
+  validateLocalesSourceConfigValue,
+} from '../../config/locales/index.js';
 import { isLocalesStructureRequired } from '../../shared/locales/layout/requireStructure.js';
+import { listLocaleCodesFromContext, listLocaleSegmentsFromContext } from '../../shared/locales/enumerate/fromContext.js';
+import { resolveLocalesLayoutFromContext } from '../../shared/locales/layout/resolveLayout.js';
+import { collectSourceLocaleMissingSegmentDiagnostics } from '../../shared/locales/diagnostics/index.js';
+import { sourceLocaleCodeFromContext } from '../../shared/locales/targets/context.js';
+import { normalizeLanguageCode } from '../../shared/languages/normalize.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
 import { assertSyncPortResult } from '../../runtime/helpers/sync/assert.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../../runtime/helpers/sync/index.js';
-import { resolveLocalesLayoutFromContext } from '../../shared/locales/layout/resolveLayout.js';
 import { readLocaleBundle } from '../../shared/locales/read/bundle.js';
 import { presetUsesValidateSourceIssueCode, resolveProjectReadinessChecks } from './presets.js';
 
@@ -158,6 +167,73 @@ function checkLocalesDir(ctx: CoreContext): Issue | null {
   return null;
 }
 
+function checkLocalesSourceLanguageCode(ctx: CoreContext): Issue | null {
+  const validated = validateLocalesSourceConfigValue(ctx.config.locales.source);
+  if (!validated.ok) {
+    const docPath = issueCodeRepoDocPathForIssueCode(validated.issueCode);
+    return {
+      severity: 'error',
+      code: validated.issueCode,
+      message: validated.message,
+      docPath,
+    };
+  }
+
+  if (isLocalesStructureRequired(ctx.config.locales)) {
+    return null;
+  }
+
+  try {
+    const { codes } = listLocaleCodesFromContext(ctx);
+    const want = normalizeLanguageCode(validated.code);
+    if (!codes.some((c) => normalizeLanguageCode(c) === want)) {
+      const bundle = issueLocalesSourceNotInBundle({
+        sourceCode: want,
+        directory: ctx.config.locales.directory,
+        presentCodes: codes,
+      });
+      const docPath = issueCodeRepoDocPathForIssueCode(bundle.issueCode);
+      return {
+        severity: 'error',
+        code: bundle.issueCode,
+        message: bundle.message,
+        path: ctx.paths.localesDir,
+        docPath,
+      };
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function checkSourceLocaleMissingSegments(ctx: CoreContext): Issue[] {
+  if (isLocalesStructureRequired(ctx.config.locales)) {
+    return [];
+  }
+  try {
+    const layout = resolveLocalesLayoutFromContext(ctx);
+    const { segments } = listLocaleSegmentsFromContext(ctx);
+    const sourceLocale = sourceLocaleCodeFromContext(ctx);
+    const diagnostics = collectSourceLocaleMissingSegmentDiagnostics({
+      structure: layout.structure,
+      segments,
+      sourceLocale,
+    });
+    const docPath = issueCodeRepoDocPathForIssueCode(ISSUE_PROJECT_SOURCE_LOCALE_MISSING_SEGMENTS);
+    return diagnostics.map((d) => ({
+      severity: 'warning' as const,
+      code: ISSUE_PROJECT_SOURCE_LOCALE_MISSING_SEGMENTS,
+      message: d.message,
+      path: ctx.paths.localesDir,
+      docPath,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 function checkLocalesStructureRequired(ctx: CoreContext): Issue | null {
   if (!isLocalesStructureRequired(ctx.config.locales)) {
     return null;
@@ -205,6 +281,7 @@ function checkSrcRoot(ctx: CoreContext): Issue | null {
 function hasAnyCheck(c: ProjectReadinessChecks): boolean {
   return Boolean(
     c.configFilePresent ||
+      c.localesSourceLanguageCode ||
       c.sourceLocaleJsonReadable ||
       c.sourceLocaleJsonObject ||
       c.localesDirectoryAccessible ||
@@ -231,6 +308,11 @@ export function runProjectReadiness(ctx: CoreContext, request: ProjectReadinessR
     if (cfgIssue) issues.push(cfgIssue);
   }
 
+  if (checks.localesSourceLanguageCode) {
+    const sourceLangIssue = checkLocalesSourceLanguageCode(ctx);
+    if (sourceLangIssue) issues.push(sourceLangIssue);
+  }
+
   if (checks.localesStructureRequired) {
     const layoutIssue = checkLocalesStructureRequired(ctx);
     if (layoutIssue) issues.push(layoutIssue);
@@ -238,6 +320,10 @@ export function runProjectReadiness(ctx: CoreContext, request: ProjectReadinessR
 
   const srcIssue = checkSourceLocale(ctx, checks, request);
   if (srcIssue) issues.push(srcIssue);
+
+  if (checks.localesSourceLanguageCode) {
+    issues.push(...checkSourceLocaleMissingSegments(ctx));
+  }
 
   if (checks.localesDirectoryAccessible) {
     const locIssue = checkLocalesDir(ctx);
@@ -249,5 +335,6 @@ export function runProjectReadiness(ctx: CoreContext, request: ProjectReadinessR
     if (rootIssue) issues.push(rootIssue);
   }
 
-  return { ok: issues.length === 0, issues };
+  const hasError = issues.some((i) => i.severity === 'error');
+  return { ok: !hasError, issues };
 }

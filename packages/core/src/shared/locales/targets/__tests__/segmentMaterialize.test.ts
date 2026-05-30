@@ -41,7 +41,7 @@ describe('materializeGenerateWorkingBySegment', () => {
       fs.writeFileSync(path.join(messages, 'en', 'nav.json'), '{"nav.home":"H"}', 'utf8');
       const config = parseI18nPruneConfig({
         locales: {
-          source: 'messages/en/app.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'locale_per_dir',
@@ -117,7 +117,7 @@ describe('materializeGenerateWorkingBySegment', () => {
       fs.mkdirSync(locales, { recursive: true });
       fs.writeFileSync(path.join(locales, 'en.json'), '{"app":{"title":"Title"}}', 'utf8');
       const config = parseI18nPruneConfig({
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
       });
@@ -202,7 +202,7 @@ describe('materializeGenerateWorkingBySegment', () => {
       );
       const config = parseI18nPruneConfig({
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',

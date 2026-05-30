@@ -18,7 +18,7 @@ cd tests/fixtures/simple-i18n-app
 | `--json` / `--json-pretty` | Machine envelope + compact/pretty formatting | `... --json sync --target ja --dry-run --json-pretty false` |
 | `stdout redirection` + `--format` | Persist run artifact independent of stdout | `... stdout redirection ./out/sync-run.txt --format text sync --target ja --dry-run` |
 | `--yes` | Non-interactive approval for write flows | `... --yes sync --target ja` |
-| `--source` / `--locales-dir` / `--src` / `--functions` | Global path/scanner overrides | `... --source locales/en.json --locales-dir locales --src src --functions t,tt sync --target ja --dry-run` |
+| `--source` / `--locales-dir` / `--src` / `--functions` | Global path/scanner overrides | `... --source en --locales-dir locales --src src --functions t,tt sync --target ja --dry-run` |
 
 ## Dry-run with metadata simulation
 

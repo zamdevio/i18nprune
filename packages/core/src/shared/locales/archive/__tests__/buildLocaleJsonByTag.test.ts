@@ -6,7 +6,7 @@ describe('buildLocaleJsonByTagFromArchive (edge path)', () => {
   const cwd = '/project';
   const path = webPathRuntime;
   const locales = {
-    source: 'locales/en.json',
+    source: 'en',
     directory: 'locales',
     mode: 'flat_file' as const,
     structure: 'locale_file' as const,

@@ -42,7 +42,7 @@ describe('runSync', () => {
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',
@@ -107,7 +107,7 @@ describe('runSync', () => {
       const config = parseI18nPruneConfig({
         ...DEFAULT_CONFIG,
         locales: {
-          source: 'locales/en.json',
+          source: 'en',
           directory: 'locales',
         },
         src: 'src',

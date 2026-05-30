@@ -1,4 +1,5 @@
 import { DEFAULT_CONFIG } from '../defaults/app.js';
+import { validateLocalesSourceConfigValue } from '../locales/sourceValidate.js';
 import { clampTranslateMaxWorkers } from './translate.js';
 import type { I18nPruneConfig } from './root.js';
 
@@ -17,7 +18,7 @@ import type { I18nPruneConfig } from './root.js';
  *
  * export default defineConfig({
  *   locales: {
- *     source: 'locales/en.json',
+ *     source: 'en',
  *     directory: 'locales',
  *   },
  *   src: 'src',
@@ -53,7 +54,14 @@ export function defineConfig(config: Partial<I18nPruneConfig>): I18nPruneConfig 
       commands: { ...refCmd, ...config.reference?.commands },
     },
     missing: { ...DEFAULT_CONFIG.missing, ...config.missing },
-    locales: { ...DEFAULT_CONFIG.locales, ...config.locales },
+    locales: (() => {
+      const mergedLocales = { ...DEFAULT_CONFIG.locales, ...config.locales };
+      const sourceCheck = validateLocalesSourceConfigValue(mergedLocales.source);
+      if (!sourceCheck.ok) {
+        throw new Error(sourceCheck.message);
+      }
+      return { ...mergedLocales, source: sourceCheck.code };
+    })(),
     translate:
       config.translate !== undefined
         ? {

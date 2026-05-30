@@ -2,8 +2,9 @@ import {
   buildPatchingSectionIncompleteDiagnostic,
   collectLocalesFilesystemConfigWarnings,
   resolveMissingLeafPlaceholder,
+  validateLocalesSourceConfigValue,
 } from '@i18nprune/core';
-import type { I18nPruneConfig } from '@i18nprune/core/config';
+import { ConfigValidationError, type I18nPruneConfig } from '@i18nprune/core/config';
 
 /**
  * Normalize fragile config fields after load (warnings only; does not throw).
@@ -12,7 +13,15 @@ import type { I18nPruneConfig } from '@i18nprune/core/config';
 export function normalizeConfigRuntimeFields(config: I18nPruneConfig, outWarnings: string[]): I18nPruneConfig {
   let next = config;
 
-  for (const w of collectLocalesFilesystemConfigWarnings(config.locales)) {
+  const sourceCheck = validateLocalesSourceConfigValue(config.locales.source);
+  if (!sourceCheck.ok) {
+    throw new ConfigValidationError(sourceCheck.message, undefined, sourceCheck.issueCode);
+  }
+  if (sourceCheck.code !== config.locales.source) {
+    next = { ...next, locales: { ...config.locales, source: sourceCheck.code } };
+  }
+
+  for (const w of collectLocalesFilesystemConfigWarnings(next.locales)) {
     outWarnings.push(`config.locales: ${w}`);
   }
 

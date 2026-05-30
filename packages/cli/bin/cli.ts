@@ -117,7 +117,7 @@ program
   )
   .option('-q, --quiet', 'less non-essential output', false)
   .option('-s, --silent', 'suppress informational and warning lines (errors still print)', false)
-  .option('--source <path>', 'override source locale JSON path')
+  .option('--source <code>', 'override source locale language code (BCP47, e.g. en, pt-br)')
   .option('--locales-dir <path>', 'override locales directory')
   .option('--src <path>', 'override scan root (translation call sites)')
   .option(
@@ -318,7 +318,6 @@ program
   .description(
     'Generate a target locale JSON from the source, or top up existing files with --resume',
   )
-  .option('--source <path>', 'source JSON path (defaults to resolved config / context)')
   .option('--target <codes>', 'target locale code(s): one code or comma-separated list (e.g. ja,ar,id)')
   .option('--force', 're-translate even if target already has every source string path', false)
   .option('--dry-run', 'do not call translator or write files', false)
@@ -419,6 +418,7 @@ program
 
 program
   .command('languages')
+  .alias('langs')
   .description(
     'List supported translation target languages (code, English name, native name) for generate',
   )

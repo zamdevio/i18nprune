@@ -21,7 +21,7 @@ function createMissingFixture(): string {
   fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
   fs.writeFileSync(
     path.join(dir, 'i18nprune.config.ts'),
-    `export default { source: 'locales/en.json', localesDir: 'locales', src: 'src', functions: ['t'] };\n`,
+    `export default { source: 'en', localesDir: 'locales', src: 'src', functions: ['t'] };\n`,
   );
   fs.writeFileSync(path.join(dir, 'locales/en.json'), '{}\n');
   fs.writeFileSync(path.join(dir, 'src/main.ts'), `export const value = t('fixture.missing.alpha');\n`);

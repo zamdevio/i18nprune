@@ -24,7 +24,7 @@ describe('materialize fileOrigin vs segment paths', () => {
       fs.writeFileSync(path.join(messages, 'common', 'en.json'), '{"page.cta":"Go"}', 'utf8');
       const config = parseI18nPruneConfig({
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',
@@ -81,7 +81,7 @@ describe('materialize fileOrigin vs segment paths', () => {
       fs.writeFileSync(path.join(messages, 'app', 'en.json'), '{"app.title":"A"}', 'utf8');
       const config = parseI18nPruneConfig({
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',

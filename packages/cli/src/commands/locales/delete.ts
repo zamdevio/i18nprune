@@ -56,7 +56,6 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
       wall.dispose();
       return;
     }
-    if (readiness[0]) logger.warn(readiness[0].message, ctx.run);
     printCommandSummary(
       { command: 'locales delete', ok: false, durationMs: wall.elapsedMs(), issues },
       ctx,

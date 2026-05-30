@@ -14,7 +14,7 @@
 
 Use the **canonical command name** (e.g. `generate`, `validate`, `languages`). There are **no** short Commander aliases (`gen`, `val`, …).
 
-Optional convenience: if the first argv token after the binary is **`--langs`**, it is rewritten to **`languages`** before parsing (`DOUBLE_DASH_TO_CANONICAL` in `packages/cli/src/argv/index.ts`).
+The **`languages`** command accepts the positional alias **`langs`** (`i18nprune langs`). It does not load project config.
 
 ## Global flags (short)
 

@@ -48,7 +48,7 @@ describe('resolveLocaleSegmentAbsolutePath + swap', () => {
   it('round-trips feature_bundle target path', () => {
     const layout = resolveLocalesLayout(
       {
-        source: 'messages/app/en.json',
+        source: 'en',
         directory: 'messages',
         mode: 'locale_directory',
         structure: 'feature_bundle',
@@ -69,7 +69,7 @@ describe('resolveLocaleSegmentAbsolutePath + swap', () => {
   it('round-trips locale_per_dir target path', () => {
     const layout = resolveLocalesLayout(
       {
-        source: 'messages/en/app.json',
+        source: 'en',
         directory: 'messages',
         mode: 'locale_directory',
         structure: 'locale_per_dir',
@@ -98,7 +98,7 @@ describe('resolveTargetLocaleWritePlan', () => {
       fs.writeFileSync(path.join(messages, 'en', 'nav.json'), '{"b":"B"}', 'utf8');
       const config = parseI18nPruneConfig({
         locales: {
-          source: 'messages/en/app.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'locale_per_dir',
@@ -133,7 +133,7 @@ describe('resolvePrimaryTargetWritePath', () => {
       fs.writeFileSync(path.join(messages, 'app', 'en.json'), '{"a":"A"}', 'utf8');
       const config = parseI18nPruneConfig({
         locales: {
-          source: 'messages/app/en.json',
+          source: 'en',
           directory: 'messages',
           mode: 'locale_directory',
           structure: 'feature_bundle',

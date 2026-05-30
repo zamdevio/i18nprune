@@ -76,7 +76,6 @@ export async function patch(opts: PatchCommandOptions): Promise<void> {
       process.exitCode = 1;
       return;
     }
-    if (readiness[0]) logger.warn(readiness[0].message, run);
     printCommandSummary({ command: 'patch', ok: false, issues }, ctx);
     process.exitCode = 1;
     return;

@@ -41,7 +41,7 @@ describe('cleanup sourceSurface', () => {
       const sourcePath = path.join(localesDir, 'en.json');
       fs.writeFileSync(sourcePath, JSON.stringify({ hello: 'Hello' }));
       const config = parseI18nPruneConfig({
-        locales: { source: 'locales/en.json', directory: 'locales' },
+        locales: { source: 'en', directory: 'locales' },
         src: 'src',
         functions: ['t'],
       });

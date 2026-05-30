@@ -3,6 +3,7 @@
  * and documents the runtime shape of `I18nPruneConfig`.
  */
 import { z } from 'zod';
+import { validateLocalesSourceConfigValue } from '../locales/sourceValidate.js';
 import { translateSchema } from './translate.js';
 import type { ReferenceConfig as CoreReferenceConfig } from '../../types/reference/index.js';
 import type { ParityPolicy, PreservePolicy } from '../../types/policies/index.js';
@@ -275,7 +276,7 @@ export const localesFilesystemSchema = z
   .object({
     source: z
       .string()
-      .describe('Path to the source-of-truth locale JSON (e.g. locales/en.json), relative to the config file directory.'),
+      .describe('Source locale language code (e.g. en, pt-BR). Not a file path — layout + directory locate JSON segments.'),
     directory: z
       .string()
       .describe('Directory containing locale JSON segment files, relative to the config file directory.'),
@@ -479,6 +480,7 @@ export class ConfigValidationError extends Error {
   constructor(
     message: string,
     public readonly zodError?: z.ZodError,
+    public readonly issueCode?: string,
   ) {
     super(message);
     this.name = 'ConfigValidationError';
@@ -512,7 +514,12 @@ export function parseI18nPruneConfig(raw: unknown): I18nPruneConfig {
       r.error,
     );
   }
+  const sourceCheck = validateLocalesSourceConfigValue(r.data.locales.source);
+  if (!sourceCheck.ok) {
+    throw new ConfigValidationError(sourceCheck.message, undefined, sourceCheck.issueCode);
+  }
+  const locales = { ...r.data.locales, source: sourceCheck.code };
   // Same runtime data as `I18nPruneConfigParsed`; the friendly view re-types a few fields with
   // stricter authoring interfaces (no shape change, no field removed/added).
-  return r.data as I18nPruneConfig;
+  return { ...r.data, locales } as I18nPruneConfig;
 }

@@ -30,8 +30,6 @@ async function emitInitWorkspaceGuidance(): Promise<void> {
     clearContextCache();
     const ctx = await resolveContext();
     const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'init' });
-    if (readiness?.length && readiness[0]) logger.warn(readiness[0].message, run);
-
     const localesRel = path.relative(cwd, ctx.paths.localesDir) || ctx.paths.localesDir;
     const sourceRel = path.relative(cwd, ctx.paths.sourceLocale) || ctx.paths.sourceLocale;
 

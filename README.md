@@ -120,7 +120,7 @@ pnpm web:build       # static landing bundle in apps/web/dist
 | Path | Role |
 |------|------|
 | `packages/cli/bin/cli.ts` | Commander entry, `preprocessArgv`, global flags |
-| `packages/cli/src/argv/` | Argv preprocessing (`--langs` → `languages`) |
+| `packages/cli/src/argv/` | Argv preprocessing (`langs` → `languages`, version flags) |
 | `packages/cli/src/types/` | Shared TypeScript types |
 | `packages/cli/src/commands/` | One folder per command |
 | `packages/cli/src/exports/` | Published entrypoints: `config`, `core` |
