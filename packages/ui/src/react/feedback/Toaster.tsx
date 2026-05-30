@@ -1,11 +1,14 @@
+import type { ComponentType, ReactElement } from 'react';
 import { Toaster as SonnerToaster } from 'sonner';
 import type { ToasterProps } from 'sonner';
 import { useTheme } from '../theme/ThemeProvider.js';
 
-export function Toaster(props: ToasterProps): JSX.Element {
+const ToasterRoot = SonnerToaster as ComponentType<ToasterProps>;
+
+export function Toaster(props: ToasterProps): ReactElement {
   const { theme } = useTheme();
   return (
-    <SonnerToaster
+    <ToasterRoot
       theme={theme}
       richColors
       closeButton
