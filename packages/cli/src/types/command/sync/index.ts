@@ -14,7 +14,6 @@ export type SyncOptions = {
 export type SyncRuntime = {
   emit?: RunEmitter;
   runId?: string;
-  humanSummaryLocaleLimit?: number;
 };
 
 export type SyncJsonRunResult = SyncRunResult & {

@@ -15,6 +15,5 @@ export function buildSyncHostHooks(runtime: SyncRuntime): SyncHostHooks {
     emit,
     runId,
     emitProgress,
-    humanSummaryLocaleLimit: runtime.humanSummaryLocaleLimit,
   };
 }

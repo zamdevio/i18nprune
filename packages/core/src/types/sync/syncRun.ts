@@ -41,11 +41,6 @@ export type SyncHostHooks = {
   emitProgress: (
     e: Omit<Extract<SyncProgressEvent, { type: 'run.progress.sync' }>, 'op' | 'runId' | 'at'>,
   ) => void;
-  /**
-   * Max distinct locale codes to compute human leaf summaries for (merge/prune still runs for all targets).
-   * `0` skips summaries; omit for all locales.
-   */
-  humanSummaryLocaleLimit?: number;
 };
 
 export type SyncRunResult = {

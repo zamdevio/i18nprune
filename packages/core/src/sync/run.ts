@@ -40,7 +40,6 @@ import {
   formatSyncLocaleFileDetailLine,
   isSegmentedSyncLayout,
   mergeSyncHumanLeafSummaries,
-  parseSyncReportKey,
 } from './humanEmit.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
@@ -345,18 +344,6 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
   const sourcePlaceholderPaths = new Set(sourcePlaceholderLeaves.map((leaf) => leaf.path));
   const localeMetadataReports: Record<string, LocaleMetadataReport> = {};
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
-  const humanSummaryLocaleCodes = new Set<string>();
-  const humanSummaryLocaleLimit = host.humanSummaryLocaleLimit;
-
-  const shouldCollectHumanLeafSummary = (reportKey: string): boolean => {
-    if (humanSummaryLocaleLimit === 0) return false;
-    if (humanSummaryLocaleLimit === undefined) return true;
-    const { localeCode } = parseSyncReportKey(reportKey);
-    if (humanSummaryLocaleCodes.has(localeCode)) return true;
-    if (humanSummaryLocaleCodes.size >= humanSummaryLocaleLimit) return false;
-    humanSummaryLocaleCodes.add(localeCode);
-    return true;
-  };
 
   for (let i = 0; i < targets.length; i++) {
     const segment = targets[i]!;
@@ -420,9 +407,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       current: i + 1,
       total: targets.length,
     });
-    if (shouldCollectHumanLeafSummary(file)) {
-      humanLeafSummaryByLocaleFile[file] = summarizeSyncLeavesForHumanLog(segmentFillLeaves, cur, next);
-    }
+    humanLeafSummaryByLocaleFile[file] = summarizeSyncLeavesForHumanLog(segmentFillLeaves, cur, next);
     let finalNext: unknown = next;
     if (explicitStripMetadata || explicitMetadata) {
       let metadataInput = next;
