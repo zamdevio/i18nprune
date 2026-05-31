@@ -1,5 +1,5 @@
 import type { CoreContext, HostedIngestProcessorContext, I18nPruneConfig } from '@i18nprune/core';
-import { SDK_VERSION } from '@i18nprune/core';
+import { SDK_VERSION, createLocaleReadCache } from '@i18nprune/core';
 import { createWebRuntimeAdapters } from '@i18nprune/core/runtime/web';
 import type { RuntimeFsPort } from '@i18nprune/core';
 
@@ -28,6 +28,7 @@ export function createWebShareCoreContext(): CoreContext {
       srcRoot: '/project/src',
     },
     configFileLoaded: false,
+    localeRead: createLocaleReadCache(),
   };
 }
 

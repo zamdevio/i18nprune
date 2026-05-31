@@ -6,6 +6,8 @@ import { resolveCacheRebuildConfig } from '../cache/rebuildPolicy.js';
 import { listSourceFiles } from '../shared/scanner/files.js';
 import { computeMissingLiteralKeysFromLeaves } from '../validate/missingLiterals.js';
 import { readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.js';
+import { invalidateLocaleReadCacheForLocaleCode } from '../shared/locales/read/index.js';
+import { sourceLocaleCodeFromContext } from '../shared/locales/targets/context.js';
 import { patchProjectAnalysisFromSourceLocaleDelta, patchProjectAnalysisFromSrcDelta } from './rebuild.js';
 import type { CacheProducerContext } from '../types/cache/index.js';
 import type {
@@ -56,6 +58,7 @@ function parseProjectAnalysisCacheData(data: unknown): { ok: true; data: Project
 }
 
 function scanProjectAnalysis(ctx: CoreContext): ProjectAnalysisCacheData {
+  invalidateLocaleReadCacheForLocaleCode(ctx, sourceLocaleCodeFromContext(ctx));
   const scanInput = {
     srcRoot: ctx.paths.srcRoot,
     functions: ctx.config.functions,

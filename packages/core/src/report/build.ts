@@ -1,5 +1,5 @@
 import { resolveProjectAnalysis } from '../analysis/index.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/read/index.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { ReportEnvironmentSnapshot } from '../types/report/index.js';
 import type { RunEmitter, OperationId } from '../types/shared/run/index.js';

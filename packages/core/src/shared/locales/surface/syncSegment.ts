@@ -1,7 +1,7 @@
+import { existsRuntimeFsSync } from '../../../runtime/helpers/sync/fs.js';
 import { setAtPath } from '../../json/path.js';
-import { collectTranslationSurfaceLeaves } from '../leaves/index.js';
+import { readLocaleSegmentFromContext } from '../read/index.js';
 import { readSourceLocaleLeaves } from './localeSurface.js';
-import { readLocaleJsonOrEmpty } from './readJson.js';
 import {
   pairedSourceSegmentRelativePath,
   resolvePairedSourceSegmentAbsolutePath,
@@ -47,8 +47,15 @@ export function resolveSyncSegmentSourcePlan(
     input.targetSegmentRelativePath,
     input.targetLocaleCode,
   );
-  const sourceRaw = readLocaleJsonOrEmpty(ctx, sourceAbsolutePath);
-  const allSourceLeaves = collectTranslationSurfaceLeaves(sourceRaw);
+  let sourceRaw: unknown = {};
+  let allSourceLeaves: TranslationSurfaceLeaf[] = [];
+  if (existsRuntimeFsSync(sourceAbsolutePath, ctx.adapters.fs)) {
+    const read = readLocaleSegmentFromContext(ctx, sourceAbsolutePath);
+    if (read.ok) {
+      sourceRaw = read.document;
+      allSourceLeaves = read.leaves;
+    }
+  }
   const effectiveSchemaPaths =
     input.schemaPaths.size > 0 ? input.schemaPaths : new Set(allSourceLeaves.map((l) => l.path));
   const effectiveSourceLeaves = allSourceLeaves.filter((l) => effectiveSchemaPaths.has(l.path));

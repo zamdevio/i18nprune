@@ -2,6 +2,7 @@ import { ISSUE_IO_READ_FAILED } from '../../constants/issueCodes.js';
 import { I18nPruneError } from '../../errors/index.js';
 import { localeSegmentRefFromAbsolute } from '../enumerate/resolveSegmentPath.js';
 import { isLocalesLayoutWriteSupported, resolveLocalesLayoutFromContext } from '../layout/resolveLayout.js';
+import { invalidateLocaleReadCacheForAbsolutePath } from '../read/index.js';
 import type { ResolvedLocalesLayout } from '../../../types/locales/layout.js';
 import type { CoreContext } from '../../../types/context/index.js';
 import { writeFlatLocaleJsonDocument } from './flatFileLocaleJson.js';
@@ -78,4 +79,5 @@ export function writeLocaleJsonFromContextSync(ctx: CoreContext, absoluteFile: s
     const message = result.diagnostics.map((d) => d.message).join(' · ') || 'failed to write locale JSON';
     throw new I18nPruneError(message, 'IO', { issueCode: ISSUE_IO_READ_FAILED });
   }
+  invalidateLocaleReadCacheForAbsolutePath(ctx, absoluteFile);
 }

@@ -7,8 +7,7 @@ import { buildLanguageCatalog, generatedLanguageCatalog, getLanguageByCodeFromCa
 import { resolveGenerateLocaleDisplay } from '../shared/languages/resolveGenerateLocaleDisplay.js';
 import { languageOftenRtl } from '../shared/languages/rtlHint.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
-import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
-import { readLocalePerDirLocaleSurface } from '../shared/locales/read/bundle.js';
+import { readLocaleCodeSurfaceFromContext, readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
 import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
 import {
   localeJsonFromTranslationSurfaceLeaves,
@@ -111,12 +110,7 @@ function readMergedTargetLocaleRawForGenerate(
   if (writePlan.layout.mode === 'flat_file') {
     return readLocaleJsonFromContextSync(ctx, writePlan.segments[0]!.absolutePath);
   }
-  const read = readLocalePerDirLocaleSurface({
-    layout: writePlan.layout,
-    fs,
-    path: ctx.adapters.path,
-    localeCode: target,
-  });
+  const read = readLocaleCodeSurfaceFromContext(ctx, target);
   if (!read.ok || read.leaves.length === 0) return null;
   return localeJsonFromTranslationSurfaceLeaves(read.leaves);
 }
@@ -163,12 +157,7 @@ export async function runGenerate(
   } else {
     const sourceCode = sourceLocaleCodeFromContext(ctx);
     emitProgress({ type: 'run.progress.generate', phase: 'read_source', label: sourceCode });
-    const read = readLocalePerDirLocaleSurface({
-      layout,
-      fs: ctx.adapters.fs,
-      path: ctx.adapters.path,
-      localeCode: sourceCode,
-    });
+    const read = readLocaleCodeSurfaceFromContext(ctx, sourceCode);
     if (!read.ok) {
       const message = read.diagnostics.map((d) => d.message).join(' · ') || 'failed to read source locale';
       throw new I18nPruneError(`generate: ${message}`, 'USAGE');

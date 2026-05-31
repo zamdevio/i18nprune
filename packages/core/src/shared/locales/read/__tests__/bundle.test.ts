@@ -2,7 +2,8 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { RuntimeDirEntry, RuntimeFsPort } from '../../../../types/runtime/fs.js';
 import { resolveLocalesLayout } from '../../layout/resolveLayout.js';
-import { readLocaleBundle, readLocalePerDirLocaleSurface } from '../bundle.js';
+import { readLocaleBundle } from '../bundle.js';
+import { readLocalePerDirLocaleSurface } from '../perDirLocaleSurface.js';
 
 function normalizePath(p: string): string {
   return p.replace(/\\/g, '/');

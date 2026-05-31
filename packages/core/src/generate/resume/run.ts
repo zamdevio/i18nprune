@@ -28,8 +28,7 @@ import { localeJsonContentEquals } from '../../shared/json/sortKeys.js';
 import { normalizeLocaleDocumentToNestedCanonical } from '../../shared/json/localeLeafPath.js';
 import { emitRunMessage } from '../../shared/run/index.js';
 import { existsRuntimeFsSync } from '../../runtime/helpers/sync/fs.js';
-import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../../shared/locales/index.js';
-import { readLocalePerDirLocaleSurface } from '../../shared/locales/read/bundle.js';
+import { readLocaleCodeSurfaceFromContext, readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../../shared/locales/index.js';
 import {
   localeJsonFromTranslationSurfaceLeaves,
   materializeGenerateWorkingBySegment,
@@ -80,12 +79,7 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
     if (writePlan.layout.mode === 'flat_file') {
       targetRaw = readLocaleJsonFromContextSync(ctx, targetPath);
     } else {
-      const read = readLocalePerDirLocaleSurface({
-        layout: writePlan.layout,
-        fs,
-        path: ctx.adapters.path,
-        localeCode: target,
-      });
+      const read = readLocaleCodeSurfaceFromContext(ctx, target);
       targetRaw = read.ok && read.leaves.length > 0 ? localeJsonFromTranslationSurfaceLeaves(read.leaves) : {};
     }
   }

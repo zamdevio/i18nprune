@@ -1,8 +1,8 @@
 import type { CoreContext } from '../types/context/index.js';
 import { isLocalesLayoutReadSupported, resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
+import { readLocaleSegmentFromContext } from '../shared/locales/read/index.js';
 import { primarySegmentForLocale, segmentsForLocaleCode, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
-import { translationSurfacePathValueMap } from '../shared/projects/localeSurfaceMap.js';
+import { translationSurfacePathValueMapFromLeaves } from '../shared/projects/localeSurfaceMap.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 
 export type LocaleListRow = {
@@ -20,7 +20,9 @@ function toLeafMap(ctx: CoreContext, absoluteFile: string): Map<string, string> 
   if (!isLocalesLayoutReadSupported(resolveLocalesLayoutFromContext(ctx))) {
     return new Map();
   }
-  return translationSurfacePathValueMap(readLocaleJsonFromContextSync(ctx, absoluteFile));
+  const read = readLocaleSegmentFromContext(ctx, absoluteFile);
+  if (!read.ok) return new Map();
+  return translationSurfacePathValueMapFromLeaves(read.leaves);
 }
 
 export function buildLocaleListRows(ctx: CoreContext, localeCodes: string[]): LocaleListRow[] {

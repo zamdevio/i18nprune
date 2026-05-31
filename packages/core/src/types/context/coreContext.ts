@@ -1,5 +1,6 @@
 import type { I18nPruneConfig } from '../../config/schema/root.js';
 import type { CacheRuntime, CacheState } from '../cache/index.js';
+import type { LocaleReadCache } from '../locales/readCache.js';
 import type { RuntimeAdapters } from '../runtime/adapters.js';
 import type { RunOptions } from '../runtime/index.js';
 import type { TranslatorEnv } from '../../shared/constants/translate.js';
@@ -33,4 +34,6 @@ export type CoreContext = {
     /** Pre-loaded `files.json` baseline; shared across sibling dispatches for accurate delta. */
     readonly baselineFiles?: Record<string, import('../cache/index.js').CacheProjectFileRecord>;
   };
+  /** Per-run in-memory locale JSON reads (segment + merged locale-code views). */
+  readonly localeRead: LocaleReadCache;
 };

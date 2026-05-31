@@ -3,6 +3,8 @@ import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
 import { readRuntimeFsTextSync } from '../runtime/helpers/sync/index.js';
 import { readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.js';
+import { invalidateLocaleReadCacheForLocaleCode } from '../shared/locales/read/index.js';
+import { sourceLocaleCodeFromContext } from '../shared/locales/targets/context.js';
 import { computeMissingLiteralKeysFromLeaves } from '../validate/missingLiterals.js';
 import type { ClassifiedSrcDelta } from '../types/cache/index.js';
 import type { ProjectAnalysisCacheData } from '../types/analysis/index.js';
@@ -119,6 +121,7 @@ export function patchProjectAnalysisFromSourceLocaleDelta(
   ctx: CoreContext,
   previous: ProjectAnalysisCacheData,
 ): ProjectAnalysisCacheData {
+  invalidateLocaleReadCacheForLocaleCode(ctx, sourceLocaleCodeFromContext(ctx));
   const usage = literalKeyUsageFromObservations(previous.keyObservations);
   const sourceLeaves = readSourceLocaleLeaves(ctx);
   const missingKeys = computeMissingLiteralKeysFromLeaves(sourceLeaves, usage.resolvedKeys);

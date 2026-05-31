@@ -1,5 +1,5 @@
 import { resolveProjectAnalysis } from '../../analysis/project.js';
-import { readLocaleJsonFromContextSync } from '../../shared/locales/read/bundle.js';
+import { readLocaleJsonFromContextSync } from '../../shared/locales/read/index.js';
 import { buildLocaleJsonByTagFromArchive, listLocaleCodesFromArchive } from '../../shared/locales/archive/buildLocaleJsonByTag.js';
 import { ISSUE_PROJECT_SOURCE_LOCALE_INVALID_SHAPE } from '../../shared/constants/issueCodes.js';
 import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '../../shared/constants/report.js';

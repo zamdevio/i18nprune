@@ -6,7 +6,7 @@ import type { TranslationSurfaceLeaf } from '../../../../types/locales/leaves/tr
 import { parseI18nPruneConfig } from '../../../../config/index.js';
 import { createCoreContext } from '../../../../generate/context.js';
 import { createNodeRuntimeAdapters } from '../../../../runtime/exports/node.js';
-import { readLocalePerDirLocaleSurface } from '../../read/bundle.js';
+import { readLocalePerDirLocaleSurface } from '../../read/index.js';
 import { resolveLocalesLayoutFromContext } from '../../layout/resolveLayout.js';
 import { materializeGenerateWorkingBySegment } from '../segmentMaterialize.js';
 import { resolveTargetLocaleWritePlan } from '../segmentWritePlan.js';

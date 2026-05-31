@@ -24,7 +24,7 @@ import { normalizeLanguageCode } from '../../shared/languages/normalize.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
 import { assertSyncPortResult } from '../../runtime/helpers/sync/assert.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../../runtime/helpers/sync/index.js';
-import { readLocaleBundle } from '../../shared/locales/read/bundle.js';
+import { readLocaleSegmentFromContext } from '../../shared/locales/read/index.js';
 import { presetUsesValidateSourceIssueCode, resolveProjectReadinessChecks } from './presets.js';
 
 function statKindSync(path: string, fs: RuntimeFsPort) {
@@ -94,12 +94,7 @@ function checkSourceLocale(ctx: CoreContext, checks: ProjectReadinessChecks, req
     return null;
   }
 
-  const localeRead = readLocaleBundle({
-    layout: resolveLocalesLayoutFromContext(ctx),
-    fs,
-    path: ctx.adapters.path,
-    absoluteFile: path,
-  });
+  const localeRead = readLocaleSegmentFromContext(ctx, path);
   if (!localeRead.ok) {
     const message = localeRead.diagnostics.map((d) => d.message).join(' · ') || 'failed to read source locale JSON';
     return {
@@ -110,7 +105,6 @@ function checkSourceLocale(ctx: CoreContext, checks: ProjectReadinessChecks, req
       docPath,
     };
   }
-
   if (requireObject) {
     const v = localeRead.document;
     if (v === null || typeof v !== 'object' || Array.isArray(v)) {

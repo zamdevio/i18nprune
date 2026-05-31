@@ -5,7 +5,7 @@ import { parseI18nPruneConfig } from '../../../../config/index.js';
 import { createCoreContext } from '../../../../generate/context.js';
 import { createNodeRuntimeAdapters } from '../../../../runtime/exports/node.js';
 import { getAtPath, setAtPath } from '../../../json/path.js';
-import { readLocalePerDirLocaleSurface } from '../../read/bundle.js';
+import { readLocalePerDirLocaleSurface } from '../../read/index.js';
 import { resolveLocalesLayoutFromContext } from '../../layout/resolveLayout.js';
 import {
   materializeGenerateWorkingBySegment,

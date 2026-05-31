@@ -471,6 +471,11 @@ export {
   readFlatLocaleJsonSurface,
   readLocaleBundle,
   readLocaleJsonFromContextSync,
+  readLocaleCodeSurfaceFromContext,
+  readLocaleSegmentFromContext,
+  createLocaleReadCache,
+  invalidateLocaleReadCacheForAbsolutePath,
+  invalidateLocaleReadCacheForLocaleCode,
   writeFlatLocaleJsonDocument,
   writeLocaleBundle,
   writeLocaleJsonFromContextSync,
@@ -955,7 +960,7 @@ export type {
   LocaleMetadataReport,
   StructuredLocaleLeaf,
 } from './types/locales/leaves/index.js';
-export type { LocaleReadDiagnostic, LocaleReadDiagnosticLevel } from './types/locales/index.js';
+export type { LocaleReadDiagnostic, LocaleReadDiagnosticLevel, LocaleReadCache, LocaleCodeReadSnapshot, LocaleSegmentReadSnapshot } from './types/locales/index.js';
 export type { MaskedText } from './types/placeholders/index.js';
 export type { TranslateRequest, Translator, TranslatorRetryOptions } from './types/translator/index.js';
 export { isTranslationProgressParallelPoolPhase } from './progress/translationTickPhase.js';

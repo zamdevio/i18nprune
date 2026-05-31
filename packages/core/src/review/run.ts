@@ -1,6 +1,5 @@
-import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
+import { readLocaleJsonFromContextSync, readLocaleSegmentFromContext } from '../shared/locales/read/index.js';
 import { readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.js';
 import { readLocaleJsonOrEmpty, resolvePairedSourceSegmentAbsolutePath } from '../shared/locales/surface/index.js';
 import { listLocaleSegmentTargets, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
@@ -152,13 +151,14 @@ export function runReview(
   for (const segment of segments) {
     const file = segment.reportKey;
     const full = segment.absolutePath;
-    const targetRaw = readLocaleJsonFromContextSync(ctx, full);
+    const targetRead = readLocaleSegmentFromContext(ctx, full);
+    const targetRaw = targetRead.ok ? targetRead.document : {};
     targetLocaleJsonByFile[file] = targetRaw;
     const pairedSourcePath = resolvePairedSourceSegmentAbsolutePath(ctx, segment.relativePath, segment.locale);
     pairedSourceLocaleJsonByTargetFile[file] = readLocaleJsonOrEmpty(ctx, pairedSourcePath);
     targetPlaceholderLeaves.push(
       ...detectLocalePlaceholderLeaves({
-        leaves: collectTranslationSurfaceLeaves(targetRaw),
+        leaves: targetRead.ok ? targetRead.leaves : [],
         placeholderValues,
         localeRole: 'target',
         localeCode: segment.locale,

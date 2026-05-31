@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { createLocaleReadCache } from '../../../shared/locales/read/index.js';
 import { createGenerateTranslateCache, translateCacheL2Enabled } from '../resolveCache.js';
 import type { CoreContext } from '../../../types/context/index.js';
 
@@ -15,6 +16,7 @@ function ctx(partial: Partial<NonNullable<CoreContext['cache']>> & { configCache
     adapters: {} as CoreContext['adapters'],
     env: {},
     paths: { sourceLocale: '/p/locales/en.json', localesDir: '/p/locales', srcRoot: '/p/src' },
+    localeRead: createLocaleReadCache(),
     cache: {
       state: {
         enabled,

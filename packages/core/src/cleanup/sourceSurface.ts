@@ -1,6 +1,6 @@
 import { readLocaleLeavesForCode } from '../shared/locales/surface/localeSurface.js';
 import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
+import { readLocaleJsonFromContextSync } from '../shared/locales/read/index.js';
 import { segmentsForLocaleCode, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { CleanupSourceSegmentRef } from '../types/cleanup/sourceSurface.js';

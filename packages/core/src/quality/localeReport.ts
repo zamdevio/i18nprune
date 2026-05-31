@@ -1,6 +1,5 @@
-import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
+import { readLocaleSegmentFromContext } from '../shared/locales/read/index.js';
 import { readLocaleLeavesForCode, readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.js';
 import {
   localeCodesFromContext,
@@ -39,12 +38,15 @@ export function buildQualityLocaleReport(
   const localeCodes = qualityLocaleCodes(ctx, input.target).sort((a, b) => a.localeCompare(b));
 
   const segmentTargets = localeCodes.flatMap((code) =>
-    segmentsForLocaleCode(ctx, code).map((segment) => ({
-      fileBasename: segment.reportKey,
-      locale: segment.locale,
-      relativePath: segment.relativePath,
-      leaves: collectTranslationSurfaceLeaves(readLocaleJsonFromContextSync(ctx, segment.absolutePath)),
-    })),
+    segmentsForLocaleCode(ctx, code).map((segment) => {
+      const read = readLocaleSegmentFromContext(ctx, segment.absolutePath);
+      return {
+        fileBasename: segment.reportKey,
+        locale: segment.locale,
+        relativePath: segment.relativePath,
+        leaves: read.ok ? read.leaves : [],
+      };
+    }),
   );
 
   const nonSourceTargets = segmentTargets.filter(

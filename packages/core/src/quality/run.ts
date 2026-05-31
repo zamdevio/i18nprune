@@ -13,8 +13,7 @@ import {
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
 import { listLocaleSegmentTargets, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
-import { readLocaleJsonFromContextSync } from '../shared/locales/read/bundle.js';
-import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
+import { readLocaleSegmentFromContext } from '../shared/locales/read/index.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { formatListShownOmitted } from '../shared/constants/listDisplay.js';
 import { buildQualityLocaleReport, formatQualityLocaleRowLabel } from './localeReport.js';
@@ -82,7 +81,8 @@ export function runQuality(
   }
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
   for (const segment of segmentTargets) {
-    const leaves = collectTranslationSurfaceLeaves(readLocaleJsonFromContextSync(ctx, segment.absolutePath));
+    const read = readLocaleSegmentFromContext(ctx, segment.absolutePath);
+    const leaves = read.ok ? read.leaves : [];
     targetPlaceholderLeaves.push(
       ...detectLocalePlaceholderLeaves({
         leaves,

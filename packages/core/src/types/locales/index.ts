@@ -1,4 +1,5 @@
 export type * from './read.js';
+export type * from './readCache.js';
 export type * from './enumerate.js';
 export type * from './layout.js';
 export type * from './projection.js';

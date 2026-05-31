@@ -10,8 +10,7 @@ import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { MAX_MISSING_TARGET_SUGGESTIONS } from '../shared/constants/missing.js';
 import { DEFAULT_LIST_TOP, formatListOmittedSuffix } from '../shared/constants/listDisplay.js';
 import { I18nPruneError } from '../shared/errors/index.js';
-import { resolveLocalesLayoutFromContext } from '../shared/locales/layout/resolveLayout.js';
-import { readLocaleBundle } from '../shared/locales/index.js';
+import { readLocaleSegmentFromContext } from '../shared/locales/read/index.js';
 import {
   primarySegmentForLocale,
   segmentsForLocaleCode,
@@ -124,12 +123,7 @@ function readTargetState(
   targetKind: MissingTargetState['targetKind'],
   selectedLocaleCode?: string,
 ): MissingTargetState {
-  const read = readLocaleBundle({
-    layout: resolveLocalesLayoutFromContext(ctx),
-    fs: ctx.adapters.fs,
-    path: ctx.adapters.path,
-    absoluteFile: targetPath,
-  });
+  const read = readLocaleSegmentFromContext(ctx, targetPath);
   if (!read.ok) {
     const message = read.diagnostics.map((d) => d.message).join(' · ') || 'failed to read locale JSON';
     throw new I18nPruneError(message, 'IO', { issueCode: ISSUE_IO_READ_FAILED });
