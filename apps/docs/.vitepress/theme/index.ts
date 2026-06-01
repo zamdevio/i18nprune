@@ -3,6 +3,7 @@ import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
 
 import './custom.css'
+import { registerDocsSidebar } from './sidebar.js'
 
 /** Fixed decorative layers (grid + glow + noise); see `custom.css`. */
 function layoutTextures() {
@@ -15,6 +16,10 @@ function layoutTextures() {
 
 export default {
   extends: DefaultTheme,
+  enhanceApp() {
+    if (typeof window === 'undefined') return
+    registerDocsSidebar()
+  },
   Layout: () =>
     h(DefaultTheme.Layout, null, {
       'layout-top': layoutTextures,

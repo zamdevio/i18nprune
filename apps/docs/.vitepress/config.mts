@@ -24,6 +24,7 @@ function docsChunkByPackage(id: string): string | undefined {
 export default defineConfig({
   title: 'i18nprune',
   description: 'Docs for I18nprune repo',
+  appearance: true,
   srcDir: 'content',
   vite: {
     publicDir: resolve(__dirname, 'public'),
@@ -48,7 +49,6 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Onboarding', link: '/onboarding' },
       { text: 'Commands', link: '/commands/' },
-      { text: 'Config', link: '/config/' },
       { text: 'Issues', link: '/issues/' },
       {
         text: 'More',
