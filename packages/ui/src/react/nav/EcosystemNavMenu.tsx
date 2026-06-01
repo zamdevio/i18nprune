@@ -1,6 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import type { EcosystemNavMenuProps } from '../../types/nav/index.js';
 
+function IconGlobe(): JSX.Element {
+  return (
+    <svg
+      className="ecosystem-nav__icon"
+      viewBox="0 0 24 24"
+      width={16}
+      height={16}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  );
+}
+
 function IconChevron(): JSX.Element {
   return (
     <svg
@@ -50,7 +68,8 @@ export function EcosystemNavMenu({ links }: EcosystemNavMenuProps): JSX.Element 
         aria-haspopup="menu"
         onClick={() => setOpen((v) => !v)}
       >
-        Ecosystem
+        <IconGlobe />
+        <span className="ecosystem-nav__label">Ecosystem</span>
         <IconChevron />
       </button>
       {open ?

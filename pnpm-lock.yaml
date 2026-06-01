@@ -317,6 +317,12 @@ importers:
 
   apps/workers/meta:
     dependencies:
+      '@i18nprune/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+      '@i18nprune/ui':
+        specifier: workspace:*
+        version: link:../../../packages/ui
       hono:
         specifier: ^4.8.3
         version: 4.12.12

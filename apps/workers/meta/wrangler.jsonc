@@ -21,5 +21,8 @@
       "pattern": "meta.i18nprune.dev",
       "custom_domain": true
     }
-  ]
+  ],
+  "assets": {
+    "directory": "./public"
+  }
 }

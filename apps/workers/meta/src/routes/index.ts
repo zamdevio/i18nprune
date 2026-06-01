@@ -1,6 +1,6 @@
 import type { Context, Hono } from "hono";
 import { OPENAPI_SPEC } from "../openapi/spec";
-import { swaggerDocsHtml } from "./docs";
+import { registerDocsRoutes } from "./docs/index";
 import { buildRootCatalog } from "./root";
 
 type Env = {
@@ -35,13 +35,7 @@ export function registerRoutes(app: Hono<Env>) {
 
   app.get("/openapi.json", (c) => c.json(OPENAPI_SPEC));
 
-  app.get("/docs", (c) => {
-    const openapiUrl = `${new URL(c.req.url).origin}/openapi.json`;
-    const html = swaggerDocsHtml(openapiUrl);
-    return new Response(html, {
-      headers: { "content-type": "text/html; charset=utf-8" },
-    });
-  });
+  registerDocsRoutes(app);
 
   app.get("/health", (c) =>
     c.json({

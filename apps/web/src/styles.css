@@ -60,7 +60,7 @@ code {
   left: 0;
   right: 0;
   z-index: 50;
-  height: 56px;
+  height: var(--runtime-header-h, 56px);
   border-bottom: 1px solid color-mix(in hsl, hsl(var(--border)) 70%, transparent);
   background: color-mix(in hsl, var(--background) 88%, transparent);
   backdrop-filter: blur(12px);
@@ -172,6 +172,17 @@ html.dark .runtime-header {
   justify-self: end;
 }
 
+@media (max-width: 729px) {
+  .runtime-header__inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .runtime-header__actions {
+    grid-column: 2;
+    justify-self: end;
+  }
+}
+
 .runtime-header__icon-btn {
   width: 40px;
   height: 40px;
@@ -193,7 +204,7 @@ html.dark .runtime-header {
 }
 
 .page-shell {
-  padding-top: 72px;
+  padding-top: var(--runtime-header-h, 56px);
   min-height: 100vh;
 }
 
@@ -207,10 +218,6 @@ html.dark .runtime-header {
 @media (max-width: 640px) {
   .page {
     padding: 16px 12px;
-  }
-
-  .page-shell {
-    padding-top: 64px;
   }
 
   .panel {
@@ -550,31 +557,7 @@ html.dark .runtime-header {
   margin-top: 14px;
 }
 
-.runtime-header__nav-label {
-  display: inline;
-}
-
-@media (max-width: 900px) {
-  .runtime-header__nav-link {
-    padding: 6px 10px;
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 520px) {
-  .runtime-header__nav-label {
-    display: none;
-  }
-
-  .runtime-header__nav-link {
-    padding: 8px 12px;
-  }
-
-  .runtime-header__icon-btn {
-    width: 36px;
-    height: 36px;
-  }
-}
+/* Runtime header responsive layout: @i18nprune/ui/styles/runtime-shell.css */
 
 @media (max-width: 768px) {
   .row {
