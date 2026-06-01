@@ -19,8 +19,8 @@
 | **`systems/ui.md`** | Runtime UI kit (`@i18nprune/ui`): domain separation, purity rules, enforcement |
 | **`systems/share.md`** | Share ecosystem: core `runShare*`, CLI/web/report hosts, `workers/i18nprune` routes, DO storage, metadata builders |
 | **`systems/cache.md`** | Project cache: `files.json` / `analysis.json` rebuild policy, profiles, invalidate rules (shipped H-cache) |
-| **Phase [`cross-platform.md`](../phases/cross-platform.md)** | **Active next** — cross-platform CLI + SDK hardening: project cache, translate cache, CLI version cache |
-| **Phase [`tree.md`](../phases/tree.md)** | **Planned** — logic/type/test path parity after cross-platform |
+| **Phase [`cross-platform.md`](../phases/cross-platform.md)** | **Shipped** — XP-0…7; matrix CI on `main` |
+| **Phase [`tree.md`](../phases/tree.md)** | **Shipped** (core + CLI T0–T10) — **`apps/*` audit** in same doc; no app tree pass required for v1 |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 

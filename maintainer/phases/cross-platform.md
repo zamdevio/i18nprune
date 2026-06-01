@@ -1,7 +1,7 @@
 # Cross-platform hardening (CLI + SDK)
 
 **Status:** **Shipped** (2026-06-01) — **XP-0…7** complete; matrix CI is the ongoing gate on `main`.  
-**Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then:** [`tree.md`](./tree.md)
+**Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then (shipped):** [`tree.md`](./tree.md) (T0–T10 + apps audit)
 
 **Promise (one sentence):** With **Node ≥ 18**, the **CLI** and **`@i18nprune/core` SDK** run deterministically on **Windows, macOS, native Linux, and WSL** for local scan, **all disk caches**, and report generation — without shell-specific commands or POSIX-only path logic in **core**.
 

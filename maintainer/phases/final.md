@@ -8,7 +8,7 @@
 
 ## 1 — Phase hygiene
 
-- [ ] Close or defer open slices in **`cross-platform.md`**, **`tree.md`**, **`docs-refactor.md`** per release scope.
+- [ ] Close or defer open slices in **`docs-refactor.md`** per release scope (`cross-platform.md` and tree T0–T10 are shipped; **`tree.md`** is apps audit only).
 - [ ] Keep **`maintainer/phases/extension/**`** as post-v1 roadmap (do not delete on release).
 - [ ] Keep **`extractor.md`** — future hardening + inventory cross-links.
 
