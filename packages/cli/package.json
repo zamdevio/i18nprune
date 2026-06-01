@@ -10,5 +10,11 @@
   "dependencies": {
     "@i18nprune/core": "workspace:*",
     "@i18nprune/report-schema": "workspace:*"
+  },
+  "exports": {
+    "./constants": {
+      "types": "./src/constants/index.ts",
+      "default": "./src/constants/index.ts"
+    }
   }
 }

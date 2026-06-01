@@ -24,7 +24,7 @@ export default defineConfig({
         repoRoot,
         'packages/report/src/index.ts',
       ),
-      'i18nprune/constants': path.join(
+      '@i18nprune/cli/constants': path.join(
         repoRoot,
         'packages/cli/src/constants/index.ts',
       ),

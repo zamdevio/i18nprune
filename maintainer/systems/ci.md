@@ -101,13 +101,13 @@ After **`cli-build`**, each matrix leg uploads:
 
 ---
 
-## CI-3 — Architecture nightly (shipped)
+## CI-3 — Architecture hygiene (shipped)
 
 Workflow: [`.github/workflows/architecture.yml`](../../.github/workflows/architecture.yml)
 
 | Trigger | Detail |
 |---------|--------|
-| **`schedule`** | Daily (UTC cron in workflow file) |
+| **`push`** | `main` / `master` only (knip/madge follow landed code; not daily) |
 | **`workflow_dispatch`** | Manual triage |
 
 Steps: `pnpm install --frozen-lockfile` → `pnpm knip` → `pnpm madge:circular` → `pnpm madge:orphans`.

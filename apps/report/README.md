@@ -23,7 +23,7 @@ It is **not** a general admin UI: it is tuned for **i18nprune project reports** 
 
 ### Branding / `CLI_NAME`
 
-The SPA imports **`CLI_NAME`** and **`CLI_VERSION`** from **`src/constants/cli.ts`**, re-exported from the repo root **`src/constants/index.ts`** via the **`i18nprune/constants`** alias in **`vite.config.ts`**.
+The SPA imports **`CLI_NAME`** and **`CLI_VERSION`** from **`src/constants/cli.ts`**, re-exported from **`@i18nprune/cli/constants`** (workspace package + Vite alias in **`vite.config.ts`**).
 
 **`index.html` `<title>`** is static HTML and cannot import those constants. If you rename the CLI in **`src/constants/cli.ts`**, update **`apps/report/index.html`** manually so the browser tab matches.
 

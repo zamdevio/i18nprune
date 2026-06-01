@@ -19,7 +19,7 @@
       "@i18nprune/ui/react/pagination": ["../../packages/ui/src/react/pagination/index.ts"],
       "@i18nprune/ui/types/pagination": ["../../packages/ui/src/types/pagination/index.ts"],
       "@i18nprune/ui/types/theme": ["../../packages/ui/src/types/theme/index.ts"],
-      "i18nprune/constants": ["../../packages/cli/src/constants/index.ts"]
+      "@i18nprune/cli/constants": ["../../packages/cli/src/constants/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"]

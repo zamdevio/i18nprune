@@ -1,14 +1,15 @@
-# Scheduled knip/madge hygiene (non-blocking)
+# knip/madge hygiene on main pushes (non-blocking)
 #
-# Maintainer triage: failures do not gate PR merge. Fix findings in
-# dedicated PRs; see maintainer/systems/health.md and knip.md.
+# Runs when the default branch changes — same cadence as code that affects
+# dependency graphs. Manual re-run: workflow_dispatch.
+# Maintainer triage: maintainer/systems/health.md and knip.md.
 # Engineering map: maintainer/systems/ci.md
 
 name: Architecture
 
 on:
-  schedule:
-    - cron: '0 6 * * *'
+  push:
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:

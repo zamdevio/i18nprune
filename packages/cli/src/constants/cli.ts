@@ -2,7 +2,7 @@
  * Program name (binary + root command). Used for config filenames, help, banners, etc.
  *
  * **`apps/report/index.html` `<title>`** is plain HTML and cannot import this constant — keep it in sync manually
- * when renaming the tool (the Vite app should import **`CLI_NAME`** / **`CLI_VERSION`** from **`i18nprune/constants`**).
+ * when renaming the tool (the report SPA imports via **`@i18nprune/cli/constants`**).
  */
 export const CLI_NAME = 'i18nprune';
 
