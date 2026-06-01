@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { listResumeTranslationJobs } from '../localeTranslate.js';
-import { resolveReferenceConfig } from '../../shared/reference/resolveConfig.js';
-import type { TranslationSurfaceLeaf } from '../../types/locales/leaves/translationSurface.js';
+import { listResumeTranslationJobs } from '../../localeTranslate.js';
+import { resolveReferenceConfig } from '../../../shared/reference/resolveConfig.js';
+import type { TranslationSurfaceLeaf } from '../../../types/locales/leaves/translationSurface.js';
 
 describe('generate --resume with missing target locale file', () => {
   it('seeds stale jobs from source map when target JSON is empty', () => {

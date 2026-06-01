@@ -21,7 +21,6 @@ import { TranslateRunInterruptedError } from '../../translator/errors/interrupte
 import { IdentityAbortError } from '../../translator/identity/error.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
 import { ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT } from '../../shared/constants/issueCodes.js';
-import type { TranslationSurfaceLeaf } from '../../types/locales/leaves/translationSurface.js';
 import { I18nPruneError } from '../../shared/errors/index.js';
 import { applyLocaleLeafNormalization } from '../../shared/locales/leaves/index.js';
 import { localeJsonContentEquals } from '../../shared/json/sortKeys.js';
@@ -34,32 +33,17 @@ import {
   materializeGenerateWorkingBySegment,
   sourceLocaleCodeFromContext,
 } from '../../shared/locales/targets/index.js';
-import type { LocaleSegmentWritePlan } from '../../types/locales/segmentWritePlan.js';
 import { formatGenerateTranslateProgress } from '../translateProgressSummary.js';
 import { listResumeTranslationJobs, translateResumeCandidateLeaves } from '../localeTranslate.js';
-import type { GenerateTranslateCache } from '../../types/translator/cache.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../../types/translator/providers.js';
-import type { CoreContext } from '../../types/context/index.js';
-import type { GenerateHostHooks, GenerateRunOptions, GenerateTargetJsonRow } from '../../types/generate/index.js';
+import type {
+  GenerateHostHooks,
+  GenerateTargetJsonRow,
+  RunGenerateResumeLocaleInput,
+} from '../../types/generate/index.js';
 import type { LocaleMetadataReport } from '../../types/locales/leaves/index.js';
-import type { EffectiveReferenceConfig } from '../../types/reference/index.js';
-import type { GenerateResumeRefContext } from '../../types/generate/resumeCandidates.js';
-
-export type RunGenerateResumeLocaleInput = {
-  ctx: CoreContext;
-  opts: GenerateRunOptions;
-  host: GenerateHostHooks;
-  target: string;
-  sourceMap: Map<string, string>;
-  sourceLeaves: readonly TranslationSurfaceLeaf[];
-  eff: EffectiveReferenceConfig;
-  refCtx: GenerateResumeRefContext;
-  targetPath: string;
-  writePlan: LocaleSegmentWritePlan;
-  targetStarted: number;
-  translationCache?: GenerateTranslateCache;
-};
+import type { TranslationSurfaceLeaf } from '../../types/locales/leaves/translationSurface.js';
 
 function emitGenerateMessage(host: Pick<GenerateHostHooks, 'emit' | 'runId'>, level: 'info' | 'notice' | 'warn', message: string): void {
   emitRunMessage(host.emit, { op: 'generate', runId: host.runId, level, message });

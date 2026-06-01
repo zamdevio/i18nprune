@@ -35,6 +35,7 @@ Contributor speed now depends on predictable file locations more than new abstra
 | **T7** | Large engines & shared | T7.1–T7.7 | Medium–large |
 | **T8** | Share | T8.1 | Medium |
 | **T9** | Report polish | T9.1 | Small |
+| **T10** | CLI (planned) | — | Small (host layout) · **Planned** |
 
 **Recommended execution order** (smallest blast radius first; types → logic barrels → tests → imports within each slice):
 
@@ -50,6 +51,16 @@ T0 (read) → T2.1 → T2.2 → T2.3 → T2.4 → T3.1 → T3.2 → T4.1 → T6.
 ## Session T0 — Conventions & gates (no PR)
 
 Read before the first tree slice. No code PR for T0.
+
+### Scope boundary
+
+**Sessions T1–T9 apply to `packages/core` only** — logic under `packages/core/src/<domain>/`, matching types under `packages/core/src/types/<domain>/`, and colocated `__tests__/` beside the logic they cover.
+
+| Area | Tree phase role |
+|------|-----------------|
+| **`packages/core`** | **Primary scope** for T1–T9 — types/logic/test parity per T0 rules |
+| **`packages/cli`** | **After T1–T9** — thin host only; calls core, renders human/`--json` output; **no** core type re-export shims; optional CLI-only tests under `commands/<op>/__tests__/` (no `types/` mirror — CLI has no `packages/core/src/types` equivalent). See [Post-core scope](#post-core-scope-decide-later). |
+| **`apps/*`** | **Out of scope for T1–T9** — revisit after core tree phase completes. See [Post-core scope](#post-core-scope-decide-later). |
 
 ### Target structure rules
 
@@ -483,6 +494,20 @@ PR body should link this doc section, list slices completed in the session, list
 | **T7.7** | extractor subtree — only if T1.4 found gaps |
 | **T8.1** | share — impl types to types/share |
 | **T9.1** | report — impl exports + test layout |
+
+---
+
+## Post-core scope (decide later)
+
+Decisions deferred until **Sessions T1–T9** on `packages/core` are complete.
+
+### `apps/*`
+
+Out of scope for Sessions T1–T9. **Reminder:** revisit after the core tree phase completes; decide then whether apps need a similar layout pass (landing, extension, web, report, workers).
+
+### `packages/cli`
+
+In scope **after** core sessions T1–T9 finish. Rules: thin host only — no core type re-export shims; optional colocation of CLI-only tests under `commands/<op>/__tests__/`. Track as **Session T10 — CLI (planned)** in [Sessions at a glance](#sessions-at-a-glance).
 
 ---
 

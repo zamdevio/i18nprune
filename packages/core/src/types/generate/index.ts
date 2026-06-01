@@ -18,6 +18,7 @@ export type {
 } from './generateRun.js';
 
 export type { GenerateResumeCandidateLeafInput, GenerateResumeRefContext } from './resumeCandidates.js';
+export type { RunGenerateResumeLocaleInput } from './resumeRun.js';
 
 export type {
   GenerateRunHooks,
