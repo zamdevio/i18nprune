@@ -47,7 +47,7 @@ XP-1 shipped the 3-OS matrix; CI-1 split the monolithic **`verify`** job without
 | **CI-1** | Split verify job | **Shipped** | typecheck · cli:build · test · parity as separate jobs |
 | **CI-2** | PR test annotations | **Shipped** | Vitest built-in `github-actions` reporter; PR `pull_request` only (`vitest.config.ts`) |
 | **CI-3** | Architecture nightly | **Shipped** | `.github/workflows/architecture.yml` — schedule + `workflow_dispatch`; non-blocking steps |
-| **CI-4** | Build artifacts | **Open** | `upload-artifact` for `packages/cli/dist` (esp. Windows) |
+| **CI-4** | Build artifacts | **Shipped** | `cli-dist-debug-<os>` from `cli-build`: 7-day retention; windows + `failure()` |
 | **CI-5** | Change detection | **Deferred** | paths-filter / turborepo — post-v1 unless trivial |
 
 ---

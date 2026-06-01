@@ -87,6 +87,14 @@ jobs:
           path: dist/
           retention-days: 1
 
+      - name: Upload CLI dist (debug)
+        if: failure() || matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-dist-debug-${{ matrix.os }}
+          path: dist/
+          retention-days: 7
+
   test:
     name: test (${{ matrix.os }})
     needs: cli-build
