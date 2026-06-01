@@ -80,7 +80,7 @@ After **`cli-build`**, each matrix leg uploads:
 
 ---
 
-## CI-2 — PR test annotations
+## CI-2 — PR test annotations (shipped)
 
 **Reporter:** Vitest **built-in** [`github-actions`](https://vitest.dev/guide/reporters#github-actions-reporter) (Vitest ≥ 1.3). No third-party `vitest-github-actions-reporter` package.
 

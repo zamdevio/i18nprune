@@ -45,7 +45,7 @@ XP-1 shipped the 3-OS matrix; CI-1 split the monolithic **`verify`** job without
 | # | Slice | Status | Notes |
 |---|-------|--------|-------|
 | **CI-1** | Split verify job | **Shipped** | typecheck · cli:build · test · parity as separate jobs |
-| **CI-2** | PR test annotations | **Open** | vitest-github-actions-reporter or junit + publish |
+| **CI-2** | PR test annotations | **Shipped** | Vitest built-in `github-actions` reporter; PR `pull_request` only (`vitest.config.ts`) |
 | **CI-3** | Architecture nightly | **Open** | `knip`, `madge:circular`, `madge:orphans` |
 | **CI-4** | Build artifacts | **Open** | `upload-artifact` for `packages/cli/dist` (esp. Windows) |
 | **CI-5** | Change detection | **Deferred** | paths-filter / turborepo — post-v1 unless trivial |
@@ -94,7 +94,7 @@ XP-1 shipped the 3-OS matrix; CI-1 split the monolithic **`verify`** job without
 **Acceptance**
 
 - A deliberately failing test on a PR shows inline annotation (or checklist comment linking to job + file).
-- Document reporter choice in this file § Tracker notes.
+- Document reporter choice in [`systems/ci.md`](../systems/ci.md) § CI-2.
 
 **Gates**
 

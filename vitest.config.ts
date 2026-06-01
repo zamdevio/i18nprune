@@ -1,8 +1,23 @@
 import { defineConfig } from 'vitest/config';
 import path from 'node:path';
 
+/** PR-only: inline failure annotations in GitHub Actions (CI-2). */
+const prCiGithubActionsReporter =
+  process.env.GITHUB_ACTIONS === 'true' &&
+  process.env.GITHUB_EVENT_NAME === 'pull_request';
+
+/** Push to main on GHA: keep default reporter only (no PR annotations). */
+const pushCiDefaultReporterOnly =
+  process.env.GITHUB_ACTIONS === 'true' &&
+  process.env.GITHUB_EVENT_NAME !== 'pull_request';
+
 export default defineConfig({
   test: {
+    ...(prCiGithubActionsReporter
+      ? { reporters: ['default', 'github-actions'] as const }
+      : pushCiDefaultReporterOnly
+        ? { reporters: ['default'] as const }
+        : {}),
     include: [
       'packages/core/src/**/__tests__/**/*.test.ts',
       'packages/cli/src/**/__tests__/**/*.test.ts',
