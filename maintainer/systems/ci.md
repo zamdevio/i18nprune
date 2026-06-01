@@ -94,7 +94,7 @@ After **`cli-build`**, each matrix leg uploads:
 
 ---
 
-## CI-3 — Architecture nightly
+## CI-3 — Architecture nightly (shipped)
 
 Workflow: [`.github/workflows/architecture.yml`](../../.github/workflows/architecture.yml)
 
@@ -109,7 +109,7 @@ Each step uses **`continue-on-error: true`** — findings are visible in Actions
 
 ---
 
-## CI-4 — Debug CLI dist artifacts
+## CI-4 — Debug CLI dist artifacts (shipped)
 
 Separate from the 1-day handoff artifact:
 

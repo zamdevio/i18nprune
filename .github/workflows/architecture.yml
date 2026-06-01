@@ -1,0 +1,44 @@
+# Architecture hygiene — non-blocking (CI-3)
+#
+# Maintainer triage: failures do not gate PR merge. Fix findings in
+# dedicated PRs; see maintainer/systems/health.md and knip.md.
+# Engineering map: maintainer/systems/ci.md
+
+name: Architecture
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  hygiene:
+    name: knip + madge
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: knip
+        run: pnpm knip
+        continue-on-error: true
+
+      - name: madge circular
+        run: pnpm madge:circular
+        continue-on-error: true
+
+      - name: madge orphans
+        run: pnpm madge:orphans
+        continue-on-error: true
