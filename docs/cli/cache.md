@@ -17,7 +17,7 @@ Under your home directory (default):
             └── <code>.json   # L2 hits for one target locale
 ```
 
-`projectId` is derived from the **resolved project root**, so distinct checkouts produce distinct cache namespaces.
+`projectId` is derived from the **resolved project root** (normalized to lowercase forward-slash form), so distinct checkouts produce distinct cache namespaces. On case-insensitive volumes (typical Windows), paths that differ only by letter casing share one cache id; on case-sensitive Linux trees they may not.
 
 ## `files.json`
 

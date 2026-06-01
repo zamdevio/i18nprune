@@ -33,6 +33,20 @@ const DEFAULT_SCAN_SKIP_DIR_SET = new Set<string>(DEFAULT_SCAN_SKIP_DIR_NAMES);
 /** Matches extensions scanned for literals and dynamic keys (extension-only; no folder guessing). */
 const SOURCE_FILE_NAME = /\.(tsx?|jsx?|mjs|cjs|vue|svelte)$/i;
 
+/** Hard cap on directory recursion depth under the scan root (symlink cycles, pathological trees). */
+export const MAX_SOURCE_TREE_WALK_DEPTH = 48;
+
+function walkDirectoryKey(dir: string, pathPort: RuntimePathPort, fs: ProjectFilesystemRuntime['fs']): string {
+  if (fs.realpath) {
+    try {
+      return fs.realpath(dir);
+    } catch {
+      return pathPort.resolve(dir);
+    }
+  }
+  return pathPort.resolve(dir);
+}
+
 function normExtToken(s: string): string {
   const t = s.trim().toLowerCase();
   return t.startsWith('.') ? t.slice(1) : t;
@@ -160,9 +174,30 @@ export function listSourceFiles(
   const compiled = compileScanExclude(exclude);
   const out: string[] = [];
   const debugSink = resolveScanDebugSink(listOpts);
+  const visitedDirs = new Set<string>();
 
-  function walk(dir: string): void {
+  function walk(dir: string, depth: number): void {
     if (!existsRuntimeFsSync(dir, fs)) return;
+    const dirKey = walkDirectoryKey(dir, path, fs);
+    if (visitedDirs.has(dirKey)) {
+      emitScanDebug(debugSink, {
+        kind: 'skip_directory',
+        relativePath: relPosix(path, rootDir, dir),
+        basename: path.basename(dir),
+        reason: 'directory already visited (symlink cycle or duplicate path)',
+      });
+      return;
+    }
+    visitedDirs.add(dirKey);
+    if (depth > MAX_SOURCE_TREE_WALK_DEPTH) {
+      emitScanDebug(debugSink, {
+        kind: 'skip_directory',
+        relativePath: relPosix(path, rootDir, dir),
+        basename: path.basename(dir),
+        reason: `scan depth limit (${String(MAX_SOURCE_TREE_WALK_DEPTH)})`,
+      });
+      return;
+    }
     const entries = listRuntimeFsDirSync(dir, fs);
     for (const e of entries) {
       const p = path.join(dir, e.name);
@@ -177,7 +212,7 @@ export function listSourceFiles(
           });
           continue;
         }
-        walk(p);
+        walk(p, depth + 1);
       } else if (e.kind === 'file') {
         const rel = relPosix(path, rootDir, p);
         if (!SOURCE_FILE_NAME.test(e.name)) {
@@ -200,10 +235,17 @@ export function listSourceFiles(
           continue;
         }
         out.push(p);
+      } else if (e.kind === 'other') {
+        emitScanDebug(debugSink, {
+          kind: 'skip_file',
+          relativePath: relPosix(path, rootDir, p),
+          basename: e.name,
+          reason: 'not a regular file or directory (symlink or special entry)',
+        });
       }
     }
   }
 
-  walk(rootDir);
+  walk(rootDir, 0);
   return out;
 }

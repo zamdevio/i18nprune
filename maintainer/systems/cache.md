@@ -66,7 +66,7 @@ Seven distinct cache layers. **Do not conflate roots or lifetimes.**
     └── share.json       # share local — see §6
 ```
 
-**`projectId`:** hash of normalized project root (`cache/io/hash.ts`).
+**`projectId`:** hash of normalized project root — lowercased forward-slash path (`cache/io/hash.ts`). Case-insensitive volumes (typical Windows) collapse casing; Linux may differ.
 
 ### Two-layer model
 

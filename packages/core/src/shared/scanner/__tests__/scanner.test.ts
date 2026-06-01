@@ -128,6 +128,41 @@ describe('scanner', () => {
     expect(files).toEqual(['src/ok.ts']);
   });
 
+  it('skips directory symlink cycles without hanging', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-scan-'));
+    tempDirs.push(root);
+    fs.mkdirSync(path.join(root, 'src'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'src', 'ok.ts'), 'export const ok = 1;');
+    try {
+      fs.symlinkSync(path.join(root, 'src'), path.join(root, 'src', 'cycle'), 'dir');
+    } catch {
+      return;
+    }
+    const events: ScanDebugEvent[] = [];
+    const files = listSourceFiles(rt, root, undefined, { onScanDebug: (e) => events.push(e) });
+    expect(files.map((f) => path.basename(f))).toContain('ok.ts');
+    expect(
+      events.some((e) => e.kind === 'skip_directory' && e.reason.includes('already visited')),
+    ).toBe(true);
+  });
+
+  it('stops at scan depth limit for pathological directory trees', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-scan-'));
+    tempDirs.push(root);
+    let dir = root;
+    for (let i = 0; i < 55; i++) {
+      dir = path.join(dir, `d${String(i)}`);
+      fs.mkdirSync(dir);
+    }
+    fs.writeFileSync(path.join(dir, 'deep.ts'), 'export const deep = 1;');
+    const events: ScanDebugEvent[] = [];
+    const files = listSourceFiles(rt, root, undefined, { onScanDebug: (e) => events.push(e) });
+    expect(files.some((f) => path.basename(f) === 'deep.ts')).toBe(false);
+    expect(events.some((e) => e.kind === 'skip_directory' && e.reason.includes('scan depth limit'))).toBe(
+      true,
+    );
+  });
+
   it('exclude.preset production skips compiled/tests-like paths', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-scan-'));
     tempDirs.push(root);

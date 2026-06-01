@@ -16,4 +16,6 @@ export type RuntimeFsPort = RuntimeReadFsPort & {
   writeText: (filePath: string, content: string) => void | Promise<void>;
   deleteFile: (filePath: string) => void | Promise<void>;
   mkdirp: (dirPath: string) => void | Promise<void>;
+  /** When set, returns the canonical path for cycle-safe directory walks (Node: `fs.realpathSync`). */
+  realpath?: (filePath: string) => string;
 };

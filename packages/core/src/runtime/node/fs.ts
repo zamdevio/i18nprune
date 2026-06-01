@@ -13,13 +13,25 @@ export const nodeReadFsRuntime: RuntimeFsPort = {
     return 'other';
   },
   listDir: (dirPath) =>
-    fs.readdirSync(dirPath, { withFileTypes: true }).map((entry) => ({
-      name: entry.name,
-      kind: entry.isFile() ? 'file' : entry.isDirectory() ? 'directory' : 'other',
-    })),
+    fs.readdirSync(dirPath, { withFileTypes: true }).map((entry) => {
+      const full = path.join(dirPath, entry.name);
+      if (entry.isFile()) return { name: entry.name, kind: 'file' as const };
+      if (entry.isDirectory()) return { name: entry.name, kind: 'directory' as const };
+      if (entry.isSymbolicLink()) {
+        try {
+          const st = fs.statSync(full);
+          if (st.isDirectory()) return { name: entry.name, kind: 'directory' as const };
+          if (st.isFile()) return { name: entry.name, kind: 'file' as const };
+        } catch {
+          /* broken symlink */
+        }
+      }
+      return { name: entry.name, kind: 'other' as const };
+    }),
   writeText: (filePath, content) => fs.writeFileSync(filePath, content, 'utf8'),
   deleteFile: (filePath) => fs.unlinkSync(filePath),
   mkdirp: (dirPath) => {
     fs.mkdirSync(path.resolve(dirPath), { recursive: true });
   },
+  realpath: (filePath) => fs.realpathSync.native(filePath),
 };

@@ -34,7 +34,7 @@ Code review of CLI + core paths relevant to Win/macOS/Linux/WSL. **No runtime ch
 | **Project cache id** | `normalizeProjectRoot` lowercases + forward-slash canonical form (`packages/core/src/cache/io/hash.ts`) — stable on case-insensitive FS; may differ from Linux case-sensitive checkout ids |
 | **Report env (CLI)** | `buildReportEnvironmentSnapshot` uses `process.platform`, `os.release()`, WSL via `WSL_DISTRO_NAME` (`packages/cli/src/commands/report/build.ts`) |
 | **Report env (archive)** | `prepareReportFromArchive` uses placeholder `environment` (`platform: 'archive-hosted'`, empty `osRelease`) — **XP-5** |
-| **Source walk** | `listSourceFiles` recurses directories with no visited-set — symlink cycles can infinite-loop (**XP-2**) |
+| **Source walk** | **Mitigated (XP-2)** — `listSourceFiles` uses `realpath` + depth cap; Node `listDir` follows symlink-to-dir entries |
 | **Optional `rg`** | `spawnSync('rg', …)` — needs `rg` / `rg.exe` on PATH; doctor warns when missing |
 | **Shell deps** | No `rm`/`cp` on main CLI path; `fs.rmSync` in cache runtime |
 | **CI** | Linux-only until **XP-1** |
@@ -124,8 +124,8 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | # | Slice | Status | Notes |
 |---|-------|--------|-------|
 | **XP-0** | Audit receipt + Windows checklist in this doc | **Shipped** | Receipt § below; user paths in [`docs/cli/cache.md`](../../docs/cli/cache.md) § OS paths |
-| **XP-1** | CI: `windows-latest` smoke (+ optional `macos-latest`) | **In progress** | `.github/workflows/ci.yml` — `verify-windows` job |
-| **XP-2** | **Project cache** hardening | **Todo** | Atomic writes, `cacheRootDir` override docs, symlink guard in `listSourceFiles`, project-id policy note |
+| **XP-1** | CI: `windows-latest` smoke (+ optional `macos-latest`) | **Shipped** | `.github/workflows/ci.yml` — `verify-windows` job (await green on push) |
+| **XP-2** | **Project cache** hardening | **In progress** | Symlink/depth guard in `listSourceFiles`; project-id note in `docs/cli/cache.md` |
 | **XP-3** | **Version cache** (`updatestate.json`) hardening | **Todo** | Document paths on Win/macOS/Linux; verify `mkdirp` + read/write; `XDG_CONFIG_HOME` on Windows when set |
 | **XP-4** | **Translate cache** (`translations/*.json`) | **Todo** | Same `projectDir` as analysis; confirm L2 IO on Windows paths |
 | **XP-5** | Report host metadata | **Todo** | Fix archive placeholder env; CLI `buildReportEnvironmentSnapshot` truth on all platforms |
@@ -138,11 +138,11 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 ### XP-2 — Project cache (`~/.i18nprune/cache`)
 
-- [ ] Confirm `defaultCliCacheRootDir()` and overrides behave on Windows (`C:\Users\…\.i18nprune\cache`).
-- [ ] Document `config.cache` / CLI cache root override if present in config (align with `docs/cli/cache.md`).
+- [ ] Confirm `defaultCliCacheRootDir()` and overrides behave on Windows (`C:\Users\…\.i18nprune\cache`) — manual / CI.
+- [x] Document `config.cache.dir` override — [`docs/cli/cache.md`](../../docs/cli/cache.md) § OS paths.
 - [ ] Verify `writeTextAtomic` in `packages/cli/src/shared/cache/runtime.ts` on Windows (same-volume rename).
-- [ ] Add symlink cycle guard (or depth cap) in `listSourceFiles` walk.
-- [ ] Document `computeCacheProjectId` lowercasing policy (Windows case-insensitivity vs Linux).
+- [x] Symlink cycle guard + depth cap in `listSourceFiles` (`packages/core/src/shared/scanner/files.ts`, optional `fs.realpath` on Node).
+- [x] Document `computeCacheProjectId` lowercasing — [`docs/cli/cache.md`](../../docs/cli/cache.md) layout §.
 
 ### XP-3 — Version cache (`updatestate.json`)
 
