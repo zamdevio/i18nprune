@@ -1,6 +1,6 @@
 import type { RuntimePathPort } from '../../types/runtime/path.js';
 import type { ArchiveProjectFs } from '../../types/project/archiveFs.js';
-import { toPosixPath } from '../../shared/path/posix.js';
+import { toPosixPath } from '../../shared/path/index.js';
 
 function archiveCwdAbsolute(cwd: string, path: RuntimePathPort): string {
   return path.resolve(cwd);

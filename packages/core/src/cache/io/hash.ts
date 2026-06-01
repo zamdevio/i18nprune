@@ -1,6 +1,6 @@
 import type { CacheHashText } from '../../types/cache/index.js';
 import type { RuntimePathPort } from '../../types/runtime/index.js';
-import { normalizePathKeyForCache } from '../../shared/path/platform.js';
+import { normalizePathKeyForCache } from '../../shared/path/index.js';
 
 function fallbackHashText(text: string): string {
   let hash = 0xcbf29ce484222325n;

@@ -1,8 +1,15 @@
 # CLI cache
 
-The CLI persists a **small on-disk cache** so repeat runs skip redundant work when project files are unchanged.
+The CLI uses **two local on-disk areas** (plus an optional override). Do not confuse them with hosted worker project snapshots (zip upload).
 
-## Layout
+| Surface | Default location | Purpose |
+|---------|------------------|---------|
+| **Project + analysis + translate cache** | `<home>/cache/` (default `~/.i18nprune/cache/`) | Fingerprints, scan payload, per-locale translation cache |
+| **Version throttle** | `<home>/state/version.json` | npm `latest` check interval — **CLI only**, not read by the SDK scan cache |
+
+**`<home>`** defaults to `~/.i18nprune`. Override the whole tree with **`I18NPRUNE_HOME`** (see [Paths on other operating systems](#paths-on-other-operating-systems)).
+
+## Project cache layout
 
 Under your home directory (default):
 
@@ -166,18 +173,34 @@ Default roots use Node’s `os.homedir()` and `path.join` — no manual path str
 
 | Surface | Linux / macOS | Windows (CMD, PowerShell, Windows Terminal) |
 |---------|---------------|---------------------------------------------|
-| **Project cache** | `~/.i18nprune/cache/` | `%USERPROFILE%\.i18nprune\cache\` |
-| **Version throttle** | `~/.config/i18nprune/updatestate.json` | `%USERPROFILE%\.config\i18nprune\updatestate.json` |
+| **CLI home (`<home>`)** | `~/.i18nprune/` | `%USERPROFILE%\.i18nprune\` |
+| **Project cache** | `<home>/cache/` | same under profile |
+| **Version throttle** | `<home>/state/version.json` | same under profile |
 
-When **`XDG_CONFIG_HOME`** is set (including some Windows setups), the version file lives under **`$XDG_CONFIG_HOME/i18nprune/updatestate.json`** instead.
+Set **`I18NPRUNE_HOME`** to relocate **both** cache and version state (the CLI prints an **`[info]`** line on each command when this variable is set). Legacy **`~/.config/i18nprune/updatestate.json`** (and **`$XDG_CONFIG_HOME/i18nprune/updatestate.json`**) are read once and migrated into **`<home>/state/version.json`** on the next update check.
 
 **WSL:** paths follow the Linux column **inside the distro**. Do not expect a project cache written from Windows native Node to match WSL paths for the same repo on disk.
 
 Override the project cache root with **`config.cache.dir`** when you need a custom location on any OS.
 
-## Not the npm version throttle
+## Version throttle (`state/version.json`)
 
-Registry update checks use the **version throttle** path in the table above, not **`~/.i18nprune/cache/`**.
+Registry update checks (optional banner after commands) write **`<home>/state/version.json`** — never under **`<home>/cache/`**.
+
+**Home resolution:**
+
+1. **`I18NPRUNE_HOME`** when set and non-empty (absolute path recommended).
+2. Otherwise **`~/.i18nprune`** (`%USERPROFILE%\.i18nprune` on Windows).
+
+The CLI creates **`<home>/state/`** on first write (`mkdir` with `recursive: true`). Older **`updatestate.json`** files under **`.config/i18nprune`** are migrated automatically when read.
+
+**Skipped (no registry fetch, no file write from the check):**
+
+- **`CI`** set to a truthy value (`1`, `true`, `yes`) — including GitHub Actions.
+- **`I18NPRUNE_NO_UPDATE_CHECK`** set to a truthy value.
+- **`--json`** machine output mode.
+
+See also **`docs/versioning/README.md`** for update-check behavior.
 
 ## Worker / web “snapshot”
 

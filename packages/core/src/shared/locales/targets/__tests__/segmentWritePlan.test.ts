@@ -7,7 +7,7 @@ import { createCoreContext } from '../../../../generate/context.js';
 import { createNodeRuntimeAdapters } from '../../../../runtime/exports/node.js';
 import { resolveLocaleSegmentAbsolutePath } from '../../enumerate/index.js';
 import { resolveLocalesLayout } from '../../layout/resolveLayout.js';
-import { toPosixPath } from '../../../path/posix.js';
+import { toPosixPath } from '../../../path/index.js';
 import { resolvePrimaryTargetWritePath, resolveTargetLocaleWritePlan } from '../segmentWritePlan.js';
 import { swapLocaleInSegmentRelativePath } from '../segmentWritePlan.js';
 

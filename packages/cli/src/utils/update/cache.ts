@@ -2,6 +2,7 @@ import { UPDATE_STATE_SCHEMA_VERSION } from '@/constants/update.js';
 import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 import { readJsonFromRuntimeFsSync } from '@i18nprune/core/runtime/helpers/sync';
 
+import { legacyVersionStateFilePaths } from '@/shared/home/index.js';
 import { ensureConfigDirExists, getUpdateStateFilePath } from './paths.js';
 const nodeFs = createNodeRuntimeAdapters().fs;
 
@@ -84,41 +85,61 @@ function parseV1(raw: unknown, registryEndpoint: string): UpdateStateFile | null
   };
 }
 
+function readParsedState(filePath: string, registryEndpoint: string): UpdateStateFile | null {
+  try {
+    const parsed = readJsonFromRuntimeFsSync(filePath, nodeFs);
+    return parseV1(parsed, registryEndpoint);
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Read `updatestate.json` from disk, or return in-memory default state if the file is missing,
- * the parent directory does not exist yet, JSON is invalid, or `schemaVersion` does not match.
+ * Read version throttle state from `<home>/state/version.json`, or legacy `updatestate.json` paths.
+ * Lazy-migrates legacy files to the new location on first successful read.
  * Does **not** create directories or files — first `writeUpdateState` does that.
  */
 export function readUpdateState(registryEndpoint: string): UpdateStateFile {
-  const p = getUpdateStateFilePath();
+  const canonical = getUpdateStateFilePath();
+  const candidates = [canonical, ...legacyVersionStateFilePaths()];
+  const seen = new Set<string>();
 
-  let parsed: unknown | null = null;
-  try {
-    parsed = readJsonFromRuntimeFsSync(p, nodeFs);
-  } catch {
-    parsed = null;
-  }
-
-  if (parsed !== null) {
-    const v1 = parseV1(parsed, registryEndpoint);
-    if (v1) return v1;
+  for (const filePath of candidates) {
+    if (seen.has(filePath)) continue;
+    seen.add(filePath);
+    const state = readParsedState(filePath, registryEndpoint);
+    if (state === null) continue;
+    if (filePath !== canonical) {
+      try {
+        writeUpdateState(state);
+      } catch {
+        /* ignore migration write errors */
+      }
+    }
+    return state;
   }
 
   return emptyState(registryEndpoint);
 }
 
-/** Persists state; creates `~/.config/i18nprune/` (or `$XDG_CONFIG_HOME/i18nprune/`) with `recursive: true` if needed. */
+/** Persists state under `<home>/state/version.json` (`mkdir` recursive). */
 export function writeUpdateState(state: UpdateStateFile): void {
   ensureConfigDirExists();
   const path = getUpdateStateFilePath();
   nodeFs.writeText(path, `${JSON.stringify(state, null, 2)}\n`);
 }
 
-/** Remove `updatestate.json` so the next run can treat the throttle as fresh. */
+/** Remove canonical and legacy version state files so the next run treats the throttle as fresh. */
 export function resetUpdateState(): void {
-  try {
-    nodeFs.deleteFile(getUpdateStateFilePath());
-  } catch {
-    /* ignore */
+  const paths = [getUpdateStateFilePath(), ...legacyVersionStateFilePaths()];
+  const seen = new Set<string>();
+  for (const filePath of paths) {
+    if (seen.has(filePath)) continue;
+    seen.add(filePath);
+    try {
+      nodeFs.deleteFile(filePath);
+    } catch {
+      /* ignore */
+    }
   }
 }

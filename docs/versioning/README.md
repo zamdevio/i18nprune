@@ -20,8 +20,8 @@ This document describes how the CLI learns whether a newer **`i18nprune`** packa
 |------|----------|
 | **Constants** (registry URL, schema version, 24h interval) | `packages/cli/src/constants/update.ts` |
 | **Env opt-out** (`I18NPRUNE_NO_UPDATE_CHECK`, `CI`, `I18NPRUNE_ENV_KEYS`) | `packages/cli/src/constants/env.ts` |
-| **Paths** (`~/.config/i18nprune/updatestate.json`) | `packages/cli/src/utils/update/paths.ts` |
-| **Read/write `updatestate.json`** | `packages/cli/src/utils/update/cache.ts` |
+| **Home + version path** | `packages/cli/src/shared/home/resolve.ts` |
+| **Read/write `version.json`** | `packages/cli/src/utils/update/cache.ts` |
 | **Fetch npm + semver compare** | `packages/cli/src/utils/update/registry.ts` |
 | **Background refresh** | `packages/cli/src/utils/update/index.ts` (`ensureUpdateCacheRefreshed`) |
 | **Post-banner update notice** | `packages/cli/src/utils/update/notice.ts` (`maybePrintUpdateNoticeAfterBanner`) |
@@ -52,11 +52,14 @@ This document describes how the CLI learns whether a newer **`i18nprune`** packa
 
 ## Cache directory (24h throttle)
 
-This is **not** the [**CLI project cache**](../cli/cache.md) under **`~/.i18nprune/cache/`**. That folder stores fingerprinted report inputs; **`updatestate.json`** only records npm **`latest`** check timing.
+This is **not** the [**CLI project cache**](../cli/cache.md) under **`<home>/cache/`**. That folder stores fingerprinted report inputs; **`<home>/state/version.json`** only records npm **`latest`** check timing.
 
 | Platform | Path |
 |----------|------|
-| **Default** | `$XDG_CONFIG_HOME/i18nprune/updatestate.json`, or `~/.config/i18nprune/updatestate.json` when `XDG_CONFIG_HOME` is unset |
+| **Default** | `~/.i18nprune/state/version.json` (`%USERPROFILE%\.i18nprune\state\version.json` on Windows) |
+| **Custom home** | `$I18NPRUNE_HOME/state/version.json` when **`I18NPRUNE_HOME`** is set |
+
+Legacy **`updatestate.json`** under **`~/.config/i18nprune`** (or **`$XDG_CONFIG_HOME/i18nprune`**) is migrated on read.
 
 The file includes:
 
@@ -66,7 +69,7 @@ The file includes:
 
 If a fetch **fails**, **`lastAttemptMs`** still advances (cooldown), and previous success fields are **retained** when present.
 
-**Missing directory or file:** If **`updatestate.json`** or its parent folder does not exist yet, **read** behaves as **empty state** (same shape as a fresh install: **`lastAttemptMs`:** `0`, nulls for unknown fields — nothing is written to disk). The **first write** (background refresh when due, **`version --check`**, etc.) calls **`fs.mkdirSync(..., { recursive: true })`** for the config directory, then writes the JSON file.
+**Missing directory or file:** If **`version.json`** or its parent folder does not exist yet, **read** behaves as **empty state** (same shape as a fresh install: **`lastAttemptMs`:** `0`, nulls for unknown fields — nothing is written to disk). The **first write** (background refresh when due, **`version --check`**, etc.) calls **`fs.mkdirSync(..., { recursive: true })`** for the config directory, then writes the JSON file.
 
 ---
 

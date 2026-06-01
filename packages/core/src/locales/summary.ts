@@ -4,7 +4,7 @@ import { readLocaleSegmentFromContext } from '../shared/locales/read/index.js';
 import { primarySegmentForLocale, segmentsForLocaleCode, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
 import { translationSurfacePathValueMapFromLeaves } from '../shared/projects/localeSurfaceMap.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
-import { toPosixPath } from '../shared/path/posix.js';
+import { toPosixPath } from '../shared/path/index.js';
 
 export type LocaleListRow = {
   code: string;

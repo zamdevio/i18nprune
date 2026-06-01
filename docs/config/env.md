@@ -15,6 +15,7 @@ Merged **after** defaults and the config **file**, **before** discovery and CLI 
 | **`I18NPRUNE_NO_DISCOVERY`** | When truthy (`1`, `true`, `yes`), skip discovery layer where applicable. |
 | **`I18NPRUNE_NO_INIT`** | When truthy, treated like non-interactive init paths; also skips interactive prompts together with **`CI`** and non-TTY stdin (see [JSON & long runs](../behavior/json-long.md)). |
 | **`I18NPRUNE_NO_UPDATE_CHECK`** | When truthy (`1`, `true`, `yes`), skip **all** npm registry update discovery: no background refresh, no banner hint, no **`version --check`** fetch. **`CI=true`** also skips (see [Versioning](../versioning/README.md)). |
+| **`I18NPRUNE_HOME`** | Override the CLI home directory (default `~/.i18nprune`). Sets **`<home>/cache/`** (project cache) and **`<home>/state/version.json`** (version throttle). When set, each command prints an **`[info]`** line with the resolved path. Not included in **`config --json`** `env` snapshot. |
 
 ## `I18NPRUNE_GENERATE_*` — generate command defaults
 

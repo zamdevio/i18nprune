@@ -1,6 +1,6 @@
 # Cross-platform hardening (CLI + SDK)
 
-**Status:** **In progress** — **XP-0/1** shipped (audit + OS matrix CI); **XP-2/2b** code landed — **XP-3…7** open.  
+**Status:** **In progress** — **XP-0…2b** shipped (matrix CI green on `main`); **XP-3** in flight — **XP-4…7** open.  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then:** [`tree.md`](./tree.md)
 
 **Promise (one sentence):** With **Node ≥ 18**, the **CLI** and **`@i18nprune/core` SDK** run deterministically on **Windows, macOS, native Linux, and WSL** for local scan, **all disk caches**, and report generation — without shell-specific commands or POSIX-only path logic in **core**.
@@ -44,7 +44,7 @@ Code review of CLI + core paths relevant to Win/macOS/Linux/WSL. **No runtime ch
 | Surface | Linux / macOS | Windows (native Node) | WSL |
 |---------|---------------|------------------------|-----|
 | Project cache | `~/.i18nprune/cache/` | `%USERPROFILE%\.i18nprune\cache\` | Linux paths inside distro |
-| Version throttle | `~/.config/i18nprune/updatestate.json` or `$XDG_CONFIG_HOME/i18nprune/` | `%USERPROFILE%\.config\i18nprune\updatestate.json` (or `%XDG_CONFIG_HOME%` when set) | Same as Linux |
+| Version throttle | `<home>/state/version.json` (default `~/.i18nprune/`) | `%USERPROFILE%\.i18nprune\state\version.json` | Same as Linux; legacy `.config` migrated |
 | Share local | `…/projects/<id>/share.json` | Same layout under project cache dir | Same as Linux |
 
 **Out of promise:** sharing cache dirs or project roots between **Windows native** and **WSL** Node — different path namespaces.
@@ -75,7 +75,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 | Surface | Default location (CLI) | Owner | Purpose |
 |---------|------------------------|-------|---------|
-| **Version / update cache** | `$XDG_CONFIG_HOME/i18nprune/updatestate.json` or `~/.config/i18nprune/updatestate.json` | **CLI only** (`packages/cli/src/utils/update/`) | npm registry throttle + latest version snapshot; **not** in core |
+| **Version / update cache** | `<home>/state/version.json` (`I18NPRUNE_HOME` or `~/.i18nprune`) | **CLI only** (`packages/cli/src/shared/home/`, `utils/update/`) | npm registry throttle; legacy `updatestate.json` migrated on read |
 | **Project + analysis + translate cache** | `~/.i18nprune/cache/` → `projects/<id>/` | **Core** policy + **CLI** default root (`packages/cli/src/shared/cache/`, `packages/core/src/cache/`) | `meta.json`, `files.json`, `analysis.json`, `translations/<code>.json` |
 | **Per-project cache id** | Hash of normalized **project root** path | **Core** (`packages/core/src/cache/io/hash.ts`) | Stable `projects/<16-char-hex>/` segment |
 
@@ -137,9 +137,9 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 |---|-------|--------|-------|
 | **XP-0** | Audit receipt + Windows checklist in this doc | **Shipped** | Receipt § below; user paths in [`docs/cli/cache.md`](../../docs/cli/cache.md) § OS paths |
 | **XP-1** | CI OS matrix | **Shipped** | `.github/workflows/ci.yml` — one `verify` job, `fail-fast: false`, ubuntu 30m / win+mac 45m |
-| **XP-2** | **Project cache** + path hygiene | **Shipped\*** | \*manual: `writeTextAtomic` + cache dir on Windows — confirm when matrix green |
-| **XP-2b** | Known limits (handlers) | **Shipped\*** | Code in `shared/path/platform.ts`; user docs → **XP-6** |
-| **XP-3** | **Version cache** (`updatestate.json`) hardening | **Todo** | Document paths on Win/macOS/Linux; verify `mkdirp` + read/write; `XDG_CONFIG_HOME` on Windows when set |
+| **XP-2** | **Project cache** + path hygiene | **Shipped** | Matrix CI green; symlink guard + posix paths + archive FS |
+| **XP-2b** | Known limits (handlers) | **Shipped** | `shared/path/platform.ts`; user docs table → **XP-6** |
+| **XP-3** | **Version cache** (`updatestate.json`) hardening | **Shipped** | Docs + CLI tests (`paths`, `cache.disk`, `skipPolicy`) |
 | **XP-4** | **Translate cache** (`translations/*.json`) | **Todo** | Same `projectDir` as analysis; confirm L2 IO on Windows paths |
 | **XP-5** | Report host metadata | **Todo** | Fix archive placeholder env; CLI `buildReportEnvironmentSnapshot` truth on all platforms |
 | **XP-6** | User docs | **Todo** | `docs/cli/cache.md` — three disk surfaces, paths on Windows, WSL vs native Node |
@@ -151,9 +151,9 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 ### XP-2 — Project cache (`~/.i18nprune/cache`)
 
-- [ ] Confirm `defaultCliCacheRootDir()` and overrides behave on Windows (`C:\Users\…\.i18nprune\cache`) — manual / CI.
+- [x] Confirm project cache + tests on Windows — matrix CI green (`verify` windows-latest).
 - [x] Document `config.cache.dir` override — [`docs/cli/cache.md`](../../docs/cli/cache.md) § OS paths.
-- [ ] Verify `writeTextAtomic` in `packages/cli/src/shared/cache/runtime.ts` on Windows (same-volume rename).
+- [x] `writeTextAtomic` exercised indirectly — project cache tests + parity pass on windows-latest.
 - [x] Symlink cycle guard + depth cap in `listSourceFiles` (`packages/core/src/shared/scanner/files.ts`, optional `fs.realpath` on Node).
 - [x] Document `computeCacheProjectId` lowercasing — [`docs/cli/cache.md`](../../docs/cli/cache.md) layout §.
 - [x] NFC-normalize project root before cache id hash (`shared/path/platform.ts`).
@@ -169,10 +169,11 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 ### XP-3 — Version cache (`updatestate.json`)
 
-- [ ] Document resolution order: `$XDG_CONFIG_HOME/i18nprune/` → `~/.config/i18nprune/`.
-- [ ] Verify create/read/write/delete on Windows (user-visible path e.g. `%USERPROFILE%\.config\i18nprune\updatestate.json`).
-- [ ] Confirm `I18NPRUNE_NO_UPDATE_CHECK` / `CI` skip still correct on all platforms.
-- [ ] **Do not** move version state into core unless product explicitly requests — keep CLI-owned.
+- [x] Document resolution order — [`docs/cli/cache.md`](../../docs/cli/cache.md) § Version throttle.
+- [x] Disk round-trip tests — `packages/cli/src/utils/update/__tests__/cache.disk.test.ts` (uses `XDG_CONFIG_HOME` temp dir; runs on all matrix OSes).
+- [x] Path resolution tests — `paths.test.ts` (`XDG_CONFIG_HOME`, blank fallback, homedir default).
+- [x] Skip policy tests — `skipPolicy.test.ts` (`CI`, `I18NPRUNE_NO_UPDATE_CHECK`).
+- [x] **Do not** move version state into core — unchanged; CLI-owned.
 
 ### XP-4 — Translate cache
 
@@ -196,7 +197,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | Doctor | `i18nprune doctor` (note `rg` warn if missing) |
 | Validate sample project | `i18nprune validate --json` |
 | Cache write | second run shows cache hit / debug-cache |
-| Version state file | after run: dir exists under `.config\i18nprune\` with `updatestate.json` |
+| Version state file | after run: `<home>/state/version.json` exists (default under `~/.i18nprune/`) |
 | Report HTML | `i18nprune report --format html` |
 | Share (optional) | `i18nprune share upload` if worker configured |
 

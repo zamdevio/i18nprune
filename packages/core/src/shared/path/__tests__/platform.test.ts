@@ -5,7 +5,7 @@ import {
   isLikelyWindowsLongPath,
   isUncNetworkPath,
   normalizePathKeyForCache,
-} from '../platform.js';
+} from '../index.js';
 
 describe('shared/path/platform', () => {
   it('normalizes cache keys with NFC and posix slashes', () => {

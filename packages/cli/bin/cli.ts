@@ -13,6 +13,7 @@ import {
 } from '@/shared/context/index.js';
 import { resetRunOptions, setRunOptions } from '@i18nprune/core';
 import { ensureConfigPathResolved, setConfigPath } from '@/shared/config/index.js';
+import { emitI18nPruneHomeOverrideNotice } from '@/shared/home/index.js';
 import {
   setCliYesFlag,
   getCliYesFlag,
@@ -197,7 +198,7 @@ program
     }
     const debugScan = Boolean(opts.debugScan);
     const debugCache = Boolean(opts.debugCache);
-    setRunOptions({
+    const runOpts = {
       json: jsonOutput,
       jsonPretty,
       quiet,
@@ -214,7 +215,9 @@ program
               logger.scan(msg, getRunOptions());
             }
           : undefined,
-    });
+    };
+    setRunOptions(runOpts);
+    emitI18nPruneHomeOverrideNotice(runOpts);
     setCliListTopFlag(parseCliPositiveIntTop(opts.top, 'global: --top'));
     setCliListFullFlag(Boolean(opts.full));
     await ensureUpdateCacheRefreshed({ jsonOutput });

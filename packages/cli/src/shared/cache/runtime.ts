@@ -1,16 +1,15 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import type { CacheRuntime, RuntimeAdapters } from '@i18nprune/core';
 import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
+import { resolveI18nPruneCacheRootDir } from '@/shared/home/index.js';
 
 function nodeCacheHashText(text: string): string {
   return crypto.createHash('sha256').update(text).digest('hex');
 }
 
 export function defaultCliCacheRootDir(): string {
-  return path.join(os.homedir(), '.i18nprune', 'cache');
+  return resolveI18nPruneCacheRootDir();
 }
 
 export function buildCliCacheRuntime(adapters: RuntimeAdapters = createNodeRuntimeAdapters()): CacheRuntime {

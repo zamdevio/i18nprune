@@ -1,7 +1,7 @@
 import type { ResolvedLocalesLayout } from '../../../types/locales/layout.js';
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { LocaleSegmentRef } from '../../../types/locales/enumerate.js';
-import { toPosixPath } from '../../path/posix.js';
+import { toPosixPath } from '../../path/index.js';
 import { localeCodeForSegment } from './parseSegmentLocale.js';
 
 /**

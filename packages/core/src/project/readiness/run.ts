@@ -25,8 +25,7 @@ import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors
 import { assertSyncPortResult } from '../../runtime/helpers/sync/assert.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../../runtime/helpers/sync/index.js';
 import { readLocaleSegmentFromContext } from '../../shared/locales/read/index.js';
-import { collectPlatformPathWarnings } from '../../shared/path/platform.js';
-import { toPosixPath } from '../../shared/path/posix.js';
+import { collectPlatformPathWarnings, toPosixPath } from '../../shared/path/index.js';
 import { presetUsesValidateSourceIssueCode, resolveProjectReadinessChecks } from './presets.js';
 
 function statKindSync(path: string, fs: RuntimeFsPort) {

@@ -14,6 +14,12 @@ export const ENV_CI = 'CI' as const;
  */
 export const ENV_I18NPRUNE_NO_UPDATE_CHECK = 'I18NPRUNE_NO_UPDATE_CHECK' as const;
 
+/**
+ * Override the CLI home directory (cache + version state). Default: `~/.i18nprune`.
+ * Emits an `[info]` line on each command when set. See **`docs/config/env.md`**.
+ */
+export const ENV_I18NPRUNE_HOME = 'I18NPRUNE_HOME' as const;
+
 // --- I18NPRUNE_* (config merge + values included in `config --json` env snapshot) ---
 
 export const ENV_I18NPRUNE_SOURCE = 'I18NPRUNE_SOURCE' as const;

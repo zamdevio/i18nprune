@@ -7,7 +7,7 @@ import type {
 } from '../../types/cache/index.js';
 import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
 import { nowIso, readJsonFileWithLimit, writeJsonAtomic } from './helpers.js';
-import { toPosixPath } from '../../shared/path/posix.js';
+import { toPosixPath } from '../../shared/path/index.js';
 import { computeCacheProjectId } from './hash.js';
 import { isProjectCacheWritable } from '../setup/policy.js';
 

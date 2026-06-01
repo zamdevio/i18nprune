@@ -18,7 +18,7 @@ Seven distinct cache layers. **Do not conflate roots or lifetimes.**
 | **4** | **Translate L1** | One `generate` invocation | In-memory (`TranslateCacheL1Memo`) | Core | `generate` only |
 | **5** | **Translate L2** | Persistent per project + target locale | `…/translations/<code>.json` | Core | `generate` only |
 | **6** | **Share local** | Persistent per project | `…/share.json` (+ `share.bak/`) | Core | `share` upload/list/view/delete |
-| **7** | **Version / update** | Persistent global (CLI) | `~/.config/i18nprune/updatestate.json` | **CLI only** | npm latest check throttle |
+| **7** | **Version / update** | Persistent global (CLI) | `<home>/state/version.json` | **CLI only** | npm latest check throttle |
 
 **Global bypass:** `--no-cache` disables project disk cache (and L1); L2 also skipped when project cache off. **`config.cache.enabled: false`** same effect.
 
@@ -186,7 +186,7 @@ Progress reports `cacheHits` with layer (`l1` | `l2`).
 
 **Purpose:** Throttle npm registry “latest version” checks — **not** project analysis.
 
-**Path:** `$XDG_CONFIG_HOME/i18nprune/updatestate.json` or `~/.config/i18nprune/updatestate.json`  
+**Path:** `<home>/state/version.json` (`I18NPRUNE_HOME` or `~/.i18nprune`; legacy `.config/.../updatestate.json` migrated on read)  
 **Owner:** `packages/cli/src/utils/update/` — **core never reads this file**.
 
 Skipped when `CI`, `--json`, or `I18NPRUNE_NO_UPDATE_CHECK`.
