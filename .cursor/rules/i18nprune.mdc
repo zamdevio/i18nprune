@@ -5,22 +5,10 @@ alwaysApply: true
 
 ## Source of truth
 - **Local-only WIP:** `maintainer/temp/` — temporary plans and scratch (**gitignored**; not in clone history; read on disk only if the user keeps notes there).
-- **Sprint hub:** `maintainer/phases/V1-RELEASE.md` · **Active narrative:** `maintainer/phases/active-phase.md`.
+- **Sprint / sequencing:** `maintainer/phases/V1-RELEASE.md`, `maintainer/phases/active-phase.md`.
 - **Shipped receipts:** `maintainer/phases/shipped-slices.md` (check before re-implementing).
-- **Current core vertical:** `maintainer/phases/apps.md` (**C.3+ active next**). **Translate-cache (H.1)** and **cache** Phases 0–4 **shipped**.
-- **Next slice scope:** core **`share`** + CLI **`i18nprune share`** per [`apps.md`](./apps.md) — not unrelated cache work.
-- Other phase docs: `extractor.md`, `cache.md` (shipped reference when touching cache). Shipped vertical receipts: `maintainer/phases/shipped-slices.md`.
-- Contributor maps: `maintainer/systems/README.md`.
-- Agent guides: `maintainer/agents/README.md` · **Architecture:** `maintainer/agents/architecture.md` · **Git:** `maintainer/agents/git.md` · **JSDoc:** `maintainer/agents/jsdoc.md`.
-
-## Vertical sequencing (locked)
-```txt
-extractor → init → locales → cache → translate-cache → apps (C.3+) → extension
-```
-- **One slice per PR** — scope from the active plan doc only.
-- **New agent chat** per vertical slice or phase (cache Phase 4 ≠ translate-cache ≠ apps `share`).
-- Plan decisions are **LOCKED** unless you surface contradicting file:line evidence first.
-- If a doc is ambiguous, **ASK** — do not guess.
+- **Engineering maps:** `maintainer/systems/README.md` (cache, share, extractor, commands, operations).
+- **Agent guides:** `maintainer/agents/README.md` · **Architecture:** `maintainer/agents/architecture.md` · **Git:** `maintainer/agents/git.md` · **JSDoc:** `maintainer/agents/jsdoc.md`.
 
 ## Build / test gate
 - Required before commit: `pnpm typecheck` and `pnpm test`.
@@ -47,12 +35,15 @@ extractor → init → locales → cache → translate-cache → apps (C.3+) →
 - **No domain imports in ui:** no `@i18nprune/core`, workers, routing, share/report logic. See [`maintainer/systems/ui.md`](./maintainer/systems/ui.md).
 - Gate: `pnpm ui:purity` (included in `pnpm typecheck`).
 
-## Cache discipline (Session H-cache)
-- **Core owns** rebuild policy (`decideAnalysisRebuild`, `resolveCacheConfig`, patch/reuse in `analysis/` + `cache/dispatch.ts`). CLI/IDE are **hosts** — no forked delta/patch logic.
+## Cache discipline
+- **All cache layers:** see [`maintainer/systems/cache.md`](./maintainer/systems/cache.md) (locale read, project disk, translate L1/L2, share local, CLI version cache).
+- **Core owns** project rebuild policy (`decideAnalysisRebuild`, `resolveCacheConfig`, patch/reuse in `analysis/` + `cache/dispatch.ts`). CLI/IDE are **hosts** — no forked delta/patch logic.
 - **`cache.rebuild: 'full'`** in config overrides profile defaults → always full scan; `--debug-cache` must say `full (config rebuild=full)`.
 - **`cache.profile`** (`safe` | `balanced` | `fast`) + optional field overrides; global **`--cache-profile`** merges like other CLI overrides.
 - Explicit `rebuild` / `fullRescanThresholdPercent` / `mode` in config **win** over profile.
 - Locale deltas: target-only → **reuse** analysis; source-only → **patch missingKeys**; source+target together → **full** (safe).
+- **Locale read cache** is in-memory per run — invalidate after same-run locale writes.
+- **Translate L1/L2** are for `generate` provider reuse only — not a substitute for locale JSON or `--resume`.
 - Do not add `@deprecated` exports — remove and update call sites.
 - User-facing cache behavior: `docs/cli/cache.md` only (no maintainer cross-links in VitePress).
 

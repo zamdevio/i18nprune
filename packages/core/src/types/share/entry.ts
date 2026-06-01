@@ -1,6 +1,6 @@
 /**
  * Core share cache + worker envelope types (disk `share.json` + worker JSON).
- * @see maintainer/phases/apps.md
+ * @see maintainer/systems/share.md
  */
 
 import type { Issue } from '../json/envelope/index.js';

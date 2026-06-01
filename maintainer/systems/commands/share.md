@@ -1,7 +1,7 @@
 # Command — `share`
 
 **User docs:** [`docs/commands/share/README.md`](../../../docs/commands/share/README.md) · **Issues:** [`docs/issues/share.md`](../../../docs/issues/share.md)  
-**Plan / tracker:** [`maintainer/phases/apps.md`](../../phases/apps.md).
+**Systems map:** [`maintainer/systems/share.md`](../../systems/share.md) · **Shipped receipts:** [`shipped-slices.md`](../../phases/shipped-slices.md).
 
 ## Entrypoints
 

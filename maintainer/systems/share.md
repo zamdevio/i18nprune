@@ -2,7 +2,7 @@
 
 **Audience:** Maintainers and agents touching **share** across core, CLI, web, report, or the hosted worker (`apps/workers/i18nprune`).  
 **Audience is not:** end users (`docs/commands/share/`, `docs/runtime/worker.md`).  
-**Companion:** [`operations/entrypoints.md`](./operations/entrypoints.md) · [`ui.md`](./ui.md) for worker `/docs` Swagger shell · [`maintainer/phases/apps.md`](../phases/apps.md) for open C.3 tasks (report row 8, worker row 9, metadata **W**).
+**Companion:** [`operations/entrypoints.md`](./operations/entrypoints.md) · [`ui.md`](./ui.md) for worker `/docs` Swagger shell · **Shipped receipts:** [`shipped-slices.md`](../phases/shipped-slices.md) (C.3+ rows 0–10).
 
 ---
 
@@ -79,6 +79,28 @@ CLI/web/report parse worker envelopes and map errors through **`packages/core/sr
 | CLI HTTP client | [`packages/cli/src/commands/share/workerHttp.ts`](../../packages/cli/src/commands/share/workerHttp.ts) |
 | Core remote mapping | [`packages/core/src/share/remote`](../../packages/core/src/share/remote) |
 
+### Grouped metadata (shipped row W)
+
+Core builders own shape; worker routes are thin — **no** route-local JSON composition.
+
+**Principles:** additive-first (legacy top-level fields preserved) · `null`/omit not `—` for machine timings · `summary` block for dashboards.
+
+**Target grouping** (`schemaVersion: 1`): `summary` · `artifact` · `execution` · `analysis` · `cache` · `timing` · `storage` · `retention` · `capabilities`
+
+Same envelope on **GET** + successful **POST** (including `/archive`) for project and report routes.
+
+**Code map:** `packages/core/src/project/storedMetadata.ts` · `reportMetadata.ts` · `types/project/metadata.ts` · `share/remote/parseMetadata.ts` · `apps/workers/i18nprune/src/routes/v1/{projects,reports}/`
+
+### Upload size limits
+
+| Constant | Location | Values |
+|----------|----------|--------|
+| **`PROJECT_UPLOAD_ZIP_LIMITS`** | `shared/constants/project.ts` | **50 MiB** zip · **15_000** files · **60 MiB** total text |
+| **`PROJECT_SHARE_PREPARED_MAX_BYTES`** | `shared/constants/share.ts` | **50 MiB** prepared project JSON |
+| **`REPORT_SHARE_MAX_BYTES`** | `shared/constants/share.ts` | **8 MiB** report JSON |
+
+**Web-only (IndexedDB recent zips):** `apps/web/src/storage/recentProjectZips.ts` — default **512 MiB** total quota, **1000** max count; user-configurable in Settings.
+
 ### Decisions
 
 | Topic | Decision |
@@ -127,8 +149,7 @@ CLI/web/report parse worker envelopes and map errors through **`packages/core/sr
 
 ## Cross-links
 
-- **Open apps tasks:** [`maintainer/phases/apps.md`](../phases/apps.md) (rows **8**, **9**, **W**)
-- **Shipped slices:** [`maintainer/phases/shipped-slices.md`](../phases/shipped-slices.md)
+- **Shipped slices:** [`maintainer/phases/shipped-slices.md`](../phases/shipped-slices.md) (C.3+ share rows)
 - **User docs:** [`docs/commands/share/README.md`](../../docs/commands/share/README.md) · [`docs/runtime/worker.md`](../../docs/runtime/worker.md)
 
 ---
@@ -136,6 +157,5 @@ CLI/web/report parse worker envelopes and map errors through **`packages/core/sr
 ## Change discipline
 
 - Update **this file** when share wiring changes across core, CLI, web, report, or worker routes/storage/metadata/errors.
-- Update [`maintainer/phases/apps.md`](../phases/apps.md) tracker when closing rows **8**, **9**, or **W**.
 - Update user docs (`docs/commands/share/`, `docs/runtime/worker.md`) for behavior visible to operators.
 - Update [`shipped-slices.md`](../phases/shipped-slices.md) only when a slice is actually closed.

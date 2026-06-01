@@ -18,7 +18,9 @@
 | **`systems/health.md`** | Codebase health gates: `typecheck`, `test`, knip, madge, `empty:*` — when to run, barrel discipline |
 | **`systems/ui.md`** | Runtime UI kit (`@i18nprune/ui`): domain separation, purity rules, enforcement |
 | **`systems/share.md`** | Share ecosystem: core `runShare*`, CLI/web/report hosts, `workers/i18nprune` routes, DO storage, metadata builders |
-| **Phase [`cross-platform.md`](../phases/cross-platform.md)** | Cross-platform CLI + SDK hardening: project cache, translate cache, CLI version cache (`updatestate.json`) |
+| **`systems/cache.md`** | Project cache: `files.json` / `analysis.json` rebuild policy, profiles, invalidate rules (shipped H-cache) |
+| **Phase [`cross-platform.md`](../phases/cross-platform.md)** | **Active next** — cross-platform CLI + SDK hardening: project cache, translate cache, CLI version cache |
+| **Phase [`tree.md`](../phases/tree.md)** | **Planned** — logic/type/test path parity after cross-platform |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
@@ -45,6 +47,7 @@ maintainer/systems/
 ├── patching.md
 ├── ui.md
 ├── share.md
+├── cache.md
 ├── health.md
 ├── knip.md
 ├── operations/
@@ -71,6 +74,8 @@ Keep this tree truthful with `git`; don't maintain a brittle wall of filenames h
 | **Extractor (user)** | `docs/extractor/README.md` |
 | **Extractor (maintainer)** | `maintainer/systems/extractor.md` |
 | **Patching (maintainer)** | `maintainer/systems/patching.md` |
+| **Project cache (maintainer)** | `maintainer/systems/cache.md` |
+| **Share ecosystem (maintainer)** | `maintainer/systems/share.md` |
 | **Health gates (typecheck, test, knip, madge)** | `maintainer/systems/health.md` |
 | **Runtime UI kit (`@i18nprune/ui`)** | `maintainer/systems/ui.md` |
 | **Knip config / ignore catalog** | `maintainer/systems/knip.md` |

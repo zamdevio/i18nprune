@@ -1,8 +1,10 @@
 # Docs refactor phase
 
-Status: Planned (scoped for v1 — Session D in [`V1-RELEASE.md`](./V1-RELEASE.md))
+Status: Planned (scoped for v1 — Session D in [`V1-RELEASE.md`](./V1-RELEASE.md)) · **After:** [`cross-platform.md`](./cross-platform.md) (XP) and [`tree.md`](./tree.md).
 
-This phase defines how to evolve docs into a clear, official-quality product site. **v1 scope** is focused on nav reduction (~10 categories), README rewrite, SDK quickstart, and tree flattening. Full topology linkage sweeps and repository health docs splits are deferred post-v1.
+This phase defines how to evolve docs into a clear, official-quality product site. **v1 scope** includes **dual-audience onboarding** (users + contributors), nav reduction (~10 categories), README rewrite, SDK quickstart, and tree flattening. Full topology linkage sweeps and repository health docs splits are deferred post-v1.
+
+**Why onboarding lives here (not a separate phase):** onboarding is published docs + information architecture. Maintainer depth already lives in [`maintainer/agents/onboarding.md`](../agents/onboarding.md). A second phase would split nav design from the entry points nav must promote.
 
 ## Why this phase exists
 
@@ -17,6 +19,7 @@ The docs tree has grown quickly during major architecture work. It now needs a d
 
 In scope:
 
+- **Dual-audience onboarding** — one public hub for users (CLI / SDK / CI / hosted) + a clear contributor entry that links to maintainer onboarding on GitHub (not mirrored into VitePress).
 - Information architecture cleanup for `docs/**`.
 - Topology discoverability integration across related docs pages.
 - Content quality standards for command/config/behavior/SDK pages.
@@ -125,6 +128,79 @@ Migration rule:
   - `docs/json/programmatic.md` → `docs/sdk/programmatic.md`.
 - Once `docs/sdk/**` is stable, retire `docs/exports/**` in a dedicated docs-only slice (delete or short redirect-style pointer, depending on docs-site link behavior).
 - Once SDK JSON/programmatic docs are stable, retire `docs/json/**` in a dedicated docs-only slice (delete or short redirect-style pointer, depending on docs-site link behavior).
+
+## Dual-audience onboarding (priority — do before nav trim)
+
+**Goal:** A single **legendary entry** on the docs site: visitors pick a persona in under 10 seconds and land on a complete path — not a wall of index links.
+
+### Audiences (locked)
+
+| Persona | Wants | Public entry | Deep dive (do not duplicate) |
+|---------|--------|--------------|------------------------------|
+| **CLI user** | Install, config, day-to-day commands | `docs/onboarding/cli.md` | [`commands/`](../../docs/commands/README.md), [`config/`](../../docs/config/README.md) |
+| **SDK integrator** | `@i18nprune/core`, adapters, `runXxx` | `docs/onboarding/sdk.md` → `docs/sdk/quickstart.md` | `docs/sdk/**`, `examples/sdk/**` |
+| **CI / automation** | `--json`, exit codes, stable issue codes | `docs/onboarding/ci.md` | [`behavior/`](../../docs/behavior/README.md), [`issues/`](../../docs/issues/README.md), [`examples/`](../../docs/examples/README.md) |
+| **Hosted surfaces** | Report app, share links, web workspace | `docs/onboarding/hosted.md` | [`report/`](../../docs/report/README.md), [`commands/share/`](../../docs/commands/share/README.md), [`runtime/worker.md`](../../docs/runtime/worker.md) |
+| **Contributor / agent** | Clone repo, PR discipline, core vs CLI | [`contributors/`](../../docs/contributors/README.md) | [`maintainer/agents/onboarding.md`](../agents/onboarding.md) (GitHub link only on public site) |
+
+### Hub page (`docs/onboarding/README.md`)
+
+Replace the current “60 seconds only” page with a **chooser hub**:
+
+1. **What is i18nprune?** — one paragraph (problem, not feature table).
+2. **Pick your path** — four cards/links: CLI · SDK · CI · Hosted (+ fifth: Contribute).
+3. **Fastest win** — keep the existing validate `--json` snippet as “try now” (below the chooser, not instead of it).
+4. **Surfaces matrix** — small table: npm CLI · `@i18nprune/core` · report.i18nprune.dev · workers.i18nprune.dev · future extension.
+
+**Tone:** plain language, `docs/` links only, no `maintainer/` URLs in body copy (contributor path may use the existing GitHub link pattern from [`contributors/README.md`](../../docs/contributors/README.md)).
+
+### Path pages (new or expanded)
+
+| Page | Minimum sections |
+|------|------------------|
+| **`cli.md`** | Install → `init` / config → `validate` → `sync` → `generate` / `missing`; link config + cache flags |
+| **`sdk.md`** | When to use SDK vs CLI; install `@i18nprune/core`; pointer to quickstart + runtime adapters + operations index |
+| **`ci.md`** | `validate --json` gate; `jq -e '.ok'`; issue codes; parity expectations; link jq cookbook |
+| **`hosted.md`** | Report import/share; worker URL; web workspace `/#/workspace?id=`; what runs locally vs on edge |
+
+Each path page ends with **What to read next** (3–5 links max).
+
+### Contributor onboarding (public vs maintainer)
+
+| Layer | Location | Role |
+|-------|----------|------|
+| **Public** | `docs/contributors/README.md` | Fork/PR, `pnpm typecheck` / `pnpm test`, layer table, link to GitHub `maintainer/agents/onboarding.md` |
+| **Maintainer** | `maintainer/agents/onboarding.md` | Day 0 env, reading order, trace-a-command, share/cache boundaries, PR checklist |
+
+**Slice work:** refresh `contributors/README.md` so it matches the hub’s “Contribute” card; add a short “New to the codebase?” block that mirrors the maintainer reading-order table without copying the full doc.
+
+### Navigation / sidebar (after hub exists)
+
+Update `apps/docs/.vitepress/sidebar.ts` **Start** group:
+
+```txt
+Start
+├── Documentation home
+├── Onboarding (hub)
+│   ├── CLI path
+│   ├── SDK path
+│   ├── CI path
+│   ├── Hosted surfaces
+│   └── Contributors
+└── …
+```
+
+Fold redundant “Start” links only after the hub is live (avoid two competing entry points).
+
+### Acceptance (onboarding slice done when)
+
+- [ ] Hub + four path pages + contributors refresh merged.
+- [ ] `docs/README.md` index row points to hub as primary entry (not only “60 seconds”).
+- [ ] Sidebar **Start** group lists path pages under Onboarding.
+- [ ] No new `maintainer/` links inside VitePress body pages.
+- [ ] `pnpm docs:sync` + VitePress build pass.
+
+---
 
 ### Keep `docs/report/README.md` (report web app + cross-links)
 
@@ -245,6 +321,11 @@ Any move must preserve:
 
 ## Execution slices (recommended)
 
+**Order note:** run **slice 0 (onboarding)** before **slice 4 (navigation polish)** so the trimmed nav promotes the new entry points.
+
+0. **Onboarding hub + paths (dual audience)**
+   - Implement **Dual-audience onboarding** above: hub, `cli` / `sdk` / `ci` / `hosted` paths, contributors refresh.
+   - Align root [`docs/README.md`](../../docs/README.md) lede with the hub.
 1. **Topology linkage sweep**
    - Add architecture/topology sections to related command/config/behavior pages.
 2. **Template normalization**

@@ -35,7 +35,7 @@ The repository has **three UI domains**. Only one consumes `@i18nprune/ui`.
 
 - Tailwind 3, React 19, Motion, marketing sections — high freedom for visual iteration.
 - Not optimized for runtime operational consistency; intentionally allowed to diverge.
-- Listed **out of C.3 scope** in [`maintainer/phases/apps.md`](../phases/apps.md).
+- Listed **out of C.3 scope** — landing is marketing-only; see [`shipped-slices.md`](../phases/shipped-slices.md) (D.2).
 
 ### Why extension stays isolated
 
@@ -213,7 +213,7 @@ Extend ESLint `no-restricted-imports` only if grep proves insufficient.
 
 ## Related
 
-- [`maintainer/phases/apps.md`](../phases/apps.md) — C.3 scope (web, report, workers; not landing)
+- [`maintainer/systems/share.md`](./share.md) — C.3 scope (web, report, workers; not landing)
 - [`maintainer/systems/health.md`](./health.md) — health gates
 - [`packages/ui/README.md`](../../packages/ui/README.md) — package-local quick reference
 

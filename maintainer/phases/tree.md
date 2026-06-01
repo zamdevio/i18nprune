@@ -1,6 +1,13 @@
-# Tree & Naming Phase
+# Tree & naming phase
 
-## Why This Phase
+**Status:** **Planned** — after **[`cross-platform.md`](./cross-platform.md)** (Session XP).  
+**Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md).
+
+**PR discipline:** one domain slice per PR · `pnpm typecheck` · `pnpm test` · parity when CLI output changes.
+
+---
+
+## Why this phase
 
 The repo has grown fast across core, CLI, report, web, and workers. Contributor speed now depends on predictable file locations more than new abstractions. This phase standardizes layout so a contributor can jump between logic, types, and tests with near-zero lookup cost.
 

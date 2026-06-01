@@ -1,7 +1,7 @@
 # Cross-platform hardening (CLI + SDK)
 
-**Status:** **Planned** — starts after **[`apps.md`](./apps.md)** rows **9** and **W** (or explicit deferral recorded in that tracker).  
-**Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md)  
+**Status:** **Active next** — apps C.3+ rows **0–10** shipped ([`shipped-slices.md`](./shipped-slices.md) · [`systems/share.md`](../systems/share.md)).  
+**Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then:** [`tree.md`](./tree.md)  
 **Audit baseline:** CLI + `packages/core` portability review (2026-05) — architecture is **mostly safe**; **CI and proof** are Linux-first today.
 
 **Promise (one sentence):** With **Node ≥ 18**, the **CLI** and **`@i18nprune/core` SDK** run deterministically on **Windows, macOS, native Linux, and WSL** for local scan, **all disk caches**, and report generation — without shell-specific commands or POSIX-only path logic in **core**.
@@ -15,9 +15,9 @@
 | Area | Phase |
 |------|--------|
 | Report SPA editor deep links / viewer matrix | [`apps/report`](../../apps/report) (shipped row 8; policy in runtime) |
-| Worker grouped metadata envelopes | [`apps.md`](./apps.md) row **W** |
+| Worker grouped metadata envelopes | [`systems/share.md`](../systems/share.md) (shipped row W) |
 | Extension host | [`extension/README.md`](./extension/README.md) |
-| Hosted `webPathRuntime` / edge prepare | [`apps.md`](./apps.md) — document boundaries only |
+| Hosted `webPathRuntime` / edge prepare | [`systems/share.md`](../systems/share.md) — document boundaries only |
 
 ---
 
