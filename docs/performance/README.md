@@ -39,7 +39,7 @@ Skipping large trees routinely cuts **wall time** and often **peak RSS** by a la
 
 By default i18nprune reuses fingerprints and cached report payloads under **`~/.i18nprune/cache/`**. Global **`--no-cache`** disables that reuse for the invocation — essential when you want **cold** timings after config edits.
 
-Detailed layout, eviction, and distinction from **`~/.config/i18nprune/updatestate.json`** (npm **latest** throttle): **[CLI cache](../cli/cache.md)**.
+Detailed layout, eviction, and distinction from **`<home>/state/version.json`** (npm **latest** throttle): **[CLI cache](../cli/cache.md)**.
 
 Warm runs can look **dramatically faster** than cold ones on huge trees; always say whether a number used **`--no-cache`**.
 

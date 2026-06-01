@@ -186,7 +186,7 @@ Progress reports `cacheHits` with layer (`l1` | `l2`).
 
 **Purpose:** Throttle npm registry “latest version” checks — **not** project analysis.
 
-**Path:** `<home>/state/version.json` (`I18NPRUNE_HOME` or `~/.i18nprune`; legacy `.config/.../updatestate.json` migrated on read)  
+**Path:** `<home>/state/version.json` (`I18NPRUNE_HOME` or `~/.i18nprune`)  
 **Owner:** `packages/cli/src/utils/update/` — **core never reads this file**.
 
 Skipped when `CI`, `--json`, or `I18NPRUNE_NO_UPDATE_CHECK`.

@@ -4,10 +4,11 @@ import { resolveVersionStateFilePath } from '@/shared/home/index.js';
 
 const nodeFs = createNodeRuntimeAdapters().fs;
 
+/** Absolute path to `<home>/state/version.json` (see `shared/home/resolve.ts`). */
 export function getUpdateStateFilePath(): string {
   return resolveVersionStateFilePath();
 }
 
-export function ensureConfigDirExists(): void {
+export function ensureVersionStateDirExists(): void {
   nodeFs.mkdirp(path.dirname(getUpdateStateFilePath()));
 }

@@ -177,7 +177,7 @@ Default roots use Node’s `os.homedir()` and `path.join` — no manual path str
 | **Project cache** | `<home>/cache/` | same under profile |
 | **Version throttle** | `<home>/state/version.json` | same under profile |
 
-Set **`I18NPRUNE_HOME`** to relocate **both** cache and version state (the CLI prints an **`[info]`** line on each command when this variable is set). Legacy **`~/.config/i18nprune/updatestate.json`** (and **`$XDG_CONFIG_HOME/i18nprune/updatestate.json`**) are read once and migrated into **`<home>/state/version.json`** on the next update check.
+Set **`I18NPRUNE_HOME`** to relocate **both** cache and version state (the CLI prints an **`[info]`** line on each command when this variable is set).
 
 **WSL:** paths follow the Linux column **inside the distro**. Do not expect a project cache written from Windows native Node to match WSL paths for the same repo on disk.
 
@@ -192,7 +192,7 @@ Registry update checks (optional banner after commands) write **`<home>/state/ve
 1. **`I18NPRUNE_HOME`** when set and non-empty (absolute path recommended).
 2. Otherwise **`~/.i18nprune`** (`%USERPROFILE%\.i18nprune` on Windows).
 
-The CLI creates **`<home>/state/`** on first write (`mkdir` with `recursive: true`). Older **`updatestate.json`** files under **`.config/i18nprune`** are migrated automatically when read.
+The CLI creates **`<home>/state/`** on first write (`mkdir` with `recursive: true`).
 
 **Skipped (no registry fetch, no file write from the check):**
 

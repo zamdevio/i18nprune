@@ -58,7 +58,7 @@ Then **uncomment** the repo’s example **`patterns[]`** blocks (compiled paths,
 
 ## CLI project cache
 
-Default cache **`~/.i18nprune/cache/`**, **`--no-cache`**, clears vs **`updatestate.json`**: **[CLI cache](../cli/cache.md)**. Warm runs are often much faster than cold on trees this size (**[Performance hub](./README.md#cli-project-cache)**).
+Default cache **`~/.i18nprune/cache/`**, **`--no-cache`**, vs version throttle **`state/version.json`**: **[CLI cache](../cli/cache.md)**. Warm runs are often much faster than cold on trees this size (**[Performance hub](./README.md#cli-project-cache)**).
 
 ## Running from another directory (`-c`)
 

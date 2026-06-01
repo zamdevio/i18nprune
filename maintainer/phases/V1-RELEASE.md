@@ -21,7 +21,7 @@
 
 Prove and harden **CLI** + **`@i18nprune/core` SDK** on Windows, macOS, native Linux, and WSL.
 
-**Disk surfaces to audit:** version cache (`updatestate.json`), project cache (`files.json`, `analysis.json`), translate L2 (`translations/*.json`), share local (`share.json`). See [`systems/cache.md`](../systems/cache.md).
+**Disk surfaces to audit:** version cache (`state/version.json`), project cache (`files.json`, `analysis.json`), translate L2 (`translations/*.json`), share local (`share.json`). See [`systems/cache.md`](../systems/cache.md).
 
 **Tracker:** [`cross-platform.md`](./cross-platform.md) (XP-0…XP-7).
 

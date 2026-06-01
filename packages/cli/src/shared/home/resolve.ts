@@ -4,6 +4,12 @@ import { ENV_I18NPRUNE_HOME } from '@/constants/env.js';
 
 const DEFAULT_HOME_DIRNAME = '.i18nprune' as const;
 
+/**
+ * CLI machine-local layout (default `~/.i18nprune`, or `I18NPRUNE_HOME`):
+ * - `<home>/cache/` — project + analysis + translate cache
+ * - `<home>/state/version.json` — npm registry throttle (CLI only)
+ */
+
 /** Default `~/.i18nprune` (or `%USERPROFILE%\.i18nprune` on Windows). */
 export function defaultI18nPruneHomeDir(): string {
   return path.join(os.homedir(), DEFAULT_HOME_DIRNAME);
@@ -32,18 +38,4 @@ export function resolveI18nPruneCacheRootDir(): string {
 /** npm version throttle state (`<home>/state/version.json`). */
 export function resolveVersionStateFilePath(): string {
   return path.join(resolveI18nPruneHomeDir(), 'state', 'version.json');
-}
-
-/** Pre-consolidation paths (read once for lazy migration). */
-export function legacyVersionStateFilePaths(): string[] {
-  const out: string[] = [];
-  const xdg = process.env.XDG_CONFIG_HOME;
-  if (xdg !== undefined && xdg.trim().length > 0) {
-    out.push(path.join(xdg.trim(), 'i18nprune', 'updatestate.json'));
-  }
-  const homedirConfig = path.join(os.homedir(), '.config', 'i18nprune', 'updatestate.json');
-  if (!out.includes(homedirConfig)) {
-    out.push(homedirConfig);
-  }
-  return out;
 }

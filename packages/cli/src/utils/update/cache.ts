@@ -2,8 +2,7 @@ import { UPDATE_STATE_SCHEMA_VERSION } from '@/constants/update.js';
 import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
 import { readJsonFromRuntimeFsSync } from '@i18nprune/core/runtime/helpers/sync';
 
-import { legacyVersionStateFilePaths } from '@/shared/home/index.js';
-import { ensureConfigDirExists, getUpdateStateFilePath } from './paths.js';
+import { ensureVersionStateDirExists, getUpdateStateFilePath } from './paths.js';
 const nodeFs = createNodeRuntimeAdapters().fs;
 
 export type UpdateStateFile = {
@@ -85,61 +84,34 @@ function parseV1(raw: unknown, registryEndpoint: string): UpdateStateFile | null
   };
 }
 
-function readParsedState(filePath: string, registryEndpoint: string): UpdateStateFile | null {
-  try {
-    const parsed = readJsonFromRuntimeFsSync(filePath, nodeFs);
-    return parseV1(parsed, registryEndpoint);
-  } catch {
-    return null;
-  }
-}
-
 /**
- * Read version throttle state from `<home>/state/version.json`, or legacy `updatestate.json` paths.
- * Lazy-migrates legacy files to the new location on first successful read.
+ * Read `<home>/state/version.json`, or return in-memory default state if missing or invalid.
  * Does **not** create directories or files — first `writeUpdateState` does that.
  */
 export function readUpdateState(registryEndpoint: string): UpdateStateFile {
-  const canonical = getUpdateStateFilePath();
-  const candidates = [canonical, ...legacyVersionStateFilePaths()];
-  const seen = new Set<string>();
-
-  for (const filePath of candidates) {
-    if (seen.has(filePath)) continue;
-    seen.add(filePath);
-    const state = readParsedState(filePath, registryEndpoint);
-    if (state === null) continue;
-    if (filePath !== canonical) {
-      try {
-        writeUpdateState(state);
-      } catch {
-        /* ignore migration write errors */
-      }
-    }
-    return state;
+  const filePath = getUpdateStateFilePath();
+  try {
+    const parsed = readJsonFromRuntimeFsSync(filePath, nodeFs);
+    const state = parseV1(parsed, registryEndpoint);
+    if (state !== null) return state;
+  } catch {
+    /* missing file or invalid JSON */
   }
-
   return emptyState(registryEndpoint);
 }
 
 /** Persists state under `<home>/state/version.json` (`mkdir` recursive). */
 export function writeUpdateState(state: UpdateStateFile): void {
-  ensureConfigDirExists();
-  const path = getUpdateStateFilePath();
-  nodeFs.writeText(path, `${JSON.stringify(state, null, 2)}\n`);
+  ensureVersionStateDirExists();
+  const filePath = getUpdateStateFilePath();
+  nodeFs.writeText(filePath, `${JSON.stringify(state, null, 2)}\n`);
 }
 
-/** Remove canonical and legacy version state files so the next run treats the throttle as fresh. */
+/** Remove `<home>/state/version.json` so the next run treats the throttle as fresh. */
 export function resetUpdateState(): void {
-  const paths = [getUpdateStateFilePath(), ...legacyVersionStateFilePaths()];
-  const seen = new Set<string>();
-  for (const filePath of paths) {
-    if (seen.has(filePath)) continue;
-    seen.add(filePath);
-    try {
-      nodeFs.deleteFile(filePath);
-    } catch {
-      /* ignore */
-    }
+  try {
+    nodeFs.deleteFile(getUpdateStateFilePath());
+  } catch {
+    /* ignore */
   }
 }

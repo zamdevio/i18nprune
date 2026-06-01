@@ -29,7 +29,7 @@ Code review of CLI + core paths relevant to Win/macOS/Linux/WSL. **No runtime ch
 | Area | Result |
 |------|--------|
 | **Path IO in core** | Uses `RuntimePathPort` / `path.join` — no hardcoded `/` in cache or locale IO |
-| **CLI cache + update roots** | `os.homedir()` + `node:path` — Windows paths expected (`%USERPROFILE%\.i18nprune\cache`, `%USERPROFILE%\.config\i18nprune\`) |
+| **CLI home + cache** | `I18NPRUNE_HOME` or `~/.i18nprune` — `<home>/cache` + `<home>/state/version.json` on Windows under `%USERPROFILE%\.i18nprune\` |
 | **Atomic cache writes** | `writeTextAtomic`: `mkdirSync` → temp file → `renameSync` same directory (`packages/cli/src/shared/cache/runtime.ts`) — standard Node pattern on NTFS |
 | **Project cache id** | `normalizeProjectRoot` lowercases + forward-slash canonical form (`packages/core/src/cache/io/hash.ts`) — stable on case-insensitive FS; may differ from Linux case-sensitive checkout ids |
 | **Report env (CLI)** | `buildReportEnvironmentSnapshot` uses `process.platform`, `os.release()`, WSL via `WSL_DISTRO_NAME` (`packages/cli/src/commands/report/build.ts`) |
@@ -44,7 +44,7 @@ Code review of CLI + core paths relevant to Win/macOS/Linux/WSL. **No runtime ch
 | Surface | Linux / macOS | Windows (native Node) | WSL |
 |---------|---------------|------------------------|-----|
 | Project cache | `~/.i18nprune/cache/` | `%USERPROFILE%\.i18nprune\cache\` | Linux paths inside distro |
-| Version throttle | `<home>/state/version.json` (default `~/.i18nprune/`) | `%USERPROFILE%\.i18nprune\state\version.json` | Same as Linux; legacy `.config` migrated |
+| Version throttle | `<home>/state/version.json` (default `~/.i18nprune/`) | `%USERPROFILE%\.i18nprune\state\version.json` | Same as Linux |
 | Share local | `…/projects/<id>/share.json` | Same layout under project cache dir | Same as Linux |
 
 **Out of promise:** sharing cache dirs or project roots between **Windows native** and **WSL** Node — different path namespaces.
@@ -52,7 +52,7 @@ Code review of CLI + core paths relevant to Win/macOS/Linux/WSL. **No runtime ch
 ### Accepted for v1 (document, do not “fix” blindly)
 
 - **Project id lowercasing** — intentional; document in XP-2.
-- **Update dir under `.config` not `%APPDATA%`** — works on Windows; document actual path (XP-3).
+- **Single CLI home tree** — version throttle at `<home>/state/version.json` (not `%APPDATA%`); override with **`I18NPRUNE_HOME`** (XP-3).
 - **Archive report placeholder env** — fix in XP-5, not a scan failure.
 
 ### Known limits — handlers (XP-2b)
@@ -75,16 +75,16 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 | Surface | Default location (CLI) | Owner | Purpose |
 |---------|------------------------|-------|---------|
-| **Version / update cache** | `<home>/state/version.json` (`I18NPRUNE_HOME` or `~/.i18nprune`) | **CLI only** (`packages/cli/src/shared/home/`, `utils/update/`) | npm registry throttle; legacy `updatestate.json` migrated on read |
-| **Project + analysis + translate cache** | `~/.i18nprune/cache/` → `projects/<id>/` | **Core** policy + **CLI** default root (`packages/cli/src/shared/cache/`, `packages/core/src/cache/`) | `meta.json`, `files.json`, `analysis.json`, `translations/<code>.json` |
+| **Version / update cache** | `<home>/state/version.json` (`I18NPRUNE_HOME` or `~/.i18nprune`) | **CLI only** (`packages/cli/src/shared/home/`, `utils/update/`) | npm registry throttle |
+| **Project + analysis + translate cache** | `<home>/cache/` → `projects/<id>/` | **Core** policy + **CLI** default root (`packages/cli/src/shared/cache/`, `packages/core/src/cache/`) | `meta.json`, `files.json`, `analysis.json`, `translations/<code>.json` |
 | **Per-project cache id** | Hash of normalized **project root** path | **Core** (`packages/core/src/cache/io/hash.ts`) | Stable `projects/<16-char-hex>/` segment |
 
 **Code map — version cache**
 
 | File | Role |
 |------|------|
-| `packages/cli/src/utils/update/paths.ts` | `getConfigDir()` — `XDG_CONFIG_HOME` or `path.join(os.homedir(), '.config', 'i18nprune')` |
-| `packages/cli/src/utils/update/cache.ts` | Read/write `updatestate.json`; schema v1 |
+| `packages/cli/src/shared/home/resolve.ts` | `I18NPRUNE_HOME`, `<home>/cache`, `<home>/state/version.json` |
+| `packages/cli/src/utils/update/cache.ts` | Read/write `version.json`; schema v1 |
 | `packages/cli/src/constants/update.ts` | `UPDATE_STATE_SCHEMA_VERSION`, throttle interval |
 | `packages/cli/src/utils/update/index.ts` | Entry: `maybeCheckForUpdate` (skipped in CI / `--json` / `I18NPRUNE_NO_UPDATE_CHECK`) |
 
@@ -98,7 +98,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | `packages/core/src/cache/io/hash.ts` | `computeCacheProjectId` (lowercased normalized root) |
 | `packages/core/src/translator/cache/paths.ts` | `translations/` under `projectDir` |
 
-**Important:** Core does **not** read `updatestate.json`. Version cache is **CLI-only**. Cross-platform work must test **both** roots on Windows.
+**Important:** Core does **not** read `version.json`. Version cache is **CLI-only**. Cross-platform work must test **both** disk roots on Windows (`<home>/cache` and `<home>/state`).
 
 ---
 
@@ -124,7 +124,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | **Cache project id lowercasing** | Core `cache/io/hash.ts` | Medium — correct on Windows FS; differs from Linux case-sensitive trees |
 | **Symlink cycles in source walk** | Core `shared/scanner/files.ts` | Medium — all OSes |
 | **Atomic cache write** (`tmp` + `rename` same dir) | CLI `buildCliCacheRuntime` | Low–medium — verify on Windows project cache dir |
-| **Config dir `.config` under homedir** | CLI update paths | Low — works on Windows; not `%APPDATA%`; document actual paths |
+| **`I18NPRUNE_HOME` override** | CLI `shared/home/` | Low — custom home must be writable; `[info]` line when set |
 | **Archive report fake env** (`osRelease: '0'`) | Core `prepare/fromArchiveReport.ts` | UX/metadata — not runtime failure |
 | **Optional `rg`** | CLI `utils/rg` | Medium for cleanup quality — `rg.exe` on PATH |
 | **`webPathRuntime`** misuse | Core | Low if limited to browser/worker hosts |
@@ -139,7 +139,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | **XP-1** | CI OS matrix | **Shipped** | `.github/workflows/ci.yml` — one `verify` job, `fail-fast: false`, ubuntu 30m / win+mac 45m |
 | **XP-2** | **Project cache** + path hygiene | **Shipped** | Matrix CI green; symlink guard + posix paths + archive FS |
 | **XP-2b** | Known limits (handlers) | **Shipped** | `shared/path/platform.ts`; user docs table → **XP-6** |
-| **XP-3** | **Version cache** (`updatestate.json`) hardening | **Shipped** | Docs + CLI tests (`paths`, `cache.disk`, `skipPolicy`) |
+| **XP-3** | **Version cache** (`state/version.json`) hardening | **Shipped** | `I18NPRUNE_HOME` + docs + CLI tests (`paths`, `cache.disk`, `skipPolicy`) |
 | **XP-4** | **Translate cache** (`translations/*.json`) | **Todo** | Same `projectDir` as analysis; confirm L2 IO on Windows paths |
 | **XP-5** | Report host metadata | **Todo** | Fix archive placeholder env; CLI `buildReportEnvironmentSnapshot` truth on all platforms |
 | **XP-6** | User docs | **Todo** | `docs/cli/cache.md` — three disk surfaces, paths on Windows, WSL vs native Node |
@@ -167,11 +167,11 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 - [x] Long-path and UNC warnings via readiness (non-fatal).
 - [ ] User docs table in `docs/cli/` (XP-6) — link issue codes when docs site lists them.
 
-### XP-3 — Version cache (`updatestate.json`)
+### XP-3 — Version cache (`state/version.json`)
 
-- [x] Document resolution order — [`docs/cli/cache.md`](../../docs/cli/cache.md) § Version throttle.
-- [x] Disk round-trip tests — `packages/cli/src/utils/update/__tests__/cache.disk.test.ts` (uses `XDG_CONFIG_HOME` temp dir; runs on all matrix OSes).
-- [x] Path resolution tests — `paths.test.ts` (`XDG_CONFIG_HOME`, blank fallback, homedir default).
+- [x] Document home layout — [`docs/cli/cache.md`](../../docs/cli/cache.md) § Version throttle.
+- [x] Disk round-trip tests — `packages/cli/src/utils/update/__tests__/cache.disk.test.ts` (`I18NPRUNE_HOME` temp dir).
+- [x] Path resolution tests — `paths.test.ts` (default home + `I18NPRUNE_HOME`).
 - [x] Skip policy tests — `skipPolicy.test.ts` (`CI`, `I18NPRUNE_NO_UPDATE_CHECK`).
 - [x] **Do not** move version state into core — unchanged; CLI-owned.
 
