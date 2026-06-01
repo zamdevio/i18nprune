@@ -1,8 +1,7 @@
 # Cross-platform hardening (CLI + SDK)
 
-**Status:** **Active next** — apps C.3+ rows **0–10** shipped ([`shipped-slices.md`](./shipped-slices.md) · [`systems/share.md`](../systems/share.md)).  
-**Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then:** [`tree.md`](./tree.md)  
-**Audit baseline:** CLI + `packages/core` portability review (2026-05) — architecture is **mostly safe**; **CI and proof** are Linux-first today.
+**Status:** **In progress** — **XP-0** shipped (audit receipt below); **XP-1** in flight (Windows CI).  
+**Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then:** [`tree.md`](./tree.md)
 
 **Promise (one sentence):** With **Node ≥ 18**, the **CLI** and **`@i18nprune/core` SDK** run deterministically on **Windows, macOS, native Linux, and WSL** for local scan, **all disk caches**, and report generation — without shell-specific commands or POSIX-only path logic in **core**.
 
@@ -18,6 +17,43 @@
 | Worker grouped metadata envelopes | [`systems/share.md`](../systems/share.md) (shipped row W) |
 | Extension host | [`extension/README.md`](./extension/README.md) |
 | Hosted `webPathRuntime` / edge prepare | [`systems/share.md`](../systems/share.md) — document boundaries only |
+
+---
+
+## XP-0 audit receipt (2026-06-01)
+
+Code review of CLI + core paths relevant to Win/macOS/Linux/WSL. **No runtime changes in XP-0** — findings drive XP-1…XP-7.
+
+### Verdict
+
+| Area | Result |
+|------|--------|
+| **Path IO in core** | Uses `RuntimePathPort` / `path.join` — no hardcoded `/` in cache or locale IO |
+| **CLI cache + update roots** | `os.homedir()` + `node:path` — Windows paths expected (`%USERPROFILE%\.i18nprune\cache`, `%USERPROFILE%\.config\i18nprune\`) |
+| **Atomic cache writes** | `writeTextAtomic`: `mkdirSync` → temp file → `renameSync` same directory (`packages/cli/src/shared/cache/runtime.ts`) — standard Node pattern on NTFS |
+| **Project cache id** | `normalizeProjectRoot` lowercases + forward-slash canonical form (`packages/core/src/cache/io/hash.ts`) — stable on case-insensitive FS; may differ from Linux case-sensitive checkout ids |
+| **Report env (CLI)** | `buildReportEnvironmentSnapshot` uses `process.platform`, `os.release()`, WSL via `WSL_DISTRO_NAME` (`packages/cli/src/commands/report/build.ts`) |
+| **Report env (archive)** | `prepareReportFromArchive` uses placeholder `environment` (`platform: 'archive-hosted'`, empty `osRelease`) — **XP-5** |
+| **Source walk** | `listSourceFiles` recurses directories with no visited-set — symlink cycles can infinite-loop (**XP-2**) |
+| **Optional `rg`** | `spawnSync('rg', …)` — needs `rg` / `rg.exe` on PATH; doctor warns when missing |
+| **Shell deps** | No `rm`/`cp` on main CLI path; `fs.rmSync` in cache runtime |
+| **CI** | Linux-only until **XP-1** |
+
+### Path reference (user-facing copy in `docs/cli/cache.md`)
+
+| Surface | Linux / macOS | Windows (native Node) | WSL |
+|---------|---------------|------------------------|-----|
+| Project cache | `~/.i18nprune/cache/` | `%USERPROFILE%\.i18nprune\cache\` | Linux paths inside distro |
+| Version throttle | `~/.config/i18nprune/updatestate.json` or `$XDG_CONFIG_HOME/i18nprune/` | `%USERPROFILE%\.config\i18nprune\updatestate.json` (or `%XDG_CONFIG_HOME%` when set) | Same as Linux |
+| Share local | `…/projects/<id>/share.json` | Same layout under project cache dir | Same as Linux |
+
+**Out of promise:** sharing cache dirs or project roots between **Windows native** and **WSL** Node — different path namespaces.
+
+### Accepted for v1 (document, do not “fix” blindly)
+
+- **Project id lowercasing** — intentional; document in XP-2.
+- **Update dir under `.config` not `%APPDATA%`** — works on Windows; document actual path (XP-3).
+- **Archive report placeholder env** — fix in XP-5, not a scan failure.
 
 ---
 
@@ -87,8 +123,8 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 | # | Slice | Status | Notes |
 |---|-------|--------|-------|
-| **XP-0** | Audit receipt + Windows checklist in this doc | **Todo** | Fold in agent audit; link from `docs/cli/cache.md` when touched |
-| **XP-1** | CI: `windows-latest` smoke (+ optional `macos-latest`) | **Todo** | `pnpm typecheck`, core tests, CLI subset; no new OS logic in first PR |
+| **XP-0** | Audit receipt + Windows checklist in this doc | **Shipped** | Receipt § below; user paths in [`docs/cli/cache.md`](../../docs/cli/cache.md) § OS paths |
+| **XP-1** | CI: `windows-latest` smoke (+ optional `macos-latest`) | **In progress** | `.github/workflows/ci.yml` — `verify-windows` job |
 | **XP-2** | **Project cache** hardening | **Todo** | Atomic writes, `cacheRootDir` override docs, symlink guard in `listSourceFiles`, project-id policy note |
 | **XP-3** | **Version cache** (`updatestate.json`) hardening | **Todo** | Document paths on Win/macOS/Linux; verify `mkdirp` + read/write; `XDG_CONFIG_HOME` on Windows when set |
 | **XP-4** | **Translate cache** (`translations/*.json`) | **Todo** | Same `projectDir` as analysis; confirm L2 IO on Windows paths |

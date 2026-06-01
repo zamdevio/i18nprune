@@ -34,3 +34,28 @@ jobs:
       - run: pnpm test
 
       - run: pnpm vitest run tests/parity
+
+  verify-windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm typecheck
+
+      - run: pnpm cli:build
+
+      - run: pnpm test
+
+      - run: pnpm vitest run tests/parity

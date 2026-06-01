@@ -160,9 +160,24 @@ Includes dispatch status, paths (`meta`, `files`, `analysis`), per-file fingerpr
 
 Delete **`~/.i18nprune/cache`** or **`projects/<id>/`** to reset. There is no dedicated wipe subcommand today.
 
+## Paths on other operating systems
+
+Default roots use Node’s `os.homedir()` and `path.join` — no manual path strings in your project config.
+
+| Surface | Linux / macOS | Windows (CMD, PowerShell, Windows Terminal) |
+|---------|---------------|---------------------------------------------|
+| **Project cache** | `~/.i18nprune/cache/` | `%USERPROFILE%\.i18nprune\cache\` |
+| **Version throttle** | `~/.config/i18nprune/updatestate.json` | `%USERPROFILE%\.config\i18nprune\updatestate.json` |
+
+When **`XDG_CONFIG_HOME`** is set (including some Windows setups), the version file lives under **`$XDG_CONFIG_HOME/i18nprune/updatestate.json`** instead.
+
+**WSL:** paths follow the Linux column **inside the distro**. Do not expect a project cache written from Windows native Node to match WSL paths for the same repo on disk.
+
+Override the project cache root with **`config.cache.dir`** when you need a custom location on any OS.
+
 ## Not the npm version throttle
 
-Registry update checks use **`~/.config/i18nprune/updatestate.json`**, not **`~/.i18nprune/cache/`**.
+Registry update checks use the **version throttle** path in the table above, not **`~/.i18nprune/cache/`**.
 
 ## Worker / web “snapshot”
 
