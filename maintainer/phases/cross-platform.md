@@ -1,6 +1,6 @@
 # Cross-platform hardening (CLI + SDK)
 
-**Status:** **In progress** — **XP-0…5** shipped (matrix CI green on `main`); **XP-6** shipped — **XP-7** optional open.  
+**Status:** **Shipped** (2026-06-01) — **XP-0…7** complete; matrix CI is the ongoing gate on `main`.  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then:** [`tree.md`](./tree.md)
 
 **Promise (one sentence):** With **Node ≥ 18**, the **CLI** and **`@i18nprune/core` SDK** run deterministically on **Windows, macOS, native Linux, and WSL** for local scan, **all disk caches**, and report generation — without shell-specific commands or POSIX-only path logic in **core**.
@@ -125,7 +125,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | **Symlink cycles in source walk** | Core `shared/scanner/files.ts` | Medium — all OSes |
 | **Atomic cache write** (`tmp` + `rename` same dir) | CLI `buildCliCacheRuntime` | Low–medium — verify on Windows project cache dir |
 | **`I18NPRUNE_HOME` override** | CLI `shared/home/` | Low — custom home must be writable; `[info]` line when set |
-| **Archive report fake env** (`osRelease: '0'`) | Core `prepare/fromArchiveReport.ts` | UX/metadata — not runtime failure |
+| **Archive report env** (hosted only) | `archiveHostedReportEnvironment` | Edge/browser metadata — not desktop scan env |
 | **Optional `rg`** | CLI `utils/rg` | Medium for cleanup quality — `rg.exe` on PATH |
 | **`webPathRuntime`** misuse | Core | Low if limited to browser/worker hosts |
 
@@ -143,7 +143,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | **XP-4** | **Translate cache** (`translations/*.json`) | **Shipped** | `path.join` only; Win32 + disk heal tests; `docs/cli/cache.md` L2 gate note |
 | **XP-5** | Report host metadata | **Shipped** | `archiveHostedReportEnvironment`; CLI snapshot tests (`buildEnvironment.test.ts`) |
 | **XP-6** | User docs | **Shipped** | `docs/cli/cache.md` home layout + WSL table; `docs/issues/paths.md` + registry |
-| **XP-7** | Optional: spaces-in-path fixture test | **Todo** | One integration test on Windows CI |
+| **XP-7** | Optional: spaces-in-path fixture test | **Shipped** | `tests/integration/spacesInPath.win32.test.ts` (runs on `windows-latest` only) |
 
 ---
 
@@ -191,6 +191,11 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 - [x] Three disk surfaces + home tree — [`docs/cli/cache.md`](../../docs/cli/cache.md) § CLI home layout.
 - [x] Windows paths, WSL vs native Node, logical `/` in JSON — same page § Paths on other operating systems.
 - [x] Known limits / issue codes — [`docs/issues/paths.md`](../../docs/issues/paths.md); `paths` in issue doc link map.
+
+### XP-7 — Spaces in path (Windows CI)
+
+- [x] Integration test — `tests/integration/spacesInPath.win32.test.ts` (`describe.skip` off Windows).
+- [x] Covers project root with spaces + `I18NPRUNE_HOME` with spaces; asserts cache `meta.json` write.
 
 ---
 

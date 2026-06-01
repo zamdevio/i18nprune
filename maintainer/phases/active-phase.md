@@ -8,8 +8,8 @@
 
 | Priority | Session | Doc |
 |----------|---------|-----|
-| **1 — active** | Cross-platform (XP) — XP-0…6 shipped; **XP-7** optional | [`cross-platform.md`](./cross-platform.md) |
-| **2 — next** | Tree & naming | [`tree.md`](./tree.md) |
+| **1 — done** | Cross-platform (XP) — **XP-0…7 shipped** | [`cross-platform.md`](./cross-platform.md) |
+| **2 — active** | Tree & naming | [`tree.md`](./tree.md) |
 | **3** | Docs refactor (D) — incl. **D.0 onboarding hub** | [`docs-refactor.md`](./docs-refactor.md) |
 | **4** | Release (E + G) | [`final.md`](./final.md) |
 
@@ -18,7 +18,7 @@
 ## Locked cross-phase dependency chain
 
 ```txt
-… → apps (shipped) → cross-platform (active) → tree (planned) → docs → release → extension
+… → apps (shipped) → cross-platform (shipped) → tree (active) → docs → release → extension
 ```
 
 Full chain + role one-liners: [`V1-RELEASE.md`](./V1-RELEASE.md) · Systems maps for shipped verticals: [`systems/README.md`](../systems/README.md).
