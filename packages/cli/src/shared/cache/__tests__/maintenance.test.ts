@@ -71,4 +71,19 @@ describe('shared/cache/maintenance', () => {
     expect(fs.existsSync(state.filesPath)).toBe(false);
     expect(fs.existsSync(state.analysisPath)).toBe(false);
   });
+
+  it('removes malformed per-locale translation cache files during preparation', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-translate-cache-'));
+    tempDirs.push(root);
+    const cacheRootDir = path.join(root, '.cache');
+    const { state } = initializeCliCacheState({ projectRoot: root, cacheRootDir });
+    fs.mkdirSync(state.translationsDir, { recursive: true });
+    const badPath = path.join(state.translationsDir, 'fr.json');
+    fs.writeFileSync(badPath, '{not json', 'utf8');
+
+    const out = prepareCacheForRun(state, buildCliCacheRuntime());
+
+    expect(out.warnings.some((w) => w.code === 'cache_malformed' && w.path === badPath)).toBe(true);
+    expect(fs.existsSync(badPath)).toBe(false);
+  });
 });

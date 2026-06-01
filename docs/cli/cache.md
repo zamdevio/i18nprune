@@ -86,10 +86,12 @@ Otherwise the command recomputes the scan and writes fresh JSON.
 
 `i18nprune generate` can reuse prior **successful** provider results so repeat runs skip duplicate API calls.
 
+Per-target files live beside `files.json` and `analysis.json` under `projects/<projectId>/translations/<code>.json`. The SDK builds those paths with the host `path.join` adapter (backslashes on native Windows, forward slashes in WSL/Linux) — there are no hardcoded `/` segments in cache IO.
+
 | Layer | Scope | When |
 |-------|-------|------|
 | **L1** | In-process memo for one generate run | Always (unless `--no-cache`) |
-| **L2** | `translations/<target>.json` on disk | When project cache is enabled |
+| **L2** | `translations/<target>.json` on disk | When project cache is enabled (`config.cache.enabled` is not `false`; same gate as `files.json` / `analysis.json`) |
 
 Lookup order: **L1 → L2 → provider**. Progress lines include **`cacheHits=N`** (L1 + L2 hits for that target).
 

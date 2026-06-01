@@ -1,6 +1,6 @@
 # Cross-platform hardening (CLI + SDK)
 
-**Status:** **In progress** — **XP-0…2b** shipped (matrix CI green on `main`); **XP-3** in flight — **XP-4…7** open.  
+**Status:** **In progress** — **XP-0…3** shipped (matrix CI green on `main`); **XP-4** in flight — **XP-5…7** open.  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then:** [`tree.md`](./tree.md)
 
 **Promise (one sentence):** With **Node ≥ 18**, the **CLI** and **`@i18nprune/core` SDK** run deterministically on **Windows, macOS, native Linux, and WSL** for local scan, **all disk caches**, and report generation — without shell-specific commands or POSIX-only path logic in **core**.
@@ -140,7 +140,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | **XP-2** | **Project cache** + path hygiene | **Shipped** | Matrix CI green; symlink guard + posix paths + archive FS |
 | **XP-2b** | Known limits (handlers) | **Shipped** | `shared/path/platform.ts`; user docs table → **XP-6** |
 | **XP-3** | **Version cache** (`state/version.json`) hardening | **Shipped** | `I18NPRUNE_HOME` + docs + CLI tests (`paths`, `cache.disk`, `skipPolicy`) |
-| **XP-4** | **Translate cache** (`translations/*.json`) | **Todo** | Same `projectDir` as analysis; confirm L2 IO on Windows paths |
+| **XP-4** | **Translate cache** (`translations/*.json`) | **Shipped** | `path.join` only; Win32 + disk heal tests; `docs/cli/cache.md` L2 gate note |
 | **XP-5** | Report host metadata | **Todo** | Fix archive placeholder env; CLI `buildReportEnvironmentSnapshot` truth on all platforms |
 | **XP-6** | User docs | **Todo** | `docs/cli/cache.md` — three disk surfaces, paths on Windows, WSL vs native Node |
 | **XP-7** | Optional: spaces-in-path fixture test | **Todo** | One integration test on Windows CI |
@@ -177,9 +177,9 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 ### XP-4 — Translate cache
 
-- [ ] Confirm `projects/<id>/translations/<locale>.json` layout uses adapter `path.join` only.
-- [ ] Invalidate/heal paths (`translator/cache/maintenance.ts`) on Windows.
-- [ ] Cross-link H.1 shipped behavior — same `config.cache` gate as analysis.
+- [x] Confirm `projects/<id>/translations/<locale>.json` layout uses adapter `path.join` only (`paths.ts`, `cache/setup/paths.ts`).
+- [x] Invalidate/heal paths (`translator/cache/maintenance.ts`) on Windows — Win32 memory + disk tests (`paths.test.ts`, `maintenance.test.ts`, `maintenance.disk.test.ts`, CLI `shared/cache/__tests__/maintenance.test.ts`).
+- [x] Cross-link H.1 shipped behavior — same `config.cache` gate as analysis (`docs/cli/cache.md` § Translation cache).
 
 ### XP-5 — Report environment metadata
 

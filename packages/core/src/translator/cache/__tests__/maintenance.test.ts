@@ -1,6 +1,9 @@
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { healTranslationCacheFiles, prepareTranslationCacheLayout } from '../maintenance.js';
+import { resolveLocaleTranslationCachePath } from '../paths.js';
 import type { CacheRuntime, CacheState } from '../../../types/cache/index.js';
+import { createWin32MemoryCacheRuntime, win32CacheState } from './win32PathRuntime.js';
 
 function cacheState(translationsDir: string): CacheState {
   return {
@@ -80,6 +83,22 @@ describe('healTranslationCacheFiles', () => {
       [badPath]: '[]',
     });
     prepareTranslationCacheLayout(cacheState(translationsDir), runtime);
+    expect(runtime.fs.exists(badPath)).toBe(false);
+  });
+});
+
+describe('healTranslationCacheFiles (Win32 paths)', () => {
+  it('deletes malformed locale files when translationsDir uses backslashes', () => {
+    const projectDir = 'C:\\Users\\me\\.i18nprune\\cache\\projects\\proj';
+    const state = win32CacheState(projectDir);
+    const runtime = createWin32MemoryCacheRuntime();
+    const badPath = resolveLocaleTranslationCachePath(state, runtime, 'fr');
+    runtime.fs.mkdirp(path.win32.dirname(badPath));
+    runtime.fs.writeText(badPath, '{ not valid json');
+
+    const warnings = healTranslationCacheFiles(state, runtime);
+
+    expect(warnings.some((w) => w.code === 'cache_malformed')).toBe(true);
     expect(runtime.fs.exists(badPath)).toBe(false);
   });
 });
