@@ -11,7 +11,8 @@ export {
   setConfigPath,
 } from './paths.js';
 export { ensureConfigPathResolved } from './ensure.js';
-export { configExists, loadConfig, ConfigValidationError } from './load.js';
+export { configExists, loadConfig } from './load.js';
+export { ConfigValidationError } from '@i18nprune/core/config';
 export {
   buildCliPatchSuppressedWarning,
   normalizeConfigRuntimeFields,

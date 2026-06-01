@@ -8,8 +8,6 @@ import type { CommandOutputHooks } from '@/types/cli/output/orchestration.js';
 import { canPrintInfo } from '@/utils/logger/policy.js';
 import { logger } from '@/utils/logger/index.js';
 
-export type { CommandSummary };
-
 /** Print a command summary (respects `Context.run` / global `--json`, `--quiet`, `--silent`). */
 export function printCommandSummary(
   summary: CommandSummary,

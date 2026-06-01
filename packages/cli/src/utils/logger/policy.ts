@@ -19,8 +19,6 @@ import type { LogGate } from '@/types/core/logger/index.js';
  * | `canPrintCache` | **`[cache]`** report-cache status lines — opt-in with **`--debug-cache`**, otherwise same visibility as **`info`**. |
  */
 
-export type { LogGate } from '@/types/core/logger/index.js';
-
 /** Top-of-command box header: show in **quiet**; hide in **silent** and **JSON** only. */
 export function canPrintCommandBanner(run: RunOptions): boolean {
   return !run.json && !run.silent;

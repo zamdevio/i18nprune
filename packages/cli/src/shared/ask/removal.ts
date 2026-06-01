@@ -1,5 +1,5 @@
 import { confirm } from '@inquirer/prompts';
-import type { PromptRemovalKeysMode, PromptRemovalKeysOptions } from '@/types/shared/ask/index.js';
+import type { PromptRemovalKeysOptions } from '@/types/shared/ask/index.js';
 import { duringPrompt } from '@/utils/timer/index.js';
 
 /** Group keys by the segment before the first `.` (top-level namespace). Keys without `.` use the whole path as the segment. */
@@ -15,8 +15,6 @@ export function groupKeysByTopSegment(keys: string[]): Map<string, string[]> {
   }
   return m;
 }
-
-export type { PromptRemovalKeysMode, PromptRemovalKeysOptions };
 
 /**
  * Interactive approval for which unused key paths to remove. Caller must ensure `canAsk` and not `--yes`.

@@ -1,8 +1,6 @@
 import type { Context } from '@/types/core/context/index.js';
 import {
-  assertTranslationProviderCredentialsReady,
   effectiveTranslationProviderId as effectiveCoreTranslationProviderId,
-  resolvedTranslationOptionsFromCliFlag,
   resolveTranslationProviderOptions as resolveCoreTranslationProviderOptions,
   resolveTranslationProviderOrder as resolveCoreTranslationProviderOrder,
   translationRunMeta,
@@ -59,8 +57,6 @@ export function resolveTranslationProviderOptions(
     env: process.env,
   });
 }
-
-export { assertTranslationProviderCredentialsReady, resolvedTranslationOptionsFromCliFlag };
 
 /** Non-secret metadata for envelopes / reports (same as core `translationRunMeta`). */
 export function translationMetaForEnvelope(resolved: ResolvedTranslationProviderOptions): {

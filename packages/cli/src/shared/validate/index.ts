@@ -1,6 +1,8 @@
 export {
   compareDottedPathDepth,
-  computeMissingLiteralKeys,
   computeMissingLiteralKeysFromResolvedKeys,
+} from '@i18nprune/core';
+export {
+  computeMissingLiteralKeys,
   resolvedLiteralKeysInProject,
 } from './missingLiterals.js';

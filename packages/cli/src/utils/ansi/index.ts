@@ -5,7 +5,7 @@ import { CLI_MARK, CLI_NAME } from '@/constants/cli.js';
 /** Re-export semantic tokens for call sites that import from `ansi`. */
 export const style = baseStyle;
 
-export type { HeaderOptions, LogLevel };
+export type { HeaderOptions, LogLevel } from '@/types/utils/ansi/index.js';
 
 const levelColor: Record<LogLevel, (s: string) => string> = {
   info: style.ok,

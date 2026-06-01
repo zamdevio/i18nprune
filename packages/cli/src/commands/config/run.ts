@@ -13,8 +13,6 @@ import { issuesFromDiscoveryWarnings, mergeIssues } from '@/shared/result/index.
 import type { ConfigSnapshot } from '@/types/commands/config/index.js';
 import { attachWallTimer } from '@/utils/timer/index.js';
 
-export { buildConfigSnapshot } from '@/commands/config/snapshot.js';
-
 function resolveConfigData(ctx: Awaited<ReturnType<typeof resolveContext>>): {
   snapshot: ConfigSnapshot;
   jsonEnvelope: ReturnType<typeof runConfig>;

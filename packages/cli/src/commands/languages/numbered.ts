@@ -1,6 +1,6 @@
 import { style } from '@/utils/ansi/index.js';
 import { getRunOptions } from '@i18nprune/core';
-import type { TranslateTargetLanguage } from '@/shared/languages/index.js';
+import type { TranslateTargetLanguage } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintPrimary } from '@/utils/logger/policy.js';
 

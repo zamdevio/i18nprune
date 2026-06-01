@@ -1,5 +1,5 @@
 import { loadConfig, configExists } from '@/shared/config/load.js';
-import { configPathForContext, resolveConfigFilePath, resetConfigPathResolution } from '@/shared/config/paths.js';
+import { configPathForContext, resetConfigPathResolution } from '@/shared/config/paths.js';
 import {
   getRunOptions,
   loadProjectFilesState,
@@ -202,5 +202,3 @@ export function clearContextCache(): void {
   cache = null;
   resetConfigPathResolution();
 }
-
-export { configPathForContext, resolveConfigFilePath };

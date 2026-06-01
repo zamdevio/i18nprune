@@ -6,4 +6,4 @@ export {
   groupKeysByTopSegment,
   promptApprovedRemovalKeys,
 } from './removal.js';
-export type { PromptRemovalKeysMode, PromptRemovalKeysOptions } from './removal.js';
+export type { PromptRemovalKeysMode, PromptRemovalKeysOptions } from '@/types/shared/ask/index.js';

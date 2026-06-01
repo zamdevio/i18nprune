@@ -2,12 +2,13 @@ import { cacheLine, line, scanLine, style, tipLine, verboseLine } from '@/utils/
 import { getRunOptions } from '@i18nprune/core';
 import type { RunOptions } from '@i18nprune/core';
 import type { LoggerMask } from '@/types/core/logger/index.js';
-import type { HeaderOptions, LogLevel } from '@/types/utils/ansi/index.js';
+import type { HeaderOptions } from '@/types/utils/ansi/index.js';
 import { canEmit, resolveRun } from '@/utils/logger/policy.js';
 
 export * from '@/utils/logger/policy.js';
 
-export type { LoggerMask, LogLevel, HeaderOptions };
+export type { LoggerMask } from '@/types/core/logger/index.js';
+export type { HeaderOptions, LogLevel } from '@/types/utils/ansi/index.js';
 
 function baseRun(run?: RunOptions): RunOptions {
   return run ?? getRunOptions();
@@ -134,5 +135,3 @@ export const logger = {
     },
   },
 };
-
-export { style };

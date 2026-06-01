@@ -29,5 +29,3 @@ export async function loadConfig(): Promise<I18nPruneConfig> {
   };
   return parseI18nPruneConfig(merged);
 }
-
-export { ConfigValidationError };

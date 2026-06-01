@@ -1,12 +1,6 @@
 import type { Context } from '@/types/core/context/index.js';
 import { toExtractorScanInput } from '@/shared/extractor/index.js';
-import {
-  compareDottedPathDepth,
-  computeMissingLiteralKeysFromResolvedKeys,
-  extractor,
-} from '@i18nprune/core';
-
-export { compareDottedPathDepth, computeMissingLiteralKeysFromResolvedKeys };
+import { computeMissingLiteralKeysFromResolvedKeys, extractor } from '@i18nprune/core';
 
 /**
  * All resolved literal / template-resolved keys found under `srcRoot`, using **per-file** const maps.

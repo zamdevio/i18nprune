@@ -6,14 +6,10 @@ import {
   filterLanguageCatalog,
   generatedLanguageCatalog,
   getLanguageByCodeFromCatalog,
-  normalizeLanguageCode,
   suggestCatalogCodesForInvalidInputFromCatalog,
 } from '@i18nprune/core';
 
 const MAX_CODES_IN_CATALOG_HINT = 5;
-
-export type { TranslateTargetLanguage };
-export { normalizeLanguageCode };
 
 let cached: readonly TranslateTargetLanguage[] | null = null;
 

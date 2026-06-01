@@ -1,12 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
   filterLanguages,
-  normalizeLanguageCode,
   getLanguageByCode,
   validateTargetLanguageCode,
   suggestCatalogCodesForInvalidInput,
 } from '@/shared/languages/index.js';
-import { I18nPruneError } from '@i18nprune/core';
+import { I18nPruneError, normalizeLanguageCode } from '@i18nprune/core';
 
 describe('languages', () => {
   it('normalizes code', () => {

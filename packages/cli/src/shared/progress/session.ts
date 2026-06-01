@@ -3,8 +3,6 @@ import { forceShowCursor } from '@/shared/terminal/cursor.js';
 import { createTranslationProgress } from './translation.js';
 import type { SessionProgressOptions } from '@/types/shared/progress/index.js';
 
-export type { SessionProgressOptions };
-
 /** Session with stdin discard + progress line for long generate runs. */
 export function createSessionProgress(opts: SessionProgressOptions) {
   const detachStdin = attachStdinDiscardDuringProgress();
