@@ -7,6 +7,7 @@ import {
   normalizeCleanupHumanStderr,
   normalizeCleanupJsonEnvelope,
 } from './normalizeCleanupParity.ts';
+import { readParitySnapshotText } from './readParitySnapshot.ts';
 import { paritySpawnEnv } from './paritySpawnEnv.ts';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
@@ -34,7 +35,7 @@ describe('cleanup parity (sample-i18n)', () => {
     expect(r.status, r.stderr ?? '').toBe(0);
     expect(r.stderr ?? '', 'cleanup --json should not write to stderr').toBe('');
     const normalized = normalizeCleanupJsonEnvelope(r.stdout ?? '', fixtureAbs);
-    expect(normalized).toBe(fs.readFileSync(snapshotJson, 'utf8'));
+    expect(normalized).toBe(readParitySnapshotText(snapshotJson));
   });
 
   it('matches normalized human [i18nprune] stderr snapshot (report-only via --json)', () => {
@@ -47,6 +48,6 @@ describe('cleanup parity (sample-i18n)', () => {
     });
     expect(r.status, r.stderr ?? '').toBe(0);
     const normalized = normalizeCleanupHumanStderr(r.stderr ?? '', fixtureAbs);
-    expect(normalized).toBe(fs.readFileSync(snapshotStderr, 'utf8'));
+    expect(normalized).toBe(readParitySnapshotText(snapshotStderr));
   });
 });

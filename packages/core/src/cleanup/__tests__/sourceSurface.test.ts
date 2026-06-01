@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parseI18nPruneConfig } from '../../config/index.js';
 import { createCoreContext } from '../../generate/context.js';
@@ -9,7 +10,7 @@ import { readCleanupSourceLeaves, listCleanupSourceSegmentPaths } from '../sourc
 
 describe('cleanup sourceSurface', () => {
   it('merges leaves across feature_bundle source segments', async () => {
-    const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../../../../..');
+    const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../..');
     const nextjsRoot = path.join(repoRoot, 'tests/fixtures/stacks/nextjs');
     const configMjs = path.join(nextjsRoot, 'i18nprune.config.mjs');
     const config = parseI18nPruneConfig((await import(configMjs)).default);

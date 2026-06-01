@@ -4,6 +4,7 @@ import { readLocaleSegmentFromContext } from '../shared/locales/read/index.js';
 import { primarySegmentForLocale, segmentsForLocaleCode, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
 import { translationSurfacePathValueMapFromLeaves } from '../shared/projects/localeSurfaceMap.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
+import { toPosixPath } from '../shared/path/posix.js';
 
 export type LocaleListRow = {
   code: string;
@@ -38,7 +39,9 @@ export function buildLocaleListRows(ctx: CoreContext, localeCodes: string[]): Lo
       const normalized = normalizeLanguageCode(code);
       const segments = segmentsForLocaleCode(ctx, normalized);
       const primary = primarySegmentForLocale(ctx, normalized);
-      const localePath = primary?.absolutePath ?? pathApi.join(ctx.paths.localesDir, `${normalized}.json`);
+      const localePath = toPosixPath(
+        primary?.absolutePath ?? pathApi.join(ctx.paths.localesDir, `${normalized}.json`),
+      );
       const isSourceLocale = normalized === sourceCode;
 
       const leafMaps = segments.map((s) => toLeafMap(ctx, s.absolutePath));

@@ -7,6 +7,7 @@ import type {
 } from '../../types/cache/index.js';
 import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
 import { nowIso, readJsonFileWithLimit, writeJsonAtomic } from './helpers.js';
+import { toPosixPath } from '../../shared/path/posix.js';
 import { computeCacheProjectId } from './hash.js';
 import { isProjectCacheWritable } from '../setup/policy.js';
 
@@ -64,7 +65,7 @@ export function saveProjectsIndex(
  * Backslashes are replaced with forward slashes and a trailing `/` is always appended.
  */
 export function normalizeProjectRootKey(projectRoot: string): string {
-  const normalized = projectRoot.replace(/\\/g, '/').replace(/\/+$/g, '');
+  const normalized = toPosixPath(projectRoot).normalize('NFC').replace(/\/+$/g, '');
   return `${normalized}/`;
 }
 

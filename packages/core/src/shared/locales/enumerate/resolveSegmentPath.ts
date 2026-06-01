@@ -1,6 +1,7 @@
 import type { ResolvedLocalesLayout } from '../../../types/locales/layout.js';
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { LocaleSegmentRef } from '../../../types/locales/enumerate.js';
+import { toPosixPath } from '../../path/posix.js';
 import { localeCodeForSegment } from './parseSegmentLocale.js';
 
 /**
@@ -17,7 +18,7 @@ export function resolveLocaleSegmentAbsolutePath(input: {
 }): string {
   const { layout, path, locale } = input;
   const rel = input.segmentRelativePath ?? `${locale}.json`;
-  return path.join(layout.directoryAbsolute, rel);
+  return toPosixPath(path.join(layout.directoryAbsolute, rel));
 }
 
 /**
@@ -40,5 +41,5 @@ export function localeSegmentRefFromAbsolute(input: {
   }
   const locale = localeCodeForSegment(layout.structure, path, { absolutePath, relativePath });
   if (locale === null) return null;
-  return { locale, relativePath, absolutePath };
+  return { locale, relativePath, absolutePath: toPosixPath(absolutePath) };
 }

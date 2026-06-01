@@ -8,6 +8,7 @@ import {
   normalizeMissingJsonEnvelope,
 } from './normalizeMissingParity.ts';
 import { paritySpawnEnv } from './paritySpawnEnv.ts';
+import { readParitySnapshotText } from './readParitySnapshot.ts';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
@@ -34,7 +35,7 @@ describe('missing parity (sample-i18n)', () => {
     expect(r.status, r.stderr ?? '').toBe(0);
     expect(r.stderr ?? '', 'missing --json should not write to stderr').toBe('');
     const normalized = normalizeMissingJsonEnvelope(r.stdout ?? '', fixtureAbs);
-    expect(normalized).toBe(fs.readFileSync(snapshotJson, 'utf8'));
+    expect(normalized).toBe(readParitySnapshotText(snapshotJson));
   });
 
   it('matches normalized human [i18nprune] stderr snapshot', () => {
@@ -47,7 +48,7 @@ describe('missing parity (sample-i18n)', () => {
     });
     expect(r.status, r.stderr ?? '').toBe(0);
     const normalized = normalizeMissingHumanStderr(r.stderr ?? '', fixtureAbs);
-    expect(normalized).toBe(fs.readFileSync(snapshotStderr, 'utf8'));
+    expect(normalized).toBe(readParitySnapshotText(snapshotStderr));
   });
 
   it('warns and skips missing --target locale files without failing', () => {

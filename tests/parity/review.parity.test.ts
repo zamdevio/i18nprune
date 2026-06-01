@@ -8,6 +8,7 @@ import {
   normalizeReviewJsonEnvelope,
 } from './normalizeReviewParity.ts';
 import { paritySpawnEnv } from './paritySpawnEnv.ts';
+import { readParitySnapshotText } from './readParitySnapshot.ts';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
@@ -34,7 +35,7 @@ describe('review parity (sample-i18n)', () => {
     expect(r.status, r.stderr ?? '').toBe(0);
     expect(r.stderr ?? '', 'review --json should not write to stderr').toBe('');
     const normalized = normalizeReviewJsonEnvelope(r.stdout ?? '', fixtureAbs);
-    expect(normalized).toBe(fs.readFileSync(snapshotJson, 'utf8'));
+    expect(normalized).toBe(readParitySnapshotText(snapshotJson));
   });
 
   it('matches normalized human [i18nprune] stderr snapshot', () => {
@@ -47,6 +48,6 @@ describe('review parity (sample-i18n)', () => {
     });
     expect(r.status, r.stderr ?? '').toBe(0);
     const normalized = normalizeReviewHumanStderr(r.stderr ?? '', fixtureAbs);
-    expect(normalized).toBe(fs.readFileSync(snapshotStderr, 'utf8'));
+    expect(normalized).toBe(readParitySnapshotText(snapshotStderr));
   });
 });

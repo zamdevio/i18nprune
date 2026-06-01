@@ -49,8 +49,10 @@ export function sortKeysDeep(value: unknown): unknown {
 }
 
 export function normalizePathString(s: string, fixtureAbs: string): string {
-  if (s.startsWith(fixtureAbs)) return `<fixture>${s.slice(fixtureAbs.length)}`;
-  return s;
+  const posix = s.replace(/\\/g, '/');
+  const fixturePosix = fixtureAbs.replace(/\\/g, '/');
+  if (posix.startsWith(fixturePosix)) return `<fixture>${posix.slice(fixturePosix.length)}`;
+  return posix;
 }
 
 /** Stable JSON text for byte comparison against committed snapshots. */

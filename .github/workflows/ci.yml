@@ -11,33 +11,23 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
+    name: verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.timeout }}
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            timeout: 30
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: pnpm
+          - os: windows-latest
+            timeout: 45
 
-      - run: pnpm install --frozen-lockfile
+          - os: macos-latest
+            timeout: 45
 
-      - run: pnpm typecheck
-
-      - run: pnpm cli:build
-
-      - run: pnpm test
-
-      - run: pnpm vitest run tests/parity
-
-  verify-windows:
-    runs-on: windows-latest
-    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 

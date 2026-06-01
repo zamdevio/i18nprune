@@ -25,6 +25,8 @@ import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors
 import { assertSyncPortResult } from '../../runtime/helpers/sync/assert.js';
 import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../../runtime/helpers/sync/index.js';
 import { readLocaleSegmentFromContext } from '../../shared/locales/read/index.js';
+import { collectPlatformPathWarnings } from '../../shared/path/platform.js';
+import { toPosixPath } from '../../shared/path/posix.js';
 import { presetUsesValidateSourceIssueCode, resolveProjectReadinessChecks } from './presets.js';
 
 function statKindSync(path: string, fs: RuntimeFsPort) {
@@ -272,6 +274,15 @@ function checkSrcRoot(ctx: CoreContext): Issue | null {
   return null;
 }
 
+function checkPlatformPaths(ctx: CoreContext): Issue[] {
+  const { sourceLocale, localesDir, srcRoot } = ctx.paths;
+  return collectPlatformPathWarnings([
+    { label: 'Source locale', absolutePath: sourceLocale, relativePosixPath: toPosixPath(sourceLocale) },
+    { label: 'Locales directory', absolutePath: localesDir },
+    { label: 'Source scan root', absolutePath: srcRoot },
+  ]);
+}
+
 function hasAnyCheck(c: ProjectReadinessChecks): boolean {
   return Boolean(
     c.configFilePresent ||
@@ -327,6 +338,10 @@ export function runProjectReadiness(ctx: CoreContext, request: ProjectReadinessR
   if (checks.srcRootDirectory) {
     const rootIssue = checkSrcRoot(ctx);
     if (rootIssue) issues.push(rootIssue);
+  }
+
+  if (hasAnyCheck(checks)) {
+    issues.push(...checkPlatformPaths(ctx));
   }
 
   const hasError = issues.some((i) => i.severity === 'error');

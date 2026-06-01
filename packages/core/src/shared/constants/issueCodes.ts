@@ -156,6 +156,12 @@ export const ISSUE_DOCTOR_CONFIG_MISSING_FILE = 'i18nprune.doctor.config_missing
 export const ISSUE_DOCTOR_PATHS_SOURCE_LOCALE_MISSING = 'i18nprune.doctor.paths_source_locale_missing' as const;
 /** Doctor: required project directories (e.g. `src`, locales root) missing. */
 export const ISSUE_DOCTOR_PATHS_DIRECTORIES_MISSING = 'i18nprune.doctor.paths_directories_missing' as const;
+/** Locale or project path segment uses a Windows reserved device name (CON, NUL, COM1, …). */
+export const ISSUE_PATHS_WINDOWS_RESERVED_NAME = 'i18nprune.paths.windows_reserved_name' as const;
+/** Absolute path may exceed legacy Win32 `MAX_PATH` without extended-length prefix. */
+export const ISSUE_PATHS_WINDOWS_LONG_PATH = 'i18nprune.paths.windows_long_path' as const;
+/** Project root or locale tree is on a UNC network share. */
+export const ISSUE_PATHS_NETWORK_DRIVE = 'i18nprune.paths.network_drive' as const;
 /** Hosted `POST /v1/projects` JSON ingest body failed validation. */
 export const ISSUE_PROJECT_HOSTED_SNAPSHOT_INVALID = 'i18nprune.project.hosted_snapshot_invalid' as const;
 /** Hosted project ingest `schemaVersion` mismatch. */

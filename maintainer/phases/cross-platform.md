@@ -1,6 +1,6 @@
 # Cross-platform hardening (CLI + SDK)
 
-**Status:** **In progress** — **XP-0** shipped (audit receipt below); **XP-1** in flight (Windows CI).  
+**Status:** **In progress** — **XP-0/1** shipped (audit + OS matrix CI); **XP-2/2b** code landed — **XP-3…7** open.  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then:** [`tree.md`](./tree.md)
 
 **Promise (one sentence):** With **Node ≥ 18**, the **CLI** and **`@i18nprune/core` SDK** run deterministically on **Windows, macOS, native Linux, and WSL** for local scan, **all disk caches**, and report generation — without shell-specific commands or POSIX-only path logic in **core**.
@@ -37,7 +37,7 @@ Code review of CLI + core paths relevant to Win/macOS/Linux/WSL. **No runtime ch
 | **Source walk** | **Mitigated (XP-2)** — `listSourceFiles` uses `realpath` + depth cap; Node `listDir` follows symlink-to-dir entries |
 | **Optional `rg`** | `spawnSync('rg', …)` — needs `rg` / `rg.exe` on PATH; doctor warns when missing |
 | **Shell deps** | No `rm`/`cp` on main CLI path; `fs.rmSync` in cache runtime |
-| **CI** | Linux-only until **XP-1** |
+| **CI** | Single `verify` job — matrix `ubuntu-latest` \| `windows-latest` \| `macos-latest` (`.github/workflows/ci.yml`) |
 
 ### Path reference (user-facing copy in `docs/cli/cache.md`)
 
@@ -54,6 +54,18 @@ Code review of CLI + core paths relevant to Win/macOS/Linux/WSL. **No runtime ch
 - **Project id lowercasing** — intentional; document in XP-2.
 - **Update dir under `.config` not `%APPDATA%`** — works on Windows; document actual path (XP-3).
 - **Archive report placeholder env** — fix in XP-5, not a scan failure.
+
+### Known limits — handlers (XP-2b)
+
+| Limit | Handler | Notes |
+|-------|---------|--------|
+| **Unicode NFC/NFD (macOS)** | `normalizePathKeyForCache` (NFC) in `cache/io/hash.ts` + meta index key | Stabilizes cache id when the same folder is spelled NFD on disk vs NFC elsewhere; does not rename on-disk files |
+| **Windows reserved names** (`CON`, `NUL`, `COM1`, …) | `collectPlatformPathWarnings` → readiness `warning` (`i18nprune.paths.windows_reserved_name`) | Checks path segments under project roots |
+| **Long paths (>~240 chars)** | readiness `warning` (`i18nprune.paths.windows_long_path`) | Does not auto-prefix `\\?\`; hosts may enable OS long-path support |
+| **UNC / network shares** | readiness `info` (`i18nprune.paths.network_drive`) | Mapped drive letters (`Z:`) are not detected — document as operator risk |
+| **Logical API paths** | `toPosixPath` on locale list / segment resolve / missing `file` lines | JSON and logs use `/` regardless of host `path.join` |
+
+**macOS CI:** same matrix row as Windows; NFC cache normalization is the v1 filesystem-agnostic piece — full on-disk NFC rename is out of scope.
 
 ---
 
@@ -96,11 +108,11 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 |---------|-----------|--------|
 | **Native Linux** | **Likely works** | Primary CI (`ubuntu-latest`) |
 | **WSL** | **Likely works** | Node `platform: linux`; paths are Linux inside distro |
-| **macOS** | **Mostly safe** | Node adapters; not in CI |
-| **Windows (CMD / PS / Terminal)** | **Mostly safe, unproven** | `node:path` / `node:fs`; no `rm`/`cp` on main path; optional `rg` on PATH |
+| **macOS** | **CI-gated** | `macos-latest` matrix row |
+| **Windows (CMD / PS / Terminal)** | **CI-gated** | `windows-latest` matrix row; optional `rg` on PATH |
 | **Windows native vs WSL cross-host** | **Out of promise** | Do not assume paths cross boundaries |
 
-**Confidence today:** **mostly cross-platform safe, Linux-first validation** — not production-grade cross-platform until **XP-1** (CI matrix) lands.
+**Confidence today:** **CI matrix on all three OS families** — phase closes when matrix is green on `main` and **XP-3…6** receipts land (see tracker).
 
 ---
 
@@ -108,7 +120,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 | Risk | Layer | Severity |
 |------|-------|----------|
-| **CI Linux-only** | Repo | High — no automated Windows/macOS signal |
+| **Matrix not green on `main`** | Repo | High — treat Win/macOS rows as release gate |
 | **Cache project id lowercasing** | Core `cache/io/hash.ts` | Medium — correct on Windows FS; differs from Linux case-sensitive trees |
 | **Symlink cycles in source walk** | Core `shared/scanner/files.ts` | Medium — all OSes |
 | **Atomic cache write** (`tmp` + `rename` same dir) | CLI `buildCliCacheRuntime` | Low–medium — verify on Windows project cache dir |
@@ -124,8 +136,9 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | # | Slice | Status | Notes |
 |---|-------|--------|-------|
 | **XP-0** | Audit receipt + Windows checklist in this doc | **Shipped** | Receipt § below; user paths in [`docs/cli/cache.md`](../../docs/cli/cache.md) § OS paths |
-| **XP-1** | CI: `windows-latest` smoke (+ optional `macos-latest`) | **Shipped** | `.github/workflows/ci.yml` — `verify-windows` job (await green on push) |
-| **XP-2** | **Project cache** hardening | **In progress** | Symlink/depth guard in `listSourceFiles`; project-id note in `docs/cli/cache.md` |
+| **XP-1** | CI OS matrix | **Shipped** | `.github/workflows/ci.yml` — one `verify` job, `fail-fast: false`, ubuntu 30m / win+mac 45m |
+| **XP-2** | **Project cache** + path hygiene | **Shipped\*** | \*manual: `writeTextAtomic` + cache dir on Windows — confirm when matrix green |
+| **XP-2b** | Known limits (handlers) | **Shipped\*** | Code in `shared/path/platform.ts`; user docs → **XP-6** |
 | **XP-3** | **Version cache** (`updatestate.json`) hardening | **Todo** | Document paths on Win/macOS/Linux; verify `mkdirp` + read/write; `XDG_CONFIG_HOME` on Windows when set |
 | **XP-4** | **Translate cache** (`translations/*.json`) | **Todo** | Same `projectDir` as analysis; confirm L2 IO on Windows paths |
 | **XP-5** | Report host metadata | **Todo** | Fix archive placeholder env; CLI `buildReportEnvironmentSnapshot` truth on all platforms |
@@ -143,6 +156,16 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 - [ ] Verify `writeTextAtomic` in `packages/cli/src/shared/cache/runtime.ts` on Windows (same-volume rename).
 - [x] Symlink cycle guard + depth cap in `listSourceFiles` (`packages/core/src/shared/scanner/files.ts`, optional `fs.realpath` on Node).
 - [x] Document `computeCacheProjectId` lowercasing — [`docs/cli/cache.md`](../../docs/cli/cache.md) layout §.
+- [x] NFC-normalize project root before cache id hash (`shared/path/platform.ts`).
+- [x] Platform path warnings in `runProjectReadiness` (reserved / long / UNC).
+- [x] `toPosixPath` for locale list + segment absolute paths + missing relative `file` lines.
+- [x] Archive ingest FS uses `path.relative` (Windows-safe) — `project/prepare/archiveFs.ts`.
+
+### XP-2b — Known limits (handlers)
+
+- [x] Reserved segment detection (`CON`, `NUL`, `COM1`–`COM9`, `LPT1`–`LPT9`).
+- [x] Long-path and UNC warnings via readiness (non-fatal).
+- [ ] User docs table in `docs/cli/` (XP-6) — link issue codes when docs site lists them.
 
 ### XP-3 — Version cache (`updatestate.json`)
 
@@ -187,9 +210,21 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 ---
 
+## CI shape (XP-1)
+
+```yaml
+verify:
+  strategy.matrix: ubuntu-latest | windows-latest | macos-latest
+  steps: install → typecheck → cli:build → test → vitest tests/parity
+```
+
+`fail-fast: false` is correct — one OS failure should not cancel the others.
+
+---
+
 ## Done when
 
-- Windows (and optionally macOS) CI smoke is green on `main`.
+- All three matrix rows green on `main` (`pnpm typecheck`, `pnpm test`, parity).
 - All three disk surfaces documented with **actual paths** per OS.
 - Known risks (symlinks, project-id hash, archive env) fixed or explicitly accepted with issue codes / docs.
 - No new POSIX-only shell dependencies in CLI core path.

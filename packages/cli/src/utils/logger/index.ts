@@ -88,11 +88,6 @@ export const logger = {
     console.error(line('error', msg));
   },
 
-  /** Deprecated alias — use `err`. */
-  error(msg: string): void {
-    console.error(line('error', msg));
-  },
-
   /** Dim secondary lines. */
   detail(msg: string, run?: RunOptions, mask?: LoggerMask): void {
     const r = effective(run, mask);

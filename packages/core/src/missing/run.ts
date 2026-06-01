@@ -396,7 +396,8 @@ export function emitMissingPlaceholderLeavesPreview(
 
 function relativeToCwd(ctx: CoreContext, filePath: string): string {
   const rel = ctx.adapters.path.relative(ctx.adapters.system.cwd(), filePath);
-  return rel || filePath;
+  const display = rel || filePath;
+  return display.replace(/\\/g, '/');
 }
 
 function missingPayloadListWindow(opts: MissingRunOptions): { full: boolean; limit: number } {

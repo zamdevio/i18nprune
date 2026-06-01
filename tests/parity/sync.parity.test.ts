@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeSyncHumanStderr, normalizeSyncJsonEnvelope } from './normalizeSyncParity.ts';
+import { readParitySnapshotText } from './readParitySnapshot.ts';
 import { paritySpawnEnv } from './paritySpawnEnv.ts';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
@@ -31,7 +32,7 @@ describe('sync parity (sample-i18n)', () => {
     expect(r.status, r.stderr ?? '').toBe(0);
     expect(r.stderr ?? '', 'sync --json should not write to stderr').toBe('');
     const normalized = normalizeSyncJsonEnvelope(r.stdout ?? '', fixtureAbs);
-    expect(normalized).toBe(fs.readFileSync(snapshotJson, 'utf8'));
+    expect(normalized).toBe(readParitySnapshotText(snapshotJson));
   });
 
   it('matches normalized human [i18nprune] stderr snapshot', () => {
@@ -44,6 +45,6 @@ describe('sync parity (sample-i18n)', () => {
     });
     expect(r.status, r.stderr ?? '').toBe(0);
     const normalized = normalizeSyncHumanStderr(r.stderr ?? '', fixtureAbs);
-    expect(normalized).toBe(fs.readFileSync(snapshotStderr, 'utf8'));
+    expect(normalized).toBe(readParitySnapshotText(snapshotStderr));
   });
 });
