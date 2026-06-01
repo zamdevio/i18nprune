@@ -6,6 +6,7 @@ import { backupAndRemoveCorruptShareJson, shareJsonBackupDetailEntries } from '.
 import type { CacheRuntime } from '../../../types/cache/index.js';
 import type { Issue } from '../../../types/json/envelope/index.js';
 import type { ShareCacheEntry, ShareJsonFile, ShareJsonHealKind, ShareJsonHealReport, LoadShareJsonResult } from '../../../types/share/index.js';
+import type { SaveShareJsonResult } from '../../../types/share/cache.js';
 import { normalizeShareCacheEntry, shareEntryRawNeedsIdRepair } from '../canonicalEntry.js';
 import { shareJsonFileSchema } from '../schema.js';
 
@@ -241,10 +242,6 @@ export function loadShareJsonFile(input: {
   }
   return { file, heal, issues };
 }
-
-export type SaveShareJsonResult = {
-  warning?: Issue;
-};
 
 /**
  * Writes `share.json` atomically. Does not create `share.bak/` copies — backups happen

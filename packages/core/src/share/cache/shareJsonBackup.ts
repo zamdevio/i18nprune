@@ -1,12 +1,7 @@
 import { assertSyncPortResult } from '../../runtime/helpers/sync/index.js';
 import { SHARE_BAK_DIRNAME, SHARE_JSON_BASENAME } from '../../shared/constants/share.js';
 import type { CacheRuntime } from '../../types/cache/index.js';
-
-export type ShareJsonBackupResult = {
-  created: boolean;
-  /** Absolute path to the backup file when {@link created} is true. */
-  bakPath?: string;
-};
+import type { ShareJsonBackupResult } from '../../types/share/cache.js';
 
 /** `{projectCacheDir}/share.bak/` */
 export function resolveShareBakDir(projectDir: string, path: { join: (...parts: string[]) => string }): string {

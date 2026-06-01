@@ -1,12 +1,12 @@
 import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../shared/constants/project.js';
 import { hex16Id } from '../../project/id.js';
 import { prepareProjectSnapshotFromRoot } from '../../project/prepare/fromRoot.js';
-import type { CoreContext } from '../../types/context/index.js';
-import type { Issue } from '../../types/json/envelope/index.js';
-import type { HostedProjectIngestEnvelope, PrepareProjectSnapshotResult, PrepareProjectSnapshotFromRootInput } from '../../types/project/prepare/index.js';
-import type { HostedIngestProcessorContext } from '../../types/project/metadata.js';
+import type { HostedProjectIngestEnvelope } from '../../types/project/prepare/index.js';
+import type {
+  BuildPreparedProjectPayloadInput,
+  BuildPreparedProjectPayloadResult,
+} from '../../types/share/payload.js';
 import type { ShareProjectManifest } from '../../types/share/manifest.js';
-import type { ProjectAnalysisResolveOptions } from '../../types/analysis/index.js';
 import { computeShareProjectConfigHash } from './buildProjectPayload.js';
 import { assertHostedProjectPreparedWithinLimit } from './limits.js';
 import { hostedIngestEnvelopeForShareContentHash } from './hostedSnapshotSemantic.js';
@@ -28,25 +28,6 @@ function topLevelPrefixesFromSnapshot(snapshot: { tree: readonly { path: string 
   }
   return [...set].sort();
 }
-
-export type BuildPreparedProjectPayloadResult =
-  | {
-      ok: true;
-      envelope: HostedProjectIngestEnvelope;
-      serialized: string;
-      manifest: ShareProjectManifest;
-      prepare: PrepareProjectSnapshotResult & { ok: true };
-    }
-  | { ok: false; issues: Issue[] };
-
-export type BuildPreparedProjectPayloadInput = {
-  ctx: CoreContext;
-  projectRoot: string;
-  analysisOpts?: Pick<ProjectAnalysisResolveOptions, 'emit' | 'runId'>;
-  prepareHost?: PrepareProjectSnapshotFromRootInput['prepareHost'];
-  requestReceivedAt?: string;
-  processorContext?: HostedIngestProcessorContext;
-};
 
 /**
  * Disk prepare + hosted ingest envelope for primary `POST /v1/projects` JSON upload.

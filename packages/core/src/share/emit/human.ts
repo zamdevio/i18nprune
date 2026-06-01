@@ -10,7 +10,7 @@ import type { ShareCacheEntry, ShareJsonHealReport } from '../../types/share/ent
 import type { ProjectStoredMetadata } from '../../types/project/metadata.js';
 import type { StoredReportMetadata } from '../../types/project/report/index.js';
 import type { ShareRunResult, ShareViewResult } from '../../types/share/shareRun.js';
-import type { ShareHumanMessageHost } from './host.js';
+import type { ShareHumanMessageHost } from '../../types/share/emit.js';
 import { buildShareViewVerboseDetail } from '../view/buildVerboseDetail.js';
 import { emitShareViewVerboseHumanMessages } from '../view/emitVerboseHuman.js';
 import {

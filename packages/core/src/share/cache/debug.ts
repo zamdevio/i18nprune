@@ -1,10 +1,6 @@
 import { emitRunMessage } from '../../shared/run/index.js';
 import type { RunEmitter } from '../../types/shared/run/index.js';
-
-export type ShareCacheDebugLine = {
-  level: 'info' | 'detail';
-  message: string;
-};
+import type { ShareCacheDebugLine } from '../../types/share/cache.js';
 
 /** Emits `[cache]` run messages for share when the host enabled `--debug-cache`. */
 export function emitShareCacheDebug(input: {

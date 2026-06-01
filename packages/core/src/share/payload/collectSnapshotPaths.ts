@@ -9,6 +9,7 @@ import {
 } from '../../shared/constants/project.js';
 import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
+import type { ShareZipBuildIssue } from '../../types/share/payload.js';
 import type { ProjectFilesystemRuntime } from '../../types/runtime/capabilities.js';
 import { I18NPRUNE_CONFIG_SNAPSHOT_FILE_NAMES_SET } from '../../shared/constants/config.js';
 import { shouldSkipPathForShareZip } from './ignorePaths.js';
@@ -93,8 +94,6 @@ export function collectShareSnapshotPaths(input: {
 
   return { paths: [...out], issues };
 }
-
-export type ShareZipBuildIssue = Issue;
 
 /**
  * Reads collected paths and builds the `fflate` zip map (POSIX keys → UTF-8 bytes).

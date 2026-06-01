@@ -2,7 +2,7 @@ import { zipSync } from 'fflate';
 import { computeCacheContentHash } from '../../cache/io/hash.js';
 import { ISSUE_SHARE_SNAPSHOT_EMPTY, ISSUE_SHARE_ZIP_FAILED } from '../../shared/constants/issueCodes.js';
 import type { CoreContext } from '../../types/context/index.js';
-import type { Issue } from '../../types/json/envelope/index.js';
+import type { BuildProjectPayloadResult } from '../../types/share/payload.js';
 import type { ShareProjectManifest } from '../../types/share/manifest.js';
 import {
   assertZipWithinLimit,
@@ -37,10 +37,6 @@ function detectConfigRelPath(keys: readonly string[]): string | null {
   }
   return null;
 }
-
-export type BuildProjectPayloadResult =
-  | { ok: true; zipBytes: Uint8Array; manifest: ShareProjectManifest }
-  | { ok: false; issues: Issue[] };
 
 /**
  * Builds the prepared project zip bytes plus a {@link ShareProjectManifest} for logs / `share.json` policy.

@@ -1,7 +1,8 @@
 import { emitRunMessage } from '../../shared/run/index.js';
-import type { ShareHumanMessageHost } from '../emit/host.js';
+import type { ShareHumanMessageHost } from '../../types/share/emit.js';
 import type { ShareViewVerboseDetail, ShareViewVerboseSection } from '../../types/share/viewDetail.js';
-import { buildVerboseRows, type VerboseSection } from './format.js';
+import type { VerboseSection } from '../../types/share/viewFormat.js';
+import { buildVerboseRows } from './format.js';
 
 const VERBOSE_SECTION_ORDER: (keyof ShareViewVerboseDetail)[] = [
   'processor',

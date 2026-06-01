@@ -2,6 +2,7 @@ import { SHARE_CACHE_REASON_MESSAGES } from '../../shared/constants/share.js';
 import type { ProjectStoredMetadata } from '../../types/project/metadata.js';
 import type { StoredReportMetadata } from '../../types/project/report/index.js';
 import type { ShareViewVerboseSection } from '../../types/share/viewDetail.js';
+import type { VerboseRow } from '../../types/share/viewFormat.js';
 
 /**
  * Presentation-only scalar formatter.
@@ -52,9 +53,6 @@ export function formatArtifactSummary(meta: ProjectStoredMetadata | StoredReport
 export function formatExpirySummary(expiresAt: unknown): string {
   return `expires ${displayScalar(expiresAt)}`;
 }
-
-export type VerboseRow = { key: string; value: string };
-export type VerboseSection = { title: string; rows: VerboseRow[] };
 
 export function buildVerboseRows(section: ShareViewVerboseSection): VerboseRow[] {
   return Object.entries(section).map(([key, value]) => {

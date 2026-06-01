@@ -6,11 +6,8 @@ export {
   saveShareJsonFile,
   shareJsonSerializedByteLength,
 } from './cache/io/shareJson.js';
-export type { SaveShareJsonResult } from './cache/io/shareJson.js';
 export { buildProjectPayload, computeShareProjectConfigHash } from './payload/buildProjectPayload.js';
-export type { BuildProjectPayloadResult } from './payload/buildProjectPayload.js';
 export { buildPreparedProjectPayload } from './payload/buildPreparedProjectPayload.js';
-export type { BuildPreparedProjectPayloadResult } from './payload/buildPreparedProjectPayload.js';
 export {
   buildHostedProjectShareArtifacts,
   buildHostedReportShareArtifacts,
@@ -71,7 +68,6 @@ export {
   emitShareUploadHumanMessages,
   emitShareViewHumanMessages,
 } from './emit/human.js';
-export type { ShareHumanMessageHost } from './emit/host.js';
 export { buildShareViewVerboseDetail } from './view/buildVerboseDetail.js';
 export { emitShareViewVerboseHumanMessages } from './view/emitVerboseHuman.js';
 export { resolveShareWorkerBaseUrl } from './remote/resolveWorkerBaseUrl.js';
@@ -88,8 +84,17 @@ export {
 export { runShareView } from './ops/view.js';
 export { shareCacheEntrySchema, shareJsonFileSchema } from './cache/schema.js';
 export type {
+  BuildPreparedProjectPayloadResult,
+  BuildProjectPayloadResult,
   LoadShareJsonResult,
+  SaveShareJsonResult,
+  ShareCacheDebugLine,
   ShareCacheEntry,
+  ShareHumanMessageHost,
+  ShareJsonBackupResult,
+  ShareZipBuildIssue,
+  VerboseRow,
+  VerboseSection,
   ShareDeleteJsonPayload,
   ShareDeleteAllJsonPayload,
   ShareDeleteRowResult,
