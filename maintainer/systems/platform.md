@@ -124,7 +124,7 @@ Report SPA editor links require real desktop `project.environment`; hosted zip r
 | Check | Location |
 |-------|----------|
 | OS matrix | `.github/workflows/ci.yml` |
-| Parity (frozen CLI contract) | `tests/parity/` — use `readParitySnapshot` for CRLF-safe reads on Windows |
+| Parity (frozen CLI contract) | `tests/parity/` — use `readParitySnapshot` for CRLF-safe reads on Windows; `vitest.config.ts` uses **30s** `testTimeout` on `win32` (CLI spawn parity) |
 | Spaces in project + home path | `tests/integration/spacesInPath.win32.test.ts` (runs on `windows-latest` only) |
 | Win32 translate-cache paths | `packages/core/src/translator/cache/__tests__/` (`win32PathRuntime.ts`, `paths.test.ts`, …) |
 | CLI home / version state | `packages/cli/src/shared/home/__tests__/`, `packages/cli/src/utils/update/__tests__/` |

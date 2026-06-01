@@ -11,8 +11,12 @@ const pushCiDefaultReporterOnly =
   process.env.GITHUB_ACTIONS === 'true' &&
   process.env.GITHUB_EVENT_NAME !== 'pull_request';
 
+/** Parity/integration spawn `dist/cli.js`; Windows runners often exceed Vitest’s 5s default. */
+const testTimeoutMs = process.platform === 'win32' ? 30_000 : 5_000;
+
 export default defineConfig({
   test: {
+    testTimeout: testTimeoutMs,
     ...(prCiGithubActionsReporter
       ? { reporters: ['default', 'github-actions'] as const }
       : pushCiDefaultReporterOnly
