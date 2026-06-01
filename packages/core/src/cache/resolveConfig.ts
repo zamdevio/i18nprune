@@ -2,8 +2,6 @@ import { CACHE_PROFILE_DEFAULTS, DEFAULT_CACHE_PROFILE_ID } from '../shared/cons
 import type { CacheConfigSource, ResolvedCacheConfig } from '../types/cache/resolve.js';
 import type { CacheRebuildConfig } from '../types/cache/rebuild.js';
 
-export type { CacheConfigSource, ResolvedCacheConfig } from '../types/cache/resolve.js';
-
 function clampThresholdPercent(value: number): number {
   if (value < 0) return 0;
   if (value > 100) return 100;

@@ -8,9 +8,6 @@ import type {
   FilesIndexStatus,
 } from '../types/cache/index.js';
 
-export { resolveCacheConfig, resolveCacheRebuildConfig } from './resolveConfig.js';
-export type { CacheConfigSource, ResolvedCacheConfig } from './resolveConfig.js';
-
 function filesIndexRebuildReason(status: FilesIndexStatus): AnalysisRebuildReason {
   switch (status.kind) {
     case 'missing':

@@ -48,7 +48,6 @@ export {
   resolveCacheConfig,
   resolveCacheRebuildConfig,
 } from './resolveConfig.js';
-export type { CacheConfigSource, ResolvedCacheConfig } from './resolveConfig.js';
 export { decideAnalysisRebuild } from './rebuildPolicy.js';
 export { getOrBuildCachedProjectData } from './dispatch.js';
 export { emitCacheDispatchMessages, emitCacheMemoryHitMessage, emitAnalysisCacheInvalidationMessage } from './events.js';
@@ -92,5 +91,6 @@ export type {
   CacheState,
   CacheStateInput,
   CacheWarning,
+  TrackedProjectFilesCurrent,
 } from '../types/cache/index.js';
 export { filesIndexIsUsable } from '../types/cache/filesIndex.js';

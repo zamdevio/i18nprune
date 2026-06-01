@@ -3,12 +3,7 @@ import { resolveFilesIndexStatus } from './filesIndexStatus.js';
 import { decideAnalysisRebuild } from './rebuildPolicy.js';
 import { resolveCacheRebuildConfig } from './resolveConfig.js';
 import { layoutMatches, resolveCachedLocalesLayout } from './localesLayout.js';
-import {
-  buildTrackedProjectFilesCurrent,
-  mergeTrackedFileMaps,
-  omitSyntheticSourceKey,
-  type TrackedProjectFilesCurrent,
-} from './trackedFiles.js';
+import { buildTrackedProjectFilesCurrent, mergeTrackedFileMaps, omitSyntheticSourceKey } from './trackedFiles.js';
 import { computeInputFilesEpoch, diffProjectFiles } from './engine.js';
 import { loadProjectFilesState, loadProjectRunState, saveProjectFilesState, saveProjectRunState } from './io/index.js';
 import { prepareCacheForRun } from './setup/index.js';
@@ -22,6 +17,7 @@ import type {
   CacheProducerContext,
   CacheWarning,
   FilesIndexStatus,
+  TrackedProjectFilesCurrent,
 } from '../types/cache/index.js';
 
 function assertLocalesInput<T>(input: CachedProjectInput<T>): asserts input is CachedProjectInput<T> & {

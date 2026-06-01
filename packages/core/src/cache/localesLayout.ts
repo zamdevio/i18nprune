@@ -1,5 +1,4 @@
 import type { LocalesFilesystemConfig } from '../config/schema/root.js';
-import type { LocalesLayoutMode, LocalesLayoutStructure } from '../types/locales/layout.js';
 import type { CachedLocalesLayout } from '../types/cache/index.js';
 
 /** Fingerprint stored in `files.json` — config-relative paths only. */
@@ -18,5 +17,3 @@ export function layoutMatches(a: CachedLocalesLayout | undefined, b: CachedLocal
   if (a === undefined) return false;
   return a.mode === b.mode && a.structure === b.structure && a.directory === b.directory && a.source === b.source;
 }
-
-export type { LocalesLayoutMode, LocalesLayoutStructure };

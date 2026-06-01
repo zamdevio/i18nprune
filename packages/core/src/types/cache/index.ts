@@ -1,13 +1,17 @@
 import type { LocalesFilesystemConfig } from '../config/localesFilesystem.js';
-import type { LocalesLayoutMode, LocalesLayoutStructure } from '../locales/layout.js';
 import type { RuntimeFsPort, RuntimePathPort, RuntimeSystemPort } from '../runtime/index.js';
 import type { ScanExcludeConfig } from '../scanner/index.js';
 import type { AnalysisRebuildDecision, CacheProducerContext, CacheRebuildConfig } from './rebuild.js';
 import type { CacheFileDelta } from './delta.js';
 import type { FilesIndexStatus } from './filesIndex.js';
+import type { CachedLocalesLayout } from './localesLayout.js';
+import type { CacheProjectFileRecord } from './projectFileRecord.js';
 
 export type { CacheProfileDefaults, CacheProfileId } from './profile.js';
 export type { CacheConfigSource, ResolvedCacheConfig } from './resolve.js';
+export type { CachedLocalesLayout } from './localesLayout.js';
+export type { CacheProjectFileRecord } from './projectFileRecord.js';
+export type { TrackedProjectFilesCurrent } from './trackedFiles.js';
 export type { CacheFileDelta } from './delta.js';
 export type { FilesIndexStatus } from './filesIndex.js';
 export { filesIndexIsUsable } from './filesIndex.js';
@@ -27,14 +31,6 @@ export type {
   AnalysisCacheInvalidationReason,
   LocaleWriteInvalidationInput,
 } from './invalidation.js';
-
-/** Layout fingerprint stored in `files.json` (`mode` + `structure` + config paths). */
-export type CachedLocalesLayout = {
-  mode: LocalesLayoutMode;
-  structure: LocalesLayoutStructure;
-  directory: string;
-  source: string;
-};
 
 /** Why the cache was disabled for this run (or `'default'` when enabled normally). */
 export type CacheDisableReason =
@@ -82,14 +78,6 @@ export type CacheProjectsIndex = {
     healEveryRuns: number;
     lastHealAt?: string;
   };
-};
-
-/** Per-file hash/size/mtime record stored in `files.json`. */
-export type CacheProjectFileRecord = {
-  hash: string;
-  size: number;
-  mtimeMs: number;
-  updatedAt: string;
 };
 
 export type CacheProjectFilesState = {
