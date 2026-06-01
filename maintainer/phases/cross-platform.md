@@ -1,6 +1,6 @@
 # Cross-platform hardening (CLI + SDK)
 
-**Status:** **In progress** — **XP-0…4** shipped (matrix CI green on `main`); **XP-5** in flight — **XP-6…7** open.  
+**Status:** **In progress** — **XP-0…5** shipped (matrix CI green on `main`); **XP-6** shipped — **XP-7** optional open.  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then:** [`tree.md`](./tree.md)
 
 **Promise (one sentence):** With **Node ≥ 18**, the **CLI** and **`@i18nprune/core` SDK** run deterministically on **Windows, macOS, native Linux, and WSL** for local scan, **all disk caches**, and report generation — without shell-specific commands or POSIX-only path logic in **core**.
@@ -112,7 +112,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | **Windows (CMD / PS / Terminal)** | **CI-gated** | `windows-latest` matrix row; optional `rg` on PATH |
 | **Windows native vs WSL cross-host** | **Out of promise** | Do not assume paths cross boundaries |
 
-**Confidence today:** **CI matrix on all three OS families** — phase closes when matrix is green on `main` and **XP-3…6** receipts land (see tracker).
+**Confidence today:** **CI matrix on all three OS families** — phase closes when matrix is green on `main` and **XP-0…6** receipts land (see tracker); **XP-7** optional.
 
 ---
 
@@ -142,7 +142,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | **XP-3** | **Version cache** (`state/version.json`) hardening | **Shipped** | `I18NPRUNE_HOME` + docs + CLI tests (`paths`, `cache.disk`, `skipPolicy`) |
 | **XP-4** | **Translate cache** (`translations/*.json`) | **Shipped** | `path.join` only; Win32 + disk heal tests; `docs/cli/cache.md` L2 gate note |
 | **XP-5** | Report host metadata | **Shipped** | `archiveHostedReportEnvironment`; CLI snapshot tests (`buildEnvironment.test.ts`) |
-| **XP-6** | User docs | **Todo** | `docs/cli/cache.md` — three disk surfaces, paths on Windows, WSL vs native Node |
+| **XP-6** | User docs | **Shipped** | `docs/cli/cache.md` home layout + WSL table; `docs/issues/paths.md` + registry |
 | **XP-7** | Optional: spaces-in-path fixture test | **Todo** | One integration test on Windows CI |
 
 ---
@@ -165,7 +165,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 - [x] Reserved segment detection (`CON`, `NUL`, `COM1`–`COM9`, `LPT1`–`LPT9`).
 - [x] Long-path and UNC warnings via readiness (non-fatal).
-- [ ] User docs table in `docs/cli/` (XP-6) — link issue codes when docs site lists them.
+- [x] User docs table in `docs/cli/cache.md` + [`docs/issues/paths.md`](../../docs/issues/paths.md).
 
 ### XP-3 — Version cache (`state/version.json`)
 
@@ -185,6 +185,12 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 - [x] Replace fake `environment` in `fromArchiveReport` — `archiveHostedReportEnvironment` (`report/archiveEnvironment.ts`).
 - [x] CLI `buildReportEnvironmentSnapshot` uses `os.release()` + WSL — `packages/cli/src/commands/report/__tests__/buildEnvironment.test.ts`.
+
+### XP-6 — User docs
+
+- [x] Three disk surfaces + home tree — [`docs/cli/cache.md`](../../docs/cli/cache.md) § CLI home layout.
+- [x] Windows paths, WSL vs native Node, logical `/` in JSON — same page § Paths on other operating systems.
+- [x] Known limits / issue codes — [`docs/issues/paths.md`](../../docs/issues/paths.md); `paths` in issue doc link map.
 
 ---
 

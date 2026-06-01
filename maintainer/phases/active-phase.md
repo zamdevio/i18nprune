@@ -8,7 +8,7 @@
 
 | Priority | Session | Doc |
 |----------|---------|-----|
-| **1 — active** | Cross-platform (XP) — XP-0…3 shipped; **XP-4…7** open | [`cross-platform.md`](./cross-platform.md) |
+| **1 — active** | Cross-platform (XP) — XP-0…6 shipped; **XP-7** optional | [`cross-platform.md`](./cross-platform.md) |
 | **2 — next** | Tree & naming | [`tree.md`](./tree.md) |
 | **3** | Docs refactor (D) — incl. **D.0 onboarding hub** | [`docs-refactor.md`](./docs-refactor.md) |
 | **4** | Release (E + G) | [`final.md`](./final.md) |

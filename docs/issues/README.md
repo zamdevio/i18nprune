@@ -32,6 +32,7 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | [locales](./locales.md) | `locales` usage and target resolution |
 | [missing](./missing.md) | `missing` vs paths in the current scan |
 | [patching](./patching.md) | Patching analyzer findings |
+| [paths](./paths.md) | Windows / UNC path warnings during readiness (`i18nprune.paths.*`) |
 | [project](./project.md) | Workspace path preflight (`runProjectReadiness`, `i18nprune.project.*`) |
 | [quality](./quality.md) | Quality hints (e.g. identical English leaves) |
 | [report](./report.md) | Report format and payload errors |
@@ -49,6 +50,9 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.project.source_locale_unavailable` | `error` | **`runProjectReadiness`** (CLI gates + SDK) |
 | `i18nprune.project.locales_dir_unavailable` | `error` | **`runProjectReadiness`** |
 | `i18nprune.project.src_root_unavailable` | `error` | **`runProjectReadiness`** |
+| `i18nprune.paths.windows_reserved_name` | `warning` | **`runProjectReadiness`** — [paths](./paths.md#windows_reserved_name) |
+| `i18nprune.paths.windows_long_path` | `warning` | **`runProjectReadiness`** — [paths](./paths.md#windows_long_path) |
+| `i18nprune.paths.network_drive` | `info` | **`runProjectReadiness`** — [paths](./paths.md#network_drive) |
 | `i18nprune.project.hosted_snapshot_invalid` | `error` | **`validateHostedProjectIngestBody`** — [project](./project.md#hosted-snapshot-ingest-i18npruneprojecthosted_-upload_-source_locale_) |
 | `i18nprune.project.hosted_snapshot_schema_version` | `error` | **`validateHostedProjectIngestBody`** |
 | `i18nprune.project.upload_config_required` | `error` | Archive / host snapshot prepare — [project](./project.md#upload_config_required) |

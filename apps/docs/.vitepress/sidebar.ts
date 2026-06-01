@@ -113,6 +113,7 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
         { text: 'Locales issues', link: '/issues/locales' },
         { text: 'Missing issues', link: '/issues/missing' },
         { text: 'Patching issues', link: '/issues/patching' },
+        { text: 'Path issues', link: '/issues/paths' },
         { text: 'Quality issues', link: '/issues/quality' },
         { text: 'Report issues', link: '/issues/report' },
         { text: 'Scan issues', link: '/issues/scan' },

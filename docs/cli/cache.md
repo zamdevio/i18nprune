@@ -1,28 +1,38 @@
 # CLI cache
 
-The CLI uses **two local on-disk areas** (plus an optional override). Do not confuse them with hosted worker project snapshots (zip upload).
+The CLI keeps **local disk state under one home directory** (`<home>`). That is separate from **hosted worker snapshots** (zip upload to the edge). Do not mix CLI cache files with worker project/report storage.
 
-| Surface | Default location | Purpose |
-|---------|------------------|---------|
-| **Project + analysis + translate cache** | `<home>/cache/` (default `~/.i18nprune/cache/`) | Fingerprints, scan payload, per-locale translation cache |
-| **Version throttle** | `<home>/state/version.json` | npm `latest` check interval — **CLI only**, not read by the SDK scan cache |
+**`<home>`** defaults to `~/.i18nprune` (`%USERPROFILE%\.i18nprune` on Windows). Set **`I18NPRUNE_HOME`** to relocate the **entire** tree (project cache + version throttle). See [Paths on other operating systems](#paths-on-other-operating-systems).
 
-**`<home>`** defaults to `~/.i18nprune`. Override the whole tree with **`I18NPRUNE_HOME`** (see [Paths on other operating systems](#paths-on-other-operating-systems)).
+## CLI home layout (three surfaces)
+
+| Surface | Path under `<home>` | Read by SDK? | Purpose |
+|---------|---------------------|--------------|---------|
+| **Project cache** | `cache/` → `projects/<projectId>/` | **Yes** | `meta.json`, `files.json`, `analysis.json`, `translations/<code>.json` |
+| **Version throttle** | `state/version.json` | **No** (CLI only) | npm `latest` check interval |
+| **Per-project id** | `cache/projects/<16-char-hex>/` | (derived) | Stable folder from normalized **project root** hash |
+
+Default tree (forward slashes shown for readability; Windows uses backslashes on disk):
+
+```
+<home>/                          # default ~/.i18nprune
+├── cache/
+│   ├── meta.json                # global project root → cache id index
+│   └── projects/
+│       └── <projectId>/
+│           ├── files.json       # fingerprints: src/** + locale segments + localesLayout
+│           ├── analysis.json    # scan payload for validate, report, generate, …
+│           └── translations/    # per-target translation cache (generate L2)
+│               └── <code>.json
+└── state/
+    └── version.json             # CLI update-check throttle only
+```
+
+Override only the project cache root with **`config.cache.dir`** (SDK policy; paths still built with `path.join` on the host). Version state **always** stays under `<home>/state/` when using the CLI home layout.
 
 ## Project cache layout
 
-Under your home directory (default):
-
-```
-~/.i18nprune/cache/
-├── meta.json                 # global project root → cache id index
-└── projects/
-    └── <projectId>/
-        ├── files.json        # fingerprints: src/** + locale segments + localesLayout
-        ├── analysis.json     # project scan: key sites, dynamic sites, missing keys, counts
-        └── translations/     # per-target translation cache (generate only)
-            └── <code>.json   # L2 hits for one target locale
-```
+Under **`<home>/cache/`** (default `~/.i18nprune/cache/`):
 
 `projectId` is derived from the **resolved project root** (normalized to lowercase forward-slash form), so distinct checkouts produce distinct cache namespaces. On case-insensitive volumes (typical Windows), paths that differ only by letter casing share one cache id; on case-sensitive Linux trees they may not.
 
@@ -171,19 +181,44 @@ Delete **`~/.i18nprune/cache`** or **`projects/<id>/`** to reset. There is no de
 
 ## Paths on other operating systems
 
-Default roots use Node’s `os.homedir()` and `path.join` — no manual path strings in your project config.
+Default roots use Node’s `os.homedir()` and `path.join` — you do not hand-write `\` or `/` in config for cache directories.
 
 | Surface | Linux / macOS | Windows (CMD, PowerShell, Windows Terminal) |
 |---------|---------------|---------------------------------------------|
 | **CLI home (`<home>`)** | `~/.i18nprune/` | `%USERPROFILE%\.i18nprune\` |
-| **Project cache** | `<home>/cache/` | same under profile |
-| **Version throttle** | `<home>/state/version.json` | same under profile |
+| **Project cache** | `<home>/cache/` | `%USERPROFILE%\.i18nprune\cache\` |
+| **Version throttle** | `<home>/state/version.json` | `%USERPROFILE%\.i18nprune\state\version.json` |
 
-Set **`I18NPRUNE_HOME`** to relocate **both** cache and version state (the CLI prints an **`[info]`** line on each command when this variable is set).
+When **`I18NPRUNE_HOME`** is set, **both** `cache/` and `state/` live under that directory. The CLI prints an **`[info]`** line on each command with the resolved path.
 
-**WSL:** paths follow the Linux column **inside the distro**. Do not expect a project cache written from Windows native Node to match WSL paths for the same repo on disk.
+### WSL vs Windows native Node
 
-Override the project cache root with **`config.cache.dir`** when you need a custom location on any OS.
+| Topic | WSL (Node inside distro) | Windows native Node |
+|-------|--------------------------|---------------------|
+| **Home** | `~/.i18nprune` under the Linux home (e.g. `/home/you/.i18nprune`) | `%USERPROFILE%\.i18nprune` |
+| **`process.platform`** | `linux` | `win32` |
+| **Same repo on `/mnt/c/...`** | Cache id hashes the **Linux-resolved** project root | Cache id hashes the **Windows** path — **different** `projects/<id>/` folders |
+| **Sharing cache with native Windows** | **Not supported** — pick one Node environment per checkout | Same |
+
+Run **`i18nprune doctor`** and **`validate`** with the same Node install you use for day-to-day work so cache and path warnings match your environment.
+
+### Logical paths in JSON and logs
+
+Locale lists, missing-key `file` lines, and similar **API output** use forward slashes (`/`) even on Windows. On-disk cache and locale files still use the host separator via `path.join`.
+
+### Platform path warnings (readiness)
+
+Before heavy work, **`runProjectReadiness`** may emit non-fatal path issues (reserved Windows segment names, very long paths, UNC roots). These do not block the run by default. See [Path & filesystem issues](../issues/paths.md).
+
+| Limit | Issue code | Severity |
+|-------|------------|----------|
+| Reserved segment (`CON`, `NUL`, `COM1`, …) | `i18nprune.paths.windows_reserved_name` | `warning` |
+| Path length ≥ ~240 chars on Windows | `i18nprune.paths.windows_long_path` | `warning` |
+| UNC `\\server\share\...` | `i18nprune.paths.network_drive` | `info` |
+
+On **macOS**, project cache ids **NFC-normalize** the project root before hashing so the same folder spelled NFD vs NFC on disk shares one cache id; i18nprune does not rename files on disk.
+
+Override the project cache root with **`config.cache.dir`** when you need a custom location on any OS (version throttle remains under `<home>/state/` unless you change `<home>` via **`I18NPRUNE_HOME`**).
 
 ## Version throttle (`state/version.json`)
 

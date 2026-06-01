@@ -35,7 +35,7 @@ Full behavior, envelope shape, supported commands, and edge cases: **[JSON outpu
 ## Related
 
 - [Commands index](../commands/README.md)
-- [CLI disk cache (`~/.i18nprune/cache`)](./cache.md)
+- [CLI disk cache & cross-platform paths](./cache.md)
 - [CLI prompt modules](./prompts/README.md)
 - [Quiet, silent & JSON](./verbosity/README.md)
 - [CLI runtime](./runtime/README.md)
