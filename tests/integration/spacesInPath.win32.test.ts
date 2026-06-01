@@ -11,6 +11,7 @@ const describeWin32 = isWin32 ? describe : describe.skip;
 const repoRoot = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(repoRoot, 'dist/cli.js');
 const sourceFixture = path.join(repoRoot, 'tests/fixtures/layout-flat-file');
+const sharedFixture = path.join(repoRoot, 'tests/fixtures/shared');
 
 const tempRoots: string[] = [];
 
@@ -23,6 +24,8 @@ afterEach(() => {
 function copyFixtureInto(dirWithSpaces: string): string {
   const projectDir = path.join(dirWithSpaces, 'sample project');
   fs.cpSync(sourceFixture, projectDir, { recursive: true });
+  // layout-flat-file config imports ../shared/fixtureTranslate.mjs (sibling of project dir)
+  fs.cpSync(sharedFixture, path.join(dirWithSpaces, 'shared'), { recursive: true });
   return projectDir;
 }
 
