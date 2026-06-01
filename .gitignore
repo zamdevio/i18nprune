@@ -2,6 +2,7 @@
 # Canonical docs prose: `docs/`; VitePress copy: `apps/docs/content/` (ignored — run `pnpm docs:sync`).
 
 *node_modules/
+.turbo/
 dist/
 *.log
 *.tsbuildinfo

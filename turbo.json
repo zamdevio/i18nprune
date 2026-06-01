@@ -1,0 +1,42 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "pnpm-lock.yaml",
+    "turbo.json",
+    "tsconfig.json",
+    "vitest.config.ts",
+    "tsup.config.ts"
+  ],
+  "tasks": {
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "tsconfig.*.json"],
+      "outputs": []
+    },
+    "build": {
+      "dependsOn": ["^typecheck"],
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["dist/**", "out/**", ".vitepress/dist/**"]
+    },
+    "//#cli:build": {
+      "dependsOn": ["^typecheck"],
+      "inputs": ["$TURBO_DEFAULT$", "tsup.config.ts", "packages/cli/**", "packages/core/**", "packages/report/**"],
+      "outputs": ["dist/**"]
+    },
+    "//#ui:purity": {
+      "dependsOn": ["@i18nprune/ui#typecheck"],
+      "inputs": ["scripts/ui/**", "packages/ui/**"],
+      "outputs": []
+    },
+    "//#test": {
+      "inputs": ["$TURBO_DEFAULT$", "vitest.config.ts", "tests/**", "packages/**", "apps/**"],
+      "outputs": [],
+      "cache": false
+    },
+    "//#parity": {
+      "inputs": ["tests/parity/**", "tests/fixtures/**", "vitest.config.ts"],
+      "outputs": [],
+      "cache": false
+    }
+  }
+}

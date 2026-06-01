@@ -1,6 +1,6 @@
 # CI hardening phase
 
-**Status:** **Shipped** (CI-1–4; **CI-5 deferred** post-v1 — v1 Session CI in [`V1-RELEASE.md`](./V1-RELEASE.md))  
+**Status:** **Shipped** (CI-1–5)  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Sprint narrative:** [`active-phase.md`](./active-phase.md) · **After (shipped):** [`systems/platform.md`](../systems/platform.md) (OS matrix) · [`shipped-slices.md`](./shipped-slices.md) (tree T0–T10)
 
 **Promise (one sentence):** GitHub Actions gives **fast, diagnosable PR feedback** (split gates, annotations, scoped artifacts) and **scheduled architecture hygiene** (knip/madge) without blocking v1 ship on deploy or monorepo tooling.
@@ -36,7 +36,7 @@ XP-1 shipped the 3-OS matrix; CI-1 split the monolithic **`verify`** job without
 | **CI-2** | PR annotations | Surface Vitest failures on PR diffs |
 | **CI-3** | Architecture nightly | Scheduled knip + madge (non-blocking) |
 | **CI-4** | Build artifacts | Upload CLI dist for Windows/debug failures |
-| **CI-5** | Change detection | Path filters / turborepo — **later** (planned, not v1 blocker) |
+| **CI-5** | Change detection | Turborepo affected typecheck + path guards; docs-only skips product matrix |
 
 ---
 
@@ -48,7 +48,7 @@ XP-1 shipped the 3-OS matrix; CI-1 split the monolithic **`verify`** job without
 | **CI-2** | PR test annotations | **Shipped** | Vitest built-in `github-actions` reporter; PR `pull_request` only (`vitest.config.ts`) |
 | **CI-3** | Architecture nightly | **Shipped** | `.github/workflows/architecture.yml` — schedule + `workflow_dispatch`; non-blocking steps |
 | **CI-4** | Build artifacts | **Shipped** | `cli-dist-debug-<os>` from `cli-build`: 7-day retention; windows + `failure()` |
-| **CI-5** | Change detection | **Deferred** | paths-filter / turborepo — post-v1 unless trivial |
+| **CI-5** | Change detection | **Shipped** | `turbo.json` + `scope` job; PR `[base...HEAD]` filter; main push full pipeline |
 
 ---
 
@@ -142,20 +142,26 @@ XP-1 shipped the 3-OS matrix; CI-1 split the monolithic **`verify`** job without
 
 ---
 
-### CI-5 — Change detection (deferred / experimental)
+### CI-5 — Change detection (shipped)
 
-**Scope (planned, not v1-blocking)**
+**Scope**
 
-- Path-based filters (`dorny/paths-filter` or equivalent) or turborepo `--filter` so docs-only PRs skip full matrix.
-- Rationale deferred: needs careful mapping of `docs/**`, `apps/docs/**`, `packages/*`, parity fixtures; wrong filters silently skip real gates.
+- **Turborepo** (`turbo.json`, root `pnpm typecheck` → `turbo run typecheck //#ui:purity`).
+- **`scope` job** (ubuntu): `dorny/paths-filter` guards + turbo filter output for downstream jobs.
+- **PR:** `turbo run typecheck --filter=[base...HEAD]` when product paths change; **push `main`/`master`:** full typecheck (`--filter=*`).
+- **Docs-only** (`docs/**`, `apps/docs/**` without product paths): typecheck `@i18nprune/docs` only; **skip** `cli-build` / `test` / `parity`.
+- **Full pipeline** (no affected skip for product jobs) when `pnpm-lock.yaml`, `.github/**`, `turbo.json`, `tests/parity/**`, `tests/fixtures/**`, root toolchain files change.
+- **3-OS matrix** unchanged for `cli-build` → `test` → `parity`; `cli-build` always runs `//#cli:build` when product scope is active.
+- Local **`.turbo/`** cache; CI **`actions/cache`** on `.turbo` (no remote Vercel cache).
 
-**Acceptance (when picked up)**
+**Acceptance**
 
-- Documented path → job map in workflow; at least one integration test PR proves filter correctness.
+- Documented path → job map in [`systems/ci.md`](../systems/ci.md) § Turborepo.
+- Workspace package names unique for turbo (`@i18nprune/cli`, `@i18nprune/extension`, …).
 
 **Gates**
 
-- Default until CI-5 ships: **full matrix on every PR** (current behavior).
+- `pnpm typecheck` · `pnpm test` · `pnpm vitest run tests/parity` unchanged locally.
 
 ---
 
@@ -165,7 +171,7 @@ XP-1 shipped the 3-OS matrix; CI-1 split the monolithic **`verify`** job without
 2. **CI-2** — improves PR UX while touching workflow anyway.  
 3. **CI-4** — pairs with Windows matrix from CI-1.  
 4. **CI-3** — independent nightly; low merge conflict risk.  
-5. **CI-5** — post-v1 or explicit experimental PR.
+5. **CI-5** — shipped (Turborepo + scope job).
 
 ---
 
@@ -184,7 +190,7 @@ XP-1 shipped the 3-OS matrix; CI-1 split the monolithic **`verify`** job without
 | Item | Why |
 |------|-----|
 | **Auto deploy** Cloudflare Workers/Pages (docs, landing, web, workers) | Pre-v1 skip — manual/preview deploy sufficient |
-| **Turborepo / Nx** full adoption | Large repo churn; only if CI-5 justifies it |
+| **Turborepo remote cache** (Vercel) | Local + GHA `.turbo` cache only for now |
 | **Required knip/madge on every PR** | Use CI-3 nightly + local [`systems/health.md`](../systems/health.md) until baseline clean |
 
 ---

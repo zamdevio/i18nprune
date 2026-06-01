@@ -21,21 +21,24 @@
 ## Job DAG (`ci.yml`)
 
 ```text
-typecheck (ubuntu-only)
+scope (ubuntu-only)  → outputs: docs_only, run_product, turbo_filter, run_ui_purity
     ↓ needs
-cli-build (ubuntu | windows | macos)  → upload cli-dist-<os> (1 day, job handoff)
+typecheck (ubuntu-only)               → turbo affected typecheck (+ //#ui:purity when scoped)
     ↓ needs
-test (same 3 OS)                      → download cli-dist-<os>; pnpm test
+cli-build (ubuntu | windows | macos)  → if run_product; turbo //#cli:build; upload cli-dist-<os>
     ↓ needs
-parity (same 3 OS)                    → download cli-dist-<os>; pnpm vitest run tests/parity
+test (same 3 OS)                      → if run_product; download cli-dist-<os>; turbo //#test
+    ↓ needs
+parity (same 3 OS)                    → if run_product; download cli-dist-<os>; turbo //#parity
 ```
 
 | Job | Matrix | Timeout | Notes |
 |-----|--------|---------|--------|
-| **typecheck** | `ubuntu-latest` only | 30m | Fast TS + `ui:purity` via `pnpm typecheck` |
-| **cli-build** | 3 OS, `fail-fast: false` | ubuntu 30m · win/mac 45m | `pnpm cli:build`; uploads `dist/` per OS |
-| **test** | 3 OS, `fail-fast: false` | same | Reuses built CLI; no second `cli:build` |
-| **parity** | 3 OS, `fail-fast: false` | same | `tests/parity` only |
+| **scope** | `ubuntu-latest` only | 5m | Path guards + turbo filter for downstream jobs |
+| **typecheck** | `ubuntu-latest` only | 30m | `pnpm turbo run typecheck` (affected or full); `//#ui:purity` when scoped |
+| **cli-build** | 3 OS, `fail-fast: false` | ubuntu 30m · win/mac 45m | Skipped when `docs_only`; else `pnpm turbo run //#cli:build` |
+| **test** | 3 OS, `fail-fast: false` | same | Skipped when `docs_only`; `pnpm turbo run //#test` |
+| **parity** | 3 OS, `fail-fast: false` | same | Skipped when `docs_only`; `pnpm turbo run //#parity` |
 
 **Why macOS is in `cli-build`:** `test` and `parity` run on every matrix leg and expect `dist/cli.js` on that runner — not rebuilt per job.
 
@@ -78,7 +81,9 @@ After **`cli-build`**, each matrix leg uploads:
 | **Path** | `dist/` (repo root — output of `pnpm cli:build` / tsup) |
 | **Retention** | 1 day (ephemeral; for `test` / `parity` download only) |
 
-`test` and `parity` use `actions/download-artifact@v4` with the matching OS name before running gates.
+`test` and `parity` use `actions/download-artifact@v4` with the matching OS name and **`path: dist`** before running gates.
+
+**Why `path: dist`:** `upload-artifact` with `path: dist/` stores **`cli.js` at the artifact root**, not `dist/cli.js`. Downloading to the workspace default drops files next to `package.json`; Vitest and parity tests spawn **`dist/cli.js`**. An **Ensure CLI dist** step rebuilds via `//#cli:build` only when `dist/cli.js` / `dist/core.js` are still missing after download.
 
 ---
 
@@ -126,9 +131,64 @@ Use the Artifacts tab on failed Windows builds (or any failed `cli-build`) to do
 
 ---
 
-## CI-5 — Change detection (deferred)
+## Turborepo (change detection)
 
-Path filters (`dorny/paths-filter`) or turborepo `--filter` so docs-only PRs skip the full matrix — **not v1**. Until CI-5 ships, **every PR runs the full matrix** (current behavior).
+**Config:** [`turbo.json`](../../turbo.json) · **CLI:** `turbo` devDependency at repo root · **`packageManager`:** `pnpm@10.33.0`
+
+### Tasks (`turbo.json`)
+
+| Task | Where | Role |
+|------|--------|------|
+| **`typecheck`** | Workspace packages with a `typecheck` script | `dependsOn: ["^typecheck"]` — upstream types first |
+| **`//#ui:purity`** | Repo root (`//`) | `scripts/ui/purity-check.mjs`; runs after `@i18nprune/ui#typecheck` |
+| **`//#cli:build`** | Repo root | `tsup` + report bundle → `dist/` (CI product gate) |
+| **`//#test`** | Repo root | `vitest run` (full suite; not per-package) |
+| **`//#parity`** | Repo root | `vitest run tests/parity` |
+| **`build`** | Apps that ship `build` (Vite, VitePress, …) | Cached outputs under `dist/` / `.vitepress/dist/` |
+
+Root **`pnpm typecheck`** → `turbo run typecheck //#ui:purity`. Root **`pnpm test`** / **`pnpm parity`** stay direct **`vitest`** for local ergonomics; CI uses **`//#test`** / **`//#parity`**.
+
+### CI scope rules (`scope` job)
+
+| Condition | `typecheck` | `cli-build` / `test` / `parity` |
+|-----------|-------------|-----------------------------------|
+| Push to **`main`/`master`** | Full (`turbo_filter=*`) | Full 3-OS matrix |
+| **`full_pipeline`** paths (lockfile, `.github/**`, `turbo.json`, `tests/parity/**`, `tests/fixtures/**`, root toolchain) | Full | Full |
+| **Docs-only** (`docs/**`, `apps/docs/**` without product paths) | `--filter=@i18nprune/docs` | **Skipped** |
+| Other **PR** (product paths) | `--filter=[base...HEAD]` | Full product matrix (`run_product=true`) |
+
+**`fetch-depth: 0`** on checkout in **`scope`** and **`typecheck`** so `[base...HEAD]` resolves. **`actions/cache`** on **`.turbo/`** (keyed by lockfile + `turbo.json`).
+
+### Root scripts vs workspace packages
+
+Root convenience scripts delegate to workspace packages via **`pnpm --filter <packageName> <script>`** when the package is in `pnpm-workspace.yaml`, has a **`name`**, and defines that script (see root `package.json`). Avoid **`pnpm --dir`** for those cases.
+
+| Root script | Workspace package · script |
+|-------------|---------------------------|
+| **`cli:typecheck`** | `@i18nprune/cli` · `typecheck` (root `tsconfig.json` compile unit) |
+| **`core:typecheck`**, **`ui:typecheck`**, **`web:typecheck`**, **`docs:*`**, **`landing:*`**, **`meta:*`**, **`worker:*`**, **`report:typecheck`** | matching `@i18nprune/*` · `typecheck` / `dev` / `build` / … |
+| **`docs:sync`** | `@i18nprune/docs` · `sync` |
+| **`report:dev`**, **`report:build`** | `@i18nprune/report` · `dev` / `build` |
+| **`ext:compile`**, **`ext:watch`**, **`ext:build`** | `@i18nprune/extension` · same script name |
+| **`ext:web:dev`**, **`ext:web:build`**, **`ext:web:typecheck`** | `@i18nprune/extension-webview` · `dev` / `build` / `typecheck` |
+| **`ext:typecheck`** | `@i18nprune/extension` · `typecheck:host` (host has no turbo **`typecheck`**; webview is separate) |
+
+**Root-only** (no workspace delegate): **`cli:build`**, **`//#cli:build`**, **`cli:dev`**, **`test`** / **`parity`** / **`//#test`** / **`//#parity`**, **`generate:languages`**, **`ui:purity`** / **`//#ui:purity`**, **`ui:sync:*`**, **`knip`**, **`madge:*`**, **`empty:*`**, **`files`** / **`lines`** / **`stats`**. Deploy helpers chain **`pnpm *:build`** then **wrangler** from repo root (paths in argv; not `--filter`).
+
+**`pnpm typecheck`** runs **`turbo run typecheck //#ui:purity`** on workspace packages that define a **`typecheck`** script (not the extension host alias).
+
+### Local commands
+
+```bash
+pnpm typecheck                              # full workspace typecheck + ui:purity
+pnpm turbo run typecheck --filter=@i18nprune/core...
+pnpm turbo run typecheck --filter=@i18nprune/docs
+pnpm turbo run //#cli:build
+pnpm cli:typecheck                          # @i18nprune/cli only
+pnpm ext:typecheck                          # extension host only
+```
+
+Workspace rename for turbo uniqueness: **`packages/cli`** → **`@i18nprune/cli`** (was duplicate `i18nprune` name with root + extension).
 
 ---
 

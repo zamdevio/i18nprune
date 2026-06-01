@@ -1,17 +1,24 @@
-# CI — split gates: typecheck → cli-build → test → parity
+# CI — split gates: scope → typecheck → cli-build → test → parity
 #
 # Job DAG:
-#   typecheck (ubuntu) → cli-build (3 OS) → test (3 OS) → parity (3 OS)
+#   scope (ubuntu) → typecheck (ubuntu) → cli-build (3 OS) → test (3 OS) → parity (3 OS)
+#
+# Change detection (Turborepo + path guards):
+#   - push to main/master: full pipeline (all packages)
+#   - pull_request: turbo --filter=[base...HEAD] for typecheck/cli-build when product paths change
+#   - docs/** + apps/docs/** only: typecheck @i18nprune/docs; skip cli-build / test / parity
+#   - lockfile, .github, turbo.json, tests/parity, tests/fixtures: always full pipeline
 #
 # - typecheck: ubuntu-only for fast TypeScript / ui:purity signal.
 # - cli-build, test, parity: ubuntu-latest, windows-latest, macos-latest.
 #   macOS is in cli-build (not only ubuntu+windows) because downstream test and
-#   parity jobs run on every matrix leg and need packages/cli/dist on that runner.
+#   parity jobs run on every matrix leg and need repo-root dist/ on that runner.
 # - fail-fast: false on cli-build, test, and parity so one OS failure does not
 #   cancel sibling matrix legs.
 # - Timeouts: ubuntu 30m; windows and macos 45m (unchanged from monolithic verify).
 # - Jobs are ephemeral: cli-build uploads dist/ per matrix OS; test and parity
-#   download that artifact so they run only their gate script (no second cli:build).
+#   download into repo-root dist/ (upload strips the dist/ prefix — path: dist required).
+#   Fallback //#cli:build if artifact is missing or incomplete.
 
 name: CI
 
@@ -25,13 +32,108 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  scope:
+    name: scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.scope.outputs.docs_only }}
+      run_product: ${{ steps.scope.outputs.run_product }}
+      turbo_filter: ${{ steps.scope.outputs.turbo_filter }}
+      run_ui_purity: ${{ steps.scope.outputs.run_ui_purity }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v3
+        id: paths
+        with:
+          filters: |
+            full_pipeline:
+              - 'pnpm-lock.yaml'
+              - '.github/**'
+              - 'turbo.json'
+              - 'tests/parity/**'
+              - 'tests/fixtures/**'
+              - 'vitest.config.ts'
+              - 'tsup.config.ts'
+              - 'tsconfig.json'
+              - 'package.json'
+            docs:
+              - 'docs/**'
+              - 'apps/docs/**'
+            product:
+              - 'packages/**'
+              - 'apps/**'
+              - 'tests/**'
+              - 'scripts/**'
+              - '!apps/docs/**'
+              - '!docs/**'
+            ui_purity:
+              - 'packages/ui/**'
+              - 'scripts/ui/**'
+
+      - name: Resolve comparison SHAs
+        id: shas
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=$(git rev-parse HEAD^)" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compute CI scope
+        id: scope
+        env:
+          FULL: ${{ steps.paths.outputs.full_pipeline }}
+          DOCS: ${{ steps.paths.outputs.docs }}
+          PRODUCT: ${{ steps.paths.outputs.product }}
+          UI_PURITY: ${{ steps.paths.outputs.ui_purity }}
+          IS_MAIN_PUSH: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
+          BASE: ${{ steps.shas.outputs.base }}
+          HEAD: ${{ steps.shas.outputs.head }}
+        run: |
+          set -euo pipefail
+
+          if [ "$IS_MAIN_PUSH" = "true" ] || [ "$FULL" = "true" ]; then
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            echo "run_product=true" >> "$GITHUB_OUTPUT"
+            echo "turbo_filter=*" >> "$GITHUB_OUTPUT"
+            echo "run_ui_purity=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$DOCS" = "true" ] && [ "$PRODUCT" != "true" ]; then
+            echo "docs_only=true" >> "$GITHUB_OUTPUT"
+            echo "run_product=false" >> "$GITHUB_OUTPUT"
+            echo "turbo_filter=@i18nprune/docs" >> "$GITHUB_OUTPUT"
+            echo "run_ui_purity=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "docs_only=false" >> "$GITHUB_OUTPUT"
+          echo "run_product=true" >> "$GITHUB_OUTPUT"
+          echo "turbo_filter=[${BASE}...${HEAD}]" >> "$GITHUB_OUTPUT"
+          if [ "$UI_PURITY" = "true" ] || [ "$PRODUCT" = "true" ]; then
+            echo "run_ui_purity=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_ui_purity=false" >> "$GITHUB_OUTPUT"
+          fi
+
   typecheck:
     name: typecheck
+    needs: scope
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
         with:
@@ -42,13 +144,34 @@ jobs:
           node-version: '22'
           cache: pnpm
 
+      - uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-
+
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm typecheck
+      - name: Run typecheck (Turborepo)
+        env:
+          FILTER: ${{ needs.scope.outputs.turbo_filter }}
+        run: |
+          set -euo pipefail
+          if [ "$FILTER" = "*" ]; then
+            pnpm turbo run typecheck
+          else
+            pnpm turbo run typecheck --filter="$FILTER"
+          fi
+
+      - name: Run ui:purity
+        if: needs.scope.outputs.run_ui_purity == 'true'
+        run: pnpm turbo run //#ui:purity
 
   cli-build:
     name: cli-build (${{ matrix.os }})
-    needs: typecheck
+    needs: [scope, typecheck]
+    if: needs.scope.outputs.run_product == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.timeout }}
 
@@ -67,6 +190,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
         with:
@@ -77,9 +202,17 @@ jobs:
           node-version: '22'
           cache: pnpm
 
+      - uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-
+
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm cli:build
+      - name: Build CLI (Turborepo)
+        run: pnpm turbo run //#cli:build
 
       - uses: actions/upload-artifact@v4
         with:
@@ -97,7 +230,8 @@ jobs:
 
   test:
     name: test (${{ matrix.os }})
-    needs: cli-build
+    needs: [scope, cli-build]
+    if: needs.scope.outputs.run_product == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.timeout }}
 
@@ -131,12 +265,26 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: cli-dist-${{ matrix.os }}
+          path: dist
 
-      - run: pnpm test
+      - name: Ensure CLI dist (artifact or fallback build)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f dist/cli.js ] && [ -f dist/core.js ]; then
+            echo "CLI dist present (artifact or prior step)"
+            exit 0
+          fi
+          echo "::warning::cli-dist artifact missing or incomplete — running //#cli:build"
+          pnpm turbo run //#cli:build
+          test -f dist/cli.js && test -f dist/core.js
+
+      - run: pnpm turbo run //#test
 
   parity:
     name: parity (${{ matrix.os }})
-    needs: test
+    needs: [scope, test]
+    if: needs.scope.outputs.run_product == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.timeout }}
 
@@ -170,5 +318,18 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: cli-dist-${{ matrix.os }}
+          path: dist
 
-      - run: pnpm vitest run tests/parity
+      - name: Ensure CLI dist (artifact or fallback build)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f dist/cli.js ] && [ -f dist/core.js ]; then
+            echo "CLI dist present (artifact or prior step)"
+            exit 0
+          fi
+          echo "::warning::cli-dist artifact missing or incomplete — running //#cli:build"
+          pnpm turbo run //#cli:build
+          test -f dist/cli.js && test -f dist/core.js
+
+      - run: pnpm turbo run //#parity

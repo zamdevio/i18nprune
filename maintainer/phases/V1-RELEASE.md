@@ -12,7 +12,7 @@
 |------|---------|-----|--------|
 | **1** | **XP — Cross-platform** | [`systems/platform.md`](../systems/platform.md) | **Shipped** — matrix CI on `main` |
 | **2** | **Tree — Naming & layout** | [`shipped-slices.md`](./shipped-slices.md) | **Shipped** — T0–T10 (core + CLI); apps shim cleanup `96aed18` |
-| **3** | **CI — GitHub Actions** | [`ci.md`](./ci.md) | **Shipped** — split verify, PR annotations, nightly arch, artifacts (CI-5 deferred) |
+| **3** | **CI — GitHub Actions** | [`ci.md`](./ci.md) | **Shipped** — split verify, PR annotations, nightly arch, artifacts, Turborepo change detection |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) | **Active** — nav trim (~10 categories), SDK quickstart, tree flattening |
 | **5** | **E + G — Release** | [`final.md`](./final.md) | CI smoke, ADR polish, changelog, delete `final.md` |
 
@@ -44,7 +44,7 @@ Repo tree standardization after XP — **shipped** (T0–T10 core + CLI). Apps: 
 | **CI-2** | Vitest PR annotations (`github-actions` reporter) — **shipped** |
 | **CI-3** | Nightly knip + madge (non-blocking) — **shipped** |
 | **CI-4** | Upload CLI dist debug artifacts (Windows / failure) — **shipped** |
-| **CI-5** | Path filters / turborepo — **deferred** post-v1 |
+| **CI-5** | Turborepo affected pipeline + docs-only scope — **shipped** |
 
 ---
 

@@ -10,6 +10,9 @@
       "default": "./src/index.ts"
     }
   },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
   "peerDependencies": {
     "zod": "^4.0.0"
   }
