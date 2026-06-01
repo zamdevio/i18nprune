@@ -2,7 +2,7 @@ import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js'
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
 import { emitCacheDispatchMessages, getOrBuildCachedProjectData } from '../cache/index.js';
-import { resolveCacheRebuildConfig } from '../cache/rebuildPolicy.js';
+import { resolveCacheRebuildConfig } from '../cache/resolveConfig.js';
 import { listSourceFiles } from '../shared/scanner/files.js';
 import { computeMissingLiteralKeysFromLeaves } from '../validate/missingLiterals.js';
 import { readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.js';
@@ -17,13 +17,6 @@ import type {
   ProjectAnalysisResolveOptions,
 } from '../types/analysis/index.js';
 import type { CoreContext } from '../types/context/index.js';
-
-export type {
-  ProjectAnalysis,
-  ProjectAnalysisCacheData,
-  ProjectAnalysisCounts,
-  ProjectAnalysisResolveOptions,
-} from '../types/analysis/index.js';
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null;

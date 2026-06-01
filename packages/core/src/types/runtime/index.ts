@@ -27,7 +27,8 @@ export type RunOptions = {
 export type { RuntimeSystemPort } from './system.js';
 export type { RuntimePathPort } from './path.js';
 export type { RuntimeDirEntry, RuntimeFsPathKind, RuntimeFsPort, RuntimeReadFsPort } from './fs.js';
-export type { RuntimeAdapters, CoreEngineRuntime } from './adapters.js';
+export type { CoreEngineRuntime } from './capabilities.js';
+export type { RuntimeAdapters } from './adapters.js';
 export type {
   ConfigPathSystemRuntime,
   ProjectFilesystemRuntime,

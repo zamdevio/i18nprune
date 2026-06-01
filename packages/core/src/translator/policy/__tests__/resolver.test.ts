@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  policyKeyForOutcome,
-  resolveProviderActionFor,
-  type ResolveProviderActionInput,
-} from '../resolver.js';
-import type { TranslateFailureOutcome } from '../classify.js';
+import { policyKeyForOutcome, resolveProviderActionFor } from '../resolver.js';
+import type { ResolveProviderActionInput } from '../../../types/translator/policyAction.js';
+import type { TranslateFailureOutcome } from '../../../types/translator/policyOutcomes.js';
 import { TRANSLATE_POLICY_DEFAULTS } from '../../../types/translator/policy.js';
 import type { TranslatePolicy } from '../../../types/translator/policy.js';
 import { createProviderHealthMonitor } from '../../../shared/translator/utils/providerHealth.js';

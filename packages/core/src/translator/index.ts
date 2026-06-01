@@ -12,4 +12,5 @@ export * from './policy/index.js';
 export * from './providers/index.js';
 export * from './cache/index.js';
 export { runTranslate } from './run.js';
-export { createTranslateContext, type TranslateContext } from './context.js';
+export { createTranslateContext } from './context.js';
+export type { TranslateContext } from '../types/translator/context.js';

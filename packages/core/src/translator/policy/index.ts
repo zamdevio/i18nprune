@@ -1,15 +1,9 @@
-export { classifyTranslateFailure, type TranslateFailureOutcome } from './classify.js';
-export {
-  classifyProviderFailureOutcome,
-  isRetryableProviderFailure,
-  type ProviderAttemptOutcome,
-} from './fallback.js';
-export {
-  policyKeyForOutcome,
-  resolveProviderActionFor,
-  type ResolveProviderActionInput,
-  type TranslatePolicyAction,
-} from './resolver.js';
+export { classifyTranslateFailure } from './classify.js';
+export type { TranslateFailureOutcome } from '../../types/translator/policyOutcomes.js';
+export { classifyProviderFailureOutcome, isRetryableProviderFailure } from './fallback.js';
+export type { ProviderAttemptOutcome } from '../../types/translator/policyOutcomes.js';
+export { policyKeyForOutcome, resolveProviderActionFor } from './resolver.js';
+export type { ResolveProviderActionInput, TranslatePolicyAction } from '../../types/translator/policyAction.js';
 export {
   buildHandoffCatalogEligible,
   explainHandoffIneligibility,
@@ -19,6 +13,5 @@ export {
   shouldOfferHandoffInteractivePrompt,
   shouldWarnAndAbortHandoffOnNonTty,
   synthesizeHandoffTranslationOptions,
-  type HandoffCatalogBuildResult,
-  type HandoffEligibilityRow,
 } from './handoff.js';
+export type { HandoffCatalogBuildResult, HandoffEligibilityRow } from '../../types/translator/handoff.js';

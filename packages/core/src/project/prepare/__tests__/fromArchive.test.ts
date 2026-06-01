@@ -1,10 +1,10 @@
 import crypto from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { strToU8, zipSync } from 'fflate';
-import { createNodeRuntimeAdapters } from '../../runtime/exports/node.js';
-import { prepareProjectSnapshotFromArchive } from '../prepare/fromArchive.js';
-import { validateHostedProjectIngestBody } from '../validate/hostedSnapshot.js';
-import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../shared/constants/project.js';
+import { createNodeRuntimeAdapters } from '../../../runtime/exports/node.js';
+import { prepareProjectSnapshotFromArchive } from '../fromArchive.js';
+import { validateHostedProjectIngestBody } from '../../validate/hostedSnapshot.js';
+import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../../shared/constants/project.js';
 
 function minimalProjectZip(): Uint8Array {
   return zipSync({

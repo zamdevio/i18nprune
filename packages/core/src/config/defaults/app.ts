@@ -1,8 +1,5 @@
 import type { I18nPruneConfigParsed } from '../schema/root.js';
-
-export type ReferenceCommandOverrides = NonNullable<
-  NonNullable<I18nPruneConfigParsed['reference']>['commands']
->['cleanup'];
+import type { ReferenceCommandOverrides } from '../../types/reference/index.js';
 
 /** Baseline reference policy copied into defaults and per-command overrides. */
 export const REFERENCE_POLICY_SAFE_DEFAULTS: ReferenceCommandOverrides = {

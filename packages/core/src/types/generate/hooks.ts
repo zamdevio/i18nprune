@@ -7,13 +7,11 @@
  * and `run.failed`. New observability needs extend that union, not these hooks.
  */
 
-import type { TranslateFailureOutcome } from '../../translator/policy/classify.js';
-import type { HandoffEligibilityRow } from '../../translator/policy/handoff.js';
+import type { TranslateFailureOutcome } from '../translator/policyOutcomes.js';
+import type { HandoffEligibilityRow } from '../translator/handoff.js';
 import type { TranslationProviderId } from '../translator/providers.js';
 import type { TranslateRunPartialStats } from '../translator/runStats.js';
 import type { ProviderAttemptReportJson } from './generateRun.js';
-
-export type { HandoffEligibilityRow };
 
 /**
  * Why **`runGenerate`** stopped before all source leaves were translated. Hosts use this to choose

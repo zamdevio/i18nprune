@@ -121,8 +121,9 @@ export type {
   TranslateOptions,
   TranslateOutput,
   TranslateResultItem,
-  TranslateRunPartialStats,
 } from '../types/translator/translate.js';
+export type { TranslateRunPartialStats } from '../types/translator/runStats.js';
 
 export { runTranslate } from '../translator/run.js';
-export { createTranslateContext, type TranslateContext } from '../translator/context.js';
+export { createTranslateContext } from '../translator/index.js';
+export type { TranslateContext } from '../types/translator/context.js';

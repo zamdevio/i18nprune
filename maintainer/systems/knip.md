@@ -73,8 +73,6 @@ These **`index.ts`** files are **intentionally ignored as files** because knipâ€
 | `packages/core/src/runtime/index.ts` | Runtime adapter barrels (`node`, `web`, `edge`) |
 | `packages/core/src/runtime/factory/index.ts` | Factory re-exports |
 | `packages/core/src/runtime/guards/index.ts` | Host guard helpers |
-| `packages/core/src/translator/index.ts` | Translator namespace |
-| `packages/core/src/translator/errors/index.ts` | Error type barrel |
 
 **Why ignore instead of deleting exports:** Hosts import from `@i18nprune/core` or subpath exports. Those barrels aggregate stable public surface; knip only walks in-repo importers and would report every re-export as unused.
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveArchiveInputFilesEpoch } from '../prepare/resolveArchiveInputFilesEpoch.js';
+import { resolveArchiveInputFilesEpoch } from '../resolveArchiveInputFilesEpoch.js';
 
 describe('resolveArchiveInputFilesEpoch', () => {
   it('returns a stable hex digest for zip text files', async () => {

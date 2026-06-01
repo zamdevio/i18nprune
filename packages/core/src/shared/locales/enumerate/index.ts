@@ -1,5 +1,5 @@
 export { walkLocaleJsonSegments } from './walkJsonTree.js';
-export type { WalkedJsonSegment } from './walkJsonTree.js';
+export type { WalkedJsonSegment } from '../../../types/locales/walkJsonTree.js';
 export { localeCodeForSegment } from './parseSegmentLocale.js';
 export { listLocaleSegments } from './listLocaleSegments.js';
 export { listLocaleCodes } from './listLocaleCodes.js';

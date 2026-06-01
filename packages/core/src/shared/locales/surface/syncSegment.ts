@@ -7,6 +7,7 @@ import {
   resolvePairedSourceSegmentAbsolutePath,
 } from './segmentPairing.js';
 import type { CoreContext } from '../../../types/context/index.js';
+import type { SyncSegmentSourcePlan } from '../../../types/locales/syncSegment.js';
 import type { TranslationSurfaceLeaf } from '../../../types/locales/leaves/translationSurface.js';
 
 /** Build a nested canonical template object from source leaves (never literal dotted keys). */
@@ -20,15 +21,6 @@ export function buildSegmentTemplateFromSource(
   }
   return template;
 }
-
-export type SyncSegmentSourcePlan = {
-  sourceRelativePath: string;
-  sourceAbsolutePath: string;
-  sourceRaw: unknown;
-  effectiveSourceLeaves: TranslationSurfaceLeaf[];
-  template: unknown;
-  sourceMap: Map<string, string>;
-};
 
 /** Per-segment source template for sync (paired source segment, schema-filtered). */
 export function resolveSyncSegmentSourcePlan(

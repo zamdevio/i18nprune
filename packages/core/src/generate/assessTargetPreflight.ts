@@ -3,15 +3,8 @@ import { targetLocaleCoversAllSourceLeaves } from '../shared/json/targetCoverage
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
 import type { LocaleSegmentWritePlan } from '../types/locales/segmentWritePlan.js';
 import type { TranslationSurfaceLeaf } from '../types/locales/leaves/translationSurface.js';
+import type { GenerateTargetPreflight } from '../types/generate/preflight.js';
 import type { RuntimeFsPort } from '../types/runtime/fs.js';
-
-export type GenerateTargetPreflightStatus = 'proceed' | 'fully_complete' | 'partial';
-
-export type GenerateTargetPreflight = {
-  status: GenerateTargetPreflightStatus;
-  missingSegmentPaths: string[];
-  missingKeyPaths: string[];
-};
 
 /**
  * Compare target locale segments + merged JSON against schema source leaves before generate.

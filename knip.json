@@ -8,8 +8,6 @@
     "packages/core/src/runtime/factory/index.ts",
     "packages/core/src/runtime/guards/index.ts",
     "packages/core/src/runtime/index.ts",
-    "packages/core/src/translator/errors/index.ts",
-    "packages/core/src/translator/index.ts",
     "apps/workers/**/public/**"
   ],
   "ignoreExportsUsedInFile": true,

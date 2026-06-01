@@ -1,4 +1,4 @@
-import { resolveProjectAnalysis } from '../../analysis/project.js';
+import { resolveProjectAnalysis } from '../../analysis/index.js';
 import { readLocaleJsonFromContextSync } from '../../shared/locales/read/index.js';
 import { buildLocaleJsonByTagFromArchive, listLocaleCodesFromArchive } from '../../shared/locales/archive/buildLocaleJsonByTag.js';
 import { ISSUE_PROJECT_SOURCE_LOCALE_INVALID_SHAPE } from '../../shared/constants/issueCodes.js';

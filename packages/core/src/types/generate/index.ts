@@ -19,10 +19,15 @@ export type {
 
 export type { GenerateResumeCandidateLeafInput, GenerateResumeRefContext } from './resumeCandidates.js';
 export type { RunGenerateResumeLocaleInput } from './resumeRun.js';
+export type {
+  GenerateTargetPreflight,
+  GenerateTargetPreflightStatus,
+} from './preflight.js';
+export type { ListResumeTranslationJobsInput, ResumeTranslationJob } from './localeTranslateResume.js';
 
+export type { HandoffEligibilityRow } from '../translator/handoff.js';
 export type {
   GenerateRunHooks,
-  HandoffEligibilityRow,
   HandoffOffer,
   IncompleteRunDecision,
   IncompleteRunInfo,

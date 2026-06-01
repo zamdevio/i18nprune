@@ -9,6 +9,7 @@ export {
   parseI18nPruneConfig,
 } from './root.js';
 export type { I18nPruneConfigParsed } from './root.js';
+export type { ParityPolicy, PreservePolicy } from '../../types/policies/index.js';
 export type {
   I18nPruneConfig,
   CacheConfig,
@@ -17,10 +18,8 @@ export type {
   MissingCommandConfig,
   OutputConfig,
   OutputListConfig,
-  ParityPolicy,
   PatchingConfig,
   Policies,
-  PreservePolicy,
   TranslateConfig,
   TranslateMaxWorkersConfig,
   TranslatePolicyConfig,

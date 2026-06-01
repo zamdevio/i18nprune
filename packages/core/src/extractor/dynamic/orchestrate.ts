@@ -2,12 +2,8 @@ import { expandFunctionsWithBindings, scanImportBindings } from '../bindings/ind
 import { scanProjectSourceFiles } from '../shared/projectScan.js';
 import { findDynamicKeySitesForFile } from './providers/index.js';
 import { findDynamicKeySitesInJavascriptMergedText } from './providers/javascript.js';
-import type { ScanProjectFilesystemInputBase } from '../../types/extractor/projectScanInput.js';
+import type { ScanProjectDynamicKeySitesInput } from '../../types/extractor/dynamic/orchestrate.js';
 import type { DynamicKeySite } from '../../types/extractor/dynamic/index.js';
-
-export type ScanProjectDynamicKeySitesInput = ScanProjectFilesystemInputBase & {
-  functions: string[];
-};
 
 /**
  * Reuse merged source text for callers that already have it (e.g. tests).

@@ -1,6 +1,6 @@
 import type { LocaleLeafMode, LocaleMetadataReport } from '../../../../types/locales/leaves/index.js';
 import { applyLocaleLeafMode } from './applyLocaleLeafMode.js';
-import type { ResolveLocaleLeafModeInput } from '../localeLeafInputs.js';
+import type { ResolveLocaleLeafModeInput } from '../../../../types/locales/leaves/localeLeafInputs.js';
 
 export function metadataModeEnabledFromConfig(mode: LocaleLeafMode | undefined): boolean {
   return mode === 'structured';

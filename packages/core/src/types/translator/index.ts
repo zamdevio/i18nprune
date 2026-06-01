@@ -21,7 +21,13 @@ export type Translator = {
   ): Promise<string | TranslationProviderYield | TranslationResult>;
 };
 
+export type { TranslateContext } from './context.js';
+export type { TranslateRunPartialStats } from './runStats.js';
 export type * from './policy.js';
+export type * from './policyOutcomes.js';
+export type * from './policyAction.js';
+export type * from './handoff.js';
+export type * from './identityStreak.js';
 export type * from './rateLimit.js';
 export type * from './providers.js';
 export type * from './result.js';

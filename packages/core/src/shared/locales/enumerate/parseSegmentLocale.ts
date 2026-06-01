@@ -1,6 +1,6 @@
 import type { LocalesLayoutStructure } from '../../../types/locales/layout.js';
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
-import type { WalkedJsonSegment } from './walkJsonTree.js';
+import type { WalkedJsonSegment } from '../../../types/locales/walkJsonTree.js';
 
 /**
  * Infer locale code for a walked segment using {@link LocalesLayoutStructure} rules.

@@ -62,3 +62,6 @@ export type TemplatePartialKeyObservation = {
 
 export type KeyObservation = LiteralKeyObservation | TemplateResolvedKeyObservation | TemplatePartialKeyObservation;
 
+export type { ScanKeyObservationsOptions } from './scan.js';
+export type { ScanProjectKeyObservationsInput } from './orchestrate.js';
+export type { ScanProjectLiteralKeyUsageInput } from './projectUsage.js';

@@ -1,4 +1,4 @@
-import type { LocalesFilesystemConfig } from '../config/schema/root.js';
+import type { LocalesFilesystemConfig } from '../config/schema/index.js';
 import type { CachedLocalesLayout } from '../types/cache/index.js';
 
 /** Fingerprint stored in `files.json` — config-relative paths only. */

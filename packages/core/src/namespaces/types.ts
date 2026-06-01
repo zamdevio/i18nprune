@@ -88,5 +88,5 @@ export type {
 } from '../types/extractor/index.js';
 export type { ResolveKeyPlaceholdersTraceResult } from '../types/extractor/constmap/index.js';
 export type { ScanProjectFileInput, ScanProjectSourceFilesInput } from '../types/extractor/shared/index.js';
-export type { ScanKeyObservationsOptions } from '../extractor/keySites/scan.js';
+export type { ScanKeyObservationsOptions } from '../types/extractor/keySites/scan.js';
 export type { RunEmitter, RunEvent } from '../types/shared/run/index.js';

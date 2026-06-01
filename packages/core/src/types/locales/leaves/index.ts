@@ -1,10 +1,10 @@
+import type { LocaleLeafMode } from './localeLeafMode.js';
+export type { ApplyLocaleMetadataModeInput, ResolveLocaleLeafModeInput } from './localeLeafInputs.js';
 export type { LocaleSegmentSource, LocaleLeafPathApi } from './segmentSource.js';
 export type {
   TranslationSurfaceLeaf,
   TranslationSurfaceShape,
 } from './translationSurface.js';
-
-export type LocaleLeafMode = 'legacy_string' | 'structured';
 
 export type StructuredLocaleLeaf = {
   value: string;
@@ -14,6 +14,7 @@ export type StructuredLocaleLeaf = {
   needsTranslationAgain?: boolean;
   source?: string;
 };
+export type { LocaleLeafMode };
 
 export type LocaleMetadataRepairReason =
   | 'legacy_string_promoted'

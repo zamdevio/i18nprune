@@ -4,15 +4,13 @@ export {
   IDENTITY_STREAK_THRESHOLD,
   isIdentityTranslation,
   nextIdentityStreakState,
-  type IdentitySample,
-  type IdentityStreakState,
 } from './state.js';
-export {
-  createIdentityStreakGuard,
-  IDENTITY_STREAK_SAMPLE_MAX,
-  type IdentityStreakConfirmFn,
-  type IdentityStreakConfirmInput,
-  type IdentityStreakGuard,
-  type IdentityStreakGuardOptions,
-  type IdentityStreakInteractive,
-} from './guard.js';
+export type { IdentitySample, IdentityStreakState } from '../../types/translator/identityStreak.js';
+export { createIdentityStreakGuard, IDENTITY_STREAK_SAMPLE_MAX } from './guard.js';
+export type {
+  IdentityStreakConfirmFn,
+  IdentityStreakConfirmInput,
+  IdentityStreakGuard,
+  IdentityStreakGuardOptions,
+  IdentityStreakInteractive,
+} from '../../types/translator/identityStreak.js';

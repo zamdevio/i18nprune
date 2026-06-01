@@ -11,20 +11,12 @@ import {
   normalizeUnknownError,
 } from '../../shared/errors/index.js';
 import type { Issue, Result } from '../../types/json/envelope/index.js';
-import type { ConfigPathSystemRuntime } from '../../types/runtime/capabilities.js';
-import type { CoreConfigInput, CoreConfigResolved, ResolveCoreConfigOptions } from '../../types/config/index.js';
+import type { CoreConfigInput, CoreConfigResolved } from '../../types/config/index.js';
+import type { LoadCoreConfigFromPathInput } from '../../types/config/resolveLayers.js';
+
+type ParseConfigText = NonNullable<LoadCoreConfigFromPathInput['parseText']>;
 import { parseJsonText } from '../../shared/json/parse.js';
 import { resolveCoreConfig } from './core.js';
-
-type ParseConfigText = (text: string, configPath: string) => unknown | Promise<unknown>;
-
-export type LoadCoreConfigFromPathInput = {
-  configPath: string;
-  readText: (configPath: string) => string | Promise<string>;
-  parseText?: ParseConfigText;
-  resolveOptions?: ResolveCoreConfigOptions;
-  runtime?: ConfigPathSystemRuntime;
-};
 
 function normalizeLoadError(configPath: string, error: unknown): I18nPruneError {
   if (isErrnoCode(error, 'ENOENT')) {

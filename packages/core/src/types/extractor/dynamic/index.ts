@@ -9,6 +9,8 @@ export type DynamicKeySiteKind =
   /** First argument appears inside a line or block comment (inactive for runtime). */
   | 'commented';
 
+export type { ScanProjectDynamicKeySitesInput } from './orchestrate.js';
+
 export type DynamicKeySite = {
   kind: DynamicKeySiteKind;
   /** Function name as configured (e.g. `t`). */

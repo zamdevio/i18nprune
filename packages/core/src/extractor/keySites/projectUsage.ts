@@ -1,6 +1,6 @@
 import type { KeyObservation } from '../../types/extractor/keySites/index.js';
 import { scanProjectKeyObservations } from './orchestrate.js';
-import type { ScanProjectFilesystemInputBase } from '../../types/extractor/projectScanInput.js';
+import type { ScanProjectLiteralKeyUsageInput } from '../../types/extractor/keySites/projectUsage.js';
 import type { ProjectLiteralKeyUsage } from '../../types/extractor/projectLiteralKeyUsage.js';
 
 function topPathSegment(path: string): string | null {
@@ -33,10 +33,6 @@ export function literalKeyUsageFromObservations(observations: KeyObservation[]):
 
   return { resolvedKeys, uncertainPrefixes, usedRoots };
 }
-
-export type ScanProjectLiteralKeyUsageInput = ScanProjectFilesystemInputBase & {
-  functions: string[];
-};
 
 /** Scan files and fold directly into project literal-key usage. */
 export function scanProjectLiteralKeyUsage(input: ScanProjectLiteralKeyUsageInput): ProjectLiteralKeyUsage {

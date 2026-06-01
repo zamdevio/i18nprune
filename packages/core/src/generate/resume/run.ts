@@ -16,7 +16,7 @@ import {
   resolveTranslateMaxParallelEffective,
   resolveTranslateRateLimitEffective,
 } from '../../translator/limits/parallel.js';
-import { classifyProviderFailureOutcome, isRetryableProviderFailure } from '../../translator/policy/fallback.js';
+import { classifyProviderFailureOutcome, isRetryableProviderFailure } from '../../translator/policy/index.js';
 import { TranslateRunInterruptedError } from '../../translator/errors/interrupted.js';
 import { IdentityAbortError } from '../../translator/identity/error.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';

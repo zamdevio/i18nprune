@@ -6,7 +6,7 @@ import type {
   LocaleMetadataReport,
   LocaleMetadataRepairReason,
 } from '../../../../types/locales/leaves/index.js';
-import type { ApplyLocaleMetadataModeInput } from '../localeLeafInputs.js';
+import type { ApplyLocaleMetadataModeInput } from '../../../../types/locales/leaves/localeLeafInputs.js';
 import {
   bump,
   classifyLeafRuntimeKind,

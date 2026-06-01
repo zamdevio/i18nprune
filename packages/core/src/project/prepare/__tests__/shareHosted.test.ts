@@ -3,14 +3,14 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CONFIG, parseI18nPruneConfig } from '../../config/index.js';
-import { initializeCacheState } from '../../cache/setup/index.js';
-import { createCoreContext } from '../../generate/context.js';
-import { createNodeRuntimeAdapters } from '../../runtime/exports/node.js';
-import type { CacheRuntime } from '../../types/cache/index.js';
-import { prepareShareHostedFromContext } from '../prepare/shareHosted.js';
-import { validateHostedProjectIngestBody } from '../validate/hostedSnapshot.js';
-import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../shared/constants/project.js';
+import { DEFAULT_CONFIG, parseI18nPruneConfig } from '../../../config/index.js';
+import { initializeCacheState } from '../../../cache/setup/index.js';
+import { createCoreContext } from '../../../generate/context.js';
+import { createNodeRuntimeAdapters } from '../../../runtime/exports/node.js';
+import type { CacheRuntime } from '../../../types/cache/index.js';
+import { prepareShareHostedFromContext } from '../shareHosted.js';
+import { validateHostedProjectIngestBody } from '../../validate/hostedSnapshot.js';
+import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../../shared/constants/project.js';
 
 function nodeCacheRuntime(adapters: ReturnType<typeof createNodeRuntimeAdapters>): CacheRuntime {
   return {

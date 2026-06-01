@@ -6,7 +6,7 @@ import {
 import type { DynamicKeySite } from '../../types/extractor/dynamic/index.js';
 import type { KeyObservation } from '../../types/extractor/keySites/index.js';
 import type { ProjectLiteralKeyUsage } from '../../types/extractor/projectLiteralKeyUsage.js';
-import type { ScanProjectLiteralKeyUsageInput } from '../../extractor/keySites/projectUsage.js';
+import type { ScanProjectLiteralKeyUsageInput } from '../../types/extractor/keySites/projectUsage.js';
 import type { EffectiveReferenceConfig, KeyReferenceContext } from '../../types/reference/index.js';
 
 export type BuildKeyReferenceContextInput = ScanProjectLiteralKeyUsageInput;

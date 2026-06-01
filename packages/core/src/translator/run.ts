@@ -13,7 +13,7 @@ import { createIdentityStreakGuard, IDENTITY_STREAK_THRESHOLD } from './identity
 import {
   classifyProviderFailureOutcome,
   isRetryableProviderFailure,
-} from './policy/fallback.js';
+} from './policy/index.js';
 import { resolveTranslateMaxParallelEffective } from './limits/parallel.js';
 import {
   assertTranslationProviderCredentialsReady,
@@ -27,9 +27,9 @@ import type {
   TranslateOptions,
   TranslateOutput,
   TranslateResultItem,
-  TranslateRunPartialStats,
 } from '../types/translator/translate.js';
-import type { TranslateContext } from './context.js';
+import type { TranslateRunPartialStats } from '../types/translator/runStats.js';
+import type { TranslateContext } from '../types/translator/context.js';
 
 type InternalLeaf = {
   readonly originalIndex: number;

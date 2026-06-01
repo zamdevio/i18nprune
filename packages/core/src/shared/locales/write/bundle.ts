@@ -6,7 +6,7 @@ import { invalidateLocaleReadCacheForAbsolutePath } from '../read/index.js';
 import type { ResolvedLocalesLayout } from '../../../types/locales/layout.js';
 import type { CoreContext } from '../../../types/context/index.js';
 import { writeFlatLocaleJsonDocument } from './flatFileLocaleJson.js';
-import type { WriteFlatLocaleJsonDocumentResult } from './flatFileLocaleJson.js';
+import type { WriteFlatLocaleJsonDocumentResult } from '../../../types/locales/writeFlatDocument.js';
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';

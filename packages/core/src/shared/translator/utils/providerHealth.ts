@@ -1,4 +1,4 @@
-import type { TranslateFailureOutcome } from '../../../translator/policy/classify.js';
+import type { TranslateFailureOutcome } from '../../../types/translator/policyOutcomes.js';
 
 /**
  * Outcome class accepted by {@link ProviderHealthMonitor.onAttemptResult}. Extends the failure

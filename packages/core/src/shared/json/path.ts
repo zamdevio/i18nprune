@@ -1,8 +1,6 @@
 import type { PathSegment } from '../../types/json/path/index.js';
 import { deepClone } from './clone.js';
 
-export type { PathSegment };
-
 /** Split a path like `a.b[0].c` into segments. */
 export function splitPath(pathStr: string): PathSegment[] {
   const parts: PathSegment[] = [];

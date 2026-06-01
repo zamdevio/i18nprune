@@ -1,4 +1,4 @@
-export type { ApplyLocaleMetadataModeInput, ResolveLocaleLeafModeInput } from './localeLeafInputs.js';
+export type { ApplyLocaleMetadataModeInput, ResolveLocaleLeafModeInput } from '../../../types/locales/leaves/localeLeafInputs.js';
 export { applyLocaleLeafMode } from './mode/applyLocaleLeafMode.js';
 export {
   applyLocaleLeafNormalization,

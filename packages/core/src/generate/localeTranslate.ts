@@ -20,6 +20,10 @@ import type { TranslateStartRateLimit } from '../types/translator/rateLimit.js';
 import type { TranslationSurfaceLeaf } from '../types/locales/leaves/index.js';
 import type { EffectiveReferenceConfig } from '../types/reference/index.js';
 import type { GenerateResumeRefContext } from '../types/generate/resumeCandidates.js';
+import type {
+  ListResumeTranslationJobsInput,
+  ResumeTranslationJob,
+} from '../types/generate/localeTranslateResume.js';
 import type { TranslateCacheHitLayer } from '../types/translator/cache.js';
 import type { TranslateRunPartialStats } from '../types/translator/runStats.js';
 
@@ -428,19 +432,6 @@ export function localeJsonHasKeyPath(data: unknown, keyPath: string): boolean {
 }
 
 // --- `generate --resume` (same translation orchestration as full generate via **`runOrderedTranslateStringJobs`**) ---
-
-export type ResumeTranslationJob = { leafIndex: number; path: string; value: string };
-
-export type ListResumeTranslationJobsInput = {
-  tLeaves: readonly TranslationSurfaceLeaf[];
-  next: unknown;
-  sourceMap: Map<string, string>;
-  refCtx: GenerateResumeRefContext;
-  eff: EffectiveReferenceConfig;
-  preserve?: PreservePolicy;
-  parity?: ParityPolicy;
-  dryRun: boolean;
-};
 
 /**
  * Classify review leaves into network translation jobs (used for **`generate --resume`** progress totals

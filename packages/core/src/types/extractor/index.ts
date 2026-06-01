@@ -11,7 +11,10 @@ export type {
   TemplateResolvedKeyObservation,
 } from './keySites/index.js';
 export type { ResolveKeyPlaceholdersTraceResult } from './constmap/index.js';
+export type { ScanProjectDynamicKeySitesInput } from './dynamic/orchestrate.js';
 export type { ScanProjectFileInput, ScanProjectSourceFilesInput } from './shared/index.js';
 export type { ScanProjectFilesystemInputBase } from './projectScanInput.js';
+export type { ScanKeyObservationsOptions } from './keySites/scan.js';
+export type { ScanProjectKeyObservationsInput } from './keySites/orchestrate.js';
+export type { ScanProjectLiteralKeyUsageInput } from './keySites/projectUsage.js';
 export type { ImportBinding, ImportBindingSource } from './bindings/index.js';
-

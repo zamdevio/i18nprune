@@ -1,6 +1,7 @@
 import { I18nPruneError } from '../shared/errors/index.js';
 import { createLocaleReadCache } from '../shared/locales/read/index.js';
-import { createTranslateContext, type TranslateContext } from '../translator/context.js';
+import { createTranslateContext } from '../translator/index.js';
+import type { TranslateContext } from '../types/translator/context.js';
 import type { CoreContext } from '../types/context/index.js';
 
 export function createCoreContext(input: {

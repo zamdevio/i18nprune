@@ -1,6 +1,6 @@
 import { existsRuntimeFsSync } from '../../runtime/helpers/sync/index.js';
 import { localeCodeForSegment } from '../../shared/locales/enumerate/parseSegmentLocale.js';
-import { walkLocaleJsonSegments } from '../../shared/locales/enumerate/walkJsonTree.js';
+import { walkLocaleJsonSegments } from '../../shared/locales/enumerate/index.js';
 import type { LocalesLayoutMode, LocalesLayoutStructure } from '../../types/locales/layout.js';
 import type { InitFilesystemHost } from '../../types/init/index.js';
 import type { InitLocaleLayoutHint } from '../../types/init/index.js';

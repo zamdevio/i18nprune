@@ -3,12 +3,8 @@ import { buildConstStringMap } from '../constmap/build.js';
 import { commentRangesForJsLikeText } from '../shared/jslikeTextRanges.js';
 import { scanProjectSourceFiles } from '../shared/projectScan.js';
 import { scanKeyObservations } from './scan.js';
-import type { ScanProjectFilesystemInputBase } from '../../types/extractor/projectScanInput.js';
+import type { ScanProjectKeyObservationsInput } from '../../types/extractor/keySites/orchestrate.js';
 import type { KeyObservation } from '../../types/extractor/keySites/index.js';
-
-export type ScanProjectKeyObservationsInput = ScanProjectFilesystemInputBase & {
-  functions: string[];
-};
 
 /** Project-wide key observation scan with per-file path metadata. */
 export function scanProjectKeyObservations(input: ScanProjectKeyObservationsInput): KeyObservation[] {

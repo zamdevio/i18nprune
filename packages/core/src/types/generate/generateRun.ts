@@ -1,12 +1,12 @@
 import type { Issue } from '../json/envelope/index.js';
 import type { LocaleMetadataReport } from '../locales/leaves/index.js';
 import type { TranslationProviderId } from '../translator/providers.js';
-import type { IdentityStreakGuard } from '../../translator/identity/guard.js';
+import type { IdentityStreakGuard } from '../translator/identityStreak.js';
 import type { IdentityAbortError } from '../../translator/identity/error.js';
 import type { TranslationTickProgressFn } from '../progress/index.js';
 import type { RunEmitter, RunEvent } from '../../shared/run/index.js';
-import type { TranslateFailureOutcome } from '../../translator/policy/classify.js';
-import type { ProviderAttemptOutcome } from '../../translator/policy/fallback.js';
+import type { TranslateFailureOutcome } from '../translator/policyOutcomes.js';
+import type { ProviderAttemptOutcome } from '../translator/policyOutcomes.js';
 import type { GenerateResumeRefContext } from './resumeCandidates.js';
 
 /** Shared per-target counters for JSON payloads (CLI-compatible). */

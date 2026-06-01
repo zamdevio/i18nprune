@@ -4,6 +4,7 @@ import { findTranslationCallSites } from '../shared/calls.js';
 import { offsetInCommentRanges } from '../shared/jslikeTextRanges.js';
 import type { KeyObservation, SourceSpan } from '../../types/extractor/keySites/index.js';
 import { lineNumberAtIndex } from './line.js';
+import type { ScanKeyObservationsOptions } from '../../types/extractor/keySites/scan.js';
 
 function spanAtOffset(
   text: string,
@@ -18,12 +19,6 @@ function spanAtOffset(
     charOffset: offset,
   };
 }
-
-export type ScanKeyObservationsOptions = {
-  /** When set, skip calls whose start offset lies inside these comment ranges (line/block). */
-  commentRanges?: Array<{ start: number; end: number }>;
-};
-
 /**
  * Scan source text for translation call patterns; emit structured observations.
  * Matches {@link import('../shared/literals.js').exactLiteralKeys} resolution rules (quoted literals + backtick templates).

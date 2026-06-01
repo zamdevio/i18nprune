@@ -2,12 +2,11 @@ import { localeSegmentRefFromAbsolute } from '../enumerate/resolveSegmentPath.js
 import { isLocalesLayoutReadSupported } from '../layout/resolveLayout.js';
 import type { ResolvedLocalesLayout } from '../../../types/locales/layout.js';
 import { readFlatLocaleJsonSurface } from './flatFileSurface.js';
-import type { ReadFlatLocaleJsonSurfaceResult } from './flatFileSurface.js';
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
 
-export type ReadLocaleBundleResult = ReadFlatLocaleJsonSurfaceResult;
+import type { ReadLocaleBundleResult } from '../../../types/locales/readFlatSurface.js';
 
 export function readLocaleBundle(input: {
   layout: ResolvedLocalesLayout;

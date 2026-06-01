@@ -5,13 +5,9 @@ import { collectTranslationSurfaceLeaves } from '../leaves/index.js';
 import { localeSegmentSourceForFile } from '../leaves/segmentSource/localeSegmentSourceForFile.js';
 import type { LocalesLayoutStructure } from '../../../types/locales/layout.js';
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
-import type { TranslationSurfaceLeaf } from '../../../types/locales/leaves/translationSurface.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
-
-export type ReadFlatLocaleJsonSurfaceResult =
-  | { ok: true; document: unknown; leaves: TranslationSurfaceLeaf[]; text: string; diagnostics: LocaleReadDiagnostic[] }
-  | { ok: false; leaves: []; diagnostics: LocaleReadDiagnostic[] };
+import type { ReadFlatLocaleJsonSurfaceResult } from '../../../types/locales/readFlatSurface.js';
 
 export function readFlatLocaleJsonSurface(input: {
   fs: RuntimeFsPort;

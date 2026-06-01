@@ -10,6 +10,7 @@ import {
   ISSUE_GENERATE_TRANSLATE_RATE_LIMITED,
 } from '../../shared/constants/issueCodes.js';
 import type { Issue } from '../../types/json/envelope/index.js';
+import type { ProviderAttemptOutcome } from '../../types/translator/policyOutcomes.js';
 
 function getIssues(err: unknown): Issue[] {
   const maybe = err as { issues?: unknown } | undefined;
@@ -21,12 +22,6 @@ export function isRetryableProviderFailure(err: unknown): boolean {
   const codes = new Set(getIssues(err).map((i) => i.code));
   return codes.has(ISSUE_GENERATE_TRANSLATE_RATE_LIMITED) || codes.has(ISSUE_GENERATE_TRANSLATE_NETWORK_ERROR);
 }
-
-export type ProviderAttemptOutcome =
-  | 'success'
-  | 'rate_limited'
-  | 'network_error'
-  | 'non_retryable_error';
 
 export function classifyProviderFailureOutcome(err: unknown): ProviderAttemptOutcome {
   const codes = new Set(getIssues(err).map((i) => i.code));

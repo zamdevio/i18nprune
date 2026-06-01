@@ -1,7 +1,6 @@
 export { readFlatLocaleJsonSurface } from './flatFileSurface.js';
-export type { ReadFlatLocaleJsonSurfaceResult } from './flatFileSurface.js';
+export type { ReadFlatLocaleJsonSurfaceResult, ReadLocaleBundleResult } from '../../../types/locales/readFlatSurface.js';
 export { readLocaleBundle } from './bundle.js';
-export type { ReadLocaleBundleResult } from './bundle.js';
 export {
   readLocaleCodeSurfaceFromContext,
   readLocaleJsonFromContextSync,

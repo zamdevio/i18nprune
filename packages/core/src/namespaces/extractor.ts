@@ -30,15 +30,15 @@ export {
 export { lineNumberAtIndex, scanKeyObservations, resolvedKeysFromObservations } from '../extractor/keySites/index.js';
 export { scanProjectKeyObservations } from '../extractor/keySites/index.js';
 export { literalKeyUsageFromObservations, scanProjectLiteralKeyUsage } from '../extractor/keySites/projectUsage.js';
-export type { ScanKeyObservationsOptions } from '../extractor/keySites/scan.js';
-export type { ScanProjectKeyObservationsInput } from '../extractor/keySites/orchestrate.js';
-export type { ScanProjectLiteralKeyUsageInput } from '../extractor/keySites/projectUsage.js';
+export type { ScanKeyObservationsOptions } from '../types/extractor/keySites/scan.js';
+export type { ScanProjectKeyObservationsInput } from '../types/extractor/keySites/orchestrate.js';
+export type { ScanProjectLiteralKeyUsageInput } from '../types/extractor/keySites/projectUsage.js';
 
 export type { ProjectLiteralKeyUsage } from '../types/extractor/projectLiteralKeyUsage.js';
 export type { ResolveKeyPlaceholdersTraceResult } from '../types/extractor/constmap/index.js';
 export type { TranslationCallSite } from '../types/extractor/calls/index.js';
 export type { DynamicKeySite, DynamicKeySiteKind } from '../types/extractor/dynamic/index.js';
-export type { ScanProjectDynamicKeySitesInput } from '../extractor/dynamic/orchestrate.js';
+export type { ScanProjectDynamicKeySitesInput } from '../types/extractor/dynamic/orchestrate.js';
 export type {
   ConstSubstitutionStep,
   KeyObservation,

@@ -409,7 +409,6 @@ export type TranslateProviderRow =
 
 export type TranslateMaxWorkersConfig = number;
 export type TranslatePolicyConfig = TranslatePolicy;
-export type { ParityPolicy, PreservePolicy };
 
 export type Policies = {
   preserve?: PreservePolicy;

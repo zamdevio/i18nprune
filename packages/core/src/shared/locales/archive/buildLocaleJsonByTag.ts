@@ -1,4 +1,4 @@
-import type { LocalesFilesystemConfig } from '../../../config/schema/root.js';
+import type { LocalesFilesystemConfig } from '../../../config/schema/index.js';
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import { localeCodeForSegment } from '../enumerate/parseSegmentLocale.js';
 import { resolveLocalesLayout } from '../layout/resolveLayout.js';

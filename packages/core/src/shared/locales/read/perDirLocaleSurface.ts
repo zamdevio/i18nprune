@@ -5,7 +5,7 @@ import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
 import { listLocaleSegments } from '../enumerate/listLocaleSegments.js';
 import { readFlatLocaleJsonSurface } from './flatFileSurface.js';
-import type { ReadFlatLocaleJsonSurfaceResult } from './flatFileSurface.js';
+import type { ReadFlatLocaleJsonSurfaceResult } from '../../../types/locales/readFlatSurface.js';
 
 /**
  * Read and merge all JSON segments for one locale code (`locale_per_dir` or `feature_bundle`).

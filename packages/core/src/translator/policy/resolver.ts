@@ -4,7 +4,8 @@ import type {
   TranslatePolicyVerb,
 } from '../../types/translator/policy.js';
 import { TRANSLATE_POLICY_DEFAULTS } from '../../types/translator/policy.js';
-import type { TranslateFailureOutcome } from './classify.js';
+import type { TranslateFailureOutcome } from '../../types/translator/policyOutcomes.js';
+import type { ResolveProviderActionInput, TranslatePolicyAction } from '../../types/translator/policyAction.js';
 
 /**
  * Policy keys that carry a verb (i.e. the `on*` keys). Excludes scalars like
@@ -21,61 +22,6 @@ type VerbPolicyKey = Extract<
   | 'onIdentityOutput'
   | 'onIncompleteRun'
 >;
-
-/**
- * One canonical decision the resolver returns. Carries enough diagnostic context
- * for `runGenerate` (step 6) to log the policy choice without re-deriving why.
- */
-export type TranslatePolicyAction = {
-  /** The action `runGenerate` should apply for this attempt. */
-  readonly verb: TranslatePolicyVerb;
-  /**
-   * When the resolver upgraded a softer verb to a harder one (currently only
-   * `'backoff'` → `'fallback'` via `health.shouldEscalate`), this records the
-   * pre-escalation verb. Absent when the policy verb stood as-is.
-   */
-  readonly escalatedFrom?: TranslatePolicyVerb;
-  /**
-   * Stable, machine-friendly explanation. One of:
-   * - `policy.<key>=<verb>` — the verb came verbatim from the user's policy entry.
-   * - `unknown_hard_stop_always_aborts` — D9 hardcoded path.
-   * - `escalated_after_backoff_streak>=<N>` — health monitor exhausted.
-   *
-   * Stable enough for tests and JSON-envelope route summaries (step 8).
-   */
-  readonly reason: string;
-};
-
-/**
- * Inputs for {@link resolveProviderActionFor}. Everything required is host-agnostic.
- */
-export type ResolveProviderActionInput = {
-  /** Classified outcome of the failed attempt (from {@link classifyTranslateFailure}). */
-  readonly outcome: TranslateFailureOutcome;
-  /** Resolved translate-policy from `parseI18nPruneConfig` (every key present). */
-  readonly policy: TranslatePolicy;
-  /** Shared per-run health monitor. The resolver records the attempt when it returns `'backoff'`. */
-  readonly health: ProviderHealthMonitor;
-  /** Provider id whose attempt just failed. Required for health bookkeeping. */
-  readonly providerId: string;
-  /**
-   * Per-provider backoff escalation threshold. After this many consecutive backoffs on
-   * the same provider, the resolver upgrades `'backoff'` → `'fallback'`.
-   *
-   * Per `translate-policy (shipped)` §7, callers derive this from
-   * `ceil(policy.maxAttempts / chain.length)` so the cross-provider budget yields
-   * "one shot per provider in chain" by default. When omitted, falls back to
-   * `policy.maxAttempts ?? 1` — the safe value for single-provider setups but a
-   * footgun for multi-provider chains, so the caller is expected to pass it.
-   */
-  readonly escalationThreshold?: number;
-  /**
-   * Optional `Retry-After`-derived hint forwarded to the health monitor when the
-   * resolver decides to record a backoff. When absent, the monitor's exponential
-   * fallback applies.
-   */
-  readonly hint?: { readonly retryAfterMs?: number };
-};
 
 /**
  * Map an outcome to the policy key whose verb governs it. Exported for tests and

@@ -2,14 +2,8 @@ import type { Issue } from '../json/envelope/index.js';
 import type { TranslationProviderId } from './providers.js';
 import type { TranslationLeafMeta } from './result.js';
 import type { TranslationTickProgressFn } from '../progress/tick.js';
-import type { ProviderAttemptOutcome } from '../../translator/policy/fallback.js';
+import type { ProviderAttemptOutcome } from './policyOutcomes.js';
 import type { TranslateRunPartialStats } from './runStats.js';
-
-/**
- * Re-export so SDK consumers building **`TranslateOptions`** don't need to know which sub-module
- * defines the partial-stats shape.
- */
-export type { TranslateRunPartialStats };
 
 /**
  * Per-leaf input keyed by an arbitrary stable identifier. The translator preserves order; the

@@ -11,4 +11,4 @@ export {
   resolveSyncSegmentSourcePlan,
   buildSegmentTemplateFromSource,
 } from './syncSegment.js';
-export type { SyncSegmentSourcePlan } from './syncSegment.js';
+export type { SyncSegmentSourcePlan } from '../../../types/locales/syncSegment.js';

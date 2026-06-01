@@ -4,7 +4,7 @@ import type { LocaleLeafPathApi } from '../../types/locales/leaves/segmentSource
 import type { RuntimeFsPort } from '../../types/runtime/fs.js';
 import { localeCodeForSegment } from '../../shared/locales/enumerate/parseSegmentLocale.js';
 import { listLocaleSegments } from '../../shared/locales/enumerate/listLocaleSegments.js';
-import { walkLocaleJsonSegments } from '../../shared/locales/enumerate/walkJsonTree.js';
+import { walkLocaleJsonSegments } from '../../shared/locales/enumerate/index.js';
 import { isLocalesStructureRequired } from '../../shared/locales/layout/requireStructure.js';
 import { resolveLocalesLayout } from '../../shared/locales/layout/resolveLayout.js';
 import { normalizeLanguageCode } from '../../shared/languages/normalize.js';

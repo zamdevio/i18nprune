@@ -10,16 +10,7 @@
  */
 export const IDENTITY_STREAK_THRESHOLD = 8;
 
-export type IdentitySample = {
-  readonly sourceText: string;
-  readonly translatedText: string;
-  readonly path: string;
-};
-
-export type IdentityStreakState = {
-  consecutiveIdentity: number;
-  lastPath: string;
-};
+import type { IdentityStreakState } from '../../types/translator/identityStreak.js';
 
 function normalizeIdentityText(text: string): string {
   return text.replace(/\s+/g, ' ').trim().toLowerCase();

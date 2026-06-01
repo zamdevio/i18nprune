@@ -4,6 +4,8 @@ export type {
   OutputListConfigInput,
   ResolveCoreConfigOptions,
 } from './core.js';
+export type { LocalesSourceInputKind, LocalesSourceValidationResult } from './localesSource.js';
+export type { CoreConfigLayer, LoadCoreConfigFromPathInput } from './resolveLayers.js';
 export type {
   ResolvedTranslateConfig,
   ResolvedTranslateProviderRow,

@@ -14,7 +14,7 @@ import { ISSUE_IO_READ_FAILED } from '../../constants/issueCodes.js';
 import { I18nPruneError } from '../../errors/index.js';
 import { dropLocaleCodeReadCache } from './cache.js';
 import { readLocaleBundle } from './bundle.js';
-import type { ReadFlatLocaleJsonSurfaceResult } from './flatFileSurface.js';
+import type { ReadFlatLocaleJsonSurfaceResult } from '../../../types/locales/readFlatSurface.js';
 
 function storeSegmentSnapshot(
   ctx: CoreContext,

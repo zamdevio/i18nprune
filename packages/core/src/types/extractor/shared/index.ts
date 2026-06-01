@@ -1,4 +1,4 @@
-import type { CoreEngineRuntime } from '../../runtime/adapters.js';
+import type { CoreEngineRuntime } from '../../runtime/capabilities.js';
 import type { RuntimePathPort } from '../../runtime/path.js';
 import type { ScanExcludeConfig } from '../../scanner/exclude.js';
 import type { ListSourceFilesOptions } from '../../scanner/debug.js';

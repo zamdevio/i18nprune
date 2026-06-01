@@ -39,21 +39,22 @@ import {
   resolveTranslateMaxParallelEffective,
   resolveTranslateRateLimitEffective,
 } from '../translator/limits/parallel.js';
-import { classifyProviderFailureOutcome, isRetryableProviderFailure } from '../translator/policy/fallback.js';
-import { classifyTranslateFailure } from '../translator/policy/classify.js';
 import {
   buildHandoffCatalogEligible,
+  classifyProviderFailureOutcome,
+  classifyTranslateFailure,
+  isRetryableProviderFailure,
   prioritizeProviderAfter,
+  resolveProviderActionFor,
   shouldOfferHandoffInteractivePrompt,
   shouldWarnAndAbortHandoffOnNonTty,
   synthesizeHandoffTranslationOptions,
-} from '../translator/policy/handoff.js';
-import { resolveProviderActionFor } from '../translator/policy/resolver.js';
+} from '../translator/policy/index.js';
 import type { TranslatePolicyVerb } from '../types/translator/policy.js';
 import { TRANSLATE_POLICY_DEFAULTS } from '../types/translator/policy.js';
 import { createProviderHealthMonitor } from '../shared/translator/utils/providerHealth.js';
 import { IdentityAbortError } from '../translator/identity/error.js';
-import type { IdentityStreakGuard } from '../translator/identity/guard.js';
+import type { IdentityStreakGuard } from '../types/translator/identityStreak.js';
 import { assessGenerateTargetPreflight } from './assessTargetPreflight.js';
 import { buildGenerateSourceLeavesFromSchema } from './buildSourceLeaves.js';
 import { sourceLeavesMissingFromTarget, workingLocaleForGenerate } from './missingTargetLeaves.js';

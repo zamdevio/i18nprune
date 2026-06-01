@@ -1,9 +1,15 @@
 export type * from './read.js';
 export type * from './readCache.js';
+export type * from './readFlatSurface.js';
+export type * from './writeFlatDocument.js';
 export type * from './enumerate.js';
+export type * from './walkJsonTree.js';
 export type * from './layout.js';
 export type * from './projection.js';
 export type * from './segmentWritePlan.js';
+export type * from './syncSegment.js';
+export type * from './syncLangSelection.js';
+export type * from './targets.js';
 export type * from './leaves/index.js';
 export type {
   DynamicHostHooks,

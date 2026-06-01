@@ -7,7 +7,7 @@ export {
   sourceLocaleCodeFromContext,
   targetLocaleCodesFromContext,
 } from './context.js';
-export type { LocaleSegmentTarget, ResolveLocaleSegmentTargetsInput } from './context.js';
+export type { LocaleSegmentTarget, ResolveLocaleSegmentTargetsInput } from '../../../types/locales/targets.js';
 export {
   listSourceLocaleWriteTargets,
   resolvePrimaryTargetWritePath,

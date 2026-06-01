@@ -2,12 +2,7 @@ import { resolveCacheConfig } from '../../cache/resolveConfig.js';
 import { resolveListWindow } from '../../shared/options/index.js';
 import { resolveScannerConfig } from '../../shared/scanner/config.js';
 import type { CoreConfigInput, CoreConfigResolved, ResolveCoreConfigOptions } from '../../types/config/index.js';
-
-export type CoreConfigLayer = {
-  /** Optional label for debugging/traceability (host-defined). */
-  name?: string;
-  input: CoreConfigInput;
-};
+import type { CoreConfigLayer } from '../../types/config/resolveLayers.js';
 
 export function mergeCoreConfigInputs(a: CoreConfigInput | undefined, b: CoreConfigInput | undefined): CoreConfigInput {
   return {

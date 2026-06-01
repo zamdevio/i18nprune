@@ -6,7 +6,8 @@ export type {
   RuntimeReadFsPort,
   RuntimeSystemPort,
 } from '../runtime/contracts/index.js';
-export type { CoreEngineRuntime, RuntimeAdapters } from '../types/runtime/adapters.js';
+export type { CoreEngineRuntime } from '../types/runtime/capabilities.js';
+export type { RuntimeAdapters } from '../types/runtime/adapters.js';
 export type {
   ConfigPathSystemRuntime,
   ProjectFilesystemRuntime,

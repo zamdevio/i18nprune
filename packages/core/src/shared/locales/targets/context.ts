@@ -1,15 +1,9 @@
 import type { CoreContext } from '../../../types/context/index.js';
-import type { LocaleSegmentRef } from '../../../types/locales/enumerate.js';
 import { listLocaleCodesFromContext, listLocaleSegmentsFromContext } from '../enumerate/fromContext.js';
 import { localeSegmentRefFromAbsolute } from '../enumerate/resolveSegmentPath.js';
 import { resolveLocalesLayoutFromContext } from '../layout/resolveLayout.js';
 import { normalizeLanguageCode } from '../../languages/normalize.js';
-import type { parseSyncLangSelection } from '../../../locales/targets.js';
-
-export type LocaleSegmentTarget = LocaleSegmentRef & {
-  /** Stable report key: segment `relativePath` (e.g. `en.json`, `en/auth.json`). */
-  reportKey: string;
-};
+import type { LocaleSegmentTarget, ResolveLocaleSegmentTargetsInput } from '../../../types/locales/targets.js';
 
 function normalizeCode(code: string): string {
   return normalizeLanguageCode(code);
@@ -63,10 +57,6 @@ export function primarySegmentForLocale(ctx: CoreContext, localeCode: string): L
   if (sourceMatch) return sourceMatch;
   return segments.slice().sort((a, b) => a.relativePath.localeCompare(b.relativePath))[0];
 }
-
-export type ResolveLocaleSegmentTargetsInput = {
-  selection: ReturnType<typeof parseSyncLangSelection>;
-};
 
 /**
  * Segment files to process for sync / quality / review style ops (one row per on-disk JSON segment).

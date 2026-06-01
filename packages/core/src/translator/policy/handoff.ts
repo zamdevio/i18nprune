@@ -15,6 +15,7 @@ import {
 import type { TranslateConfigInput } from '../../types/config/index.js';
 import type { ResolvedTranslationProviderOptions, TranslationProviderId } from '../../types/translator/providers.js';
 import { resolveTranslationProviderOptionsForId } from '../providers/options.js';
+import type { HandoffCatalogBuildResult, HandoffEligibilityRow } from '../../types/translator/handoff.js';
 
 function trimStr(s: string | undefined): string | undefined {
   const t = s?.trim();
@@ -57,18 +58,6 @@ export function shouldWarnAndAbortHandoffOnNonTty(params: {
 }): boolean {
   return params.routing === 'single' && params.handoff === 'on' && !params.isTty;
 }
-
-export type HandoffEligibilityRow = {
-  readonly id: TranslationProviderId;
-  /** True only when this row is first in the eligible list and is `google`. */
-  readonly recommended: boolean;
-};
-
-export type HandoffCatalogBuildResult = {
-  readonly eligibleRows: readonly HandoffEligibilityRow[];
-  /** Human-readable reason per provider id filtered out (for empty-pool messages). */
-  readonly ineligibleReasons: Readonly<Record<string, string>>;
-};
 
 function deeplEligible(env: TranslatorEnv, config: TranslateConfigInput | undefined): boolean {
   const fileMatch = config?.providers?.find((p) => p.id === 'deepl' && p.enabled !== false);

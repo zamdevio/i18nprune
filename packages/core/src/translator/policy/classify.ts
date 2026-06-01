@@ -1,4 +1,5 @@
 import { isErrnoCode } from '../../shared/errors/index.js';
+import type { TranslateFailureOutcome } from '../../types/translator/policyOutcomes.js';
 
 /**
  * Canonical outcome taxonomy for a **single** failed provider attempt.
@@ -32,14 +33,6 @@ import { isErrnoCode } from '../../shared/errors/index.js';
  * this classifier. The success path is encoded by the `TranslationResult.decision`
  * field at the call boundary.
  */
-export type TranslateFailureOutcome =
-  | 'rate_limited'
-  | 'quota_exceeded'
-  | 'transient_network'
-  | 'provider_unavailable'
-  | 'auth_failure'
-  | 'malformed_response'
-  | 'unknown_hard_stop';
 
 /**
  * Map a thrown error from a single provider attempt to a {@link TranslateFailureOutcome}.

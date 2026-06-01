@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../shared/constants/project.js';
-import { validateHostedProjectIngestBody } from '../validate/hostedSnapshot.js';
+import { HOSTED_PROJECT_SNAPSHOT_SCHEMA_VERSION } from '../../../shared/constants/project.js';
+import { validateHostedProjectIngestBody } from '../hostedSnapshot.js';
 
 describe('validateHostedProjectIngestBody', () => {
   it('rejects missing extraction', () => {

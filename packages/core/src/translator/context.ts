@@ -7,15 +7,7 @@
 import type { TranslateConfigInput } from '../types/config/translate.js';
 import type { RuntimeAdapters } from '../types/runtime/adapters.js';
 import type { TranslatorEnv } from '../shared/constants/translate.js';
-
-export type TranslateContext = {
-  /** Translate-block config (provider list, primary, policy, workers). */
-  readonly config: TranslateConfigInput;
-  /** Runtime adapters — required, no Node default. Hosts pass theirs in (CLI: createNodeRuntimeAdapters). */
-  readonly adapters: RuntimeAdapters;
-  /** Env map — required, no `process.*` access in core. Hosts pass theirs in (CLI: process.env). */
-  readonly env: TranslatorEnv;
-};
+import type { TranslateContext } from '../types/translator/context.js';
 
 /**
  * Build a {@link TranslateContext} for SDK consumers translating strings without a full i18nprune

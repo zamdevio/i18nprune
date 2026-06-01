@@ -13,13 +13,9 @@ import { normalizeLanguageCode } from '../../shared/languages/normalize.js';
 
 const MAX_CATALOG_HINT = 5;
 
+import type { LocalesSourceInputKind, LocalesSourceValidationResult } from '../../types/config/localesSource.js';
+
 const LANGUAGE_CODE_SHAPE = /^[a-z]{2}(-[a-z0-9]{2,8})*$/i;
-
-export type LocalesSourceInputKind = 'language_code' | 'path' | 'json_filename' | 'invalid_shape';
-
-export type LocalesSourceValidationResult =
-  | { ok: true; code: string }
-  | { ok: false; issueCode: string; message: string };
 
 function catalog() {
   return buildLanguageCatalog(generatedLanguageCatalog);

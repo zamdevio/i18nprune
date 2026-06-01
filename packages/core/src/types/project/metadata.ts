@@ -1,4 +1,4 @@
-import type { CacheDispatchReason, CacheDispatchStatus } from '../cache/index.js';
+import type { CacheDispatchStatus } from '../cache/index.js';
 import type { ReportEnvironmentSnapshot } from '../report/reportDocument.js';
 
 /** Display placeholder (presentation-only, never serialized in transport). */
@@ -222,6 +222,3 @@ export type ProjectStoredMetadata = {
   // 9) Capabilities
   capabilities: ProjectStoredCapabilitiesMeta;
 };
-
-/** Re-export for consumers documenting cache reasons on metadata. */
-export type { CacheDispatchReason, CacheDispatchStatus };

@@ -16,7 +16,7 @@ import {
   ISSUE_GENERATE_TRANSLATE_RATE_LIMITED,
 } from '../constants/issueCodes.js';
 import type { Issue } from '../../types/json/envelope/index.js';
-import { classifyTranslateFailure } from '../../translator/policy/classify.js';
+import { classifyTranslateFailure } from '../../translator/policy/index.js';
 
 const DEFAULT_DELAYS = [400, 900];
 

@@ -1,11 +1,8 @@
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
+import type { WriteFlatLocaleJsonDocumentResult } from '../../../types/locales/writeFlatDocument.js';
 import type { LocaleReadDiagnostic } from '../../../types/locales/read.js';
 import { sortJsonObjectKeysAsc } from '../../json/sortKeys.js';
-
-export type WriteFlatLocaleJsonDocumentResult =
-  | { ok: true; diagnostics: LocaleReadDiagnostic[] }
-  | { ok: false; diagnostics: LocaleReadDiagnostic[] };
 
 /**
  * Persist a locale JSON document for the flat `*.json` per-locale layout (pretty-printed, trailing newline).

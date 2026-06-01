@@ -2,12 +2,8 @@ import { existsRuntimeFsSync, listRuntimeFsDirSync } from '../../../runtime/help
 
 import { MAX_LOCALE_SEGMENT_TREE_DEPTH } from '../../constants/locales.js';
 import type { LocaleLeafPathApi } from '../../../types/locales/leaves/segmentSource.js';
+import type { WalkedJsonSegment } from '../../../types/locales/walkJsonTree.js';
 import type { RuntimeFsPort } from '../../../types/runtime/fs.js';
-
-export type WalkedJsonSegment = {
-  absolutePath: string;
-  relativePath: string;
-};
 
 function posixRelative(pathApi: LocaleLeafPathApi, root: string, absolute: string): string {
   let rel = pathApi.relative(root, absolute);

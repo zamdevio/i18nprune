@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { alignArchiveSnapshotTimings } from '../prepare/alignArchiveTimings.js';
-import type { ProjectSnapshot } from '../../types/project/upload.js';
+import { alignArchiveSnapshotTimings } from '../alignArchiveTimings.js';
+import type { ProjectSnapshot } from '../../../types/project/upload.js';
 
 describe('alignArchiveSnapshotTimings', () => {
   it('maps prepare ms onto preparedAt and extraction ISO fields', () => {

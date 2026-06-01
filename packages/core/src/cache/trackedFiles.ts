@@ -2,7 +2,7 @@ import { listLocaleSegments } from '../shared/locales/enumerate/listLocaleSegmen
 import { resolveLocalesLayout } from '../shared/locales/layout/resolveLayout.js';
 import { listSourceFiles } from '../shared/scanner/files.js';
 import { readRuntimeFsTextSync } from '../runtime/helpers/sync/index.js';
-import type { LocalesFilesystemConfig } from '../config/schema/root.js';
+import type { LocalesFilesystemConfig } from '../config/schema/index.js';
 import type { CacheProjectFileRecord, CacheRuntime, TrackedProjectFilesCurrent } from '../types/cache/index.js';
 import { computeCacheContentHash, textByteLength } from './io/index.js';
 import { resolveCachedLocalesLayout } from './localesLayout.js';
