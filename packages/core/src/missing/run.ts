@@ -107,9 +107,9 @@ function suggestExistingLocaleTargets(input: string, existingCodes: readonly str
 function relativeDisplayPath(ctx: CoreContext, targetPath: string): string {
   const cwd = ctx.adapters.system.cwd();
   const rel = ctx.adapters.path.relative(cwd, targetPath);
-  if (rel === '') return ctx.adapters.path.basename(targetPath);
-  if (rel.startsWith('..')) return rel;
-  return rel;
+  if (rel === '') return ctx.adapters.path.basename(targetPath).replace(/\\/g, '/');
+  if (rel.startsWith('..')) return rel.replace(/\\/g, '/');
+  return rel.replace(/\\/g, '/');
 }
 
 function localeEnglishName(code: string): string {

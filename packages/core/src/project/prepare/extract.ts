@@ -13,7 +13,8 @@ import type {
   FillProjectSnapshotExtractionInput,
   FillProjectSnapshotExtractionResult,
 } from '../../types/project/extract.js';
-import { normalizeProjectConfig, projectConfigHash, relativeProjectPath } from '../normalizeConfig.js';
+import { normalizeProjectConfig, projectConfigHash } from '../normalizeConfig.js';
+import { archiveRelativePathFromAbsolute } from './archiveFs.js';
 
 function workerIssue(code: string, message: string): FillProjectSnapshotExtractionResult {
   return { ok: false, code, message };
@@ -63,7 +64,7 @@ export async function fillProjectSnapshotExtraction(
     path: fs.path,
     relPaths: Object.keys(textFiles),
   });
-  const sourceRel = relativeProjectPath(sourceAbs);
+  const sourceRel = archiveRelativePathFromAbsolute(sourceAbs, fs.cwd, fs.path);
   const sourceRaw = textFiles[sourceRel];
   if (!sourceRaw) {
     return workerIssue(

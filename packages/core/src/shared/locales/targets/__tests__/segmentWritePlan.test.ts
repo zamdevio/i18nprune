@@ -7,6 +7,7 @@ import { createCoreContext } from '../../../../generate/context.js';
 import { createNodeRuntimeAdapters } from '../../../../runtime/exports/node.js';
 import { resolveLocaleSegmentAbsolutePath } from '../../enumerate/index.js';
 import { resolveLocalesLayout } from '../../layout/resolveLayout.js';
+import { toPosixPath } from '../../../path/posix.js';
 import { resolvePrimaryTargetWritePath, resolveTargetLocaleWritePlan } from '../segmentWritePlan.js';
 import { swapLocaleInSegmentRelativePath } from '../segmentWritePlan.js';
 
@@ -151,7 +152,9 @@ describe('resolvePrimaryTargetWritePath', () => {
           srcRoot: path.join(dir, 'app'),
         },
       });
-      expect(resolvePrimaryTargetWritePath(ctx, 'es')).toBe(path.join(messages, 'app', 'es.json'));
+      expect(resolvePrimaryTargetWritePath(ctx, 'es')).toBe(
+        toPosixPath(path.join(messages, 'app', 'es.json')),
+      );
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }

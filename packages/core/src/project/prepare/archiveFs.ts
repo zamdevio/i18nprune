@@ -6,6 +6,15 @@ function archiveCwdAbsolute(cwd: string, path: RuntimePathPort): string {
   return path.resolve(cwd);
 }
 
+/** Zip / textFiles map keys are posix; map an on-disk absolute path under archive `cwd`. */
+export function archiveRelativePathFromAbsolute(
+  filePath: string,
+  cwd: string,
+  path: RuntimePathPort,
+): string {
+  return archiveRelativeKey(filePath, cwd, path);
+}
+
 function archiveRelativeKey(filePath: string, cwd: string, path: RuntimePathPort): string {
   const base = archiveCwdAbsolute(cwd, path);
   const abs = path.isAbsolute(filePath) ? path.normalize(filePath) : path.resolve(base, filePath);

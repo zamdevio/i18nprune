@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { createNodeRuntimeAdapters } from '../../../runtime/exports/node.js';
-import { createArchiveProjectFs } from '../archiveFs.js';
+import { archiveRelativePathFromAbsolute, createArchiveProjectFs } from '../archiveFs.js';
 
 describe('createArchiveProjectFs', () => {
   it('reads and lists files when host paths are resolved on Windows-style cwd', () => {
