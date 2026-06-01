@@ -44,7 +44,7 @@ XP-1 shipped this matrix for cross-platform release confidence. This phase **spl
 
 | # | Slice | Status | Notes |
 |---|-------|--------|-------|
-| **CI-1** | Split verify job | **Open** | typecheck · cli:build · test · parity as separate jobs |
+| **CI-1** | Split verify job | **Shipped** | typecheck · cli:build · test · parity as separate jobs |
 | **CI-2** | PR test annotations | **Open** | vitest-github-actions-reporter or junit + publish |
 | **CI-3** | Architecture nightly | **Open** | `knip`, `madge:circular`, `madge:orphans` |
 | **CI-4** | Build artifacts | **Open** | `upload-artifact` for `packages/cli/dist` (esp. Windows) |
@@ -76,6 +76,8 @@ XP-1 shipped this matrix for cross-platform release confidence. This phase **spl
 
 - No change to parity bytes or exit codes from this slice alone.
 - `pnpm typecheck` · `pnpm test` · parity still pass locally.
+
+**Shipped (matrix):** `typecheck` on **ubuntu-only**; `cli-build` → `test` → `parity` each on **ubuntu + windows + macos** (`fail-fast: false`). macOS stays in `cli-build` (not only ubuntu+windows) because downstream legs need `dist/` on every runner — passed via per-OS `upload-artifact` / `download-artifact` between jobs.
 
 ---
 

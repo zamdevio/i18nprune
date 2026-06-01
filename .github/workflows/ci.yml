@@ -1,3 +1,18 @@
+# CI workflow — matrix policy (CI-1)
+#
+# Job DAG:
+#   typecheck (ubuntu) → cli-build (3 OS) → test (3 OS) → parity (3 OS)
+#
+# - typecheck: ubuntu-only for fast TypeScript / ui:purity signal.
+# - cli-build, test, parity: ubuntu-latest, windows-latest, macos-latest.
+#   macOS is in cli-build (not only ubuntu+windows) because downstream test and
+#   parity jobs run on every matrix leg and need packages/cli/dist on that runner.
+# - fail-fast: false on cli-build, test, and parity so one OS failure does not
+#   cancel sibling matrix legs.
+# - Timeouts: ubuntu 30m; windows and macos 45m (unchanged from monolithic verify).
+# - Jobs are ephemeral: cli-build uploads dist/ per matrix OS; test and parity
+#   download that artifact so they run only their gate script (no second cli:build).
+
 name: CI
 
 on:
@@ -10,8 +25,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: verify (${{ matrix.os }})
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm typecheck
+
+  cli-build:
+    name: cli-build (${{ matrix.os }})
+    needs: typecheck
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.timeout }}
 
@@ -42,10 +79,88 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm typecheck
-
       - run: pnpm cli:build
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cli-dist-${{ matrix.os }}
+          path: dist/
+          retention-days: 1
+
+  test:
+    name: test (${{ matrix.os }})
+    needs: cli-build
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.timeout }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            timeout: 30
+
+          - os: windows-latest
+            timeout: 45
+
+          - os: macos-latest
+            timeout: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: cli-dist-${{ matrix.os }}
+
       - run: pnpm test
+
+  parity:
+    name: parity (${{ matrix.os }})
+    needs: test
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.timeout }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            timeout: 30
+
+          - os: windows-latest
+            timeout: 45
+
+          - os: macos-latest
+            timeout: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: cli-dist-${{ matrix.os }}
 
       - run: pnpm vitest run tests/parity
