@@ -1,17 +1,8 @@
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import { readLocaleJsonFromContextSync } from '../shared/locales/read/index.js';
 import type { CoreContext } from '../types/context/index.js';
-import type { ReportEnvironmentSnapshot } from '../types/report/index.js';
-import type { RunEmitter, OperationId } from '../types/shared/run/index.js';
-
-export type BuildReportDocumentInput = {
-  environment: ReportEnvironmentSnapshot;
-  cwd: string;
-  toolVersion: string;
-  emit?: RunEmitter;
-  runId?: string;
-};
-
+import type { BuildReportDocumentInput } from '../types/report/buildDocument.js';
+import type { OperationId } from '../types/shared/run/index.js';
 import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '../shared/constants/report.js';
 
 const REPORT_OP: OperationId = 'report';

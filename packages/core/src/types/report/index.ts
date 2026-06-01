@@ -1,4 +1,5 @@
 export type { BuildReportDocumentFromAnalysisInput } from './buildFromAnalysis.js';
+export type { BuildReportDocumentInput } from './buildDocument.js';
 export type { ReportEnvironmentSnapshot } from './reportDocument.js';
 export type {
   PrepareReportPayloadResult,
