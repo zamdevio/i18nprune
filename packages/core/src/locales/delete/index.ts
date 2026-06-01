@@ -3,4 +3,4 @@ export type {
   DeleteTargetResult,
   DeleteJsonPayload,
   DeleteRunResult,
-} from './run.js';
+} from '../../types/locales/index.js';

@@ -1,13 +1,6 @@
-import type { RuntimePathPort } from '../types/runtime/path.js';
 import { assertSupportedTargetLanguageCode } from '../shared/languages/validateTargetCode.js';
+import type { AssertGenerateTargetCodesInput } from '../types/locales/index.js';
 import { assertNotSourceTargetLocale } from './source.js';
-
-export type AssertGenerateTargetCodesInput = {
-  commandName: string;
-  codes: readonly string[];
-  sourceLocalePath: string;
-  path: RuntimePathPort;
-};
 
 /** Validates generate targets: not source locale, and present in translation catalog. */
 export function assertGenerateTargetCodes(input: AssertGenerateTargetCodesInput): void {

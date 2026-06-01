@@ -49,10 +49,10 @@ export type {
   PatchingSkipReason,
   ResolvedPatchingConfig,
 } from '../types/patching/index.js';
-export type { LocaleListRow } from '../locales/summary.js';
-export type { ResolveLocaleTargetCodesInput } from '../locales/targets.js';
-export type { ResolveResumeTargetCodesFromRawInput } from '../locales/resumeTargets.js';
-export type { AssertGenerateTargetCodesInput } from '../locales/generateTargets.js';
+export type { LocaleListRow } from '../types/locales/index.js';
+export type { ResolveLocaleTargetCodesInput } from '../types/locales/index.js';
+export type { ResolveResumeTargetCodesFromRawInput } from '../types/locales/index.js';
+export type { AssertGenerateTargetCodesInput } from '../types/locales/index.js';
 export type { ParityPolicy, PreservePolicy } from '../types/policies/index.js';
 export type {
   KeyReferenceContext,

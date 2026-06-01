@@ -2,31 +2,11 @@ import { existsRuntimeFsSync } from '../../runtime/helpers/sync/fs.js';
 import { segmentsForLocaleCode } from '../../shared/locales/targets/index.js';
 import { normalizeLanguageCode } from '../../shared/languages/normalize.js';
 import type { CoreContext } from '../../types/context/index.js';
-import type { Issue } from '../../types/json/envelope/index.js';
-
-export type DeleteTargetResult = {
-  target: string;
-  /** Segment paths removed for this locale code (e.g. `app/ar.json`). */
-  deletedSegmentRelativePaths: string[];
-  deletedJsonCount: number;
-};
-
-export type DeleteJsonPayload = {
-  kind: 'locales-delete';
-  targets: string[];
-  /** JSON segment files removed on disk. */
-  deletedJson: number;
-  /** Distinct locale codes that had at least one segment file removed. */
-  deletedLocaleCount: number;
-  aborted: boolean;
-  supportsAutoPatching: false;
-};
-
-export type DeleteRunResult = {
-  payload: DeleteJsonPayload;
-  issues: Issue[];
-  deletedTargets: DeleteTargetResult[];
-};
+import type {
+  DeleteJsonPayload,
+  DeleteRunResult,
+  DeleteTargetResult,
+} from '../../types/locales/index.js';
 
 /**
  * Delete locale JSON segment files for the given targets.

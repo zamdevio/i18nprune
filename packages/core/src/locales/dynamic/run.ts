@@ -5,38 +5,14 @@ import { DEFAULT_LIST_TOP } from '../../shared/constants/listDisplay.js';
 import { resolveListWindow, applyListWindow } from '../../shared/options/listWindow.js';
 import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
-import type { DynamicKeySite } from '../../types/extractor/dynamic/index.js';
-import type { RunEmitter, OperationId } from '../../types/shared/run/index.js';
+import type {
+  DynamicHostHooks,
+  DynamicJsonPayload,
+  DynamicRunOptions,
+  DynamicRunResult,
+} from '../../types/locales/index.js';
+import type { OperationId } from '../../types/shared/run/index.js';
 import { sourceLocaleCodeFromContext } from '../../shared/locales/targets/context.js';
-
-export type DynamicRunOptions = {
-  top?: number;
-  full?: boolean;
-};
-
-export type DynamicHostHooks = {
-  emit?: RunEmitter;
-  runId?: string;
-};
-
-export type DynamicJsonPayload = {
-  kind: 'locales-dynamic';
-  sourceLocalePath: string;
-  sourceLocaleCode: string;
-  top: number | null;
-  full: boolean;
-  shown: number;
-  dynamic: {
-    count: number;
-    sites: DynamicKeySite[];
-  };
-};
-
-export type DynamicRunResult = {
-  payload: DynamicJsonPayload;
-  issues: Issue[];
-  allSites: DynamicKeySite[];
-};
 
 const DYNAMIC_OP: OperationId = 'locales-dynamic';
 /**

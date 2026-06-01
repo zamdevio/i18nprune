@@ -1,23 +1,7 @@
 import { localeCodesFromContext, sourceLocaleCodeFromContext } from '../../shared/locales/targets/index.js';
 import { buildLocaleListRows } from '../summary.js';
-import type { LocaleListRow } from '../summary.js';
 import type { CoreContext } from '../../types/context/index.js';
-import type { Issue } from '../../types/json/envelope/index.js';
-
-export type ListJsonPayload = {
-  kind: 'locales-list';
-  sourceLocaleCode: string;
-  sourceLocalePath: string;
-  localesDir: string;
-  localeCount: number;
-  targetLocaleCount: number;
-  rows: LocaleListRow[];
-};
-
-export type ListRunResult = {
-  payload: ListJsonPayload;
-  issues: Issue[];
-};
+import type { ListJsonPayload, ListRunResult } from '../../types/locales/index.js';
 
 /**
  * Core entry for the `locales list` operation.

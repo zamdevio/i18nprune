@@ -1,7 +1,7 @@
 export { runDynamic } from '../locales/dynamic/index.js';
 export type {
-  DynamicRunOptions,
   DynamicHostHooks,
   DynamicJsonPayload,
+  DynamicRunOptions,
   DynamicRunResult,
-} from '../locales/dynamic/index.js';
+} from '../types/locales/index.js';

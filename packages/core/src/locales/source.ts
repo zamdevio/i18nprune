@@ -1,11 +1,7 @@
-import type { RuntimePathPort } from '../types/runtime/path.js';
 import { I18nPruneError } from '../shared/errors/index.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
-
-export type SourceLocaleContext = {
-  paths: { sourceLocale: string };
-  path: RuntimePathPort;
-};
+import type { SourceLocaleContext } from '../types/locales/index.js';
+import type { RuntimePathPort } from '../types/runtime/path.js';
 
 /** Basename of the source locale file, normalized (e.g. `en`, `pt-br`). */
 export function getSourceLocaleSlug(path: RuntimePathPort, sourceLocalePath: string): string {

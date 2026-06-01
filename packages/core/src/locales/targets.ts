@@ -1,17 +1,10 @@
-import type { RuntimePathPort } from '../types/runtime/path.js';
 import { I18nPruneError } from '../shared/errors/index.js';
 import { normalizeLanguageCode } from '../shared/languages/normalize.js';
+import type { ResolveLocaleTargetCodesInput } from '../types/locales/index.js';
+import type { RuntimePathPort } from '../types/runtime/path.js';
 import { assertNotSourceTargetLocale, excludeSourceLocaleSlugs } from './source.js';
 
 export const ALL_LOCALES_TOKEN = 'all';
-
-export type ResolveLocaleTargetCodesInput = {
-  commandName: string;
-  rawTarget: string;
-  localeSlugs: string[];
-  sourceLocalePath: string;
-  path: RuntimePathPort;
-};
 
 /** Comma-separated locale basenames, or `all` (case-insensitive). */
 export function parseLocaleCodesList(raw: string): string[] {
