@@ -9,7 +9,6 @@ export {
   readWorkspaceProjectIdFromLocation,
   syncAppRoute,
 } from '../app/index.js';
-export type { AppRoute, HashRoute } from '../types/index.js';
 
 export function useAppRoute(): AppRoute {
   const [route, setRoute] = useState<AppRoute>(() => resolveAppRoute());

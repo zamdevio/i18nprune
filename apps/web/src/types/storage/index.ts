@@ -1,1 +1,6 @@
-export type * from './recentZip.js';
+export type {
+  RecentProjectZipBundleManifest,
+  RecentProjectZipBundleManifestItem,
+  RecentProjectZipEntry,
+  RecentProjectZipSettings,
+} from '@i18nprune/core';

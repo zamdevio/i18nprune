@@ -29,7 +29,7 @@ find apps -type d -name types ! -path '*/node_modules/*'
 find apps -type d -name __tests__ ! -path '*/node_modules/*'
 ```
 
-**Repo-wide non-index `export type {` count (2026-06-01):** **3** — `apps/web/src/hooks/useAppRoute.ts`, `apps/web/src/types/storage/recentZip.ts`, `apps/workers/i18nprune/src/lib/do.ts`.
+**Repo-wide non-index `export type {` count (2026-06-01):** **0** — apps pass shipped 2026-06-01 (hook/`do.ts`/storage shims removed).
 
 ---
 
@@ -39,10 +39,10 @@ find apps -type d -name __tests__ ! -path '*/node_modules/*'
 |-----|----------------------------|-----------------------------------------------|-------------------------------------|---------------|----------|----------------|
 | **landing** | No — `src/lib/`, `src/context/`, `functions/_shared/` | **0** | **~7** — `lib/meta.ts`, `lib/http.ts`, `context/MetaContext.tsx`, `functions/_shared/ogCard.ts` | None | **Low** | Leave as-is; small marketing SPA; colocated fetch/meta types are fine. Add `types/` only if the app grows past ~80 TS files. |
 | **extension** | **Partial** — `webview/src/types/`; host types in `extension/*` | **0** | **~22** — host (`extension/ops`, `workspace`, `bootstrap`) + webview (`services/api.ts`, hooks, `app/config/navigation.ts`); duplicate `DashboardEmbedSurface` in host vs webview | None in `apps/extension` | **Med** | Optional post-v1 pass: move host-facing types under `extension/types/`; dedupe webview/host mirrors; keep React prop types colocated. Not blocking docs/release. |
-| **web** | **Yes** — `src/types/` (`app`, `worker`, `workspace`, `storage`, `constants`) | **2** — hook re-export in `useAppRoute.ts`; `types/storage/recentZip.ts` aggregates from core | **0** outside `types/` (template-aligned) | None | **Low** | No tree pass needed; optionally drop hook type re-export and import from `types/` only. |
+| **web** | **Yes** — `src/types/` (`app`, `worker`, `workspace`, `storage`, `constants`) | **0** | **0** outside `types/` (template-aligned) | None | **Low** | No tree pass needed. |
 | **report** | **Yes** — `src/types/` (`report`, `share`, `worker`) + schema re-exports | **0** non-index; barrels in `storage/index.ts`, `data/loader/index.ts`, `lib/editor`, `lib/open-in-editor` | **~47** — many `*Props` / panel types in `components/**` and `lib/open-in-editor/**` (normal for React); domain types mostly in `types/` | **Partial** — `storage/__tests__/`, `lib/__tests__/` only (~12 tests); no component tests | **Med** | Largest app (~115 TS files); consider moving non-UI domain types out of `open-in-editor` impl into `types/` if that subtree grows; expand `__tests__/` only where logic is non-trivial. Not required before v1. |
 | **docs** (`apps/docs`) | N/A — VitePress config (~3 TS files) | **0** | N/A | N/A | **Low** | Out of scope for tree layout; content lives under repo `docs/`. |
-| **workers/i18nprune** | **Partial** — `routes/types.ts`; lib types in impl | **1** — `lib/do.ts` re-exports core DO row types | **~8** — `lib/storage/*`, `lib/rateLimit/policy.ts`, `routes/types.ts` | **Good** — `lib/storage/__tests__/`, `lib/rateLimit/__tests__/` | **Med** | Optional: add `src/types/` for worker-only shapes; move `export type` off `do.ts` into a barrel; keep test colocation as-is. |
+| **workers/i18nprune** | **Partial** — `routes/types.ts`; lib types in impl | **0** | **~8** — `lib/storage/*`, `lib/rateLimit/policy.ts`, `routes/types.ts` | **Good** — `lib/storage/__tests__/`, `lib/rateLimit/__tests__/` | **Low** | Optional: add `src/types/` for worker-only shapes if the worker grows; keep test colocation as-is. |
 | **workers/meta** | **Yes** — `src/types/index.ts` | **0** | **1** — `services/meta.ts` (`V1Part`); rest in `types/` | None (tiny surface) | **Low** | No pass needed. |
 
 ### Notes by app
@@ -64,10 +64,10 @@ find apps -type d -name __tests__ ! -path '*/node_modules/*'
 | **web** | **No** | Already matches core tree conventions. |
 | **report** | **No** for v1 (**optional** later) | UI-idiomatic prop types dominate; `types/` + partial tests are sufficient for ship. |
 | **docs** | **No** | Not an application codebase. |
-| **workers/i18nprune** | **No** (optional small cleanup) | Tests colocated; only notable shim is `do.ts`. |
+| **workers/i18nprune** | **No** | Tests colocated; core DO types imported from `@i18nprune/core` at call sites. |
 | **workers/meta** | **No** | Already centralized. |
 
-**Overall:** **No `apps/*` tree pass is required** to retire the core tree execution tracker. Revisit **report** and **extension** only if navigation pain shows up in maintainer work.
+**Overall:** **No `apps/*` tree pass is required** to retire the core tree execution tracker. **Apps pass shipped 2026-06-01** (non-barrel `export type {` shims cleared in web + i18nprune worker). Revisit **report** and **extension** only if navigation pain shows up in maintainer work.
 
 ---
 

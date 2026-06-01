@@ -265,5 +265,3 @@ export class ProjectStoreDO {
     }
   }
 }
-
-export type { ProjectSnapshot, ProjectStoreRow, ReportStoreRow };
