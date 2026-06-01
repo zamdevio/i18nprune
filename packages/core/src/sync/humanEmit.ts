@@ -1,14 +1,5 @@
 import { formatListOmittedSuffix, formatListShownOmitted } from '../shared/constants/listDisplay.js';
-import type { SyncFileLine, SyncRunResult } from '../types/sync/index.js';
-import type { SyncHumanLeafSummary } from './humanLeafSummary.js';
-
-export type SyncLocaleDisplayGroup = {
-  localeCode: string;
-  reportKeys: string[];
-  fileLines: SyncFileLine[];
-  changedCount: number;
-  summaries: SyncHumanLeafSummary[];
-};
+import type { SyncLocaleDisplayGroup, SyncHumanLeafSummary, SyncRunResult } from '../types/sync/index.js';
 
 export function parseSyncReportKey(reportKey: string): { localeCode: string; segmentName: string | null } {
   const slash = reportKey.indexOf('/');

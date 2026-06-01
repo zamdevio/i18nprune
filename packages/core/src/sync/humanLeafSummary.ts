@@ -1,6 +1,7 @@
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { getLocaleLeafAtPath } from '../shared/json/localeLeafPath.js';
 import type { StringLeaf } from '../types/json/index.js';
+import type { SyncHumanLeafSummary } from '../types/sync/humanLeafSummary.js';
 
 function isPlainObject(x: unknown): x is Record<string, unknown> {
   return typeof x === 'object' && x !== null && !Array.isArray(x);
@@ -30,16 +31,6 @@ export function canonicalTemplatePathForCollectedLeaf(
   }
   return null;
 }
-
-/** Counts for human sync logging (**merge + prune** vs source template only). Pure. */
-export type SyncHumanLeafSummary = {
-  /** Source paths that had no existing leaf in the target before sync. */
-  hydratedFromSource: number;
-  /** Source paths that already had a readable leaf before merge+prune. */
-  preservedExistingLeaves: number;
-  /** Previously present string-leaf dotted paths outside the template (removed to match source shape). */
-  prunedExtraLeaves: number;
-};
 
 /**
  * Derive **`hydrated` / preserved / pruned-extra** counts for stderr messaging.

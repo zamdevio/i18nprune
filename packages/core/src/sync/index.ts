@@ -10,14 +10,15 @@ export {
   canonicalTemplatePathForCollectedLeaf,
   readLeafDisplayString,
   summarizeSyncLeavesForHumanLog,
-  type SyncHumanLeafSummary,
 } from './humanLeafSummary.js';
 export { resolveSyncTargetFiles } from './resolveTargets.js';
 export type { SyncLangSelection } from './resolveTargets.js';
 export type {
   SyncFileLine,
   SyncHostHooks,
+  SyncHumanLeafSummary,
   SyncJsonOutput,
+  SyncLocaleDisplayGroup,
   SyncRunOptions,
   SyncRunResult,
 } from '../types/sync/index.js';
