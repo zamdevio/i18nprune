@@ -20,8 +20,9 @@
 | **`systems/share.md`** | Share ecosystem: core `runShare*`, CLI/web/report hosts, `workers/i18nprune` routes, DO storage, metadata builders |
 | **`systems/cache.md`** | Project cache: `files.json` / `analysis.json` rebuild policy, profiles, invalidate rules (shipped H-cache) |
 | **`systems/platform.md`** | CLI + SDK on Windows / macOS / Linux / WSL — adapters, home layout, path warnings, CI matrix |
+| **`systems/ci.md`** | GitHub Actions: job DAG, matrix, artifacts, PR annotations, architecture nightly |
 | **Tree T0–T10** ([`shipped-slices.md`](../phases/shipped-slices.md)) | **Shipped** (core + CLI); apps shim cleanup `96aed18`; no app tree pass for v1 |
-| **Phase [`ci.md`](../phases/ci.md)** | **Active** — split verify, PR annotations, nightly knip/madge, artifacts |
+| **Phase [`ci.md`](../phases/ci.md)** | **Active** — PR annotations, nightly knip/madge, debug artifacts (CI-1 split shipped) |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
@@ -50,6 +51,7 @@ maintainer/systems/
 ├── share.md
 ├── cache.md
 ├── platform.md
+├── ci.md
 ├── health.md
 ├── knip.md
 ├── operations/
@@ -78,6 +80,7 @@ Keep this tree truthful with `git`; don't maintain a brittle wall of filenames h
 | **Patching (maintainer)** | `maintainer/systems/patching.md` |
 | **Project cache (maintainer)** | `maintainer/systems/cache.md` |
 | **Platform / multi-OS (maintainer)** | `maintainer/systems/platform.md` |
+| **CI workflows (maintainer)** | `maintainer/systems/ci.md` |
 | **Share ecosystem (maintainer)** | `maintainer/systems/share.md` |
 | **Health gates (typecheck, test, knip, madge)** | `maintainer/systems/health.md` |
 | **Runtime UI kit (`@i18nprune/ui`)** | `maintainer/systems/ui.md` |

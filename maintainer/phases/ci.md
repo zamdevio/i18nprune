@@ -7,24 +7,24 @@
 
 **PR discipline:** **one session per commit** (CI-1 … CI-5) unless a slice is trivially split; each session ends with green `main`-equivalent workflow on a PR. Gates: `pnpm typecheck` · `pnpm test` · `pnpm vitest run tests/parity` when CLI/contracts touched.
 
-**Systems maps:** [`systems/health.md`](../systems/health.md) (knip/madge) · [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)
+**Systems maps:** [`systems/ci.md`](../systems/ci.md) (workflow DAG, artifacts, reporters) · [`systems/health.md`](../systems/health.md) (knip/madge) · [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)
 
 ---
 
-## Baseline (already good)
+## Baseline (CI-1 shipped)
 
-Current [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — single **`verify`** job:
+Current [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — job DAG **`typecheck` → `cli-build` → `test` → `parity`** (see [`systems/ci.md`](../systems/ci.md)).
 
 | Property | Value |
 |----------|--------|
 | **Triggers** | `push` to `main`/`master`, all `pull_request` |
 | **Concurrency** | `ci-${{ workflow }}-${{ ref }}`, `cancel-in-progress: true` |
-| **Matrix** | `ubuntu-latest` (30m) · `windows-latest` (45m) · `macos-latest` (45m) |
-| **Strategy** | `fail-fast: false` — one OS failure does not cancel siblings |
+| **Matrix** | `typecheck`: ubuntu-only; other jobs: ubuntu (30m) · windows (45m) · macos (45m) |
+| **Strategy** | `fail-fast: false` on matrix jobs — one OS failure does not cancel siblings |
 | **Toolchain** | Node **22**, pnpm **10**, `pnpm install --frozen-lockfile` |
-| **Steps (sequential per OS)** | `pnpm typecheck` → `pnpm cli:build` → `pnpm test` → `pnpm vitest run tests/parity` |
+| **Handoff** | Per-OS `cli-dist-<os>` artifact (`dist/`, 1 day) between jobs |
 
-XP-1 shipped this matrix for cross-platform release confidence. This phase **splits and extends** CI without changing product contracts.
+XP-1 shipped the 3-OS matrix; CI-1 split the monolithic **`verify`** job without changing product contracts.
 
 ---
 
@@ -191,6 +191,7 @@ XP-1 shipped this matrix for cross-platform release confidence. This phase **spl
 
 ## Related
 
+- [`systems/ci.md`](../systems/ci.md) — **canonical** workflow DAG, artifacts, reporters (update when `ci.yml` changes)
 - [`systems/platform.md`](../systems/platform.md) — OS matrix (shipped)
 - [`shipped-slices.md`](./shipped-slices.md) — close CI rows here when done
 - [`docs-refactor.md`](./docs-refactor.md) — docs phase (parallel priority 4)
