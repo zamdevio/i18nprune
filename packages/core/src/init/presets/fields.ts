@@ -1,11 +1,4 @@
-import type { InitPresetId } from '../../types/init/index.js';
-
-/** Curated **`locales` / `src` / `functions`** defaults per preset. */
-export type InitPresetConfigFields = {
-  locales: { source: string; directory: string };
-  src: string;
-  functions: string[];
-};
+import type { InitPresetConfigFields, InitPresetId } from '../../types/init/index.js';
 
 /**
  * Every shipped starter preset id (for validation, scoring order, and CLI prompts).

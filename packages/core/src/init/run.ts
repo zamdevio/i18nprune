@@ -1,10 +1,10 @@
 import type { Issue } from '../types/json/envelope/index.js';
 import type {
-  InitFilesystemHost,
   InitJsonPayload,
   InitRunOptions,
   InitRunResult,
   InitPresetId,
+  RunInitHostInput,
 } from '../types/init/index.js';
 import { buildInitConfigTemplate, defaultInitConfigFileName } from './template.js';
 import {
@@ -15,13 +15,6 @@ import {
   pickTopInitPreset,
 } from './detect/index.js';
 import { formatInitPresetIdList, getInitPresetConfigFields, isInitPresetId } from './presets/fields.js';
-
-export type RunInitHostInput = InitFilesystemHost & {
-  /** Absolute project directory (the directory where a config file would be written). */
-  projectRoot: string;
-  /** When true, the host found an existing **`i18nprune.config.*`** — core skips template generation. */
-  skippedExistingConfig: boolean;
-};
 
 /**
  * Plan an **`init`** config scaffold from optional **`--auto`** / **`--preset`** inputs.

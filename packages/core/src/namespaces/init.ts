@@ -17,9 +17,13 @@ export {
   scoreInitPresets,
 } from '../init/index.js';
 export type {
+  BuildInitConfigTemplateOptions,
+  InitConfigFormat,
+  InitDetectResult,
   InitFilesystemHost,
   InitJsonPayload,
   InitPackageJsonSignals,
+  InitPresetConfigFields,
   InitPresetId,
   InitPresetScore,
   InitProjectSignals,
@@ -27,11 +31,5 @@ export type {
   InitRunResult,
   InitScoreFactor,
   InitTopologySignals,
-} from '../types/init/index.js';
-export type {
-  BuildInitConfigTemplateOptions,
-  InitConfigFormat,
-  InitDetectResult,
-  InitPresetConfigFields,
   RunInitHostInput,
-} from '../init/index.js';
+} from '../types/init/index.js';

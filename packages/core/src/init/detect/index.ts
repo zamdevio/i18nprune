@@ -8,4 +8,3 @@ export {
   isInitAutoAmbiguous,
 } from './scorePresets.js';
 export { detectInitProject } from './project.js';
-export type { InitDetectResult } from './project.js';

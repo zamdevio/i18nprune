@@ -86,6 +86,14 @@ export type InitFilesystemHost = {
   path: RuntimePathPort;
 };
 
+/** Host input for **`runInit`** — filesystem ports plus absolute **`projectRoot`**. */
+export type RunInitHostInput = InitFilesystemHost & {
+  /** Absolute project directory (the directory where a config file would be written). */
+  projectRoot: string;
+  /** When true, the host found an existing **`i18nprune.config.*`** — core skips template generation. */
+  skippedExistingConfig: boolean;
+};
+
 export type InitJsonPayload = {
   kind: 'init';
   /** Payload contract version for **`--json`** stability. */

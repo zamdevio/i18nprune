@@ -1,13 +1,11 @@
-import type { InitFilesystemHost } from '../../types/init/index.js';
-import type { InitPresetScore, InitProjectSignals } from '../../types/init/index.js';
+import type {
+  InitDetectResult,
+  InitFilesystemHost,
+  InitProjectSignals,
+} from '../../types/init/index.js';
 import { readInitPackageJson } from './packageJson.js';
 import { readInitTopologySignals } from './localeTopology.js';
 import { scoreInitPresets } from './scorePresets.js';
-
-export type InitDetectResult = {
-  signals: InitProjectSignals;
-  scores: InitPresetScore[];
-};
 
 /**
  * Scan **`projectRoot`** for **`package.json`** markers and locale-directory topology, then score presets.

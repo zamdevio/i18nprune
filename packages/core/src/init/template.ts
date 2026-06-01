@@ -1,4 +1,9 @@
-import type { InitLocaleLayoutHint, InitPresetId } from '../types/init/index.js';
+import type {
+  BuildInitConfigTemplateOptions,
+  InitConfigFormat,
+  InitLocaleLayoutHint,
+  InitPresetId,
+} from '../types/init/index.js';
 import { DEFAULT_PROVIDER_RATE_LIMITS } from '../shared/translator/utils/orchestration.js';
 import { getDocsUrl } from '../shared/docs/urls.js';
 import { getInitPresetConfigFields } from './presets/fields.js';
@@ -6,24 +11,8 @@ import { getInitPresetConfigFields } from './presets/fields.js';
 const CACHE_PROFILE_DOCS_URL = getDocsUrl('cli/cache');
 const REFERENCE_DOCS_URL = getDocsUrl('reference');
 
-export type InitConfigFormat = 'ts' | 'mts' | 'js' | 'mjs';
-
 /** Default import for **`defineConfig`** + **`I18nPruneConfig`** from core config surface. */
 export const DEFAULT_INIT_CONFIG_IMPORT_SPECIFIER = 'i18nprune/core/config';
-
-export type BuildInitConfigTemplateOptions = {
-  /** Module specifier for **`defineConfig`** / **`I18nPruneConfig`** (default core config surface). */
-  importSpecifier?: string;
-  /** When true, include every supported top-level namespace with safe defaults (starting point for customization). */
-  rich?: boolean;
-  /**
-   * Curated starter bundle — seeds **`locales.source`**, **`locales.directory`**, **`src`**, and **`functions`**.
-   * Defaults to **`generic`**.
-   */
-  preset?: InitPresetId;
-  /** When set, emitted into the `locales` block (from on-disk segment classification). */
-  localeLayout?: InitLocaleLayoutHint | null;
-};
 
 /** Comment lines after **`{ id: 'google' }`** — uncomment one backend, enable it, align **`translate.primary`**, configure fields or env. */
 function rateLimitLiteral(providerId: keyof typeof DEFAULT_PROVIDER_RATE_LIMITS): string {
