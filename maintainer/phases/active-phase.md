@@ -10,8 +10,8 @@
 |----------|---------|-----|
 | **1 — done** | Cross-platform (XP) — shipped | [`systems/platform.md`](../systems/platform.md) |
 | **2 — done** | Tree & naming — **T0–T10 shipped** (receipt only) | [`shipped-slices.md`](./shipped-slices.md) |
-| **3 — active** | Docs refactor (D) — incl. **D.0 onboarding hub** | [`docs-refactor.md`](./docs-refactor.md) |
-| **4 — done** | CI hardening (CI-1…4 shipped; CI-5 deferred) | [`ci.md`](./ci.md) |
+| **3 — done** | CI hardening (CI-1–5 shipped, incl. Turborepo in fa92505) | [`systems/ci.md`](../systems/ci.md) |
+| **4 — active** | Docs refactor (D) — incl. **D.0 onboarding hub** | [`docs-refactor.md`](./docs-refactor.md) |
 | **5** | Release (E + G) | [`final.md`](./final.md) |
 
 ---
@@ -28,7 +28,7 @@ Full chain + role one-liners: [`V1-RELEASE.md`](./V1-RELEASE.md) · Systems maps
 |-------|-----|
 | **cross-platform** | [`systems/platform.md`](../systems/platform.md) |
 | **tree** (shipped) | [`shipped-slices.md`](./shipped-slices.md) |
-| **ci** (shipped) | [`ci.md`](./ci.md) |
+| **ci** (shipped) | [`systems/ci.md`](../systems/ci.md) |
 | **docs** (active) | [`docs-refactor.md`](./docs-refactor.md) |
 | **extension** | [`extension/README.md`](./extension/README.md) |
 

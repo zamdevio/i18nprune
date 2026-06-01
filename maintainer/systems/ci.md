@@ -1,11 +1,11 @@
 # CI systems — maintainer map
 
 **Audience:** Maintainers and agents changing GitHub Actions, Vitest CI reporters, or debug artifacts.  
-**Sequencing / tracker:** [`maintainer/phases/ci.md`](../phases/ci.md) · **Platform matrix (product):** [`platform.md`](./platform.md) · **Knip/madge remediation:** [`health.md`](./health.md)
+**Receipt:** [`shipped-slices.md`](../phases/shipped-slices.md) (CI-1–5) · **Platform matrix (product):** [`platform.md`](./platform.md) · **Knip/madge remediation:** [`health.md`](./health.md)
 
 **Update this page when workflow structure changes** (job DAG, matrix, artifacts, reporters, or new workflows).
 
-**Workflow source comments:** use plain descriptive headers in `.github/workflows/*`, `vitest.config.ts`, and other non-maintainer files. Phase slice IDs (**CI-1**, **CI-2**, …) belong in this tracker and [`ci.md`](../phases/ci.md) only — not `(CI-n)` tags in workflow YAML or config.
+**Workflow source comments:** use plain descriptive headers in `.github/workflows/*`, `vitest.config.ts`, and other non-maintainer files. Phase slice IDs (**CI-1**, **CI-2**, …) belong in this map and [`shipped-slices.md`](../phases/shipped-slices.md) only — not `(CI-n)` tags in workflow YAML or config.
 
 ---
 
@@ -66,7 +66,7 @@ New commits on the same ref cancel in-flight runs.
 | Tool | Version |
 |------|---------|
 | **Node** | 22 (`actions/setup-node@v4`) |
-| **pnpm** | 10 (`pnpm/action-setup@v4`) |
+| **pnpm** | `packageManager` in root `package.json` (`pnpm/action-setup@v4`, no `version:` pin) |
 | **Install** | `pnpm install --frozen-lockfile` |
 
 ---
@@ -200,7 +200,7 @@ Workspace rename for turbo uniqueness: **`packages/cli`** → **`@i18nprune/cli`
 
 ## Related
 
-- [`maintainer/phases/ci.md`](../phases/ci.md) — session tracker and commit discipline
+- [`shipped-slices.md`](../phases/shipped-slices.md) — CI-1–5 shipped receipt
 - [`platform.md`](./platform.md) — OS support promise and path policy
 - [`health.md`](./health.md) — knip / madge scripts and when to run locally
 - [`shipped-slices.md`](../phases/shipped-slices.md) — close phase rows when slices land

@@ -1,6 +1,6 @@
 # Docs refactor phase
 
-Status: **Scoped for v1** (Session D in [`V1-RELEASE.md`](./V1-RELEASE.md); priority **4** per [`active-phase.md`](./active-phase.md)) · **After:** [`systems/platform.md`](../systems/platform.md) (shipped) and tree T0–T10 ([`shipped-slices.md`](./shipped-slices.md)). **Parallel / after CI:** [`ci.md`](./ci.md) is **active** (priority 3).
+Status: **Active** (Session D in [`V1-RELEASE.md`](./V1-RELEASE.md); priority **4** per [`active-phase.md`](./active-phase.md)) · **After:** [`systems/platform.md`](../systems/platform.md) (shipped), tree T0–T10 ([`shipped-slices.md`](./shipped-slices.md)), and CI CI-1–5 ([`systems/ci.md`](../systems/ci.md) · [`shipped-slices.md`](./shipped-slices.md)).
 
 This phase defines how to evolve docs into a clear, official-quality product site. **v1 scope** includes **dual-audience onboarding** (users + contributors), nav reduction (~10 categories), README rewrite, SDK quickstart, and tree flattening. Full topology linkage sweeps and repository health docs splits are deferred post-v1.
 

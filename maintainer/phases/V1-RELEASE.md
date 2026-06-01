@@ -12,7 +12,7 @@
 |------|---------|-----|--------|
 | **1** | **XP — Cross-platform** | [`systems/platform.md`](../systems/platform.md) | **Shipped** — matrix CI on `main` |
 | **2** | **Tree — Naming & layout** | [`shipped-slices.md`](./shipped-slices.md) | **Shipped** — T0–T10 (core + CLI); apps shim cleanup `96aed18` |
-| **3** | **CI — GitHub Actions** | [`ci.md`](./ci.md) | **Shipped** — split verify, PR annotations, nightly arch, artifacts, Turborepo change detection |
+| **3** | **CI — GitHub Actions** | [`systems/ci.md`](../systems/ci.md) · [`shipped-slices.md`](./shipped-slices.md) | **Shipped** — split verify, PR annotations, nightly arch, artifacts, Turborepo change detection |
 | **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) | **Active** — nav trim (~10 categories), SDK quickstart, tree flattening |
 | **5** | **E + G — Release** | [`final.md`](./final.md) | CI smoke, ADR polish, changelog, delete `final.md` |
 
@@ -36,7 +36,7 @@ Repo tree standardization after XP — **shipped** (T0–T10 core + CLI). Apps: 
 
 ## Session CI — GitHub Actions (**shipped**)
 
-**Plan:** [`ci.md`](./ci.md) · **Map:** [`systems/ci.md`](../systems/ci.md)
+**Receipt:** [`shipped-slices.md`](./shipped-slices.md) · **Map:** [`systems/ci.md`](../systems/ci.md)
 
 | Slice | What |
 |-------|------|
@@ -72,7 +72,7 @@ Execute [`final.md`](./final.md). Gates: `pnpm typecheck`, `pnpm test`, `pnpm vi
 
 ## CI (workflow)
 
-**Shipped:** [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — job DAG typecheck → cli-build → test → parity (3-OS matrix). Nightly arch: [`.github/workflows/architecture.yml`](../../.github/workflows/architecture.yml). **Receipt:** [`ci.md`](./ci.md) · [`systems/ci.md`](../systems/ci.md).
+**Shipped:** [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — job DAG typecheck → cli-build → test → parity (3-OS matrix). Nightly arch: [`.github/workflows/architecture.yml`](../../.github/workflows/architecture.yml). **Receipt:** [`shipped-slices.md`](./shipped-slices.md) · [`systems/ci.md`](../systems/ci.md).
 
 ---
 

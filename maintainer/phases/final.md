@@ -8,7 +8,7 @@
 
 ## 1 — Phase hygiene
 
-- [ ] Close or defer open slices in **`ci.md`** and **`docs-refactor.md`** per release scope (platform + tree T0–T10 shipped — [`systems/platform.md`](../systems/platform.md), [`shipped-slices.md`](./shipped-slices.md)).
+- [ ] Close or defer open slices in **`docs-refactor.md`** per release scope (platform + tree T0–T10 + CI CI-1–5 shipped — [`systems/platform.md`](../systems/platform.md), [`systems/ci.md`](../systems/ci.md), [`shipped-slices.md`](./shipped-slices.md)).
 - [ ] Keep **`maintainer/phases/extension/**`** as post-v1 roadmap (do not delete on release).
 - [ ] Keep **`extractor.md`** — future hardening + inventory cross-links.
 

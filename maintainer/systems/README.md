@@ -22,7 +22,7 @@
 | **`systems/platform.md`** | CLI + SDK on Windows / macOS / Linux / WSL — adapters, home layout, path warnings, CI matrix |
 | **`systems/ci.md`** | GitHub Actions: job DAG, matrix, artifacts, PR annotations, architecture nightly |
 | **Tree T0–T10** ([`shipped-slices.md`](../phases/shipped-slices.md)) | **Shipped** (core + CLI); apps shim cleanup `96aed18`; no app tree pass for v1 |
-| **Phase [`ci.md`](../phases/ci.md)** | **Active** — PR annotations, nightly knip/madge, debug artifacts (CI-1 split shipped) |
+| **CI CI-1–5** ([`shipped-slices.md`](../phases/shipped-slices.md)) | **Shipped** — split verify DAG, PR annotations, nightly knip/madge, debug artifacts, Turborepo scope |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
