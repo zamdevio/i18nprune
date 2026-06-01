@@ -20,9 +20,8 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
-| [`cross-platform.md`](./cross-platform.md) | **Shipped** — XP-0…XP-7 |
-| [`tree.md`](./tree.md) | **Shipped** (core + CLI); `apps/*` audit + conclusion |
-| [`docs-refactor.md`](./docs-refactor.md) | **Active** — docs nav + SDK quickstart |
+| [`ci.md`](./ci.md) | **Active** — split verify, PR annotations, nightly arch |
+| [`docs-refactor.md`](./docs-refactor.md) | Docs nav + SDK quickstart (priority 4) |
 | [`final.md`](./final.md) | Pre-publish gate (delete after release) |
 | [`standard-toolkit.md`](./standard-toolkit.md) | CLI toolkit conventions (parallel) |
 

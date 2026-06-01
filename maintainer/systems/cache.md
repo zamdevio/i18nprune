@@ -2,7 +2,7 @@
 
 **Audience:** Maintainers and agents touching any cache layer in core or CLI.  
 **User-facing:** [`docs/cli/cache.md`](../../docs/cli/cache.md) (disk project cache + flags only).  
-**Receipts:** [`shipped-slices.md`](../phases/shipped-slices.md) · **Cross-platform audit:** [`cross-platform.md`](../phases/cross-platform.md).
+**Receipts:** [`shipped-slices.md`](../phases/shipped-slices.md) · **Multi-OS paths / home:** [`platform.md`](./platform.md).
 
 ---
 
@@ -239,5 +239,5 @@ Skipped when `CI`, `--json`, or `I18NPRUNE_NO_UPDATE_CHECK`.
 ## Cross-links
 
 - **Share worker + routes:** [`share.md`](./share.md)
-- **Cross-platform hardening:** [`cross-platform.md`](../phases/cross-platform.md) (XP-2, XP-3, XP-4)
+- **Platform / multi-OS:** [`platform.md`](./platform.md) (adapters, `I18NPRUNE_HOME`, translate L2 paths)
 - **User docs:** [`docs/cli/cache.md`](../../docs/cli/cache.md)

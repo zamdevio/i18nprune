@@ -8,25 +8,27 @@
 
 | Priority | Session | Doc |
 |----------|---------|-----|
-| **1 — done** | Cross-platform (XP) — **XP-0…7 shipped** | [`cross-platform.md`](./cross-platform.md) |
-| **2 — done** | Tree & naming — **T0–T10 shipped**; apps audit in [`tree.md`](./tree.md) | [`tree.md`](./tree.md) · [`shipped-slices.md`](./shipped-slices.md) |
-| **3 — active** | Docs refactor (D) — incl. **D.0 onboarding hub** | [`docs-refactor.md`](./docs-refactor.md) |
-| **4** | Release (E + G) | [`final.md`](./final.md) |
+| **1 — done** | Cross-platform (XP) — shipped | [`systems/platform.md`](../systems/platform.md) |
+| **2 — done** | Tree & naming — **T0–T10 shipped** (receipt only) | [`shipped-slices.md`](./shipped-slices.md) |
+| **3 — active** | CI hardening (CI-1…5) | [`ci.md`](./ci.md) |
+| **4** | Docs refactor (D) — incl. **D.0 onboarding hub** | [`docs-refactor.md`](./docs-refactor.md) |
+| **5** | Release (E + G) | [`final.md`](./final.md) |
 
 ---
 
 ## Locked cross-phase dependency chain
 
 ```txt
-… → apps (shipped) → cross-platform (shipped) → tree (shipped) → docs (active) → release → extension
+… → cross-platform (shipped) → tree (shipped) → ci (active) → docs → release → extension
 ```
 
 Full chain + role one-liners: [`V1-RELEASE.md`](./V1-RELEASE.md) · Systems maps for shipped verticals: [`systems/README.md`](../systems/README.md).
 
 | Phase | Doc |
 |-------|-----|
-| **cross-platform** | [`cross-platform.md`](./cross-platform.md) |
-| **tree** (shipped; apps audit) | [`tree.md`](./tree.md) · receipt: [`shipped-slices.md`](./shipped-slices.md) |
+| **cross-platform** | [`systems/platform.md`](../systems/platform.md) |
+| **tree** (shipped) | [`shipped-slices.md`](./shipped-slices.md) |
+| **ci** | [`ci.md`](./ci.md) |
 | **docs** | [`docs-refactor.md`](./docs-refactor.md) |
 | **extension** | [`extension/README.md`](./extension/README.md) |
 

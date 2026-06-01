@@ -63,6 +63,7 @@ Read in order; skip deep dives until you touch that area.
 | 3 | [`../phases/active-phase.md`](../phases/active-phase.md) | What sprint is active **right now** |
 | 4 | [`../phases/shipped-slices.md`](../phases/shipped-slices.md) | Do not re-implement closed work |
 | 5 | [`../systems/README.md`](../systems/README.md) | Where per-subsystem maps live |
+| 5b | [`../systems/platform.md`](../systems/platform.md) | Multi-OS CLI/SDK — paths, home, WSL vs Windows |
 | 6 | [`../systems/operations/entrypoints.md`](../systems/operations/entrypoints.md) | `runXxx` wiring table |
 | 7 | `packages/cli/bin/cli.ts` | Global flags + command registration |
 | 8 | One command end-to-end e.g. `packages/cli/src/commands/validate/` → `packages/core/src/validate/run.ts` | Host vs engine in practice |
@@ -102,7 +103,8 @@ packages/cli/bin/cli.ts
 | New CLI flag on existing op | `packages/cli/src/commands/<op>/` + core `run.ts` |
 | New issue code | `issueCodes.ts` + `docs/issues/README.md` + emitter |
 | Config field | `packages/core/src/config/schema/` |
-| Cache / incremental analysis | `packages/core/src/cache/` + `docs/cli/cache.md` |
+| Cache / incremental analysis | `packages/core/src/cache/` + [`systems/cache.md`](../systems/cache.md) + `docs/cli/cache.md` |
+| Windows / macOS / path pitfalls | [`systems/platform.md`](../systems/platform.md) |
 | Extractor / key sites | `packages/core/src/extractor/` + [`systems/extractor.md`](../systems/extractor.md) |
 | Share (CLI, web, worker, core) | `packages/core/src/share/` + [`systems/share.md`](../systems/share.md) |
 | Web workspace UX | `apps/web/src/` (domain stays in app; primitives in `packages/ui`) |

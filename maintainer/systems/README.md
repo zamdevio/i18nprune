@@ -19,8 +19,9 @@
 | **`systems/ui.md`** | Runtime UI kit (`@i18nprune/ui`): domain separation, purity rules, enforcement |
 | **`systems/share.md`** | Share ecosystem: core `runShare*`, CLI/web/report hosts, `workers/i18nprune` routes, DO storage, metadata builders |
 | **`systems/cache.md`** | Project cache: `files.json` / `analysis.json` rebuild policy, profiles, invalidate rules (shipped H-cache) |
-| **Phase [`cross-platform.md`](../phases/cross-platform.md)** | **Shipped** — XP-0…7; matrix CI on `main` |
-| **Phase [`tree.md`](../phases/tree.md)** | **Shipped** (core + CLI T0–T10) — **`apps/*` audit** in same doc; no app tree pass required for v1 |
+| **`systems/platform.md`** | CLI + SDK on Windows / macOS / Linux / WSL — adapters, home layout, path warnings, CI matrix |
+| **Tree T0–T10** ([`shipped-slices.md`](../phases/shipped-slices.md)) | **Shipped** (core + CLI); apps shim cleanup `96aed18`; no app tree pass for v1 |
+| **Phase [`ci.md`](../phases/ci.md)** | **Active** — split verify, PR annotations, nightly knip/madge, artifacts |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
@@ -48,6 +49,7 @@ maintainer/systems/
 ├── ui.md
 ├── share.md
 ├── cache.md
+├── platform.md
 ├── health.md
 ├── knip.md
 ├── operations/
@@ -75,6 +77,7 @@ Keep this tree truthful with `git`; don't maintain a brittle wall of filenames h
 | **Extractor (maintainer)** | `maintainer/systems/extractor.md` |
 | **Patching (maintainer)** | `maintainer/systems/patching.md` |
 | **Project cache (maintainer)** | `maintainer/systems/cache.md` |
+| **Platform / multi-OS (maintainer)** | `maintainer/systems/platform.md` |
 | **Share ecosystem (maintainer)** | `maintainer/systems/share.md` |
 | **Health gates (typecheck, test, knip, madge)** | `maintainer/systems/health.md` |
 | **Runtime UI kit (`@i18nprune/ui`)** | `maintainer/systems/ui.md` |

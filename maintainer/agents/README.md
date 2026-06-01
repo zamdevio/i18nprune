@@ -10,6 +10,7 @@ Guides for humans and coding agents working in this repo.
 | [**Git**](./git.md) | Commit style, bundling rules, Conventional Commits, pre-push checklist |
 | [**Health gates**](../systems/health.md) | `typecheck`, `test`, knip, madge, `ui:purity`, `empty:*` — when to run, barrel discipline |
 | [**Onboarding**](./onboarding.md) | First-day reading order, trace-a-command, PR checklist, host purity |
+| [**Platform (multi-OS)**](../systems/platform.md) | Windows / macOS / Linux / WSL — adapters, CLI home, CI matrix |
 | [**Share ecosystem**](../systems/share.md) | Core `runShare*`, CLI/web/report, `workers/i18nprune` API |
 | [**Runtime UI kit**](../systems/ui.md) | `@i18nprune/ui` domain boundaries, purity rules, enforcement |
 | [**Knip config**](../systems/knip.md) | `knip.json` ignore catalog (barrels, edge entries, type-only deps) |

@@ -10,10 +10,11 @@
 
 | Step | Session | Doc | Status |
 |------|---------|-----|--------|
-| **1** | **XP — Cross-platform** | [`cross-platform.md`](./cross-platform.md) | **Shipped** — XP-0…7; matrix CI on `main` |
-| **2** | **Tree — Naming & layout** | [`tree.md`](./tree.md) · [`shipped-slices.md`](./shipped-slices.md) | **Shipped** — T0–T10 (core + CLI); [`tree.md`](./tree.md) holds `apps/*` audit |
-| **3** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) | **Active** — nav trim (~10 categories), SDK quickstart, tree flattening |
-| **4** | **E + G — Release** | [`final.md`](./final.md) | CI smoke, ADR polish, changelog, delete `final.md` |
+| **1** | **XP — Cross-platform** | [`systems/platform.md`](../systems/platform.md) | **Shipped** — matrix CI on `main` |
+| **2** | **Tree — Naming & layout** | [`shipped-slices.md`](./shipped-slices.md) | **Shipped** — T0–T10 (core + CLI); apps shim cleanup `96aed18` |
+| **3** | **CI — GitHub Actions** | [`ci.md`](./ci.md) | **Active** — split verify, PR annotations, nightly arch, artifacts |
+| **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) | Nav trim (~10 categories), SDK quickstart, tree flattening |
+| **5** | **E + G — Release** | [`final.md`](./final.md) | CI smoke, ADR polish, changelog, delete `final.md` |
 
 ---
 
@@ -23,13 +24,27 @@ Prove and harden **CLI** + **`@i18nprune/core` SDK** on Windows, macOS, native L
 
 **Disk surfaces to audit:** version cache (`state/version.json`), project cache (`files.json`, `analysis.json`), translate L2 (`translations/*.json`), share local (`share.json`). See [`systems/cache.md`](../systems/cache.md).
 
-**Tracker:** [`cross-platform.md`](./cross-platform.md) (XP-0…XP-7).
+**Map:** [`systems/platform.md`](../systems/platform.md).
 
 ---
 
 ## Session Tree — Naming & layout (**shipped**)
 
-Repo tree standardization after XP — **shipped** (T0–T10). **Apps layout audit:** [`tree.md`](./tree.md) (no app pass required for v1).
+Repo tree standardization after XP — **shipped** (T0–T10 core + CLI). Apps: non-barrel type shims cleared (`96aed18`); no further `apps/*` tree pass for v1 — receipt [`shipped-slices.md`](./shipped-slices.md).
+
+---
+
+## Session CI — GitHub Actions (**active**)
+
+**Plan:** [`ci.md`](./ci.md)
+
+| Slice | What |
+|-------|------|
+| **CI-1** | Split `verify` into typecheck · cli:build · test · parity jobs + `needs:` DAG |
+| **CI-2** | Vitest / JUnit PR annotations |
+| **CI-3** | Nightly knip + madge (non-blocking) |
+| **CI-4** | Upload CLI dist artifacts (Windows debug) |
+| **CI-5** | Path filters / turborepo — deferred post-v1 |
 
 ---
 
@@ -55,9 +70,9 @@ Execute [`final.md`](./final.md). Gates: `pnpm typecheck`, `pnpm test`, `pnpm vi
 
 ---
 
-## CI
+## CI (workflow)
 
-[`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — `pnpm typecheck` · `pnpm test` · `pnpm vitest run tests/parity`
+**Baseline:** [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — matrix `verify` (typecheck · cli:build · test · parity). **Hardening tracker:** [`ci.md`](./ci.md).
 
 ---
 
