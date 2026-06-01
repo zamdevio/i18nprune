@@ -1,6 +1,6 @@
 # Cross-platform hardening (CLI + SDK)
 
-**Status:** **In progress** — **XP-0…3** shipped (matrix CI green on `main`); **XP-4** in flight — **XP-5…7** open.  
+**Status:** **In progress** — **XP-0…4** shipped (matrix CI green on `main`); **XP-5** in flight — **XP-6…7** open.  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Active narrative:** [`active-phase.md`](./active-phase.md) · **Then:** [`tree.md`](./tree.md)
 
 **Promise (one sentence):** With **Node ≥ 18**, the **CLI** and **`@i18nprune/core` SDK** run deterministically on **Windows, macOS, native Linux, and WSL** for local scan, **all disk caches**, and report generation — without shell-specific commands or POSIX-only path logic in **core**.
@@ -33,7 +33,7 @@ Code review of CLI + core paths relevant to Win/macOS/Linux/WSL. **No runtime ch
 | **Atomic cache writes** | `writeTextAtomic`: `mkdirSync` → temp file → `renameSync` same directory (`packages/cli/src/shared/cache/runtime.ts`) — standard Node pattern on NTFS |
 | **Project cache id** | `normalizeProjectRoot` lowercases + forward-slash canonical form (`packages/core/src/cache/io/hash.ts`) — stable on case-insensitive FS; may differ from Linux case-sensitive checkout ids |
 | **Report env (CLI)** | `buildReportEnvironmentSnapshot` uses `process.platform`, `os.release()`, WSL via `WSL_DISTRO_NAME` (`packages/cli/src/commands/report/build.ts`) |
-| **Report env (archive)** | `prepareReportFromArchive` uses placeholder `environment` (`platform: 'archive-hosted'`, empty `osRelease`) — **XP-5** |
+| **Report env (archive)** | `archiveHostedReportEnvironment` — hosted `platform` + `runtimeFamily: edge-worker` (no fake `archive-hosted` / `osRelease`) |
 | **Source walk** | **Mitigated (XP-2)** — `listSourceFiles` uses `realpath` + depth cap; Node `listDir` follows symlink-to-dir entries |
 | **Optional `rg`** | `spawnSync('rg', …)` — needs `rg` / `rg.exe` on PATH; doctor warns when missing |
 | **Shell deps** | No `rm`/`cp` on main CLI path; `fs.rmSync` in cache runtime |
@@ -141,7 +141,7 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 | **XP-2b** | Known limits (handlers) | **Shipped** | `shared/path/platform.ts`; user docs table → **XP-6** |
 | **XP-3** | **Version cache** (`state/version.json`) hardening | **Shipped** | `I18NPRUNE_HOME` + docs + CLI tests (`paths`, `cache.disk`, `skipPolicy`) |
 | **XP-4** | **Translate cache** (`translations/*.json`) | **Shipped** | `path.join` only; Win32 + disk heal tests; `docs/cli/cache.md` L2 gate note |
-| **XP-5** | Report host metadata | **Todo** | Fix archive placeholder env; CLI `buildReportEnvironmentSnapshot` truth on all platforms |
+| **XP-5** | Report host metadata | **Shipped** | `archiveHostedReportEnvironment`; CLI snapshot tests (`buildEnvironment.test.ts`) |
 | **XP-6** | User docs | **Todo** | `docs/cli/cache.md` — three disk surfaces, paths on Windows, WSL vs native Node |
 | **XP-7** | Optional: spaces-in-path fixture test | **Todo** | One integration test on Windows CI |
 
@@ -183,8 +183,8 @@ Three **CLI-owned** on-disk areas + **one core-owned** layout under a configurab
 
 ### XP-5 — Report environment metadata
 
-- [ ] Replace or omit fake `environment` in `fromArchiveReport` (`osRelease: '0'`, etc.).
-- [ ] Ensure CLI `buildReportEnvironmentSnapshot` uses `os.release()` on win32/darwin/linux/WSL.
+- [x] Replace fake `environment` in `fromArchiveReport` — `archiveHostedReportEnvironment` (`report/archiveEnvironment.ts`).
+- [x] CLI `buildReportEnvironmentSnapshot` uses `os.release()` + WSL — `packages/cli/src/commands/report/__tests__/buildEnvironment.test.ts`.
 
 ---
 

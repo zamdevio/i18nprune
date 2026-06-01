@@ -1,4 +1,5 @@
 import {
+  archiveHostedReportEnvironment,
   buildProjectUploadSnapshotMeta,
   SDK_VERSION,
   workerErrorFromCode,
@@ -10,7 +11,6 @@ import {
   type ProjectSnapshot,
   type ProjectStoreRow,
 } from '@i18nprune/core';
-import type { ReportEnvironmentSnapshot } from '@i18nprune/core';
 import type { Context } from 'hono';
 import { ApiResponse } from '../../response';
 import { readDoStorageFailure, storageLimitResponseFromDo } from './doResponse.js';
@@ -36,13 +36,7 @@ export function workerArchiveProcessorContext(): HostedIngestProcessorContext {
     sdk: 'i18nprune-worker',
     sdkVersion: SDK_VERSION,
     toolVersion: 'i18nprune-worker',
-    environment: {
-      platform: 'cloudflare-workers',
-      arch: '',
-      nodeVersion: '',
-      osRelease: '',
-      runtimeFamily: 'edge-worker',
-    } satisfies ReportEnvironmentSnapshot,
+    environment: archiveHostedReportEnvironment('worker-archive'),
   };
 }
 

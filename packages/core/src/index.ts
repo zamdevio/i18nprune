@@ -366,6 +366,7 @@ export type {
 
 export * as report from './namespaces/report.js';
 export {
+  archiveHostedReportEnvironment,
   buildReportDocument,
   runReport,
 } from './namespaces/report.js';

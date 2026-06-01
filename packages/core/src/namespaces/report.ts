@@ -1,4 +1,5 @@
 export {
+  archiveHostedReportEnvironment,
   buildReportDocument,
   runReport,
 } from '../report/index.js';

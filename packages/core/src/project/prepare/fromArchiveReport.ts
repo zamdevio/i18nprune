@@ -2,6 +2,7 @@ import { ISSUE_SHARE_PREPARE_REPORT_FROM_ARCHIVE_FAILED } from '../../shared/con
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { PrepareProjectSnapshotFromArchiveInput } from '../../types/project/prepare/index.js';
 import type { ValidateReportIngestResult } from '../../types/report/ingest.js';
+import { archiveHostedReportEnvironment } from '../../report/archiveEnvironment.js';
 import { prepareProjectSnapshotFromArchive } from './fromArchive.js';
 import { buildReportDocumentFromPreparedSnapshot } from './fromAnalysis.js';
 import { prepareReportPayload } from './report.js';
@@ -24,13 +25,7 @@ export async function prepareReportFromArchive(
     document = buildReportDocumentFromPreparedSnapshot(project.parsed.snapshot, {
       cwd: '/',
       toolVersion: 'unknown',
-      environment: {
-        platform: 'archive-hosted',
-        arch: '',
-        nodeVersion: '',
-        osRelease: '',
-        runtimeFamily: 'edge-worker',
-      },
+      environment: archiveHostedReportEnvironment(input.prepareHost),
     });
   } catch (err) {
     return {
