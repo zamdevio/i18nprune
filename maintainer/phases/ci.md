@@ -1,6 +1,6 @@
 # CI hardening phase
 
-**Status:** **Active** (v1 — Session CI in [`V1-RELEASE.md`](./V1-RELEASE.md))  
+**Status:** **Shipped** (CI-1–4; **CI-5 deferred** post-v1 — v1 Session CI in [`V1-RELEASE.md`](./V1-RELEASE.md))  
 **Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Sprint narrative:** [`active-phase.md`](./active-phase.md) · **After (shipped):** [`systems/platform.md`](../systems/platform.md) (OS matrix) · [`shipped-slices.md`](./shipped-slices.md) (tree T0–T10)
 
 **Promise (one sentence):** GitHub Actions gives **fast, diagnosable PR feedback** (split gates, annotations, scoped artifacts) and **scheduled architecture hygiene** (knip/madge) without blocking v1 ship on deploy or monorepo tooling.

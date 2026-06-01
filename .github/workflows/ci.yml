@@ -1,4 +1,4 @@
-# CI workflow — matrix policy (CI-1)
+# CI — split gates: typecheck → cli-build → test → parity
 #
 # Job DAG:
 #   typecheck (ubuntu) → cli-build (3 OS) → test (3 OS) → parity (3 OS)

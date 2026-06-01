@@ -12,8 +12,8 @@
 |------|---------|-----|--------|
 | **1** | **XP — Cross-platform** | [`systems/platform.md`](../systems/platform.md) | **Shipped** — matrix CI on `main` |
 | **2** | **Tree — Naming & layout** | [`shipped-slices.md`](./shipped-slices.md) | **Shipped** — T0–T10 (core + CLI); apps shim cleanup `96aed18` |
-| **3** | **CI — GitHub Actions** | [`ci.md`](./ci.md) | **Active** — split verify, PR annotations, nightly arch, artifacts |
-| **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) | Nav trim (~10 categories), SDK quickstart, tree flattening |
+| **3** | **CI — GitHub Actions** | [`ci.md`](./ci.md) | **Shipped** — split verify, PR annotations, nightly arch, artifacts (CI-5 deferred) |
+| **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) | **Active** — nav trim (~10 categories), SDK quickstart, tree flattening |
 | **5** | **E + G — Release** | [`final.md`](./final.md) | CI smoke, ADR polish, changelog, delete `final.md` |
 
 ---
@@ -34,17 +34,17 @@ Repo tree standardization after XP — **shipped** (T0–T10 core + CLI). Apps: 
 
 ---
 
-## Session CI — GitHub Actions (**active**)
+## Session CI — GitHub Actions (**shipped**)
 
-**Plan:** [`ci.md`](./ci.md)
+**Plan:** [`ci.md`](./ci.md) · **Map:** [`systems/ci.md`](../systems/ci.md)
 
 | Slice | What |
 |-------|------|
-| **CI-1** | Split `verify` into typecheck · cli:build · test · parity jobs + `needs:` DAG |
-| **CI-2** | Vitest / JUnit PR annotations |
-| **CI-3** | Nightly knip + madge (non-blocking) |
-| **CI-4** | Upload CLI dist artifacts (Windows debug) |
-| **CI-5** | Path filters / turborepo — deferred post-v1 |
+| **CI-1** | Split `verify` into typecheck · cli:build · test · parity jobs + `needs:` DAG — **shipped** |
+| **CI-2** | Vitest PR annotations (`github-actions` reporter) — **shipped** |
+| **CI-3** | Nightly knip + madge (non-blocking) — **shipped** |
+| **CI-4** | Upload CLI dist debug artifacts (Windows / failure) — **shipped** |
+| **CI-5** | Path filters / turborepo — **deferred** post-v1 |
 
 ---
 
@@ -72,7 +72,7 @@ Execute [`final.md`](./final.md). Gates: `pnpm typecheck`, `pnpm test`, `pnpm vi
 
 ## CI (workflow)
 
-**Baseline:** [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — matrix `verify` (typecheck · cli:build · test · parity). **Hardening tracker:** [`ci.md`](./ci.md).
+**Shipped:** [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — job DAG typecheck → cli-build → test → parity (3-OS matrix). Nightly arch: [`.github/workflows/architecture.yml`](../../.github/workflows/architecture.yml). **Receipt:** [`ci.md`](./ci.md) · [`systems/ci.md`](../systems/ci.md).
 
 ---
 

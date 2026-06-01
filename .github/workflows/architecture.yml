@@ -1,4 +1,4 @@
-# Architecture hygiene — non-blocking (CI-3)
+# Scheduled knip/madge hygiene (non-blocking)
 #
 # Maintainer triage: failures do not gate PR merge. Fix findings in
 # dedicated PRs; see maintainer/systems/health.md and knip.md.

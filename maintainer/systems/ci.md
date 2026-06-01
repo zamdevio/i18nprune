@@ -5,6 +5,8 @@
 
 **Update this page when workflow structure changes** (job DAG, matrix, artifacts, reporters, or new workflows).
 
+**Workflow source comments:** use plain descriptive headers in `.github/workflows/*`, `vitest.config.ts`, and other non-maintainer files. Phase slice IDs (**CI-1**, **CI-2**, …) belong in this tracker and [`ci.md`](../phases/ci.md) only — not `(CI-n)` tags in workflow YAML or config.
+
 ---
 
 ## Workflows

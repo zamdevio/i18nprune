@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import path from 'node:path';
 
-/** PR-only: inline failure annotations in GitHub Actions (CI-2). */
+/** PR-only: Vitest annotations in GitHub Actions. */
 const prCiGithubActionsReporter =
   process.env.GITHUB_ACTIONS === 'true' &&
   process.env.GITHUB_EVENT_NAME === 'pull_request';
