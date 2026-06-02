@@ -15,23 +15,14 @@ Use [docs/README.md](../README.md) as the central topic index.
 
 | Topic | Where |
 |-------|--------|
-| **Topology (system maps)** | [topology](./topology/README.md) |
 | **JSON / `--json`** | [JSON output (`--json`)](../cli/json.md), [SDK operations](../sdk/operations.md) |
+| **Runtime hosts** | [Runtime overview](../runtime/README.md) |
 | **Command vs `core` layout** | [ADR 006](./decisions/006-command-orchestrator-boundary.md) |
 | **CLI prompts** | [CLI prompt modules](../cli/prompts.md) |
 | **Translator engine** | [Translator engine](../translator/README.md) |
 | **Loader & user i18n wiring** | [Loader & config](../patching/loader.md), [patching overview](../patching/README.md) |
 | **Project tree** | [tree](./tree.md) |
 | **Languages catalog** | [languages command](../commands/languages.md) |
-
-## Topology pages
-
-These pages document high-level system shape and relationships:
-
-- [overview](./topology/overview.md)
-- [translation](./topology/translation.md)
-- [runtime](./topology/runtime.md)
-- [provider](./topology/provider.md)
 
 ## ADRs
 

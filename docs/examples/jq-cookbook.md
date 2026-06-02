@@ -1,6 +1,8 @@
 # jq cookbook
 
-Practical `jq` filters for i18nprune JSON envelopes, focused on efficient command summaries across validate, sync, generate, review, and more.
+Practical `jq` filters for i18nprune JSON envelopes.
+
+Use this page when you need CI-safe summaries, issue extraction, or compact machine-readable reports.
 
 ## Quick setup
 
@@ -8,38 +10,111 @@ Practical `jq` filters for i18nprune JSON envelopes, focused on efficient comman
 jq -V
 ```
 
-## Validate summary
+## Envelope sanity check (all commands)
 
 ```bash
 i18nprune validate --json \
-| jq '{ok, missing: (.data.missing | length), dynamic: .data.dynamic.count, issueCodes: [.issues[].code]}'
+| jq '{ok, kind, issueCount: (.issues | length), apiVersion: .meta.apiVersion}'
 ```
 
-## Sync metadata histogram
+## Validate: missing + dynamic + issue codes
 
 ```bash
-i18nprune --json sync --target ja --dry-run --metadata \
+i18nprune validate --json \
+| jq '{
+    ok,
+    missing: (.data.missing | length),
+    dynamic: (.data.dynamic.count // 0),
+    issueCodes: [.issues[].code]
+  }'
+```
+
+## Validate: fail CI when missing keys exist
+
+```bash
+i18nprune validate --json \
+| jq -e '.ok and ((.data.missing | length) == 0)'
+```
+
+## Sync: metadata action histogram (per locale)
+
+```bash
+i18nprune sync --json --target ja --dry-run --metadata \
 | jq '.data.localeMetadataReports["ja.json"].leafDecisions
       | group_by(.action)
       | map({action: .[0].action, count: length})'
 ```
 
-## Generate target summary
+## Generate: per-target status summary
 
 ```bash
-i18nprune --json generate --target ja,de --dry-run --metadata \
+i18nprune generate --json --target ja,de --dry-run --metadata \
 | jq '.data.targetResults
-      | map({target, mode: .localeMetadata.mode, repaired: .localeMetadata.repairedCorruptLeaves})'
+      | map({
+          target,
+          status,
+          partial,
+          fallbackCount: (.fallbackCount // 0),
+          repairedLeaves: (.localeMetadata.repairedCorruptLeaves // 0)
+        })'
 ```
 
-## Review issues table
+## Generate: list failed targets only
 
 ```bash
-i18nprune --json review | jq '.issues | map({severity, code, message})'
+i18nprune generate --json --target ja,de \
+| jq '.data.targetResults[]
+      | select(.status != "ok")
+      | {target, status, error: (.error // null)}'
 ```
 
-## Notes
+## Review/quality: normalize issues table
 
-- Prefer grouped/sliced output (`group_by`, `[:N]`) for large payloads.
-- Pair these with `stdout redirection` when you need archived artifacts.
-- Expand this cookbook later as command payload docs stabilize.
+```bash
+i18nprune review --json \
+| jq '.issues | map({severity, code, message, docHref: (.docHref // null)})'
+```
+
+## Doctor: compact readiness summary
+
+```bash
+i18nprune doctor --json \
+| jq '{ok, issueCount: (.issues | length), issues: [.issues[].code]}'
+```
+
+## Share: list local cache rows (JSON mode)
+
+```bash
+i18nprune share list --json \
+| jq '.data.entries
+      | map({
+          kind,
+          id,
+          uploadedAt,
+          expiresAt: (.remote.expiresAt // null)
+        })'
+```
+
+## Report: extract headline counts
+
+```bash
+i18nprune report --json \
+| jq '{
+    ok,
+    kind,
+    issueCount: (.issues | length),
+    documentKind: (.data.document.kind // null)
+  }'
+```
+
+## Useful jq patterns
+
+- Use `//` for optional fields: `.foo // 0`
+- Use `-e` for CI predicates that must return success/failure
+- Use `map(...)` for stable row projection
+- Use `group_by(...)` + `length` for quick histograms
+
+## Related docs
+
+- [JSON output (`--json`)](../cli/json.md)
+- [Examples hub](./README.md)

@@ -82,11 +82,13 @@ i18nprune validate --exclude bench,compiled
 i18nprune report --exclude tests
 ```
 
-## Performance
+## Runtime impact
 
-Narrowing the scan (especially **`src`**, **`preset: 'production'`**, and extra `dirs` / `patterns`) reduces file counts and wall time. Published measurements and methodology:
+Narrowing the scan (especially **`src`**, **`preset: 'production'`**, and extra `dirs` / `patterns`) reduces file counts and wall time.
 
-- [Performance guide](../performance.md)
+Use cache diagnostics and cold/warm comparisons from:
+
+- [CLI cache](../cli/cache.md)
 
 ## Guidance
 

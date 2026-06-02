@@ -1,7 +1,8 @@
 # ADR 011 — Runtime-neutral SDK host model
 
 **Status:** Accepted  
-**Date:** 2026-06-02  
+**Date:** 2026-05-09  
+**Deciders:** Abdisamed Mohamed  
 **Related ADRs:** [ADR 006](./006-command-orchestrator-boundary.md), [ADR 009](./009-share-hosted-snapshot-contract.md)
 
 ## Context

@@ -1,7 +1,8 @@
 # ADR 009 — Share hosted snapshot contract
 
 **Status:** Accepted  
-**Date:** 2026-06-02  
+**Date:** 2026-05-20  
+**Deciders:** Abdisamed Mohamed  
 **Related ADRs:** [ADR 008](./008-cache-ownership-and-host-boundary.md), [ADR 011](./011-runtime-neutral-sdk-host-model.md)
 
 ## Context

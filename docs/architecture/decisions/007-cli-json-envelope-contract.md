@@ -1,7 +1,8 @@
 # ADR 007 — CLI JSON envelope contract
 
 **Status:** Accepted  
-**Date:** 2026-06-02  
+**Date:** 2026-05-09  
+**Deciders:** Abdisamed Mohamed  
 **Related ADRs:** [ADR 006](./006-command-orchestrator-boundary.md) (orchestrator boundary)
 
 ## Context

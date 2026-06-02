@@ -1,26 +1,50 @@
 # SDK examples
 
-These examples point to runnable scripts under `examples/sdk/**` in the repository.
+Run command-equivalent workflows directly in code with `@i18nprune/core`.
 
-## Minimal set
+These scripts in `examples/sdk/**` are the canonical starting point when you need:
 
-- `examples/sdk/doctor/runDoctor.ts`
-- `examples/sdk/missing/runMissing.ts`
-- `examples/sdk/sync/runSync.ts`
-- `examples/sdk/review/runReview.ts`
-- `examples/sdk/quality/runQuality.ts`
-- `examples/sdk/generate/runGenerate.ts`
-- `examples/sdk/translate/runTranslate.ts`
-- `examples/sdk/share/runShareList.ts`
+- CI scripts without spawning a CLI process
+- app/server integration with runtime adapters
+- deterministic JSON/result handling from `runXxx` operations
 
-## Related READMEs in `examples/sdk/**`
+## Example index
 
-- `examples/sdk/missing/README.md`
-- `examples/sdk/sync/README.md`
-- `examples/sdk/review/README.md`
-- `examples/sdk/quality/README.md`
-- `examples/sdk/generate/README.md`
-- `examples/sdk/translate/README.md`
-- `examples/sdk/share/README.md`
+| Operation | Example script | Typical use |
+|-----------|----------------|-------------|
+| `doctor` | `examples/sdk/doctor/runDoctor.ts` | Environment/path readiness checks in scripts |
+| `missing` | `examples/sdk/missing/runMissing.ts` | Missing key analysis inside custom tooling |
+| `sync` | `examples/sdk/sync/runSync.ts` | Locale topology alignment from Node jobs |
+| `review` | `examples/sdk/review/runReview.ts` | Drift/parity review automation |
+| `quality` | `examples/sdk/quality/runQuality.ts` | Quality checks for CI and dashboards |
+| `generate` | `examples/sdk/generate/runGenerate.ts` | Provider-backed translation flows |
+| `translate` | `examples/sdk/translate/runTranslate.ts` | Translation-provider focused usage |
+| `share list` | `examples/sdk/share/runShareList.ts` | Share cache introspection from scripts |
 
-Use these as the source of truth for runnable SDK flows and keep command docs focused on CLI usage.
+## Minimal host pattern (Node)
+
+```ts
+import { resolveContext, runSync } from '@i18nprune/core';
+import { createNodeRuntimeAdapters } from '@i18nprune/core/runtime/node';
+
+const ctx = await resolveContext({
+  projectRoot: process.cwd(),
+  adapters: createNodeRuntimeAdapters(),
+});
+
+const res = await runSync(ctx, { dryRun: true });
+console.log(res);
+```
+
+## Notes for SDK consumers
+
+- Runtime adapters are host-owned (`runtime/node`, `runtime/web`, `runtime/edge`).
+- CLI-style human output is not required; consume typed results directly.
+- The same issue-code contracts used by CLI `--json` are available in SDK results.
+- For translation/share flows, keep secrets and cache directories under your host policy.
+
+## Related docs
+
+- [SDK operations](../sdk/operations.md)
+- [Runtime overview](../runtime/README.md)
+- [JSON output (`--json`)](../cli/json.md) for contract parity expectations

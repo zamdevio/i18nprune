@@ -1,7 +1,8 @@
 # ADR 010 — Locale layout and metadata modes
 
 **Status:** Accepted  
-**Date:** 2026-06-02  
+**Date:** 2026-05-17  
+**Deciders:** Abdisamed Mohamed  
 **Related ADRs:** [ADR 008](./008-cache-ownership-and-host-boundary.md)
 
 ## Context

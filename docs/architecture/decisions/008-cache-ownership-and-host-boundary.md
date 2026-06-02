@@ -1,7 +1,8 @@
 # ADR 008 — Cache ownership and host boundary
 
 **Status:** Accepted  
-**Date:** 2026-06-02  
+**Date:** 2026-05-12  
+**Deciders:** Abdisamed Mohamed  
 **Related ADRs:** [ADR 006](./006-command-orchestrator-boundary.md), [ADR 010](./010-locale-layout-and-metadata-modes.md)
 
 ## Context

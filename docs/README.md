@@ -46,7 +46,6 @@ yarn dlx i18nprune --help
 | [Architecture](./architecture/README.md) | System layers and data flow |
 | [ADRs](./architecture/decisions/001-scope-v0-1.md) | Architecture decision records |
 | [Edge cases](./edge-cases/README.md) | Solved pitfalls and parity-sensitive notes |
-| [Performance](./performance.md) | Large-repo strategies and cache guidance |
 | [Changelog](./changelog.md) | User-visible release notes |
 
 ## Links

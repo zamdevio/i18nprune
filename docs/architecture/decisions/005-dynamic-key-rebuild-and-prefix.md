@@ -1,6 +1,9 @@
 # ADR 005 — Dynamic key rebuild, const map, and partial prefixes
 
-## Status: Accepted
+**Status:** Accepted  
+**Date:** 2026-05-17  
+**Deciders:** Abdisamed Mohamed  
+**Related ADRs:** [ADR 002](./002-configurable-translation-calls.md), [ADR 006](./006-command-orchestrator-boundary.md)
 
 ## Context
 
@@ -25,7 +28,12 @@ Without special handling, every such call is classified as non-literal, which **
 
 5. **Comments** — Comment regions are detected separately; call sites inside comments use kind **`commented`**.
 
-## The Why
+## Implementation
+
+```ts
+const NS = 'some.namespace';
+t(`${NS}.page.title`);
+```
 
 - **Same map** for literals and dynamic filtering avoids drift between **`validate`** and dynamic reporting.
 - **Rebuild** turns a large class of “looks dynamic, is actually constant” calls into **zero** dynamic noise.
@@ -34,17 +42,33 @@ Without special handling, every such call is classified as non-literal, which **
 
 ## Consequences
 
+### Positive
+
 - **`DynamicKeySite`** may include **`resolvedPrefix`** for **`template_interpolation`**.
 - **`i18nprune/core`** exports **`tryRebuildTemplateKeyFromConsts`** and **`tryResolveTemplatePrefixBeforeUnknown`** for scripts that mirror CLI rules.
 - Large projects that rely on namespace `const`s should see **fewer** reported dynamic sites when those templates become statically rebuildable.
 
-### Follow-up (not in this ADR)
+### Negative
+
+- Placeholders that cannot be resolved from consts remain dynamic by design (no runtime execution), even if most of the path is static.
+
+### Mitigation
 
 - Optional **const aliases** resolved via imported key objects (requires config or analysis of imports).
 - **String-array** patterns (`const keys = ['a.b', …]`) and **`t(k)`** loops—shared with cleanup **used-key** logic.
 - Optional **ripgrep** verification for high-assurance CI.
 
-## See also
+## Alternatives Considered
+
+### Treat every template literal as dynamic
+- **Pros**: simpler classification rules.
+- **Cons**: over-reports dynamic usage; weakens trust in CI gating.
+
+### Full rebuild only (no partial prefix)
+- **Pros**: avoids any “confidence gradient” and keeps output strictly conservative.
+- **Cons**: reduces value for tooling because it would stop describing what *is* trustworthy.
+
+## References
 
 - [Dynamic key handling](../extraction/dynamic.md)
 - [ADR 002 — Configurable translation calls](./002-configurable-translation-calls.md)
