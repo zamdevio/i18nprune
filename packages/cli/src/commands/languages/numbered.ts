@@ -18,7 +18,7 @@ export function printLanguagesNumberedList(rows: readonly TranslateTargetLanguag
   rows.forEach((r, i) => {
     const n = String(i + 1).padStart(idxW, ' ');
     logger.primary(
-      `  ${style.dim(n + '.')}  ${style.accent(r.code)}  ${style.dim('·')}  ${style.dim(r.english)}  ${style.dim('·')}  ${style.ok(r.native)}`,
+      `  ${style.dim(n + '.')}  ${style.accent(r.code)}  ${style.dim('·')}  ${style.dim(r.english)}  ${style.dim('·')}  ${style.ok(r.native)}  ${style.dim('·')}  ${style.dim(r.direction)}`,
       run,
     );
   });

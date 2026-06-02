@@ -8,7 +8,12 @@ import { writeGeneratedLanguageCatalogToPath } from './write.js';
 function isLanguageRow(value: unknown): value is TranslateTargetLanguage {
   if (!value || typeof value !== 'object') return false;
   const row = value as Partial<TranslateTargetLanguage>;
-  return typeof row.code === 'string' && typeof row.english === 'string' && typeof row.native === 'string';
+  return (
+    typeof row.code === 'string' &&
+    typeof row.english === 'string' &&
+    typeof row.native === 'string' &&
+    (row.direction === 'ltr' || row.direction === 'rtl')
+  );
 }
 
 function isLanguageCatalog(value: unknown): value is TranslateTargetLanguage[] {

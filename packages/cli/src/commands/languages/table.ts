@@ -5,12 +5,12 @@ import type { TranslateTargetLanguage } from '@i18nprune/core';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintPrimary } from '@/utils/logger/policy.js';
 
-function rowDisplayWidth(wNo: number, wCode: number, wEn: number, wNat: number): number {
-  const s = `│ ${padToDisplayWidth('0', wNo)} │ ${padToDisplayWidth('0', wCode)} │ ${padToDisplayWidth('0', wEn)} │ ${padToDisplayWidth('0', wNat)} │`;
+function rowDisplayWidth(wNo: number, wCode: number, wEn: number, wNat: number, wDir: number): number {
+  const s = `│ ${padToDisplayWidth('0', wNo)} │ ${padToDisplayWidth('0', wCode)} │ ${padToDisplayWidth('0', wEn)} │ ${padToDisplayWidth('0', wNat)} │ ${padToDisplayWidth('ltr', wDir)} │`;
   return displayWidth(s);
 }
 
-/** Bordered table: No. + Code + English + Native; widths from display width; shrink if > terminal. */
+/** Bordered table: No. + Code + English + Native + Dir; widths from display width; shrink if > terminal. */
 export function printTranslateLanguageTable(rows: readonly TranslateTargetLanguage[]): void {
   const run = getRunOptions();
   if (!canPrintPrimary(run)) return;
@@ -29,14 +29,16 @@ export function printTranslateLanguageTable(rows: readonly TranslateTargetLangua
   const hCode = 'Code';
   const hEn = 'English';
   const hNat = 'Native';
+  const hDir = 'Dir';
 
   let wNo = Math.max(displayWidth(hNo), ...rows.map((_, i) => displayWidth(String(i + 1))));
   let wCode = Math.max(displayWidth(hCode), ...rows.map((r) => displayWidth(r.code)));
   let wEn = Math.max(displayWidth(hEn), ...rows.map((r) => displayWidth(r.english)));
   let wNat = Math.max(displayWidth(hNat), ...rows.map((r) => displayWidth(r.native)));
+  const wDir = Math.max(displayWidth(hDir), ...rows.map((r) => displayWidth(r.direction)));
 
   while (
-    rowDisplayWidth(wNo, wCode, wEn, wNat) > termCols &&
+    rowDisplayWidth(wNo, wCode, wEn, wNat, wDir) > termCols &&
     (wEn > displayWidth(hEn) || wNat > displayWidth(hNat))
   ) {
     if (wEn >= wNat && wEn > displayWidth(hEn)) {
@@ -60,6 +62,8 @@ export function printTranslateLanguageTable(rows: readonly TranslateTargetLangua
     cell(wEn) +
     style.dim('┬') +
     cell(wNat) +
+    style.dim('┬') +
+    cell(wDir) +
     style.dim('╮');
   const midBar =
     style.dim('├') +
@@ -70,6 +74,8 @@ export function printTranslateLanguageTable(rows: readonly TranslateTargetLangua
     cell(wEn) +
     style.dim('┼') +
     cell(wNat) +
+    style.dim('┼') +
+    cell(wDir) +
     style.dim('┤');
   const botBar =
     style.dim('╰') +
@@ -80,11 +86,13 @@ export function printTranslateLanguageTable(rows: readonly TranslateTargetLangua
     cell(wEn) +
     style.dim('┴') +
     cell(wNat) +
+    style.dim('┴') +
+    cell(wDir) +
     style.dim('╯');
 
   logger.primary(topBar, run);
   logger.primary(
-    `${sep} ${style.bold(padToDisplayWidth(hNo, wNo))} ${sep} ${style.bold(padToDisplayWidth(hCode, wCode))} ${sep} ${style.bold(padToDisplayWidth(hEn, wEn))} ${sep} ${style.bold(padToDisplayWidth(hNat, wNat))} ${sep}`,
+    `${sep} ${style.bold(padToDisplayWidth(hNo, wNo))} ${sep} ${style.bold(padToDisplayWidth(hCode, wCode))} ${sep} ${style.bold(padToDisplayWidth(hEn, wEn))} ${sep} ${style.bold(padToDisplayWidth(hNat, wNat))} ${sep} ${style.bold(padToDisplayWidth(hDir, wDir))} ${sep}`,
     run,
   );
   logger.primary(midBar, run);
@@ -94,8 +102,9 @@ export function printTranslateLanguageTable(rows: readonly TranslateTargetLangua
     const c0 = padToDisplayWidth(r.code, wCode);
     const c1 = padToDisplayWidth(r.english, wEn);
     const c2 = padToDisplayWidth(r.native, wNat);
+    const c3 = padToDisplayWidth(r.direction, wDir);
     logger.primary(
-      `${sep} ${style.dim(n)} ${sep} ${style.accent(c0)} ${sep} ${style.dim(c1)} ${sep} ${style.ok(c2)} ${sep}`,
+      `${sep} ${style.dim(n)} ${sep} ${style.accent(c0)} ${sep} ${style.dim(c1)} ${sep} ${style.ok(c2)} ${sep} ${style.dim(c3)} ${sep}`,
       run,
     );
   });

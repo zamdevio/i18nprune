@@ -232,6 +232,11 @@ describe('CLI against sample-i18n fixture', () => {
     expect(j.ok).toBe(true);
     expect(j.kind).toBe('languages');
     expect(Array.isArray(j.data)).toBe(true);
+    const [first] = Array.isArray(j.data) ? j.data : [];
+    expect(first).toBeDefined();
+    const direction =
+      first && typeof first === 'object' ? (first as { direction?: unknown }).direction : undefined;
+    expect(direction === 'ltr' || direction === 'rtl').toBe(true);
   });
 
   it('langs alias runs languages --json without config', () => {
