@@ -1,10 +1,8 @@
 import { spawnSync } from 'node:child_process';
 
-/**
- * True when `rg --version` succeeds (ripgrep on PATH).
- */
+/** True when `rg -V` succeeds (ripgrep on PATH). */
 export function isRipgrepAvailable(): boolean {
-  const r = spawnSync('rg', ['--version'], { encoding: 'utf8' });
+  const r = spawnSync('rg', ['-V'], { encoding: 'utf8' });
   return r.status === 0;
 }
 

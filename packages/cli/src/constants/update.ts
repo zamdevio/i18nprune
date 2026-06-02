@@ -2,7 +2,7 @@
  * npm update discovery: registry URL, on-disk state schema version, and background throttle.
  * Env var names for opt-out stay in {@link ./env.js `env.ts`} (`I18NPRUNE_NO_UPDATE_CHECK`).
  *
- * User docs: **`docs/versioning/README.md`**.
+ * User docs: **`docs/cli/cache.md`**.
  */
 
 /** Public npm registry URL for **`i18nprune`** `latest` (persisted in `<home>/state/version.json`). */

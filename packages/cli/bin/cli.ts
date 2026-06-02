@@ -511,7 +511,7 @@ shareCmd
   .option('--report <id>', 'Worker-hosted report id')
   .option('--worker-url <url>', 'Worker API base URL')
   .option(
-    '--verbose',
+    '-v, --verbose',
     'Include processor, extraction, cache, and timing sections (human and --json)',
     false,
   )

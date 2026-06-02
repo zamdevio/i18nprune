@@ -10,7 +10,7 @@ export const ENV_CI = 'CI' as const;
 
 /**
  * When truthy (`1`, `true`, `yes`), skip the **npm registry** update check (e.g. after `doctor`).
- * See **`docs/versioning/README.md`**.
+ * See **`docs/cli/cache.md`**.
  */
 export const ENV_I18NPRUNE_NO_UPDATE_CHECK = 'I18NPRUNE_NO_UPDATE_CHECK' as const;
 

@@ -21,13 +21,8 @@ export const POSITIONAL_COMMAND_ALIASES: Readonly<Record<string, string>> = {
 };
 
 const SUB_SET = new Set<string>(CANONICAL_SUBCOMMANDS);
+const VERSION_SHORT_FLAG = '-V';
 
-const VERSION_FLAGS = new Set(['-v', '--version']);
-
-/**
- * First token of a subcommand when present (`locales list` → `locales`).
- * Used to detect whether `-v` should be rewritten to the `version` subcommand.
- */
 const KNOWN_COMMAND_FIRST_TOKEN = new Set([
   'init',
   'config',
@@ -71,12 +66,12 @@ function findFirstCommandToken(args: string[]): string | null {
 }
 
 /**
- * When `-v` / `--version` is used without an explicit subcommand, rewrite argv to run **`version`**
- * so **`preAction`**, **`RunOptions`** (quiet/silent), and the banner match **`i18nprune version`**.
+ * Rewrites global `-V` usage to the `version` subcommand.
+ * Keeps explicit command invocations untouched (e.g. `doctor -V`).
  */
-function rewriteVersionFlagsToVersionSubcommand(argv: string[]): string[] {
+function rewriteVersionShortFlag(argv: string[]): string[] {
   const args = argv.slice(2);
-  if (args.length === 0 || !args.some((a) => VERSION_FLAGS.has(a))) {
+  if (args.length === 0 || !args.includes(VERSION_SHORT_FLAG)) {
     return argv;
   }
 
@@ -85,18 +80,16 @@ function rewriteVersionFlagsToVersionSubcommand(argv: string[]): string[] {
     return argv;
   }
 
-  const filtered = args.filter((a) => !VERSION_FLAGS.has(a));
+  const filtered = args.filter((a) => a !== VERSION_SHORT_FLAG);
   const versionSubOpts = ['--check', '--reset'];
   const hasVersionSubOpt = filtered.some((a) => versionSubOpts.includes(a));
-
-  const next =
-    hasVersionSubOpt
-      ? (() => {
-          const globalsOnly = filtered.filter((a) => !versionSubOpts.includes(a));
-          const vopts = filtered.filter((a) => versionSubOpts.includes(a));
-          return [...globalsOnly, 'version', ...vopts];
-        })()
-      : [...filtered, 'version'];
+  const next = hasVersionSubOpt
+    ? (() => {
+        const globalsOnly = filtered.filter((a) => !versionSubOpts.includes(a));
+        const vopts = filtered.filter((a) => versionSubOpts.includes(a));
+        return [...globalsOnly, 'version', ...vopts];
+      })()
+    : [...filtered, 'version'];
 
   const out = [...argv];
   out.splice(2, out.length - 2, ...next);
@@ -117,19 +110,15 @@ export function resolveActiveCliCommandFromArgv(argv: string[] = process.argv): 
   return resolveArgvCommandToken(token) ?? token;
 }
 
-/**
- * Normalizes argv before Commander: `langs` → `languages`; `-v` / `--version` → `version` subcommand.
- */
+/** Normalizes argv before Commander: `langs` → `languages`; global `-V` → `version`. */
 export function preprocessArgv(argv: string[]): string[] {
   const out = [...argv];
   const idx = 2;
-  if (idx >= out.length) {
-    return rewriteVersionFlagsToVersionSubcommand(out);
-  }
+  if (idx >= out.length) return rewriteVersionShortFlag(out);
   const tok = out[idx];
   const positional = tok !== undefined ? resolveArgvCommandToken(tok) : null;
   if (positional !== null && positional !== tok) {
     out[idx] = positional;
   }
-  return rewriteVersionFlagsToVersionSubcommand(out);
+  return rewriteVersionShortFlag(out);
 }
