@@ -5,7 +5,7 @@ import type { ValidateReportIngestResult } from '../../types/report/ingest.js';
 import { archiveHostedReportEnvironment } from '../../report/archiveEnvironment.js';
 import { prepareProjectSnapshotFromArchive } from './fromArchive.js';
 import { buildReportDocumentFromPreparedSnapshot } from './fromAnalysis.js';
-import { prepareReportPayload } from './report.js';
+import { validateReportIngest } from './reportIngest.js';
 
 function toIssue(code: string, message: string): Issue {
   return { severity: 'error', code, message };
@@ -39,7 +39,7 @@ export async function prepareReportFromArchive(
     };
   }
 
-  const validated = await prepareReportPayload({ reportDocument: document });
+  const validated = await validateReportIngest({ reportDocument: document });
   if (!validated.ok) return validated;
   return { ...validated, prepareMeta: project.prepareMeta };
 }

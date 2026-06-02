@@ -566,7 +566,6 @@ export {
   prepareProjectSnapshotFromRoot,
   prepareReportForShare,
   prepareReportFromArchive,
-  prepareReportPayload,
   prepareShareHostedFromContext,
   projectConfigHash,
   relativeProjectPath,

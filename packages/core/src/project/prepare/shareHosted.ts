@@ -16,7 +16,7 @@ import {
 } from './fromAnalysis.js';
 import { prepareProjectSnapshotFromRoot } from './fromRoot.js';
 import { buildProjectSnapshotShellFromContext } from './snapshotShell.js';
-import { prepareReportPayload } from './report.js';
+import { validateReportIngest } from './reportIngest.js';
 import { createPrepareTimer } from './timing.js';
 
 function toIssue(code: string, message: string): Issue {
@@ -61,7 +61,7 @@ export async function prepareShareHostedFromContext(
       cwd: input.reportHost.cwd,
       toolVersion: input.reportHost.toolVersion,
     });
-    const report = await prepareReportPayload({ reportDocument: built.document });
+    const report = await validateReportIngest({ reportDocument: built.document });
     if (!report.ok) return { ok: false, issues: report.issues };
     return {
       ok: true,
@@ -140,7 +140,7 @@ export async function prepareShareHostedFromContext(
     cwd: input.reportHost.cwd,
     toolVersion: input.reportHost.toolVersion,
   });
-  const report = await prepareReportPayload({ reportDocument: built.document });
+  const report = await validateReportIngest({ reportDocument: built.document });
   if (!report.ok) return { ok: false, issues: report.issues };
 
   return {

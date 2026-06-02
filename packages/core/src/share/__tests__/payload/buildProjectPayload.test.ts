@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '@i18nprune/report-schema';
+import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '../../../shared/constants/report.js';
 import { DEFAULT_CONFIG, parseI18nPruneConfig } from '../../../config/index.js';
 import { initializeCacheState } from '../../../cache/setup/index.js';
 import { createCoreContext } from '../../../generate/context.js';
@@ -11,7 +11,7 @@ import { createNodeRuntimeAdapters } from '../../../runtime/exports/node.js';
 import type { CacheRuntime } from '../../../types/cache/index.js';
 import type { RunEvent } from '../../../types/shared/run/index.js';
 import { buildProjectPayload } from '../../payload/buildProjectPayload.js';
-import { prepareReportPayload } from '../../../project/prepare/report.js';
+import { validateReportIngest } from '../../../project/prepare/reportIngest.js';
 import { runShare } from '../../ops/run.js';
 
 function nodeCacheRuntime(adapters: ReturnType<typeof createNodeRuntimeAdapters>): CacheRuntime {
@@ -85,9 +85,9 @@ describe('buildProjectPayload', () => {
   });
 });
 
-describe('prepareReportPayload', () => {
+describe('validateReportIngest', () => {
   it('validates report document and builds stable hash manifest', async () => {
-    const out = await prepareReportPayload({
+    const out = await validateReportIngest({
       reportDocument: {
         kind: PROJECT_REPORT_KIND,
         schemaVersion: PROJECT_REPORT_SCHEMA_VERSION,
@@ -119,7 +119,7 @@ describe('prepareReportPayload', () => {
     expect(out.manifest.payloadContentHash).toMatch(/^[a-f0-9]{64}$/);
     expect(out.manifest.byteSize).toBeGreaterThan(0);
 
-    const out2 = await prepareReportPayload({
+    const out2 = await validateReportIngest({
       reportDocument: {
         kind: PROJECT_REPORT_KIND,
         schemaVersion: PROJECT_REPORT_SCHEMA_VERSION,

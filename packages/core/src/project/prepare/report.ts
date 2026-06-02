@@ -4,9 +4,6 @@ import { validateReportIngest } from './reportIngest.js';
 import type { PrepareReportForShareInput } from '../../types/report/prepareShare.js';
 import type { ValidateReportIngestResult } from '../../types/report/ingest.js';
 
-export { validateReportIngest, validateReportIngest as prepareReportPayload } from './reportIngest.js';
-export { reportDocumentForShareContentHash } from './reportSemantic.js';
-
 /**
  * Host-side report prepare: live scan via {@link runReport}, or validate-only when `analysis` is precomputed.
  */

@@ -33,7 +33,6 @@ export {
   prepareProjectSnapshotFromRoot,
   prepareReportForShare,
   prepareReportFromArchive,
-  prepareReportPayload,
   prepareShareHostedFromContext,
   reportDocumentForShareContentHash,
   resolveShareProjectAnalysis,

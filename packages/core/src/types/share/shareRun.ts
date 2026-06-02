@@ -63,7 +63,7 @@ export type ShareRunInputReportDocument = {
   reportDocument: unknown;
   force?: boolean;
   hooks: ShareHostHooks;
-  /** When set, skips {@link prepareReportPayload} (document + manifest already validated). */
+  /** When set, skips {@link validateReportIngest} (document + manifest already validated). */
   prepared?: {
     document: unknown;
     manifest: ShareReportManifest;

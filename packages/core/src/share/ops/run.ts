@@ -14,7 +14,7 @@ import type { ShareRunInput, ShareRunResult } from '../../types/share/shareRun.j
 import type { ShareSkippedReason } from '../../types/share/shareRun.js';
 import { computeShareProjectConfigHash } from '../payload/buildProjectPayload.js';
 import { buildPreparedProjectPayload } from '../payload/buildPreparedProjectPayload.js';
-import { prepareReportPayload } from '../../project/prepare/report.js';
+import { validateReportIngest } from '../../project/prepare/reportIngest.js';
 import type { PrepareReportPayloadResult } from '../../types/report/ingest.js';
 import { loadShareJsonFile, mergeDuplicateShareEntries, resolveShareJsonPath, saveShareJsonFile } from '../cache/io/shareJson.js';
 import { buildProjectShareLinks, buildReportShareLinks } from '../util/links.js';
@@ -228,7 +228,7 @@ export async function runShare(input: ShareRunInput): Promise<ShareRunResult> {
       manifest: input.prepared.manifest,
     };
   } else if (isReportDocument) {
-    builtReport = await prepareReportPayload({ reportDocument: input.reportDocument });
+    builtReport = await validateReportIngest({ reportDocument: input.reportDocument });
     if (!builtReport.ok) {
       emitRunEvent(emit, { type: 'run.completed', op: 'share', runId, at: stamp(), ok: false });
       return { action: 'skipped', kind: 'report', links: {}, workerIds: {}, issues: builtReport.issues };

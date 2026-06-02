@@ -1,7 +1,7 @@
 export { DEFAULT_WORKER_API_URL } from '../shared/constants/links.js';
 export {
   DEFAULT_MAX_SHARE_JSON_BYTES,
-  prepareReportPayload,
+  validateReportIngest,
   buildProjectPayload,
   buildReportShareLinks,
   buildProjectShareLinks,

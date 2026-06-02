@@ -21,7 +21,7 @@ export {
   hostedIngestEnvelopeForShareContentHash,
   hostedSnapshotForShareContentHash,
 } from './payload/hostedSnapshotSemantic.js';
-export { prepareReportPayload } from '../project/prepare/report.js';
+export { validateReportIngest } from '../project/prepare/reportIngest.js';
 export type { PrepareReportPayloadResult } from '../types/report/ingest.js';
 export { runShareDelete } from './ops/delete.js';
 export { shouldSkipPathForShareZip } from './payload/ignorePaths.js';
