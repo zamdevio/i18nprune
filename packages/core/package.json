@@ -14,7 +14,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@i18nprune/report-schema": "workspace:*",
     "fflate": "^0.8.2",
     "zod": "^4.3.6"
   },
@@ -55,6 +54,10 @@
     "./config": {
       "types": "./src/config/index.ts",
       "default": "./src/config/index.ts"
+    },
+    "./report-schema": {
+      "types": "./src/shared/report/index.ts",
+      "default": "./src/shared/report/index.ts"
     },
     "./sync": {
       "types": "./src/sync/index.ts",

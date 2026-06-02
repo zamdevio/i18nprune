@@ -8,8 +8,7 @@
     "typecheck": "tsc --noEmit --project ../../tsconfig.json"
   },
   "dependencies": {
-    "@i18nprune/core": "workspace:*",
-    "@i18nprune/report-schema": "workspace:*"
+    "@i18nprune/core": "workspace:*"
   },
   "exports": {
     "./constants": {

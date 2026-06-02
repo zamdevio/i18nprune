@@ -65,7 +65,7 @@ function resolveReportSpaTemplatePath(): string {
     [
       `Report UI bundle not found (looked for ${packaged} and ${fromSource}).`,
       'The HTML shell is produced by Vite in `apps/report` and must be present when generating HTML reports.',
-      'From the repo root: `pnpm run cli:build` (or `pnpm run report:build` then run `node packages/report/scripts/build-assets.mjs`).',
+      'From the repo root: `pnpm run cli:build` (or `pnpm run report:build` then run `node scripts/report/build-assets.mjs`).',
       'Published npm installs include `dist/report/index.html` next to `dist/cli.js` after a full release build.',
     ].join(' '),
   );

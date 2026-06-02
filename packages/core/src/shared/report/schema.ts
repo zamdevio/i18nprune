@@ -1,6 +1,12 @@
 import { z } from 'zod';
-import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from './constants.js';
+import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '../constants/report.js';
 
+/**
+ * Canonical project-report Zod schema (source of truth for `@i18nprune/core/report-schema`).
+ *
+ * Published `@i18nprune/core`
+ * and root `i18nprune` bundles include it at build time.
+ */
 export const projectReportDocumentSchema = z.object({
   kind: z.literal(PROJECT_REPORT_KIND),
   schemaVersion: z.literal(PROJECT_REPORT_SCHEMA_VERSION),

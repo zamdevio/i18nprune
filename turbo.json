@@ -20,7 +20,7 @@
     },
     "//#cli:build": {
       "dependsOn": ["^typecheck"],
-      "inputs": ["$TURBO_DEFAULT$", "tsup.config.ts", "packages/cli/**", "packages/core/**", "packages/report/**"],
+      "inputs": ["$TURBO_DEFAULT$", "tsup.config.ts", "packages/cli/**", "packages/core/**"],
       "outputs": ["dist/**"]
     },
     "//#ui:purity": {

@@ -1,1 +1,1 @@
-export { PROJECT_REPORT_SCHEMA_VERSION } from '@i18nprune/report-schema';
+export { PROJECT_REPORT_SCHEMA_VERSION } from '@i18nprune/core/report-schema';

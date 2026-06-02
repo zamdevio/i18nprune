@@ -20,14 +20,14 @@ const FORBIDDEN_IN_SOURCE = [
   { label: 'zod', pattern: /\bzod\b/ },
   { label: 'fflate', pattern: /\bfflate\b/ },
   { label: 'apps/workers', pattern: /apps\/workers/ },
-  { label: '@i18nprune/report-schema', pattern: /@i18nprune\/report-schema/ },
+  { label: '@i18nprune/core/report-schema', pattern: /@i18nprune\/core\/report-schema/ },
   { label: 'i18nprune workspace package', pattern: /from ['"]i18nprune['"]/ },
 ];
 
 /** @type {string[]} */
 const FORBIDDEN_PKG_DEPS = [
   '@i18nprune/core',
-  '@i18nprune/report-schema',
+  '@i18nprune/core/report-schema',
   'i18nprune',
   'react-router-dom',
   'hono',

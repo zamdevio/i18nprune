@@ -39,7 +39,7 @@
         "packages/core/src/*",
         "packages/core/src/*/index.ts"
       ],
-      "@i18nprune/report-schema": ["packages/report/src/index.ts"]
+      "@i18nprune/core/report-schema": ["packages/core/src/shared/report/index.ts"]
     }
   },
   "include": [
@@ -48,7 +48,6 @@
     "packages/core/src/**/*.ts",
     "packages/cli/bin/**/*.ts",
     "packages/cli/src/**/*.ts",
-    "packages/report/**/*.ts",
     "scripts/**/*.ts",
     "tests/integration/**/*.ts",
     "vitest.config.ts"

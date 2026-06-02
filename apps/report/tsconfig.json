@@ -13,7 +13,7 @@
     "baseUrl": ".",
     "paths": {
       "@i18nprune/core": ["../../packages/core/src/index.ts"],
-      "@i18nprune/report-schema": ["../../packages/report/src/index.ts"],
+      "@i18nprune/core/report-schema": ["../../packages/core/src/shared/report/index.ts"],
       "@i18nprune/ui/react/theme": ["../../packages/ui/src/react/theme/index.ts"],
       "@i18nprune/ui/react/toolbar": ["../../packages/ui/src/react/toolbar/index.ts"],
       "@i18nprune/ui/react/pagination": ["../../packages/ui/src/react/pagination/index.ts"],

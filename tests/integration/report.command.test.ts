@@ -35,7 +35,7 @@ function runCli(args: string[], cwd: string = fixture): string {
 function ensureReportHtmlBundle(): void {
   if (fs.existsSync(reportHtml)) return;
   execFileSync('pnpm', ['run', 'report:build'], { cwd: root, stdio: 'inherit' });
-  execFileSync(process.execPath, ['packages/report/scripts/build-assets.mjs'], {
+  execFileSync(process.execPath, ['scripts/report/build-assets.mjs'], {
     cwd: root,
     stdio: 'inherit',
   });

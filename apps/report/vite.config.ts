@@ -16,13 +16,13 @@ export default defineConfig({
         repoRoot,
         'packages/core/src/runtime/exports/web.ts',
       ),
+      '@i18nprune/core/report-schema': path.join(
+        repoRoot,
+        'packages/core/src/shared/report/index.ts',
+      ),
       '@i18nprune/core': path.join(
         repoRoot,
         'packages/core/src/index.ts',
-      ),
-      '@i18nprune/report-schema': path.join(
-        repoRoot,
-        'packages/report/src/index.ts',
       ),
       '@i18nprune/cli/constants': path.join(
         repoRoot,

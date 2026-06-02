@@ -1,6 +1,6 @@
 import type { Issue } from '@i18nprune/core';
 import type { PayloadLoadResult } from '../../data/loader/index.js';
-import type { ProjectReportDocument } from '@i18nprune/report-schema';
+import type { ProjectReportDocument } from '@i18nprune/core/report-schema';
 
 export type ReportLoadSource = 'inline' | 'import' | 'worker';
 

@@ -1,4 +1,4 @@
-import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from './constants.js';
+import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '../constants/report.js';
 
 export type ProjectReportSummary = {
   missingKeysCount: number;

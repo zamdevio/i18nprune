@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@i18nprune/core": "workspace:*",
-    "@i18nprune/report-schema": "workspace:*",
     "@i18nprune/ui": "workspace:*",
     "@i18nprune/cli": "workspace:*",
     "lucide-react": "^0.546.0",

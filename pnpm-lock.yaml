@@ -212,9 +212,6 @@ importers:
       '@i18nprune/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@i18nprune/report-schema':
-        specifier: workspace:*
-        version: link:../../packages/report
       '@i18nprune/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -255,9 +252,6 @@ importers:
       '@i18nprune/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@i18nprune/report-schema':
-        specifier: workspace:*
-        version: link:../../packages/report
       '@i18nprune/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -345,15 +339,9 @@ importers:
       '@i18nprune/core':
         specifier: workspace:*
         version: link:../core
-      '@i18nprune/report-schema':
-        specifier: workspace:*
-        version: link:../report
 
   packages/core:
     dependencies:
-      '@i18nprune/report-schema':
-        specifier: workspace:*
-        version: link:../report
       fflate:
         specifier: ^0.8.2
         version: 0.8.2
@@ -370,12 +358,6 @@ importers:
       vitest:
         specifier: ^3.2.0
         version: 3.2.4(@types/debug@4.1.13)(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3)
-
-  packages/report:
-    dependencies:
-      zod:
-        specifier: ^4.0.0
-        version: 4.3.6
 
   packages/ui:
     dependencies:
