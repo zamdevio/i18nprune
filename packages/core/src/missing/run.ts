@@ -538,16 +538,20 @@ export function runMissing(
       });
     }
   }
-  const targetPayloads: MissingJsonTarget[] = targets.map((entry) => ({
-    targetPath: relativeToCwd(ctx, entry.target.targetPath),
-    targetKind: entry.target.targetKind,
-    ...(entry.target.targetKind === 'locale' && entry.target.selectedLocaleCode !== undefined
-      ? { selectedLocaleCode: entry.target.selectedLocaleCode }
-      : {}),
-    pathsAdded: entry.toAdd.length,
-    paths: entry.toAdd,
-    skippedNotInScan: entry.skippedNotInScan,
-  }));
+  const targetPayloads: MissingJsonTarget[] = targets.map((entry) => {
+    const segmentPaths = missingPlanSegmentWrites(entry).map((write) => relativeToCwd(ctx, write.targetPath));
+    return {
+      targetPath: segmentPaths[0] ?? relativeToCwd(ctx, entry.target.targetPath),
+      ...(segmentPaths.length > 1 ? { targetPaths: segmentPaths } : {}),
+      targetKind: entry.target.targetKind,
+      ...(entry.target.targetKind === 'locale' && entry.target.selectedLocaleCode !== undefined
+        ? { selectedLocaleCode: entry.target.selectedLocaleCode }
+        : {}),
+      pathsAdded: entry.toAdd.length,
+      paths: entry.toAdd,
+      skippedNotInScan: entry.skippedNotInScan,
+    };
+  });
   const aggregatePaths = [...new Set(targets.flatMap((entry) => entry.toAdd))];
   const aggregateSkippedNotInScan = [...new Set(targets.flatMap((entry) => entry.skippedNotInScan))];
   for (const skipped of skippedTargets) {
@@ -593,6 +597,7 @@ export function runMissing(
   const payload: MissingJsonOutput = {
     kind: 'missing',
     targetPath: firstTarget?.targetPath ?? '',
+    ...(firstTarget?.targetPaths !== undefined ? { targetPaths: firstTarget.targetPaths } : {}),
     targetKind: firstTarget?.targetKind ?? 'locale',
     pathsAdded: targets.reduce((sum, entry) => sum + entry.toAdd.length, 0),
     shown: visibleAggregatePaths.length,

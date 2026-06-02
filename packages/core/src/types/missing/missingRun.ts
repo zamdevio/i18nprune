@@ -10,6 +10,7 @@ export type MissingTargetKind = 'source' | 'locale';
 export type MissingJsonOutput = {
   kind: 'missing';
   targetPath: string;
+  targetPaths?: string[];
   targetKind: MissingTargetKind;
   pathsAdded: number;
   shown: number;
@@ -66,6 +67,7 @@ export type MissingTargetPlan = {
 
 export type MissingJsonTarget = {
   targetPath: string;
+  targetPaths?: string[];
   targetKind: MissingTargetKind;
   selectedLocaleCode?: string;
   pathsAdded: number;

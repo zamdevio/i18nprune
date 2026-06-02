@@ -89,8 +89,7 @@ export async function generate(opts: GenerateOptions): Promise<void> {
         });
         const writtenLocalePaths = payload.targetResults
           .filter((row) => row.status === 'written')
-          .map((row) => row.paths?.localeJson)
-          .filter((path): path is string => path !== undefined);
+          .flatMap((row) => row.paths?.localeJsonPaths ?? (row.paths?.localeJson ? [row.paths.localeJson] : []));
         invalidateProjectAnalysisCacheForContext(ctx, { writtenLocalePaths });
       }
       return;
@@ -130,8 +129,7 @@ export async function generate(opts: GenerateOptions): Promise<void> {
       });
       const writtenLocalePaths = payload.targetResults
         .filter((row) => row.status === 'written')
-        .map((row) => row.paths?.localeJson)
-        .filter((path): path is string => path !== undefined);
+        .flatMap((row) => row.paths?.localeJsonPaths ?? (row.paths?.localeJson ? [row.paths.localeJson] : []));
       invalidateProjectAnalysisCacheForContext(ctx, { writtenLocalePaths });
     }
 

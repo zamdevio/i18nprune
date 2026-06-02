@@ -136,7 +136,12 @@ export type GenerateTargetJsonRow = {
   winnerProviderId?: TranslationProviderId;
   fallbackCount?: number;
   markedForReview?: number;
-  paths?: { localeJson: string };
+  paths?: {
+    /** Primary target locale path for single-file layouts. */
+    localeJson?: string;
+    /** Target locale segment paths for multi-file layouts (`locale_directory`). */
+    localeJsonPaths?: string[];
+  };
   localeMetadata?: LocaleMetadataReport;
 };
 

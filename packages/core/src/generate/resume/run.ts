@@ -347,7 +347,10 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
     winnerProviderId,
     fallbackCount: Math.max(0, (providerAttempts?.length ?? 0) - 1),
     markedForReview: result.markedForReview,
-    paths: { localeJson: targetPath },
+    paths:
+      writePlan.segments.length > 1
+        ? { localeJsonPaths: writePlan.segments.map((segment) => segment.absolutePath) }
+        : { localeJson: targetPath },
     localeMetadata: result.localeMetadata,
   };
 
