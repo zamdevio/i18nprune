@@ -237,7 +237,7 @@ The CLI creates **`<home>/state/`** on first write (`mkdir` with `recursive: tru
 - **`I18NPRUNE_NO_UPDATE_CHECK`** set to a truthy value.
 - **`--json`** machine output mode.
 
-See also **`docs/versioning/README.md`** for update-check behavior.
+Update-check behavior is documented on this page and in CLI help output.
 
 ## Worker / web “snapshot”
 

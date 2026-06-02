@@ -28,5 +28,5 @@ If the project is scanned as **one merged blob** with a **single** map built fro
 ## See also
 
 - [ADR 005: Dynamic key rebuild & prefix](../architecture/decisions/005-dynamic-key-rebuild-and-prefix.md)  
-- [JSON output spec](../json/README.md) (merged-text caveat)  
-- [Key sites & dynamic](../regex/key-sites-and-dynamic.md)
+- [JSON output spec](../../cli/json.md) (merged-text caveat)  
+- [Extraction dynamic keys](../../architecture/extraction/dynamic.md)

@@ -8,7 +8,7 @@
 2. **`preAction`** on the root command:
    - Resolves **`setConfigPath`**, **`ensureConfigPathResolved`** (duplicate config files), **`setRunOptions`**, **`setCliGlobalOverrides`**, clears context cache.
    - Does **not** create a config file: use **`i18nprune init`** when **`i18nprune.project.config_file_missing`** applies.
-3. **`RunOptions`** (`json`, `quiet`, `silent`) is the **process-wide** verbosity contract; commands read it via **`getRunOptions()`** or **`resolveContext().run`**. There is **no** separate JSON envelope flag: when JSON is emitted, it **always** uses the envelope shape documented under [JSON output (`--json`)](../json/README.md).
+3. **`RunOptions`** (`json`, `quiet`, `silent`) is the **process-wide** verbosity contract; commands read it via **`getRunOptions()`** or **`resolveContext().run`**. There is **no** separate JSON envelope flag: when JSON is emitted, it **always** uses the envelope shape documented under [JSON output (`--json`)](./json.md).
 
 ## Subcommands
 
@@ -20,22 +20,23 @@ The **`languages`** command accepts the positional alias **`langs`** (`i18nprune
 
 | Flag | Long | Role |
 |------|------|------|
-| `-v` | `--version` | Print version — see [version](../commands/version/README.md) |
-| `-q` | `--quiet` | Less noise (see [verbosity](./verbosity/README.md)) |
+| `-V` | — | Run `version` subcommand |
+| `-v` | `--verbose` | Command-scoped verbose mode (currently `share view`) |
+| `-q` | `--quiet` | Less noise (see [verbosity](./verbosity.md)) |
 | `-s` | `--silent` | Stricter suppression |
 | `-h` | `--help` | Help (Commander default) |
 | `-c` | `--config` | Path to a single `i18nprune` config file |
 
-Other global options use **`--long`** only (`--json`, `--yes`, `--source`, …) besides **`-c` / `--config`**.
+Other global options use **`--long`** only (`--json`, `--yes`, `--source`, …) besides **`-c` / `--config`** and **`-V`**.
 
 ## Global `--json`
 
-Full behavior, envelope shape, supported commands, and edge cases: **[JSON output (`--json`)](../json/README.md)**.
+Full behavior, envelope shape, supported commands, and edge cases: **[JSON output (`--json`)](./json.md)**.
 
 ## Related
 
 - [Commands index](../commands/README.md)
 - [CLI disk cache & cross-platform paths](./cache.md)
-- [CLI prompt modules](./prompts/README.md)
-- [Quiet, silent & JSON](./verbosity/README.md)
-- [CLI runtime](./runtime/README.md)
+- [CLI prompt modules](./prompts.md)
+- [Quiet, silent & JSON](./verbosity.md)
+- [CLI runtime](./runtime.md)

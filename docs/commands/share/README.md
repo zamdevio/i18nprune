@@ -79,7 +79,7 @@ i18nprune share delete --all --local-only
 
 | Flag / behavior | Effect |
 |-----------------|--------|
-| `--verbose` on `view` | Extra timing, processor, extraction, and cache sections (project metadata) |
+| `-v`, `--verbose` on `view` | Extra timing, processor, extraction, and cache sections (project metadata) |
 | `--local-only` on `delete` | Remove `share.json` row only; skip worker `DELETE` |
 | TTY without id on `view` / `delete` | `select()` from cached entries |
 | Non-TTY without id | Error — pass `--project` or `--report` |

@@ -50,12 +50,12 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.project.source_locale_unavailable` | `error` | **`runProjectReadiness`** (CLI gates + SDK) |
 | `i18nprune.project.locales_dir_unavailable` | `error` | **`runProjectReadiness`** |
 | `i18nprune.project.src_root_unavailable` | `error` | **`runProjectReadiness`** |
-| `i18nprune.paths.windows_reserved_name` | `warning` | **`runProjectReadiness`** — [paths](./paths.md#windows_reserved_name) |
-| `i18nprune.paths.windows_long_path` | `warning` | **`runProjectReadiness`** — [paths](./paths.md#windows_long_path) |
-| `i18nprune.paths.network_drive` | `info` | **`runProjectReadiness`** — [paths](./paths.md#network_drive) |
-| `i18nprune.project.hosted_snapshot_invalid` | `error` | **`validateHostedProjectIngestBody`** — [project](./project.md#hosted-snapshot-ingest-i18npruneprojecthosted_-upload_-source_locale_) |
+| `i18nprune.paths.windows_reserved_name` | `warning` | **`runProjectReadiness`** — [paths](./paths.md#windows-reserved-name) |
+| `i18nprune.paths.windows_long_path` | `warning` | **`runProjectReadiness`** — [paths](./paths.md#windows-long-path) |
+| `i18nprune.paths.network_drive` | `info` | **`runProjectReadiness`** — [paths](./paths.md#network-drive) |
+| `i18nprune.project.hosted_snapshot_invalid` | `error` | **`validateHostedProjectIngestBody`** — [project](./project.md#hosted-snapshot-ingest) |
 | `i18nprune.project.hosted_snapshot_schema_version` | `error` | **`validateHostedProjectIngestBody`** |
-| `i18nprune.project.upload_config_required` | `error` | Archive / host snapshot prepare — [project](./project.md#upload_config_required) |
+| `i18nprune.project.upload_config_required` | `error` | Archive / host snapshot prepare — [project](./project.md#upload-config-required) |
 | `i18nprune.project.upload_config_json_invalid` | `error` | Archive prepare `configJson` override |
 | `i18nprune.project.source_locale_not_found` | `error` | Archive prepare — missing source file in zip |
 | `i18nprune.project.source_locale_invalid_json` | `error` | Archive prepare — invalid source JSON |
@@ -76,7 +76,7 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.translate.missing_credentials` | `error` | **`generate`** before outbound calls (DeepL / Libre URL / LLM) |
 | `i18nprune.generate.usage` | `error` | **`generate`** — generic **`USAGE`** when no translate-specific `issueCode` |
 | `i18nprune.report.invalid_format` | `error` | **`report`** |
-| `i18nprune.report.hosted_report_invalid` | `error` | **`validateHostedReportIngestBody`** — [report](./report.md#hosted_report_invalid) |
+| `i18nprune.report.hosted_report_invalid` | `error` | **`validateHostedReportIngestBody`** — [report](./report.md#hosted-report-invalid) |
 | `i18nprune.cli.invalid_json_pretty` | `error` | Global CLI option parsing |
 | `i18nprune.io.read_failed` | `error` | JSON commands on I/O / JSON parse failures |
 | `i18nprune.share.json_repaired` | `warning` | **`share.json`** self-heal — see [share](./share.md#json-repaired) |
@@ -93,10 +93,10 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.share.remote_error` | `error` | Unmapped worker failure — [share](./share.md#remote-error) |
 | `i18nprune.share.snapshot_empty` | `error` | Empty project snapshot — [share](./share.md#snapshot-empty) |
 | `i18nprune.share.zip_failed` | `error` | Local zip build failure — [share](./share.md#zip-failed) |
-| `i18nprune.share.prepare_nothing_requested` | `error` | **`prepareShareHostedFromContext`** — [share](./share.md#prepare_nothing_requested) |
+| `i18nprune.share.prepare_nothing_requested` | `error` | **`prepareShareHostedFromContext`** — [share](./share.md#prepare-nothing-requested) |
 | `i18nprune.share.prepare_report_host_required` | `error` | Combined / report-only share prepare |
 | `i18nprune.share.prepare_analysis_failed` | `error` | **`prepareProjectSnapshotFromRoot`** analysis apply |
-| `i18nprune.share.prepare_report_from_archive_failed` | `error` | **`prepareReportFromArchive`** — [share](./share.md#prepare_report_from_archive_failed) |
+| `i18nprune.share.prepare_report_from_archive_failed` | `error` | **`prepareReportFromArchive`** — [share](./share.md#prepare-report-from-archive-failed) |
 | `i18nprune.scan.dynamic_key_sites` | `warning` | **`sync`**, **`cleanup`**, **`quality`**, … |
 | `i18nprune.missing.paths_not_in_current_scan` | `warning` | **`missing`**, **`runMissing`** |
 | `i18nprune.patching.*` | varies | Patching analyzer (**`doctor`**, **`validate`**) |
@@ -143,6 +143,6 @@ Published URLs use **`/issues/<parent>#<anchor>`**; keep headings aligned with *
 
 ## See also
 
-- [JSON output (`--json`)](../json/README.md)
-- [Programmatic API](../json/programmatic.md)
-- [Prompts & CLI boundaries](../prompts/README.md)
+- [JSON output (`--json`)](../cli/json.md)
+- [SDK operations](../sdk/operations.md)
+- [Prompts & CLI boundaries](../cli/prompts.md)

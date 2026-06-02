@@ -1,0 +1,39 @@
+# Repository tree
+
+This page documents repository structure and component relationships.
+
+## Layout (apps + packages)
+
+```text
+.
+├── apps/
+│   ├── docs/
+│   ├── extension/
+│   ├── landing/
+│   ├── report/
+│   ├── web/
+│   └── workers/
+├── docs/
+├── packages/
+│   ├── cli/
+│   ├── core/
+│   └── report/
+├── scripts/
+├── tests/
+├── package.json
+├── pnpm-workspace.yaml
+├── tsconfig.json
+├── tsup.config.ts
+└── vitest.config.ts
+```
+
+## Component relationships
+
+| Surface | Role | Depends on |
+|---|---|---|
+| `packages/core` | Shared operation engines and runtime adapters | — |
+| `packages/report` | Report schema/types (`@i18nprune/report-schema`) | `packages/core`, `apps/report`, `apps/web`, worker |
+| `packages/cli` | Node CLI orchestration and host I/O | `i18nprune/core` |
+| `apps/docs` | Public docs site | root `docs/` content sync |
+| `apps/workers/i18nprune` | Project/workspace API worker | `@i18nprune/core`, `@i18nprune/report-schema` |
+| `apps/workers/meta` | Public metadata API worker | worker runtime only |

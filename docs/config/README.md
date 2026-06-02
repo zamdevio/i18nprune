@@ -2,6 +2,8 @@
 
 i18nprune reads a single project config file that defines **source locale JSON**, **locales directory**, **source scan root**, and **translation function names** (`functions`).
 
+`i18nprune init` scaffolds this file and writes the same schema shape that the CLI validates at runtime. Use [`init`](../commands/init.md) when starting a new project config.
+
 ## File formats
 
 | Priority | File | Notes |
@@ -29,8 +31,10 @@ Canonical env var **names** are defined in **`packages/cli/src/constants/env.ts`
 
 - [Translation (`translate`)](./translate.md) — **`translate.{ primary, providers, policy }`** for **`generate`** (including **`--resume`**), precedence with CLI + env.
 - [Environment variables](./env.md) — full list (`I18NPRUNE_*`, `CI`, …) and **`constants/env.ts`**.
-- [Command namespaces](./commands.md) — **`missing`** defaults and config-shaped guidance (**`validate`** has no config namespace today).
-- [Policies](./policies/README.md) — `preserve` and `parity` (sync, quality, **`generate --resume`**).
+- [Locales config](./locales.md) — locale source/directory/layout fields and links to filesystem examples.
+- [Cache config](./cache.md) — cache policy block and CLI cache flags.
+- [Patching config](./patching.md) — patching block and recipe-related config fields.
+- [Policies](./policies.md) — `preserve` and `parity` (sync, quality, **`generate --resume`**).
 - [Exclude](./exclude.md) — scan scope control (`preset`, `dirs/files/extensions/patterns`, CLI merge).
 
 ## Troubleshooting
@@ -53,7 +57,7 @@ npm add -D i18nprune
 
 Use **`-c`** or **`--config`** with a path to a single config file (e.g. `i18nprune -c ./config/i18nprune.config.ts validate`). The same resolution rules apply: imports in that file resolve from the **project** where you run the command.
 
-**Global `--json` and missing config:** Commands that run the implicit config bootstrap will not prompt for a filename in the terminal; they behave like **`--yes`** for the default file (see [behavior: non-interactive](../behavior/README.md)). Prefer an explicit **`-c` / `--config`** or a single **`i18nprune.config.*`** in the project root if you do not want a new file.
+**Global `--json` and missing config:** Commands that run the implicit config bootstrap will not prompt for a filename in the terminal; they behave like **`--yes`** for the default file (see [CLI prompts](../cli/prompts.md)). Prefer an explicit **`-c` / `--config`** or a single **`i18nprune.config.*`** in the project root if you do not want a new file.
 
 If you pass **`-c` / `--config`** and the path **does not exist**, is **not a regular file**, or has an **unsupported extension** (only `.ts`, `.mts`, `.cts`, `.js`, `.mjs`, `.cjs`), the CLI **exits with code 1** and prints which **`i18nprune.config.*` files were discovered** in the current directory (if any), so you can **omit the flag** to use a standard config or fix the path.
 

@@ -86,9 +86,7 @@ i18nprune report --exclude tests
 
 Narrowing the scan (especially **`src`**, **`preset: 'production'`**, and extra `dirs` / `patterns`) reduces file counts and wall time. Published measurements and methodology:
 
-- [Performance overview](../performance/README.md)
-- [Next.js-scale example](../performance/nextjs.md) (real checkout, Node version, command timings)
-- [CepatEdge `apps/web` example](../performance/cepatedge.md)
+- [Performance guide](../performance.md)
 
 ## Guidance
 

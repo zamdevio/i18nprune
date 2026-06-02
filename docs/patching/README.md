@@ -53,7 +53,7 @@ In non-interactive runs, pair **`--fix`** / **`--init`** with the global **`--ye
 ## Output and automation
 
 - **`--json`:** emits stable JSON envelopes on stdout where the command supports it. Human **`[i18nprune] [info]`** lines — including short “patching (sync)” / “patching (generate)” summaries after **`--patch`** mutations — are **hidden** under **`--json`**. Use envelope **`issues[]`**, payload fields, and exit codes for CI; omit **`--json`** when you need those log lines for debugging.
-- **`--quiet` / `--silent`:** further reduce human output; with **`--json`**, machine output stays the contract. See [CLI verbosity](../cli/verbosity/README.md).
+- **`--quiet` / `--silent`:** further reduce human output; with **`--json`**, machine output stays the contract. See [CLI verbosity](../cli/verbosity.md).
 
 ## Documentation map
 

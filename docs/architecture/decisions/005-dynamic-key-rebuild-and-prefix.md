@@ -46,6 +46,6 @@ Without special handling, every such call is classified as non-literal, which **
 
 ## See also
 
-- [docs/dynamic/README.md](../../dynamic/README.md)
+- [Dynamic key handling](../extraction/dynamic.md)
 - [ADR 002 — Configurable translation calls](./002-configurable-translation-calls.md)
-- [docs/barriers/dynamic-keys.md](../../barriers/dynamic-keys.md)
+- [Extraction architecture](../extraction/README.md)

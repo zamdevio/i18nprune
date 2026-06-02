@@ -7,7 +7,7 @@
 **Severity:** `warning` or `error` depending on finding  
 **When:** A **doctor** check (**`runtime`**, **`tools`**, **`config`**, **`paths`**) is not **`ok`**.  
 **Who:** **`doctor`**, **`runDoctor`**. The **`code`** in **`issues[]`** uses the same convention as other namespaces: **`i18nprune.doctor.<tail>`** with **underscores** in **`tail`** (e.g. **`i18nprune.validate.missing_literal_keys`**). The published **`docHref`** hash is the VitePress-style slug of that tail (underscores → hyphens).  
-**What to do:** Follow the **`message`** / embedded titles; see [commands/doctor](../commands/doctor/README.md).
+**What to do:** Follow the **`message`** / embedded titles; see [commands/doctor](../commands/doctor.md).
 
 Built-in checks map to these **machine codes** (and doc anchors):
 

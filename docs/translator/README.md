@@ -2,7 +2,7 @@
 
 This document aligns **how translation runs** in i18nprune: **provider abstraction**, **shared leaf pipeline** (`translateLeaf`), **stderr progress** + **SIGINT**, and how **`generate`** (including **`--resume`**) behaves with **flags**, **errors**, and **non-interactive** runs.
 
-Live progress behaviour and flags are documented in **[Translation progress](../progress/README.md)**.
+Live progress behavior and flags are documented in **[Translation config](../config/translate.md)** and **[CLI verbosity](../cli/verbosity.md)**.
 
 ---
 
@@ -36,7 +36,7 @@ The codebase already has a **single** `translateLeaf` entry point. The **next** 
 
 - **Stream:** **stderr** only, so **`stdout`** can emit a single JSON document when **`--json`** is on.
 - **TTY:** Multi-line block (bar + key path + timing) redrawn in place; **non-TTY stderr** uses a single updating line.
-- **Hidden when:** **`--json`**, **`-q`**, **`-s`**, or policy says no progress — see [progress](../progress/README.md).
+- **Hidden when:** **`--json`**, **`-q`**, **`-s`**, or policy says no progress — see [CLI verbosity](../cli/verbosity.md).
 
 ---
 
@@ -61,8 +61,8 @@ The codebase already has a **single** `translateLeaf` entry point. The **next** 
 
 ## 6. See also
 
-- [Translation progress](../progress/README.md)
-- [Command behaviors index](../behavior/commands.md)
-- [Exit codes & behavior](../behavior/README.md)
-- [JSON mode & long commands](../behavior/json-long.md)
-- [Roadmap](../roadmap/README.md) — reporting (`stdout redirection`).
+- [Translation config](../config/translate.md)
+- [CLI prompts](../cli/prompts.md)
+- [CLI verbosity](../cli/verbosity.md)
+- [JSON output (`--json`)](../cli/json.md)
+- [Changelog](../changelog.md) — reporting (`stdout redirection`) updates.

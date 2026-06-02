@@ -27,4 +27,4 @@ Implicit or heuristic-only patching optimises for a short-term “it worked once
 ## See also
 
 - [patching — user guide](../../patching/README.md)
-- [Roadmap](../../roadmap/README.md)
+- [Changelog](../../changelog.md)

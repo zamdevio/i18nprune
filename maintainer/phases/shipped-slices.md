@@ -5,12 +5,12 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 | Slice | Status | User docs |
 |-------|--------|-----------|
 | **Locales** (`list`, meta `edit`, `dynamic`, `delete`, `--json`) | Shipped | [`commands/locales`](../../docs/commands/locales/README.md) |
-| **Generate** (core translate path, `--json`, progress envelope, identity guard) | Shipped | [`commands/generate`](../../docs/commands/generate/README.md), [`behavior`](../../docs/behavior/json-long.md) |
+| **Generate** (core translate path, `--json`, progress envelope, identity guard) | Shipped | [`commands/generate`](../../docs/commands/generate/README.md), [`CLI JSON`](../../docs/cli/json.md) |
 | **Fill → `generate --resume`** (CLI + core; **`fill`** command removed) | Shipped (superseded) | [`commands/generate`](../../docs/commands/generate/README.md) (**`--resume`**) |
 | **Exports + baseline `--json`** | Shipped | [`docs/exports/README.md`](../../docs/exports/README.md), [cli-json parity](../../docs/edge-cases/solved/cli-json-command-parity.md) |
 | **`i18nprune.dev` / `apps/web`** baseline | Shipped | `apps/web` (marketing site codebase) |
 | **Command orchestrator boundary** | Shipped (guardrail) | [`commands/orchestration/README.md`](../../docs/commands/orchestration/README.md), [`ADR 006`](../../docs/architecture/decisions/006-command-orchestrator-boundary.md) |
-| **Key reference + preserve + `--ask`** | Shipped | [`docs/regex/README.md`](../../docs/regex/README.md), [`docs/cli/prompts/README.md`](../../docs/cli/prompts/README.md), [`docs/config/policies/README.md`](../../docs/config/policies/README.md) |
+| **Key reference + preserve + `--ask`** | Shipped | [`docs/regex/README.md`](../../docs/regex/README.md), [`docs/cli/prompts.md`](../../docs/cli/prompts.md), [`docs/config/policies/README.md`](../../docs/config/policies/README.md) |
 | **Key observations (`keySites`) + validate JSON** | Shipped | [`docs/regex/key-sites-and-dynamic.md`](../../docs/regex/key-sites-and-dynamic.md), [`docs/exports/core.md`](../../docs/exports/core.md) (`keySites` namespace) |
 | **`missing` command** | Shipped | [`commands/missing`](../../docs/commands/missing/README.md) |
 | **`sync`** merge preserves structured `{ value }` leaves at existing paths | Shipped (engine) | Uses core `mergeToTemplateShape` — pair with **`locales` / metadata** docs when you document edge cases |
@@ -43,4 +43,4 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 | **Tree & naming (T0–T10)** — `packages/core` logic/types/test parity (locales, init, generate/resume, cache, sync, engines/shared, share, report); `packages/cli` barrel imports without core type shims. **Apps pass (2026-06-01):** non-barrel `export type {` shims cleared in `apps/web` + `workers/i18nprune` (`96aed18`); repo-wide count **0**; **no `apps/*` tree pass required for v1** (optional later: report, extension host hygiene) | Shipped (core + CLI + apps shim cleanup) | [`shipped-slices.md`](./shipped-slices.md) |
 | **CI hardening (CI-1–5)** — split `verify` DAG; PR Vitest `github-actions` reporter; nightly knip/madge; debug `cli-dist-debug-<os>`; **Turborepo** affected typecheck + `scope` job (docs-only skips product matrix) | Shipped (`ci.yml`, `turbo.json`, `vitest.config.ts`) | [`systems/ci.md`](../systems/ci.md) · [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) |
 
-**Next vertical:** **[`docs-refactor.md`](./docs-refactor.md)** (active). Hub: **[`V1-RELEASE.md`](./V1-RELEASE.md)**.
+**Next vertical:** **[`docs.md`](./docs.md)** (active). Hub: **[`V1-RELEASE.md`](./V1-RELEASE.md)**.

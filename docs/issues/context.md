@@ -7,7 +7,7 @@
 **Severity:** `warning`  
 **When:** Path **discovery** adjusted missing **`source`**, **`localesDir`**, or **`src`** (or similar) using heuristics. The **`message`** is human-readable text from the resolver.  
 **Who:** Any command that calls **`resolveContext`**, and **`tryResolveContext`** (success branch — warnings are mirrored into **`issues[]`**).  
-**What to do:** Confirm the discovered paths are correct; add explicit paths in **`i18nprune.config`** or CLI overrides if discovery picked the wrong directory. See [Config](../config/README.md) and [CLI runtime](../cli/runtime/README.md).
+**What to do:** Confirm the discovered paths are correct; add explicit paths in **`i18nprune.config`** or CLI overrides if discovery picked the wrong directory. See [Config](../config/README.md) and [CLI overview](../cli/README.md).
 
 ---
 

@@ -16,4 +16,4 @@
 **Severity:** `warning`  
 **When:** **`sync`** receives both metadata-write intent and strip intent in the same run (for example `--metadata` and `--strip-metadata`).  
 **Who:** **`sync`**, **`runSync`**.  
-**What to do:** Treat it as a precedence notice: strip wins and leaves are written as plain strings (`legacy_string` mode). Remove one flag for clearer intent. See [Locales metadata mode](../locales/metadata/README.md).
+**What to do:** Treat it as a precedence notice: strip wins and leaves are written as plain strings (`legacy_string` mode). Remove one flag for clearer intent. See [Sync metadata flag conflict](../commands/sync.md#metadata-flag-conflict) and [Locales config metadata mode](../config/locales.md#leaf-metadata-mode).

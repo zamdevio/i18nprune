@@ -87,6 +87,6 @@ Uploads are **prepared snapshots** (sanitized zip or JSON envelope) or **report 
 ## Bundle checklist
 
 1. Run **`pnpm`** builds with **`NODE_OPTIONS=--conditions worker`** (or host-specific presets) when applicable.
-2. Add CI **`grep`** guards rejecting **`node:`** imports on Worker graphs once finalized (tracked alongside **`docs/madge/README.md`** hygiene).
+2. Add CI guards rejecting **`node:`** imports on Worker graphs once finalized.
 
 See [`README.md`](./README.md) for tier comparisons and [`node.md`](./node.md) / [`web.md`](./web.md) for sibling adapters.

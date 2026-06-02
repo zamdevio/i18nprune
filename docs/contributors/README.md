@@ -4,6 +4,24 @@ Thanks for helping improve **i18nprune**. This page describes **how we work in t
 
 ---
 
+## New to the codebase?
+If you are new (or you are letting an AI agent drive a small change), start with this Day 0 reading order:
+
+1. `maintainer/agents/architecture.md` (package topology and where behavior lives)
+2. `maintainer/agents/rules.md` (TypeScript conventions, errors, logging, tests)
+3. `maintainer/agents/git.md` (commit and PR discipline)
+4. `maintainer/phases/active-phase.md` (what is actively being worked on right now)
+5. `maintainer/phases/shipped-slices.md` (avoid re-implementing closed work)
+6. `maintainer/systems/README.md` (where the subsystem maps live)
+7. `maintainer/systems/platform.md` (multi-OS behavior and path pitfalls)
+8. `maintainer/systems/operations/entrypoints.md` (the `runXxx` wiring table)
+9. `packages/cli/bin/cli.ts` (global flags + command registration)
+10. Trace one command end-to-end (a CLI `packages/cli/src/commands/<name>/` flow into `packages/core/src/<op>/run.ts`)
+11. `maintainer/systems/health.md` (the gates you must keep green before a PR)
+
+Then run:
+`pnpm typecheck` and `pnpm test`.
+
 ## Repository pattern
 
 | Layer | Location | Responsibility |
@@ -26,7 +44,7 @@ Thanks for helping improve **i18nprune**. This page describes **how we work in t
 1. **Open an issue** (or discuss in an existing one) for significant behavior changes.
 2. **Branch** from the default branch; keep commits **focused** (see below).
 3. **Run** `pnpm typecheck` and `pnpm test` before opening a PR (CI runs parity tests too).
-4. **Document** user-visible behavior: update **`docs/commands/<name>/README.md`** when you change a command.
+4. **Document** user-visible behavior: update **`docs/commands/<name>.md`** (or `share`/`locales` pages) when you change a command.
 
 **Repo layout (clone only — not on the public docs site):** `maintainer/agents/onboarding.md` — reading order, root scripts, share/core boundaries, PR checklist.  
 [View onboarding on GitHub](https://github.com/zamdevio/i18nprune/blob/main/maintainer/agents/onboarding.md)
@@ -59,5 +77,5 @@ Be respectful in issues and reviews. Technical disagreement is expected; harassm
 
 ## See also
 
-- [Workflow](../workflow/README.md) — local commands
-- [Roadmap](../roadmap/README.md) — product direction
+- [Workflow](../workflow.md) — local commands
+- [Changelog](../changelog.md) — recent product direction and release notes

@@ -82,7 +82,7 @@ Optional reporting for “unused” keys behind flags.
 
 1. Default to **conservative** validation where uncertainty is explicit.
 2. Provide **escape hatches** (whitelists, `treatAsRuntime`, policies).
-3. Document **trade-offs** in `docs/config/policies/` and related pages when a knob ships.
+3. Document **trade-offs** in `docs/config/policies.md` and related pages when a knob ships.
 4. Keep **expensive** analysis (cross-file prop tracing, deep expression evaluation) **opt-in**.
 5. Use **`uncertainKeyPolicy`** (and related reference defaults) as the coarse control — see existing `reference.defaults` docs.
 

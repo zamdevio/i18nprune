@@ -35,4 +35,4 @@ A **single global name** (`t` only) breaks most real codebases. **Auto-detect fr
 ## See also
 
 - `packages/cli/src/core/extractor/` — literal and template handling
-- [Validate command](../../commands/validate/README.md)
+- [Validate command](../../commands/validate.md)

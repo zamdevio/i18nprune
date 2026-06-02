@@ -20,7 +20,7 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
-| [`docs-refactor.md`](./docs-refactor.md) | **Active** — docs nav + SDK quickstart (priority 4) |
+| [`docs.md`](./docs.md) | **Active** — docs nav + SDK quickstart (priority 4) |
 | [`final.md`](./final.md) | Pre-publish gate (delete after release) |
 | [`standard-toolkit.md`](./standard-toolkit.md) | CLI toolkit conventions (parallel) |
 

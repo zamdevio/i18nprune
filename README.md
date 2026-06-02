@@ -41,7 +41,7 @@ Reuse the same primitives as the CLI **without subprocesses**:
 - **`i18nprune/core`** — `defineConfig` + types (bundled with the **`i18nprune`** package).
 - **`@i18nprune/core`** — `resolveContext`, scanning, literal extraction, dynamic-key heuristics, JSON leaf walks (same engine the CLI uses).
 
-📚 **Full reference:** [docs/exports/README.md](./docs/exports/README.md)
+📚 **Full reference:** [docs/sdk/operations.md](./docs/sdk/operations.md)
 
 ---
 
@@ -69,7 +69,7 @@ pnpm link --global   # optional
 ```
 
 ```bash
-i18nprune --version
+i18nprune version
 ```
 
 ## Quick start
@@ -94,7 +94,8 @@ For a typed config file, run **`i18nprune init`** (use **`--yes`** to write **`i
 | **Repository** | [github.com/zamdevio/i18nprune](https://github.com/zamdevio/i18nprune) |
 | **npm** | [npmjs.com/package/i18nprune](https://www.npmjs.com/package/i18nprune) *(live after first publish)* |
 | **Repo docs (source of truth)** | [`docs/README.md`](./docs/README.md) |
-| **Exports (config + core)** | [`docs/exports/README.md`](./docs/exports/README.md) |
+| **CLI JSON contract** | [`docs/cli/json.md`](./docs/cli/json.md) |
+| **SDK operations** | [`docs/sdk/operations.md`](./docs/sdk/operations.md) |
 
 Local docs preview: **`pnpm docs:dev`** — VitePress dev server (**`8282`** by default) plus **live sync** from **`docs/`** → **`apps/docs/content/`**.
 
@@ -120,7 +121,7 @@ pnpm web:build       # static landing bundle in apps/web/dist
 | Path | Role |
 |------|------|
 | `packages/cli/bin/cli.ts` | Commander entry, `preprocessArgv`, global flags |
-| `packages/cli/src/argv/` | Argv preprocessing (`langs` → `languages`, version flags) |
+| `packages/cli/src/argv/` | Argv preprocessing (`langs` → `languages`) |
 | `packages/cli/src/types/` | Shared TypeScript types |
 | `packages/cli/src/commands/` | One folder per command |
 | `packages/cli/src/exports/` | Published entrypoints: `config`, `core` |
@@ -131,15 +132,15 @@ pnpm web:build       # static landing bundle in apps/web/dist
 
 ---
 
-## Roadmap
+## Direction
 
-See **[docs/roadmap/README.md](./docs/roadmap/README.md)** for product direction.
+See **[docs/changelog.md](./docs/changelog.md)** for shipped changes and **[docs/README.md](./docs/README.md)** for the current documentation journey.
 
 ### Same core on Node, Web, and Workers
 
 How **`@i18nprune/core`** runs per environment is covered on **[docs.i18nprune.dev](https://docs.i18nprune.dev/runtime/)**: **[docs/runtime/README.md](./docs/runtime/README.md)** — **[Node / CLI](./docs/runtime/node.md)**, **[Browser (Web)](./docs/runtime/web.md)** (**`web.i18nprune.dev`**), **[Worker / edge](./docs/runtime/worker.md)** (**`workers.i18nprune.dev`**).
 
-**Contributors:** internal sequencing lives under **`maintainer/`** — starts from **`maintainer/README.md`** (not published via **`pnpm docs:sync`**).
+**Contributors:** internal sequencing lives under **`maintainer/`** — starts from **`maintainer/README.md`** (not published via the docs site).
 
 ---
 
@@ -153,7 +154,7 @@ How **`@i18nprune/core`** runs per environment is covered on **[docs.i18nprune.d
 
 **Repo patterns, PR expectations, and human + agent workflows:** [docs/contributors/README.md](./docs/contributors/README.md)
 
-**Coding agents & deep onboarding** (architecture, rules, Git discipline): [docs/agents/README.md](./docs/agents/README.md) · [git](./docs/agents/git.md)
+**Coding agents & deep onboarding** (architecture, rules, Git discipline): [`maintainer/agents/README.md`](./maintainer/agents/README.md) · [`maintainer/agents/git.md`](./maintainer/agents/git.md)
 
 ---
 

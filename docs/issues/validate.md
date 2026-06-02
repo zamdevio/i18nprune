@@ -7,7 +7,7 @@
 **Severity:** `warning`  
 **When:** Literal translation keys appear in scanned sources but not in the **source** locale JSON.  
 **Who:** **`validate`**, **`runValidate`**.  
-**What to do:** Add keys to the source locale, remove dead calls, or adjust **`functions`** / scan roots. See [commands/validate](../commands/validate/README.md).
+**What to do:** Add keys to the source locale, remove dead calls, or adjust **`functions`** / scan roots. See [commands/validate](../commands/validate.md).
 
 ---
 
@@ -16,7 +16,7 @@
 **Severity:** `warning`  
 **When:** Call sites use **non-literal** keys (computed / variable keys). Static analysis cannot enumerate them.  
 **Who:** **`validate`**, **`runValidate`**.  
-**What to do:** Treat as documentation: ensure runtime key coverage by other means; see [dynamic keys](../barriers/dynamic-keys.md).
+**What to do:** Treat as documentation: ensure runtime key coverage by other means; see [dynamic key extraction](../architecture/extraction/dynamic.md).
 
 ---
 

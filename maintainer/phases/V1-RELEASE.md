@@ -13,7 +13,7 @@
 | **1** | **XP — Cross-platform** | [`systems/platform.md`](../systems/platform.md) | **Shipped** — matrix CI on `main` |
 | **2** | **Tree — Naming & layout** | [`shipped-slices.md`](./shipped-slices.md) | **Shipped** — T0–T10 (core + CLI); apps shim cleanup `96aed18` |
 | **3** | **CI — GitHub Actions** | [`systems/ci.md`](../systems/ci.md) · [`shipped-slices.md`](./shipped-slices.md) | **Shipped** — split verify, PR annotations, nightly arch, artifacts, Turborepo change detection |
-| **4** | **D — Docs** | [`docs-refactor.md`](./docs-refactor.md) | **Active** — nav trim (~10 categories), SDK quickstart, tree flattening |
+| **4** | **D — Docs** | [`docs.md`](./docs.md) | **Completed** — IA cleanup, command-page flattening, docs map polish, enrichment kickoff |
 | **5** | **E + G — Release** | [`final.md`](./final.md) | CI smoke, ADR polish, changelog, delete `final.md` |
 
 ---
@@ -50,7 +50,7 @@ Repo tree standardization after XP — **shipped** (T0–T10 core + CLI). Apps: 
 
 ## Session D — Docs
 
-**Plan:** [`docs-refactor.md`](./docs-refactor.md)
+**Plan:** [`docs.md`](./docs.md)
 
 | Slice | What |
 |-------|------|
@@ -60,7 +60,7 @@ Repo tree standardization after XP — **shipped** (T0–T10 core + CLI). Apps: 
 | **D.3** | SDK quickstart (`docs/sdk/`) |
 | **D.4** | Tree flattening (**keep** `docs/report/README.md`) |
 | **D.5** | Sidebar + VitePress build validation |
-| **D.6** | Disk cache user docs — relocate off `docs/cli/cache.md` per docs-refactor |
+| **D.6** | Disk cache user docs — relocate off `docs/cli/cache.md` per docs phase plan |
 
 ---
 

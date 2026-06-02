@@ -25,6 +25,6 @@ The **`apps/web`** stack illustrates packaging **`runtime/web`** for **`web.i18n
 
 1. Resolve adapters via **`createWebRuntime(...)`** (see **`packages/core/src/runtime`**) rather than copying globals manually.
 2. Gate Tier **B** features explicitly—the UX copy must clarify actions executing remotely versus purely offline previews.
-3. Pair bundle audits (`pnpm build --analyze`, Workers lint rules) with **`docs/madge/README.md`** guidance whenever **`runtime/web`** imports broaden.
+3. Pair bundle audits (`pnpm build --analyze`, Workers lint rules) with runtime dependency checks whenever **`runtime/web`** imports broaden.
 
 See [`README.md`](./README.md) for runtime comparisons and [`node.md`](./node.md) / [`worker.md`](./worker.md) for sibling hosts.

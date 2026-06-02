@@ -162,7 +162,7 @@ If a matching **`I18NPRUNE_TRANSLATE_*`** env var is non-empty, it **supersedes*
 | **`I18NPRUNE_TRANSLATE_MAX_WORKERS`** | Env baseline when flag omitted. |
 | **`translate.workers`** | Config baseline (integer **`≥ 1`**) when env + flag omit. |
 
-With **`--workers` > 1**, core uses a bounded parallel translate pool then ordered replay (same final locale JSON as **`--workers 1`**). Details: **[Translation progress](../progress/README.md)**.
+With **`--workers` > 1**, core uses a bounded parallel translate pool then ordered replay (same final locale JSON as **`--workers 1`**). Details: **[CLI verbosity](../cli/verbosity.md)** and this page's policy notes.
 
 ### Providers with strict quotas (429)
 

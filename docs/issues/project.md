@@ -80,7 +80,7 @@ These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a smal
 **Code:** `i18nprune.project.locales_source_not_language_code`  
 **Severity:** `error`  
 **When:** **`locales.source`** looks like a file path, an invalid tag shape, or a basename with no catalog match and no close suggestions.  
-**What to do:** Set **`locales.source`** to a BCP47-style tag only (e.g. **`en`**, **`pt-br`**). Use **`locales.directory`**, **`mode`**, and **`structure`** to locate JSON on disk — see [Locale filesystem layouts](../locales/layouts.md).
+**What to do:** Set **`locales.source`** to a BCP47-style tag only (e.g. **`en`**, **`pt-br`**). Use **`locales.directory`**, **`mode`**, and **`structure`** to locate JSON on disk — see [Locale filesystem layouts](../config/locales.md#filesystem-layouts).
 
 ---
 
@@ -91,7 +91,7 @@ These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a smal
 **When:** **`locales.source`** is a valid catalog code, but no locale JSON segments for that code exist under **`locales.directory`** (readiness lists codes found on disk).  
 **What to do:** Fix the code, add the missing locale files, or align **`mode`** / **`structure`** with your tree.
 
-Unknown or mistyped codes use **`i18nprune.languages.unsupported_language_code`** with the same **`— try: …`** hints as **`i18nprune generate`**. List every supported target code with **`i18nprune languages`** (alias **`langs`**); see [languages command](../commands/languages/README.md).
+Unknown or mistyped codes use **`i18nprune.languages.unsupported_language_code`** with the same **`— try: …`** hints as **`i18nprune generate`**. List every supported target code with **`i18nprune languages`** (alias **`langs`**); see [languages command](../commands/languages.md).
 
 ---
 
@@ -114,14 +114,16 @@ Unknown or mistyped codes use **`i18nprune.languages.unsupported_language_code`*
 **What to do:**
 
 1. Set **`locales.structure`** to **`locale_per_dir`** (one folder per locale, e.g. `messages/en/common.json`) or **`feature_bundle`** (feature folders with `en.json` basenames, e.g. `messages/auth/en.json`).
-2. Run **`i18nprune init`** on an existing tree if you want detection hints, or copy a layout example from [Locale filesystem layouts](../locales/layouts.md).
+2. Run **`i18nprune init`** on an existing tree if you want detection hints, or copy a layout example from [Locale filesystem layouts](../config/locales.md#filesystem-layouts).
 3. Repo fixtures: **`tests/fixtures/layout-locale-per-dir`**, **`tests/fixtures/layout-feature-bundle`**.
 
 **Commands:** Any preset that includes **`localesStructureRequired`** (e.g. **`generate`**, **`sync`**, **`locales list`**, **`validate`**, …).
 
 ---
 
-## Hosted snapshot ingest (`i18nprune.project.hosted_*`, `upload_*`, `source_locale_*`)
+## Hosted snapshot ingest
+
+Codes covered in this section include `i18nprune.project.hosted_*`, `i18nprune.project.upload_*`, and `i18nprune.project.source_locale_*`.
 
 Codes from **`validateHostedProjectIngestBody`** and **`fillProjectSnapshotExtraction`** / **`prepareProjectSnapshotFromArchive`** when building a prepared project snapshot for **`POST /v1/projects`** (primary JSON) or archive secondary mode.
 

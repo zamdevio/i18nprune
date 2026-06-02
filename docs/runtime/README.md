@@ -58,11 +58,11 @@ Exact bundles shipped under **`apps/web`** or **`apps/workers/*`** evolve indepe
 
 - **[Node / CLI](node.md)** — Tier **B** reference host (`web.i18nprune.dev` marketing builds remain bundles-only unless intentionally invoking **`runtime/web`**).
 - **[Browser (Web)](web.md)** — `runtime/web`, **`web.i18nprune.dev`** scenarios (analyze/demo tooling).
-- **[Worker / edge](worker.md)** — `runtime/edge`, **`workers.i18nprune.dev`**, bundle auditing (`docs/madge/README.md` graph hygiene vs Workers-safe bundles).
+- **[Worker / edge](worker.md)** — `runtime/edge`, **`workers.i18nprune.dev`**, bundle auditing for Workers-safe graphs.
 
 ---
 
 ## Verification mindset before publishing Worker bundles
 
 - Confirm **`entry`** graphs exclude **`node:`** imports (automated grep fixtures recommended once pipelines stabilize).
-- Run **`pnpm madge`** (see **`docs/madge/README.md`**) when refactoring **`packages/core/src/runtime/**`** so adapters remain layered cleanly.
+- Run dependency graph checks when refactoring **`packages/core/src/runtime/**`** so adapters remain layered cleanly.

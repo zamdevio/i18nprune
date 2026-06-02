@@ -25,7 +25,7 @@ Ship **one binary**, **`i18nprune`**, with an explicit set of **subcommands** fo
 | Maintenance | `cleanup` (optional rg) |
 | Reference | `languages` (catalog) |
 | Ops | `doctor` (diagnostics) |
-| Meta | `help`, global `-v` / `--version` |
+| Meta | `help`, `version` |
 
 **Cross-cutting:** global **`--json`**, **`--quiet`**, **`--silent`**; central **`logger`**; **`RunOptions`** set once in **`preAction`**; **`resolveContext()`** for merged config and paths.
 

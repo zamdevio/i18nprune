@@ -118,7 +118,7 @@ Status values: **planned** | **in progress** | **done** | **blocked** | **deferr
 
 ## Why a separate phase
 
-A VS Code extension is **distribution**, not core CLI behavior. It must call **`core`** and/or the **`i18nprune`** binary so results match [validate](../../../docs/commands/validate/README.md) and [JSON output](../../../docs/json/README.md).
+A VS Code extension is **distribution**, not core CLI behavior. It must call **`core`** and/or the **`i18nprune`** binary so results match [validate](../../../docs/commands/validate.md) and [JSON output](../../../docs/cli/json.md).
 
 ## Goal
 
@@ -132,9 +132,9 @@ An extension that **does not fork** i18n semantics: diagnostics and commands mus
 |------|---------------|
 | **G1 — Contract** | Extension reads the same merged config and cwd rules as the CLI (document failure modes: missing config, multi-root). |
 | **G2 — Execution** | One supported path: **spawn CLI** with workspace folder `cwd` *or* in-process **`core`** with `tryResolveContext` — pick one for v1 and document it; no mixed behavior without tests. |
-| **G3 — JSON** | If using CLI: parse **`--json`** stdout per [JSON output](../../../docs/json/README.md) (line-oriented, multi-document awareness). If using `core`: use `runValidate` / etc. — same envelope. |
+| **G3 — JSON** | If using CLI: parse **`--json`** stdout per [JSON output](../../../docs/cli/json.md) (line-oriented, multi-document awareness). If using `core`: use `runValidate` / etc. — same envelope. |
 | **G4 — Tests** | Automated tests run in CI: at minimum unit tests for argument building + fixture workspace; optional integration test with **VS Code test host** once commands exist. |
-| **G5 — Failure UX** | Clear error when CLI binary missing or wrong version; link to [workflow](../../../docs/workflow/README.md) and install docs. |
+| **G5 — Failure UX** | Clear error when CLI binary missing or wrong version; link to [workflow](../../../docs/workflow.md) and install docs. |
 
 ---
 
@@ -167,7 +167,7 @@ An extension that **does not fork** i18n semantics: diagnostics and commands mus
 
 ### Track C — Hardening
 
-8. **Version check** — compare CLI `--version` (or package) against supported range; warn in output channel.
+8. **Version check** — compare CLI `version` command output (or package) against supported range; warn in output channel.
 9. **Telemetry off by default** — if any, opt-in only.
 
 ### Track D — Distribution (after A–C green)
@@ -189,12 +189,12 @@ An extension that **does not fork** i18n semantics: diagnostics and commands mus
 
 | Doc | Role |
 |-----|------|
-| [Programmatic API](../../../docs/json/programmatic.md) | `run*` helpers vs CLI `--json` |
+| [SDK operations](../../../docs/sdk/operations.md) | `run*` helpers vs CLI `--json` |
 | [`docs/exports/README.md`](../../../docs/exports/README.md) | Published API tiers |
 
 ---
 
 ## See also
 
-- [JSON output (`--json`)](../../../docs/json/README.md) · [Command orchestration](../../../docs/commands/orchestration/README.md)
+- [JSON output (`--json`)](../../../docs/cli/json.md) · [Command orchestration](../../../docs/architecture/decisions/006-command-orchestrator-boundary.md)
 - **[`../shipped-slices.md`](../shipped-slices.md)** — init + locales shipped; extension must not get ahead of core contracts.

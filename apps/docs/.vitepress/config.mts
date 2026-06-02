@@ -46,17 +46,15 @@ export default defineConfig({
   themeConfig: {
     logo: '/i18nprune.svg',
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Onboarding', link: '/onboarding' },
+      { text: 'Onboarding', link: '/onboarding/' },
       { text: 'Commands', link: '/commands/' },
       { text: 'Issues', link: '/issues/' },
       {
         text: 'More',
         items: [
-          { text: 'Performance', link: '/performance/' },
-          { text: 'Exports (API)', link: '/exports/' },
+          { text: 'Performance', link: '/performance' },
           { text: 'Architecture', link: '/architecture/' },
-          { text: 'Agents', link: '/agents/' },
+          { text: 'Configuration', link: '/config/' },
         ],
       },
     ],

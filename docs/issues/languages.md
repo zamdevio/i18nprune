@@ -18,4 +18,4 @@
 **Severity:** `error`  
 **When:** A locale code is not in the translation-target catalog (typo in **`generate --target`**, **`locales.source`**, or **`I18NPRUNE_SOURCE`**).  
 **Who:** **`assertSupportedTargetLanguageCode`** (`@i18nprune/core`); CLI **`validateTargetLanguageCode`**; config **`validateLocalesSourceConfigValue`**.  
-**What to do:** Run **`i18nprune languages`** (alias **`langs`**) to list supported codes — see [languages command](../commands/languages/README.md). Fix spelling or pick a catalog code from the **`— try: …`** hint.
+**What to do:** Run **`i18nprune languages`** (alias **`langs`**) to list supported codes — see [languages command](../commands/languages.md). Fix spelling or pick a catalog code from the **`— try: …`** hint.

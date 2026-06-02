@@ -2,9 +2,9 @@
 
 These recipes combine **global flags**, **policies**, and **multiple commands** the way teams use **i18nprune** in real projects: CI, batch translation, and safe cleanup. Adjust paths to your repo.
 
-Structured per-command examples live under [examples/commands](./commands/README.md).  
-Template for new command pages: [examples/template](./template/README.md).
-JSON shaping snippets: [jq cookbook](./jq-cookbook/README.md).
+Per-command examples now live directly inside each command doc under `docs/commands/**`.  
+SDK runnable examples: [SDK examples](./sdk.md).
+JSON shaping snippets: [jq cookbook](./jq-cookbook.md).
 
 ---
 
@@ -90,12 +90,12 @@ const sites = scanProjectDynamicKeySites(ctx);
 console.log(sites.length);
 ```
 
-See **[Exports](../exports/README.md)** for the full **`core`** / **`config`** surface.
+See **[SDK operations](../sdk/operations.md)** for the current programmatic surface.
 
 ---
 
 ## See also
 
-- [Command behaviors](../behavior/commands.md)
-- [JSON & long runs](../behavior/json-long.md)
-- [Policies](../config/policies/README.md)
+- [CLI prompts](../cli/prompts.md)
+- [JSON output (`--json`)](../cli/json.md)
+- [Policies](../config/policies.md)

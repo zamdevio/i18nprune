@@ -14,7 +14,7 @@ If a command was **missing** from that set, **`ctx.run.json`** stayed **`false`*
 
 ## What we do
 
-1. **Source of truth:** `COMMANDS_WITH_JSON_OUTPUT` — keep it aligned with commands that implement a primary stdout envelope (see [JSON output](../../json/README.md)).
+1. **Source of truth:** `COMMANDS_WITH_JSON_OUTPUT` — keep it aligned with commands that implement a primary stdout envelope (see [JSON output](../../cli/json.md)).
 2. **Thin command `run.ts`:** For JSON mode, print **only** **`stringifyEnvelope(...)`** (and set **`process.exitCode`** when **`!ok`**). Do **not** call **`printCommandSummary`** on the JSON path (that helper emits an extra **`kind: summary`** line when **`run.json`** is true). **`cleanup --json`** is an exception only in naming: it **merges** footer timing into **`data.summary`** on the same **`kind: cleanup`** envelope — still one stdout JSON document.
 3. **Core helpers:** Prefer **`run<Command>`** in `packages/cli/src/commands/**` / shared builders that return **`CliJsonEnvelope`** and use **`buildIoReadFailureEnvelope`** (and command-specific builders) so **I/O failures** still produce **one JSON object** on stdout (no logger-only errors for **`--json`**).
 4. **Issues:** Use stable **`issues[]`** codes ([issue codes](../../issues/README.md)); **`enrichIssuesWithDocHrefs`** attaches **`docHref`** for **`i18nprune.*`** codes.
@@ -31,7 +31,6 @@ If a command was **missing** from that set, **`ctx.run.json`** stayed **`false`*
 
 ## See also
 
-- [JSON output (`--json`)](../../json/README.md) — contract and command list  
+- [JSON output (`--json`)](../../cli/json.md) — contract and command list  
 - [Issue codes](../../issues/README.md) — stable **`issues[]`** registry  
-- [Command behaviors](../../behavior/commands.md) — snapshot table  
-- [Prompts & CLI boundaries](../../prompts/README.md) — why **`--json`** skips interactive prompts  
+- [CLI prompts](../../cli/prompts.md) — why **`--json`** skips interactive prompts  

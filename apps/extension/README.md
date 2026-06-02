@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- Stable **`@i18nprune/core`** and documented CLI **`--json`** envelopes ([JSON output](../../docs/json/README.md), [programmatic API](../../docs/json/programmatic.md)).
+- Stable **`@i18nprune/core`** and documented CLI **`--json`** envelopes ([JSON output](../../docs/cli/json.md), [SDK operations](../../docs/sdk/operations.md)).
 
 ## Current state
 

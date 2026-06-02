@@ -14,7 +14,7 @@ The CLI has grown across multiple commands. To keep the codebase maintainable an
 
 Command modules may keep user-flow concerns (prompts, confirmations, summaries), but not reusable domain behavior.
 
-**Physical layout:** within `packages/cli/src/commands/<name>/`, prefer **`index.ts`** for re-exports and **`run.ts`** for the primary handler, with optional co-located orchestration-only helpers — see [Command orchestration boundary — file layout](../../commands/orchestration/README.md#file-layout-inside-a-command-package).
+**Physical layout:** within `packages/cli/src/commands/<name>/`, prefer **`index.ts`** for re-exports and **`run.ts`** for the primary handler, with optional co-located orchestration-only helpers.
 
 ## Consequences
 
@@ -32,6 +32,5 @@ Command modules may keep user-flow concerns (prompts, confirmations, summaries),
 
 ## References
 
-- [Command orchestration boundary](../../commands/orchestration/README.md)
-- [Command orchestration README](../../commands/orchestration/README.md)
-- [`docs/exports/` hub](../../exports/README.md)
+- [Commands index](../../commands/README.md)
+- [SDK operations](../../sdk/operations.md)

@@ -16,13 +16,13 @@ Use [docs/README.md](../README.md) as the central topic index.
 | Topic | Where |
 |-------|--------|
 | **Topology (system maps)** | [topology](./topology/README.md) |
-| **JSON / `--json`** | [JSON output (`--json`)](../json/README.md), [programmatic API & CLI JSON](../json/programmatic.md) |
-| **Command vs `core` layout** | [Command orchestration boundary](../commands/orchestration/README.md), [ADR 006](./decisions/006-command-orchestrator-boundary.md) |
-| **CLI prompts** | [CLI prompt modules](../cli/prompts/README.md) |
-| **Translator & progress** | [Translator engine](../translator/README.md), [Translation progress](../progress/README.md) |
+| **JSON / `--json`** | [JSON output (`--json`)](../cli/json.md), [SDK operations](../sdk/operations.md) |
+| **Command vs `core` layout** | [ADR 006](./decisions/006-command-orchestrator-boundary.md) |
+| **CLI prompts** | [CLI prompt modules](../cli/prompts.md) |
+| **Translator engine** | [Translator engine](../translator/README.md) |
 | **Loader & user i18n wiring** | [Loader & config](../patching/loader.md), [patching overview](../patching/README.md) |
-| **Project tree** | [tree](./tree/README.md) |
-| **Languages catalog** | [languages](./languages/README.md) |
+| **Project tree** | [tree](./tree.md) |
+| **Languages catalog** | [languages command](../commands/languages.md) |
 
 ## Topology pages
 
