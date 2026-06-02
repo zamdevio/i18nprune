@@ -3,6 +3,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { cliSpawnEnv } from '../helpers/cliEnv.js';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
@@ -12,7 +13,7 @@ function runCli(args: string[], cwd: string): string {
   return execFileSync(process.execPath, [cliJs, ...args], {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, FORCE_COLOR: '0' },
+    env: cliSpawnEnv(),
   });
 }
 
@@ -77,7 +78,7 @@ describe('CLI layout fixtures', () => {
     const r = spawnSync(process.execPath, [cliJs, 'validate', '--json'], {
       cwd,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: cliSpawnEnv(),
     });
     expect(r.status).toBe(1);
     const j = parseEnvelope(r.stdout ?? '');

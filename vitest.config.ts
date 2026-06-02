@@ -16,6 +16,7 @@ const testTimeoutMs = process.platform === 'win32' ? 30_000 : 5_000;
 
 export default defineConfig({
   test: {
+    setupFiles: [path.resolve(__dirname, 'tests/setup/vitestEnv.ts')],
     testTimeout: testTimeoutMs,
     ...(prCiGithubActionsReporter
       ? { reporters: ['default', 'github-actions'] as const }

@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { cliSpawnEnv } from '../helpers/cliEnv.js';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
@@ -59,7 +60,7 @@ function runCliAllowNonZero(args: string[], cwd: string): { stdout: string; stat
   const r = spawnSync(process.execPath, [cliJs, ...args], {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, FORCE_COLOR: '0' },
+    env: cliSpawnEnv(),
   });
   if (r.error) throw r.error;
   return { stdout: r.stdout ?? '', status: r.status };

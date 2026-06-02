@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
+import { cliSpawnEnv } from '../helpers/cliEnv.js';
 
 const patchingFixtureRoot = path.join(
   fileURLToPath(new URL('.', import.meta.url)),
@@ -36,7 +37,7 @@ function runCliCapture(args: string[], cwd: string): { status: number | null; ou
   const r = spawnSync(process.execPath, [cliJs, ...args], {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, CI: '1', FORCE_COLOR: '0' },
+    env: cliSpawnEnv({ CI: '1' }),
   });
   return { status: r.status, out: `${r.stdout ?? ''}${r.stderr ?? ''}` };
 }
@@ -95,7 +96,7 @@ describe('patching CLI chain (patch --fix → --patch sync → --patch generate)
         {
         cwd: dir,
         encoding: 'utf8',
-        env: { ...process.env, CI: '1', FORCE_COLOR: '0' },
+        env: cliSpawnEnv({ CI: '1' }),
       });
       expect(gen.status).toBe(0);
       const genOut = `${gen.stdout ?? ''}${gen.stderr ?? ''}`;

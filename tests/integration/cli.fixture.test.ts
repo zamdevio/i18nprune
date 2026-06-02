@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { cliSpawnEnv } from '../helpers/cliEnv.js';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
@@ -22,7 +23,7 @@ function runCli(args: string[], cwd: string = fixture): string {
   return execFileSync(process.execPath, [cliJs, ...args], {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, FORCE_COLOR: '0' },
+    env: cliSpawnEnv(),
   });
 }
 
@@ -67,7 +68,13 @@ function parseFirstEnvelope(out: string): {
 
 describe('CLI against sample-i18n fixture', () => {
   it('validate reports literal keys vs source JSON (fixture may include missing keys)', () => {
-    const out = runCli(['validate']);
+    const r = spawnSync(process.execPath, [cliJs, 'validate'], {
+      cwd: fixture,
+      encoding: 'utf8',
+      env: cliSpawnEnv(),
+    });
+    expect([0, 1]).toContain(r.status ?? 0);
+    const out = `${r.stdout ?? ''}${r.stderr ?? ''}`;
     expect(out).toMatch(/validate · (ok|failed) ·/);
     expect(out).toMatch(/summary: dynamic=\d+ · keyObservations=\d+ · missing=\d+/);
   });
@@ -136,7 +143,7 @@ describe('CLI against sample-i18n fixture', () => {
     const r = spawnSync(process.execPath, [cliJs, 'validate', '--json'], {
       cwd: fixture,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: cliSpawnEnv(),
     });
     expect([0, 1]).toContain(r.status ?? 0);
     const out = r.stdout ?? '';
@@ -182,7 +189,7 @@ describe('CLI against sample-i18n fixture', () => {
     const r = spawnSync(process.execPath, [cliJs, 'validate', '--json'], {
       cwd: dir,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: cliSpawnEnv(),
     });
     expect(r.status).toBe(1);
     expect(r.stderr ?? '').not.toMatch(/\[i18nprune\].*\[error\]/);
@@ -208,7 +215,7 @@ describe('CLI against sample-i18n fixture', () => {
     const r = spawnSync(process.execPath, [cliJs, 'validate', '--json'], {
       cwd: dir,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: cliSpawnEnv(),
     });
     expect(r.status).toBe(1);
     expect(r.stderr ?? '').not.toMatch(/\[i18nprune\].*\[error\]/);
@@ -224,7 +231,7 @@ describe('CLI against sample-i18n fixture', () => {
     const r = spawnSync(process.execPath, [cliJs, 'languages', '--json', '--filter', 'en'], {
       cwd: dir,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: cliSpawnEnv(),
     });
     expect(r.status).toBe(0);
     expect(r.stderr ?? '').not.toMatch(/\[i18nprune\].*\[error\]/);
@@ -245,7 +252,7 @@ describe('CLI against sample-i18n fixture', () => {
     const r = spawnSync(process.execPath, [cliJs, 'langs', '--json', '--filter', 'ja'], {
       cwd: dir,
       encoding: 'utf8',
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: cliSpawnEnv(),
     });
     expect(r.status).toBe(0);
     const j = parseFirstEnvelope(r.stdout ?? '');

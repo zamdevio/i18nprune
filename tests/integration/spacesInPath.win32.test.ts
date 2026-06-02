@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { cliSpawnEnv } from '../helpers/cliEnv.js';
 
 const isWin32 = process.platform === 'win32';
 const describeWin32 = isWin32 ? describe : describe.skip;
@@ -33,7 +34,7 @@ function runCli(args: string[], cwd: string, extraEnv?: Record<string, string>):
   return execFileSync(process.execPath, [cliJs, ...args], {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, FORCE_COLOR: '0', ...extraEnv },
+    env: cliSpawnEnv(extraEnv),
   });
 }
 

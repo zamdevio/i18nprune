@@ -4,6 +4,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { cliSpawnEnv } from '../helpers/cliEnv.js';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
@@ -27,7 +28,7 @@ function runCli(args: string[], cwd: string = fixture): string {
   return execFileSync(process.execPath, [cliJs, ...args], {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, FORCE_COLOR: '0' },
+    env: cliSpawnEnv(),
   });
 }
 
@@ -58,6 +59,7 @@ describe('report command', () => {
     const stdout = execFileSync(process.execPath, [cliJs, '--json', 'report', '--format', 'json', '--out', out], {
       cwd: fixture,
       encoding: 'utf8',
+      env: cliSpawnEnv(),
     });
     const env = JSON.parse(stdout.trim()) as {
       kind?: string;
@@ -82,6 +84,7 @@ describe('report command', () => {
     const stdout = execFileSync(process.execPath, [cliJs, '--json', 'report', '--format', 'json', '--out', out], {
       cwd: fixture,
       encoding: 'utf8',
+      env: cliSpawnEnv(),
     });
     const env = JSON.parse(stdout.trim()) as {
       ok?: boolean;

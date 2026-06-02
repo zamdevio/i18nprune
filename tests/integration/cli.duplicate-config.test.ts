@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { cliSpawnEnv } from '../helpers/cliEnv.js';
 
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
@@ -28,7 +29,7 @@ describe('CLI duplicate config files', () => {
         execFileSync(process.execPath, [cliJs, 'validate'], {
           cwd: dir,
           encoding: 'utf8',
-          env: { ...process.env, CI: '1', FORCE_COLOR: '0' },
+          env: cliSpawnEnv({ CI: '1' }),
         }),
       ).toThrow();
     } finally {
