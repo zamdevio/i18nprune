@@ -9,11 +9,69 @@
 
 **Validate · sync · generate · review · quality · cleanup · doctor**
 
+[Documentation](https://docs.i18nprune.dev) · [Quick start](#quick-start) · [npm](https://www.npmjs.com/package/i18nprune)
+
 </div>
 
-**i18nprune** is a **production-grade i18n toolkit** that combines a powerful CLI with stable programmatic APIs (**`i18nprune/core`** from the published tarball where applicable, **`@i18nprune/core`** for the workspace engine package).
+**i18nprune** keeps translation keys, locale JSON, and source scans aligned — in the terminal, in CI, or from **`@i18nprune/core`** in your own scripts. One config, one **`--json`** contract, and honest limits on static key extraction.
 
-It connects your **source code**, a **source-of-truth locale JSON**, and **target locale files** so teams can validate, sync, generate, clean up, and review translations with confidence — in CI or custom scripts. Clear architecture, excellent docs, and built for both humans and agents.
+---
+
+## Install
+
+**Global CLI**
+
+```bash
+npm install -g i18nprune
+# or: pnpm add -g i18nprune
+# or: yarn global add i18nprune
+```
+
+**On demand (no global install)**
+
+```bash
+npx i18nprune --help
+pnpm dlx i18nprune --help
+yarn dlx i18nprune --help
+```
+
+**From source (contributors)**
+
+```bash
+git clone https://github.com/zamdevio/i18nprune.git && cd i18nprune
+pnpm install && pnpm build
+pnpm link --global   # optional
+i18nprune version
+```
+
+Requires **Node.js ≥ 18**.
+
+---
+
+## Quick start
+
+```bash
+i18nprune init --yes
+i18nprune validate
+i18nprune doctor --json
+i18nprune sync --dry-run
+```
+
+Typed config: **`i18nprune init`** writes **`i18nprune.config.ts`** (see [config docs](./docs/config/README.md)).
+
+---
+
+## Documentation journey
+
+| Step | Where to go |
+|------|-------------|
+| **1 — Pick your path** | [Onboarding hub](./docs/onboarding/README.md) (CLI · SDK · CI · hosted) |
+| **2 — Day-to-day commands** | [Commands](./docs/commands/README.md) · [Examples](./docs/examples/README.md) |
+| **3 — Config & machine output** | [Config](./docs/config/README.md) · [CLI overview](./docs/cli/README.md) · [**JSON contract**](./docs/cli/json.md) · [Issues](./docs/issues/README.md) |
+| **4 — Architecture & reference** | [Architecture](./docs/architecture/README.md) · [ADRs](./docs/architecture/decisions/007-cli-json-envelope-contract.md) · [Runtime](./docs/runtime/README.md) · [SDK operations](./docs/sdk/operations.md) |
+| **5 — Edge cases** | [Solved pitfalls](./docs/edge-cases/solved/README.md) · [Performance](./docs/performance.md) |
+
+**Live site:** [docs.i18nprune.dev](https://docs.i18nprune.dev) · **Source index:** [`docs/README.md`](./docs/README.md)
 
 ---
 
@@ -21,83 +79,28 @@ It connects your **source code**, a **source-of-truth locale JSON**, and **targe
 
 | Area | What you get |
 |------|----------------|
-| **Validate** | Match **literal** translation keys in `src/` to the **source** JSON; report **dynamic** (non-literal) call sites. |
-| **Sync** | **Merge + prune** every locale file to the source **shape**; optional **`policies.preserve`**; **`--lang`** for **`all`**, comma lists, or defaults; **`--dry-run`**. |
-| **Generate** | Machine translation via the configured provider (**Google `gtx`** today); **catalog-backed** language codes; **`generate --resume`** tops up existing targets; **`generate --all`** with **`--resume`** covers every non-source locale. |
-| **Quality / review** | Parity and drift signals; **per-locale** review vs source (**`--json`** on supported commands). |
-| **Cleanup** | Remove **unused** keys with optional **ripgrep** verification, **confirmations**, and **global `--yes`** for CI. |
-| **Locales** | **`list`**, **`edit`**, **`dynamic`** (heuristic non-literal sites), **`delete`** (with safety prompts). |
-| **Languages** | Browse bundled **BCP47-style** codes for **generate**. |
-| **Doctor** | Read-only checks: Node, `rg`, config, paths (**`--json`**, **`--strict`**). |
-| **Report topic** | Project report export (`html` / `json` / `csv` / `text`) with optional `--json` stdout envelope. |
-| **Automation** | Global **`--json`**, **`-q` / `-s`**, path overrides, **`I18NPRUNE_*`** env; **`--yes`** for non-interactive flows. |
+| **Validate** | Literal keys in `src/` vs source locale; dynamic call sites reported separately. |
+| **Sync** | Merge/prune locale shape; optional metadata modes. |
+| **Generate** | Provider-backed translation; **`--resume`** tops up missing leaves. |
+| **Quality / review** | Parity and drift signals; **`--json`** on supported commands. |
+| **Cleanup** | Remove unused keys; **`--yes`** for CI. |
+| **Share** | Upload snapshots/reports to the public worker; local cache + hash dedup. |
+| **Doctor** | Node, `rg`, config, paths — **`--json`**, **`--strict`**. |
 
 ---
 
 ## Programmatic API
 
-Reuse the same primitives as the CLI **without subprocesses**:
+Use the same engines as the CLI without subprocesses:
 
-- **`i18nprune/core`** — `defineConfig` + types (bundled with the **`i18nprune`** package).
-- **`@i18nprune/core`** — `resolveContext`, scanning, literal extraction, dynamic-key heuristics, JSON leaf walks (same engine the CLI uses).
-
-📚 **Full reference:** [docs/sdk/operations.md](./docs/sdk/operations.md)
-
----
-
-## Requirements
-
-- **Node.js** ≥ **18**
-- **pnpm** (recommended) or npm
-
-## Install
-
-**npm CLI name:** **`i18nprune`** (first publish pending — until then use **From source** or **`pnpm link`**):
-
-```bash
-npm install -g i18nprune
-# or: pnpm add -D i18nprune
+```typescript
+import { resolveContext, runValidate } from '@i18nprune/core';
 ```
 
-**From source:**
+- **`@i18nprune/core`** — `resolveContext`, `runXxx` operations, cache policy, share prepare.
+- **`i18nprune/core`** (from the published CLI package) — `defineConfig` and config types bundled with **`i18nprune`**.
 
-```bash
-git clone https://github.com/zamdevio/i18nprune.git && cd i18nprune
-pnpm install
-pnpm build
-pnpm link --global   # optional
-```
-
-```bash
-i18nprune version
-```
-
-## Quick start
-
-```bash
-i18nprune init              # or: i18nprune init --yes
-i18nprune validate
-i18nprune languages
-i18nprune config --json
-i18nprune doctor --json
-```
-
-For a typed config file, run **`i18nprune init`** (use **`--yes`** to write **`i18nprune.config.ts`** without prompts). This repo keeps a root **`i18nprune.config.ts`** so CLI commands work from the workspace root. Raw JSON config files are not supported for the main config.
-
----
-
-## Documentation
-
-| Resource | Link |
-|----------|------|
-| **Docs site** | [docs.i18nprune.dev](https://docs.i18nprune.dev) |
-| **Repository** | [github.com/zamdevio/i18nprune](https://github.com/zamdevio/i18nprune) |
-| **npm** | [npmjs.com/package/i18nprune](https://www.npmjs.com/package/i18nprune) *(live after first publish)* |
-| **Repo docs (source of truth)** | [`docs/README.md`](./docs/README.md) |
-| **CLI JSON contract** | [`docs/cli/json.md`](./docs/cli/json.md) |
-| **SDK operations** | [`docs/sdk/operations.md`](./docs/sdk/operations.md) |
-
-Local docs preview: **`pnpm docs:dev`** — VitePress dev server (**`8282`** by default) plus **live sync** from **`docs/`** → **`apps/docs/content/`**.
+Full reference: [SDK operations](./docs/sdk/operations.md) · Runtime hosts: [Node](./docs/runtime/node.md) · [Web](./docs/runtime/web.md) · [Worker](./docs/runtime/worker.md)
 
 ---
 
@@ -108,53 +111,22 @@ pnpm install
 pnpm typecheck
 pnpm test
 pnpm build
-pnpm dev -- --help
-pnpm docs:sync       # one-shot docs/ → apps/docs/content/
-pnpm docs:build      # static site → apps/docs/.vitepress/dist
-pnpm docs:dev        # VitePress dev + watcher sync (port 8282 or next free)
-pnpm web:dev         # i18nprune.dev landing (port 5174)
-pnpm web:build       # static landing bundle in apps/web/dist
+pnpm docs:dev        # VitePress + sync from docs/ (port 8282)
+pnpm docs:build      # static site
 ```
-
-## Project layout
 
 | Path | Role |
 |------|------|
-| `packages/cli/bin/cli.ts` | Commander entry, `preprocessArgv`, global flags |
-| `packages/cli/src/argv/` | Argv preprocessing (`langs` → `languages`) |
-| `packages/cli/src/types/` | Shared TypeScript types |
-| `packages/cli/src/commands/` | One folder per command |
-| `packages/cli/src/exports/` | Published entrypoints: `config`, `core` |
-| `packages/cli/src/utils/logger/` | `canPrint*` policy + `logger` / `loggerFor` |
-| `docs/` | Authoritative markdown; **`pnpm docs:sync`** → `apps/docs/content/` |
-| `apps/docs/` | VitePress docs site; **`pnpm docs:dev`** mirrors `docs/` into `content/` |
-| `tests/fixtures/sample-i18n/` | Sample app for integration tests |
-
----
-
-## Direction
-
-See **[docs/changelog.md](./docs/changelog.md)** for shipped changes and **[docs/README.md](./docs/README.md)** for the current documentation journey.
-
-### Same core on Node, Web, and Workers
-
-How **`@i18nprune/core`** runs per environment is covered on **[docs.i18nprune.dev](https://docs.i18nprune.dev/runtime/)**: **[docs/runtime/README.md](./docs/runtime/README.md)** — **[Node / CLI](./docs/runtime/node.md)**, **[Browser (Web)](./docs/runtime/web.md)** (**`web.i18nprune.dev`**), **[Worker / edge](./docs/runtime/worker.md)** (**`workers.i18nprune.dev`**).
-
-**Contributors:** internal sequencing lives under **`maintainer/`** — starts from **`maintainer/README.md`** (not published via the docs site).
-
----
-
-## Examples
-
-📎 **Workflow recipes** (CI, `--json` artifacts, `generate --resume --all`, safe cleanup): [docs/examples/README.md](./docs/examples/README.md)
+| `packages/cli/` | Commander CLI, `--json` envelopes, command orchestration |
+| `packages/core/` | Domain logic, cache policy, share prepare, `runXxx` |
+| `docs/` | Authoritative markdown → `apps/docs/content/` via `pnpm docs:sync` |
+| `apps/docs/` | VitePress site ([docs.i18nprune.dev](https://docs.i18nprune.dev)) |
 
 ---
 
 ## Contributing
 
-**Repo patterns, PR expectations, and human + agent workflows:** [docs/contributors/README.md](./docs/contributors/README.md)
-
-**Coding agents & deep onboarding** (architecture, rules, Git discipline): [`maintainer/agents/README.md`](./maintainer/agents/README.md) · [`maintainer/agents/git.md`](./maintainer/agents/git.md)
+[Contributors guide](./docs/contributors/README.md) — setup, tests, PR expectations.
 
 ---
 

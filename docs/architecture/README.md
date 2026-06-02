@@ -42,3 +42,8 @@ These pages document high-level system shape and relationships:
 - [ADR 004 — Opt-in auto-patching](./decisions/004-auto-patch.md)
 - [ADR 005 — Dynamic key rebuild & prefix](./decisions/005-dynamic-key-rebuild-and-prefix.md)
 - [ADR 006 — Command orchestrator boundary](./decisions/006-command-orchestrator-boundary.md)
+- [ADR 007 — CLI JSON envelope contract](./decisions/007-cli-json-envelope-contract.md)
+- [ADR 008 — Cache ownership and host boundary](./decisions/008-cache-ownership-and-host-boundary.md)
+- [ADR 009 — Share hosted snapshot contract](./decisions/009-share-hosted-snapshot-contract.md)
+- [ADR 010 — Locale layout and metadata modes](./decisions/010-locale-layout-and-metadata-modes.md)
+- [ADR 011 — Runtime-neutral SDK host model](./decisions/011-runtime-neutral-sdk-host-model.md)

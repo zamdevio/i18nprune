@@ -21,31 +21,33 @@ pnpm dlx i18nprune --help
 yarn dlx i18nprune --help
 ```
 
-## Documentation map
+## Documentation journey
+
+| Step | Topic | Link |
+|------|--------|------|
+| 1 | Onboarding (CLI / SDK / CI / hosted) | [Onboarding](./onboarding/README.md) |
+| 2 | Commands & examples | [Commands](./commands/README.md) · [Examples](./examples/README.md) |
+| 3 | Config, CLI, JSON, issues | [Config](./config/README.md) · [CLI](./cli/README.md) · [JSON (`--json`)](./cli/json.md) · [Issues](./issues/README.md) |
+| 4 | Architecture & SDK | [Architecture](./architecture/README.md) · [SDK operations](./sdk/operations.md) · [Runtime](./runtime/README.md) |
+| 5 | Edge cases & ADRs | [Edge cases](./edge-cases/README.md) · [ADRs](./architecture/decisions/007-cli-json-envelope-contract.md) |
+
+## Topic index
 
 | Topic | Description |
 |--------|-------------|
-| [Onboarding](./onboarding/README.md) | Choose your path (CLI / SDK / CI / Hosted) and get to first value quickly |
-| [Commands](./commands/README.md) | Day-to-day command reference with one page per subcommand |
-| [Examples](./examples/README.md) | Real workflows (CI gates, `stdout` piping, batch sync, `generate --resume`) |
-| [Config](./config/README.md) | Config formats, merge behavior, and `defineConfig` authoring |
-| [CLI overview](./cli/README.md) | Global flags, command entry behavior, and argument preprocessing |
-| [JSON output (`--json`)](./cli/json.md) | Stable machine-readable envelope and command payload shapes |
-| [Issues reference](./issues/README.md) | Stable issue codes and remediation guidance |
-| [Contributing](./contributors/README.md) | Contributor path for repository setup, testing, and PR discipline |
-| [Architecture](./architecture/README.md) | System layers, topology, and cross-component data flow |
-| [Project tree](./architecture/tree.md) | Source and tooling layout at a glance |
-| [SDK operations](./sdk/operations.md) | Programmatic operation entry points and contracts |
-| [Patching](./patching/README.md) | Opt-in loader/config patching model and constraints |
-| [Translator engine](./translator/README.md) | Provider orchestration and translation pipeline behavior |
-| [Performance](./performance.md) | Large-repo strategies, cache guidance, and timing methodology |
-| [Edge cases](./edge-cases/README.md) | Known pitfalls and parity-sensitive behavior notes |
-| [ADRs](./architecture/decisions/001-scope-v0-1.md) | Architecture decision records and long-lived trade-offs |
-| [ADR template](./architecture/decisions/template.md) | Template for proposing or documenting architectural changes |
-| [Changelog](./changelog.md) | User-visible release notes and behavior changes |
-| [Workflow](./workflow.md) | Local development workflow and routine maintenance commands |
-| Agent notes (repo-only) | Clone the repo: `maintainer/agents/README.md` — [GitHub](https://github.com/zamdevio/i18nprune/blob/main/maintainer/agents/README.md) (not mirrored to the docs site) |
-| Maintainer phases (repo only) | Sprint/v1 sequencing in `maintainer/phases/README.md` — [GitHub](https://github.com/zamdevio/i18nprune/blob/main/maintainer/phases/README.md) (not mirrored to the docs site) |
+| [Onboarding](./onboarding/README.md) | Choose your path and get to first value quickly |
+| [Commands](./commands/README.md) | Day-to-day command reference |
+| [Examples](./examples/README.md) | CI gates, jq recipes, `generate --resume`, batch sync |
+| [Config](./config/README.md) | Config formats, merge behavior, `defineConfig` |
+| [CLI overview](./cli/README.md) | Global flags and argument preprocessing |
+| [JSON output (`--json`)](./cli/json.md) | Stable machine-readable envelope (canonical contract) |
+| [Issues reference](./issues/README.md) | Stable issue codes and remediation |
+| [Contributing](./contributors/README.md) | Repository setup, testing, PR discipline |
+| [Architecture](./architecture/README.md) | System layers and data flow |
+| [ADRs](./architecture/decisions/001-scope-v0-1.md) | Architecture decision records |
+| [Edge cases](./edge-cases/README.md) | Solved pitfalls and parity-sensitive notes |
+| [Performance](./performance.md) | Large-repo strategies and cache guidance |
+| [Changelog](./changelog.md) | User-visible release notes |
 
 ## Links
 

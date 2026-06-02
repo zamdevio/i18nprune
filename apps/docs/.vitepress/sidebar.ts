@@ -75,6 +75,11 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
         { text: 'Extractor overview', link: '/architecture/extraction/' },
         { text: 'Dynamic keys', link: '/architecture/extraction/dynamic' },
         { text: 'Regex & limits', link: '/architecture/extraction/regex' },
+        { text: 'ADR 007 — CLI JSON contract', link: '/architecture/decisions/007-cli-json-envelope-contract' },
+        { text: 'ADR 008 — Cache ownership', link: '/architecture/decisions/008-cache-ownership-and-host-boundary' },
+        { text: 'ADR 009 — Share contract', link: '/architecture/decisions/009-share-hosted-snapshot-contract' },
+        { text: 'ADR 010 — Locale layout', link: '/architecture/decisions/010-locale-layout-and-metadata-modes' },
+        { text: 'ADR 011 — Runtime hosts', link: '/architecture/decisions/011-runtime-neutral-sdk-host-model' },
       ],
     },
     {
@@ -152,6 +157,11 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
       items: [
         { text: 'Edge cases', link: '/edge-cases/' },
         { text: 'Solved', link: '/edge-cases/solved/' },
+        { text: 'Sync metadata flags', link: '/edge-cases/solved/sync-metadata-flag-conflict' },
+        { text: 'Generate --resume', link: '/edge-cases/solved/generate-resume-partial-run-contract' },
+        { text: 'Share hash dedup', link: '/edge-cases/solved/share-hash-dedup-and-force-replace' },
+        { text: 'Layout mismatch rebuild', link: '/edge-cases/solved/locale-layout-mismatch-rebuild' },
+        { text: 'CI non-interactive', link: '/edge-cases/solved/ci-noninteractive-confirmation-gates' },
         { text: 'Unsolved', link: '/edge-cases/unsolved/' },
         { text: 'Extraction limits', link: '/architecture/extraction/' },
         { text: 'Contributors', link: '/contributors/' },
