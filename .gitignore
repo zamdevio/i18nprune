@@ -11,6 +11,8 @@ dist/
 .DS_Store
 porting-map.md
 i18nprune.zip
+*.tgz
+tsup.config.bundled_*.mjs
 coverage/
 # Cursor — keep shared `.cursor/rules/*.mdc` in git; ignore other local/workspace-only entries
 .cursor/*

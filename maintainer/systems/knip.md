@@ -60,6 +60,7 @@ If it persists, remove **`node_modules`** at the repo root and run **`pnpm insta
 | Path | Why |
 |------|-----|
 | `tests/fixtures/**` | Parity and integration fixtures; not production entrypoints. |
+| `tests/publish-types/fixture/**` | Manual npm-consumer smoke for packed `i18nprune` types; see `tests/publish-types/fixture/README.md`. |
 | `examples/sdk/**` | SDK samples for docs; not wired into knip entry graph. |
 | `i18nprune.config.ts` | Root dogfood config for local runs. |
 

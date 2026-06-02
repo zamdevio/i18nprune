@@ -13,6 +13,7 @@
 | **Every commit that changes TS** | `pnpm typecheck` · `pnpm test` |
 | **Moved/renamed/deleted files or changed barrels** | `pnpm madge:circular` · `pnpm knip` |
 | **Refactor PR (parity-sensitive)** | Above + `tests/parity/` must pass |
+| **Changed root `exports` / `dist/*.d.ts` / npm pack layout** | `pnpm run publish:verify` (see `tests/publish-types/fixture/README.md`) |
 | **Optional diagnostics** | `pnpm madge:orphans` · `pnpm madge:leaves` · `pnpm empty:dir` · `pnpm empty:file` |
 | **Optional cleanup (manual review first)** | `pnpm empty:dir:del` · `pnpm empty:file:del` |
 

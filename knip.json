@@ -2,6 +2,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignore": [
     "tests/fixtures/**",
+    "tests/publish-types/fixture/**",
     "examples/sdk/**",
     "i18nprune.config.ts",
     "packages/core/src/extractor/index.ts",

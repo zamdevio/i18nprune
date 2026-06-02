@@ -1,0 +1,5 @@
+# User docs ship on docs.i18nprune.com — not in the CLI npm tarball.
+docs/
+
+# Source maps are for monorepo debugging only.
+**/*.map

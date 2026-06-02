@@ -29,6 +29,7 @@ export default defineConfig({
       'apps/report/src/**/__tests__/**/*.test.ts',
       'apps/workers/i18nprune/src/**/__tests__/**/*.test.ts',
       'tests/**/__tests__/**/*.test.ts',
+      'tests/publish-types/**/*.test.ts',
       'tests/integration/**/*.test.ts',
       'tests/parity/**/*.test.ts',
     ],
@@ -49,16 +50,16 @@ export default defineConfig({
         replacement: path.resolve(__dirname, 'packages/core/src/runtime/exports/edge.ts'),
       },
       {
+        find: '@i18nprune/core/report-schema',
+        replacement: path.resolve(__dirname, 'packages/core/src/shared/report/index.ts'),
+      },
+      {
         find: /^@i18nprune\/core\/(.+)$/,
         replacement: path.resolve(__dirname, 'packages/core/src/$1'),
       },
       {
         find: '@i18nprune/core',
         replacement: path.resolve(__dirname, 'packages/core/src/index.ts'),
-      },
-      {
-        find: '@i18nprune/report-schema',
-        replacement: path.resolve(__dirname, 'packages/report/src/index.ts'),
       },
     ],
   },

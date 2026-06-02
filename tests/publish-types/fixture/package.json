@@ -1,0 +1,11 @@
+{
+  "name": "publish-types-fixture",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "i18nprune": "file:../../../i18nprune-0.1.0.tgz"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}
