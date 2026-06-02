@@ -8,7 +8,7 @@
 
 | Doc | Role |
 |-----|------|
-| [`V1-RELEASE.md`](./V1-RELEASE.md) | **Remaining v1 work** (ordered) |
+| [`final.md`](./final.md) | **Release checklist** (current gate) |
 | [`active-phase.md`](./active-phase.md) | **Current sprint focus** |
 | [`shipped-slices.md`](./shipped-slices.md) | Closed slices — check before re-implementing |
 
@@ -20,9 +20,7 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
-| [`docs.md`](./docs.md) | **Active** — docs nav + SDK quickstart (priority 4) |
 | [`final.md`](./final.md) | Pre-publish gate (delete after release) |
-| [`standard-toolkit.md`](./standard-toolkit.md) | CLI toolkit conventions (parallel) |
 
 **Reference (shipped, future work):** [`extractor.md`](./extractor.md) · **Extension:** [`extension/README.md`](./extension/README.md)
 

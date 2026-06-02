@@ -152,5 +152,5 @@ CLI should pass **`cwd: ctx.adapters.system.cwd()`** via [`packages/cli/src/shar
 - [`README.md`](./README.md) — agents hub
 - [`../README.md`](../README.md) — maintainer directory entry
 - [`../phases/README.md`](../phases/README.md) — phase index
-- [`../phases/V1-RELEASE.md`](../phases/V1-RELEASE.md) — release sessions + CI notes
+- [`../phases/active-phase.md`](../phases/active-phase.md) — current sprint focus
 - [`../phases/final.md`](../phases/final.md) — one-time pre-publish checklist

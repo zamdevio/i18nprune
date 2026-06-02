@@ -1,6 +1,6 @@
 # Active sprint
 
-**Hub:** [`V1-RELEASE.md`](./V1-RELEASE.md) · **Shipped receipts:** [`shipped-slices.md`](./shipped-slices.md) · **Locked chain:** [§ below](#locked-cross-phase-dependency-chain)
+**Hub:** [`final.md`](./final.md) · **Shipped receipts:** [`shipped-slices.md`](./shipped-slices.md)
 
 ---
 
@@ -11,7 +11,7 @@
 | **1 — done** | Cross-platform (XP) — shipped | [`systems/platform.md`](../systems/platform.md) |
 | **2 — done** | Tree & naming — **T0–T10 shipped** (receipt only) | [`shipped-slices.md`](./shipped-slices.md) |
 | **3 — done** | CI hardening (CI-1–5 shipped, incl. Turborepo in fa92505) | [`systems/ci.md`](../systems/ci.md) |
-| **4 — done** | Docs (D) — completed | [`docs.md`](./docs.md) |
+| **4 — done** | Docs (D) — completed | [`shipped-slices.md`](./shipped-slices.md) |
 | **5 — active** | Release (E + G) | [`final.md`](./final.md) |
 
 ---
@@ -19,17 +19,17 @@
 ## Locked cross-phase dependency chain
 
 ```txt
-… → cross-platform (shipped) → tree (shipped) → ci (shipped) → docs (active) → release → extension
+… → cross-platform (shipped) → tree (shipped) → ci (shipped) → docs (done) → release → extension
 ```
 
-Full chain + role one-liners: [`V1-RELEASE.md`](./V1-RELEASE.md) · Systems maps for shipped verticals: [`systems/README.md`](../systems/README.md).
+Chain + role one-liners are captured in this file; systems maps for shipped verticals: [`systems/README.md`](../systems/README.md).
 
 | Phase | Doc |
 |-------|-----|
 | **cross-platform** | [`systems/platform.md`](../systems/platform.md) |
 | **tree** (shipped) | [`shipped-slices.md`](./shipped-slices.md) |
 | **ci** (shipped) | [`systems/ci.md`](../systems/ci.md) |
-| **docs** (done) | [`docs.md`](./docs.md) |
+| **docs** (done) | [`shipped-slices.md`](./shipped-slices.md) |
 | **extension** | [`extension/README.md`](./extension/README.md) |
 
 ---

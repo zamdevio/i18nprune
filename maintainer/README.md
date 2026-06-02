@@ -10,10 +10,9 @@ Contributor-only planning and systems maps. **`docs/`** syncs to the public site
 
 | Doc | Role |
 |-----|------|
-| [`phases/V1-RELEASE.md`](phases/V1-RELEASE.md) | **Remaining v1 work** |
+| [`phases/final.md`](phases/final.md) | **Release checklist** |
 | [`phases/active-phase.md`](phases/active-phase.md) | **Current sprint** |
 | [`phases/shipped-slices.md`](phases/shipped-slices.md) | Shipped receipts |
 | [`systems/README.md`](systems/README.md) | Engineering maps (cache, share, ops, commands) |
-| [`phases/final.md`](phases/final.md) | Pre-publish checklist — delete after release |
 
 **Scratch:** **`maintainer/temp/`** (gitignored — never commit).
