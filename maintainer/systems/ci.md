@@ -35,7 +35,7 @@ parity (same 3 OS)                    → if run_product; download cli-dist-<os>
 | Job | Matrix | Timeout | Notes |
 |-----|--------|---------|--------|
 | **scope** | `ubuntu-latest` only | 5m | Path guards + turbo filter for downstream jobs |
-| **typecheck** | `ubuntu-latest` only | 30m | `pnpm turbo run typecheck` (affected or full); `//#ui:purity` when scoped |
+| **typecheck** | `ubuntu-latest` only | 30m | `pnpm turbo run typecheck` (affected or full); **`@i18nprune/core#build` runs first** (workspace `exports` point at `dist/`); `//#ui:purity` when scoped |
 | **cli-build** | 3 OS, `fail-fast: false` | ubuntu 30m · win/mac 45m | Skipped when `docs_only`; else `pnpm turbo run //#cli:build` |
 | **test** | 3 OS, `fail-fast: false` | same | Skipped when `docs_only`; `pnpm turbo run //#test` |
 | **parity** | 3 OS, `fail-fast: false` | same | Skipped when `docs_only`; `pnpm turbo run //#parity` |
@@ -139,7 +139,7 @@ Use the Artifacts tab on failed Windows builds (or any failed `cli-build`) to do
 
 | Task | Where | Role |
 |------|--------|------|
-| **`typecheck`** | Workspace packages with a `typecheck` script | `dependsOn: ["^typecheck"]` — upstream types first |
+| **`typecheck`** | Workspace packages with a `typecheck` script | `dependsOn: ["^typecheck", "@i18nprune/core#build"]` — core `dist/` before apps that resolve `@i18nprune/core` via package `exports` |
 | **`//#ui:purity`** | Repo root (`//`) | `scripts/ui/purity-check.mjs`; runs after `@i18nprune/ui#typecheck` |
 | **`//#cli:build`** | Repo root | `tsup` + report bundle → `dist/` (CI product gate) |
 | **`//#test`** | Repo root | `vitest run` (full suite; not per-package) |

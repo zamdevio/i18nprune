@@ -26,7 +26,7 @@ Hygiene-only fixes (knip/madge/empty) belong in **dedicated PRs** or the same PR
 
 ### `pnpm typecheck`
 
-Root orchestrator: **`core:typecheck`**, **`cli:typecheck`** (root `tsc`), then per-app scripts (`web:typecheck`, `landing:typecheck`, `docs:typecheck`, `report:typecheck`, worker **`build`** / `meta:build`, `ext:web:typecheck`). Run the umbrella command before commit, or a single target (e.g. **`pnpm web:typecheck`**) while iterating on one app.
+Root orchestrator: **`pnpm typecheck`** → Turborepo runs **`@i18nprune/core#build`** then workspace **`typecheck`** tasks (required because `@i18nprune/core` **`exports`** target **`dist/`**, not `src/`). Per-package scripts (`web:typecheck`, `meta:typecheck`, …) need **`packages/core/dist`** unless you run **`pnpm run core:build`** first. Run the umbrella command before commit, or a single target while iterating on one app.
 
 ### `pnpm build`
 
