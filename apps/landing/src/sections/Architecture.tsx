@@ -703,7 +703,7 @@ export default function Architecture() {
                               className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden ${iconAccent(n.kind)} ${isActive ? 'bg-primary/20 ring-1 ring-primary/35' : 'bg-background/60'} border border-border/60`}
                             >
                               {n.kind === 'engine' ? (
-                                <img src="/icons/i18nprune.svg" alt="" className="w-6 h-6 rounded-md" aria-hidden />
+                                <img src="/i18nprune.svg" alt="" className="w-6 h-6 rounded-md" aria-hidden />
                               ) : (
                                 <n.icon className="w-4 h-4" />
                               )}
@@ -776,7 +776,7 @@ export default function Architecture() {
                     <div className="min-w-0">
                       <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-primary/80 mb-2 flex items-center gap-2">
                         {activeNode.kind === 'engine' ? (
-                          <img src="/icons/i18nprune.svg" alt="" className="w-3.5 h-3.5 rounded" aria-hidden />
+                          <img src="/i18nprune.svg" alt="" className="w-3.5 h-3.5 rounded" aria-hidden />
                         ) : (
                           <activeNode.icon className="w-3.5 h-3.5" />
                         )}

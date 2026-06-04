@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./apps/web/public/i18nprune.svg" width="72" height="72" alt="i18nprune logo" />
+  <img src="https://i18nprune.dev/i18nprune.svg" width="72" height="72" alt="i18nprune logo" />
 
   <h1>i18nprune</h1>
 
