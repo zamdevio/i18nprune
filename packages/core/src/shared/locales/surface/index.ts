@@ -1,5 +1,5 @@
 export { readLocaleLeavesForCode, readSourceLocaleLeaves } from './localeSurface.js';
-export { readLocaleJsonOrEmpty, readLocaleSegmentLeavesOrEmpty } from './readJson.js';
+export { readLocaleJsonOrEmpty } from './readJson.js';
 export {
   pairedSourceSegmentRelativePath,
   resolvePairedSourceSegmentAbsolutePath,
