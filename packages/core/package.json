@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Pure domain engine package for i18nprune.",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=18"
