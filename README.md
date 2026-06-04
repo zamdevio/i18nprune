@@ -13,15 +13,26 @@
     Production-grade i18n toolkit for validating, syncing, translating, and shipping locale data with confidence.
   </p>
   <p>
-    <a href="https://docs.i18nprune.dev">Documentation</a> ·
-    <a href="#quick-start">Quick start</a> ·
-    <a href="https://www.npmjs.com/package/i18nprune">npm</a>
+    <a href="https://i18nprune.dev">Website</a> ·
+    <a href="https://docs.i18nprune.dev">Docs</a> ·
+    <a href="https://releases.i18nprune.dev">Releases</a> ·
+    <a href="#quick-start">Quick start</a>
   </p>
 </div>
 
 ---
 
 Ship reliable i18n workflows across source code, locale files, CI, and hosted review flows. i18nprune runs one shared engine across SDK, CLI, web/report apps, workers, and a VS Code extension host (**in development**).
+
+| Surface | URL | Role |
+|---------|-----|------|
+| **Website** | [i18nprune.dev](https://i18nprune.dev) | Product overview and onboarding |
+| **Documentation** | [docs.i18nprune.dev](https://docs.i18nprune.dev) | CLI, SDK, config, commands, architecture |
+| **Release notes** | [releases.i18nprune.dev](https://releases.i18nprune.dev) | CLI, Core, and Extension version history |
+| **Web app** | [web.i18nprune.dev](https://web.i18nprune.dev) | Hosted project snapshots and workspace links |
+| **Report app** | [report.i18nprune.dev](https://report.i18nprune.dev) | View and share `report --json` documents |
+| **Worker API** | [worker.i18nprune.dev/docs](https://worker.i18nprune.dev/docs) | Share/upload and report ingest OpenAPI |
+| **Meta API** | [meta.i18nprune.dev/docs](https://meta.i18nprune.dev/docs) | Cached GitHub/npm metadata for apps |
 
 ## Install
 
@@ -247,7 +258,7 @@ Reference: [Share command](./docs/commands/share/README.md)
 | JSON + issues | [CLI JSON](./docs/cli/json.md) · [Issues](./docs/issues/README.md) |
 | Deep dives | [Architecture](./docs/architecture/README.md) · [Edge cases](./docs/edge-cases/README.md) |
 
-Live site: [docs.i18nprune.dev](https://docs.i18nprune.dev)
+Hosted docs: [docs.i18nprune.dev](https://docs.i18nprune.dev) · Changelogs: [releases.i18nprune.dev](https://releases.i18nprune.dev)
 
 ## Repository Layout
 
