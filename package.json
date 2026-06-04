@@ -1,6 +1,6 @@
 {
   "name": "i18nprune",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Production-grade i18n toolkit. CLI + stable programmatic API for validation, sync, pruning, generation and quality control of translation files.",
   "type": "module",
   "bin": {
