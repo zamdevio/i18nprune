@@ -92,6 +92,8 @@
     "report:typecheck": "pnpm --filter @i18nprune/report typecheck",
     "report:deploy": "pnpm report:build && wrangler pages deploy apps/report/dist --project-name=report-i18nprune",
     "releases:validate": "pnpm --filter @i18nprune/releases run validate",
+    "releases:generate": "pnpm --filter @i18nprune/releases run generate:catalog",
+    "releases:notes": "pnpm --filter @i18nprune/releases run github-release-body",
     "releases:build": "pnpm --filter @i18nprune/releases run build",
     "releases:typecheck": "pnpm --filter @i18nprune/releases typecheck",
     "releases:dev": "pnpm --filter @i18nprune/releases dev",

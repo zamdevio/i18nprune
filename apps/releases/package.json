@@ -14,7 +14,7 @@
     "build": "vite build",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.scripts.json --noEmit",
+    "typecheck": "pnpm run generate:catalog && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.scripts.json --noEmit",
     "preview": "vite preview",
     "github-release-body": "tsx scripts/github-release-body.ts"
   },
