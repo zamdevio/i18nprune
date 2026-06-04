@@ -7,7 +7,7 @@ import type { ReportEnvironmentSnapshot } from './reportDocument.js';
  *
  * @remarks
  * When `source` is `'file'`, the host reads and validates the JSON file
- * externally (e.g. via `@i18nprune/report`'s Zod schema) and passes the
+ * externally (e.g. via `@i18nprune/core/report-schema`) and passes the
  * parsed object as `preloadedDocument`. Core never touches the filesystem
  * for `--from` files.
  */
@@ -16,7 +16,7 @@ export type ReportRunOptions = {
   source: 'project' | 'file';
   /**
    * Pre-parsed document for `source: 'file'`.
-   * Must match `ProjectReportDocument` shape from `@i18nprune/report`.
+   * Must match `ProjectReportDocument` shape from `@i18nprune/core/report-schema`.
    */
   preloadedDocument?: unknown;
 };
@@ -46,7 +46,7 @@ export type ReportHostHooks = {
 /**
  * JSON `data` shape for the `report` envelope.
  *
- * The `document` field matches `ProjectReportDocument` from `@i18nprune/report`,
+ * The `document` field matches `ProjectReportDocument` from `@i18nprune/core/report-schema`,
  * typed loosely as `Record<string, unknown>` so core does not depend on the
  * report package at the type level.
  */

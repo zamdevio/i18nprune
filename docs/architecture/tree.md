@@ -17,7 +17,7 @@ This page documents repository structure and component relationships.
 ├── packages/
 │   ├── cli/
 │   ├── core/
-│   └── report/
+│   └── ui/
 ├── scripts/
 ├── tests/
 ├── package.json
@@ -32,8 +32,10 @@ This page documents repository structure and component relationships.
 | Surface | Role | Depends on |
 |---|---|---|
 | `packages/core` | Shared operation engines and runtime adapters | — |
-| `packages/report` | Report schema/types (`@i18nprune/report-schema`) | `packages/core`, `apps/report`, `apps/web`, worker |
-| `packages/cli` | Node CLI orchestration and host I/O | `i18nprune/core` |
+| `packages/cli` | Node CLI orchestration and host I/O | `@i18nprune/core` (workspace) |
 | `apps/docs` | Public docs site | root `docs/` content sync |
-| `apps/workers/i18nprune` | Project/workspace API worker | `@i18nprune/core`, `@i18nprune/report-schema` |
+| `apps/extension` | VS Code extension host (**in development**, post-v1) | `@i18nprune/core`, CLI JSON contracts |
+| `apps/web` | Shared workspace web app | `@i18nprune/core`, `@i18nprune/ui` |
+| `apps/report` | Report SPA (embedded in CLI + hosted) | `@i18nprune/core`, `@i18nprune/ui` |
+| `apps/workers/i18nprune` | Project/workspace API worker | `@i18nprune/core` |
 | `apps/workers/meta` | Public metadata API worker | worker runtime only |

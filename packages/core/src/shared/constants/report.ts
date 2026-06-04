@@ -1,4 +1,4 @@
-/** `ProjectReportDocument.kind` wire value (`@i18nprune/report`). */
+/** `ProjectReportDocument.kind` wire value (see `@i18nprune/core/report-schema`). */
 export const PROJECT_REPORT_KIND = 'i18nprune.projectReport' as const;
 
 /** `ProjectReportDocument.schemaVersion` for hosted report ingest. */

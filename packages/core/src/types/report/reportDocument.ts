@@ -4,7 +4,7 @@
  * Core never probes `process.*` or `os.*` directly — the CLI (or any host)
  * fills this and passes it via {@link ReportHostHooks}.
  *
- * @remarks Fields mirror `ProjectReportEnvironment` from `@i18nprune/report`
+ * @remarks Fields mirror `ProjectReportEnvironment` from `@i18nprune/core/report-schema`
  * so the document shape stays consistent without a hard type dependency.
  */
 export type ReportEnvironmentSnapshot = {

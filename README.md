@@ -21,7 +21,7 @@
 
 ---
 
-Ship reliable i18n workflows across source code, locale files, CI, and hosted review flows. i18nprune runs one shared engine across SDK, CLI, web/report apps, and workers.
+Ship reliable i18n workflows across source code, locale files, CI, and hosted review flows. i18nprune runs one shared engine across SDK, CLI, web/report apps, workers, and a VS Code extension host (**in development**).
 
 ## Install
 
@@ -115,6 +115,11 @@ Provider ecosystem:
 
 - `apps/web`: workspace UX for shared project snapshots.
 - `apps/report`: report viewer/import workflows for shared report documents.
+
+### VS Code extension (in development)
+
+- `apps/extension/`: editor host for diagnostics, init/onboarding, and project intelligence — **planned post-v1**, same `@i18nprune/core` engine and CLI `--json` contracts as other hosts (no duplicated scan logic).
+- Planning and sequencing: [`maintainer/phases/extension/README.md`](./maintainer/phases/extension/README.md) (maintainer-only until a public extension doc ships).
 
 ### Workers
 
@@ -250,10 +255,10 @@ Live site: [docs.i18nprune.dev](https://docs.i18nprune.dev)
 |------|----------------|
 | `packages/core/` | Domain engine (`runXxx` ops, cache/share/runtime contracts) |
 | `packages/cli/` | Command host, argv wiring, human and JSON output paths |
-| `packages/report/` | Report schema/types consumed by report surfaces |
 | `packages/ui/` | Shared runtime UI primitives used by web/report/worker docs shell |
 | `apps/web/` | Shared workspace web app |
 | `apps/report/` | Report web app |
+| `apps/extension/` | VS Code extension host (**in development**, post-v1) |
 | `apps/workers/` | Worker APIs (`i18nprune`, `meta`) |
 | `docs/` | Source-of-truth markdown synced into VitePress app |
 

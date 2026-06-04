@@ -425,7 +425,7 @@ export const openApiDocument = {
         tags: ['operations'],
         summary: 'Build CLI-compatible report JSON document from cached project extraction data',
         description:
-          'Returns a payload containing `document` shaped like CLI `report --json` output (schema from `@i18nprune/report`). You can manually import this JSON into [report.i18nprune.dev](https://report.i18nprune.dev) to visualize the full report UI.',
+          'Returns a payload containing `document` shaped like CLI `report --json` output (schema from `@i18nprune/core/report-schema`). You can manually import this JSON into [report.i18nprune.dev](https://report.i18nprune.dev) to visualize the full report UI.',
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
         requestBody: {
           required: false,

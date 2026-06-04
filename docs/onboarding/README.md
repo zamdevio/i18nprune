@@ -49,7 +49,7 @@ This fails the job when validation is not OK.
 | `@i18nprune/core` | Programmatic SDK usage (`@i18nprune/core`) |
 | `report.i18nprune.dev` | Open and troubleshoot report payloads |
 | `workers.i18nprune.dev` | Prepare snapshots and serve shared metadata |
-| Future extension | Optional host surfaces |
+| VS Code extension (`apps/extension/`) | Editor host — **in development**, planned post-v1 (same core engine as CLI) |
 
 ## What to read next
 - [Commands](../commands/README.md)

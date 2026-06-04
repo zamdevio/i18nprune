@@ -30,7 +30,7 @@ Then run:
 | **Commands** | `packages/cli/src/commands/<name>/` | Orchestration only—call `@i18nprune/core`, config helpers, utils. |
 | **Engine** | `packages/core/` | Domain logic: `runXxx`, cache, extractor, share, translator, locales. |
 | **Config** | `packages/core/src/config/` + CLI loaders | Zod schema, `defineConfig`, path resolution. |
-| **Report schema** | `packages/report/` | `ProjectReportDocument` (Zod). |
+| **Report schema** | `packages/core/src/shared/report/` | `ProjectReportDocument` (Zod); import `@i18nprune/core/report-schema`. |
 | **Docs** | `docs/` | VitePress-ready markdown; run **`pnpm docs:sync`** after substantive edits. |
 
 **Conventions:** ESM with **`.js`** suffix in TypeScript import paths (see `tsconfig`), **`I18nPruneError`** for user-facing failures, **`logger`** gates via **`canEmit`**—never bypass policy for “just this once.”
