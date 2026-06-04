@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { SDK_VERSION } from '../../shared/constants/sdk.js';
 import { buildProjectUploadSnapshotMeta } from '../uploadTiming.js';
 import type { ProjectSnapshot } from '../../types/project/upload.js';
 import type { ProjectStoreRow } from '../../types/project/store.js';
@@ -73,7 +74,7 @@ describe('buildProjectUploadSnapshotMeta', () => {
     expect(meta.processor.surface).toBe('cli');
     expect(meta.processor.route).toBe('prepared');
     expect(meta.processor.sdk).toBe('i18nprune-cli');
-    expect(meta.processor.sdkVersion).toBe('0.1.0');
+    expect(meta.processor.sdkVersion).toBe(SDK_VERSION);
     expect(meta.extraction?.cache.projectCacheEnabled).toBe(false);
   });
 
@@ -106,7 +107,7 @@ describe('buildProjectUploadSnapshotMeta', () => {
     expect(meta.processor.surfaceLabel).toBe('Acme CI');
     expect(meta.processor.route).toBe('nightly-upload');
     expect(meta.processor.sdk).toBe('acme-i18n-sdk');
-    expect(meta.processor.sdkVersion).toBe('0.1.0');
+    expect(meta.processor.sdkVersion).toBe(SDK_VERSION);
     expect(meta.extraction?.cache.analysis).toBe('hit');
     expect(meta.extraction?.cache.timingsTrustworthy).toBe(false);
     expect(meta.extraction?.cache.filesEpoch).toBe('epoch-abc');
