@@ -141,4 +141,104 @@ git commit -m "chore: add package metadata and build tooling"
 
 ---
 
+## Version numbers (monorepo)
+
+Three **`0.1.0`** fields stay **aligned** on the v1 line until we intentionally split release cadence:
+
+| Location | `name` | Published to npm? |
+|----------|--------|-------------------|
+| Root `package.json` | `i18nprune` | **Yes** — CLI + `i18nprune/core` subpaths |
+| `packages/core/package.json` | `@i18nprune/core` | **Yes** — scoped SDK (when released) |
+| `packages/cli/package.json` | `@i18nprune/cli` | **No** — `private: true`; version tracks the line for humans only |
+
+**Bump rule:** On a release, set the **same semver** in all three `version` fields in **one commit** before tagging (e.g. `0.1.0` → `0.1.1`). Only root and `@i18nprune/core` get `npm publish`; workspace apps stay on `workspace:*`.
+
+**Pre-release (optional):** `0.2.0-beta.1` in all three if you need npm dist-tags; keep git tag `v0.2.0-beta.1` matching the version string without the `v` prefix mismatch.
+
+---
+
+## Git tags & npm release
+
+Git tags mark **released semver** on `main`. They are **not** a substitute for npm publish — they give humans and CI a stable commit pointer for “what shipped as vX.Y.Z”.
+
+### Tag shape
+
+Use **annotated** tags with a **`v` prefix** matching root `package.json` `version`:
+
+```text
+v0.1.0   →  package.json "version": "0.1.0"
+v0.1.1
+v0.2.0
+```
+
+**Prefer annotated tags** (store tagger, date, message). Lightweight tags are fine for local experiments only.
+
+```bash
+# After version bump + green gates (see below)
+git tag -a v0.1.0 -m "i18nprune 0.1.0 — first public CLI + SDK line"
+git push origin v0.1.0
+```
+
+List / verify:
+
+```bash
+git tag -l 'v*'
+git show v0.1.0
+```
+
+### What to tag
+
+Tag the **commit** that contains:
+
+1. Final **`version`** bump in root + `packages/core` (+ `packages/cli` for alignment).
+2. Changelog / release notes if you maintain them.
+3. Passing **`pnpm typecheck`**, **`pnpm test`**, and **`pnpm run publish:verify`** (root tarball consumer check).
+
+Do **not** tag WIP on `main` without a version bump unless it is an internal marker (avoid ad-hoc tags on main).
+
+### npm publish order (v1 plan)
+
+| Step | Where | Command | npm package |
+|------|--------|---------|-------------|
+| 1 | Repo root | `pnpm run publish:verify` then `npm publish` | `i18nprune` |
+| 2 | Optional same tag | `pnpm run core:build` then `npm publish` from `packages/core` | `@i18nprune/core` |
+
+**CLI first is enough for v1** — the engine ships inside `i18nprune` as `i18nprune/core`. Publish **`@i18nprune/core`** when you want SDK-only installs (`import … from '@i18nprune/core'`). Same git tag **`v0.1.0`** can cover both npm packages if their `version` fields match.
+
+`prepack` on each publishable package runs the build:
+
+- Root **`prepack`** → `cli:build` (root `dist/`).
+- **`packages/core` `prepack`** → `core` tsup build → `packages/core/dist/`.
+
+Always run verify locally before the first publish of a version; npm **`prepack`** is a safety net, not a full test suite.
+
+### dist-tags
+
+First stable public release: default **`latest`**. Pre-releases: `npm publish --tag beta` and document in release notes.
+
+### Recovering from mistakes
+
+| Mistake | Action |
+|---------|--------|
+| Tag on wrong commit (not pushed) | `git tag -d v0.1.0` and re-tag |
+| Tag pushed, npm not published | Delete remote tag (`git push origin :refs/tags/v0.1.0`), fix commit, re-tag |
+| npm published, tag wrong | **Do not** delete npm version; tag the correct commit with a patch bump instead |
+
+Never **`git push --force`** to `main` to fix a release; ship **`0.1.1`** instead.
+
+---
+
+## Checklist before tagging / npm publish
+
+- [ ] `version` aligned: root `i18nprune`, `@i18nprune/core`, `@i18nprune/cli`
+- [ ] `pnpm typecheck` · `pnpm test`
+- [ ] `pnpm run publish:verify` (root tarball)
+- [ ] `pnpm run core:build` (if publishing `@i18nprune/core`)
+- [ ] `npm whoami` / org access for package names
+- [ ] Annotated git tag `vX.Y.Z` on the release commit
+- [ ] `git push origin main` then `git push origin vX.Y.Z`
+- [ ] `npm publish` (root); optional `npm publish` in `packages/core`
+
+---
+
 *See also: [Analysis](./analysis.md) for project structure and [Contributors README](./README.md).*

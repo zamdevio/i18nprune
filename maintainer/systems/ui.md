@@ -107,7 +107,7 @@ Mirror the [core purity contract](../agents/architecture.md#2-core-purity-contra
 | Allowed | Forbidden |
 |---------|-----------|
 | `react`, `react-dom` (peer) | `@i18nprune/core` |
-| Dev: `typescript`, `vitest`, testing libs | `@i18nprune/report-schema`, `i18nprune` |
+| Dev: `typescript`, `vitest`, testing libs | `@i18nprune/core/report-schema`, `i18nprune` |
 | Static `.css` files | `hono`, worker env / route types |
 | Pure TS utils (e.g. clipboard) | `react-router-dom` |
 | | `zod`, `fflate` |

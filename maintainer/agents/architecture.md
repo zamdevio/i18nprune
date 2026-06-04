@@ -10,12 +10,11 @@ How code is organized, where things live, and the rules that keep the codebase h
 packages/
   core/          @i18nprune/core — domain logic, zero side effects
   cli/           i18nprune CLI — thin host (argv, prompts, banners, rendering)
-  report/        Report schema (@i18nprune/report-schema)
   ui/            @i18nprune/ui — runtime cluster UI kit (web, report, worker docs shell)
 
 apps/
   docs/          VitePress documentation site
-  report/        Report SPA (reads core report payloads)
+  report/        Report SPA (@i18nprune/report — consumes @i18nprune/core/report-schema)
   web/           Web runtime (workspace, share)
   landing/       Marketing site (isolated UI domain)
   extension/     VS Code extension + webview (isolated UI domain)

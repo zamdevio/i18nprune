@@ -8,21 +8,25 @@
 
 | Doc | Role |
 |-----|------|
-| [`final.md`](./final.md) | **Release checklist** (current gate) |
-| [`active-phase.md`](./active-phase.md) | **Current sprint focus** |
+| [`active-phase.md`](./active-phase.md) | **Current sprint focus** (post-v1: extension) |
 | [`shipped-slices.md`](./shipped-slices.md) | Closed slices — check before re-implementing |
 
 Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 ---
 
-## Open work
+## Active work
 
 | Doc | Status |
 |-----|--------|
-| [`final.md`](./final.md) | Pre-publish gate (delete after release) |
+| [`extension/README.md`](./extension/README.md) | **Next vertical** — VS Code extension (`apps/extension/`) |
 
-**Reference (shipped, future work):** [`extractor.md`](./extractor.md) · **Extension:** [`extension/README.md`](./extension/README.md)
+**Shipped reference (future hardening, not blockers):**
+
+| Doc | Role |
+|-----|------|
+| [`extractor.md`](./extractor.md) | Session C.1 shipped — extractor improvements + inventory links |
+| [`extension/`](./extension/) | Extension specs (execute per extension README) |
 
 **Systems maps (engineering truth):** [`systems/README.md`](../systems/README.md) — `cache.md`, `share.md`, `extractor.md`, …
 
@@ -33,3 +37,4 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 1. Scope from the **active plan doc** only — one slice per PR.
 2. Close slices in [`shipped-slices.md`](./shipped-slices.md); fold durable notes into [`systems/`](../systems/).
 3. Session noise → **`maintainer/temp/`** only.
+4. **Publish / tag:** checklist in [`agents/git.md`](../agents/git.md) (no separate phase file).

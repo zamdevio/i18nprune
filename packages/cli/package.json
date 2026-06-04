@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "CLI binary and programmatic API source for i18nprune. Private workspace package; the installable npm release is built from the repository root.",
+  "description": "CLI source for i18nprune (workspace-only). Published npm package is the repository root `i18nprune@0.1.0`; keep this version aligned with root and @i18nprune/core.",
   "scripts": {
     "typecheck": "tsc --noEmit --project ../../tsconfig.json"
   },

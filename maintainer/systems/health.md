@@ -14,6 +14,7 @@
 | **Moved/renamed/deleted files or changed barrels** | `pnpm madge:circular` · `pnpm knip` |
 | **Refactor PR (parity-sensitive)** | Above + `tests/parity/` must pass |
 | **Changed root `exports` / `dist/*.d.ts` / npm pack layout** | `pnpm run publish:verify` (see `tests/publish-types/fixture/README.md`) |
+| **Changed `@i18nprune/core` publish `exports` / SDK build** | `pnpm run core:build` · dry-run `npm pack` in `packages/core` |
 | **Optional diagnostics** | `pnpm madge:orphans` · `pnpm madge:leaves` · `pnpm empty:dir` · `pnpm empty:file` |
 | **Optional cleanup (manual review first)** | `pnpm empty:dir:del` · `pnpm empty:file:del` |
 
@@ -39,7 +40,7 @@ Production artifact chain: **`cli:build`** (includes report SPA bundle for embed
 
 ## Structure-change gates
 
-Run these when you touch **`packages/core/src`**, **`packages/cli/src`**, barrels under **`packages/report/src`**, or **`packages/ui/src`**.
+Run these when you touch **`packages/core/src`**, **`packages/cli/src`**, or **`packages/ui/src`**.
 
 ### `pnpm ui:purity`
 
@@ -54,7 +55,6 @@ Detects import cycles in:
 ```txt
 packages/core/src
 packages/cli/src
-packages/report/src
 packages/ui/src
 ```
 

@@ -13,7 +13,7 @@ User-facing docs live in **`docs/`** (synced to VitePress). This page is **maint
 |-------|------|---------------------------|
 | **Engine** | `packages/core` | **Yes** — all domain logic, `runXxx`, cache, extractor, share |
 | **CLI host** | `packages/cli` | Prompts, argv, `--json` envelope wiring, human output |
-| **Report schema** | `packages/report` | Zod document shape for HTML/CSV reports |
+| **Report schema** | `packages/core/src/shared/report/` | Zod document shape for HTML/CSV reports (`@i18nprune/core/report-schema`) |
 | **Runtime UI** | `packages/ui` + `apps/web`, `apps/report`, worker `/docs` | Presentational only — see [`systems/ui.md`](../systems/ui.md) |
 | **Share worker** | `apps/workers/i18nprune` | Hosted API + DO storage; metadata from **core** |
 | **Meta worker** | `apps/workers/meta` | Separate metadata API; Swagger shell may reuse `@i18nprune/ui` |
@@ -153,4 +153,4 @@ CLI should pass **`cwd: ctx.adapters.system.cwd()`** via [`packages/cli/src/shar
 - [`../README.md`](../README.md) — maintainer directory entry
 - [`../phases/README.md`](../phases/README.md) — phase index
 - [`../phases/active-phase.md`](../phases/active-phase.md) — current sprint focus
-- [`../phases/final.md`](../phases/final.md) — one-time pre-publish checklist
+- [`git.md`](./git.md) — publish / tag checklist before npm release

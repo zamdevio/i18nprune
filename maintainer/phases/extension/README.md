@@ -4,7 +4,7 @@
 **Implementation home:** **`apps/extension/`** (this monorepo).  
 **Planning home:** **`maintainer/phases/extension/`** (this file + sibling `*.md` specs).
 
-**Prerequisite:** stable **`@i18nprune/core`**, CLI **`--json`** contracts, and the locked vertical order on core (see **[`../active-phase.md`](../active-phase.md)** — extractor → init → locales before release-grade extension work).
+**Prerequisite:** stable **`@i18nprune/core`** (published SDK subpaths), CLI **`--json`** contracts, and v1 verticals shipped (see **[`../active-phase.md`](../active-phase.md)** — extension is the active post-v1 vertical; extractor hardening is optional follow-up via **[`../extractor.md`](../extractor.md)**).
 
 Update **[`apps/extension/README.md`](../../../apps/extension/README.md)** when the **workspace** entrypoints or scope blurbs change; keep **deep** sequencing and rules **here**.
 
