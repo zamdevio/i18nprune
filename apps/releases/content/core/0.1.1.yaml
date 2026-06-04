@@ -1,0 +1,37 @@
+schemaVersion: 1
+stream: core
+version: 0.1.1
+date: 2026-06-04
+status: stable
+summary: Patch release — first successful public npm publish with publishConfig.access public.
+highlights:
+  - "@i18nprune/core@0.1.1 on npm (dist-tag latest)"
+  - Same engine API as 0.1.0; packaging and registry access fix only
+sections:
+  added: []
+  changed:
+    - "publishConfig.access public on the npm package (required for free-registry scoped publishes)"
+  fixed:
+    - "npm publish E402 \"Payment Required\" when publishing without `--access public`"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install @i18nprune/core@0.1.1"
+    - "No API changes from 0.1.0 — drop-in replacement on the SDK surface"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/0.1.1
+    - label: Core SDK Guide
+      href: https://docs.i18nprune.dev/core/
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@0.1.1
+git:
+  tag: core-v0.1.1
+  githubReleaseUrl: ""
+compat: []
+tags:
+  - patch

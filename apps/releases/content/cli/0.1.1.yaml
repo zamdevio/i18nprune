@@ -1,0 +1,41 @@
+schemaVersion: 1
+stream: cli
+version: 0.1.1
+date: 2026-06-04
+status: stable
+summary: Patch release — public `@i18nprune/core` on npm, docs and README ecosystem links, releases portal.
+highlights:
+  - "First successful public @i18nprune/core@0.1.1 on npm (publishConfig.access public)"
+  - Root README links to i18nprune.dev, docs, releases, web, report, and worker APIs
+  - Landing brand SVG served at /i18nprune.svg
+sections:
+  added: []
+  changed:
+    - "README header uses hosted logo URL and expanded ecosystem link table"
+    - "Monorepo version line aligned at 0.1.1 (root, core, workspace CLI)"
+  fixed:
+    - "Scoped @i18nprune/core npm publish no longer fails with E402 (public access)"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install -g i18nprune@0.1.1"
+    - "Optional: npm install @i18nprune/core@0.1.1 for SDK-only workflows"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/0.1.1
+    - label: CLI Reference
+      href: https://docs.i18nprune.dev/cli/
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@0.1.1
+git:
+  tag: cli-v0.1.1
+  githubReleaseUrl: ""
+compat:
+  - stream: core
+    version: 0.1.1
+tags:
+  - patch

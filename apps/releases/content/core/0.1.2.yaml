@@ -1,0 +1,37 @@
+schemaVersion: 1
+stream: core
+version: 0.1.2
+date: 2026-06-05
+status: stable
+summary: Patch release — `SDK_VERSION` from `package.json` at build time; browser-safe resolver for report SPA.
+highlights:
+  - SDK_VERSION injected via tsup define from packages/core/package.json
+  - Exported resolveSdkVersion() from @i18nprune/core and shared/constants
+  - No node:fs or node:url in version resolver (fixes Vite report bundle)
+sections:
+  added:
+    - "resolveSdkVersion() — same semver as SDK_VERSION for explicit host resolution"
+  changed:
+    - "Version constants use JSON `package.json` import in source instead of filesystem reads"
+  fixed:
+    - "Report app Rollup build error importing fileURLToPath from core version.ts"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install @i18nprune/core@0.1.2"
+    - "No breaking changes to `runXxx()` APIs"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/0.1.2
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@0.1.2
+git:
+  tag: core-v0.1.2
+  githubReleaseUrl: ""
+compat: []
+tags:
+  - patch

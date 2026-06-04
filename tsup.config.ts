@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'tsup';
@@ -5,6 +6,17 @@ import { defineConfig } from 'tsup';
 const root = path.dirname(fileURLToPath(import.meta.url));
 const cliRoot = path.join(root, 'packages', 'cli');
 const coreSrc = path.join(root, 'packages/core/src');
+
+function readPackageVersion(packageJsonPath: string): string {
+  const version = (JSON.parse(readFileSync(packageJsonPath, 'utf8')) as { version?: string }).version;
+  if (!version) {
+    throw new Error(`Missing "version" in ${packageJsonPath}`);
+  }
+  return version;
+}
+
+const rootPackageVersion = readPackageVersion(path.join(root, 'package.json'));
+const corePackageVersion = readPackageVersion(path.join(root, 'packages/core/package.json'));
 
 /** Set by `prepack` / `npm pack` so the published tarball omits source maps and bloated rolled-up `.d.ts`. */
 const publish = process.env.I18NPRUNE_PUBLISH === '1';
@@ -42,6 +54,11 @@ export default defineConfig({
   treeshake: true,
   external: ['jiti', 'zod', '@inquirer/prompts'],
   esbuildOptions(options) {
+    options.define = {
+      ...options.define,
+      __I18NPRUNE_CLI_VERSION__: JSON.stringify(rootPackageVersion),
+      __I18NPRUNE_SDK_VERSION__: JSON.stringify(corePackageVersion),
+    };
     options.alias = {
       '@': path.join(cliRoot, 'src'),
       // Longer paths first so `@i18nprune/core/runtime/*` does not resolve to `src/runtime/node/` (impl dir).

@@ -1,4 +1,19 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'tsup';
+
+const coreRoot = path.dirname(fileURLToPath(import.meta.url));
+
+function readPackageVersion(packageJsonPath: string): string {
+  const version = (JSON.parse(readFileSync(packageJsonPath, 'utf8')) as { version?: string }).version;
+  if (!version) {
+    throw new Error(`Missing "version" in ${packageJsonPath}`);
+  }
+  return version;
+}
+
+const corePackageVersion = readPackageVersion(path.join(coreRoot, 'package.json'));
 
 /** Set by `prepack` so the published SDK tarball omits source maps. */
 const publish = process.env.I18NPRUNE_PUBLISH === '1';
@@ -47,4 +62,10 @@ export default defineConfig({
   splitting: false,
   treeshake: true,
   external: ['zod', 'fflate'],
+  esbuildOptions(options) {
+    options.define = {
+      ...options.define,
+      __I18NPRUNE_SDK_VERSION__: JSON.stringify(corePackageVersion),
+    };
+  },
 });

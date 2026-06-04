@@ -1,3 +1,5 @@
+import { resolveCliVersion } from './version.js';
+
 /**
  * Program name (binary + root command). Used for config filenames, help, banners, etc.
  *
@@ -6,8 +8,8 @@
  */
 export const CLI_NAME = 'i18nprune';
 
-/** Semantic version (keep in sync with package.json). */
-export const CLI_VERSION = '0.1.0';
+/** Semantic version from root `package.json` (injected at `cli:build`; see `version.ts`). */
+export const CLI_VERSION = resolveCliVersion();
 
 /** Config filename base (without extension). Change this to rename the config file across the entire tool. */
 export const CONFIG_BASE_NAME = `${CLI_NAME}.config`;

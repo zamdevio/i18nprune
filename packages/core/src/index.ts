@@ -587,6 +587,7 @@ export {
 } from './shared/constants/project.js';
 export { PROJECT_SHARE_PREPARED_MAX_BYTES, REPORT_SHARE_MAX_BYTES } from './shared/constants/share.js';
 export { SDK_PACKAGE_NAME, SDK_VERSION } from './shared/constants/sdk.js';
+export { resolveSdkVersion } from './shared/constants/version.js';
 export {
   buildWorkerApiError,
   workerBusyError,

@@ -1,0 +1,38 @@
+schemaVersion: 1
+stream: cli
+version: 0.1.2
+date: 2026-06-05
+status: stable
+summary: Patch release — CLI and SDK versions injected at build time from each package’s `package.json`.
+highlights:
+  - "i18nprune version reads semver from root package.json via tsup define"
+  - Report SPA build fixed (core version resolver no longer imports Node-only fs/url)
+sections:
+  added: []
+  changed:
+    - "CLI_VERSION resolved at cli:build from root package.json (esbuild define)"
+    - "Dev tsx falls back to JSON import of root package.json"
+  fixed:
+    - "apps/report Vite build failed when bundling @i18nprune/core version.ts Node imports"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install -g i18nprune@0.1.2"
+    - "Pin `@i18nprune/core@0.1.2` when using the SDK alongside this CLI line"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/0.1.2
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@0.1.2
+git:
+  tag: cli-v0.1.2
+  githubReleaseUrl: ""
+compat:
+  - stream: core
+    version: 0.1.2
+tags:
+  - patch

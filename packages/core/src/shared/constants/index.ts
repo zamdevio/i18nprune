@@ -1,6 +1,7 @@
 export * from './config.js';
 export * from './listDisplay.js';
 export * from './sdk.js';
+export { resolveSdkVersion } from './version.js';
 export * from './cache.js';
 export * from './docs.js';
 export * from './issueCodes.js';
