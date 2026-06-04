@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/i18nprune.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>i18nprune Releases</title>
+    <meta
+      name="description"
+      content="Release history for i18nprune CLI, @i18nprune/core SDK, and the VS Code extension — version notes, install snippets, and compatibility."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="canonical" href="https://releases.i18nprune.dev/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="i18nprune Releases" />
+    <meta property="og:title" content="i18nprune Releases" />
+    <meta
+      property="og:description"
+      content="Independent release streams for CLI, Core SDK, and Extension."
+    />
+    <meta property="og:url" content="https://releases.i18nprune.dev/" />
+    <meta property="og:image" content="https://releases.i18nprune.dev/i18nprune.svg" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="i18nprune Releases" />
+    <meta
+      name="twitter:description"
+      content="Changelogs and upgrade notes for i18nprune packages."
+    />
+
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="i18nprune Releases (RSS)"
+      href="/feed.xml"
+    />
+    <link
+      rel="alternate"
+      type="application/atom+xml"
+      title="i18nprune Releases (Atom)"
+      href="/atom.xml"
+    />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+  </head>
+  <body>
+    <script>
+      (function () {
+        try {
+          var key = 'i18nprune-releases-theme';
+          var stored = localStorage.getItem(key);
+          var dark =
+            stored === 'dark' ||
+            (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (_) {}
+      })();
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

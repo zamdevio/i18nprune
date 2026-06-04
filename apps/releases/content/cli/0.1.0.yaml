@@ -1,0 +1,84 @@
+schemaVersion: 1
+stream: cli
+version: 0.1.0
+date: 2026-06-02
+status: stable
+summary: First public i18nprune CLI on npm — one binary for local dev and CI with a shared JSON contract.
+highlights:
+  - Full v0.1 command surface (validate, sync, generate, report, share, and more)
+  - Global --json, --quiet, and --silent with a single CliJsonEnvelope shape
+  - Resumable generate via --resume and on-disk project cache under ~/.i18nprune
+  - Node 18+ ESM; macOS, Linux, and Windows
+sections:
+  added:
+    - "`init` — scaffold `i18nprune.config.*` and project wiring"
+    - "`config` — print merged config and resolved paths"
+    - "`validate` — match translation calls to locale JSON; stable machine-readable issue codes"
+    - "`missing` — add placeholder values for literal keys missing from locale files"
+    - "`sync` — align target locale JSON structure to source; `--dry-run` preview"
+    - "`generate` — provider-backed translation with `--target`; `--resume` continues partial runs"
+    - "`quality` — english-identical and quality gates for review workflows"
+    - "`review` — human review pass over flagged keys"
+    - "`cleanup` — remove stale locale keys (optional ripgrep-assisted scan)"
+    - "`locales list` — enumerate locale segments, leaf counts, source-identical hints"
+    - "`locales dynamic` — read-only scan for non-literal translation call sites"
+    - "`locales delete` — remove target locale segment files (`--yes` for CI)"
+    - "`languages` (`langs` alias) — language metadata without loading project config"
+    - "`providers` — list configured translation providers"
+    - "`doctor` — CI preflight (config, paths, toolchain, cache health)"
+    - "`report` — emit ReportV1 JSON for dashboards and automation"
+    - "`share` — upload, list, view, and delete hosted report snapshots"
+    - "`patch` — sync i18n loader wiring from `src/i18n/config.json`"
+    - "`help` / `version` — usage and semver output"
+    - "Global flags: `--json`, `--quiet`, `--silent`, `--yes`, `--source`, `--config` / `-c`"
+    - "Argv preprocessing before Commander (`preprocessArgv`) and `preAction` config resolution"
+    - "Canonical subcommand names only (no `gen` / `val` shortcuts); `langs` exception for `languages`"
+    - "Documentation links in help via `getDocsUrl()` from `@i18nprune/core`"
+    - "Project disk cache: `files.json`, `analysis.json`, per-target `translations/<code>.json`"
+    - "Cache profiles `safe`, `balanced`, `fast` with `--cache-profile`, `--no-cache`, `--debug-cache`"
+    - "CLI home layout under `~/.i18nprune` (override with `I18NPRUNE_HOME`)"
+    - "Bundles `@i18nprune/core` 0.1.0 engine (published separately on npm)"
+  changed: []
+  fixed: []
+  removed: []
+  breaking: []
+  security:
+    - "Local-first by default: locale JSON and project cache remain on disk unless you run `share upload`"
+    - "No bundled API keys; translation provider credentials come from your environment or config"
+    - "`preAction` resolves config paths without silently creating credential files"
+    - "Share uploads are explicit; no background telemetry in the CLI"
+  performance:
+    - "Incremental analysis cache with reuse, patch-missingKeys, or full rebuild (locale delta aware)"
+    - "Generate resume reuses translate L1/L2 cache entries for the same targets"
+    - "`--cache-profile` merges with explicit `cache.rebuild` / `cache.mode` overrides in config"
+    - "Version check throttle in `<home>/state/version.json` to avoid excessive registry calls"
+migration:
+  notes:
+    - "First public release — install globally or use `npx` in CI."
+    - "npm install -g i18nprune@0.1.0"
+    - "Pin `@i18nprune/core@0.1.0` in apps that import the SDK alongside the CLI."
+    - "Set `I18NPRUNE_HOME` if the default `~/.i18nprune` cache directory is not suitable."
+  docLinks:
+    - label: CLI overview
+      href: https://docs.i18nprune.dev/cli/
+    - label: Commands index
+      href: https://docs.i18nprune.dev/commands/
+    - label: JSON output (--json)
+      href: https://docs.i18nprune.dev/cli/json
+    - label: CLI cache
+      href: https://docs.i18nprune.dev/cli/cache
+    - label: Onboarding
+      href: https://docs.i18nprune.dev/onboarding/cli
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@0.1.0
+git:
+  tag: cli-v0.1.0
+  githubReleaseUrl: ""
+compat:
+  - stream: core
+    version: 0.1.0
+tags:
+  - feature
+  - cli
+  - ci

@@ -47,7 +47,7 @@ The extractor walks the configured patterns; `validate` then checks that extract
 ### Mitigation
 
 - Provide sensible defaults for common helpers and document when/how to update `functions`.
-- Treat extractor behavior changes as user-facing and reflect them in the changelog for major bumps.
+- Treat extractor behavior changes as user-facing and document them on [releases.i18nprune.dev](https://releases.i18nprune.dev) for major bumps.
 
 ## Alternatives Considered
 

@@ -1,0 +1,9 @@
+dist
+node_modules
+
+# Generated at build time (pnpm generate:catalog)
+src/data/releases.json
+public/data/releases.json
+public/feed.xml
+public/atom.xml
+public/sitemap.xml

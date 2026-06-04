@@ -63,4 +63,4 @@ Key constraints:
 ## References
 
 - [patching — user guide](../../patching/README.md)
-- [Changelog](../../changelog.md)
+- [Release notes](https://releases.i18nprune.dev)

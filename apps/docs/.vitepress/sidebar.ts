@@ -155,7 +155,7 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
       text: 'Release & maintenance',
       collapsed: true,
       items: [
-        { text: 'Changelog', link: '/changelog' },
+        { text: 'Release notes (portal)', link: 'https://releases.i18nprune.dev' },
         { text: 'Update checks & version throttle', link: '/cli/cache' },
       ],
     },

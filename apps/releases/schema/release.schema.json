@@ -1,0 +1,99 @@
+{
+  "$id": "https://releases.i18nprune.dev/schema/release.schema.json",
+  "title": "i18nprune.release/v1",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "stream",
+    "version",
+    "date",
+    "status",
+    "summary",
+    "sections",
+    "migration",
+    "npm",
+    "git"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "stream": { "enum": ["cli", "core", "extension"] },
+    "version": { "type": "string", "minLength": 1 },
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "status": { "enum": ["stable", "prerelease", "deprecated"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "highlights": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "sections": {
+      "type": "object",
+      "required": ["added", "changed", "fixed", "removed", "breaking", "security", "performance"],
+      "additionalProperties": false,
+      "properties": {
+        "added": { "type": "array", "items": { "type": "string" } },
+        "changed": { "type": "array", "items": { "type": "string" } },
+        "fixed": { "type": "array", "items": { "type": "string" } },
+        "removed": { "type": "array", "items": { "type": "string" } },
+        "breaking": { "type": "array", "items": { "type": "string" } },
+        "security": { "type": "array", "items": { "type": "string" } },
+        "performance": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "required": ["notes"],
+      "additionalProperties": false,
+      "properties": {
+        "notes": { "type": "array", "items": { "type": "string" } },
+        "docLinks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "href"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string" },
+              "href": { "type": "string", "format": "uri" }
+            }
+          }
+        }
+      }
+    },
+    "npm": {
+      "type": "object",
+      "required": ["package", "installSnippet"],
+      "additionalProperties": false,
+      "properties": {
+        "package": { "type": "string" },
+        "installSnippet": { "type": "string" }
+      }
+    },
+    "git": {
+      "type": "object",
+      "required": ["tag"],
+      "additionalProperties": false,
+      "properties": {
+        "tag": { "type": "string" },
+        "githubReleaseUrl": { "type": "string" }
+      }
+    },
+    "compat": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "stream": { "enum": ["cli", "core", "extension"] },
+          "version": { "type": "string" },
+          "minVersion": { "type": "string" }
+        },
+        "anyOf": [{ "required": ["stream", "version"] }, { "required": ["stream", "minVersion"] }]
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

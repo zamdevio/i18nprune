@@ -65,4 +65,4 @@ The codebase already has a **single** `translateLeaf` entry point. The **next** 
 - [CLI prompts](../cli/prompts.md)
 - [CLI verbosity](../cli/verbosity.md)
 - [JSON output (`--json`)](../cli/json.md)
-- [Changelog](../changelog.md) — reporting (`stdout redirection`) updates.
+- [Release notes](https://releases.i18nprune.dev) — CLI/Core release history.

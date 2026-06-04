@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 150 10% 98%;
+    --foreground: 160 20% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 160 20% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 20% 8%;
+    --primary: 166 72% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 160 14% 94%;
+    --secondary-foreground: 160 20% 15%;
+    --muted: 150 10% 95%;
+    --muted-foreground: 160 8% 46%;
+    --accent: 160 14% 92%;
+    --accent-foreground: 160 20% 12%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 160 12% 90%;
+    --input: 160 12% 90%;
+    --ring: 166 72% 38%;
+    --chart-1: 166 72% 38%;
+    --chart-2: 195 70% 42%;
+    --chart-3: 265 55% 52%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.625rem;
+    --font-heading: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    --stream-cli: 166 72% 38%;
+    --stream-core: 195 70% 42%;
+    --stream-extension: 265 55% 52%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 160 15% 6%;
+    --foreground: 150 10% 95%;
+    --card: 160 12% 9%;
+    --card-foreground: 150 10% 95%;
+    --popover: 160 12% 9%;
+    --popover-foreground: 150 10% 95%;
+    --primary: 166 72% 45%;
+    --primary-foreground: 160 20% 5%;
+    --secondary: 160 12% 14%;
+    --secondary-foreground: 150 10% 90%;
+    --muted: 160 10% 14%;
+    --muted-foreground: 150 8% 55%;
+    --accent: 160 12% 16%;
+    --accent-foreground: 150 10% 92%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 160 10% 16%;
+    --input: 160 10% 16%;
+    --ring: 166 72% 45%;
+    --chart-1: 166 72% 45%;
+    --chart-2: 195 70% 50%;
+    --chart-3: 265 55% 60%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    --stream-cli: 166 72% 45%;
+    --stream-core: 195 70% 50%;
+    --stream-extension: 265 55% 60%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  /* Bridge @i18nprune/ui runtime components (pagination dropdown, theme-btn) to portal tokens */
+  :root {
+    --ui-bg-elevated: hsl(var(--card));
+    --ui-bg: hsl(var(--background));
+    --ui-fg: hsl(var(--foreground));
+    --ui-fg-muted: hsl(var(--muted-foreground));
+    --ui-border: hsl(var(--border));
+    --ui-primary: hsl(var(--primary));
+    --ui-primary-fg: hsl(var(--primary-foreground));
+    --ui-secondary: hsl(var(--secondary));
+    --ui-radius: var(--radius);
+  }
+}
+
+/* Compact header nav drawer — fully opaque (not inherited from header blur) */
+.header-nav-drawer {
+  background-color: hsl(var(--background));
+}
+
+/* Pagination row-size menu — kit expects --ui-* / --panel; portal only sets Tailwind vars */
+.list-pagination .toolbar-dropdown__menu {
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+  box-shadow: 0 10px 30px hsl(160 15% 4% / 0.35);
+}
+
+.list-pagination .toolbar-dropdown__option:hover,
+.list-pagination .toolbar-dropdown__option.is-active {
+  background: hsl(var(--accent));
+  color: hsl(var(--primary));
+}

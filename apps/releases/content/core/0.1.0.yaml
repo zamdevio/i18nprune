@@ -1,0 +1,79 @@
+schemaVersion: 1
+stream: core
+version: 0.1.0
+date: 2026-06-02
+status: stable
+summary: First public @i18nprune/core — pure TypeScript engine for validate, sync, generate, report, and share with host adapters.
+highlights:
+  - Programmatic `runXxx()` entry points aligned with CLI commands
+  - Node, web, and edge runtime adapters plus sync helpers
+  - ESM subpath exports (`/validate`, `/generate`, `/report-schema`, …)
+  - No `console.*` or direct `process.*` in core — hosts pass `env` and IO adapters
+sections:
+  added:
+    - "`runValidate()` — extraction + locale parity checks; stable issue code taxonomy"
+    - "`runSync()` — structure alignment and locale metadata reporting"
+    - "`runGenerate()` / `runTranslate()` — provider orchestration with resume-friendly cache"
+    - "`runMissing()` — placeholder insertion for literal keys"
+    - "`runQuality()` — english-identical counts and quality JSON payloads"
+    - "`runReview()` — review workflow orchestration"
+    - "`runInit()` — config and project scaffold generation"
+    - "`runPatching()` — loader wiring patches from locale config"
+    - "`runDoctor()` — readiness and environment diagnostics"
+    - "`runReport()` — ReportV1 builder for dashboards"
+    - "`runShare()` plus `runShareList`, `runShareView`, `runShareDelete` — hosted snapshot ops"
+    - "`runLocalesList()` / `runDynamic()` — locale inventory and dynamic call-site scan"
+    - "Locale delete helpers under `locales/delete`"
+    - "`ReportV1` schema published at `@i18nprune/core/report-schema`"
+    - "Project cache policy: `decideAnalysisRebuild`, `resolveCacheConfig`, patch/reuse dispatch"
+    - "Cache profiles (`safe`, `balanced`, `fast`) with explicit config overrides winning"
+    - "Locale read cache (in-memory per run) and translate L1/L2 layers for generate"
+    - "Runtime namespace: `getRunOptions` / `setRunOptions` for JSON, quiet, and silent modes"
+    - "Shared `RunEmitter` event stream for long-running operations"
+    - "Config schema (`I18nPruneConfigParsed`) with Zod validation"
+    - "Subpath exports: `.`, `./shared`, `./types`, `./validate`, `./sync`, `./generate`, `./missing`, `./cleanup`, `./quality`, `./config`, `./init`, `./locales`, `./report-schema`"
+    - "Runtime adapters: `@i18nprune/core/runtime/node`, `/runtime/web`, `/runtime/edge`, `/runtime/helpers/sync`"
+    - "`getDocsUrl()` and command documentation URL helpers for CLI hosts"
+    - "Published as compiled `dist/` via tsup; `prepack` build gate for npm"
+  changed: []
+  fixed: []
+  removed: []
+  breaking: []
+  security:
+    - "Core never logs to stdout/stderr; hosts own all user-visible output"
+    - "File IO only through injected host adapters — no implicit filesystem access"
+    - "Provider credentials resolved in host layer; core does not embed secrets"
+    - "Share payloads are explicit uploads; no background network calls from core alone"
+  performance:
+    - "Incremental analysis reuse when only target locales change; patch missingKeys on source-only deltas"
+    - "Full rescan when source and target locales change together (safe default)"
+    - "`cache.rebuild: full` in config forces full scan regardless of profile"
+    - "Translate L1/L2 caches speed up `generate --resume` without replacing locale JSON truth"
+    - "Tree-shakeable ESM bundles per subpath export"
+migration:
+  notes:
+    - "First public SDK release on npm — use when building tools, CI jobs, or IDE integrations."
+    - "npm install @i18nprune/core@0.1.0"
+    - "Import subpaths matching your operation, e.g. `import { runValidate } from '@i18nprune/core'` or `@i18nprune/core/validate`."
+    - "Pass a Node (or custom) runtime adapter and `env` for any command that touches disk or network."
+    - "CLI users typically do not need a separate core install; the global CLI bundles this version."
+  docLinks:
+    - label: Core SDK (docs site)
+      href: https://docs.i18nprune.dev/core/
+    - label: Report schema
+      href: https://docs.i18nprune.dev/commands/report
+    - label: Architecture — command boundary
+      href: https://docs.i18nprune.dev/architecture/decisions/006-command-orchestrator-boundary
+    - label: CLI cache (project disk layout)
+      href: https://docs.i18nprune.dev/cli/cache
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@0.1.0
+git:
+  tag: core-v0.1.0
+  githubReleaseUrl: ""
+compat: []
+tags:
+  - feature
+  - sdk
+  - api

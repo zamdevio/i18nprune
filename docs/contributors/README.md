@@ -78,4 +78,4 @@ Be respectful in issues and reviews. Technical disagreement is expected; harassm
 ## See also
 
 - [Workflow](../workflow.md) — local commands
-- [Changelog](../changelog.md) — recent product direction and release notes
+- [Release notes](https://releases.i18nprune.dev) — CLI, Core, and Extension changelogs

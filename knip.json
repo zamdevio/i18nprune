@@ -30,6 +30,10 @@
     "packages/ui": {
       "entry": ["src/**/*.{ts,tsx}"],
       "project": ["src/**/*.{ts,tsx}"]
+    },
+    "apps/releases": {
+      "entry": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
+      "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"]
     }
   }
 }
