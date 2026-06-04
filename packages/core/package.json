@@ -4,96 +4,122 @@
   "private": false,
   "type": "module",
   "description": "Pure domain engine package for i18nprune.",
+  "license": "MIT",
   "sideEffects": false,
   "engines": {
     "node": ">=18"
   },
   "scripts": {
+    "build": "tsup --config tsup.config.ts && tsup --config tsup.subpaths-dts.config.ts && node ../../scripts/dts/fix-core-dts.mjs --no-test --dts=packages/core/dist/index.d.ts",
+    "prepack": "I18NPRUNE_PUBLISH=1 pnpm run build",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "dependencies": {
     "fflate": "^0.8.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
+    "tsup": "^8.5.0",
     "typescript": "^5.9.0",
     "vitest": "^3.2.0"
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./shared": {
-      "types": "./src/shared/index.ts",
-      "default": "./src/shared/index.ts"
+      "types": "./dist/shared.d.ts",
+      "import": "./dist/shared.js",
+      "default": "./dist/shared.js"
     },
     "./types": {
-      "types": "./src/types/index.ts",
-      "default": "./src/types/index.ts"
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js",
+      "default": "./dist/types.js"
     },
     "./types/shared": {
-      "types": "./src/types/shared/index.ts",
-      "default": "./src/types/shared/index.ts"
+      "types": "./dist/types/shared.d.ts",
+      "import": "./dist/types/shared.js",
+      "default": "./dist/types/shared.js"
     },
     "./locales": {
-      "types": "./src/namespaces/locales.ts",
-      "default": "./src/namespaces/locales.ts"
+      "types": "./dist/locales.d.ts",
+      "import": "./dist/locales.js",
+      "default": "./dist/locales.js"
     },
     "./generate": {
-      "types": "./src/generate/index.ts",
-      "default": "./src/generate/index.ts"
+      "types": "./dist/generate.d.ts",
+      "import": "./dist/generate.js",
+      "default": "./dist/generate.js"
     },
     "./init": {
-      "types": "./src/init/index.ts",
-      "default": "./src/init/index.ts"
+      "types": "./dist/init.d.ts",
+      "import": "./dist/init.js",
+      "default": "./dist/init.js"
     },
     "./config": {
-      "types": "./src/config/index.ts",
-      "default": "./src/config/index.ts"
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js",
+      "default": "./dist/config.js"
     },
     "./report-schema": {
-      "types": "./src/shared/report/index.ts",
-      "default": "./src/shared/report/index.ts"
+      "types": "./dist/report-schema.d.ts",
+      "import": "./dist/report-schema.js",
+      "default": "./dist/report-schema.js"
     },
     "./sync": {
-      "types": "./src/sync/index.ts",
-      "default": "./src/sync/index.ts"
+      "types": "./dist/sync.d.ts",
+      "import": "./dist/sync.js",
+      "default": "./dist/sync.js"
     },
     "./validate": {
-      "types": "./src/validate/index.ts",
-      "default": "./src/validate/index.ts"
+      "types": "./dist/validate.d.ts",
+      "import": "./dist/validate.js",
+      "default": "./dist/validate.js"
     },
     "./missing": {
-      "types": "./src/missing/index.ts",
-      "default": "./src/missing/index.ts"
+      "types": "./dist/missing.d.ts",
+      "import": "./dist/missing.js",
+      "default": "./dist/missing.js"
     },
     "./cleanup": {
-      "types": "./src/cleanup/index.ts",
-      "default": "./src/cleanup/index.ts"
+      "types": "./dist/cleanup.d.ts",
+      "import": "./dist/cleanup.js",
+      "default": "./dist/cleanup.js"
     },
     "./quality": {
-      "types": "./src/quality/index.ts",
-      "default": "./src/quality/index.ts"
+      "types": "./dist/quality.d.ts",
+      "import": "./dist/quality.js",
+      "default": "./dist/quality.js"
     },
     "./runtime/node": {
-      "types": "./src/runtime/exports/node.ts",
-      "default": "./src/runtime/exports/node.ts"
+      "types": "./dist/runtime/node.d.ts",
+      "import": "./dist/runtime/node.js",
+      "default": "./dist/runtime/node.js"
     },
     "./runtime/web": {
-      "types": "./src/runtime/exports/web.ts",
-      "default": "./src/runtime/exports/web.ts"
+      "types": "./dist/runtime/web.d.ts",
+      "import": "./dist/runtime/web.js",
+      "default": "./dist/runtime/web.js"
     },
     "./runtime/edge": {
-      "types": "./src/runtime/exports/edge.ts",
-      "default": "./src/runtime/exports/edge.ts"
+      "types": "./dist/runtime/edge.d.ts",
+      "import": "./dist/runtime/edge.js",
+      "default": "./dist/runtime/edge.js"
     },
     "./runtime/helpers/sync": {
-      "types": "./src/runtime/exports/helpers/sync.ts",
-      "default": "./src/runtime/exports/helpers/sync.ts"
+      "types": "./dist/runtime/helpers/sync.d.ts",
+      "import": "./dist/runtime/helpers/sync.js",
+      "default": "./dist/runtime/helpers/sync.js"
     }
   }
 }

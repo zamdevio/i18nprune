@@ -7,7 +7,8 @@
  * `declare const ns_Foo: typeof Foo` lines where `Foo` is type-only (TS2693).
  *
  * Usage:
- *   node scripts/dts/fix-core-dts.mjs --no-test   # post cli:build — sanitize dist/core.d.ts
+ *   node scripts/dts/fix-core-dts.mjs --no-test   # sanitize dist/core.d.ts (default)
+ *   node scripts/dts/fix-core-dts.mjs --no-test --dts=packages/core/dist/index.d.ts
  *   node scripts/dts/fix-core-dts.mjs --test      # assert no invalid aliases (CI / vitest)
  */
 
@@ -16,11 +17,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const coreDtsPath = path.join(repoRoot, 'dist', 'core.d.ts');
 
 const argv = process.argv.slice(2);
 const runTests = argv.includes('--test');
 const fixFile = argv.includes('--no-test') || (!runTests && !argv.includes('--test-only'));
+
+const dtsFlag = argv.find((arg) => arg.startsWith('--dts='));
+const coreDtsPath = dtsFlag
+  ? path.resolve(repoRoot, dtsFlag.slice('--dts='.length))
+  : path.join(repoRoot, 'dist', 'core.d.ts');
 
 /**
  * @param {string} content
@@ -161,7 +166,21 @@ declare namespace translator {
   assertNoInvalidAliases('sanitized sample', sanitized);
 
   if (fs.existsSync(coreDtsPath)) {
-    assertNoInvalidAliases('dist/core.d.ts', fs.readFileSync(coreDtsPath, 'utf8'));
+    const dts = fs.readFileSync(coreDtsPath, 'utf8');
+    assertNoInvalidAliases(coreDtsPath, dts);
+
+    if (coreDtsPath.endsWith('packages/core/dist/index.d.ts')) {
+      if (/declare namespace validate \{\s*export \{\};\s*\}/.test(dts)) {
+        throw new Error(
+          `${coreDtsPath}: declare namespace validate is empty — use index-only DTS rollup in packages/core/tsup.config.ts`,
+        );
+      }
+      if (!dts.includes('validate_computeMissingLiteralKeysFromResolvedKeys')) {
+        throw new Error(
+          `${coreDtsPath}: missing validate_computeMissingLiteralKeysFromResolvedKeys in rolled index.d.ts`,
+        );
+      }
+    }
   }
 }
 
@@ -189,7 +208,7 @@ if (invokedDirectly) {
       runCoreDtsTests();
     }
     if (!fixFile && !runTests) {
-      console.error('Usage: node scripts/dts/fix-core-dts.mjs --no-test | --test');
+      console.error('Usage: node scripts/dts/fix-core-dts.mjs --no-test [--dts=path] | --test');
       process.exit(1);
     }
   } catch (err) {

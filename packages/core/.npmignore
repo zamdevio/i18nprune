@@ -1,0 +1,2 @@
+# Source maps are for monorepo debugging only (see I18NPRUNE_PUBLISH=1 on prepack).
+**/*.map
