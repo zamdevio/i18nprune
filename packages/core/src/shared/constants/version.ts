@@ -1,3 +1,4 @@
+/// <reference path="./injected.d.ts" />
 import corePkg from '../../../package.json' with { type: 'json' };
 
 /** SDK semver: injected in `packages/core/dist` at build; falls back to `package.json` in source/dev. */
