@@ -9,12 +9,12 @@
   ],
   "tasks": {
     "typecheck": {
-      "dependsOn": ["^typecheck", "@i18nprune/core#build"],
+      "dependsOn": ["^typecheck", "@i18nprune/core#build", "@i18nprune/seo#build"],
       "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "tsconfig.*.json"],
       "outputs": []
     },
     "build": {
-      "dependsOn": ["^typecheck"],
+      "dependsOn": ["^build", "^typecheck"],
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["dist/**", "out/**", ".vitepress/dist/**"]
     },

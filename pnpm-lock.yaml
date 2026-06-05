@@ -37,6 +37,9 @@ importers:
       '@i18nprune/core':
         specifier: workspace:*
         version: link:packages/core
+      '@i18nprune/seo':
+        specifier: workspace:*
+        version: link:packages/seo
       '@types/node':
         specifier: ^22.10.0
         version: 22.19.17
@@ -70,10 +73,16 @@ importers:
 
   apps/docs:
     dependencies:
+      '@i18nprune/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       vitepress:
         specifier: next
         version: 2.0.0-alpha.17(@types/node@22.19.17)(axios@1.15.0)(jiti@2.6.1)(lightningcss@1.32.0)(postcss@8.5.14)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.9.0)
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260515.1
+        version: 4.20260515.1
       vue:
         specifier: ^3.5.27
         version: 3.5.33(typescript@5.9.3)
@@ -148,9 +157,9 @@ importers:
 
   apps/landing:
     dependencies:
-      '@resvg/resvg-wasm':
-        specifier: ^2.6.2
-        version: 2.6.2
+      '@i18nprune/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@shikijs/langs':
         specifier: 4.0.2
         version: 4.0.2
@@ -206,6 +215,9 @@ importers:
 
   apps/releases:
     dependencies:
+      '@i18nprune/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@i18nprune/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -246,6 +258,9 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.19(tsx@4.21.0)(yaml@2.9.0))
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260515.1
+        version: 4.20260515.1
       '@eslint/js':
         specifier: ^9.19.0
         version: 9.39.4
@@ -321,6 +336,9 @@ importers:
       '@i18nprune/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@i18nprune/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@i18nprune/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -337,6 +355,9 @@ importers:
         specifier: ^6.28.0
         version: 6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260515.1
+        version: 4.20260515.1
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
@@ -361,6 +382,9 @@ importers:
       '@i18nprune/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@i18nprune/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@i18nprune/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -380,6 +404,9 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260515.1
+        version: 4.20260515.1
       '@types/prismjs':
         specifier: ^1.26.6
         version: 1.26.6
@@ -404,6 +431,9 @@ importers:
       '@i18nprune/core':
         specifier: workspace:*
         version: link:../../../packages/core
+      '@i18nprune/seo':
+        specifier: workspace:*
+        version: link:../../../packages/seo
       '@i18nprune/ui':
         specifier: workspace:*
         version: link:../../../packages/ui
@@ -426,6 +456,9 @@ importers:
       '@i18nprune/core':
         specifier: workspace:*
         version: link:../../../packages/core
+      '@i18nprune/seo':
+        specifier: workspace:*
+        version: link:../../../packages/seo
       '@i18nprune/ui':
         specifier: workspace:*
         version: link:../../../packages/ui
@@ -471,8 +504,33 @@ importers:
         specifier: ^3.2.0
         version: 3.2.4(@types/debug@4.1.13)(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.9.0)
 
+  packages/seo:
+    dependencies:
+      '@resvg/resvg-wasm':
+        specifier: ^2.6.2
+        version: 2.6.2
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260515.1
+        version: 4.20260515.1
+      '@types/node':
+        specifier: ^22.10.0
+        version: 22.19.17
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.14)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.9.0)
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.0
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.9.0)
+
   packages/ui:
     dependencies:
+      '@i18nprune/seo':
+        specifier: workspace:*
+        version: link:../seo
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.5(react@18.3.1))(react@18.3.1)

@@ -26,6 +26,7 @@ export default defineConfig({
     include: [
       'packages/core/src/**/__tests__/**/*.test.ts',
       'packages/cli/src/**/__tests__/**/*.test.ts',
+      'packages/seo/src/**/__tests__/**/*.test.ts',
       'apps/report/src/**/__tests__/**/*.test.ts',
       'apps/workers/i18nprune/src/**/__tests__/**/*.test.ts',
       'tests/**/__tests__/**/*.test.ts',

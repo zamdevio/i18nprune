@@ -39,7 +39,11 @@
         "packages/core/src/*",
         "packages/core/src/*/index.ts"
       ],
-      "@i18nprune/core/report-schema": ["packages/core/src/shared/report/index.ts"]
+      "@i18nprune/core/report-schema": ["packages/core/src/shared/report/index.ts"],
+      "@i18nprune/seo": ["packages/seo/src/index.ts"],
+      "@i18nprune/seo/*": ["packages/seo/src/*", "packages/seo/src/*/index.ts"],
+      "@i18nprune/ui": ["packages/ui/src/index.ts"],
+      "@i18nprune/ui/*": ["packages/ui/src/*", "packages/ui/src/*/index.ts"]
     }
   },
   "include": [

@@ -1,0 +1,54 @@
+{
+  "name": "@i18nprune/seo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared SEO constants, JSON-LD builders, and head helpers for i18nprune web surfaces.",
+  "scripts": {
+    "build": "pnpm run typecheck && tsup --config tsup.config.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "functions"
+  ],
+  "dependencies": {
+    "@resvg/resvg-wasm": "^2.6.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260515.1",
+    "@types/node": "^22.10.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./vite": {
+      "types": "./dist/vite/index.d.ts",
+      "import": "./dist/vite/index.js",
+      "default": "./dist/vite/index.js"
+    },
+    "./assets/sync": {
+      "types": "./dist/assets/sync.d.ts",
+      "import": "./dist/assets/sync.js",
+      "default": "./dist/assets/sync.js"
+    },
+    "./og": {
+      "types": "./dist/og/index.d.ts",
+      "import": "./dist/og/index.js",
+      "default": "./dist/og/index.js"
+    },
+    "./pages/middleware": {
+      "types": "./dist/pages/middleware.d.ts",
+      "import": "./dist/pages/middleware.js",
+      "default": "./dist/pages/middleware.js"
+    }
+  }
+}
