@@ -401,7 +401,7 @@ program
   .command('cleanup')
   .description('Remove unused keys (ripgrep safety on src/ by default; --no-rg to skip)')
   .option('--dry-run', 'preview removals; no writes', false)
-  .option('--no-rg', 'skip ripgrep string-presence guard (static unused-key list only)', false)
+  .option('--no-rg', 'skip ripgrep string-presence guard (static unused-key list only)')
   .option(
     '--ask',
     'interactive TTY: confirm removals in batches (grouped by top-level key namespace); overridden by global --yes',

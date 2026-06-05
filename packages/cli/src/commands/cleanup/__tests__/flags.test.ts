@@ -10,4 +10,9 @@ describe('resolveCleanupNoRg', () => {
   it('accepts explicit noRg', () => {
     expect(resolveCleanupNoRg({ noRg: true })).toBe(true);
   });
+
+  it('defaults to ripgrep enabled when flag omitted', () => {
+    expect(resolveCleanupNoRg({ rg: true })).toBe(false);
+    expect(resolveCleanupNoRg({})).toBe(false);
+  });
 });

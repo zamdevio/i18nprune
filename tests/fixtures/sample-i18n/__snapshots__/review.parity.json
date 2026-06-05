@@ -5,25 +5,26 @@
     "locales": {
       "ar.json": {
         "bySource": {
-          "manual": 29
+          "google-heuristic": 14,
+          "llm-heuristic": 1
         },
         "byStatus": {
-          "translated": 29
+          "translated": 15
         },
         "confidenceBuckets": {
-          "high": 0,
+          "high": 1,
           "low": 0,
-          "mid": 0,
-          "none": 29
+          "mid": 13,
+          "none": 1
         },
-        "englishIdentical": 4,
+        "englishIdentical": 0,
         "legacyLeaves": 0,
-        "needsReviewFalse": 0,
-        "needsReviewTrue": 29,
+        "needsReviewFalse": 14,
+        "needsReviewTrue": 1,
         "needsReviewUnset": 0,
-        "stringPaths": 29,
-        "structuredLeaves": 29,
-        "structuredLeavesMissingConfidence": 29,
+        "stringPaths": 15,
+        "structuredLeaves": 15,
+        "structuredLeavesMissingConfidence": 1,
         "structuredLeavesMissingNeedsReview": 0
       }
     },

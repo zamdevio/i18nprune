@@ -174,10 +174,10 @@ export function runCleanup(
 
   const eff = resolveReferenceConfig('cleanup', ctx.config);
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'cleanup', runId: host.runId });
-  const dynamicSites = analysis.dynamicSites;
+  const dynamic = analysis.dynamicSites;
   const refCtx = buildKeyReferenceContextFromLiteralUsageAndDynamicSites(
     analysis.usage,
-    dynamicSites,
+    dynamic,
     eff,
   );
   const leaves = readCleanupSourceLeaves(ctx);
@@ -224,11 +224,11 @@ export function runCleanup(
     }
   }
 
-  if (dynamicSites.length > 0) {
+  if (dynamic.length > 0) {
     emitCleanupMessage(host, {
       level: 'warn',
-      message: `${String(dynamicSites.length)} translation call(s) use a non-literal key — cleanup literal-key inference may miss usage; tighten \`reference\` uncertain-key rules or inspect \`i18nprune validate\` / \`locales dynamic\`.`,
-      data: { dynamicKeySites: dynamicSites.length },
+      message: `${String(dynamic.length)} translation call(s) use a non-literal key — cleanup literal-key inference may miss usage; tighten \`reference\` uncertain-key rules or inspect \`i18nprune validate\` / \`locales dynamic\`.`,
+      data: { dynamic: dynamic.length },
     });
   }
 
@@ -259,14 +259,14 @@ export function runCleanup(
   const safeToRemove = stringPresence.safeToRemove;
   const writePlan = createCleanupSourceWritePlan(ctx, safeToRemove);
   const issues = [
-    ...issuesFromDynamicScanCount(dynamicSites.length),
+    ...issuesFromDynamicScanCount(dynamic.length),
     ...issuesFromCleanupUncertainExcluded(excludedUncertain),
     ...issuesFromCleanupStringPresenceUnavailable({ skipStringPresenceCheck, stringPresenceAvailable }),
   ];
   const payload = {
     wouldRemove: safeToRemove.length,
     keys: safeToRemove,
-    dynamicKeySites: dynamicSites.length,
+    dynamic: dynamic.length,
     uncertainPrefixes: refCtx.uncertainPrefixes,
   };
 
@@ -283,7 +283,7 @@ export function runCleanup(
     candidateKeys: candidates,
     safeToRemove,
     excludedUncertain,
-    dynamicSites,
+    dynamic,
     keyObservationsCount: analysis.keyObservations.length,
     stringPresenceAvailable,
     stringPresenceEvidence: stringPresence.evidence,

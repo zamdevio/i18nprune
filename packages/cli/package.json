@@ -1,7 +1,7 @@
 {
   "name": "@i18nprune/cli",
   "private": true,
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "description": "Workspace-only CLI sources for i18nprune. The installable npm binary is the repository root package (i18nprune), not @i18nprune/cli. Keep version aligned with root package.json and @i18nprune/core on every release.",
   "scripts": {

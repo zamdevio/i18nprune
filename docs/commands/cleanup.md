@@ -43,7 +43,7 @@ i18nprune cleanup --ask
 
 - `wouldRemove`
 - `keys[]`
-- `dynamicKeySites`
+- `dynamic`
 - `uncertainPrefixes[]`
 - optional `summary` (`durationMs`, `command`, `ok`, `counts`)
 

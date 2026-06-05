@@ -333,11 +333,11 @@ describe('CLI against sample-i18n fixture', () => {
     const d = j.data as {
       wouldRemove?: number;
       keys?: string[];
-      dynamicKeySites?: number;
+      dynamic?: number;
     };
     expect(typeof d.wouldRemove).toBe('number');
     expect(Array.isArray(d.keys)).toBe(true);
-    expect(typeof d.dynamicKeySites).toBe('number');
+    expect(typeof d.dynamic).toBe('number');
   });
 
   it('locales dynamic --json respects global --top and --full', () => {

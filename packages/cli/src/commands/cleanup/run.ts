@@ -72,7 +72,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
               durationMs,
               command: 'cleanup',
               ok: false,
-              counts: { remove: d.wouldRemove, dynamicKeySites: d.dynamicKeySites },
+              counts: { remove: d.wouldRemove, dynamic: d.dynamic },
             },
           },
         };
@@ -106,7 +106,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
             durationMs,
             command: 'cleanup',
             ok: envelope.ok,
-            counts: { remove: d.wouldRemove, dynamicKeySites: d.dynamicKeySites },
+            counts: { remove: d.wouldRemove, dynamic: d.dynamic },
           },
         },
       };
@@ -121,7 +121,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
     const result = executeCore(ctx, opts, runtime);
     const summaryIssues = result.envelope.issues;
     const extractionBaseline = {
-      dynamic: result.dynamicSites.length,
+      dynamic: result.dynamic.length,
       keyObservations: result.keyObservationsCount,
     };
 
@@ -142,7 +142,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
           counts: {
             removedPaths: 0,
             filesWritten: 0,
-            dynamicKeySites: extractionBaseline.dynamic,
+            dynamic: extractionBaseline.dynamic,
             keyObservations: extractionBaseline.keyObservations,
           },
           issues: summaryIssues,
@@ -161,7 +161,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
           command: 'cleanup',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { removedPaths: 0, filesWritten: 0, dynamicKeySites: result.dynamicSites.length },
+          counts: { removedPaths: 0, filesWritten: 0, dynamic: result.dynamic.length },
           issues: summaryIssues,
         },
         ctx,

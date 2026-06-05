@@ -1,0 +1,40 @@
+schemaVersion: 1
+stream: core
+version: 0.1.3
+date: 2026-06-05
+status: stable
+summary: Patch release — cleanup JSON envelope uses `dynamic` for non-literal key site count; run-event counts aligned.
+highlights:
+  - "`CleanupJsonOutput.dynamic` replaces `dynamicKeySites` on cleanup payloads"
+  - "`CleanupJsonRunSummary.counts.dynamic` and `CleanupCounts.dynamic` for run summaries"
+sections:
+  added: []
+  changed:
+    - "cleanup JSON payload field `dynamicKeySites` renamed to `dynamic`"
+    - "cleanup run.summary / embedded summary counts use `dynamic`"
+    - "cleanup progress warn `data` uses `dynamic` for site count"
+  fixed: []
+  removed: []
+  breaking:
+    - "`cleanup --json` / `CleanupJsonOutput`: read `data.dynamic` instead of `data.dynamicKeySites`"
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install @i18nprune/core@0.1.3"
+    - "Update jq and SDK parsers: `.data.dynamicKeySites` → `.data.dynamic` on cleanup envelopes"
+    - "No changes to `runCleanup()` orchestration signatures; payload shape field rename only"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/0.1.3
+    - label: cleanup command
+      href: https://docs.i18nprune.dev/commands/cleanup
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@0.1.3
+git:
+  tag: core-v0.1.3
+  githubReleaseUrl: ""
+compat: []
+tags:
+  - patch

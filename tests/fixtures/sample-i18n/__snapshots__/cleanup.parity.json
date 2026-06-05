@@ -1,42 +1,19 @@
 {
   "data": {
-    "dynamicKeySites": 3,
-    "keys": [
-      "app.description",
-      "app.greeting",
-      "app.nav.home",
-      "app.nav.contact",
-      "app.nav.profile",
-      "app.nav.logout",
-      "user.login.title",
-      "user.login.email",
-      "user.login.password",
-      "user.login.submit",
-      "user.login.forgot",
-      "user.register.title",
-      "user.register.email",
-      "user.register.password",
-      "user.register.submit",
-      "user.profile.edit",
-      "user.profile.save",
-      "user.profile.cancel",
-      "user.profile.delete",
-      "notifications.success",
-      "notifications.error",
-      "notifications.logout"
-    ],
+    "dynamic": 3,
+    "keys": [],
     "summary": {
       "command": "cleanup",
       "counts": {
-        "dynamicKeySites": 3,
-        "remove": 22
+        "dynamic": 3,
+        "remove": 0
       },
       "ok": true
     },
     "uncertainPrefixes": [
       "app.footer"
     ],
-    "wouldRemove": 22
+    "wouldRemove": 0
   },
   "issues": [
     {

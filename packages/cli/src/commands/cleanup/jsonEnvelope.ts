@@ -29,7 +29,7 @@ export function emptyCleanupPayload(): CleanupJsonOutput {
   return {
     wouldRemove: 0,
     keys: [],
-    dynamicKeySites: 0,
+    dynamic: 0,
     uncertainPrefixes: [],
   };
 }
@@ -68,7 +68,7 @@ export function executeCore(
       at: nowMs(),
       ok: envelope.ok,
       issueCount: envelope.issues.length,
-      counts: { wouldRemove: envelope.data.wouldRemove, dynamicKeySites: envelope.data.dynamicKeySites },
+      counts: { wouldRemove: envelope.data.wouldRemove, dynamic: envelope.data.dynamic },
     });
     return { ...out, envelope };
   } catch (err) {

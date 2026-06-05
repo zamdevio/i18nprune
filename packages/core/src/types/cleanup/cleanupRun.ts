@@ -8,13 +8,13 @@ export type CleanupJsonRunSummary = {
   durationMs: number;
   command: 'cleanup';
   ok: boolean;
-  counts: { remove: number; dynamicKeySites: number };
+  counts: { remove: number; dynamic: number };
 };
 
 export type CleanupJsonOutput = {
   wouldRemove: number;
   keys: string[];
-  dynamicKeySites: number;
+  dynamic: number;
   uncertainPrefixes: string[];
   /** Present when the CLI emits the final `cleanup` envelope. */
   summary?: CleanupJsonRunSummary;
@@ -66,7 +66,7 @@ export type CleanupRunResult = {
   candidateKeys: string[];
   safeToRemove: string[];
   excludedUncertain: number;
-  dynamicSites: readonly DynamicKeySite[];
+  dynamic: readonly DynamicKeySite[];
   keyObservationsCount: number;
   stringPresenceAvailable: boolean;
   stringPresenceEvidence: CleanupStringPresenceEvidence[];

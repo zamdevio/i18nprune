@@ -232,7 +232,7 @@ packages:
     engines: {node: '>=18'}
 
   i18nprune@file:../../../i18nprune-0.1.0.tgz:
-    resolution: {integrity: sha512-lsRV4QmxjZtH6ftzlEdAmJRpX8kZSZnebnBjVlzefMzz94moD6Af/OmoOIOg8sT00qwO7oK7KVDtr6ZSVeIG4w==, tarball: file:../../../i18nprune-0.1.0.tgz}
+    resolution: {integrity: sha512-1bptu3T/OWj1ROnaGMm0C1IofbbgSePDdRyQatWE2aXfREP3CHd40IddA7APLn4Lk1wfSyDNLBtxbbIEhknDdg==, tarball: file:../../../i18nprune-0.1.0.tgz}
     version: 0.1.0
     engines: {node: '>=18'}
     hasBin: true

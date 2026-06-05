@@ -81,7 +81,7 @@ export type MissingCounts = {
 
 export type CleanupCounts = {
   wouldRemove: number;
-  dynamicKeySites: number;
+  dynamic: number;
 };
 
 export type LocalesDynamicCounts = {

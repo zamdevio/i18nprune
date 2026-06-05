@@ -1,0 +1,41 @@
+schemaVersion: 1
+stream: cli
+version: 0.1.3
+date: 2026-06-05
+status: stable
+summary: Patch release — cleanup ripgrep guard default fixed; cleanup summaries and JSON counts use `dynamic` (aligned with other commands).
+highlights:
+  - "cleanup runs ripgrep string-presence checks by default again (no false `--no-rg` notice)"
+  - "Human summary and `cleanup --json` summary counts use `dynamic=` like validate, quality, and sync"
+sections:
+  added: []
+  changed:
+    - "cleanup human footer and embedded `data.summary.counts` use `dynamic` instead of `dynamicKeySites`"
+    - "cleanup `--json` payload field renamed to `data.dynamic` (see core 0.1.3 migration)"
+  fixed:
+    - "Commander `--no-rg` default no longer disables ripgrep on every cleanup run without the flag"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install -g i18nprune@0.1.3"
+    - "Pin `@i18nprune/core@0.1.3` when using the SDK alongside this CLI line"
+    - "JSON consumers: replace `.data.dynamicKeySites` with `.data.dynamic` on `cleanup --json` envelopes"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/0.1.3
+    - label: cleanup command
+      href: https://docs.i18nprune.dev/commands/cleanup
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@0.1.3
+git:
+  tag: cli-v0.1.3
+  githubReleaseUrl: ""
+compat:
+  - stream: core
+    version: 0.1.3
+tags:
+  - patch
