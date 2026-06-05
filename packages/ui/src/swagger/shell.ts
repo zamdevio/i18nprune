@@ -1,3 +1,5 @@
+import { renderFaviconHeadTags, renderPageHeadTags } from '@i18nprune/seo';
+
 import { getSwaggerUiAssets, getSwaggerUiCdnAssets } from './assets.js';
 import { escapeHtml } from './escape.js';
 import { swaggerOverridesCss } from './overrides-css.js';
@@ -44,6 +46,7 @@ export function renderSwaggerShell(options: SwaggerShellOptions): string {
     .map((link) => renderHeaderLink(link, 'i18nprune-swagger-nav-sidebar__link'))
     .join('');
 
+  const faviconLinks = faviconUrl ? '' : renderFaviconHeadTags();
   const faviconLink = faviconUrl
     ? `<link rel="icon" href="${escapeHtml(faviconUrl)}" sizes="any" />`
     : '';
@@ -73,14 +76,36 @@ export function renderSwaggerShell(options: SwaggerShellOptions): string {
     ? 'i18nprune-swagger i18nprune-swagger--hide-servers'
     : 'i18nprune-swagger';
 
+  const metaDescription = options.seo?.metaDescription ?? options.metaDescription ?? options.title;
+  const seoHead = options.seo
+    ? renderPageHeadTags({
+        title: options.title,
+        description: metaDescription,
+        canonicalUrl: options.seo.canonicalUrl,
+        robots: options.seo.robots ?? 'index,follow',
+        openGraph: options.seo.openGraph ?? {
+          title: options.title,
+          description: metaDescription,
+          url: options.seo.canonicalUrl,
+          type: 'website',
+        },
+        twitter: options.seo.twitter ?? {
+          title: options.title,
+          description: metaDescription,
+          card: 'summary',
+        },
+        jsonLd: options.seo.jsonLd,
+      })
+    : `<meta name="description" content="${escapeHtml(metaDescription)}" />`;
+
   return `<!doctype html>
   <html lang="en" class="i18nprune-swagger-root">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="${escapeHtml(options.title)}" />
     <title>${escapeHtml(options.title)}</title>
-    ${faviconLink}
+    ${seoHead}
+    ${faviconLinks || faviconLink}
     <script>${themeScript}<\/script>
     ${stylesheetLinks}
     <style>${css}</style>

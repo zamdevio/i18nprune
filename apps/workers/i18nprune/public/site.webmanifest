@@ -1,0 +1,64 @@
+{
+  "name": "i18nprune Worker API",
+  "short_name": "i18nprune Worker",
+  "description": "OpenAPI reference for i18nprune hosted project snapshots, validate/report reads, and share workflows on the edge.",
+  "start_url": "https://worker.i18nprune.dev/docs",
+  "scope": "/",
+  "id": "https://worker.i18nprune.dev/docs",
+  "display": "standalone",
+  "theme_color": "#04140f",
+  "background_color": "#020a08",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "OpenAPI docs",
+      "short_name": "API",
+      "url": "https://worker.i18nprune.dev/docs",
+      "description": "Worker API reference"
+    },
+    {
+      "name": "Documentation",
+      "short_name": "Docs",
+      "url": "https://docs.i18nprune.dev/",
+      "description": "Documentation for i18nprune — validate, sync, generate, and maintain locale files with the CLI and SDK."
+    },
+    {
+      "name": "Product home",
+      "short_name": "Home",
+      "url": "https://i18nprune.dev/",
+      "description": "The ESLint for production i18n. A compiler-grade localization infrastructure toolkit."
+    }
+  ]
+}

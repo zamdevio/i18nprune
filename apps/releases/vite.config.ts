@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { injectIndexSeoPlugin, syncWebAssetsPlugin, writeRobotsTxtPlugin } from '@i18nprune/seo/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
@@ -9,7 +10,17 @@ const uiRoot = path.join(repoRoot, 'packages/ui/src');
 
 export default defineConfig({
   root: dir,
-  plugins: [react()],
+  publicDir: path.join(dir, 'public'),
+  plugins: [
+    react(),
+    writeRobotsTxtPlugin({ preset: 'releases', publicDir: path.join(dir, 'public') }),
+    syncWebAssetsPlugin({
+      surface: 'releases',
+      publicDir: path.join(dir, 'public'),
+      functionsDir: path.join(dir, 'functions'),
+    }),
+    injectIndexSeoPlugin({ surface: 'releases' }),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(dir, './src'),

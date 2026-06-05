@@ -1,4 +1,5 @@
 import type { Context, Hono } from "hono";
+import { renderRobotsTxtPreset } from "@i18nprune/seo";
 import { OPENAPI_SPEC } from "../openapi/spec";
 import { registerDocsRoutes } from "./docs/index";
 import { buildRootCatalog } from "./root";
@@ -28,6 +29,12 @@ async function fetchFromDo(c: Context<Env>, path: string) {
 }
 
 export function registerRoutes(app: Hono<Env>) {
+  app.get("/robots.txt", (c) =>
+    c.text(renderRobotsTxtPreset("metaDocs"), 200, {
+      "Content-Type": "text/plain; charset=utf-8",
+    }),
+  );
+
   app.get("/", (c) => {
     const origin = new URL(c.req.url).origin;
     return c.json(buildRootCatalog(origin));

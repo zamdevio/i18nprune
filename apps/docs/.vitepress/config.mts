@@ -1,10 +1,22 @@
+import { writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { renderRobotsTxtPreset } from '@i18nprune/seo'
+import { syncWebPublicAssets } from '@i18nprune/seo/assets/sync'
 import { defineConfig } from 'vitepress'
 
+import { transformDocsHead } from './seo.js'
 import { sidebar } from './sidebar.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+const publicDir = resolve(__dirname, 'public')
+
+writeFileSync(resolve(publicDir, 'robots.txt'), renderRobotsTxtPreset('docs'), 'utf8')
+syncWebPublicAssets({
+  surface: 'docs',
+  publicDir,
+  functionsDir: resolve(__dirname, '../functions'),
+})
 
 function docsChunkByPackage(id: string): string | undefined {
   if (!id.includes('node_modules')) return undefined
@@ -23,11 +35,19 @@ function docsChunkByPackage(id: string): string | undefined {
 
 export default defineConfig({
   title: 'i18nprune',
-  description: 'Docs for I18nprune repo',
+  description:
+    'Documentation for i18nprune — validate, sync, generate, and maintain locale files with the CLI and SDK.',
+  lang: 'en-US',
   appearance: true,
   srcDir: 'content',
+  cleanUrls: true,
+  ignoreDeadLinks: true,
+  sitemap: {
+    hostname: 'https://docs.i18nprune.dev',
+  },
+  transformHead: transformDocsHead,
   vite: {
-    publicDir: resolve(__dirname, 'public'),
+    publicDir,
     build: {
       rollupOptions: {
         output: {
@@ -36,12 +56,13 @@ export default defineConfig({
       },
     },
   },
-  cleanUrls: true,
-  ignoreDeadLinks: true,
   head: [
-    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
-    ['link', { rel: 'shortcut icon', href: '/favicon.ico' }],
-    ['link', { rel: 'apple-touch-icon', href: '/favicon.ico' }]
+    ['link', { rel: 'icon', href: '/favicon.ico', sizes: 'any' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' }],
+    ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }],
+    ['link', { rel: 'manifest', href: '/site.webmanifest' }],
+    ['meta', { name: 'theme-color', content: '#04140f' }],
   ],
   themeConfig: {
     logo: '/i18nprune.svg',

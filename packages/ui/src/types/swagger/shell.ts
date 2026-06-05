@@ -1,3 +1,5 @@
+import type { JsonLdDocument, JsonLdGraphDocument, OpenGraphTags, TwitterCardTags } from '@i18nprune/seo';
+
 export type SwaggerShellLink = {
   href: string;
   label: string;
@@ -5,9 +7,22 @@ export type SwaggerShellLink = {
   external?: boolean;
 };
 
+export type SwaggerShellSeoOptions = {
+  canonicalUrl: string;
+  metaDescription?: string;
+  robots?: string;
+  openGraph?: OpenGraphTags;
+  twitter?: TwitterCardTags;
+  jsonLd?: JsonLdDocument | JsonLdGraphDocument;
+};
+
 export type SwaggerShellOptions = {
   title: string;
   openApiUrl: string;
+  /** SERP / social description (defaults to `title` when omitted). */
+  metaDescription?: string;
+  /** Canonical URL, Open Graph, Twitter, and JSON-LD for `/docs` indexing. */
+  seo?: SwaggerShellSeoOptions;
   headerLinks?: readonly SwaggerShellLink[];
   /** Header brand title (default: i18nprune). */
   brandTitle?: string;

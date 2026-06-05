@@ -1,0 +1,64 @@
+{
+  "name": "i18nprune Web Runtime",
+  "short_name": "Web Runtime",
+  "description": "Browser playground and project explorer for i18nprune — run validate, sync, and share workflows powered by @i18nprune/core.",
+  "start_url": "https://web.i18nprune.dev/",
+  "scope": "/",
+  "id": "https://web.i18nprune.dev/",
+  "display": "standalone",
+  "theme_color": "#04140f",
+  "background_color": "#020a08",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Documentation",
+      "short_name": "Docs",
+      "url": "https://docs.i18nprune.dev/",
+      "description": "Documentation for i18nprune — validate, sync, generate, and maintain locale files with the CLI and SDK."
+    },
+    {
+      "name": "Report viewer",
+      "short_name": "Report",
+      "url": "https://report.i18nprune.dev/",
+      "description": "Visualize i18nprune project reports in the browser — import JSON, open hosted share links, and explore locale issues and quality findings."
+    },
+    {
+      "name": "Product home",
+      "short_name": "Home",
+      "url": "https://i18nprune.dev/",
+      "description": "The ESLint for production i18n. A compiler-grade localization infrastructure toolkit."
+    }
+  ]
+}

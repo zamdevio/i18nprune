@@ -6,13 +6,14 @@
   "scripts": {
     "start": "vite --host 0.0.0.0 --port 3000",
     "dev": "vite --host 0.0.0.0 --port 3000",
+    "prebuild": "pnpm --filter @i18nprune/seo run build",
     "build": "tsc -b && vite build",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview --host 0.0.0.0 --port 3000",
     "deploy": "pnpm build && wrangler pages deploy dist"
   },
   "dependencies": {
-    "@resvg/resvg-wasm": "^2.6.2",
+    "@i18nprune/seo": "workspace:*",
     "@shikijs/langs": "4.0.2",
     "@shikijs/themes": "4.0.2",
     "lucide-react": "^0.546.0",

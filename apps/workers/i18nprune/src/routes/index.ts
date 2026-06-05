@@ -1,4 +1,5 @@
 import type { Hono } from 'hono';
+import { renderRobotsTxtPreset } from '@i18nprune/seo';
 import { ApiResponse } from '../response';
 import { registerDocsRoutes } from './docs';
 import { registerHealthRoutes } from './health';
@@ -6,6 +7,12 @@ import { registerV1Routes } from './v1';
 import type { WorkerEnv } from './types';
 
 export function registerRoutes(app: Hono<WorkerEnv>): void {
+  app.get('/robots.txt', (c) =>
+    c.text(renderRobotsTxtPreset('workerDocs'), 200, {
+      'Content-Type': 'text/plain; charset=utf-8',
+    }),
+  );
+
   app.get('/', (c) => {
     const base = new URL(c.req.url).origin;
     return ApiResponse.success(c, {

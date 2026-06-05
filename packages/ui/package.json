@@ -103,6 +103,7 @@
     "./styles/sonner.css": "./src/styles/sonner.css"
   },
   "dependencies": {
+    "@i18nprune/seo": "workspace:*",
     "sonner": "^2.0.7"
   }
 }

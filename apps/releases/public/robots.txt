@@ -39,7 +39,6 @@ User-agent: *
 
 Disallow: /data/
 
-
 Sitemap: https://releases.i18nprune.dev/sitemap.xml
 
 
@@ -52,7 +51,7 @@ Sitemap: https://releases.i18nprune.dev/sitemap.xml
 # \ \__ \--/ __
 #  \o__|----|  |   __
 #      \ }{ /\ )_ / _\
-#      /\__/\ \__O (__
+#      /\__\/\ \__O (__
 #     (--/\--)    \__/
 #     _)(  )(_
 #    `---''---`

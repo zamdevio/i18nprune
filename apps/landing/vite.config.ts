@@ -1,29 +1,42 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { injectIndexSeoPlugin, syncWebAssetsPlugin, writeRobotsTxtPlugin } from '@i18nprune/seo/vite';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
-function vendorChunkByPackage(id: string): string | undefined {
-  if (!id.includes('node_modules')) return undefined;
-  const match = id.match(/node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?(@[^/]+\/[^/]+|[^/]+)/);
-  const pkg = match?.[1];
-  if (!pkg) return undefined;
-  if (pkg === 'motion' || pkg === 'shiki') return undefined;
-  const normalized = pkg.replace('@', '').replace('/', '-');
-  return `vendor-${normalized}`;
-}
+const dir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [react()],
+  root: dir,
+  plugins: [
+    react(),
+    writeRobotsTxtPlugin({ preset: 'landing', publicDir: path.join(dir, 'public') }),
+    syncWebAssetsPlugin({
+      surface: 'landing',
+      publicDir: path.join(dir, 'public'),
+      functionsDir: path.join(dir, 'functions'),
+    }),
+    injectIndexSeoPlugin({ surface: 'landing' }),
+  ],
   build: {
     rollupOptions: {
       output: {
-        manualChunks: vendorChunkByPackage,
+        manualChunks(id: string) {
+          if (!id.includes('node_modules')) return undefined;
+          const match = id.match(
+            /node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?(@[^/]+\/[^/]+|[^/]+)/,
+          );
+          const pkg = match?.[1];
+          if (!pkg) return undefined;
+          if (pkg === 'motion' || pkg === 'shiki') return undefined;
+          return `vendor-${pkg.replace('@', '').replace('/', '-')}`;
+        },
       },
     },
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(dir, './src'),
     },
   },
   server: {
