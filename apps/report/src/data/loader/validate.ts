@@ -3,7 +3,7 @@ import {
   projectReportDocumentSchema,
 } from '@i18nprune/core/report-schema';
 import { ZodError } from 'zod';
-import type { ProjectReportDocument } from '../../types/index.js';
+import type { ProjectReportDocument } from '@i18nprune/core/report-schema';
 
 export type PayloadErrorKind = 'missing' | 'parse' | 'schema' | 'version';
 

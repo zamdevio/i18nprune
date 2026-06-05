@@ -1,5 +1,5 @@
 import { PROJECT_REPORT_KIND, REPORT_INLINE_PAYLOAD_PLACEHOLDER } from '../../constants/env.js';
-import type { ProjectReportDocument } from '../../types/index.js';
+import type { ProjectReportDocument } from '@i18nprune/core/report-schema';
 import { MOCK_PROJECT_REPORT } from '../mock/index.js';
 import type { PayloadLoadResult } from './validate.js';
 import { validatePayloadString } from './validate.js';
