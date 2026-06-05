@@ -1,11 +1,29 @@
 import { sortKeysDeep, stripVolatileEnvelope } from './normalizeGenerateParity.ts';
 
+/** Present only when `rg` is missing from PATH — not part of fixture/CLI contract under test. */
+const CLEANUP_ENV_DEPENDENT_ISSUE_CODES = new Set(['i18nprune.cleanup.ripgrep_unavailable']);
+
+function stripCleanupEnvironmentIssues(value: unknown): unknown {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return value;
+  const obj = value as Record<string, unknown>;
+  if (!Array.isArray(obj.issues)) return value;
+  return {
+    ...obj,
+    issues: obj.issues.filter((issue) => {
+      if (issue === null || typeof issue !== 'object') return true;
+      const code = (issue as { code?: string }).code;
+      return code === undefined || !CLEANUP_ENV_DEPENDENT_ISSUE_CODES.has(code);
+    }),
+  };
+}
+
 /** Stable JSON text for byte comparison against committed cleanup snapshots. */
 export function normalizeCleanupJsonEnvelope(stdout: string, fixtureAbs: string): string {
   const trimmed = stdout.trimEnd();
   const parsed: unknown = JSON.parse(trimmed);
   const stripped = stripVolatileEnvelope(parsed, fixtureAbs);
-  const sorted = sortKeysDeep(stripped);
+  const stable = stripCleanupEnvironmentIssues(stripped);
+  const sorted = sortKeysDeep(stable);
   return `${JSON.stringify(sorted, null, 2)}\n`;
 }
 
