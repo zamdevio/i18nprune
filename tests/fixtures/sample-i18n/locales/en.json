@@ -1,68 +1,43 @@
 {
   "app": {
-    "title": "Sample i18n App",
-    "description": "An example internationalized application",
-    "greeting": "Welcome!",
+    "does_not_exist": "",
     "footer": {
       "copyright": "Copyright © 2024",
       "privacy": "Privacy Policy",
       "terms": "Terms of Service"
     },
     "nav": {
-      "home": "Home",
-      "about": "About",
-      "contact": "Contact",
-      "profile": "Profile",
-      "logout": "Logout"
+      "about": "About"
     },
-    "does_not_exist": ""
-  },
-  "user": {
-    "login": {
-      "title": "Log In",
-      "email": "Email Address",
-      "password": "Password",
-      "submit": "Sign In",
-      "forgot": "Forgot Password?"
-    },
-    "register": {
-      "title": "Register",
-      "username": "Username",
-      "email": "Email",
-      "password": "Password",
-      "submit": "Create Account"
-    },
-    "profile": {
-      "edit": "Edit Profile",
-      "save": "Save Changes",
-      "cancel": "Cancel",
-      "delete": "Delete Account"
-    }
-  },
-  "notifications": {
-    "success": "Action was successful.",
-    "error": "Something went wrong. Please try again.",
-    "logout": "You have been logged out."
-  },
-  "widgets": {
-    "stats": {
-      "views": "Page views",
-      "users": "Active users",
-      "sessions": "Sessions"
-    },
-    "banner": {
-      "title": "Welcome back",
-      "subtitle": "Your dashboard is ready"
-    }
+    "title": "Sample i18n App"
   },
   "help": {
-    "faq": "FAQ",
     "contact": "Contact support",
-    "docs": "Documentation"
+    "docs": "Documentation",
+    "faq": "FAQ"
   },
+  "notifications": {},
   "settings": {
+    "notifications": "Notification preferences",
     "profile": "Profile",
-    "security": "Security",
-    "notifications": "Notification preferences"
+    "security": "Security"
+  },
+  "user": {
+    "login": {},
+    "profile": {},
+    "register": {
+      "username": "Username"
+    }
+  },
+  "widgets": {
+    "banner": {
+      "subtitle": "Your dashboard is ready",
+      "title": "Welcome back"
+    },
+    "stats": {
+      "sessions": "Sessions",
+      "users": "Active users",
+      "views": "Page views"
+    }
   }
 }

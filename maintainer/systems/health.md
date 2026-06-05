@@ -40,13 +40,7 @@ Production artifact chain: **`cli:build`** (includes report SPA bundle for embed
 
 ## Structure-change gates
 
-Run these when you touch **`packages/core/src`**, **`packages/cli/src`**, or **`packages/ui/src`**.
-
-### `pnpm ui:purity`
-
-Forbidden import guard for `@i18nprune/ui` — no `@i18nprune/core`, workers, `react-router-dom`, `hono`, `zod`, `fflate`. Script: [`scripts/ui/purity-check.mjs`](../../scripts/ui/purity-check.mjs). Rules: [`ui.md`](./ui.md).
-
-**When:** any change under `packages/ui/`. Included in root `pnpm typecheck`.
+Run these when you touch **`packages/core/src`**, **`packages/cli/src`**, **`packages/ui/src`**, **`packages/seo/src`**, or runtime app sources under **`apps/*/src`**.
 
 ### `pnpm madge:circular`
 
@@ -56,9 +50,26 @@ Detects import cycles in:
 packages/core/src
 packages/cli/src
 packages/ui/src
+packages/seo/src
+apps/landing/src
+apps/web/src
+apps/report/src
+apps/releases/src
+apps/extension/src
+apps/extension/src/webview/src
+apps/workers/i18nprune/src
+apps/workers/meta/src
 ```
 
+Scan roots are centralized in [`scripts/madge/run.mjs`](../../scripts/madge/run.mjs). **`apps/docs`** (VitePress) is omitted — mostly markdown with thin `.vitepress` config, not a TS module graph.
+
+**Pages `/og.svg` / `/og.png`:** served by Cloudflare **Functions** (`apps/*/functions/og.svg.ts`), not the Vite `dist/` SPA. At deploy, Wrangler bundles `@i18nprune/seo/og` from **`packages/seo/dist/`**. Run **`pnpm seo:build`** before deploy (Pages apps **`prebuild`** hooks do this automatically) — editing `packages/seo/src/og/ogCard.ts` alone does not update production OG until `dist/` is rebuilt and redeployed.
+
+**Madge “Skipped @i18nprune/seo” warning:** madge resolves workspace imports via root [`tsconfig.json`](../../tsconfig.json) `paths`. Without `@i18nprune/seo` / `@i18nprune/ui` entries, imports from `packages/ui` skip the seo package and madge prints `(1 warning)`.
+
 **When:** new cross-module imports, barrel re-exports, moving files between folders.
+
+**Madge alias skips (~62 with apps in scope):** unresolved `@/` (releases), `@shikijs/*`, and Vite-only aliases — not cycles; safe to ignore unless you add per-app `tsconfig` paths to root.
 
 **Fix strategy:** sibling modules in the same folder import from **leaf files** (`./delta.js`, `./rebuild.js`), **not** from the folder **`index.ts` barrel**. The barrel re-exports for external consumers; **call sites import from the barrel**. Example:
 
@@ -67,6 +78,12 @@ types/cache/delta.ts      ← leaf types (no barrel import)
 types/cache/rebuild.ts    ← imports ./delta.js
 types/cache/index.ts      ← re-exports for @i18nprune/core consumers
 ```
+
+### `pnpm ui:purity`
+
+Forbidden import guard for `@i18nprune/ui` — no `@i18nprune/core`, workers, `react-router-dom`, `hono`, `zod`, `fflate`. Script: [`scripts/ui/purity-check.mjs`](../../scripts/ui/purity-check.mjs). Rules: [`ui.md`](./ui.md).
+
+**When:** any change under `packages/ui/`. Included in root `pnpm typecheck`.
 
 ### `pnpm knip`
 
@@ -77,6 +94,10 @@ Dead code, unused exports, unused/missing dependencies. Config: [`knip.json`](..
 **When:** deleted files, new dependencies, changed entrypoints, new public barrels, edge-only entries (Cloudflare functions).
 
 **Knip + static imports:** prefer top-level `import` over dynamic `import('pkg/subpath')` when the dependency must stay visible to knip (see Shiki pattern in [`knip.md`](./knip.md)).
+
+### Root `madge` devDependency
+
+`pnpm madge:*` runs [`scripts/madge/run.mjs`](../../scripts/madge/run.mjs), which resolves the local CLI via `require.resolve('madge/bin/cli.js')` (no global install). Knip recognizes **`madge`** through root **`package.json`** scripts (`madge:circular`, etc.) — no extra `entry` or `ignoreDependencies` needed.
 
 ---
 

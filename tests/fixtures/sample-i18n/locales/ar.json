@@ -1,250 +1,140 @@
 {
   "app": {
-    "title": {
-      "value": "نموذج لتطبيق i18n",
-      "status": "translated",
+    "does_not_exist": {
       "confidence": null,
       "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
-    },
-    "description": {
-      "value": "مثال على التطبيق الدولي",
+      "needsTranslationAgain": true,
+      "source": "llm-heuristic",
       "status": "translated",
-      "confidence": null,
-      "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
-    },
-    "greeting": {
-      "value": "مرحباً!",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
-    },
-    "footer": {
-      "copyright": {
-        "value": "Copyright © 2024",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "privacy": {
-        "value": "Privacy Policy",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "terms": {
-        "value": "Terms of Service",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      }
+      "value": "عذرًا، لا يمكنني معالجة هذا الطلب الآن. يرجى المحاولة مرة أخرى لاحقًا."
     },
     "nav": {
-      "home": {
-        "value": "بيت",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
       "about": {
-        "value": "عن",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
+        "confidence": 0.72,
+        "needsReview": false,
         "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "contact": {
-        "value": "اتصال",
+        "source": "google-heuristic",
         "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "profile": {
-        "value": "حساب تعريفي",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "logout": {
-        "value": "تسجيل الخروج",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
+        "value": "عن"
       }
     },
-    "does_not_exist": {
-      "value": "",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
+    "title": {
+      "confidence": 0.84,
+      "needsReview": false,
       "needsTranslationAgain": false,
-      "source": "manual"
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "نموذج لتطبيق i18n"
+    }
+  },
+  "help": {
+    "contact": {
+      "confidence": 0.8,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "اتصل بالدعم"
+    },
+    "docs": {
+      "confidence": 0.75,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "التوثيق"
+    },
+    "faq": {
+      "confidence": 0.62,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "التعليمات"
+    }
+  },
+  "settings": {
+    "notifications": {
+      "confidence": 0.78,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "تفضيلات الإخطار"
+    },
+    "profile": {
+      "confidence": 0.73,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "حساب تعريفي"
+    },
+    "security": {
+      "confidence": 0.78,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "حماية"
     }
   },
   "user": {
-    "login": {
-      "title": {
-        "value": "تسجيل الدخول",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "email": {
-        "value": "عنوان البريد الإلكتروني",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "password": {
-        "value": "كلمة المرور",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "submit": {
-        "value": "تسجيل الدخول",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "forgot": {
-        "value": "هل نسيت كلمة السر؟",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      }
-    },
     "register": {
-      "title": {
-        "value": "يسجل",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
       "username": {
-        "value": "اسم المستخدم",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
+        "confidence": 0.75,
+        "needsReview": false,
         "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "email": {
-        "value": "بريد إلكتروني",
+        "source": "google-heuristic",
         "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "password": {
-        "value": "كلمة المرور",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "submit": {
-        "value": "إنشاء حساب",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      }
-    },
-    "profile": {
-      "edit": {
-        "value": "تحرير الملف الشخصي",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "save": {
-        "value": "حفظ التغييرات",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "cancel": {
-        "value": "يلغي",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "delete": {
-        "value": "حذف الحساب",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
+        "value": "اسم المستخدم"
       }
     }
   },
-  "notifications": {
-    "success": {
-      "value": "كان العمل ناجحا.",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
+  "widgets": {
+    "banner": {
+      "subtitle": {
+        "confidence": 0.82,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "لوحة القيادة الخاصة بك جاهزة"
+      },
+      "title": {
+        "confidence": 0.85,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "مرحبًا بعودتك"
+      }
     },
-    "error": {
-      "value": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
-    },
-    "logout": {
-      "value": "لقد تم تسجيل خروجك.",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
+    "stats": {
+      "sessions": {
+        "confidence": 0.84,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "الجلسات"
+      },
+      "users": {
+        "confidence": 0.75,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "المستخدمين النشطين"
+      },
+      "views": {
+        "confidence": 0.77,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "مشاهدات الصفحة"
+      }
     }
   }
 }

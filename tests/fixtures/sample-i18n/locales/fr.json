@@ -1,15 +1,140 @@
 {
   "app": {
-    "title": "Application i18n exemple",
-    "description": "Une application internationalisée d'exemple",
-    "greeting": "Bienvenue !"
-  },
-  "widgets": {
-    "stats": {
-      "views": "Pages vues"
+    "does_not_exist": {
+      "confidence": 0.9,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "mymemory",
+      "status": "translated",
+      "value": "No Action"
+    },
+    "nav": {
+      "about": {
+        "confidence": 0.72,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "À propos"
+      }
+    },
+    "title": {
+      "confidence": 0.69,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Exemple d'application i18n"
     }
   },
   "help": {
-    "faq": "FAQ"
+    "contact": {
+      "confidence": 0.75,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Contacter l'assistance"
+    },
+    "docs": {
+      "confidence": 0.99,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "mymemory",
+      "status": "translated",
+      "value": "Documentation"
+    },
+    "faq": {
+      "confidence": 1,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "mymemory",
+      "status": "translated",
+      "value": "FAQ"
+    }
+  },
+  "settings": {
+    "notifications": {
+      "confidence": 0.84,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Préférences de notification"
+    },
+    "profile": {
+      "confidence": 0.83,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Profil"
+    },
+    "security": {
+      "confidence": 0.87,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Sécurité"
+    }
+  },
+  "user": {
+    "register": {
+      "username": {
+        "confidence": 0.62,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Nom d'utilisateur"
+      }
+    }
+  },
+  "widgets": {
+    "banner": {
+      "subtitle": {
+        "confidence": 0.79,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Votre tableau de bord est prêt"
+      },
+      "title": {
+        "confidence": 0.7,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Content de te revoir"
+      }
+    },
+    "stats": {
+      "sessions": {
+        "confidence": 0.84,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Séances"
+      },
+      "users": {
+        "confidence": 0.72,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Utilisateurs actifs"
+      },
+      "views": {
+        "confidence": 0.87,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Pages vues"
+      }
+    }
   }
 }

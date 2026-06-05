@@ -1,250 +1,140 @@
 {
   "app": {
-    "title": {
-      "value": "Tusaalaha i18n App",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
+    "does_not_exist": {
+      "confidence": 0.85,
+      "needsReview": false,
       "needsTranslationAgain": false,
-      "source": "manual"
-    },
-    "description": {
-      "value": "Tusaale codsi caalami ah",
+      "source": "mymemory",
       "status": "translated",
-      "confidence": null,
-      "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
-    },
-    "greeting": {
-      "value": "Soo dhawoow!",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
-    },
-    "footer": {
-      "copyright": {
-        "value": "Xuquuqda daabacaadda © 2024",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "privacy": {
-        "value": "Siyaasadda Qarsoonnimada",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "terms": {
-        "value": "Shuruudaha Adeegga",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      }
+      "value": "Fadlan hubi in aad buuxisay dhammaan goobaha loo baahan yahay waa."
     },
     "nav": {
-      "home": {
-        "value": "Guriga",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
       "about": {
-        "value": "Ku saabsan",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
+        "confidence": 0.62,
+        "needsReview": false,
         "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "contact": {
-        "value": "La xidhiidh",
+        "source": "google-heuristic",
         "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "profile": {
-        "value": "Profile",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "logout": {
-        "value": "Ka bax",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
+        "value": "Ku saabsan"
       }
     },
-    "does_not_exist": {
-      "value": "",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
+    "title": {
+      "confidence": 0.82,
+      "needsReview": false,
       "needsTranslationAgain": false,
-      "source": "manual"
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Tusaalaha i18n App"
+    }
+  },
+  "help": {
+    "contact": {
+      "confidence": 0.75,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Taageerada la xidhiidh"
+    },
+    "docs": {
+      "confidence": 0.81,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Dukumeenti"
+    },
+    "faq": {
+      "confidence": 1,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "mymemory",
+      "status": "translated",
+      "value": "Su`aalaha Inta badan la Isweydiiyo:"
+    }
+  },
+  "settings": {
+    "notifications": {
+      "confidence": 0.83,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Dookhyada ogeysiinta"
+    },
+    "profile": {
+      "confidence": 1,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "mymemory",
+      "status": "translated",
+      "value": "Xogta Shakhsiyeed "
+    },
+    "security": {
+      "confidence": 0.81,
+      "needsReview": false,
+      "needsTranslationAgain": false,
+      "source": "google-heuristic",
+      "status": "translated",
+      "value": "Amniga"
     }
   },
   "user": {
-    "login": {
-      "title": {
-        "value": "Soo gal",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "email": {
-        "value": "Ciwaanka iimaylka",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "password": {
-        "value": "Furaha",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "submit": {
-        "value": "Soo gal",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "forgot": {
-        "value": "Ma illowday erayga sirta ah?",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      }
-    },
     "register": {
-      "title": {
-        "value": "Is diwaangeli",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
       "username": {
-        "value": "Magaca isticmaale",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
+        "confidence": 0.62,
+        "needsReview": false,
         "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "email": {
-        "value": "iimaylka",
+        "source": "google-heuristic",
         "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "password": {
-        "value": "Furaha",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "submit": {
-        "value": "Abuur Account",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      }
-    },
-    "profile": {
-      "edit": {
-        "value": "Wax ka beddel xogta",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "save": {
-        "value": "Badbaadada isbedelada",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "cancel": {
-        "value": "Jooji",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
-      },
-      "delete": {
-        "value": "Tirtir Koontada",
-        "status": "translated",
-        "confidence": null,
-        "needsReview": true,
-        "needsTranslationAgain": false,
-        "source": "manual"
+        "value": "Magaca isticmaale"
       }
     }
   },
-  "notifications": {
-    "success": {
-      "value": "Ficilku waa lagu guulaystay.",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
+  "widgets": {
+    "banner": {
+      "subtitle": {
+        "confidence": 0.85,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Dashboardkaaga waa diyaar"
+      },
+      "title": {
+        "confidence": 0.81,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Soo dhawoow dib"
+      }
     },
-    "error": {
-      "value": "Wax baa khaldamay Fadlan isku day mar kale",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
-    },
-    "logout": {
-      "value": "Waa lagaa saaray",
-      "status": "translated",
-      "confidence": null,
-      "needsReview": true,
-      "needsTranslationAgain": false,
-      "source": "manual"
+    "stats": {
+      "sessions": {
+        "confidence": 0.84,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Fadhiyo"
+      },
+      "users": {
+        "confidence": 0.62,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Isticmaalayaasha firfircoon"
+      },
+      "views": {
+        "confidence": 0.77,
+        "needsReview": false,
+        "needsTranslationAgain": false,
+        "source": "google-heuristic",
+        "status": "translated",
+        "value": "Aragtida bogga"
+      }
     }
   }
 }

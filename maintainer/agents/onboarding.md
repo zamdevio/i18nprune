@@ -41,7 +41,7 @@ pnpm test         # unit + integration + parity
 | **`pnpm test`** | `vitest run` — all tests |
 | **`pnpm test:summary`** | Same as test, grep summary lines only |
 | **`pnpm knip`** | Dead code / unused exports / dependency hygiene |
-| **`pnpm madge:circular`** | Import cycles in core, cli, report, ui |
+| **`pnpm madge:circular`** | Import cycles in core, cli, ui, seo, and runtime apps (`scripts/madge/run.mjs`) |
 | **`pnpm madge:orphans`** / **`pnpm madge:leaves`** | Optional dependency graph diagnostics |
 | **`pnpm ui:purity`** | Forbidden imports in `@i18nprune/ui` (also in `typecheck`) |
 | **`pnpm empty:dir`** / **`pnpm empty:file`** | List empty dirs/files (review before delete) |

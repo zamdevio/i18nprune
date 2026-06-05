@@ -79,26 +79,28 @@ These **`index.ts`** files are **intentionally ignored as files** because knip�
 
 **In-repo rule:** call sites import from the **barrel**; sibling modules use **leaf files** only — see [`health.md` § Barrel import discipline](./health.md#barrel-import-discipline-shared).
 
-### Cloudflare Pages Functions (landing OG images)
+### Cloudflare Pages Functions (shared OG + redirects)
 
 | Path | Why |
 |------|-----|
-| `apps/landing/functions/**` | Pages **Functions** routes (`/og.svg`, `/og.png`) and `_shared/` helpers; not part of the Vite `src/**` entry graph. Listed under `workspaces.apps/landing.ignore`. |
+| `apps/*/functions/**` | Pages **Functions** routes (`/og.svg`, `/og.png`, `_middleware.ts`); synced from `packages/seo/functions/` at build — outside the Vite `src/**` graph. |
 
-OG fonts ship as static files in **`apps/landing/public/fonts/og/`** (not npm imports).
+Canonical OG handler sources live in **`packages/seo/functions/`** (knip sees them via `syncPagesFunctions` in `packages/seo/src/assets/sync.ts`).
 
----
+OG fonts ship as static files under each app `public/fonts/og/` (synced from `packages/seo/assets/fonts/og/`). Favicons sync from `packages/seo/assets/favicon/`.
 
-## Ignored dependencies (`ignoreDependencies`)
-
-### `apps/landing`
+### `@i18nprune/seo` (OG PNG + Workers types)
 
 | Package | Why |
 |---------|-----|
-| `@cloudflare/workers-types` | Triple-slash `/// <reference types="@cloudflare/workers-types" />` in `functions/*.ts` — knip does not count reference directives as import edges. |
-| `@resvg/resvg-wasm` | Used only from `functions/_shared/svgToPng.ts` (Pages bundle), outside the Vite `src/**` graph. |
+| `@resvg/resvg-wasm` | WASM rasterizer for `/og.png` (Pages bundle via `@i18nprune/seo/og`). |
+| `@cloudflare/workers-types` | Triple-slash refs in Pages function sources and `packages/seo/src/pages/**`. |
 
-Worker packages under **`apps/workers/*`** use Workers types via `tsconfig.json` `"types"` — add workspace **`ignoreDependencies`** there if knip flags them.
+### `apps/landing` (and other Pages apps)
+
+| Package | Why |
+|---------|-----|
+| `@cloudflare/workers-types` | Triple-slash `/// <reference types="@cloudflare/workers-types" />` in `functions/_middleware.ts` — knip does not count reference directives as import edges. Same pattern for `apps/web`, `apps/report`, `apps/docs`, `apps/releases`. |
 
 ---
 

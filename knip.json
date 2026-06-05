@@ -11,15 +11,32 @@
     "packages/core/src/runtime/index.ts",
     "packages/core/src/shared/index.ts",
     "packages/core/src/shared/result/index.ts",
-    "apps/workers/**/public/**"
+    "apps/workers/**/public/**",
+    "apps/*/functions/**"
   ],
   "ignoreExportsUsedInFile": true,
   "ignoreBinaries": ["printf", "tail"],
   "workspaces": {
     "apps/landing": {
       "entry": ["src/**/*.{ts,tsx}"],
-      "ignore": ["functions/**"],
-      "ignoreDependencies": ["@cloudflare/workers-types", "@resvg/resvg-wasm"]
+      "ignoreDependencies": ["@cloudflare/workers-types"]
+    },
+    "apps/web": {
+      "entry": ["src/**/*.{ts,tsx}"],
+      "ignoreDependencies": ["@cloudflare/workers-types"]
+    },
+    "apps/report": {
+      "entry": ["src/**/*.{ts,tsx}"],
+      "ignoreDependencies": ["@cloudflare/workers-types"]
+    },
+    "apps/docs": {
+      "entry": ["content/**/*.md", ".vitepress/**/*.{ts,mts}"],
+      "ignoreDependencies": ["@cloudflare/workers-types"]
+    },
+    "apps/releases": {
+      "entry": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
+      "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
+      "ignoreDependencies": ["@cloudflare/workers-types"]
     },
     "apps/extension": {
       "project": ["src/extension/**/*.ts"]
@@ -31,9 +48,9 @@
       "entry": ["src/**/*.{ts,tsx}"],
       "project": ["src/**/*.{ts,tsx}"]
     },
-    "apps/releases": {
-      "entry": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
-      "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"]
+    "packages/seo": {
+      "entry": ["src/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}"]
     }
   }
 }
