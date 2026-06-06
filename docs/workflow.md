@@ -20,6 +20,8 @@ From the **repository root**:
 | `pnpm landing:build` | Production build of landing (`apps/landing/dist`) |
 | `pnpm report:dev` | Report SPA dev (`apps/report`) |
 | `pnpm report:build` | Report SPA bundle (`apps/report/dist`) — also run via `cli:build` |
+| `pnpm git:dev` | Git analytics SPA dev (`apps/git`, `git.i18nprune.dev`, port **5190**) |
+| `pnpm git:build` | Git analytics production build (`apps/git/dist`) |
 | `pnpm docs:build` | Static export |
 
 **Docs site navigation:** the left nav is **hand-curated** in `apps/docs/.vitepress/sidebar.ts` (plus top **nav** in `config.mts`). After significant `docs/` IA moves, update those entries so the sidebar matches new paths.

@@ -47,6 +47,7 @@ yarn dlx i18nprune --help
 | [ADRs](./architecture/decisions/001-scope-v0-1.md) | Architecture decision records |
 | [Edge cases](./edge-cases/README.md) | Solved pitfalls and parity-sensitive notes |
 | [Release notes](https://releases.i18nprune.dev) | CLI, Core, and Extension version history (separate portal) |
+| [Git analytics](https://git.i18nprune.dev) | Public monorepo commit history and development timeline (separate portal) |
 
 ## Links
 

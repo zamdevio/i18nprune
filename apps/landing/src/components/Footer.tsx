@@ -43,6 +43,7 @@ export default function Footer() {
               <li><a href={linkHref(links, 'npmCore')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">@i18nprune/core</a></li>
               <li><a href={linkHref(links, 'webApp')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Web app</a></li>
               <li><a href={linkHref(links, 'report')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Report viewer</a></li>
+              <li><a href={linkHref(links, 'gitAnalytics')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Git analytics</a></li>
               <li><a href={linkHref(links, 'vscodeMarketplace')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">VS Code extension</a></li>
               <li><a href={linkHref(links, 'license')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">MIT license</a></li>
             </ul>

@@ -11,6 +11,7 @@ import {
   Package,
   Box,
   BarChart3,
+  GitBranch,
   type LucideIcon,
 } from 'lucide-react';
 import { linkHref } from '../lib/meta';
@@ -54,6 +55,7 @@ export default function CommandPalette() {
     () => [
       { id: 'ext-web', title: 'web.i18nprune.dev', desc: 'Browser playground & explorer', href: linkHref(links, 'webApp'), group: 'external', Icon: Globe2 },
       { id: 'ext-report', title: 'report.i18nprune.dev', desc: 'Report UI · hosted share links', href: linkHref(links, 'report'), group: 'external', Icon: BarChart3 },
+      { id: 'ext-git', title: 'git.i18nprune.dev', desc: 'Commit history · timeline · authors', href: linkHref(links, 'gitAnalytics'), group: 'external', Icon: GitBranch },
       { id: 'ext-worker', title: 'worker.i18nprune.dev', desc: 'Edge validators · Swagger docs', href: linkHref(links, 'workerDocs'), group: 'external', Icon: Cloud },
       { id: 'ext-github', title: 'GitHub repository', desc: 'Source & issues', href: linkHref(links, 'githubRepo'), group: 'external', Icon: Github },
       { id: 'ext-npm', title: 'npm · i18nprune', desc: 'CLI package on npm', href: linkHref(links, 'npmCli'), group: 'external', Icon: Package },

@@ -48,6 +48,7 @@ This fails the job when validation is not OK.
 | npm CLI | Install + run common commands |
 | `@i18nprune/core` | Programmatic SDK usage (`@i18nprune/core`) |
 | `report.i18nprune.dev` | Open and troubleshoot report payloads |
+| `git.i18nprune.dev` | Browse monorepo commit history, authors, tags, and weekly timeline |
 | `workers.i18nprune.dev` | Prepare snapshots and serve shared metadata |
 | VS Code extension (`apps/extension/`) | Editor host — **in development**, planned post-v1 (same core engine as CLI) |
 

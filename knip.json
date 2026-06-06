@@ -39,8 +39,8 @@
       "ignoreDependencies": ["@cloudflare/workers-types"]
     },
     "apps/git": {
-      "entry": ["src/**/*.{ts,tsx}", "scripts/**/*.ts", "vite.config.ts"],
-      "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts", "vite.config.ts"],
+      "entry": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
+      "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
       "ignoreDependencies": ["@cloudflare/workers-types"]
     },
     "apps/extension": {

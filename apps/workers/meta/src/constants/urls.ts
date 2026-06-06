@@ -10,6 +10,7 @@ export const DEFAULT_LINKS: Record<string, string> = {
   webApp: "https://web.i18nprune.dev",
   workerDocs: "https://worker.i18nprune.dev/docs",
   report: "https://report.i18nprune.dev",
+  gitAnalytics: "https://git.i18nprune.dev",
   sandbox: "https://codesandbox.io/p/sandbox/ltw939",
   license: "https://github.com/zamdevio/i18nprune/blob/main/LICENSE",
   twitter: "https://twitter.com/zamdevio",

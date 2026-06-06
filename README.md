@@ -16,6 +16,7 @@
     <a href="https://i18nprune.dev">Website</a> ·
     <a href="https://docs.i18nprune.dev">Docs</a> ·
     <a href="https://releases.i18nprune.dev">Releases</a> ·
+    <a href="https://git.i18nprune.dev">Git analytics</a> ·
     <a href="#quick-start">Quick start</a>
   </p>
 </div>
@@ -31,6 +32,7 @@ Ship reliable i18n workflows across source code, locale files, CI, and hosted re
 | **Release notes** | [releases.i18nprune.dev](https://releases.i18nprune.dev) | CLI, Core, and Extension version history |
 | **Web app** | [web.i18nprune.dev](https://web.i18nprune.dev) | Hosted project snapshots and workspace links |
 | **Report app** | [report.i18nprune.dev](https://report.i18nprune.dev) | View and share `report --json` documents |
+| **Git analytics** | [git.i18nprune.dev](https://git.i18nprune.dev) | Public monorepo commit history, timeline, authors, tags, and branches |
 | **Worker API** | [worker.i18nprune.dev/docs](https://worker.i18nprune.dev/docs) | Share/upload and report ingest OpenAPI |
 | **Meta API** | [meta.i18nprune.dev/docs](https://meta.i18nprune.dev/docs) | Cached GitHub/npm metadata for apps |
 
@@ -258,7 +260,7 @@ Reference: [Share command](./docs/commands/share/README.md)
 | JSON + issues | [CLI JSON](./docs/cli/json.md) · [Issues](./docs/issues/README.md) |
 | Deep dives | [Architecture](./docs/architecture/README.md) · [Edge cases](./docs/edge-cases/README.md) |
 
-Hosted docs: [docs.i18nprune.dev](https://docs.i18nprune.dev) · Changelogs: [releases.i18nprune.dev](https://releases.i18nprune.dev)
+Hosted docs: [docs.i18nprune.dev](https://docs.i18nprune.dev) · Changelogs: [releases.i18nprune.dev](https://releases.i18nprune.dev) · Git analytics: [git.i18nprune.dev](https://git.i18nprune.dev)
 
 ## Repository Layout
 
@@ -269,6 +271,7 @@ Hosted docs: [docs.i18nprune.dev](https://docs.i18nprune.dev) · Changelogs: [re
 | `packages/ui/` | Shared runtime UI primitives used by web/report/worker docs shell |
 | `apps/web/` | Shared workspace web app |
 | `apps/report/` | Report web app |
+| `apps/git/` | Git analytics dashboard ([git.i18nprune.dev](https://git.i18nprune.dev)) |
 | `apps/extension/` | VS Code extension host (**in development**, post-v1) |
 | `apps/workers/` | Worker APIs (`i18nprune`, `meta`) |
 | `docs/` | Source-of-truth markdown synced into VitePress app |
@@ -282,6 +285,7 @@ pnpm test
 pnpm build
 pnpm docs:dev
 pnpm docs:build
+pnpm git:dev      # git analytics SPA (port 5190)
 ```
 
 ## Contributing
