@@ -14,7 +14,8 @@
 | File | Role | Merge gate |
 |------|------|------------|
 | [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) | PR + push: typecheck → cli-build → test → parity | **Required** |
-| [`.github/workflows/architecture.yml`](../../.github/workflows/architecture.yml) | Nightly + manual: knip, madge | **Non-blocking** |
+| [`.github/workflows/deploy-git.yml`](../../.github/workflows/deploy-git.yml) | Push to `main`: build + deploy **git.i18nprune.dev** | **Deploy gate** (validate / phases) |
+| [`.github/workflows/architecture.yml`](../../.github/workflows/architecture.yml) | Push to `main` + manual: knip, madge | **Non-blocking** |
 
 ---
 
@@ -195,6 +196,22 @@ Workspace rename for turbo uniqueness: **`packages/cli`** → **`@i18nprune/cli`
 ## Platform-gated tests (not skipped in CI)
 
 [`tests/integration/spacesInPath.win32.test.ts`](../../tests/integration/spacesInPath.win32.test.ts) uses `describe.skip` on non-`win32` hosts — **passes as no-op** on ubuntu/macOS matrix rows; runs on `windows-latest`. This is a **test-level gate**, not a workflow skip.
+
+---
+
+## Deploy (`deploy-git.yml`)
+
+| Property | Value |
+|----------|--------|
+| **Trigger** | Every **`push`** to `main` / `master`; **`workflow_dispatch`** |
+| **Checkout** | **`fetch-depth: 0`** — sync needs full git history |
+| **Build** | **`pnpm git:build`** — `prebuild` runs sync, **`validate-phases`**, then Vite |
+| **Deploy** | **`wrangler pages deploy`** → project **`git-i18nprune`** |
+| **Secrets** | **`CLOUDFLARE_API_TOKEN`**, **`CLOUDFLARE_ACCOUNT_ID`** (repo secrets) |
+
+**Validate gate:** if commits exist in an ISO week missing from **`apps/git/scripts/phases.config.json`**, validate exits **1** and the deploy job **fails** until config is updated on `main`. Configured weeks with **no** commits log a **warning** only — deploy still proceeds.
+
+**Why every main push:** generated **`src/data/*.json`** is gitignored; the site refreshes commit counts and timeline data only when CI rebuilds from git.
 
 ---
 

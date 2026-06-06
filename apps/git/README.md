@@ -76,3 +76,5 @@ pnpm deploy
 ```
 
 Requires Wrangler + Cloudflare Pages project `git-i18nprune`.
+
+**CI:** every push to `main` runs [`.github/workflows/deploy-git.yml`](../../.github/workflows/deploy-git.yml) — `pnpm git:build` (sync + **validate** + build) then Pages deploy. If a new ISO week has commits but no block in `scripts/phases.config.json`, validate fails and deploy is blocked until you commit the config.

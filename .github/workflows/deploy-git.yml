@@ -1,0 +1,48 @@
+# Deploy git.i18nprune.dev (Cloudflare Pages)
+#
+# Runs on every push to main so the dashboard syncs fresh git history at build time.
+# `pnpm git:build` runs sync + validate + production build:
+#   - Missing ISO weeks in phases.config.json → validate exits 1 → deploy blocked
+#   - Configured weeks with no commits → warn only (deploy continues)
+#
+# Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (Pages edit on git-i18nprune)
+
+name: Deploy git analytics
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-git-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: git.i18nprune.dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build git analytics (sync + validate + vite)
+        run: pnpm git:build
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler pages deploy dist --project-name=git-i18nprune --cwd apps/git
