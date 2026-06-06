@@ -146,6 +146,7 @@ a:focus-visible {
 .toolbar-dropdown__menu {
   max-height: min(320px, 50vh);
   overflow-y: auto;
+  z-index: 300;
 }
 
 .theme-btn {

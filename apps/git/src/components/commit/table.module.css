@@ -30,6 +30,12 @@
   gap: 8px;
   flex: 1 1 auto;
   min-width: 0;
+  position: relative;
+  z-index: 50;
+}
+
+.filterRow:has([aria-expanded='true']) {
+  z-index: 200;
 }
 
 .filters {
@@ -69,13 +75,14 @@
 
 .filterDropdown {
   position: relative;
-  z-index: 30;
   width: 160px;
   flex: 0 0 auto;
 }
 
 .exportActions {
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .resultCount {
@@ -87,6 +94,7 @@
 @media (max-width: 1023px) {
   .toolbar {
     flex-direction: column;
+    flex-wrap: nowrap;
     align-items: stretch;
     gap: 10px;
   }
@@ -97,8 +105,10 @@
   }
 
   .filterRow {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
     gap: 8px;
     width: 100%;
   }
@@ -108,15 +118,42 @@
   }
 
   .filterGroup {
-    display: contents;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
   }
 
   .filterDropdown {
-    width: auto;
+    flex: 0 0 auto;
+    width: 160px;
     min-width: 0;
   }
 
   .exportActions {
+    flex: 1 1 100%;
     width: 100%;
+    z-index: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .filterRow {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+
+  .filterGroup {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .filterDropdown,
+  .filterGroup .filterDropdown {
+    width: 100%;
+    max-width: none;
   }
 }
