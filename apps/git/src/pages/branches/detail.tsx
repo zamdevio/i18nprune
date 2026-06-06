@@ -1,6 +1,9 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { ListPagination } from '@i18nprune/ui/react/pagination';
 import { CommitList, MetricCard, ScopeBreakdown, TypeBreakdown } from '../../components';
+import { paginationNavIcons } from '../../components/icons';
 import type { Author, Commit, GitBranch } from '../../types';
 import { authorInitials, authorProfilePath } from '../../lib/authors';
 import {
@@ -14,6 +17,9 @@ import { formatNumber } from '../../lib/format';
 import { commitGitHubUrl } from '../../lib/github';
 import styles from './detail.module.css';
 
+const CONTRIBUTORS_PAGE_SIZE_OPTIONS = [5, 8, 11, 15] as const;
+const DEFAULT_CONTRIBUTORS_PAGE_SIZE = CONTRIBUTORS_PAGE_SIZE_OPTIONS[0];
+
 interface BranchDetailProps {
   branches: GitBranch[];
   commits: Commit[];
@@ -24,6 +30,25 @@ interface BranchDetailProps {
 export function BranchDetail({ branches, commits, authors, githubRepoUrl }: BranchDetailProps) {
   const { name = '' } = useParams();
   const branch = findBranchByName(branches, name);
+  const [contributorPage, setContributorPage] = useState(1);
+  const [contributorPageSize, setContributorPageSize] = useState<number>(DEFAULT_CONTRIBUTORS_PAGE_SIZE);
+
+  const branchAuthors = branch ? authorsOnBranch(authors, branch) : [];
+
+  const contributorTotalPages = Math.max(1, Math.ceil(branchAuthors.length / contributorPageSize));
+  const safeContributorPage = Math.min(contributorPage, contributorTotalPages);
+  const contributorRangeStart =
+    branchAuthors.length === 0 ? 0 : (safeContributorPage - 1) * contributorPageSize + 1;
+  const contributorRangeEnd = Math.min(safeContributorPage * contributorPageSize, branchAuthors.length);
+
+  const pageBranchAuthors = useMemo(() => {
+    const start = (safeContributorPage - 1) * contributorPageSize;
+    return branchAuthors.slice(start, start + contributorPageSize);
+  }, [branchAuthors, safeContributorPage, contributorPageSize]);
+
+  useEffect(() => {
+    setContributorPage(1);
+  }, [name, contributorPageSize]);
 
   if (!branch) {
     return (
@@ -39,7 +64,6 @@ export function BranchDetail({ branches, commits, authors, githubRepoUrl }: Bran
   }
 
   const profile = buildBranchProfile(branch, commits);
-  const branchAuthors = authorsOnBranch(authors, branch);
   const neighbors = branchNeighbors(branches, branch.name);
   const treeUrl =
     githubRepoUrl ? `${githubRepoUrl}/tree/${encodeURIComponent(branch.name)}` : null;
@@ -134,7 +158,7 @@ export function BranchDetail({ branches, commits, authors, githubRepoUrl }: Bran
         <section className={styles.authors}>
           <h2 className={styles.sectionTitle}>Contributors ({branchAuthors.length})</h2>
           <ul className={styles.authorList}>
-            {branchAuthors.map((author) => (
+            {pageBranchAuthors.map((author) => (
               <li key={author.email}>
                 <Link to={authorProfilePath(author.username)} className={styles.authorItem}>
                   {author.avatarUrl ?
@@ -160,6 +184,22 @@ export function BranchDetail({ branches, commits, authors, githubRepoUrl }: Bran
               </li>
             ))}
           </ul>
+          {contributorTotalPages > 1 || branchAuthors.length > DEFAULT_CONTRIBUTORS_PAGE_SIZE ?
+            <ListPagination
+              className={`list-pagination--plain ${styles.authorPagination}`}
+              total={branchAuthors.length}
+              page={safeContributorPage}
+              totalPages={contributorTotalPages}
+              pageSize={contributorPageSize}
+              rangeStart={contributorRangeStart}
+              rangeEnd={contributorRangeEnd}
+              onPageChange={setContributorPage}
+              onPageSizeChange={setContributorPageSize}
+              pageSizeOptions={CONTRIBUTORS_PAGE_SIZE_OPTIONS}
+              icons={paginationNavIcons}
+              summaryNoun="contributors"
+            />
+          : null}
         </section>
       : null}
 

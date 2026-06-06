@@ -223,6 +223,10 @@
   color: var(--color-text-muted);
 }
 
+.authorPagination {
+  margin-top: 16px;
+}
+
 .recent {
   background: var(--color-surface);
   border-radius: var(--radius);
