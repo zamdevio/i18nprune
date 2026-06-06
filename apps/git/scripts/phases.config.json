@@ -1,0 +1,92 @@
+[
+  {
+    "week": "2026-W15",
+    "label": "Week 15 — Genesis",
+    "theme": "Full CLI surface, core, config, extractor, providers, tests in one shot",
+    "color": "teal",
+    "shipped": [
+      "CLI entry + all commands",
+      "Core domain logic (extractor, scanner, translator)",
+      "Config schema + defineConfig",
+      "Integration tests + sample fixture",
+      "Documentation scaffold"
+    ]
+  },
+  {
+    "week": "2026-W16",
+    "label": "Week 16 — Scaffold",
+    "theme": "Monorepo scaffold and lockfile",
+    "color": "gray",
+    "shipped": ["pnpm workspace setup"]
+  },
+  {
+    "week": "2026-W19",
+    "label": "Week 19 — Core wiring",
+    "theme": "Core + CLI monorepo wiring, VitePress docs, translate policy, apps scaffold",
+    "color": "teal",
+    "shipped": [
+      "@i18nprune/core package added",
+      "CLI delegates to core",
+      "Translate policy steps 1–10",
+      "VitePress docs site",
+      "Apps scaffold (web, report, landing, workers)"
+    ]
+  },
+  {
+    "week": "2026-W20",
+    "label": "Week 20 — Engine",
+    "theme": "generate/resume engine, translator, cache, all ops migrated to core runXxx",
+    "color": "purple",
+    "shipped": [
+      "runGenerate + runTranslate",
+      "generate --resume flow",
+      "L1+L2 translation cache",
+      "All ops migrated to core runXxx pattern",
+      "Config unified to single Zod schema"
+    ]
+  },
+  {
+    "week": "2026-W21",
+    "label": "Week 21 — Hardening",
+    "theme": "Extractor hardening, patching, init, locales multi-topology, landing, UI kit",
+    "color": "purple",
+    "shipped": [
+      "Extractor bindings + prose filter (Session C.1)",
+      "Patching hardening",
+      "runInit + presets",
+      "Locale multi-topology (flat_file, locale_directory)",
+      "@i18nprune/ui kit phases 0–4",
+      "Landing page rebuild"
+    ]
+  },
+  {
+    "week": "2026-W22",
+    "label": "Week 22 — Share",
+    "theme": "Share hardening, worker CRUD, web + report share UX, worker metadata",
+    "color": "coral",
+    "shipped": [
+      "runShare + runShareList/View/Delete",
+      "Worker upload/ingest routes",
+      "Storage pressure eviction",
+      "IP rate limiting",
+      "Web share UX (#/workspace?id=)",
+      "Report share UX"
+    ]
+  },
+  {
+    "week": "2026-W23",
+    "label": "Week 23 — Release",
+    "theme": "CI pipeline, tree/naming pass, cross-platform, docs, npm publish, v0.1.0",
+    "color": "coral",
+    "shipped": [
+      "CI 3-OS matrix (ubuntu/mac/windows)",
+      "Turborepo affected DAG",
+      "Tree + naming parity (T0–T10)",
+      "Cross-platform path fixes (XP-0–7)",
+      "publish:verify gate",
+      "npm v0.1.0 public release",
+      "@i18nprune/seo package",
+      "Releases portal"
+    ]
+  }
+]

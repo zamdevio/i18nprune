@@ -1,0 +1,236 @@
+.nav {
+  display: flex;
+  flex-direction: column;
+  width: 220px;
+  flex-shrink: 0;
+  padding: 16px 12px;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  transition: width 0.2s ease, transform 0.2s ease, padding 0.2s ease;
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+}
+
+.navCollapsed {
+  width: 56px;
+  padding: 16px 8px;
+}
+
+.navCompact {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 40;
+  width: min(280px, 86vw);
+  transform: translateX(-100%);
+  box-shadow: none;
+  align-self: auto;
+}
+
+.navCompactOpen {
+  transform: translateX(0);
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.2);
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  .backdrop {
+    background: rgba(0, 0, 0, 0.55);
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.navCollapsed .head {
+  justify-content: center;
+  padding: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.logo {
+  flex-shrink: 0;
+  display: block;
+  border-radius: 6px;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brandTitle {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.brandSubtitle {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--color-text-muted);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-height: 0;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.navCollapsed .footer {
+  flex-direction: column;
+  justify-content: center;
+}
+
+.shortcut {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.navCollapsed .toggle {
+  width: 36px;
+  padding: 0;
+  margin-left: 0;
+}
+
+.toggle:hover {
+  background: var(--color-surface-raised);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.toggleIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.toggleLabel {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.navCollapsed .link {
+  justify-content: center;
+  padding: 8px;
+}
+
+.link:hover {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+
+.linkActive {
+  background: var(--color-surface-raised);
+  color: var(--color-nav-active);
+  font-weight: 500;
+}
+
+.linkActive .linkIcon {
+  color: var(--color-nav-active);
+}
+
+.linkIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.navCollapsed .linkLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.linkLabel {
+  font-size: 14px;
+}
+
+@media (max-width: 1023px) {
+  .navCompactOpen .linkLabel {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+}

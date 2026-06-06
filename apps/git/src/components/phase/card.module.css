@@ -1,0 +1,77 @@
+.card {
+  display: flex;
+  gap: 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  border-left: 4px solid var(--accent);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.label {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+}
+
+.theme {
+  margin: 0 0 12px;
+  color: var(--color-text-muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+
+.density {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 48px;
+}
+
+.densityBar {
+  width: 12px;
+  border-radius: 2px;
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.densityLabel {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}

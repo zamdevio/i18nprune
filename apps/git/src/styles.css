@@ -1,0 +1,142 @@
+:root {
+  color-scheme: light dark;
+  --color-bg: #f5f4f1;
+  --color-surface: #eceae6;
+  --color-surface-raised: #e4e2dd;
+  --color-text: #1a1a18;
+  --color-text-muted: #6b6a65;
+  --color-border: #d4d2cc;
+  --color-accent: #1d9e75;
+  --color-nav-active: #1d9e75;
+  --color-table-stripe: rgba(0, 0, 0, 0.03);
+  --color-table-hover: rgba(29, 158, 117, 0.08);
+  --color-input-bg: #faf9f7;
+  --font-family: system-ui, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius: 8px;
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-accent);
+
+  /* Bridge @i18nprune/ui runtime.css fallbacks */
+  --text: var(--color-text);
+  --fg: var(--color-text);
+  --fg-muted: var(--color-text-muted);
+  --border: var(--color-border);
+  --panel: var(--color-surface-raised);
+  --bg-elevated: var(--color-surface-raised);
+  --muted: var(--color-text-muted);
+  --accent: var(--color-accent);
+  --primary: var(--color-accent);
+  --secondary: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
+  --ui-border: var(--color-border);
+  --ui-fg: var(--color-text);
+  --ui-bg-elevated: var(--color-surface-raised);
+  --ui-primary: var(--color-accent);
+  --ui-secondary: var(--secondary);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1c1c1a;
+    --color-surface: #262624;
+    --color-surface-raised: #30302d;
+    --color-text: #eceae6;
+    --color-text-muted: #9c9a94;
+    --color-border: #3d3d3a;
+    --color-table-stripe: rgba(255, 255, 255, 0.03);
+    --color-table-hover: rgba(29, 158, 117, 0.15);
+    --color-input-bg: #222220;
+    --secondary: color-mix(in srgb, var(--color-accent) 16%, var(--color-surface));
+    --shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.pageTitle {
+  margin: 0 0 24px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.pageSection {
+  margin-bottom: 32px;
+}
+
+.list-pagination {
+  margin-top: 16px;
+}
+
+.list-pagination--plain {
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+}
+
+.list-pagination--plain .list-pagination__summary,
+.list-pagination--plain .list-pagination__size-label,
+.list-pagination--plain .list-pagination__of {
+  color: var(--color-text-muted);
+}
+
+.list-pagination--plain .theme-btn,
+.list-pagination--plain .list-pagination__page-input {
+  border-color: var(--color-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}
+
+.toolbar-dropdown__menu {
+  max-height: min(320px, 50vh);
+  overflow-y: auto;
+}
+
+.theme-btn {
+  border-color: var(--color-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}
+
+.theme-btn:hover:not(:disabled) {
+  background: var(--color-surface-raised);
+}
+
+.toolbar-dropdown__option.is-active {
+  color: var(--color-accent);
+}

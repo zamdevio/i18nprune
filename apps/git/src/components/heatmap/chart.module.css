@@ -1,0 +1,78 @@
+.heatmap {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14px, 1fr));
+  gap: 3px;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: var(--color-surface-raised);
+  cursor: default;
+  transition: outline 0.1s;
+}
+
+.cell:hover {
+  outline: 1px solid var(--color-text-muted);
+}
+
+.level0 {
+  background: var(--color-surface-raised);
+}
+
+.level1 {
+  background: color-mix(in srgb, var(--color-accent) 25%, var(--color-surface-raised));
+}
+
+.level2 {
+  background: color-mix(in srgb, var(--color-accent) 50%, var(--color-surface-raised));
+}
+
+.level3 {
+  background: color-mix(in srgb, var(--color-accent) 75%, var(--color-surface-raised));
+}
+
+.level4 {
+  background: var(--color-accent);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.legendCells {
+  display: flex;
+  gap: 3px;
+}
+
+.legendCell {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.dateRange {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}

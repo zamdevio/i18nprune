@@ -1,0 +1,24 @@
+.chartWrap {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 20px 16px 8px;
+  height: 100%;
+}
+
+.title {
+  margin: 0 0 16px;
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tooltip {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  font-size: 12px;
+}
