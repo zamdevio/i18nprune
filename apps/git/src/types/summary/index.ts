@@ -10,5 +10,8 @@ export interface Summary {
   firstCommit: string;
   lastCommit: string;
   tags: string[];
+  branches: string[];
   topCommitDay: { date: string; count: number };
+  syncedAt: string;
+  githubRepoUrl: string | null;
 }

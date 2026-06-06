@@ -18,6 +18,12 @@ const CONVENTIONAL =
 
 const NUMSTAT = /^(\d+|-)\s+(\d+|-)\s+(.+)$/;
 
+export interface FileStat {
+  path: string;
+  insertions: number;
+  deletions: number;
+}
+
 export type ParsedCommitType =
   | 'feat'
   | 'chore'
@@ -39,6 +45,7 @@ export interface RawCommit {
   deletions: number;
   filesChanged: number;
   files: string[];
+  fileStats: FileStat[];
 }
 
 export function isoWeek(dateStr: string): string {
@@ -90,12 +97,13 @@ function applyNumstat(commit: RawCommit, lines: string[]): void {
     if (!stat) continue;
     const add = stat[1] === '-' ? 0 : Number(stat[1]);
     const del = stat[2] === '-' ? 0 : Number(stat[2]);
+    commit.fileStats.push({ path: stat[3], insertions: add, deletions: del });
     commit.insertions += add;
     commit.deletions += del;
-    commit.files.push(stat[3]);
     commit.filesChanged += 1;
   }
-  commit.files = commit.files.slice(0, 80);
+  commit.files = commit.fileStats.map((item) => item.path).slice(0, 80);
+  commit.fileStats = commit.fileStats.slice(0, 80);
 }
 
 function parseCommitText(text: string): RawCommit | null {
@@ -124,6 +132,7 @@ function parseCommitText(text: string): RawCommit | null {
     deletions: 0,
     filesChanged: 0,
     files: [],
+    fileStats: [],
   };
 }
 
@@ -173,6 +182,7 @@ export interface ExportCommit {
   deletions: number;
   filesChanged: number;
   files: string[];
+  fileStats: FileStat[];
 }
 
 export function toExportCommit(raw: RawCommit): ExportCommit {
@@ -192,5 +202,6 @@ export function toExportCommit(raw: RawCommit): ExportCommit {
     deletions: raw.deletions,
     filesChanged: raw.filesChanged,
     files: raw.files,
+    fileStats: raw.fileStats,
   };
 }

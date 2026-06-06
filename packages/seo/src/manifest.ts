@@ -20,6 +20,7 @@ export type WebManifestSurface =
   | 'releases'
   | 'web'
   | 'report'
+  | 'git'
   | 'worker'
   | 'meta';
 
@@ -111,6 +112,13 @@ function shortcutsFor(surface: WebManifestSurface): WebManifestShortcut[] {
         { name: 'Web runtime', short_name: 'Web', url: `${WEB_APP_URL}/`, description: SURFACE_COPY.web.description },
         { name: 'Documentation', short_name: 'Docs', url: `${DOCS_URL}/`, description: SURFACE_COPY.docs.description },
         { name: 'Product home', short_name: 'Home', url: `${LANDING_URL}/`, description: SURFACE_COPY.landing.description },
+      ];
+    case 'git':
+      return [
+        { name: 'Commits', short_name: 'Commits', url: `${SURFACE_COPY.git.url}commits`, description: 'Full commit log' },
+        { name: 'Timeline', short_name: 'Timeline', url: `${SURFACE_COPY.git.url}timeline`, description: 'Weekly development phases' },
+        { name: 'Documentation', short_name: 'Docs', url: `${DOCS_URL}/`, description: SURFACE_COPY.docs.description },
+        { name: 'GitHub', short_name: 'GitHub', url: GITHUB_REPO_URL },
       ];
     case 'worker':
       return [

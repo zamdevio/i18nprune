@@ -1,6 +1,6 @@
 # apps/git data sync
 
-Regenerates `src/data/*.json` from the monorepo git history.
+Regenerates `src/data/*.json` from the monorepo git history. Output is **gitignored** — sync runs before dev, build, and typecheck.
 
 ## Commands
 
@@ -17,6 +17,12 @@ pnpm --filter @i18nprune/git sync
 | `commits.json` | `git log` + `--numstat` (hash, author, body, files, +/- lines) |
 | `summary.json` | Derived totals (commits, authors, peak day, TS/MD line counts, tags) |
 | `phases.json` | `scripts/phases.config.json` merged with weekly commit counts |
+| `tags.json` | Annotated tags + commit membership |
+| `branches.json` | Branch tips + commit membership |
+
+Output is **gitignored** — sync runs before dev, build, and typecheck.
+
+`pnpm generate:sitemap` writes `public/sitemap.xml` (gitignored) from synced data after each sync in dev/build.
 
 ## Curating phases
 

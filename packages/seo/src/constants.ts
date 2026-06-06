@@ -24,6 +24,7 @@ export const DOCS_URL = 'https://docs.i18nprune.dev' as const;
 export const RELEASES_URL = 'https://releases.i18nprune.dev' as const;
 export const WEB_APP_URL = 'https://web.i18nprune.dev' as const;
 export const REPORT_URL = 'https://report.i18nprune.dev' as const;
+export const GIT_URL = 'https://git.i18nprune.dev' as const;
 export const WORKER_URL = 'https://worker.i18nprune.dev' as const;
 export const META_WORKER_URL = 'https://meta.i18nprune.dev' as const;
 
@@ -40,6 +41,7 @@ export const CANONICAL_HOSTS = {
   web: 'web.i18nprune.dev',
   report: 'report.i18nprune.dev',
   releases: 'releases.i18nprune.dev',
+  git: 'git.i18nprune.dev',
   worker: 'worker.i18nprune.dev',
   meta: 'meta.i18nprune.dev',
 } as const;

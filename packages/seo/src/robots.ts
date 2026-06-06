@@ -91,6 +91,11 @@ export const ROBOTS_PRESETS = {
     allow: ['/', '/favicon.ico'],
     disallow: ['/assets/'],
   },
+  git: {
+    allow: ['/', '/favicon.ico'],
+    disallow: ['/assets/'],
+    sitemap: 'https://git.i18nprune.dev/sitemap.xml',
+  },
   report: {
     allow: ['/', '/favicon.ico'],
     disallow: ['/assets/'],

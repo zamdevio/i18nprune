@@ -176,6 +176,9 @@ importers:
         specifier: ^2.15.0
         version: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
+      '@i18nprune/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@types/node':
         specifier: ^22.10.0
         version: 22.19.17

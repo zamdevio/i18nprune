@@ -38,6 +38,11 @@
       "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
       "ignoreDependencies": ["@cloudflare/workers-types"]
     },
+    "apps/git": {
+      "entry": ["src/**/*.{ts,tsx}", "scripts/**/*.ts", "vite.config.ts"],
+      "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts", "vite.config.ts"],
+      "ignoreDependencies": ["@cloudflare/workers-types"]
+    },
     "apps/extension": {
       "project": ["src/extension/**/*.ts"]
     },

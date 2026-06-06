@@ -44,7 +44,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "pnpm run core:build && pnpm run cli:build && pnpm run web:build && pnpm run landing:build && pnpm run docs:build && pnpm run ext:build && pnpm run worker:build && pnpm run meta:build",
+    "build": "pnpm run core:build && pnpm run cli:build && pnpm run web:build && pnpm run landing:build && pnpm run docs:build && pnpm run ext:build && pnpm run worker:build && pnpm run meta:build && pnpm run git:build",
     "typecheck": "turbo run typecheck //#ui:purity",
     "test": "vitest run",
     "parity": "vitest run tests/parity",
@@ -101,6 +101,12 @@
     "releases:typecheck": "pnpm --filter @i18nprune/releases typecheck",
     "releases:dev": "pnpm --filter @i18nprune/releases dev",
     "releases:deploy": "pnpm releases:build && wrangler pages deploy dist --project-name=releases-i18nprune --cwd apps/releases",
+    "git:sync": "pnpm --filter @i18nprune/git run sync",
+    "git:validate": "pnpm --filter @i18nprune/git run validate",
+    "git:build": "pnpm --filter @i18nprune/git run build",
+    "git:typecheck": "pnpm --filter @i18nprune/git typecheck",
+    "git:dev": "pnpm --filter @i18nprune/git dev",
+    "git:deploy": "pnpm git:build && wrangler pages deploy dist --project-name=git-i18nprune --cwd apps/git",
     "ext:compile": "pnpm --filter @i18nprune/extension compile",
     "ext:watch": "pnpm --filter @i18nprune/extension watch",
     "ext:build": "pnpm --filter @i18nprune/extension build",

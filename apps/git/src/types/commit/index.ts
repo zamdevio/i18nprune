@@ -1,3 +1,9 @@
+export interface FileStat {
+  path: string;
+  insertions: number;
+  deletions: number;
+}
+
 export type CommitType = 'feat' | 'chore' | 'docs' | 'refactor' | 'fix' | 'test' | 'ci';
 
 export interface Commit {
@@ -15,4 +21,8 @@ export interface Commit {
   deletions: number;
   filesChanged: number;
   files: string[];
+  fileStats: FileStat[];
+  tags: string[];
+  branches: string[];
+  branch: string | null;
 }

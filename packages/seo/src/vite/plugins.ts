@@ -10,6 +10,7 @@ import {
   buildLandingGraph,
   buildReportRuntimeGraph,
   buildReleasesPortalGraph,
+  buildGitAnalyticsGraph,
   buildWebRuntimeGraph,
 } from '../jsonld.js';
 import { ROBOTS_PRESETS, renderRobotsTxtPreset } from '../robots.js';
@@ -17,7 +18,7 @@ import { SURFACE_COPY } from '../surfaces.js';
 
 export type RobotsPresetKey = keyof typeof ROBOTS_PRESETS;
 
-export type SeoSurfaceKey = 'landing' | 'releases' | 'web' | 'report';
+export type SeoSurfaceKey = 'landing' | 'releases' | 'web' | 'report' | 'git';
 
 /** Minimal Vite plugin shape — avoids pinning Vite types across app version skew. */
 export type VitePluginLike = {
@@ -149,6 +150,24 @@ async function headForSurface(
             : {}),
         },
         jsonLd: buildReportRuntimeGraph(),
+      };
+    case 'git':
+      return {
+        title: copy.title,
+        description: copy.description,
+        canonicalUrl: copy.url,
+        robots: 'index,follow',
+        openGraph: openGraphBase,
+        twitter: {
+          card: 'summary_large_image',
+          title: copy.title,
+          description: copy.description,
+          site: '@zamdevio',
+          ...('ogImage' in copy && copy.ogImage
+            ? { imageUrl: copy.ogImage, imageAlt: copy.title }
+            : {}),
+        },
+        jsonLd: buildGitAnalyticsGraph(snapshot),
       };
   }
 }

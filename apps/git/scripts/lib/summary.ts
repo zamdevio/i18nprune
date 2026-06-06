@@ -3,6 +3,7 @@ import path from 'node:path';
 import { tryGit } from './git.js';
 import { REPO_ROOT } from './paths.js';
 import type { ExportCommit } from './parse.js';
+import { resolveGitHubRepoUrl } from './github.js';
 
 export interface SummaryOutput {
   totalCommits: number;
@@ -16,7 +17,10 @@ export interface SummaryOutput {
   firstCommit: string;
   lastCommit: string;
   tags: string[];
+  branches: string[];
   topCommitDay: { date: string; count: number };
+  syncedAt: string;
+  githubRepoUrl: string | null;
 }
 
 function countTrackedLines(globs: string[]): number {
@@ -70,6 +74,12 @@ export function buildSummary(commits: ExportCommit[]): SummaryOutput {
   const tags =
     tryGit(['tag', '--list', 'v*'])?.split('\n').filter(Boolean).sort() ?? [];
 
+  const branches =
+    tryGit(['branch', '--list', '--format=%(refname:short)'])
+      ?.split('\n')
+      .filter(Boolean)
+      .sort() ?? [];
+
   return {
     totalCommits: commits.length,
     activeDays: dayCounts.size,
@@ -82,7 +92,10 @@ export function buildSummary(commits: ExportCommit[]): SummaryOutput {
     firstCommit,
     lastCommit,
     tags,
+    branches,
     topCommitDay: { date: topDate, count: topCount },
+    syncedAt: new Date().toISOString(),
+    githubRepoUrl: resolveGitHubRepoUrl(),
   };
 }
 

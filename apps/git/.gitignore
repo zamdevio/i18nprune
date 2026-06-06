@@ -1,0 +1,8 @@
+dist
+node_modules
+
+# Generated on sync (pnpm sync / predev / prebuild / typecheck)
+src/data/*.json
+
+# Generated at build time (pnpm generate:sitemap)
+public/sitemap.xml

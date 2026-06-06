@@ -5,12 +5,15 @@
   "type": "module",
   "scripts": {
     "sync": "tsx scripts/sync.ts",
-    "predev": "pnpm run sync",
+    "validate": "tsx scripts/validate-phases.ts",
+    "generate:sitemap": "tsx scripts/generate-sitemap.ts",
+    "predev": "pnpm run sync && pnpm run generate:sitemap",
     "dev": "vite",
-    "prebuild": "pnpm run sync",
+    "prebuild": "pnpm --filter @i18nprune/seo run build && pnpm run sync && pnpm run validate && pnpm run generate:sitemap",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "pnpm run sync && pnpm run validate && tsc --noEmit",
+    "deploy": "pnpm build && wrangler pages deploy dist --project-name=git-i18nprune"
   },
   "dependencies": {
     "@i18nprune/ui": "workspace:*",
@@ -21,6 +24,8 @@
     "recharts": "^2.15.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260515.1",
+    "@i18nprune/seo": "workspace:*",
     "@types/node": "^22.10.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

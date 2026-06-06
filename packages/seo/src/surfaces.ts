@@ -7,6 +7,7 @@ import {
   RELEASES_URL,
   REPORT_URL,
   WEB_APP_URL,
+  GIT_URL,
 } from './constants.js';
 
 export const SURFACE_COPY = {
@@ -42,6 +43,13 @@ export const SURFACE_COPY = {
       'Visualize i18nprune project reports in the browser — import JSON, open hosted share links, and explore locale issues and quality findings.',
     url: `${REPORT_URL}/`,
     ogImage: `${REPORT_URL}/og.png`,
+  },
+  git: {
+    title: `${PRODUCT_NAME} · git analytics`,
+    description:
+      'Public git analytics for the i18nprune monorepo — commit history, weekly timeline, author stats, tags, branches, and conventional commit breakdown.',
+    url: `${GIT_URL}/`,
+    ogImage: `${GIT_URL}/og.png`,
   },
 } as const;
 

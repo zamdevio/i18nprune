@@ -21,6 +21,28 @@ export function loadPhaseConfig(): PhaseConfig[] {
   return JSON.parse(raw) as PhaseConfig[];
 }
 
+export function findUnconfiguredWeeks(
+  config: PhaseConfig[],
+  commits: ExportCommit[],
+): string[] {
+  const configured = new Set(config.map((phase) => phase.week));
+  const weeksWithCommits = new Set(commits.map((commit) => commit.week));
+  return [...weeksWithCommits]
+    .filter((week) => !configured.has(week))
+    .sort((a, b) => a.localeCompare(b));
+}
+
+export function findConfiguredWeeksWithoutCommits(
+  config: PhaseConfig[],
+  commits: ExportCommit[],
+): string[] {
+  const weeksWithCommits = new Set(commits.map((commit) => commit.week));
+  return config
+    .map((phase) => phase.week)
+    .filter((week) => !weeksWithCommits.has(week))
+    .sort((a, b) => a.localeCompare(b));
+}
+
 export function mergePhases(config: PhaseConfig[], commits: ExportCommit[]): PhaseOutput[] {
   const weekCounts = new Map<string, number>();
   for (const commit of commits) {

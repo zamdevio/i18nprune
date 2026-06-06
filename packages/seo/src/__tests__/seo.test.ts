@@ -106,6 +106,11 @@ describe('renderRobotsTxtPreset', () => {
     expect(txt).toContain('Sitemap: https://i18nprune.dev/sitemap.xml');
     expect(txt).toContain('Disallow: /og.svg');
   });
+
+  it('includes sitemap for git analytics', () => {
+    const txt = renderRobotsTxtPreset('git');
+    expect(txt).toContain('Sitemap: https://git.i18nprune.dev/sitemap.xml');
+  });
 });
 
 describe('buildSiteWebManifest', () => {

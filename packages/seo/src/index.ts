@@ -19,6 +19,7 @@ export {
   RELEASES_URL,
   REPORT_URL,
   WEB_APP_URL,
+  GIT_URL,
   WORKER_URL,
 } from './constants.js';
 export type { CanonicalHostKey } from './constants.js';
@@ -40,6 +41,7 @@ export {
   buildApiDocsWebPage,
   buildBreadcrumbList,
   buildLandingGraph,
+  buildGitAnalyticsGraph,
   buildReleasesPortalGraph,
   buildReportRuntimeGraph,
   buildSoftwareApplication,

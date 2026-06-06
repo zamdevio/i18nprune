@@ -11,6 +11,7 @@ import {
   RELEASES_URL,
   REPORT_URL,
   WEB_APP_URL,
+  GIT_URL,
 } from './constants.js';
 import type {
   BreadcrumbItem,
@@ -138,6 +139,33 @@ export function buildReleasesPortalGraph(snapshot: ProductMetaSnapshot): JsonLdG
         url: `${RELEASES_URL}/`,
         description:
           'Release streams for the i18nprune CLI, core SDK, and editor extension.',
+      }),
+    ],
+  };
+}
+
+export function buildGitAnalyticsGraph(snapshot: ProductMetaSnapshot): JsonLdGraphDocument {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      buildWebSite({
+        url: `${GIT_URL}/`,
+        name: 'i18nprune Git Analytics',
+        description:
+          'Public git analytics for the i18nprune monorepo — commits, timeline, authors, tags, and branches.',
+        id: `${GIT_URL}/#website`,
+        publisherId: PRODUCT_SOFTWARE_ID,
+      }),
+      {
+        '@type': 'CollectionPage',
+        name: 'i18nprune Git Analytics',
+        url: `${GIT_URL}/`,
+        isPartOf: { '@id': `${GIT_URL}/#website` },
+        about: { '@id': PRODUCT_SOFTWARE_ID },
+      },
+      buildSoftwareApplication(snapshot, {
+        url: `${GIT_URL}/`,
+        description: 'Explore i18nprune development history and repository activity.',
       }),
     ],
   };

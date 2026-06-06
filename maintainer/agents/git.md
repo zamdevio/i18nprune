@@ -125,4 +125,26 @@ Never **`git push --force`** to `main` to fix a release; ship **`0.1.1`** instea
 
 ---
 
+## Git analytics timeline (`apps/git`)
+
+The public git dashboard (`apps/git`, **git.i18nprune.dev**) merges **git-derived counts** with **curated weekly narratives**.
+
+| Artifact | Role |
+|----------|------|
+| `apps/git/scripts/phases.config.json` | **Manual** — label, theme, color, `shipped[]` per ISO week |
+| `apps/git/src/data/*.json` | **Generated, gitignored** — sync on `dev` / `build` / `typecheck` (`pnpm git:sync`) |
+| `apps/git/scripts/validate-phases.ts` | **Gate** — `pnpm git:build` fails if commits exist in weeks missing from config |
+
+**Weekly check (when shipping dashboard-related work or closing a dev week):**
+
+1. `pnpm git:sync`
+2. If validate fails, add the missing week block to `phases.config.json` (copy shape from an existing entry).
+3. Commit **`phases.config.json` only** — do not track generated JSON (avoids sync-after-every-commit churn).
+
+Sync **cannot** infer phase themes or shipped bullets — only counts. Unconfigured weeks still render with generic fallbacks in dev, but **build is blocked** until config catches up.
+
+App README: [`apps/git/README.md`](../../apps/git/README.md).
+
+---
+
 *See also: [Analysis](./analysis.md), [Contributors README](./README.md), [active phase](../phases/active-phase.md).*
