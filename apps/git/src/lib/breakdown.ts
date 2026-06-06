@@ -1,5 +1,4 @@
-import type { Commit, CommitType } from '../types/commit';
-import type { ScopeBreakdownItem, TypeBreakdownItem } from '../types/chart';
+import type { Commit, CommitType, ScopeBreakdownItem, TypeBreakdownItem } from '../types';
 
 const TYPE_ORDER: Array<CommitType | 'ci/build'> = [
   'feat',

@@ -1,55 +1,53 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ToolbarDropdown } from '@i18nprune/ui/react/toolbar';
 import { ListPagination } from '@i18nprune/ui/react/pagination';
+import { useCompactLayout } from '../../hooks/useMediaQuery';
 import type { Commit, CommitType } from '../../types';
-import { TYPE_COLORS } from '../../types';
-import { PAGE_SIZE_OPTIONS, paginationNavIcons } from '../icons';
 import {
-  CommitPreviewLayer,
-  computePreviewPosition,
-  type PreviewAnchor,
-} from './preview';
+  COMMIT_TYPES,
+  isValidBranchParam,
+  isValidScopeParam,
+  isValidTypeParam,
+  parseBranchParam,
+  parseScopeParam,
+  parseTypeParam,
+} from '../../lib/commit-params';
+import { matchesCommitSearch } from '../../lib/commit-search';
+import { PAGE_SIZE_OPTIONS, paginationNavIcons } from '../icons';
+import { CommitList } from './list';
+import { ExportActions } from './export-actions';
 import styles from './table.module.css';
 
 interface CommitTableProps {
   commits: Commit[];
 }
 
-const TYPE_FILTERS: Array<CommitType | 'all'> = [
-  'all',
-  'feat',
-  'chore',
-  'docs',
-  'refactor',
-  'fix',
-  'test',
-  'ci',
-];
+const TYPE_FILTERS: Array<CommitType | 'all'> = ['all', ...COMMIT_TYPES];
 
 const DEFAULT_PAGE_SIZE = 25;
-const HOVER_DELAY_MS = 180;
-
-type ScopeFilter = 'all' | string;
-
-function matchesCommitSearch(commit: Commit, query: string): boolean {
-  if (!query) return true;
-  const haystack = [
-    commit.date,
-    commit.type,
-    commit.scope,
-    commit.subject,
-    commit.body,
-  ]
-    .join('\n')
-    .toLowerCase();
-  return haystack.includes(query);
-}
 
 export function CommitTable({ commits }: CommitTableProps) {
-  const navigate = useNavigate();
+  const isCompact = useCompactLayout();
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get('q') ?? '';
+
+  const scopes = useMemo(() => {
+    const set = new Set(commits.map((c) => c.scope));
+    return Array.from(set).sort();
+  }, [commits]);
+
+  const branchNames = useMemo(() => {
+    const set = new Set<string>();
+    for (const commit of commits) {
+      if (commit.branch) set.add(commit.branch);
+    }
+    return Array.from(set).sort();
+  }, [commits]);
+
+  const typeFilter = parseTypeParam(searchParams.get('type'));
+  const scopeFilter = parseScopeParam(searchParams.get('scope'), scopes);
+  const branchFilter = parseBranchParam(searchParams.get('branch'), branchNames);
 
   const setSearch = (value: string): void => {
     setSearchParams(
@@ -63,17 +61,67 @@ export function CommitTable({ commits }: CommitTableProps) {
     );
   };
 
-  const [typeFilter, setTypeFilter] = useState<CommitType | 'all'>('all');
-  const [scopeFilter, setScopeFilter] = useState<ScopeFilter>('all');
+  const setTypeFilter = (type: CommitType | 'all'): void => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (type === 'all') next.delete('type');
+        else next.set('type', type);
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  const setScopeFilter = (scope: string): void => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (scope === 'all') next.delete('scope');
+        else next.set('scope', scope);
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  const setBranchFilter = (branch: string): void => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (branch === 'all') next.delete('branch');
+        else next.set('branch', branch);
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const type = prev.get('type');
+        const scope = prev.get('scope');
+        const branch = prev.get('branch');
+        if (
+          isValidTypeParam(type) &&
+          isValidScopeParam(scope, scopes) &&
+          isValidBranchParam(branch, branchNames)
+        ) {
+          return prev;
+        }
+        const next = new URLSearchParams(prev);
+        if (!isValidTypeParam(type)) next.delete('type');
+        if (!isValidScopeParam(scope, scopes)) next.delete('scope');
+        if (!isValidBranchParam(branch, branchNames)) next.delete('branch');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [branchNames, scopes, setSearchParams]);
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const [preview, setPreview] = useState<PreviewAnchor | null>(null);
-  const hoverTimer = useRef<number | null>(null);
-
-  const scopes = useMemo(() => {
-    const set = new Set(commits.map((c) => c.scope));
-    return Array.from(set).sort();
-  }, [commits]);
 
   const scopeOptions = useMemo(
     () => [
@@ -83,45 +131,37 @@ export function CommitTable({ commits }: CommitTableProps) {
     [scopes],
   );
 
+  const typeOptions = useMemo(
+    () =>
+      TYPE_FILTERS.map((type) => ({
+        value: type,
+        label: type === 'all' ? 'All types' : type,
+      })),
+    [],
+  );
+
+  const branchOptions = useMemo(
+    () => [
+      { value: 'all', label: 'All branches' },
+      ...branchNames.map((branch) => ({ value: branch, label: branch })),
+    ],
+    [branchNames],
+  );
+
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     return commits.filter((commit) => {
       if (typeFilter !== 'all' && commit.type !== typeFilter) return false;
       if (scopeFilter !== 'all' && commit.scope !== scopeFilter) return false;
+      if (branchFilter !== 'all' && commit.branch !== branchFilter) return false;
       if (!matchesCommitSearch(commit, query)) return false;
       return true;
     });
-  }, [commits, search, typeFilter, scopeFilter]);
+  }, [branchFilter, commits, search, scopeFilter, typeFilter]);
 
   useEffect(() => {
     setPage(1);
-  }, [search, typeFilter, scopeFilter, pageSize]);
-
-  useEffect(() => {
-    return () => {
-      if (hoverTimer.current !== null) window.clearTimeout(hoverTimer.current);
-    };
-  }, []);
-
-  const clearHoverTimer = (): void => {
-    if (hoverTimer.current !== null) {
-      window.clearTimeout(hoverTimer.current);
-      hoverTimer.current = null;
-    }
-  };
-
-  const handleRowEnter = (commit: Commit, row: HTMLElement): void => {
-    clearHoverTimer();
-    hoverTimer.current = window.setTimeout(() => {
-      const { top, left } = computePreviewPosition(row);
-      setPreview({ commit, top, left });
-    }, HOVER_DELAY_MS);
-  };
-
-  const handleRowLeave = (): void => {
-    clearHoverTimer();
-    setPreview(null);
-  };
+  }, [branchFilter, pageSize, scopeFilter, search, typeFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -139,32 +179,61 @@ export function CommitTable({ commits }: CommitTableProps) {
         <input
           type="search"
           className={styles.search}
-          placeholder="Search date, type, scope, subject, body…"
+          placeholder="Search date, type, scope, subject, body, author, email…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           aria-label="Search commits by date, type, scope, subject, or body"
         />
-        <div className={styles.filters} role="group" aria-label="Filter by type">
-          {TYPE_FILTERS.map((type) => (
-            <button
-              key={type}
-              type="button"
-              className={`${styles.filterPill} ${typeFilter === type ? styles.filterPillActive : ''}`}
-              onClick={() => setTypeFilter(type)}
-            >
-              {type === 'all' ? 'All' : type}
-            </button>
-          ))}
+        <div className={styles.filterRow}>
+          {isCompact ?
+            <div className={styles.filterDropdown}>
+              <ToolbarDropdown
+                prefix="Type"
+                showChevron
+                options={typeOptions}
+                value={typeFilter}
+                onChange={(value) => setTypeFilter(value as CommitType | 'all')}
+                ariaLabel="Filter by type"
+              />
+            </div>
+          : <div className={styles.filters} role="group" aria-label="Filter by type">
+              {TYPE_FILTERS.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className={`${styles.filterPill} ${typeFilter === type ? styles.filterPillActive : ''}`}
+                  onClick={() => setTypeFilter(type)}
+                >
+                  {type === 'all' ? 'All' : type}
+                </button>
+              ))}
+            </div>
+          }
+          <div className={styles.filterGroup}>
+            <div className={styles.filterDropdown}>
+              <ToolbarDropdown
+                prefix="Scope"
+                showChevron
+                options={scopeOptions}
+                value={scopeFilter}
+                onChange={(value) => setScopeFilter(value)}
+                ariaLabel="Filter by scope"
+              />
+            </div>
+            <div className={styles.filterDropdown}>
+              <ToolbarDropdown
+                prefix="Branch"
+                showChevron
+                options={branchOptions}
+                value={branchFilter}
+                onChange={(value) => setBranchFilter(value)}
+                ariaLabel="Filter by branch"
+              />
+            </div>
+          </div>
         </div>
-        <div className={styles.scopeDropdown}>
-          <ToolbarDropdown
-            prefix="Scope"
-            showChevron
-            options={scopeOptions}
-            value={scopeFilter}
-            onChange={(value) => setScopeFilter(value)}
-            ariaLabel="Filter by scope"
-          />
+        <div className={styles.exportActions}>
+          <ExportActions commits={filtered} />
         </div>
       </div>
 
@@ -172,72 +241,10 @@ export function CommitTable({ commits }: CommitTableProps) {
         {filtered.length} of {commits.length} commits
       </p>
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Scope</th>
-              <th>Subject</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr>
-                <td colSpan={4} className={styles.empty}>
-                  No commits match the current filters.
-                </td>
-              </tr>
-            ) : (
-              pageRows.map((commit) => (
-                <tr
-                  key={commit.hash}
-                  className={styles.row}
-                  tabIndex={0}
-                  role="link"
-                  aria-label={`View commit ${commit.subject}`}
-                  onMouseEnter={(event) => handleRowEnter(commit, event.currentTarget)}
-                  onMouseLeave={handleRowLeave}
-                  onFocus={(event) => handleRowEnter(commit, event.currentTarget)}
-                  onBlur={handleRowLeave}
-                  onClick={(event) => {
-                    if (
-                      event.target instanceof HTMLElement &&
-                      event.target.closest('a')
-                    ) {
-                      return;
-                    }
-                    navigate(`/commits/${commit.hash}`);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      navigate(`/commits/${commit.hash}`);
-                    }
-                  }}
-                >
-                  <td className={styles.date}>{commit.date}</td>
-                  <td>
-                    <span
-                      className={styles.badge}
-                      style={{ backgroundColor: TYPE_COLORS[commit.type] }}
-                    >
-                      {commit.type}
-                    </span>
-                  </td>
-                  <td className={styles.scope}>{commit.scope}</td>
-                  <td className={styles.subject}>
-                    <Link to={`/commits/${commit.hash}`} className={styles.rowLink}>
-                      {commit.subject}
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <CommitList
+        commits={pageRows}
+        emptyMessage="No commits match the current filters."
+      />
 
       <ListPagination
         className="list-pagination--plain"
@@ -253,8 +260,6 @@ export function CommitTable({ commits }: CommitTableProps) {
         icons={paginationNavIcons}
         summaryNoun="commits"
       />
-
-      <CommitPreviewLayer anchor={preview} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import { GitCommit, LayoutDashboard, PanelLeftClose, PanelLeftOpen, Timer } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { ThemeToggle } from '../theme-toggle';
 import styles from './index.module.css';
 
 interface NavItem {
@@ -88,11 +89,7 @@ export function Sidebar({
         </ul>
 
         <div className={styles.footer}>
-          {!railCollapsed && !isCompact ?
-            <span className={styles.shortcut} aria-hidden>
-              Ctrl+B
-            </span>
-          : null}
+          <ThemeToggle compact={railCollapsed || isCompact} />
           <button
             type="button"
             className={styles.toggle}

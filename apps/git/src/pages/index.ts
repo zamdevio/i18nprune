@@ -1,4 +1,10 @@
+export { AuthorDetail } from './authors/detail';
+export { AuthorsPage } from './authors';
+export { BranchDetail } from './branches/detail';
+export { BranchesPage } from './branches';
 export { Commits } from './commits';
 export { CommitDetail } from './commits/detail';
 export { Overview } from './overview';
+export { TagDetail } from './tags/detail';
+export { TagsPage } from './tags';
 export { TimelinePage } from './timeline';

@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { useMobileLayout } from '../../hooks/useMediaQuery';
 import type { WeeklyCommitItem } from '../../types';
 import { PHASE_COLORS } from '../../types';
 import styles from './bar-chart.module.css';
@@ -40,10 +41,12 @@ function WeeklyTooltip({
 }
 
 export function CommitBarChart({ data }: CommitBarChartProps) {
+  const isMobile = useMobileLayout();
+
   return (
     <div className={styles.chartWrap}>
       <h3 className={styles.title}>Weekly commit volume</h3>
-      <ResponsiveContainer width="100%" height={280}>
+      <ResponsiveContainer width="100%" height={isMobile ? 220 : 280}>
         <BarChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
           <XAxis

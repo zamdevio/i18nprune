@@ -23,11 +23,21 @@
   aspect-ratio: 1;
   border-radius: 2px;
   background: var(--color-surface-raised);
+  border: none;
+  padding: 0;
   cursor: default;
   transition: outline 0.1s;
 }
 
-.cell:hover {
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  outline: 1px solid var(--color-text-muted);
+}
+
+.cell:hover:not(:disabled) {
   outline: 1px solid var(--color-text-muted);
 }
 

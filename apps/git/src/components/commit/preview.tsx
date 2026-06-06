@@ -35,6 +35,10 @@ export function CommitPreview({ commit, top, left }: CommitPreviewProps) {
           <dd>{commit.date}</dd>
         </div>
         <div>
+          <dt>Branch</dt>
+          <dd className={styles.branchValue}>{commit.branch ?? '—'}</dd>
+        </div>
+        <div>
           <dt>Changes</dt>
           <dd>
             <span className={styles.add}>+{commit.insertions}</span>
@@ -78,7 +82,7 @@ export function computePreviewPosition(
   left = Math.max(padding, Math.min(left, window.innerWidth - previewWidth - padding));
 
   let top = rect.bottom + 8;
-  const estimatedHeight = 220;
+  const estimatedHeight = 240;
   if (top + estimatedHeight > window.innerHeight - padding) {
     top = rect.top - estimatedHeight - 8;
   }

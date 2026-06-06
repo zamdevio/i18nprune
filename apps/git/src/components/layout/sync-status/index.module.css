@@ -1,0 +1,17 @@
+.status {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.banner {
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.compact {
+  font-size: 11px;
+}

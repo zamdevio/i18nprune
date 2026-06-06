@@ -3,6 +3,13 @@
   min-height: 100vh;
 }
 
+.contentColumn {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .main {
   flex: 1;
   padding: 32px 40px;
@@ -30,5 +37,16 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .main {
+    padding: 16px 12px;
+  }
+
+  .pageTitle {
+    font-size: 18px;
+    margin-bottom: 16px;
   }
 }

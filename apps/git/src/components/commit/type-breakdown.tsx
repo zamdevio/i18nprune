@@ -8,8 +8,10 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { useMobileLayout } from '../../hooks/useMediaQuery';
 import type { TypeBreakdownItem } from '../../types';
 import { TYPE_COLORS } from '../../types';
+import { BreakdownTooltip } from './breakdown-tooltip';
 import styles from './type-breakdown.module.css';
 
 interface TypeBreakdownProps {
@@ -22,10 +24,12 @@ function typeColor(type: TypeBreakdownItem['type']): string {
 }
 
 export function TypeBreakdown({ data }: TypeBreakdownProps) {
+  const isMobile = useMobileLayout();
+
   return (
     <div className={styles.chartWrap}>
       <h3 className={styles.title}>By type</h3>
-      <ResponsiveContainer width="100%" height={280}>
+      <ResponsiveContainer width="100%" height={isMobile ? 240 : 280}>
         <BarChart
           data={data}
           layout="vertical"
@@ -48,13 +52,8 @@ export function TypeBreakdown({ data }: TypeBreakdownProps) {
             tickLine={false}
           />
           <Tooltip
-            formatter={(value: number) => [`${value} commits`, 'Count']}
-            contentStyle={{
-              background: 'var(--color-surface-raised)',
-              border: '1px solid var(--color-border)',
-              borderRadius: '8px',
-              fontSize: 12,
-            }}
+            content={<BreakdownTooltip nameKey="type" />}
+            cursor={{ fill: 'var(--color-table-hover)' }}
           />
           <Bar dataKey="count" radius={[0, 4, 4, 0]}>
             {data.map((entry) => (

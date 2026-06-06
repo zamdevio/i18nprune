@@ -8,8 +8,10 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { useMobileLayout } from '../../hooks/useMediaQuery';
 import type { ScopeBreakdownItem } from '../../types';
 import { PHASE_COLORS } from '../../types';
+import { BreakdownTooltip } from './breakdown-tooltip';
 import styles from './scope-breakdown.module.css';
 
 interface ScopeBreakdownProps {
@@ -27,10 +29,12 @@ const SCOPE_COLORS = [
 ];
 
 export function ScopeBreakdown({ data }: ScopeBreakdownProps) {
+  const isMobile = useMobileLayout();
+
   return (
     <div className={styles.chartWrap}>
       <h3 className={styles.title}>By scope</h3>
-      <ResponsiveContainer width="100%" height={280}>
+      <ResponsiveContainer width="100%" height={isMobile ? 320 : 280}>
         <BarChart
           data={data}
           layout="vertical"
@@ -47,19 +51,14 @@ export function ScopeBreakdown({ data }: ScopeBreakdownProps) {
           <YAxis
             type="category"
             dataKey="scope"
-            width={96}
+            width={isMobile ? 108 : 96}
             tick={{ fill: 'var(--color-text-muted)', fontSize: 12 }}
             axisLine={{ stroke: 'var(--color-border)' }}
             tickLine={false}
           />
           <Tooltip
-            formatter={(value: number) => [`${value} commits`, 'Count']}
-            contentStyle={{
-              background: 'var(--color-surface-raised)',
-              border: '1px solid var(--color-border)',
-              borderRadius: '8px',
-              fontSize: 12,
-            }}
+            content={<BreakdownTooltip nameKey="scope" />}
+            cursor={{ fill: 'var(--color-table-hover)' }}
           />
           <Bar dataKey="count" radius={[0, 4, 4, 0]}>
             {data.map((entry, index) => (

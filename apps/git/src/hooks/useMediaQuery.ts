@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-const COMPACT_QUERY = '(max-width: 1023px)';
+export const MOBILE_QUERY = '(max-width: 767px)';
+export const TABLET_QUERY = '(max-width: 1023px)';
 
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() =>
@@ -19,5 +20,9 @@ export function useMediaQuery(query: string): boolean {
 }
 
 export function useCompactLayout(): boolean {
-  return useMediaQuery(COMPACT_QUERY);
+  return useMediaQuery(TABLET_QUERY);
+}
+
+export function useMobileLayout(): boolean {
+  return useMediaQuery(MOBILE_QUERY);
 }

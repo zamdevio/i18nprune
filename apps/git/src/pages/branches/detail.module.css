@@ -1,0 +1,285 @@
+.page {
+  width: 100%;
+}
+
+.topBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.back:hover {
+  color: var(--color-accent);
+}
+
+.nav {
+  display: flex;
+  gap: 12px;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+  transition: color 0.15s;
+}
+
+.navLink:hover {
+  color: var(--color-accent);
+}
+
+.navDisabled {
+  font-size: 13px;
+  color: var(--color-border);
+}
+
+.hero {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.heroBody {
+  min-width: 0;
+}
+
+.kicker {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+}
+
+.currentBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: color-mix(in srgb, var(--color-accent) 18%, var(--color-surface-raised));
+  color: var(--color-accent);
+}
+
+.subject {
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+.heroLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+}
+
+.heroLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.heroLink:hover {
+  text-decoration: underline;
+}
+
+.span {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.metricWide {
+  grid-column: span 2;
+}
+
+.chartRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.authors {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  margin: 0 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.authorList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.authorItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+
+.authorItem:hover {
+  background: var(--color-table-hover);
+}
+
+.authorAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.authorFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--color-accent) 18%, var(--color-surface-raised));
+  color: var(--color-accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.authorMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.authorName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.authorStats {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.recent {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+}
+
+.more {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.moreLink {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.moreLink:hover {
+  text-decoration: underline;
+}
+
+.missing {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.missingLink {
+  color: var(--color-accent);
+}
+
+@media (max-width: 1100px) {
+  .metricGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chartRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .metricGrid {
+    gap: 12px;
+  }
+
+  .metricWide {
+    grid-column: 1 / -1;
+  }
+
+  .hero {
+    padding: 20px 16px;
+  }
+
+  .name {
+    font-size: 24px;
+  }
+}

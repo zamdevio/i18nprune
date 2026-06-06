@@ -2,6 +2,27 @@
   background: var(--color-surface);
   border-radius: var(--radius);
   padding: 20px 24px;
+  height: 100%;
+  transition: border-color 0.15s, transform 0.15s;
+  border: 1px solid transparent;
+}
+
+.link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius);
+}
+
+.link:hover .card,
+.link:focus-visible .card {
+  border-color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .value {
@@ -15,4 +36,14 @@
   margin: 0;
   font-size: 12px;
   color: var(--color-text-muted);
+}
+
+.valueAdd {
+  color: #1d9e75;
+  font-weight: 600;
+}
+
+.valueDel {
+  color: #d85a30;
+  font-weight: 600;
 }

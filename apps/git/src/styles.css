@@ -28,26 +28,47 @@
   --secondary: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
   --ui-border: var(--color-border);
   --ui-fg: var(--color-text);
+  --ui-fg-muted: var(--color-text-muted);
+  --ui-bg: var(--color-bg);
   --ui-bg-elevated: var(--color-surface-raised);
   --ui-primary: var(--color-accent);
   --ui-secondary: var(--secondary);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #1c1c1a;
-    --color-surface: #262624;
-    --color-surface-raised: #30302d;
-    --color-text: #eceae6;
-    --color-text-muted: #9c9a94;
-    --color-border: #3d3d3a;
-    --color-table-stripe: rgba(255, 255, 255, 0.03);
-    --color-table-hover: rgba(29, 158, 117, 0.15);
-    --color-input-bg: #222220;
-    --secondary: color-mix(in srgb, var(--color-accent) 16%, var(--color-surface));
-    --shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
-  }
+html.dark {
+  color-scheme: dark;
+  --color-bg: #1c1c1a;
+  --color-surface: #262624;
+  --color-surface-raised: #30302d;
+  --color-text: #eceae6;
+  --color-text-muted: #9c9a94;
+  --color-border: #3d3d3a;
+  --color-table-stripe: rgba(255, 255, 255, 0.03);
+  --color-table-hover: rgba(29, 158, 117, 0.15);
+  --color-input-bg: #222220;
+  --secondary: color-mix(in srgb, var(--color-accent) 16%, var(--color-surface));
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  --ui-bg: var(--color-bg);
+  --ui-fg-muted: var(--color-text-muted);
+  --ui-border: var(--color-border);
+}
+
+/* Scrollbar overrides — ui kit scrollbars.css uses --ui-bg; align dark track with app bg */
+html.dark {
+  scrollbar-color: color-mix(in srgb, var(--color-border) 80%, transparent) var(--color-bg);
+}
+
+html.dark *::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+html.dark *::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-border) 85%, transparent);
+}
+
+html.dark *::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-text-muted) 50%, transparent);
 }
 
 *,

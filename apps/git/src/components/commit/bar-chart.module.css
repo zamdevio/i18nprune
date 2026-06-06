@@ -32,3 +32,9 @@
   color: var(--color-text-muted);
   max-width: 220px;
 }
+
+@media (max-width: 767px) {
+  .chartWrap {
+    padding: 16px 12px 4px;
+  }
+}

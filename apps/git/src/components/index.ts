@@ -1,5 +1,6 @@
 export {
   CommitBarChart,
+  CommitList,
   CommitTable,
   ScopeBreakdown,
   TypeBreakdown,

@@ -1,0 +1,151 @@
+.tableWrap {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+}
+
+.table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.row:nth-child(even) {
+  background: var(--color-table-stripe);
+}
+
+.rowClickable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.rowClickable:hover,
+.rowClickable:focus-visible {
+  background: var(--color-table-hover);
+  outline: none;
+}
+
+.rowClickable:nth-child(even):hover,
+.rowClickable:nth-child(even):focus-visible {
+  background: var(--color-table-hover);
+}
+
+.page {
+  position: relative;
+}
+
+.lead {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  max-width: 640px;
+}
+
+.lead code {
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+  font-size: 12px;
+}
+
+.empty {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.tag {
+  white-space: nowrap;
+}
+
+.tagNameLink,
+.branchNameLink {
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.tagNameLink:hover,
+.branchNameLink:hover {
+  text-decoration: underline;
+}
+
+.tagName {
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.date {
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.hash {
+  white-space: nowrap;
+}
+
+.mono {
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+  color: var(--color-text-muted);
+}
+
+.subjectCell {
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.currentBadge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: color-mix(in srgb, var(--color-accent) 18%, var(--color-surface-raised));
+  color: var(--color-accent);
+}
+
+.branchName {
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.rowClickable:hover .tagName,
+.rowClickable:focus-visible .tagName,
+.rowClickable:hover .branchName,
+.rowClickable:focus-visible .branchName {
+  color: var(--color-accent);
+}
+
+@media (max-width: 767px) {
+  .table th:nth-child(4),
+  .table td:nth-child(4) {
+    display: none;
+  }
+}

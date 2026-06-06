@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import type { DayHeatmapItem } from '../../types';
 import styles from './chart.module.css';
 
@@ -15,6 +16,13 @@ function heatLevel(count: number): string {
 }
 
 export function Heatmap({ days, firstDate, lastDate }: HeatmapProps) {
+  const navigate = useNavigate();
+
+  const handleDayClick = (day: DayHeatmapItem): void => {
+    if (day.count === 0) return;
+    navigate(`/commits?q=${encodeURIComponent(day.date)}`);
+  };
+
   return (
     <div className={styles.heatmap}>
       <h3 className={styles.title}>Daily commit density</h3>
@@ -23,10 +31,14 @@ export function Heatmap({ days, firstDate, lastDate }: HeatmapProps) {
       </p>
       <div className={styles.grid}>
         {days.map((day) => (
-          <div
+          <button
             key={day.date}
-            className={`${styles.cell} ${heatLevel(day.count)}`}
+            type="button"
+            className={`${styles.cell} ${heatLevel(day.count)} ${day.count > 0 ? styles.clickable : ''}`}
             title={`${day.date}: ${day.count} commit${day.count === 1 ? '' : 's'}`}
+            aria-label={`${day.date}: ${day.count} commits`}
+            disabled={day.count === 0}
+            onClick={() => handleDayClick(day)}
           />
         ))}
       </div>
