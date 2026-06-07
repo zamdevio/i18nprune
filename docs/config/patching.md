@@ -1,3 +1,7 @@
+---
+description: Patching block controls opt-in loader and i18n config updates alongside locale file mutations.
+---
+
 # Patching config
 
 Use the `patching` block when you want loader/config patch operations to run with locale mutations.

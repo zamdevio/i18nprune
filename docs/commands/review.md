@@ -1,3 +1,7 @@
+---
+description: Summary-only locale audit versus source locale values and structured-leaf review metadata.
+---
+
 # `review`
 
 Summary-only locale audit versus source locale values and structured-leaf review metadata.

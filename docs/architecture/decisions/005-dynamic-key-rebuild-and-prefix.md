@@ -1,3 +1,7 @@
+---
+description: ADR 005 — dynamic keys, per-file const maps, and partial prefix handling for static analysis limits.
+---
+
 # ADR 005 — Dynamic key rebuild, const map, and partial prefixes
 
 **Status:** Accepted  

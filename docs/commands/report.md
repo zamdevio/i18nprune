@@ -1,3 +1,7 @@
+---
+description: Build project reports from a fresh scan or from an existing report document, then export in html, json, csv, or text.
+---
+
 # `report`
 
 Build project reports from a fresh scan or from an existing report document, then export in `html`, `json`, `csv`, or `text`.

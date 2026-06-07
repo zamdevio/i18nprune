@@ -1,3 +1,7 @@
+---
+description: Locales subcommand usage issue codes and CLI argument validation for list, dynamic, and delete.
+---
+
 # Locales — issue codes (`i18nprune.locales.*`)
 
 [← Issue codes index](./README.md)

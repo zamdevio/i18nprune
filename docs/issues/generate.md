@@ -1,3 +1,7 @@
+---
+description: Generate issue codes — usage hints, empty source leaves, rate limits, and network errors.
+---
+
 # Generate — issue codes (`i18nprune.generate.*`)
 
 [← Issue codes index](./README.md)

@@ -1,3 +1,7 @@
+---
+description: Monorepo layout map — packages, apps, docs mirror, and how CLI, core, and hosts relate.
+---
+
 # Repository tree
 
 This page documents repository structure and component relationships.

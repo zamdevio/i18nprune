@@ -1,3 +1,7 @@
+---
+description: ADR 003 — opt-in patching integrates generated locale loaders with app i18n config after mutations.
+---
+
 # ADR 003 — User i18n loader and config integration (opt-in)
 
 **Status:** Proposed  

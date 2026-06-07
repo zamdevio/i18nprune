@@ -1,3 +1,7 @@
+---
+description: Validate issue codes — missing_literal_keys, dynamic_key_sites, and source_locale_unreadable.
+---
+
 # Validate — issue codes (`i18nprune.validate.*`)
 
 [← Issue codes index](./README.md)

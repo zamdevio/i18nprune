@@ -1,3 +1,7 @@
+---
+description: Config issue codes — missing, invalid, or unloadable i18nprune.config project files.
+---
+
 # Config — issue codes (`i18nprune.config.*`)
 
 [← Issue codes index](./README.md)

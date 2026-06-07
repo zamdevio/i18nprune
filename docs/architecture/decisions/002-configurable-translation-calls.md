@@ -1,3 +1,7 @@
+---
+description: ADR 002 — declarative functions config lists translation call shapes for validate, sync, and extraction.
+---
+
 # ADR 002 — Configurable translation call sites for key extraction
 
 **Status:** Accepted  

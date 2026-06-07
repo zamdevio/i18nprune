@@ -1,3 +1,7 @@
+---
+description: CLI help — global usage, per-command flags, documentation links, and non-interactive reference output.
+---
+
 # `help`
 
 Shows global usage or per-command help.

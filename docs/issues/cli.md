@@ -1,3 +1,7 @@
+---
+description: CLI issue codes — invalid --json-pretty usage and root-level argument validation failures.
+---
+
 # Cli — issue codes (`i18nprune.cli.*`)
 
 [← Issue codes index](./README.md)

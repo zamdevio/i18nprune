@@ -1,3 +1,7 @@
+---
+description: IO issue codes — read failures when loading locale JSON or project files during analysis.
+---
+
 # Io — issue codes (`i18nprune.io.*`)
 
 [← Issue codes index](./README.md)

@@ -1,3 +1,7 @@
+---
+description: ADR 007 — stable CLI --json envelope (ok, kind, data, issues, meta.apiVersion) for automation and CI.
+---
+
 # ADR 007 — CLI JSON envelope contract
 
 **Status:** Accepted  

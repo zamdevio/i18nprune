@@ -1,3 +1,7 @@
+---
+description: Cache profile and rebuild settings — reuse analysis, locale deltas, and when full rescans run.
+---
+
 # Cache config
 
 Use the `cache` block to control scan/analysis reuse behavior.

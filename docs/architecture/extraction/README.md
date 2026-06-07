@@ -1,3 +1,7 @@
+---
+description: How i18nprune discovers translation calls from source text, dynamic vs literal keys, and known limits.
+---
+
 # Extraction architecture
 
 This section explains how i18nprune finds translation usage from source text and where the limits are.

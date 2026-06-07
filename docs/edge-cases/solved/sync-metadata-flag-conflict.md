@@ -1,3 +1,7 @@
+---
+description: "Operators sometimes pass sync --metadata and sync --strip-metadata in the same invocation (copy-pasted CI flags, or “try both” locally). Without an explicit…"
+---
+
 # Sync metadata flag conflict
 
 ## Problem

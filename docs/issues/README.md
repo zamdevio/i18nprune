@@ -1,3 +1,7 @@
+---
+description: Stable i18nprune issue codes reference — codes emitted in CLI --json issues[] and SDK results.
+---
+
 # Issues reference (`issues[]`)
 
 When a command emits JSON with **`--json`**, the envelope includes **`issues[]`**: structured findings for scripts and integrations. Each entry has **`severity`**, **`code`**, **`message`**, and optional **`path`**.

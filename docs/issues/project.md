@@ -1,3 +1,7 @@
+---
+description: Project workspace issue codes — config discovery, locales directory, src root, and layout validation.
+---
+
 # Project workspace (`i18nprune.project.*`)
 
 These codes come from **`runProjectReadiness`** in **`@i18nprune/core`**: a small, shared **preflight** after the merged config and resolved **`paths.*`** are known. Checks include: an on-disk **`i18nprune.config.*`** (when required), **`paths.sourceLocale`**, **`paths.localesDir`**, and **`paths.srcRoot`**. The CLI runs this through **named presets** (aligned with commands such as **`validate`**, **`sync`**, **`locales delete`**, **`patch`**, **`init`**, …).

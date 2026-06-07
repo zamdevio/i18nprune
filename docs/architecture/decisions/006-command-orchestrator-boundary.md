@@ -1,3 +1,7 @@
+---
+description: "ADR 006 — CLI command modules orchestrate; reusable domain logic lives in @i18nprune/core runXxx entries."
+---
+
 # ADR 006 — Command Modules Are Orchestrators
 
 **Status:** Accepted  

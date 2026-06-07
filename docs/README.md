@@ -1,3 +1,7 @@
+---
+description: "Keep your translation keys and locale files aligned without guesswork. i18nprune helps teams detect drift, review dynamic key risks, and automate safe locale…"
+---
+
 # i18nprune documentation
 
 Keep your translation keys and locale files aligned without guesswork. i18nprune helps teams detect drift, review dynamic key risks, and automate safe locale maintenance in CI and local development.

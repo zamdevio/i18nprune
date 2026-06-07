@@ -1,3 +1,7 @@
+---
+description: Which subcommands honor --json on stdout and how COMMANDS_WITH_JSON_OUTPUT keeps CLI/SDK parity.
+---
+
 # CLI `--json` parity across subcommands
 
 ## Problem

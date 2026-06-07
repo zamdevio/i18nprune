@@ -1,3 +1,7 @@
+---
+description: Cleanup issue codes — uncertain path exclusions and ripgrep availability for string-presence checks.
+---
+
 # Cleanup — issue codes (`i18nprune.cleanup.*`)
 
 [← Issue codes index](./README.md)

@@ -1,3 +1,7 @@
+---
+description: Edge-case notes — solved behavior receipts and unsolved inventory for extraction and policy gaps.
+---
+
 # Edge cases
 
 Notes on unusual situations and how the tool behaves.

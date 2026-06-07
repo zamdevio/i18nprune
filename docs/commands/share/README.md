@@ -1,3 +1,7 @@
+---
+description: "Upload prepared project snapshots or stored report JSON to the public worker (workers.i18nprune.dev), and manage local share.json cache metadata beside the…"
+---
+
 # `share`
 
 Upload **prepared project snapshots** or **stored report JSON** to the public worker (`workers.i18nprune.dev`), and manage local **`share.json`** cache metadata beside the analysis cache.

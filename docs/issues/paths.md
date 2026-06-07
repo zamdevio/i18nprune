@@ -1,3 +1,7 @@
+---
+description: Path and filesystem issue codes — Windows reserved names, long paths, and network drive caveats.
+---
+
 # Path & filesystem (`i18nprune.paths.*`)
 
 These codes come from **`collectPlatformPathWarnings`** during **`runProjectReadiness`**. They flag Windows and network-path risks on resolved **source locale**, **locales directory**, and **src** roots. Commands still run unless another readiness check fails.

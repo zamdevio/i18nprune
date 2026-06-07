@@ -1,3 +1,7 @@
+---
+description: Global CLI flags for plain text output, NO_COLOR, and grep-friendly log lines without channel tags.
+---
+
 # Log presentation (`--no-color`, log tags)
 
 Global flags control **how** human log lines look. They do **not** change exit codes, `--json` envelopes, issue codes, or which messages print — that stays with [`--json`](./json.md), [`--quiet`](./verbosity.md), and [`--silent`](./verbosity.md).

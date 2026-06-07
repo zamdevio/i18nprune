@@ -1,3 +1,7 @@
+---
+description: Context resolution issue codes — config discovery warnings and failed project context resolution.
+---
+
 # Context — issue codes (`i18nprune.context.*`)
 
 [← Issue codes index](./README.md)

@@ -1,3 +1,7 @@
+---
+description: Install i18nprune from npm, create config with init, and run validate or sync in your first project.
+---
+
 # CLI onboarding path
 
 ## Install

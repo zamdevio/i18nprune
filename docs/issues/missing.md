@@ -1,3 +1,7 @@
+---
+description: Missing command issue codes — scaffold paths not seen in the current source scan.
+---
+
 # Missing — issue codes (`i18nprune.missing.*`)
 
 [← Issue codes index](./README.md)

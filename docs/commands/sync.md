@@ -1,3 +1,7 @@
+---
+description: Sync target locale JSON structure to match source locale shape while respecting policies.preserve.
+---
+
 # `sync`
 
 Sync target locale JSON structure to match source locale shape while respecting `policies.preserve`.

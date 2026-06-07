@@ -1,3 +1,7 @@
+---
+description: Repository architecture map — CLI layers, core engine boundaries, and links to ADRs and extraction docs.
+---
+
 # Architecture
 
 Use [docs/README.md](../README.md) as the central topic index.

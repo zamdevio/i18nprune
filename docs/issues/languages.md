@@ -1,3 +1,7 @@
+---
+description: Languages catalog issue codes — empty filters and unsupported BCP-47 codes in generate hints.
+---
+
 # Languages — issue codes (`i18nprune.languages.*`)
 
 [← Issue codes index](./README.md)

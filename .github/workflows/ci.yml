@@ -166,6 +166,10 @@ jobs:
         if: needs.scope.outputs.run_ui_purity == 'true'
         run: pnpm turbo run //#ui:purity
 
+      - name: Verify docs sync idempotency
+        if: needs.scope.outputs.docs_only == 'true' || needs.scope.outputs.run_product == 'true'
+        run: pnpm --filter @i18nprune/docs sync:verify
+
   cli-build:
     name: cli-build (${{ matrix.os }})
     needs: [scope, typecheck]

@@ -1,3 +1,7 @@
+---
+description: "This folder holds long-horizon edge-case analysis and policy ideas — not shipped fixes. For resolved behavior, see solved/."
+---
+
 # Unsolved / planned edge-case work
 
 This folder holds **long-horizon** edge-case analysis and policy ideas — not shipped fixes. For **resolved** behavior, see [solved/](../solved/).

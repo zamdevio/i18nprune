@@ -1,3 +1,7 @@
+---
+description: ADR template — context, decision, and consequences format for architecture records in docs.
+---
+
 # ADR NNN — Short title in Title Case
 
 > Replace **`NNN`** with the next number (zero-padded: `005`, …). Keep titles stable once published.

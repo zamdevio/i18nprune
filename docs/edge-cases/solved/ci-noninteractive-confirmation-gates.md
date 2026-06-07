@@ -1,3 +1,7 @@
+---
+description: "Commands that prompt on TTY (share upload, cleanup --ask, locales delete, init without --yes) hang or fail in GitHub Actions, Docker, and other non-TTY…"
+---
+
 # CI non-interactive confirmation gates
 
 ## Problem

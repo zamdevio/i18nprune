@@ -169,6 +169,7 @@ Root convenience scripts delegate to workspace packages via **`pnpm --filter <pa
 | **`cli:typecheck`** | `@i18nprune/cli` · `typecheck` (root `tsconfig.json` compile unit) |
 | **`core:typecheck`**, **`ui:typecheck`**, **`web:typecheck`**, **`docs:*`**, **`landing:*`**, **`meta:*`**, **`worker:*`**, **`report:typecheck`** | matching `@i18nprune/*` · `typecheck` / `dev` / `build` / … |
 | **`docs:sync`** | `@i18nprune/docs` · `sync` |
+| **`docs:sync:verify`** | `@i18nprune/docs` · `sync:verify` — idempotent sync gate (CI typecheck job) |
 | **`report:dev`**, **`report:build`** | `@i18nprune/report` · `dev` / `build` |
 | **`ext:compile`**, **`ext:watch`**, **`ext:build`** | `@i18nprune/extension` · same script name |
 | **`ext:web:dev`**, **`ext:web:build`**, **`ext:web:typecheck`** | `@i18nprune/extension-webview` · `dev` / `build` / `typecheck` |

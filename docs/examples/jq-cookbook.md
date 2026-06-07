@@ -1,3 +1,7 @@
+---
+description: Practical jq filters for i18nprune JSON envelopes.
+---
+
 # jq cookbook
 
 Practical `jq` filters for i18nprune JSON envelopes.

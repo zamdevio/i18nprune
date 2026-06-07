@@ -1,3 +1,7 @@
+---
+description: CLI disk cache under the tool home directory — profiles, rebuild modes, and separation from worker share storage.
+---
+
 # CLI cache
 
 The CLI keeps **local disk state under one home directory** (`<home>`). That is separate from **hosted worker snapshots** (zip upload to the edge). Do not mix CLI cache files with worker project/report storage.

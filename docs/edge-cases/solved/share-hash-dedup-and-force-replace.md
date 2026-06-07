@@ -1,3 +1,7 @@
+---
+description: "Uploading the same prepared snapshot twice should not always create duplicate worker rows. Conversely, operators sometimes must rotate share links after a…"
+---
+
 # Share hash dedup and `--force` replace
 
 ## Problem

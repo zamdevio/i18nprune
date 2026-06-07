@@ -1,3 +1,7 @@
+---
+description: i18nprune reads a single project config file that defines source locale JSON, locales directory, source scan root, and translation function names (functions).
+---
+
 # Configuration
 
 i18nprune reads a single project config file that defines **source locale JSON**, **locales directory**, **source scan root**, and **translation function names** (`functions`).

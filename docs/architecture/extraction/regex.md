@@ -1,3 +1,7 @@
+---
+description: Regex-based extraction rules, per-file const maps, and conservative limits vs full TypeScript semantics.
+---
+
 # Regex and static-analysis limits
 
 i18nprune extraction is pattern-based and intentionally conservative. It is not a full TypeScript semantic compiler pass.

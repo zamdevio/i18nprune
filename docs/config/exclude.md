@@ -1,3 +1,7 @@
+---
+description: "exclude controls what the source scanner skips before extraction. It is part of core config shape, so it applies consistently across CLI commands and other…"
+---
+
 # Exclude (scan scope)
 
 `exclude` controls what the source scanner skips before extraction. It is part of core config shape, so it applies consistently across CLI commands and other clients that pass config to core.

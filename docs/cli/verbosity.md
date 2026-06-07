@@ -1,3 +1,7 @@
+---
+description: Global --json, --quiet, and --silent flags — what each suppresses on stderr and when the banner stays.
+---
+
 # Quiet, silent, and JSON output
 
 Global flags are stored in **`RunOptions`** (`packages/cli/src/types/core/runtime/index.ts`) and set from **`packages/cli/bin/cli.ts`**:

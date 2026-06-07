@@ -1,3 +1,7 @@
+---
+description: Share issue codes — local cache rows, remote upload rejections, zip failures, and worker availability.
+---
+
 # Share — issue codes (`i18nprune.share.*`)
 
 [← Issue codes index](./README.md)

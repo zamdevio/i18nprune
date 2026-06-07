@@ -1,3 +1,7 @@
+---
+description: Doctor issue codes — Node runtime, ripgrep on PATH, config file presence, and locale path readiness.
+---
+
 # Doctor — issue codes (`i18nprune.doctor.*`)
 
 [← Issue codes index](./README.md)

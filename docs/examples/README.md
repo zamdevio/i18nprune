@@ -1,3 +1,7 @@
+---
+description: "These recipes combine global flags, policies, and multiple commands the way teams use i18nprune in real projects: CI, batch translation, and safe cleanup…"
+---
+
 # Examples — advanced CLI workflows
 
 These recipes combine **global flags**, **policies**, and **multiple commands** the way teams use **i18nprune** in real projects: CI, batch translation, and safe cleanup. Adjust paths to your repo.

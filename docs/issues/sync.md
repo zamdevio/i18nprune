@@ -1,3 +1,7 @@
+---
+description: Sync issue codes — missing locale files, metadata flag conflicts, and retained scan extras.
+---
+
 # Sync — issue codes (`i18nprune.sync.*`)
 
 [← Issue codes index](./README.md)

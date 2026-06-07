@@ -1,3 +1,7 @@
+---
+description: "Work with existing locale JSON under your configured localesDir. Subcommands support global --json (structured CliJsonEnvelope on stdout) when the root…"
+---
+
 # `locales`
 
 Work with **existing locale JSON** under your configured **`localesDir`**. Subcommands support global **`--json`** (structured **`CliJsonEnvelope`** on stdout) when the root program passes **`--json`** — same contract as **`validate`**, **`generate`**, etc. See [JSON output](../../cli/json.md).

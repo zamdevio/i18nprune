@@ -1,3 +1,7 @@
+---
+description: runXxx entry points for @i18nprune/core — tiers, CLI --json parity, exports, and example scripts.
+---
+
 # SDK operations
 
 Programmatic entry points for `@i18nprune/core`. Each **`runXxx`** function mirrors a CLI command’s engine logic; hosts supply **runtime adapters** and optional **hooks** for progress, prompts, and filesystem access.

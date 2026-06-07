@@ -1,3 +1,7 @@
+---
+description: Lists built-in language catalog entries used by generate and locale-source validation hints.
+---
+
 # `languages` (`langs`)
 
 Lists built-in language catalog entries used by `generate` and locale-source validation hints.

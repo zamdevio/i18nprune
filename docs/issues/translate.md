@@ -1,3 +1,7 @@
+---
+description: Translate and provider issue codes — credentials, unknown providers, identity streaks, and config load.
+---
+
 # Translate — issue codes & troubleshooting
 
 [← Issue codes index](./README.md)

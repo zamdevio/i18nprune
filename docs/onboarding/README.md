@@ -1,3 +1,7 @@
+---
+description: Shortest path into i18nprune — install, validate keys, sync locales, and link to CLI, SDK, or hosted flows.
+---
+
 # Onboarding hub
 
 ## What is i18nprune?

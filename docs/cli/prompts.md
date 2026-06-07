@@ -1,3 +1,7 @@
+---
+description: When the CLI prompts on TTY, how --json and CI disable confirmations, and which commands gate on stdin.
+---
+
 # CLI prompt modules (convention)
 
 This page is the canonical prompt boundary reference for `--json`, CI, and TTY behavior.

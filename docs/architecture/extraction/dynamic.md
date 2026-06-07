@@ -1,3 +1,7 @@
+---
+description: Dynamic translation keys use non-literal first arguments — reported, not enumerated, by static analysis.
+---
+
 # Dynamic key handling
 
 Dynamic keys are translation calls where the first argument is not a static string literal.

@@ -1,3 +1,7 @@
+---
+description: Tracked unsolved extractor and policy gaps — hook destructuring, aliases, and planned detection rules.
+---
+
 # Unsolved edge-case inventory
 
 This page tracks known unsolved behavior and policy gaps. Keep entries short, concrete, and actionable.

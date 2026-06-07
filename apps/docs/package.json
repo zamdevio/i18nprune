@@ -6,6 +6,7 @@
   "description": "Documentation site (VitePress). Content is synced from repository docs/.",
   "scripts": {
     "sync": "node scripts/sync.js",
+    "sync:verify": "node scripts/verify.mjs",
     "sync:watch": "node scripts/sync.js --watch",
     "dev": "node scripts/dev.mjs",
     "dev:no-watch": "pnpm run sync && vitepress dev . --host 0.0.0.0 --port 8282",

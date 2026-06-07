@@ -1,3 +1,7 @@
+---
+description: The config schema includes optional policies so sync, quality, and generate --resume can respect copy and exclusion rules without ad-hoc flags.
+---
+
 # Policies (`policies` in config)
 
 The config schema includes optional `policies` so sync, quality, and `generate --resume` can respect copy and exclusion rules without ad-hoc flags.

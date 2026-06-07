@@ -1,3 +1,7 @@
+---
+description: Read-only diagnostics for runtime, tools, config, and path readiness.
+---
+
 # `doctor`
 
 Read-only diagnostics for runtime, tools, config, and path readiness.

@@ -1,3 +1,7 @@
+---
+description: Report issue codes — invalid export format and hosted report document parse failures.
+---
+
 # Report — issue codes (`i18nprune.report.*`)
 
 [← Issue codes index](./README.md)

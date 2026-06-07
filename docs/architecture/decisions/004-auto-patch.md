@@ -1,3 +1,7 @@
+---
+description: ADR 004 — opt-in auto-patching updates runtime i18n wiring when locale files or loader maps change.
+---
+
 # ADR 004 — Opt-in auto-patching for runtime i18n wiring
 
 **Status:** Accepted  

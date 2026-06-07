@@ -1,3 +1,7 @@
+---
+description: ADR 001 — one installable CLI with explicit subcommands for local and CI i18n maintenance in v0.x.
+---
+
 # ADR 001 — Scope and shape of the v0.x CLI
 
 **Status:** Accepted  

@@ -1,3 +1,7 @@
+---
+description: Configure source locale code, locales directory, layout mode, and JSON file structure for your project.
+---
+
 # Locales config
 
 Use the `locales` config block to control source locale code, locale directory, and layout mode/structure.

@@ -1,3 +1,7 @@
+---
+description: "Print resolved project config, locale paths, scan roots, and active I18NPRUNE_* environment variables."
+---
+
 # `config`
 
 Prints resolved **config**, **paths**, and **`I18NPRUNE_*`** env snapshot.

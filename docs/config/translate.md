@@ -1,3 +1,7 @@
+---
+description: "Use translate in i18nprune.config.* as a roster of backends (translate.providers) plus a default id (translate.primary) when the CLI flag and provider env…"
+---
+
 # Translation config (`generate` / `generate --resume`)
 
 Use **`translate`** in **`i18nprune.config.*`** as a **roster** of backends (**`translate.providers`**) plus a **default id** (**`translate.primary`**) when the CLI flag and provider env omit.

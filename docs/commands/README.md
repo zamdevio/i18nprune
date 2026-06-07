@@ -1,3 +1,7 @@
+---
+description: Index of i18nprune subcommands with links to per-command docs, flags, and JSON envelope parity.
+---
+
 # Commands
 
 Each subcommand has a dedicated page. The CLI prints a **Documentation** link at the bottom of `help` output (see **`getDocsUrl` / `docsCommandUrl`** in **`@i18nprune/core`**).

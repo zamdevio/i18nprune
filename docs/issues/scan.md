@@ -1,3 +1,7 @@
+---
+description: Scan issue codes — dynamic_key_sites warnings from non-literal translation call patterns.
+---
+
 # Scan — issue codes (`i18nprune.scan.*`)
 
 [← Issue codes index](./README.md)

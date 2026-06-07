@@ -1,3 +1,7 @@
+---
+description: "Analysis for future config and detection rules. Nothing here is a commitment to ship every knob as written; use it to document trade-offs before changing…"
+---
+
 # Edge-case policy framework (pre-implementation)
 
 Analysis for **future** config and detection rules. Nothing here is a commitment to ship every knob as written; use it to document **trade-offs** before changing defaults.

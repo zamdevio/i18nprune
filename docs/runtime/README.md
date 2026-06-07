@@ -1,3 +1,7 @@
+---
+description: Runtime host model — choose Node, web, or edge adapters when calling @i18nprune/core from your environment.
+---
+
 # Runtime (same core, different hosts)
 
 **`@i18nprune/core`** ships **deterministic engines**—missing-key detection, sync transforms, translation pipelines, JSON payloads—for CLI tools, CI scripts, browser tooling, and serverless workers. **Algorithms stay identical** across surfaces; what varies per **runtime** is **construction**: binding filesystem paths, clocks, and optional networking behind **`RuntimeAdapters`**.

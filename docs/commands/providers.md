@@ -1,3 +1,7 @@
+---
+description: List translation backends for generate — ids, env vars, config snippets; supports --json.
+---
+
 # `providers`
 
 Lists translation backends available for `generate` / `generate --resume`.

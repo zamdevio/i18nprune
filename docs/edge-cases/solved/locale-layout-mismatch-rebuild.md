@@ -1,3 +1,7 @@
+---
+description: "Changing locales.mode, locales.structure, or locales.directory without clearing cache can leave files.json fingerprints pointing at the wrong segment set…"
+---
+
 # Locale layout mismatch rebuild
 
 ## Problem

@@ -1,3 +1,7 @@
+---
+description: Browser runtime adapters for @i18nprune/core — fetch, storage, and web workspace integrations.
+---
+
 # Browser (Web) runtime
 
 **Import:** `i18nprune/core/runtime/web`

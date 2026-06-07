@@ -1,3 +1,7 @@
+---
+description: ADR 008 — core owns cache rebuild policy; CLI and IDE hosts pass adapters without forking delta logic.
+---
+
 # ADR 008 — Cache ownership and host boundary
 
 **Status:** Accepted  

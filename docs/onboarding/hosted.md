@@ -1,3 +1,7 @@
+---
+description: Use the hosted surfaces when you want a browser-based workflow (report UI, web workspace) or you want to share prepared snapshots with others.
+---
+
 # Hosted surfaces onboarding path
 
 Use the hosted surfaces when you want a browser-based workflow (report UI, web workspace) or you want to share prepared snapshots with others.

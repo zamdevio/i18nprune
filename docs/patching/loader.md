@@ -1,3 +1,7 @@
+---
+description: "This page explains file ownership, the generated module API, and how to wire loaders.generated.ts into your app (with an optional loader.ts wrapper you write…"
+---
+
 # Loader contracts (`loader_generated`)
 
 This page explains **file ownership**, the **generated module API**, and how to **wire `loaders.generated.ts` into your app** (with an optional `loader.ts` wrapper you write yourself).

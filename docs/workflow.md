@@ -1,3 +1,7 @@
+---
+description: Monorepo development workflow — typecheck, test, build, docs sync, and CLI commands from the repository root.
+---
+
 # Development workflow
 
 From the **repository root**:
@@ -12,6 +16,7 @@ From the **repository root**:
 | `pnpm dev -- --help` | Run CLI via `tsx` |
 | `pnpm generate:languages` | Regenerate `languages.json` |
 | `pnpm docs:sync` | One-shot copy `docs/` → `apps/docs/content/` |
+| `pnpm docs:sync:verify` | CI gate — verify `docs:sync` is idempotent (uses `apps/docs/scripts/verify.mjs`) |
 | `pnpm docs:dev` | VitePress dev (**port `8282`**, or next free if busy) plus **live sync** — edits under `docs/` mirror into `apps/docs/content/` (`apps/docs/scripts/dev.mjs`) |
 | `pnpm --filter @i18nprune/docs dev:no-watch` | One **`sync`** then VitePress only (no file watcher) |
 | `pnpm web:dev` | Runtime web console (`apps/web`, `web.i18nprune.dev`) |

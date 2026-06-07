@@ -1,3 +1,7 @@
+---
+description: ADR 011 — runtime-neutral core with host adapters for Node, web, and edge filesystem/env bindings.
+---
+
 # ADR 011 — Runtime-neutral SDK host model
 
 **Status:** Accepted  

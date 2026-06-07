@@ -1,3 +1,7 @@
+---
+description: Edge and Cloudflare Worker runtime adapters for share upload and hosted tooling on workers.i18nprune.dev.
+---
+
 # Worker / edge runtime
 
 **Import:** `i18nprune/core/runtime/edge`

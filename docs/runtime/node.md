@@ -1,3 +1,7 @@
+---
+description: Node and CLI runtime adapters — filesystem, process env, and local automation for i18nprune/core/runtime/node.
+---
+
 # Node / CLI runtime
 
 **Import:** `i18nprune/core/runtime/node`

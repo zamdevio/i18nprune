@@ -1,3 +1,7 @@
+---
+description: Locale file issue codes — missing targets, placeholder leaves, and source/target leaf mismatches.
+---
+
 # Locale — issue codes (`i18nprune.locale.*`)
 
 [← Issue codes index](./README.md)

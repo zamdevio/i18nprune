@@ -1,3 +1,7 @@
+---
+description: Run validate --json in CI, gate on ok and exit codes, and keep jobs non-interactive with global flags.
+---
+
 # CI onboarding path
 
 ## Gate with `validate --json`

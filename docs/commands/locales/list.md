@@ -1,3 +1,7 @@
+---
+description: Lists locale JSON files under localesDir with per-file leaf counts and source-identical hints.
+---
+
 # `locales list`
 
 Lists locale JSON files under `localesDir` with per-file leaf counts and source-identical hints.

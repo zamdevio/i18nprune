@@ -1,3 +1,7 @@
+---
+description: "I18NPRUNE_* environment variables for provider selection, paths, cache, and non-interactive CI behavior."
+---
+
 # Environment variables
 
 Runtime behavior is controlled partly by **environment variables**. Canonical names live in **`packages/cli/src/constants/env.ts`** — update that file (one place) when adding or renaming vars; docs and snapshots should follow.

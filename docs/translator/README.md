@@ -1,3 +1,7 @@
+---
+description: "This document aligns how translation runs in i18nprune: provider abstraction, shared leaf pipeline (translateLeaf), stderr progress + SIGINT, and how…"
+---
+
 # Translator engine & progress (design)
 
 This document aligns **how translation runs** in i18nprune: **provider abstraction**, **shared leaf pipeline** (`translateLeaf`), **stderr progress** + **SIGINT**, and how **`generate`** (including **`--resume`**) behaves with **flags**, **errors**, and **non-interactive** runs.

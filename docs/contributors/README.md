@@ -1,3 +1,7 @@
+---
+description: "Thanks for helping improve i18nprune. This page describes how we work in the repository—structure, expectations, and where to read next. The project is MIT…"
+---
+
 # Contributing to i18nprune
 
 Thanks for helping improve **i18nprune**. This page describes **how we work in the repository**—structure, expectations, and where to read next. The project is **MIT licensed** and open to contributions from individuals, teams, and **automation** (CI, internal scripts, **AI-assisted coding agents**).

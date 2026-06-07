@@ -1,3 +1,7 @@
+---
+description: Compare translation call sites to source locale JSON; --json reports missing keys and dynamic sites.
+---
+
 # `validate`
 
 Ensures **string literal keys** used in translation calls exist in the **source locale JSON**. Calls whose first argument is **not** a static string are reported as **dynamic** (same heuristic model as **`sync`** warnings).

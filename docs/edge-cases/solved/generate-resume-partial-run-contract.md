@@ -1,3 +1,7 @@
+---
+description: "Teams expect generate --resume to mean “only fill gaps,” but provider cache layers, --dry-run, and per-target status fields make it easy to misread a run as…"
+---
+
 # Generate `--resume` partial-run contract
 
 ## Problem

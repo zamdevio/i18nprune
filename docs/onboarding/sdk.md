@@ -1,3 +1,7 @@
+---
+description: Install @i18nprune/core, wire runtime adapters, and find runXxx operations with known extraction limits.
+---
+
 # SDK onboarding path
 
 ## When to use the SDK (vs the CLI)

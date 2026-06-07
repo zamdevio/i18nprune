@@ -1,3 +1,7 @@
+---
+description: ADR 010 — locale directory layout modes, metadata sidecars, and strip-vs-preserve conflict rules.
+---
+
 # ADR 010 — Locale layout and metadata modes
 
 **Status:** Accepted  

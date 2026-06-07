@@ -1,3 +1,7 @@
+---
+description: "Run command-equivalent workflows directly in code with @i18nprune/core."
+---
+
 # SDK examples
 
 Run command-equivalent workflows directly in code with `@i18nprune/core`.

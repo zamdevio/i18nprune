@@ -1,3 +1,7 @@
+---
+description: Quality issue codes — english_identical_leaves parity warnings between source and targets.
+---
+
 # Quality — issue codes (`i18nprune.quality.*`)
 
 [← Issue codes index](./README.md)

@@ -1,3 +1,7 @@
+---
+description: "Creates i18nprune.config.ts (or .mts / .js / .mjs) when missing — interactive unless --yes (global)."
+---
+
 # `init`
 
 Creates **`i18nprune.config.ts`** (or **`.mts` / `.js` / `.mjs`**) when missing — interactive unless **`--yes`** (global).

@@ -1,3 +1,7 @@
+---
+description: "Keep lazy locale loader wiring aligned with your locale JSON files and src/i18n/config.json after generate, sync, locales edit, or locales delete — without…"
+---
+
 # Auto-patching
 
 Keep lazy locale loader wiring aligned with your locale JSON files and **`src/i18n/config.json`** after **`generate`**, **`sync`**, **`locales edit`**, or **`locales delete`** — without hand-editing the generated module whenever locales change.

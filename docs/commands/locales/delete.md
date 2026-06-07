@@ -1,3 +1,7 @@
+---
+description: Deletes target locale files under localesDir (and matching .meta.json files when present). Source locale cannot be deleted.
+---
+
 # `locales delete`
 
 Deletes target locale files under `localesDir` (and matching `.meta.json` files when present). Source locale cannot be deleted.

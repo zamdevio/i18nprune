@@ -1,3 +1,7 @@
+---
+description: Reports parity-style locale quality metrics such as source-identical leaves.
+---
+
 # `quality`
 
 Reports parity-style locale quality metrics such as source-identical leaves.

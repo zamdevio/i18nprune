@@ -1,3 +1,7 @@
+---
+description: i18nprune CLI entry point, global flags, Commander behaviour, and links to JSON and verbosity docs.
+---
+
 # CLI overview
 
 `i18nprune` is a Node 18+ ESM CLI built with **Commander**. The entry point is **`packages/cli/bin/cli.ts`**, compiled to **`dist/cli.js`**.

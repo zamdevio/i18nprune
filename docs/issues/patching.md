@@ -1,3 +1,7 @@
+---
+description: Patching issue codes — config schema, size limits, catalog mismatches, and locale file alignment.
+---
+
 # Patching — issue codes (`i18nprune.patching.*`)
 
 [← Issue codes index](./README.md)

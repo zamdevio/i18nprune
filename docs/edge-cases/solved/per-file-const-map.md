@@ -1,3 +1,7 @@
+---
+description: "Translation calls often use template strings with placeholders, e.g. ` t(foo.${NS}.bar) `. To decide whether a key is fully static, the tool substitutes…"
+---
+
 # Per-file const maps for template / static keys
 
 ## Problem

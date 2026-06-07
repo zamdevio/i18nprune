@@ -1,3 +1,7 @@
+---
+description: Read-only scan for non-literal translation call sites, using the same heuristic model as validate.
+---
+
 # `locales dynamic`
 
 Read-only scan for non-literal translation call sites, using the same heuristic model as `validate`.

@@ -1,3 +1,7 @@
+---
+description: Generate translated target locale files from your source locale, with support for first-run generation, top-up (--resume), and dry-run verification.
+---
+
 # `generate`
 
 Generate translated target locale files from your source locale, with support for first-run generation, top-up (`--resume`), and dry-run verification.

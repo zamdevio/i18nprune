@@ -1,3 +1,7 @@
+---
+description: "This page documents i18nprune.config.ts patching fields, validation behavior, and execution policy. Loader ownership and generated module details are in…"
+---
+
 # Patching Config Reference
 
 This page documents `i18nprune.config.ts` patching fields, validation behavior, and execution policy.

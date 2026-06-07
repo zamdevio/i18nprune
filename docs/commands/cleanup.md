@@ -1,3 +1,7 @@
+---
+description: "Remove unused keys from locale files using extractor observations, preserve/parity policy, and uncertain-prefix safeguards. Ripgrep string-presence checks…"
+---
+
 # `cleanup`
 
 Remove unused keys from locale files using extractor observations, preserve/parity policy, and uncertain-prefix safeguards. Ripgrep string-presence checks are optional (`--rg`).

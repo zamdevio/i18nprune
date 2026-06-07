@@ -1,3 +1,7 @@
+---
+description: Short, factual write-ups of edge cases we detected and fixed (or designed around) before first release.
+---
+
 # Solved edge cases
 
 Short, factual write-ups of edge cases we detected and fixed (or designed around) before first release.

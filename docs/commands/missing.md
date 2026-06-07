@@ -1,3 +1,7 @@
+---
+description: Add dotted key paths seen in source translation calls but missing from a chosen locale file (default target is the source locale file).
+---
+
 # `missing`
 
 Add dotted key paths seen in source translation calls but missing from a chosen locale file (default target is the source locale file).
