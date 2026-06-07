@@ -4,5 +4,8 @@ node_modules
 # Generated on sync (pnpm sync / predev / prebuild / typecheck)
 src/data/*.json
 
+# Sync script cache (fingerprint + GitHub profile TTL store)
+.cache/
+
 # Generated at build time (pnpm generate:sitemap)
 public/sitemap.xml

@@ -1,4 +1,5 @@
-import { guessGitHubLogin } from './github.js';
+import { guessGitHubLogin } from './index.js';
+import { GitHubProfileCache } from './cache.js';
 
 export interface GitHubUserProfile {
   login: string;
@@ -13,6 +14,7 @@ export interface GitHubUserProfile {
 export interface GitHubUserFetchResult {
   profile: GitHubUserProfile | null;
   rateLimited: boolean;
+  unreachable: boolean;
 }
 
 export interface GitHubEnrichmentSummary {
@@ -20,6 +22,7 @@ export interface GitHubEnrichmentSummary {
   enriched: number;
   notFound: number;
   skippedAfterRateLimit: number;
+  cacheHits: number;
   rateLimited: boolean;
 }
 
@@ -50,7 +53,7 @@ function isRateLimited(response: Response): boolean {
 
 export async function fetchGitHubUser(login: string): Promise<GitHubUserFetchResult> {
   const handle = login.trim();
-  if (!handle) return { profile: null, rateLimited: false };
+  if (!handle) return { profile: null, rateLimited: false, unreachable: false };
 
   try {
     const response = await fetch(`https://api.github.com/users/${encodeURIComponent(handle)}`, {
@@ -58,11 +61,11 @@ export async function fetchGitHubUser(login: string): Promise<GitHubUserFetchRes
     });
 
     if (isRateLimited(response)) {
-      return { profile: null, rateLimited: true };
+      return { profile: null, rateLimited: true, unreachable: false };
     }
 
     if (!response.ok) {
-      return { profile: null, rateLimited: false };
+      return { profile: null, rateLimited: false, unreachable: false };
     }
 
     const data = (await response.json()) as {
@@ -76,7 +79,7 @@ export async function fetchGitHubUser(login: string): Promise<GitHubUserFetchRes
     };
 
     if (!data.login || !data.html_url || !data.avatar_url) {
-      return { profile: null, rateLimited: false };
+      return { profile: null, rateLimited: false, unreachable: false };
     }
 
     return {
@@ -90,9 +93,10 @@ export async function fetchGitHubUser(login: string): Promise<GitHubUserFetchRes
         following: data.following ?? 0,
       },
       rateLimited: false,
+      unreachable: false,
     };
   } catch {
-    return { profile: null, rateLimited: false };
+    return { profile: null, rateLimited: false, unreachable: true };
   }
 }
 
@@ -106,51 +110,93 @@ export interface AuthorGitHubFields {
   bio: string | null;
 }
 
+export type GitHubEnrichmentOptions = {
+  forceRefresh?: boolean;
+  cache?: GitHubProfileCache;
+};
+
 export async function enrichAuthorsWithGitHub<
   T extends { name: string; username: string; email: string; githubUrl: string },
->(authors: T[]): Promise<GitHubEnrichmentResult<T>> {
+>(authors: T[], options: GitHubEnrichmentOptions = {}): Promise<GitHubEnrichmentResult<T>> {
+  const forceRefresh = Boolean(options.forceRefresh);
+  const cache = options.cache ?? GitHubProfileCache.load();
+
   const enriched: Array<T & AuthorGitHubFields> = [];
   let rateLimited = false;
   let enrichedCount = 0;
   let notFoundCount = 0;
   let skippedAfterRateLimit = 0;
+  let cacheHits = 0;
 
   for (const author of authors) {
     if (rateLimited) {
+      const login = guessGitHubLogin(author.name, author.username);
+      const sticky = cache.getStickyEnriched(login);
+      if (sticky?.profile) {
+        enriched.push(applyProfile(author, sticky.profile));
+        enrichedCount += 1;
+        cacheHits += 1;
+        continue;
+      }
       enriched.push(fallbackGitHubFields(author));
       skippedAfterRateLimit += 1;
       continue;
     }
 
     const login = guessGitHubLogin(author.name, author.username);
+
+    const cachedEnriched = cache.getFreshEnriched(login, forceRefresh);
+    if (cachedEnriched?.profile) {
+      enriched.push(applyProfile(author, cachedEnriched.profile));
+      enrichedCount += 1;
+      cacheHits += 1;
+      continue;
+    }
+
+    const cachedNotFound = cache.getFreshNotFound(login, forceRefresh);
+    if (cachedNotFound) {
+      notFoundCount += 1;
+      cacheHits += 1;
+      enriched.push(fallbackGitHubFields(author, login));
+      continue;
+    }
+
     const result = await fetchGitHubUser(login);
 
-    if (result.rateLimited) {
-      rateLimited = true;
-      console.warn('GitHub API rate limit reached — skipping remaining profile fetches.');
-      enriched.push(fallbackGitHubFields(author));
+    if (result.rateLimited || result.unreachable) {
+      rateLimited = rateLimited || result.rateLimited;
+      const sticky = cache.getStickyEnriched(login);
+      if (sticky?.profile) {
+        enriched.push(applyProfile(author, sticky.profile));
+        enrichedCount += 1;
+        cacheHits += 1;
+        if (result.rateLimited) {
+          console.warn('GitHub API rate limit reached — using cached profiles where available.');
+        }
+        continue;
+      }
+      if (result.rateLimited) {
+        rateLimited = true;
+        console.warn('GitHub API rate limit reached — skipping remaining profile fetches.');
+      }
+      enriched.push(fallbackGitHubFields(author, login));
       skippedAfterRateLimit += 1;
       continue;
     }
 
     if (!result.profile) {
       notFoundCount += 1;
+      cache.setNotFound(login);
       enriched.push(fallbackGitHubFields(author, login));
       continue;
     }
 
     enrichedCount += 1;
-    enriched.push({
-      ...author,
-      githubLogin: result.profile.login,
-      githubUrl: result.profile.html_url,
-      displayName: result.profile.name ?? author.name,
-      avatarUrl: result.profile.avatar_url,
-      followers: result.profile.followers,
-      following: result.profile.following,
-      bio: result.profile.bio,
-    });
+    cache.setEnriched(login, result.profile);
+    enriched.push(applyProfile(author, result.profile));
   }
+
+  cache.save();
 
   return {
     authors: enriched,
@@ -159,8 +205,24 @@ export async function enrichAuthorsWithGitHub<
       enriched: enrichedCount,
       notFound: notFoundCount,
       skippedAfterRateLimit,
+      cacheHits,
       rateLimited,
     },
+  };
+}
+
+function applyProfile<
+  T extends { name: string; username: string; email: string; githubUrl: string },
+>(author: T, profile: GitHubUserProfile): T & AuthorGitHubFields {
+  return {
+    ...author,
+    githubLogin: profile.login,
+    githubUrl: profile.html_url,
+    displayName: profile.name ?? author.name,
+    avatarUrl: profile.avatar_url,
+    followers: profile.followers,
+    following: profile.following,
+    bio: profile.bio,
   };
 }
 
@@ -184,6 +246,9 @@ export function formatGitHubEnrichmentSummary(summary: GitHubEnrichmentSummary):
     `${summary.enriched} enriched`,
     `${summary.notFound} not found`,
   ];
+  if (summary.cacheHits > 0) {
+    parts.push(`${summary.cacheHits} cache hit(s)`);
+  }
   if (summary.skippedAfterRateLimit > 0) {
     parts.push(`${summary.skippedAfterRateLimit} skipped (rate limit)`);
   }

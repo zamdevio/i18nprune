@@ -1,4 +1,4 @@
-import { tryGit } from './git.js';
+import { tryGit } from '../git.js';
 
 export function resolveGitHubRepoUrl(): string | null {
   const remote = tryGit(['remote', 'get-url', 'origin']);

@@ -1,5 +1,9 @@
-import { githubProfileUrl } from './github.js';
-import { enrichAuthorsWithGitHub, type GitHubEnrichmentResult } from './github-api.js';
+import {
+  enrichAuthorsWithGitHub,
+  type GitHubEnrichmentOptions,
+  type GitHubEnrichmentResult,
+} from './github/api.js';
+import { githubProfileUrl } from './github/index.js';
 import type { ExportCommit } from './parse.js';
 
 function authorUsername(name: string, email = ''): string {
@@ -88,6 +92,7 @@ export function buildAuthors(commits: ExportCommit[]): AuthorOutput[] {
 
 export async function buildAuthorsWithGitHub(
   commits: ExportCommit[],
+  options?: GitHubEnrichmentOptions,
 ): Promise<GitHubEnrichmentResult<AuthorOutput>> {
-  return enrichAuthorsWithGitHub(buildAuthors(commits));
+  return enrichAuthorsWithGitHub(buildAuthors(commits), options);
 }

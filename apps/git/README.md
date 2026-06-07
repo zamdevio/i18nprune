@@ -8,7 +8,8 @@ Public SPA at **git.i18nprune.dev** (Cloudflare Pages). Reads the monorepo git h
 |--------|-------------|
 | `pnpm generate:sitemap` | Build `public/sitemap.xml` from synced data |
 | `pnpm dev` | Sync data + sitemap, then Vite dev server (port **5190**) |
-| `pnpm sync` | Export git log → `src/data/*.json` |
+| `pnpm sync` | Export git log → `src/data/*.json` (skips when git unchanged) |
+| `pnpm sync:force` | Full rebuild; clears GitHub profile cache |
 | `pnpm validate` | Validate generated `src/data/*.json` + phase config coverage |
 | `pnpm validate:data` | Shape/consistency checks for `src/data/*.json` (`scripts/validate/data.ts`) |
 | `pnpm validate:phases` | Fail if commits exist in weeks missing from `phases.config.json` (`scripts/validate/phases.ts`) |
@@ -16,7 +17,7 @@ Public SPA at **git.i18nprune.dev** (Cloudflare Pages). Reads the monorepo git h
 | `pnpm typecheck` | Sync + validate + TypeScript check |
 | `pnpm deploy` | Build + deploy to Cloudflare Pages |
 
-From repo root: `pnpm git:dev`, `pnpm git:sync`, `pnpm git:build`, `pnpm git:typecheck`, `pnpm git:deploy`.
+From repo root: `pnpm git:dev`, `pnpm git:sync`, `pnpm git:sync:force`, `pnpm git:build`, `pnpm git:typecheck`, `pnpm git:deploy`.
 
 ## Data sync
 
@@ -31,7 +32,7 @@ From repo root: `pnpm git:dev`, `pnpm git:sync`, `pnpm git:build`, `pnpm git:typ
 | `src/data/tags.json` | Annotated tags + commit membership |
 | `src/data/branches.json` | Branch tips + commit membership |
 
-Everything except phase **narratives** is computed from git on each sync. GitHub profiles are fetched from `api.github.com` during sync; set **`GITHUB_TOKEN`** for higher rate limits (5000 req/hr vs 60 unauthenticated). Sync prints an enrichment summary (`enriched · not found · skipped`). On rate limit or fetch failure, sync continues with git-only author data.
+Everything except phase **narratives** is computed from git on each sync. When `HEAD` and commit count are unchanged, sync **skips** the full parse (see `.cache/sync-state.json`). GitHub profiles use a **TTL cache** (`.cache/github-profiles.json`, 7 days); enriched rows are kept when the API is rate-limited or unreachable. Set **`GITHUB_TOKEN`** for higher rate limits (5000 req/hr vs 60 unauthenticated). Use **`pnpm sync:force`** to bypass the skip path and refresh GitHub cache.
 
 **Git:** `src/data/*.json` is **gitignored** (same idea as `apps/releases`). Sync runs before `dev`, `build`, and `typecheck`, so data always reflects current git history without committing generated JSON after every repo commit.
 

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "sync": "tsx scripts/sync.ts",
+    "sync:force": "tsx scripts/sync.ts --force",
     "validate": "tsx scripts/validate/data.ts && tsx scripts/validate/phases.ts",
     "validate:data": "tsx scripts/validate/data.ts",
     "validate:phases": "tsx scripts/validate/phases.ts",

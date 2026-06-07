@@ -3,7 +3,7 @@ import path from 'node:path';
 import { tryGit } from './git.js';
 import { REPO_ROOT } from './paths.js';
 import type { ExportCommit } from './parse.js';
-import { resolveGitHubRepoUrl } from './github.js';
+import { resolveGitHubRepoUrl } from './github/index.js';
 
 export interface SummaryOutput {
   totalCommits: number;
