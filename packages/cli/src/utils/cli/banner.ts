@@ -23,7 +23,7 @@ export const COMMAND_BANNER_LABELS: Record<string, CommandBannerSpec> = {
   generate: { subtitle: 'generate translations from source' },
   quality: { subtitle: 'parity / drift' },
   review: { subtitle: 'locale summaries vs source (+ structured leaf stats)' },
-  cleanup: { subtitle: 'ripgrep safety on by default (--no-rg to skip)' },
+  cleanup: { subtitle: 'static scan by default (--rg for optional ripgrep guard)' },
   languages: { subtitle: 'BCP47-style codes for generate' },
   providers: { subtitle: 'translation backends · env + config' },
   doctor: { subtitle: 'Node, rg, config, paths' },

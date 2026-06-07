@@ -28,7 +28,7 @@ import { validate } from '@/commands/validate/index.js';
 import { missing } from '@/commands/missing/index.js';
 import { quality } from '@/commands/quality/index.js';
 import { cleanup } from '@/commands/cleanup/index.js';
-import { resolveCleanupNoRg } from '@/commands/cleanup/flags.js';
+import { resolveCleanupRg } from '@/commands/cleanup/flags.js';
 import { languages } from '@/commands/languages/index.js';
 import { providers } from '@/commands/providers/index.js';
 import { config } from '@/commands/config/index.js';
@@ -399,9 +399,9 @@ program
 
 program
   .command('cleanup')
-  .description('Remove unused keys (ripgrep safety on src/ by default; --no-rg to skip)')
+  .description('Remove unused keys (static scan by default; --rg for optional ripgrep string-presence guard)')
   .option('--dry-run', 'preview removals; no writes', false)
-  .option('--no-rg', 'skip ripgrep string-presence guard (static unused-key list only)')
+  .option('--rg', 'enable ripgrep string-presence guard (substring search on translation values in src/)')
   .option(
     '--target <code>',
     'target locale code to prune (extra keys vs code scan); omit for source-locale cleanup',
@@ -422,7 +422,7 @@ program
     }) => {
       await cleanup({
         dryRun: Boolean(opts.dryRun),
-        noRg: resolveCleanupNoRg(opts),
+        rg: resolveCleanupRg(opts),
         target: opts.target,
         ask: Boolean(opts.ask),
         askPerKey: Boolean(opts.askPerKey),

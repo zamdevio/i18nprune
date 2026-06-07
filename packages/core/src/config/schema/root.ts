@@ -111,7 +111,7 @@ const referenceDefaultsSchema = z
     stringPresence: z
       .enum(['guard', 'warn', 'off'])
       .optional()
-      .describe('Whether ripgrep checks locale strings in src before destructive cleanup.'),
+      .describe('String-presence policy when the host enables probes (CLI: pass cleanup --rg).'),
     stringPresenceMaxHitsPerKey: z
       .number()
       .int()

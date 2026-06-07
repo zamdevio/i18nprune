@@ -21,7 +21,7 @@ import type {
 export function toCleanupRunOptions(opts: CleanupOptions): CleanupRunOptions {
   return {
     dryRun: opts.dryRun === true,
-    skipStringPresenceCheck: opts.skipStringPresenceCheck ?? opts.noRg === true,
+    skipStringPresenceCheck: opts.skipStringPresenceCheck ?? opts.rg !== true,
     target: opts.target,
     top: opts.top,
     full: opts.full,
@@ -49,7 +49,7 @@ export function executeCore(
     const out = runCoreCleanup(
       coreCtx,
       toCleanupRunOptions(opts),
-      buildCleanupHostHooks(ctx, runtime, { noRg: opts.noRg === true }),
+      buildCleanupHostHooks(ctx, runtime, { rg: opts.rg === true }),
     );
     const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), out.issues);
     const envelope = buildCliJsonEnvelope('cleanup', out.payload, {

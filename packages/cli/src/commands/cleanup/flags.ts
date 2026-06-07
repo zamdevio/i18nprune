@@ -1,4 +1,4 @@
-/** Commander maps `--no-rg` to `{ rg: false }`, not `{ noRg: true }`. */
-export function resolveCleanupNoRg(opts: { rg?: boolean; noRg?: boolean }): boolean {
-  return opts.rg === false || opts.noRg === true;
+/** True when CLI `--rg` enables ripgrep string-presence probes (opt-in). */
+export function resolveCleanupRg(opts: { rg?: boolean }): boolean {
+  return opts.rg === true;
 }

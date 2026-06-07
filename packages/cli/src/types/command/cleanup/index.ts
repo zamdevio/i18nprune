@@ -10,8 +10,8 @@ export type { CleanupJsonOutput } from '@i18nprune/core';
 
 /** Flags for `i18nprune cleanup`. */
 export type CleanupOptions = CleanupRunOptions & {
-  /** Skip ripgrep string-presence guard (static unused-key list only). RG runs by default. */
-  noRg?: boolean;
+  /** Enable ripgrep string-presence guard (opt-in; static scan is default). */
+  rg?: boolean;
   /**
    * Interactive TTY only: confirm removals in batches (grouped by top-level namespace).
    * Ignored when global **`--yes`** is set, with **`--json`**, or without a TTY.

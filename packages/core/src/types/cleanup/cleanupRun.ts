@@ -48,7 +48,7 @@ export type CleanupHostHooks = {
   hasStringPresence: (sample: string) => boolean;
   getStringPresenceLocations: (sample: string, maxHits: number) => string[];
   /**
-   * When false, core skips the string-presence guard for this key (CLI sets false for all keys when `--no-rg`).
+   * When false, core skips the string-presence guard for this key (CLI default; pass `--rg` to enable probes).
    * Default: apply guard per {@link reference.stringPresence} when probes are enabled.
    */
   shouldRunStringPresenceForKey?: (input: { key: string; value: string }) => boolean;

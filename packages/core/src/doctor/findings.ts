@@ -50,8 +50,8 @@ export function evaluateToolsFinding(rgAvailable: boolean): DoctorFinding {
     severity: rgAvailable ? 'ok' : 'warn',
     title: rgAvailable ? 'ripgrep (rg) is on PATH' : 'ripgrep (rg) not found on PATH',
     detail: rgAvailable
-      ? 'Cleanup can use rg for safer reference checks.'
-      : 'Install rg for stronger cleanup safety: https://github.com/BurntSushi/ripgrep',
+      ? 'Optional for cleanup --rg string-presence guard.'
+      : 'Optional — install rg only if you use cleanup --rg: https://github.com/BurntSushi/ripgrep',
   };
 }
 

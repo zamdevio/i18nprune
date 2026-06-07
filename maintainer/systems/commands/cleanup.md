@@ -21,4 +21,5 @@
 - **`--json`** cleanup payload; `--dry-run` for preview; global **`--yes`** / **`--ask`** for writes (no `--apply` flag).
 - **`--target <code>`** prunes extra keys from a target locale; default (no `--target`) prunes the **source** locale.
 - Global **`--top`** / **`--full`** cap string-presence skip lines (verbose detail channel).
+- **`--rg`** opt-in ripgrep string-presence guard; default is static scan only (no `--no-rg`).
 - Run `sync` after source cleanup to align targets when needed.

@@ -40,15 +40,15 @@ Section headings **`#runtime`**, **`#tools`**, **`#config`**, **`#paths`** below
 ## `tools` {#tools}
 
 **Check id:** **`tools`**  
-**What it checks:** **ripgrep** (**`rg`**) is available on **`PATH`** for safer cleanup reference checks.
+**What it checks:** **ripgrep** (**`rg`**) is available on **`PATH`** (optional; used only when you pass **`cleanup --rg`**).
 
 ## `tools_rg_not_on_path`
 
 **Code:** **`i18nprune.doctor.tools_rg_not_on_path`**  
 **Severity:** **`warning`**  
-**Meaning:** **rg** was not found. Cleanup still runs, but string-presence / reference checks that depend on **rg** are weaker.
+**Meaning:** **rg** was not found. Default **`cleanup`** uses the static scan only. **`cleanup --rg`** skips the string-presence guard when **rg** is missing.
 
-**Fix:** Install **ripgrep** and ensure **`rg`** is on **`PATH`**: [BurntSushi/ripgrep](https://github.com/BurntSushi/ripgrep).
+**Fix:** Install **ripgrep** only if you want **`cleanup --rg`**: [BurntSushi/ripgrep](https://github.com/BurntSushi/ripgrep).
 
 ---
 

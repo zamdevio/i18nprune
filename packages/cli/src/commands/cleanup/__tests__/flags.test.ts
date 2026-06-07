@@ -1,18 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { resolveCleanupNoRg } from '../flags.js';
+import { resolveCleanupRg } from '../flags.js';
 
-describe('resolveCleanupNoRg', () => {
-  it('treats Commander --no-rg as rg: false', () => {
-    expect(resolveCleanupNoRg({ rg: false })).toBe(true);
-    expect(resolveCleanupNoRg({ rg: true })).toBe(false);
-  });
-
-  it('accepts explicit noRg', () => {
-    expect(resolveCleanupNoRg({ noRg: true })).toBe(true);
-  });
-
-  it('defaults to ripgrep enabled when flag omitted', () => {
-    expect(resolveCleanupNoRg({ rg: true })).toBe(false);
-    expect(resolveCleanupNoRg({})).toBe(false);
+describe('resolveCleanupRg', () => {
+  it('enables ripgrep only when --rg is passed', () => {
+    expect(resolveCleanupRg({ rg: true })).toBe(true);
+    expect(resolveCleanupRg({ rg: false })).toBe(false);
+    expect(resolveCleanupRg({})).toBe(false);
   });
 });

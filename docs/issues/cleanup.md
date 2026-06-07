@@ -14,6 +14,6 @@
 ## `ripgrep_unavailable`
 
 **Severity:** `warning`  
-**When:** **`rg`** is not on **`PATH`** and cleanup would use it for safer reference checks.  
-**Who:** **`cleanup`**, **`runCleanupCheck`**.  
-**What to do:** Install [ripgrep](https://github.com/BurntSushi/ripgrep) for stronger safety.
+**When:** **`cleanup --rg`** was requested but **`rg`** is not on **`PATH`** (and **`reference.stringPresence`** is not **`off`**).  
+**Who:** **`cleanup`**, **`runCleanup`**.  
+**What to do:** Install [ripgrep](https://github.com/BurntSushi/ripgrep) or omit **`--rg`** to use the static scan only.

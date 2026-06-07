@@ -1,6 +1,6 @@
 # `cleanup`
 
-Remove unused keys from the source locale file using extractor observations, preserve/parity policy, uncertain-prefix safeguards, and optional ripgrep checks.
+Remove unused keys from locale files using extractor observations, preserve/parity policy, and uncertain-prefix safeguards. Ripgrep string-presence checks are optional (`--rg`).
 
 ## When to use
 
@@ -14,7 +14,7 @@ Remove unused keys from the source locale file using extractor observations, pre
 
 - `--dry-run`: preview removals without writing.
 - `--target <code>`: prune a **target** locale (keys present on disk but not in the code scan); omit for **source** locale cleanup (default).
-- `--no-rg`: skip ripgrep string-presence guard (static unused-key list only).
+- `--rg`: enable ripgrep string-presence guard (substring search on translation values in `src/`; may false-positive on short English strings).
 - `--ask`: interactive TTY batch confirmation (grouped by top-level namespace).
 - `--ask-per-key`: interactive TTY per-key confirmation.
 - Global `--yes`: apply removals without prompts (non-interactive writes).
@@ -25,16 +25,19 @@ Remove unused keys from the source locale file using extractor observations, pre
 
 ## Core behavior
 
-`cleanup` computes candidate removals from observed usage, then filters through preserve/parity policy and uncertainty guards. With ripgrep enabled (default), candidates also pass string-presence safety checks.
+`cleanup` computes candidate removals from observed usage, then filters through preserve/parity policy and uncertainty guards. By default, removals rely on the static code scan only. Pass `--rg` to also block candidates when a translation **value** appears as a substring somewhere under `src/` (conservative; not proof of key usage).
 
 ## Examples
 
 ```bash
-# Preview with rg safety enabled (default)
+# Preview removals (static scan — default)
 i18nprune cleanup --dry-run
 
-# CI-style static plan only (no ripgrep probes)
-i18nprune cleanup --dry-run --no-rg --json
+# CI JSON gate (static scan)
+i18nprune cleanup --dry-run --json
+
+# Optional ripgrep substring guard (may block removals on false positives)
+i18nprune cleanup --dry-run --rg
 
 # Interactive review in namespaces
 i18nprune cleanup --ask
@@ -86,7 +89,7 @@ Other commands (`validate`, `generate`, `sync`) emit source-unused tips with `cl
 
 ## Troubleshooting
 
-- Unexpected removals: rerun without `--no-rg` so presence checks are active.
+- Unexpected removals: rerun with `--rg` for a conservative substring guard, or review dynamic-key / uncertain-prefix warnings first.
 - No interactive prompts: run in a TTY and verify `--yes` is not set globally.
 - High `uncertainPrefixes`: review dynamic key prefix strategy before applying removals.
 
