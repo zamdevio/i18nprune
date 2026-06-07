@@ -122,8 +122,8 @@
     "empty:file": "find . -path '*node_modules' -prune -o -path '*/.wrangler' -prune -o -path ./.git -prune -o -type f -empty -print",
     "empty:dir:del": "find . -type d -empty ! -path '*/node_modules' ! -path '*/node_modules/*' ! -path '*/.wrangler' ! -path '*/.wrangler/*' ! -path './.git' ! -path './.git/*' -print -delete",
     "empty:file:del": "find . -type f -empty ! -path '*/node_modules/*' ! -path '*/.wrangler/*' ! -path './.git/*' -print -delete",
-    "files": "printf \"Source files (.ts, .tsx):\" && find . -path './node_modules' -prune -o -path './.git' -prune -o -path './dist' -prune -o -path './build' -prune -o -path './coverage' -prune -prune -o -path './out' -prune -o -path '*/.wrangler' -prune -o \\( -name '*.ts' -o -name '*.tsx' \\) -print | wc -l",
-    "lines": "printf \"Lines of code (.ts, .tsx):\" && find . \\( -path './node_modules' -o -path './.git' -o -path './dist' -o -path './build' -o -path './coverage' -o -path './out' -o -path '*/.wrangler' \\) -prune -o \\( -name '*.ts' -o -name '*.tsx' \\) -print | xargs wc -l 2>/dev/null | tail -1",
+    "files": "printf \"Source files (.ts, .tsx):\" && find . \\( -path '*/node_modules' -o -path './.git' -o -path '*/dist' -o -path '*/build' -o -path '*/coverage' -o -path '*/out' -o -path '*/.wrangler' \\) -prune -o \\( -name '*.ts' -o -name '*.tsx' \\) -print | wc -l",
+    "lines": "printf \"Lines of code (.ts, .tsx):\" && find . \\( -path '*/node_modules' -o -path './.git' -o -path '*/dist' -o -path '*/build' -o -path '*/coverage' -o -path '*/out' -o -path '*/.wrangler' \\) -prune -o \\( -name '*.ts' -o -name '*.tsx' \\) -print0 | xargs -0 wc -l 2>/dev/null | awk '/ total$/{s+=$1} END{printf \" %s total\\n\", s+0}'",
     "stats": "pnpm files && echo '' && pnpm lines"
   },
   "keywords": [
