@@ -76,7 +76,7 @@ Why SDK consumers pick this:
 
 - Runtime-neutral operation entry points (`runXxx`) with shared behavior contracts.
 - Config/context resolution without shelling out to the CLI.
-- Stable issue-code semantics used by CLI JSON output.
+- Stable issue-code semantics used by CLI JSON output (`meta.apiVersion` is the envelope contract, currently `"1"`, independent of npm semver).
 - Reusable cache/share internals for advanced host integrations.
 - Cross-platform behavior aligned across Linux, macOS, and Windows (same core + CLI contracts).
 

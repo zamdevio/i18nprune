@@ -88,6 +88,20 @@ Top-level **`preparedAt`** mirrors `timing.preparedAt`. Older stored rows may st
 
 Uploads are **prepared snapshots** (sanitized zip or JSON envelope) or **report JSON** — not opaque full-repo uploads. See [`share`](../commands/share/README.md) for what enters the payload.
 
+### API docs and OpenAPI
+
+| URL | Format | Use |
+|-----|--------|-----|
+| [`GET /docs`](https://worker.i18nprune.dev/docs) | Swagger UI (HTML + JS) | Interactive exploration in a browser |
+| [`GET /openapi.json`](https://worker.i18nprune.dev/openapi.json) | OpenAPI 3.0 JSON | Crawlers, codegen, CI contract checks without executing Swagger UI |
+| [`GET /`](https://worker.i18nprune.dev/) | Discovery JSON | Lists `openapi` and `docs` URLs for the deployment |
+
+Prefer **`/openapi.json`** when you need a machine-readable spec — the `/docs` shell is JS-rendered and empty to non-browser clients.
+
+### Upload access model
+
+Ingest routes (`POST /v1/projects`, `/v1/projects/archive`, `/v1/reports`, `/v1/reports/archive`) are **public** with **per-IP rate limits** (no API key today). Reads and deletes use the returned row id. Prepare payloads locally or via CLI [`share upload`](../commands/share/README.md); the worker stores sanitized snapshots only.
+
 ## Bundle checklist
 
 1. Run **`pnpm`** builds with **`NODE_OPTIONS=--conditions worker`** (or host-specific presets) when applicable.

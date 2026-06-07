@@ -56,7 +56,7 @@ Then use SDK-focused docs:
 - [Configuration](../config/README.md) — `defineConfig`, locale layout, policies
 
 ## Known extraction limits
-Static key extraction does not cover every React / i18next pattern (for example hook destructuring). See [Regex and static-analysis limits](../architecture/extraction/regex.md) before relying on validate in exotic call styles.
+Static key extraction does not cover every React / i18next pattern (for example `const { t } = useTranslation()`). Configure explicit `functions` entries where needed, then read [unsolved inventory](../edge-cases/unsolved/inventory.md), [regex limits](../architecture/extraction/regex.md), and [validate](../commands/validate.md) before relying on validate in exotic call styles.
 
 ## What to read next
 - [Examples hub](../examples/README.md)

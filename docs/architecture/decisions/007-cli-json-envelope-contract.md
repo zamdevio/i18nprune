@@ -46,6 +46,7 @@ type CliJsonEnvelope = {
 
 - One jq-friendly contract across supported commands.
 - Parity tests catch accidental envelope or exit-code drift during refactors.
+- **`meta.apiVersion`** (`"1"` today) is versioned separately from npm package semver (`0.1.x`) and from stable **`issues[].code`** identifiers — integrators can adopt additive `data` fields without envelope migrations. See [JSON output § Version fields](../../cli/json.md#version-fields).
 
 ### Negative
 
