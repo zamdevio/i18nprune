@@ -133,7 +133,7 @@ The public git dashboard (`apps/git`, **git.i18nprune.dev**) merges **git-derive
 |----------|------|
 | `apps/git/scripts/phases.config.json` | **Manual** — label, theme, color, `shipped[]` per ISO week |
 | `apps/git/src/data/*.json` | **Generated, gitignored** — sync on `dev` / `build` / `typecheck` (`pnpm git:sync`) |
-| `apps/git/scripts/validate-phases.ts` | **Gate** — `pnpm git:build` fails if commits exist in weeks missing from config |
+| `apps/git/scripts/validate/phases.ts` | **Gate** — `pnpm git:build` fails if commits exist in weeks missing from config |
 
 **Weekly check (when shipping dashboard-related work or closing a dev week):**
 

@@ -9,7 +9,9 @@ Public SPA at **git.i18nprune.dev** (Cloudflare Pages). Reads the monorepo git h
 | `pnpm generate:sitemap` | Build `public/sitemap.xml` from synced data |
 | `pnpm dev` | Sync data + sitemap, then Vite dev server (port **5190**) |
 | `pnpm sync` | Export git log → `src/data/*.json` |
-| `pnpm validate` | Fail if commits exist in weeks missing from `phases.config.json` |
+| `pnpm validate` | Validate generated `src/data/*.json` + phase config coverage |
+| `pnpm validate:data` | Shape/consistency checks for `src/data/*.json` (`scripts/validate/data.ts`) |
+| `pnpm validate:phases` | Fail if commits exist in weeks missing from `phases.config.json` (`scripts/validate/phases.ts`) |
 | `pnpm build` | SEO assets + sync + validate + sitemap + production build |
 | `pnpm typecheck` | Sync + validate + TypeScript check |
 | `pnpm deploy` | Build + deploy to Cloudflare Pages |
@@ -29,7 +31,7 @@ From repo root: `pnpm git:dev`, `pnpm git:sync`, `pnpm git:build`, `pnpm git:typ
 | `src/data/tags.json` | Annotated tags + commit membership |
 | `src/data/branches.json` | Branch tips + commit membership |
 
-Everything except phase **narratives** is computed from git on each sync. GitHub profiles are fetched from `api.github.com` during sync; on rate limit or fetch failure, sync continues with git-only author data.
+Everything except phase **narratives** is computed from git on each sync. GitHub profiles are fetched from `api.github.com` during sync; set **`GITHUB_TOKEN`** for higher rate limits (5000 req/hr vs 60 unauthenticated). Sync prints an enrichment summary (`enriched · not found · skipped`). On rate limit or fetch failure, sync continues with git-only author data.
 
 **Git:** `src/data/*.json` is **gitignored** (same idea as `apps/releases`). Sync runs before `dev`, `build`, and `typecheck`, so data always reflects current git history without committing generated JSON after every repo commit.
 

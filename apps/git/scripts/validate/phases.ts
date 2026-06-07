@@ -1,11 +1,11 @@
-import { fetchGitLog } from './lib/git.js';
+import { fetchGitLog } from '../lib/git.js';
 import {
   findConfiguredWeeksWithoutCommits,
   findUnconfiguredWeeks,
   loadPhaseConfig,
-} from './lib/phases.js';
-import { parseGitLog, toExportCommit } from './lib/parse.js';
-import { verifyGitRepo } from './lib/summary.js';
+} from '../lib/phases.js';
+import { parseGitLog, toExportCommit } from '../lib/parse.js';
+import { verifyGitRepo } from '../lib/summary.js';
 
 function main(): void {
   verifyGitRepo();

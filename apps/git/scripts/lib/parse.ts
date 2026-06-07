@@ -1,6 +1,7 @@
 import { GIT_LOG_RECORD } from './git.js';
 
-const COMMIT_TYPES = new Set([
+/** Normalized commit types written to commits.json — keep in sync with src/types/commit CommitType. */
+export const COMMIT_TYPES = [
   'feat',
   'fix',
   'docs',
@@ -8,10 +9,9 @@ const COMMIT_TYPES = new Set([
   'test',
   'chore',
   'ci',
-  'build',
-  'style',
-  'perf',
-]);
+] as const;
+
+const COMMIT_TYPE_SET = new Set<string>(COMMIT_TYPES);
 
 const CONVENTIONAL =
   /^(?<type>[a-z]+)(?:\((?<scope>[^)]+)\))?(?<breaking>!)?: (?<subject>.+)$/i;
@@ -24,14 +24,7 @@ export interface FileStat {
   deletions: number;
 }
 
-export type ParsedCommitType =
-  | 'feat'
-  | 'chore'
-  | 'docs'
-  | 'refactor'
-  | 'fix'
-  | 'test'
-  | 'ci';
+export type ParsedCommitType = (typeof COMMIT_TYPES)[number];
 
 export interface RawCommit {
   fullHash: string;
@@ -70,10 +63,9 @@ export function parseConventional(subject: string): {
   let rawType = match.groups.type.toLowerCase();
   if (rawType === 'build') rawType = 'ci';
 
-  const type: ParsedCommitType =
-    COMMIT_TYPES.has(rawType) && rawType !== 'build' && rawType !== 'style' && rawType !== 'perf'
-      ? (rawType as ParsedCommitType)
-      : 'chore';
+  const type: ParsedCommitType = COMMIT_TYPE_SET.has(rawType)
+    ? (rawType as ParsedCommitType)
+    : 'chore';
 
   return {
     type,

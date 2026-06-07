@@ -1,5 +1,5 @@
 import { githubProfileUrl } from './github.js';
-import { enrichAuthorsWithGitHub } from './github-api.js';
+import { enrichAuthorsWithGitHub, type GitHubEnrichmentResult } from './github-api.js';
 import type { ExportCommit } from './parse.js';
 
 function authorUsername(name: string, email = ''): string {
@@ -86,6 +86,8 @@ export function buildAuthors(commits: ExportCommit[]): AuthorOutput[] {
     .sort((a, b) => b.commits - a.commits || a.name.localeCompare(b.name));
 }
 
-export async function buildAuthorsWithGitHub(commits: ExportCommit[]): Promise<AuthorOutput[]> {
+export async function buildAuthorsWithGitHub(
+  commits: ExportCommit[],
+): Promise<GitHubEnrichmentResult<AuthorOutput>> {
   return enrichAuthorsWithGitHub(buildAuthors(commits));
 }

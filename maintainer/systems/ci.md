@@ -205,7 +205,7 @@ Workspace rename for turbo uniqueness: **`packages/cli`** → **`@i18nprune/cli`
 |----------|--------|
 | **Trigger** | Every **`push`** to `main` / `master`; **`workflow_dispatch`** |
 | **Checkout** | **`fetch-depth: 0`** — sync needs full git history |
-| **Build** | **`pnpm git:build`** — `prebuild` runs sync, **`validate-phases`**, then Vite |
+| **Build** | **`pnpm git:build`** — `prebuild` runs sync, **`validate`** (`scripts/validate/`), then Vite |
 | **Deploy** | **`wrangler pages deploy`** → project **`git-i18nprune`** |
 | **Secrets** | **`CLOUDFLARE_API_TOKEN`**, **`CLOUDFLARE_ACCOUNT_ID`** (repo secrets) |
 

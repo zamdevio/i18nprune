@@ -24,6 +24,18 @@ Output is **gitignored** — sync runs before dev, build, and typecheck.
 
 `pnpm generate:sitemap` writes `public/sitemap.xml` (gitignored) from synced data after each sync in dev/build.
 
+## Validation
+
+```bash
+pnpm --filter @i18nprune/git validate          # data shape + phases config
+pnpm --filter @i18nprune/git validate:data     # scripts/validate/data.ts
+pnpm --filter @i18nprune/git validate:phases   # scripts/validate/phases.ts
+```
+
+## GitHub enrichment
+
+`sync` fetches `api.github.com/users/:login` for author avatars and profile fields. Set **`GITHUB_TOKEN`** in the environment for authenticated rate limits (5000 req/hr). Sync logs a summary line: `enriched · not found · skipped (rate limit)`.
+
 ## Curating phases
 
 Edit `scripts/phases.config.json` for week labels, themes, colors, and shipped chips.  

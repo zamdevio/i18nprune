@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "sync": "tsx scripts/sync.ts",
-    "validate": "tsx scripts/validate-phases.ts",
+    "validate": "tsx scripts/validate/data.ts && tsx scripts/validate/phases.ts",
+    "validate:data": "tsx scripts/validate/data.ts",
+    "validate:phases": "tsx scripts/validate/phases.ts",
     "generate:sitemap": "tsx scripts/generate-sitemap.ts",
     "predev": "pnpm run sync && pnpm run generate:sitemap",
     "dev": "vite",

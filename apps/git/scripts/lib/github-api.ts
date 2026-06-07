@@ -15,7 +15,32 @@ export interface GitHubUserFetchResult {
   rateLimited: boolean;
 }
 
+export interface GitHubEnrichmentSummary {
+  total: number;
+  enriched: number;
+  notFound: number;
+  skippedAfterRateLimit: number;
+  rateLimited: boolean;
+}
+
+export interface GitHubEnrichmentResult<
+  T extends { name: string; username: string; email: string; githubUrl: string },
+> {
+  authors: Array<T & AuthorGitHubFields>;
+  summary: GitHubEnrichmentSummary;
+}
+
 const USER_AGENT = 'i18nprune-git-analytics-sync';
+
+function githubRequestHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github+json',
+    'User-Agent': USER_AGENT,
+  };
+  const token = process.env.GITHUB_TOKEN?.trim();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
 
 function isRateLimited(response: Response): boolean {
   const remaining = response.headers.get('x-ratelimit-remaining');
@@ -29,10 +54,7 @@ export async function fetchGitHubUser(login: string): Promise<GitHubUserFetchRes
 
   try {
     const response = await fetch(`https://api.github.com/users/${encodeURIComponent(handle)}`, {
-      headers: {
-        Accept: 'application/vnd.github+json',
-        'User-Agent': USER_AGENT,
-      },
+      headers: githubRequestHeaders(),
     });
 
     if (isRateLimited(response)) {
@@ -86,13 +108,17 @@ export interface AuthorGitHubFields {
 
 export async function enrichAuthorsWithGitHub<
   T extends { name: string; username: string; email: string; githubUrl: string },
->(authors: T[]): Promise<Array<T & AuthorGitHubFields>> {
+>(authors: T[]): Promise<GitHubEnrichmentResult<T>> {
   const enriched: Array<T & AuthorGitHubFields> = [];
   let rateLimited = false;
+  let enrichedCount = 0;
+  let notFoundCount = 0;
+  let skippedAfterRateLimit = 0;
 
   for (const author of authors) {
     if (rateLimited) {
       enriched.push(fallbackGitHubFields(author));
+      skippedAfterRateLimit += 1;
       continue;
     }
 
@@ -103,14 +129,17 @@ export async function enrichAuthorsWithGitHub<
       rateLimited = true;
       console.warn('GitHub API rate limit reached — skipping remaining profile fetches.');
       enriched.push(fallbackGitHubFields(author));
+      skippedAfterRateLimit += 1;
       continue;
     }
 
     if (!result.profile) {
+      notFoundCount += 1;
       enriched.push(fallbackGitHubFields(author, login));
       continue;
     }
 
+    enrichedCount += 1;
     enriched.push({
       ...author,
       githubLogin: result.profile.login,
@@ -123,13 +152,16 @@ export async function enrichAuthorsWithGitHub<
     });
   }
 
-  if (rateLimited && authors.length > enriched.length) {
-    for (const author of authors.slice(enriched.length)) {
-      enriched.push(fallbackGitHubFields(author));
-    }
-  }
-
-  return enriched;
+  return {
+    authors: enriched,
+    summary: {
+      total: authors.length,
+      enriched: enrichedCount,
+      notFound: notFoundCount,
+      skippedAfterRateLimit,
+      rateLimited,
+    },
+  };
 }
 
 function fallbackGitHubFields<
@@ -145,4 +177,18 @@ function fallbackGitHubFields<
     following: null,
     bio: null,
   };
+}
+
+export function formatGitHubEnrichmentSummary(summary: GitHubEnrichmentSummary): string {
+  const parts = [
+    `${summary.enriched} enriched`,
+    `${summary.notFound} not found`,
+  ];
+  if (summary.skippedAfterRateLimit > 0) {
+    parts.push(`${summary.skippedAfterRateLimit} skipped (rate limit)`);
+  }
+  if (summary.rateLimited) {
+    parts.push('rate limited');
+  }
+  return parts.join(' · ');
 }
