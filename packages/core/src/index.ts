@@ -368,8 +368,12 @@ export * as report from './namespaces/report.js';
 export {
   archiveHostedReportEnvironment,
   buildReportDocument,
+  injectJsonIntoPayloadScript,
+  renderReportHtml,
+  resolveReportSpaTemplatePath,
   runReport,
 } from './namespaces/report.js';
+export type { ReportHtmlRenderOptions } from './report/html.js';
 export type {
   BuildReportDocumentInput,
   ReportEnvironmentSnapshot,
