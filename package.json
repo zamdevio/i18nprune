@@ -105,6 +105,8 @@
     "releases:typecheck": "pnpm --filter @i18nprune/releases typecheck",
     "releases:dev": "pnpm --filter @i18nprune/releases dev",
     "releases:deploy": "pnpm releases:build && wrangler pages deploy dist --project-name=releases-i18nprune --cwd apps/releases",
+    "indexnow:ping": "tsx --tsconfig tsconfig.json scripts/indexnow/ping.mts",
+    "indexnow:releases": "tsx --tsconfig tsconfig.json scripts/indexnow/ping.mts --preset releases",
     "git:sync": "pnpm --filter @i18nprune/git run sync",
     "git:sync:force": "pnpm --filter @i18nprune/git run sync:force",
     "git:validate": "pnpm --filter @i18nprune/git run validate",

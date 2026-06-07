@@ -86,3 +86,18 @@ export {
 export type { SiteWebManifest, WebManifestShortcut, WebManifestSurface } from './manifest.js';
 
 export { fetchMetaSnapshotForBuild } from './build/fetchMeta.js';
+
+export {
+  INDEXNOW_DEFAULT_ENDPOINT,
+  RELEASES_INDEXNOW_HOST,
+  buildIndexNowPayload,
+  buildReleasesIndexNowUrlList,
+  indexNowKeyLocation,
+  normalizeIndexNowHost,
+  submitIndexNow,
+} from './indexnow.js';
+export type {
+  SubmitIndexNowInput,
+  SubmitIndexNowPayload,
+  SubmitIndexNowResult,
+} from './indexnow.js';
