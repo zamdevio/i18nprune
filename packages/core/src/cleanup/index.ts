@@ -23,13 +23,17 @@ export {
 } from './sourceSurface.js';
 export type { CleanupSourceSegmentRef } from '../types/cleanup/sourceSurface.js';
 export type { CleanupCandidateInput } from './candidates.js';
+export { resolveCleanupTargetLocaleCodes } from './resolveTargets.js';
 export type {
   CleanupHostHooks,
   CleanupJsonOutput,
   CleanupJsonRunSummary,
+  CleanupJsonTargetEntry,
+  CleanupLocaleSlice,
   CleanupRunOptions,
   CleanupRunResult,
   CleanupSegmentWrite,
+  CleanupSkippedTarget,
   CleanupWritePlan,
 } from '../types/cleanup/index.js';
 export type {

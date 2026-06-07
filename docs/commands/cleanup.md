@@ -13,12 +13,12 @@ Remove unused keys from locale files using extractor observations, preserve/pari
 `i18nprune cleanup -h` currently exposes:
 
 - `--dry-run`: preview removals without writing.
-- `--target <code>`: prune a **target** locale (keys present on disk but not in the code scan); omit for **source** locale cleanup (default).
+- `--target <code[,code]|all>`: prune one or more **target** locales (keys present on disk but not in the code scan); omit for **source** locale cleanup (default).
 - `--rg`: enable ripgrep string-presence guard (substring search on translation values in `src/`; may false-positive on short English strings).
 - `--ask`: interactive TTY batch confirmation (grouped by top-level namespace).
 - `--ask-per-key`: interactive TTY per-key confirmation.
 - Global `--yes`: apply removals without prompts (non-interactive writes).
-- Global `--top` / `--full`: cap or expand string-presence skip lines in human output.
+- Global `--top <n>` / `--full`: cap or expand **`--rg` string-presence skip lines** only (verbose `[detail]` rows). Does **not** print the full removable key path list in human mode — use `--json` + `jq '.data.keys'` for that.
 - `-h, --help`: help output.
 
 `--ask` / `--ask-per-key` are ignored in non-interactive contexts and overridden by global `--yes`. Destructive runs without `--yes` require a TTY confirm (or use `--dry-run` / `--json`).
@@ -26,6 +26,24 @@ Remove unused keys from locale files using extractor observations, preserve/pari
 ## Core behavior
 
 `cleanup` computes candidate removals from observed usage, then filters through preserve/parity policy and uncertainty guards. By default, removals rely on the static code scan only. Pass `--rg` to also block candidates when a translation **value** appears as a substring somewhere under `src/` (conservative; not proof of key usage).
+
+## Cleanup vs `sync` vs tips (different datasets)
+
+| Mode | Locale | Candidate set |
+|------|--------|-----------------|
+| **`cleanup`** (default) | **Source** | Source keys not in **code scan** (minus preserve; uncertain-prefix exclude when `reference.uncertainKeyPolicy` protects) |
+| **`cleanup --target <code[,code]|all>`** | **Target(s)** | Target keys not in **code scan** (minus preserve) |
+| **`sync`** | Target | Merge/prune vs **scan ∩ source** template; may **keep** scan-extras under uncertain prefixes |
+
+Tips (`suggest.cleanup.target_extra`) use the same **scan-extra** dataset as **`cleanup --target --dry-run`**, not the sync prune log. If `sync` reports **`0 extra path(s) removed`** but tips still show target extras, run **`cleanup --target <code> --dry-run`** — see [sync command doc](./sync.md#sync-vs-tips-vs-cleanup-different-datasets) and [`i18nprune.sync.scan_extras_retained`](../issues/sync.md#scan-extras-retained).
+
+### `--top` / `--full` on `cleanup`
+
+Global **`--top`** and **`--full`** apply only to **string-presence evidence** when **`--rg`** is set (the numbered `string-presence guard skipped` lines). They do **not** change candidate counts or list every removable path on stderr.
+
+- Without **`--rg`**: `--top` / `--full` have no visible effect (no string-presence lines).
+- With **`--rg`**: `--top 3` shows up to three blocked keys; `--full` shows every blocked key.
+- Full candidate paths: **`cleanup --dry-run --json | jq '.data.keys'`** (optionally slice with jq).
 
 ## Examples
 
@@ -45,6 +63,10 @@ i18nprune cleanup --ask
 # Prune extra keys from a target locale after dry-run review
 i18nprune cleanup --target ar --dry-run
 i18nprune cleanup --target ar --yes
+
+# Prune several targets (per-locale scan lines and confirmations)
+i18nprune cleanup --target ja,ms,pt --dry-run
+i18nprune cleanup --target all --ask
 ```
 
 ## jq usage (`--json`)
@@ -55,6 +77,9 @@ i18nprune cleanup --target ar --yes
 - `keys[]`
 - `dynamic`
 - `uncertainPrefixes[]`
+- optional `targetLocale` (single `--target`)
+- optional `targetLocales[]` and `targets[]` (multi-target / `all`)
+- optional `skippedTargets[]`
 - optional `summary` (`durationMs`, `command`, `ok`, `counts`)
 
 ```bash
@@ -74,6 +99,10 @@ i18nprune cleanup --dry-run --json \
 # Track uncertainty and issue codes
 i18nprune cleanup --dry-run --json \
   | jq '{uncertainPrefixes: .data.uncertainPrefixes, issues: [.issues[]? | {code, severity}]}'
+
+# Per-target removable counts when --target lists multiple codes
+i18nprune cleanup --target ja,ms --dry-run --json \
+  | jq '.data.targets | map({locale: .localeCode, wouldRemove: .wouldRemove})'
 ```
 
 ## Suggested next steps
@@ -85,10 +114,15 @@ During **`cleanup --dry-run`**, when candidates exist, a **`[tip]`** may suggest
 | Dry-run found removable keys | `suggest.cleanup.source_unused` / `suggest.cleanup.target_unused` | `i18nprune cleanup --yes` or `i18nprune cleanup --ask` |
 | Dry-run for target locale | `suggest.cleanup.target_unused` | `i18nprune cleanup --target <code> --yes` |
 
-Other commands (`validate`, `generate`, `sync`) emit source-unused tips with `cleanup --dry-run` and target-extra tips with `cleanup --target <code> --dry-run`.
+Other commands (`validate`, `generate`, `sync`) emit source-unused tips with `cleanup --dry-run` and target-extra tips with `cleanup --target <code> --dry-run`. Combine targets in one run with comma-separated codes or `all` (same pattern as `missing` / `sync`).
+
+### Multi-target human output
+
+When `--target` lists more than one code (or `all`), scan and dry-run lines are prefixed with `(locale)` so counts match each file. `--ask`, `--ask-per-key`, and the default confirm prompt run **per locale** (same as `missing`). The post-write sync hint appears only after **source** locale cleanup (as a `[notice]`).
 
 ## Troubleshooting
 
+- **`--top` / `--full` seem to do nothing:** they only cap **`--rg`** string-presence skip lines, not the 83/115 candidate summary. Use `--json` for the full path list.
 - Unexpected removals: rerun with `--rg` for a conservative substring guard, or review dynamic-key / uncertain-prefix warnings first.
 - No interactive prompts: run in a TTY and verify `--yes` is not set globally.
 - High `uncertainPrefixes`: review dynamic key prefix strategy before applying removals.

@@ -22,25 +22,29 @@ export function emitCleanupStringPresenceEvidence(
   host: CleanupMessageHost,
   evidence: readonly CleanupStringPresenceEvidence[],
   listWindow: CleanupEvidenceListWindow,
+  localeCode?: string,
 ): void {
   const skipped = evidence.filter((ev) => ev.kind === 'guard_skipped');
   const warned = evidence.filter((ev) => ev.kind === 'warn_hit');
+  const prefix = localeCode ? `(${localeCode}) ` : '';
   if (skipped.length > 0) {
     emitEvidenceGroup(host, {
-      label: 'string-presence guard skipped',
+      label: `${prefix}string-presence guard skipped`,
       items: skipped,
       listWindow,
       formatLine: (ev) =>
         `${ev.key} — probe text still in src (not proof of static key usage)${formatLocationHint(ev.locations)}`,
+      localeCode,
     });
   }
   if (warned.length > 0) {
     emitEvidenceGroup(host, {
-      label: 'string-presence warn',
+      label: `${prefix}string-presence warn`,
       items: warned,
       listWindow,
       formatLine: (ev) =>
         `${ev.key} — probe text in src (removal still allowed — reference.stringPresence=warn)${formatLocationHint(ev.locations)}`,
+      localeCode,
     });
   }
 }
@@ -52,6 +56,7 @@ function emitEvidenceGroup(
     items: readonly CleanupStringPresenceEvidence[];
     listWindow: CleanupEvidenceListWindow;
     formatLine: (ev: CleanupStringPresenceEvidence) => string;
+    localeCode?: string;
   },
 ): void {
   const cap = input.listWindow.full ? input.items.length : input.listWindow.limit;
@@ -62,7 +67,11 @@ function emitEvidenceGroup(
     runId: host.runId,
     level: 'info',
     message: `${input.label} ${String(input.items.length)} key(s)${omitted > 0 ? ` (showing ${String(shown.length)})` : ''}:`,
-    data: { total: input.items.length, shown: shown.length },
+    data: {
+      total: input.items.length,
+      shown: shown.length,
+      ...(input.localeCode ? { localeCode: input.localeCode } : {}),
+    },
   });
   for (let i = 0; i < shown.length; i += 1) {
     const ev = shown[i]!;

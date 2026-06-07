@@ -20,6 +20,7 @@ import {
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
   ISSUE_SYNC_LOCALE_FILE_NOT_FOUND,
   ISSUE_SYNC_METADATA_FLAG_CONFLICT,
+  ISSUE_SYNC_SCAN_EXTRAS_RETAINED,
 } from '../shared/constants/issueCodes.js';
 import {
   detectSourcePlaceholderLeaves,
@@ -31,6 +32,7 @@ import {
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
+import { computeExtraTargetKeys } from '../suggestions/computeExtraTargetKeys.js';
 import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 import { computeSyncedLocaleJson } from './apply.js';
 import { summarizeSyncLeavesForHumanLog } from './humanLeafSummary.js';
@@ -42,9 +44,11 @@ import {
   isSegmentedSyncLayout,
   mergeSyncHumanLeafSummaries,
 } from './humanEmit.js';
+import type { ProjectAnalysis } from '../types/analysis/index.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
 import type { LocaleMetadataRepairReason, LocaleMetadataReport } from '../types/locales/leaves/index.js';
+import type { SyncHumanLeafSummary } from '../types/sync/humanLeafSummary.js';
 import type { SyncHostHooks, SyncRunOptions, SyncRunResult } from '../types/sync/index.js';
 import type { LocalePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 
@@ -101,6 +105,28 @@ function issuesFromSyncMissingLocaleFiles(localeCodes: readonly string[]): Issue
       docPath: 'commands/sync/README',
     },
   ];
+}
+
+function issuesFromSyncScanExtrasRetained(
+  ctx: CoreContext,
+  analysis: ProjectAnalysis,
+  humanLeafSummaryByLocaleFile: Record<string, SyncHumanLeafSummary | undefined>,
+  targetSegments: readonly { locale: string; reportKey: string }[],
+): Issue[] {
+  const issues: Issue[] = [];
+  for (const segment of targetSegments) {
+    const summary = humanLeafSummaryByLocaleFile[segment.reportKey];
+    if (!summary || summary.prunedExtraLeaves > 0) continue;
+    const { count } = computeExtraTargetKeys(ctx, analysis, segment.locale);
+    if (count <= 0) continue;
+    issues.push({
+      severity: 'info',
+      code: ISSUE_SYNC_SCAN_EXTRAS_RETAINED,
+      message: `Target locale ${segment.locale}: ${String(count)} key path(s) are extra vs the code scan but were retained by sync (scan ∩ source template; uncertain-prefix protect may apply). Run \`i18nprune cleanup --target ${segment.locale} --dry-run\` to preview scan-based removal.`,
+      docPath: 'commands/sync/README',
+    });
+  }
+  return issues;
 }
 
 function issueFromMetadataFlagConflict(conflict: boolean): Issue[] {
@@ -476,6 +502,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     ...issueFromMetadataFlagConflict(modeDecision.conflict),
     ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
     ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),
+    ...issuesFromSyncScanExtrasRetained(ctx, analysis, humanLeafSummaryByLocaleFile, targets),
   ];
 
   return {

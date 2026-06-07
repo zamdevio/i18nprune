@@ -404,7 +404,7 @@ program
   .option('--rg', 'enable ripgrep string-presence guard (substring search on translation values in src/)')
   .option(
     '--target <code>',
-    'target locale code to prune (extra keys vs code scan); omit for source-locale cleanup',
+    'target locale code(s) to prune: one code, comma-separated list, or all; omit for source-locale cleanup',
   )
   .option(
     '--ask',

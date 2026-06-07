@@ -2,7 +2,8 @@
  * Missing engine: parse validate report missing paths, compute add plans, and apply/write missing
  * placeholders through host adapters.
  */
-export { DEFAULT_MISSING_LEAF_PLACEHOLDER, MAX_MISSING_TARGET_SUGGESTIONS } from '../shared/constants/missing.js';
+export { DEFAULT_MISSING_LEAF_PLACEHOLDER } from '../shared/constants/missing.js';
+export { MAX_LOCALE_TARGET_SUGGESTIONS } from '../shared/constants/locales.js';
 export {
   emitMissingPathsPreview,
   emitMissingPlaceholderLeavesPreview,

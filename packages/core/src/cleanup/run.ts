@@ -6,29 +6,39 @@ import {
 } from './evidenceEmit.js';
 import { resolveCleanupKeysWithStringPresencePolicy } from './stringPresence.js';
 import { readLocaleJsonFromContextSync, writeLocaleJsonFromContextSync } from '../shared/locales/index.js';
-import { readCleanupSourceLeaves } from './sourceSurface.js';
+import { listCleanupSourceSegmentsForKeys, readCleanupSourceLeaves } from './sourceSurface.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { buildKeyReferenceContextFromLiteralUsageAndDynamicSites } from '../shared/reference/context.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
+import { I18nPruneError } from '../shared/errors/index.js';
 import { finalizeLocaleSuggestions } from '../suggestions/index.js';
-import { computeExtraTargetKeys } from '../suggestions/computeExtraTargetKeys.js';
-import { assertNotSourceTargetLocale } from '../locales/source.js';
-import { normalizeLanguageCode } from '../shared/languages/normalize.js';
+import {
+  computeExtraTargetKeys,
+  listTargetSegmentPathsForKeys,
+} from '../suggestions/computeExtraTargetKeys.js';
+import { resolveCleanupTargetLocaleCodes } from './resolveTargets.js';
 import { hasLocaleLeafAtPath } from '../shared/json/localeLeafPath.js';
 import { readLocaleLeavesForCode } from '../shared/locales/surface/localeSurface.js';
 import { segmentsForLocaleCode, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
 import {
   ISSUE_CLEANUP_RIPGREP_UNAVAILABLE,
   ISSUE_CLEANUP_UNCERTAIN_PATHS_EXCLUDED,
+  ISSUE_LOCALE_TARGET_NOT_FOUND,
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
 } from '../shared/constants/issueCodes.js';
+import type { ProjectAnalysis } from '../types/analysis/index.js';
 import type { CoreContext } from '../types/context/index.js';
 import type { Issue } from '../types/json/envelope/index.js';
+import type { LocaleSuggestion } from '../types/suggestions/index.js';
 import type {
   CleanupHostHooks,
+  CleanupJsonOutput,
+  CleanupJsonTargetEntry,
+  CleanupLocaleSlice,
   CleanupRunOptions,
   CleanupRunResult,
+  CleanupSkippedTarget,
   CleanupWritePlan,
 } from '../types/cleanup/index.js';
 
@@ -157,14 +167,15 @@ export function emitCleanupAskIgnoredMessage(host: Pick<CleanupHostHooks, 'emit'
 
 export function emitCleanupWriteIntro(
   host: Pick<CleanupHostHooks, 'emit' | 'runId'>,
-  input: { removeCount: number; segmentFileCount: number; localeLabel: string },
+  input: { removeCount: number; segmentFileCount: number; localeLabel: string; isTargetMode: boolean },
 ): void {
+  if (input.isTargetMode) return;
   const fileHint =
     input.segmentFileCount > 1
       ? `${String(input.segmentFileCount)} segment file(s) for ${input.localeLabel}`
       : `${input.localeLabel} locale file`;
   emitCleanupMessage(host, {
-    level: 'warn',
+    level: 'notice',
     message: `removing ${String(input.removeCount)} path(s) from ${fileHint}. Run \`i18nprune sync\` afterwards to align other locale files when needed.`,
     data: { removeCount: input.removeCount, segmentFileCount: input.segmentFileCount },
   });
@@ -201,42 +212,93 @@ function resolveCleanupListWindow(
   });
 }
 
-export function runCleanup(
+function formatCleanupSkippedTargetHint(target: CleanupSkippedTarget): string {
+  return target.suggestions?.length ? ` Did you mean: ${target.suggestions.join(', ')}?` : '';
+}
+
+function issuesFromCleanupSkippedTargets(skippedTargets: readonly CleanupSkippedTarget[]): Issue[] {
+  if (skippedTargets.length === 0) return [];
+  return skippedTargets.map((target) => ({
+    severity: 'warning' as const,
+    code: ISSUE_LOCALE_TARGET_NOT_FOUND,
+    message:
+      target.reason === 'source_locale'
+        ? `cleanup: target "${target.localeCode}" is the source locale; omit --target for source cleanup.`
+        : `cleanup: locale file not found for target "${target.localeCode}" (skipped).${formatCleanupSkippedTargetHint(target)}`,
+    docPath: 'commands/cleanup/README',
+  }));
+}
+
+function cleanupNoTargetMatchMessage(skippedTargets: readonly CleanupSkippedTarget[]): string {
+  const hints = [
+    ...new Set(skippedTargets.flatMap((target) => target.suggestions ?? [])),
+  ];
+  const suffix = hints.length > 0 ? ` Did you mean: ${hints.join(', ')}?` : '';
+  return `cleanup: no target locale files matched --target selection.${suffix}`;
+}
+
+function mergeCleanupWritePlans(plans: readonly CleanupWritePlan[]): CleanupWritePlan {
+  const writes = plans.flatMap((plan) => plan.writes);
+  const keys = [...new Set(plans.flatMap((plan) => plan.keys))];
+  const removedPaths = writes.flatMap((write) => write.removedPaths);
+  const primary = writes[0];
+  return {
+    writes,
+    keys,
+    sourcePath: primary?.sourcePath ?? '',
+    nextSourceJson: primary?.nextSourceJson ?? {},
+    removedPaths,
+  };
+}
+
+function localeRoleLabel(localeCode: string, isTargetMode: boolean, multi: boolean): string {
+  if (multi) return localeCode;
+  return isTargetMode ? `target locale (${localeCode})` : `source locale (${localeCode})`;
+}
+
+function segmentPathsForSlice(
+  ctx: CoreContext,
+  slice: Pick<CleanupLocaleSlice, 'localeCode' | 'isTargetMode' | 'safeToRemove'>,
+): string[] {
+  if (slice.safeToRemove.length === 0) return [];
+  if (slice.isTargetMode) {
+    return listTargetSegmentPathsForKeys(ctx, slice.localeCode, slice.safeToRemove);
+  }
+  return listCleanupSourceSegmentsForKeys(ctx, slice.safeToRemove).map((segment) => segment.relativePath);
+}
+
+function runCleanupLocaleSlice(
   ctx: CoreContext,
   opts: CleanupRunOptions,
   host: CleanupHostHooks,
-): CleanupRunResult {
-  const sourceCode = sourceLocaleCodeFromContext(ctx);
-  const targetCode = opts.target ? normalizeLanguageCode(opts.target) : undefined;
-  const isTargetMode = targetCode !== undefined;
-  if (isTargetMode) {
-    assertNotSourceTargetLocale('cleanup', targetCode!, ctx.paths.sourceLocale, {
-      path: ctx.adapters.path,
-      paths: ctx.paths,
+  input: {
+    localeCode: string;
+    isTargetMode: boolean;
+    multi: boolean;
+    analysis: ProjectAnalysis;
+    dynamicCount: number;
+    refCtx: ReturnType<typeof buildKeyReferenceContextFromLiteralUsageAndDynamicSites>;
+    eff: ReturnType<typeof resolveReferenceConfig>;
+    skipStringPresenceCheck: boolean;
+    stringPresenceAvailable: boolean;
+  },
+): CleanupLocaleSlice {
+  const { localeCode, isTargetMode, multi, analysis, eff, refCtx } = input;
+  const localeLabel = localeRoleLabel(localeCode, isTargetMode, multi);
+  const linePrefix = multi ? `(${localeCode}) ` : '';
+
+  if (!multi) {
+    emitCleanupMessage(host, {
+      level: 'info',
+      message: `scanning ${localeLabel} and project sources for unused key paths...`,
+      data: { localeCode, targetMode: isTargetMode },
     });
   }
-  const localeCode = isTargetMode ? targetCode! : sourceCode;
-  const localeLabel = isTargetMode ? `target locale (${localeCode})` : `source locale (${sourceCode})`;
-
-  emitCleanupMessage(host, {
-    level: 'info',
-    message: `scanning ${localeLabel} and project sources for unused key paths...`,
-    data: { localeCode, targetMode: isTargetMode },
-  });
-
-  const eff = resolveReferenceConfig('cleanup', ctx.config);
-  const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'cleanup', runId: host.runId });
-  const dynamic = analysis.dynamicSites;
-  const refCtx = buildKeyReferenceContextFromLiteralUsageAndDynamicSites(
-    analysis.usage,
-    dynamic,
-    eff,
-  );
 
   let candidates: string[];
   let excludedUncertain = 0;
-  let leaves = isTargetMode ? readLocaleLeavesForCode(ctx, localeCode) : readCleanupSourceLeaves(ctx);
-  const allKeyPaths = new Set(leaves.map((l) => l.path));
+  const leaves = isTargetMode ? readLocaleLeavesForCode(ctx, localeCode) : readCleanupSourceLeaves(ctx);
+  const allKeyPaths = new Set(leaves.map((leaf) => leaf.path));
 
   if (isTargetMode) {
     const extra = computeExtraTargetKeys(ctx, analysis, localeCode);
@@ -264,6 +326,124 @@ export function runCleanup(
     });
   }
 
+  emitCleanupMessage(host, {
+    level: 'info',
+    message: `${linePrefix}${String(allKeyPaths.size)} key path(s) in ${localeLabel} JSON · ${String(candidates.length)} unused candidate(s) after preserve / reference rules`,
+    data: { keyPaths: allKeyPaths.size, candidates: candidates.length, localeCode },
+  });
+
+  const stringPresence = resolveCleanupKeysWithStringPresencePolicy({
+    candidates,
+    leaves,
+    stringPresence: eff.stringPresence,
+    stringPresenceMaxHitsPerKey: eff.stringPresenceMaxHitsPerKey,
+    skipStringPresenceCheck: input.skipStringPresenceCheck,
+    stringPresenceAvailable: input.stringPresenceAvailable,
+    hasStringPresence: host.hasStringPresence,
+    getStringPresenceLocations: host.getStringPresenceLocations,
+    shouldRunStringPresenceForKey: host.shouldRunStringPresenceForKey,
+  });
+
+  if (stringPresence.evidence.length > 0) {
+    emitCleanupStringPresenceEvidence(
+      host,
+      stringPresence.evidence,
+      resolveCleanupListWindow(opts, host),
+      multi ? localeCode : undefined,
+    );
+  }
+
+  const safeToRemove = stringPresence.safeToRemove;
+  const writePlan = createCleanupLocaleWritePlan(ctx, localeCode, safeToRemove);
+  const segmentPaths = segmentPathsForSlice(ctx, { localeCode, isTargetMode, safeToRemove });
+
+  if (safeToRemove.length === 0) {
+    emitCleanupMessage(host, {
+      level: 'info',
+      message: multi
+        ? `${linePrefix}nothing to remove (no unused keys after filters).`
+        : 'nothing to remove (no unused keys after filters).',
+      data: { localeCode },
+    });
+  }
+
+  return {
+    localeCode,
+    isTargetMode,
+    writePlan,
+    sourceLeaves: leaves,
+    allKeyPathCount: allKeyPaths.size,
+    candidateKeys: candidates,
+    safeToRemove,
+    excludedUncertain,
+    stringPresenceEvidence: stringPresence.evidence,
+    segmentPaths,
+  };
+}
+
+function buildCleanupBatchPayload(
+  slices: readonly CleanupLocaleSlice[],
+  input: {
+    dynamic: number;
+    uncertainPrefixes: string[];
+    isTargetMode: boolean;
+    targetLocaleCodes: string[];
+    skippedTargets: CleanupSkippedTarget[];
+    suggestions: LocaleSuggestion[];
+  },
+): CleanupJsonOutput {
+  const targetEntries: CleanupJsonTargetEntry[] = slices
+    .filter((slice) => slice.isTargetMode)
+    .map((slice) => ({
+      localeCode: slice.localeCode,
+      wouldRemove: slice.safeToRemove.length,
+      keys: [...slice.safeToRemove],
+      ...(slice.segmentPaths.length > 0 ? { segmentPaths: slice.segmentPaths } : {}),
+    }));
+  const wouldRemove = slices.reduce((sum, slice) => sum + slice.safeToRemove.length, 0);
+  const keys = slices.flatMap((slice) => slice.safeToRemove);
+  const multiTarget = input.targetLocaleCodes.length > 1;
+
+  return {
+    wouldRemove,
+    keys,
+    dynamic: input.dynamic,
+    uncertainPrefixes: input.uncertainPrefixes,
+    ...(input.isTargetMode && !multiTarget && input.targetLocaleCodes[0]
+      ? { targetLocale: input.targetLocaleCodes[0] }
+      : {}),
+    ...(multiTarget ? { targetLocales: [...input.targetLocaleCodes], targets: targetEntries } : {}),
+    ...(input.skippedTargets.length > 0 ? { skippedTargets: [...input.skippedTargets] } : {}),
+    suggestions: input.suggestions,
+  };
+}
+
+export function runCleanup(
+  ctx: CoreContext,
+  opts: CleanupRunOptions,
+  host: CleanupHostHooks,
+): CleanupRunResult {
+  const sourceCode = sourceLocaleCodeFromContext(ctx);
+  const rawTarget = opts.target?.trim();
+  const isTargetMode = Boolean(rawTarget);
+  let targetLocaleCodes: string[] = [];
+  let skippedTargets: CleanupSkippedTarget[] = [];
+
+  if (isTargetMode) {
+    const resolved = resolveCleanupTargetLocaleCodes(ctx, rawTarget!);
+    targetLocaleCodes = resolved.localeCodes;
+    skippedTargets = resolved.skippedTargets;
+    if (targetLocaleCodes.length === 0) {
+      throw new I18nPruneError(cleanupNoTargetMatchMessage(skippedTargets), 'USAGE');
+    }
+  }
+
+  const isMultiTarget = targetLocaleCodes.length > 1;
+  const eff = resolveReferenceConfig('cleanup', ctx.config);
+  const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'cleanup', runId: host.runId });
+  const dynamic = analysis.dynamicSites;
+  const refCtx = buildKeyReferenceContextFromLiteralUsageAndDynamicSites(analysis.usage, dynamic, eff);
+
   const skipStringPresenceCheck = Boolean(opts.skipStringPresenceCheck);
   const stringPresenceAvailable = skipStringPresenceCheck ? false : host.isStringPresenceAvailable();
   if (!skipStringPresenceCheck && !stringPresenceAvailable && eff.stringPresence !== 'off') {
@@ -273,12 +453,6 @@ export function runCleanup(
     });
   }
 
-  emitCleanupMessage(host, {
-    level: 'info',
-    message: `${String(allKeyPaths.size)} key path(s) in ${localeLabel} JSON · ${String(candidates.length)} unused candidate(s) after preserve / reference rules`,
-    data: { keyPaths: allKeyPaths.size, candidates: candidates.length, localeCode },
-  });
-
   if (dynamic.length > 0) {
     emitCleanupMessage(host, {
       level: 'warn',
@@ -287,65 +461,90 @@ export function runCleanup(
     });
   }
 
-  const stringPresence = resolveCleanupKeysWithStringPresencePolicy({
-    candidates,
-    leaves,
-    stringPresence: eff.stringPresence,
-    stringPresenceMaxHitsPerKey: eff.stringPresenceMaxHitsPerKey,
-    skipStringPresenceCheck,
-    stringPresenceAvailable,
-    hasStringPresence: host.hasStringPresence,
-    getStringPresenceLocations: host.getStringPresenceLocations,
-    shouldRunStringPresenceForKey: host.shouldRunStringPresenceForKey,
-  });
+  if (isMultiTarget) {
+    emitCleanupMessage(host, {
+      level: 'info',
+      message: `scanning ${String(targetLocaleCodes.length)} target locale(s) (${targetLocaleCodes.join(', ')}) for unused key paths...`,
+      data: { targetLocales: targetLocaleCodes.join(',') },
+    });
+  }
 
-  emitCleanupStringPresenceEvidence(host, stringPresence.evidence, resolveCleanupListWindow(opts, host));
+  const localeJobs = isTargetMode
+    ? targetLocaleCodes.map((code) => ({ localeCode: code, isTargetMode: true as const }))
+    : [{ localeCode: sourceCode, isTargetMode: false as const }];
 
-  const safeToRemove = stringPresence.safeToRemove;
-  const writePlan = createCleanupLocaleWritePlan(ctx, localeCode, safeToRemove);
-  const issues = [
-    ...issuesFromDynamicScanCount(dynamic.length),
-    ...issuesFromCleanupUncertainExcluded(excludedUncertain),
-    ...issuesFromCleanupStringPresenceUnavailable({ skipStringPresenceCheck, stringPresenceAvailable }),
-  ];
-  const payload = finalizeLocaleSuggestions(
-    host,
-    {
-      op: 'cleanup',
-      ctx,
+  const localeSlices = localeJobs.map((job) =>
+    runCleanupLocaleSlice(ctx, opts, host, {
+      ...job,
+      multi: isMultiTarget,
       analysis,
-      dryRun: opts.dryRun,
-      cleanupTarget: isTargetMode ? localeCode : undefined,
-      cleanupRemoveCount: safeToRemove.length,
-      cleanupRemoveKeys: safeToRemove,
-    },
-    {
-      wouldRemove: safeToRemove.length,
-      keys: safeToRemove,
-      dynamic: dynamic.length,
-      uncertainPrefixes: isTargetMode ? [] : refCtx.uncertainPrefixes,
-      ...(isTargetMode ? { targetLocale: localeCode } : {}),
-    },
+      dynamicCount: dynamic.length,
+      refCtx,
+      eff,
+      skipStringPresenceCheck,
+      stringPresenceAvailable,
+    }),
   );
 
-  if (safeToRemove.length === 0) {
-    emitCleanupMessage(host, { level: 'info', message: 'nothing to remove (no unused keys after filters).' });
+  const suggestions: LocaleSuggestion[] = [];
+  if (opts.dryRun === true) {
+    for (const slice of localeSlices) {
+      if (slice.safeToRemove.length === 0) continue;
+      const batch = finalizeLocaleSuggestions(
+        host,
+        {
+          op: 'cleanup',
+          ctx,
+          analysis,
+          dryRun: true,
+          cleanupTarget: slice.isTargetMode ? slice.localeCode : undefined,
+          cleanupRemoveCount: slice.safeToRemove.length,
+          cleanupRemoveKeys: slice.safeToRemove,
+        },
+        { suggestions: [] },
+      );
+      suggestions.push(...batch.suggestions);
+    }
   }
+
+  const payload = buildCleanupBatchPayload(localeSlices, {
+    dynamic: dynamic.length,
+    uncertainPrefixes: isTargetMode ? [] : refCtx.uncertainPrefixes,
+    isTargetMode,
+    targetLocaleCodes,
+    skippedTargets,
+    suggestions,
+  });
+
+  const first = localeSlices[0]!;
+  const writePlan = mergeCleanupWritePlans(localeSlices.map((slice) => slice.writePlan));
+  const issues = [
+    ...issuesFromDynamicScanCount(dynamic.length),
+    ...issuesFromCleanupUncertainExcluded(
+      localeSlices.reduce((sum, slice) => sum + slice.excludedUncertain, 0),
+    ),
+    ...issuesFromCleanupStringPresenceUnavailable({ skipStringPresenceCheck, stringPresenceAvailable }),
+    ...issuesFromCleanupSkippedTargets(skippedTargets),
+  ];
 
   return {
     payload,
     issues,
+    localeSlices,
     writePlan,
-    sourceLeaves: leaves,
-    allKeyPathCount: allKeyPaths.size,
-    candidateKeys: candidates,
-    safeToRemove,
-    excludedUncertain,
+    sourceLeaves: first.sourceLeaves,
+    allKeyPathCount: localeSlices.reduce((sum, slice) => sum + slice.allKeyPathCount, 0),
+    candidateKeys: localeSlices.flatMap((slice) => slice.candidateKeys),
+    safeToRemove: localeSlices.flatMap((slice) => slice.safeToRemove),
+    excludedUncertain: localeSlices.reduce((sum, slice) => sum + slice.excludedUncertain, 0),
     dynamic,
     keyObservationsCount: analysis.keyObservations.length,
     stringPresenceAvailable,
-    stringPresenceEvidence: stringPresence.evidence,
-    localeCode,
+    stringPresenceEvidence: localeSlices.flatMap((slice) => slice.stringPresenceEvidence),
+    localeCode: isTargetMode ? (isMultiTarget ? targetLocaleCodes.join(',') : targetLocaleCodes[0]!) : sourceCode,
     isTargetMode,
+    isMultiTarget,
+    targetLocaleCodes,
+    skippedTargets,
   };
 }

@@ -40,6 +40,8 @@ export const ISSUE_MISSING_PATHS_NOT_IN_SCAN = 'i18nprune.missing.paths_not_in_c
 export const ISSUE_SYNC_LOCALE_FILE_NOT_FOUND = 'i18nprune.sync.locale_file_not_found' as const;
 /** Sync: incompatible combination of `--metadata` / `--strip-metadata` (or related flags). */
 export const ISSUE_SYNC_METADATA_FLAG_CONFLICT = 'i18nprune.sync.metadata_flag_conflict' as const;
+/** Sync: target locale has keys extra vs code scan but sync retained them (uncertain-prefix protect / template prune). */
+export const ISSUE_SYNC_SCAN_EXTRAS_RETAINED = 'i18nprune.sync.scan_extras_retained' as const;
 /** Locale read: source JSON contains placeholder-only leaves where real copy is expected. */
 export const ISSUE_LOCALE_SOURCE_PLACEHOLDER_LEAVES = 'i18nprune.locale.source_placeholder_leaves' as const;
 /** Locale read: target JSON still has placeholder leaves (e.g. untranslated stubs). */

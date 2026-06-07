@@ -102,6 +102,7 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.patching.*` | varies | Patching analyzer (**`doctor`**, **`validate`**) |
 | `i18nprune.sync.locale_file_not_found` | `warning` | **`sync`**, **`runSync`** |
 | `i18nprune.sync.metadata_flag_conflict` | `warning` | **`sync`**, **`runSync`** |
+| `i18nprune.sync.scan_extras_retained` | `info` | **`sync`**, **`runSync`** |
 | `i18nprune.cleanup.uncertain_paths_excluded` | `info` | **`cleanup`**, **`runCleanup`** |
 | `i18nprune.cleanup.ripgrep_unavailable` | `warning` | **`cleanup`**, **`runCleanup`** |
 | `i18nprune.quality.english_identical_leaves` | `info` | **`quality`**, **`runQuality`** |

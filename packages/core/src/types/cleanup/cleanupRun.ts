@@ -12,13 +12,31 @@ export type CleanupJsonRunSummary = {
   counts: { remove: number; dynamic: number };
 };
 
+export type CleanupJsonTargetEntry = {
+  localeCode: string;
+  wouldRemove: number;
+  keys: string[];
+  segmentPaths?: string[];
+};
+
+export type CleanupSkippedTarget = {
+  localeCode: string;
+  reason: 'not_found' | 'source_locale';
+  suggestions?: string[];
+};
+
 export type CleanupJsonOutput = {
   wouldRemove: number;
   keys: string[];
   dynamic: number;
   uncertainPrefixes: string[];
-  /** Locale pruned when `--target` is set; omitted for source-locale cleanup (default). */
+  /** Single target locale when `--target` resolves to one code. */
   targetLocale?: string;
+  /** All target locale codes when `--target` lists multiple codes or `all`. */
+  targetLocales?: string[];
+  /** Per-target results when multiple locales are pruned in one run. */
+  targets?: CleanupJsonTargetEntry[];
+  skippedTargets?: CleanupSkippedTarget[];
   /** Present when the CLI emits the final `cleanup` envelope. */
   summary?: CleanupJsonRunSummary;
   /** Cross-op next-step hints (additive). */
@@ -30,11 +48,11 @@ export type CleanupRunOptions = {
   dryRun?: boolean;
   /** Skip host string-presence (ripgrep) probes — static unused-key list only. */
   skipStringPresenceCheck?: boolean;
-  /** Target locale code to prune (non-source); omit for source-locale cleanup. */
+  /** Target locale code(s) to prune: one code, comma-separated list, or `all`. Omit for source-locale cleanup. */
   target?: string;
-  /** Max string-presence skip lines in human output; default from global `--top`. */
+  /** Max `--rg` string-presence skip lines in human output; default from global `--top`. Does not list all candidate paths. */
   top?: number;
-  /** List every string-presence skip line (global `--full`). */
+  /** List every `--rg` string-presence skip line (global `--full`). */
   full?: boolean;
 };
 
@@ -71,9 +89,24 @@ export type CleanupWritePlan = {
   removedPaths: string[];
 };
 
+export type CleanupLocaleSlice = {
+  localeCode: string;
+  isTargetMode: boolean;
+  writePlan: CleanupWritePlan;
+  sourceLeaves: StringLeaf[];
+  allKeyPathCount: number;
+  candidateKeys: string[];
+  safeToRemove: string[];
+  excludedUncertain: number;
+  stringPresenceEvidence: CleanupStringPresenceEvidence[];
+  segmentPaths: string[];
+};
+
 export type CleanupRunResult = {
   payload: CleanupJsonOutput;
   issues: Issue[];
+  /** One entry per locale processed (source or each `--target` code). */
+  localeSlices: CleanupLocaleSlice[];
   writePlan: CleanupWritePlan;
   sourceLeaves: StringLeaf[];
   allKeyPathCount: number;
@@ -84,7 +117,10 @@ export type CleanupRunResult = {
   keyObservationsCount: number;
   stringPresenceAvailable: boolean;
   stringPresenceEvidence: CleanupStringPresenceEvidence[];
-  /** Locale pruned in this run (source or `--target`). */
+  /** Primary locale label for legacy callers (first slice). */
   localeCode: string;
   isTargetMode: boolean;
+  isMultiTarget: boolean;
+  targetLocaleCodes: string[];
+  skippedTargets: CleanupSkippedTarget[];
 };

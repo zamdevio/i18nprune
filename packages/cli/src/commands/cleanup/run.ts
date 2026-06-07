@@ -9,20 +9,18 @@ import {
   emitCleanupWriteDone,
   emitCleanupWriteIntro,
   I18nPruneError,
-  listCleanupSourceSegmentsForKeys,
-  listTargetSegmentPathsForKeys,
   noopRunEmitter,
-  sourceLocaleCodeFromContext,
   stringifyEnvelope,
   writeCleanupPlan,
 } from '@i18nprune/core';
+import type { CleanupLocaleSlice } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
 import { emitCleanupCliModeNotices } from '@/commands/cleanup/hooks.js';
 import { executeCore, runCleanupJsonEnvelope, emptyCleanupPayload } from '@/commands/cleanup/jsonEnvelope.js';
 import { canAsk, promptApprovedRemovalKeys } from '@/shared/ask/index.js';
 import { createCliRunEmitter } from '@/shared/run/renderRunEvent.js';
 import type { CleanupOptions } from '@/types/command/cleanup/index.js';
-import type { CleanupJsonOutput, CliJsonEnvelope, CoreContext } from '@i18nprune/core';
+import type { CleanupJsonOutput, CleanupWritePlan, CliJsonEnvelope, CoreContext } from '@i18nprune/core';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { logger } from '@/utils/logger/index.js';
@@ -35,19 +33,18 @@ function createCleanupCoreContext(ctx: Awaited<ReturnType<typeof resolveContext>
   return createCliCoreContext(ctx);
 }
 
-function cleanupLocaleTargetDisplay(ctx: Context, keys: readonly string[], target?: string): string {
-  const coreCtx = createCliCoreContext(ctx);
-  const localeCode = target ?? sourceLocaleCodeFromContext(coreCtx);
-  const segmentPaths = target
-    ? listTargetSegmentPathsForKeys(coreCtx, localeCode, keys)
-    : listCleanupSourceSegmentsForKeys(coreCtx, keys).map((s) => s.relativePath);
-  if (segmentPaths.length === 0) {
-    return target ? `${localeCode} locale` : ctx.paths.sourceLocale;
+function cleanupSliceTargetDisplay(ctx: Context, slice: CleanupLocaleSlice): string {
+  if (slice.segmentPaths.length === 0) {
+    return slice.isTargetMode ? `${slice.localeCode} locale` : ctx.paths.sourceLocale;
   }
-  if (segmentPaths.length === 1) {
-    return segmentPaths[0]!;
+  if (slice.segmentPaths.length === 1) {
+    return slice.segmentPaths[0]!;
   }
-  return formatLocaleSegmentFilesLabel(localeCode, segmentPaths);
+  return formatLocaleSegmentFilesLabel(slice.localeCode, slice.segmentPaths);
+}
+
+function localeLabelForWrite(slice: CleanupLocaleSlice): string {
+  return slice.isTargetMode ? `target locale (${slice.localeCode})` : `source locale (${slice.localeCode})`;
 }
 
 export async function cleanup(opts: CleanupOptions): Promise<void> {
@@ -133,12 +130,17 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
       keyObservations: result.keyObservationsCount,
     };
 
+    const slicesWithRemovals = result.localeSlices.filter((slice) => slice.safeToRemove.length > 0);
+
     if (opts.dryRun) {
-      if (result.safeToRemove.length > 0) {
-        logger.info(
-          `dry-run: would remove ${String(result.safeToRemove.length)} path(s) from ${cleanupLocaleTargetDisplay(ctx, result.safeToRemove, opts.target)}`,
-          ctx.run,
-        );
+      if (slicesWithRemovals.length > 0) {
+        for (const slice of slicesWithRemovals) {
+          const prefix = result.isMultiTarget ? `(${slice.localeCode}) ` : '';
+          logger.info(
+            `${prefix}dry-run: would remove ${String(slice.safeToRemove.length)} path(s) from ${cleanupSliceTargetDisplay(ctx, slice)}`,
+            ctx.run,
+          );
+        }
       } else {
         logger.info('dry-run: nothing to remove', ctx.run);
       }
@@ -150,6 +152,10 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
           counts: {
             removedPaths: 0,
             filesWritten: 0,
+            ...(result.isMultiTarget ? { targets: result.targetLocaleCodes.length } : {}),
+            ...(result.skippedTargets.length > 0
+              ? { skippedTargets: result.skippedTargets.length }
+              : {}),
             dynamic: extractionBaseline.dynamic,
             keyObservations: extractionBaseline.keyObservations,
           },
@@ -161,15 +167,21 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
       return;
     }
 
-    let keysToRemove = result.safeToRemove;
-
-    if (keysToRemove.length === 0) {
+    if (slicesWithRemovals.length === 0) {
       printCommandSummary(
         {
           command: 'cleanup',
           ok: true,
           durationMs: wall.elapsedMs(),
-          counts: { removedPaths: 0, filesWritten: 0, dynamic: result.dynamic.length },
+          counts: {
+            removedPaths: 0,
+            filesWritten: 0,
+            ...(result.isMultiTarget ? { targets: result.targetLocaleCodes.length } : {}),
+            ...(result.skippedTargets.length > 0
+              ? { skippedTargets: result.skippedTargets.length }
+              : {}),
+            dynamic: result.dynamic.length,
+          },
           issues: summaryIssues,
         },
         ctx,
@@ -180,78 +192,88 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
 
     if (!getCliYesFlag()) {
       const wantsInteractiveApproval = opts.ask === true || opts.askPerKey === true;
-      let interactiveApprovalDone = false;
-      if (wantsInteractiveApproval && canAsk(ctx.run)) {
-        keysToRemove = await promptApprovedRemovalKeys(keysToRemove, {
-          mode: opts.askPerKey ? 'each' : 'group',
-          targetDisplay: cleanupLocaleTargetDisplay(ctx, keysToRemove, opts.target),
-        });
-        interactiveApprovalDone = true;
-        if (keysToRemove.length === 0) {
-          emitCleanupAbortMessage(runtime, 'no_keys_approved');
-          printCommandSummary(
-            {
-              command: 'cleanup',
-              ok: true,
-              durationMs: wall.elapsedMs(),
-              counts: extractionBaseline,
-              issues: summaryIssues,
-            },
-            ctx,
-          );
-          applyCliCiExitGate(result.envelope.ok);
-          return;
-        }
-      } else if (wantsInteractiveApproval && !canAsk(ctx.run)) {
+      if (wantsInteractiveApproval && !canAsk(ctx.run)) {
         emitCleanupAskIgnoredMessage(runtime);
-      }
-
-      if (!interactiveApprovalDone && canAsk(ctx.run)) {
-        const ok = await duringPrompt(() =>
-          confirm({
-            message: `Remove ${String(keysToRemove.length)} unused key path(s) from ${cleanupLocaleTargetDisplay(ctx, keysToRemove, opts.target)}?`,
-            default: false,
-          }),
-        );
-        if (!ok) {
-          emitCleanupAbortMessage(runtime, 'declined_confirmation');
-          printCommandSummary(
-            {
-              command: 'cleanup',
-              ok: true,
-              durationMs: wall.elapsedMs(),
-              counts: extractionBaseline,
-              issues: summaryIssues,
-            },
-            ctx,
-          );
-          applyCliCiExitGate(result.envelope.ok);
-          return;
-        }
-      } else if (!interactiveApprovalDone && !canAsk(ctx.run)) {
-        throw new I18nPruneError(
-          'cleanup: destructive run requires global --yes when non-interactive (or use --dry-run / --json for report-only)',
-          'USAGE',
-        );
       }
     }
 
     const coreCtx = createCleanupCoreContext(ctx);
-    const localeCode = result.localeCode;
-    const plan =
-      keysToRemove.length === result.writePlan.keys.length &&
-      keysToRemove.every((key, idx) => key === result.writePlan.keys[idx])
-        ? result.writePlan
-        : createCleanupLocaleWritePlan(coreCtx, localeCode, keysToRemove);
-    const localeLabel = result.isTargetMode ? `target locale (${localeCode})` : `source locale (${localeCode})`;
-    emitCleanupWriteIntro(runtime, {
-      removeCount: plan.removedPaths.length,
-      segmentFileCount: plan.writes.length,
-      localeLabel,
-    });
-    writeCleanupPlan(coreCtx, plan);
-    const filesWritten = plan.writes.length;
-    emitCleanupWriteDone(runtime, { plan, wrote: filesWritten > 0 });
+    let totalRemovedPaths = 0;
+    let totalFilesWritten = 0;
+    let declinedTargets = 0;
+    let aborted = false;
+    const writtenPlans: CleanupWritePlan[] = [];
+
+    for (const slice of slicesWithRemovals) {
+      let keysToRemove = slice.safeToRemove;
+
+      if (!getCliYesFlag()) {
+        const wantsInteractiveApproval = opts.ask === true || opts.askPerKey === true;
+        if (wantsInteractiveApproval && canAsk(ctx.run)) {
+          keysToRemove = await promptApprovedRemovalKeys(keysToRemove, {
+            mode: opts.askPerKey ? 'each' : 'group',
+            targetDisplay: cleanupSliceTargetDisplay(ctx, slice),
+          });
+          if (keysToRemove.length === 0) {
+            declinedTargets += 1;
+            continue;
+          }
+        } else if (canAsk(ctx.run)) {
+          const ok = await duringPrompt(() =>
+            confirm({
+              message: `Remove ${String(keysToRemove.length)} unused key path(s) from ${cleanupSliceTargetDisplay(ctx, slice)}?`,
+              default: false,
+            }),
+          );
+          if (!ok) {
+            declinedTargets += 1;
+            continue;
+          }
+        } else {
+          throw new I18nPruneError(
+            'cleanup: destructive run requires global --yes when non-interactive (or use --dry-run / --json for report-only)',
+            'USAGE',
+          );
+        }
+      }
+
+      const plan =
+        keysToRemove.length === slice.writePlan.keys.length &&
+        keysToRemove.every((key, idx) => key === slice.writePlan.keys[idx])
+          ? slice.writePlan
+          : createCleanupLocaleWritePlan(coreCtx, slice.localeCode, keysToRemove);
+
+      emitCleanupWriteIntro(runtime, {
+        removeCount: plan.removedPaths.length,
+        segmentFileCount: plan.writes.length,
+        localeLabel: localeLabelForWrite(slice),
+        isTargetMode: slice.isTargetMode,
+      });
+      writeCleanupPlan(coreCtx, plan);
+      writtenPlans.push(plan);
+      totalRemovedPaths += plan.removedPaths.length;
+      totalFilesWritten += plan.writes.length;
+    }
+
+    if (totalFilesWritten === 0 && declinedTargets > 0) {
+      emitCleanupAbortMessage(runtime, 'declined_confirmation');
+      aborted = true;
+    }
+
+    if (totalFilesWritten > 0) {
+      const writes = writtenPlans.flatMap((plan) => plan.writes);
+      emitCleanupWriteDone(runtime, {
+        plan: {
+          ...result.writePlan,
+          writes,
+          removedPaths: writes.flatMap((write) => write.removedPaths),
+          keys: writtenPlans.flatMap((plan) => plan.keys),
+          sourcePath: writes[0]?.sourcePath ?? result.writePlan.sourcePath,
+          nextSourceJson: writes[0]?.nextSourceJson ?? result.writePlan.nextSourceJson,
+        },
+        wrote: true,
+      });
+    }
 
     printCommandSummary(
       {
@@ -259,10 +281,21 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
         ok: true,
         durationMs: wall.elapsedMs(),
         counts: {
-          removedPaths: plan.removedPaths.length,
-          filesWritten,
+          removedPaths: totalRemovedPaths,
+          filesWritten: totalFilesWritten,
+          ...(result.isMultiTarget ? { targets: result.targetLocaleCodes.length } : {}),
+          ...(result.skippedTargets.length > 0
+            ? { skippedTargets: result.skippedTargets.length }
+            : {}),
+          ...(declinedTargets > 0 ? { declinedTargets } : {}),
           ...extractionBaseline,
         },
+        notes:
+          declinedTargets > 0
+            ? [`skipped ${String(declinedTargets)} target(s): user declined confirmation`]
+            : aborted
+              ? ['no locale files updated']
+              : undefined,
         issues: summaryIssues,
       },
       ctx,

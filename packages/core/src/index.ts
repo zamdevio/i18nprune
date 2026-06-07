@@ -200,6 +200,7 @@ export {
   listCleanupSourceSegmentsForKeys,
   pathUnderRoot,
   resolveCleanupKeysWithStringPresencePolicy,
+  resolveCleanupTargetLocaleCodes,
   runCleanup,
   writeCleanupPlan,
 } from './namespaces/cleanup.js';
@@ -207,8 +208,11 @@ export type {
   CleanupHostHooks,
   CleanupJsonOutput,
   CleanupJsonRunSummary,
+  CleanupJsonTargetEntry,
+  CleanupLocaleSlice,
   CleanupRunOptions,
   CleanupRunResult,
+  CleanupSkippedTarget,
   CleanupWritePlan,
 } from './namespaces/cleanup.js';
 
@@ -1126,6 +1130,7 @@ export {
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
   ISSUE_SYNC_LOCALE_FILE_NOT_FOUND,
   ISSUE_SYNC_METADATA_FLAG_CONFLICT,
+  ISSUE_SYNC_SCAN_EXTRAS_RETAINED,
   ISSUE_GENERATE_USAGE,
   ISSUE_GENERATE_SOURCE_EMPTY_STRING_LEAVES,
   ISSUE_GENERATE_TRANSLATE_RATE_LIMITED,
