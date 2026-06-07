@@ -2,12 +2,27 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { buildReleasesIndexNowUrlList, RELEASES_URL } from '@i18nprune/seo';
+import {
+  buildReleasesIndexNowUrlList,
+  parseReleaseStreamEntries,
+  RELEASES_URL,
+  type ReleaseStreamVersion,
+} from '@i18nprune/seo';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const contentDir = path.join(repoRoot, 'apps/releases/content');
 
-const RELEASE_STREAMS = ['cli', 'core'] as const;
+export type SkippedReleaseStream = {
+  stream: string;
+  version: string;
+  reason: 'missing_yaml';
+};
+
+export type ReleasesIndexNowUrls = {
+  urlList: string[];
+  skipped: SkippedReleaseStream[];
+  included: ReleaseStreamVersion[];
+};
 
 function releaseYamlExists(stream: string, version: string): boolean {
   const base = path.join(contentDir, stream, version);
@@ -15,15 +30,31 @@ function releaseYamlExists(stream: string, version: string): boolean {
 }
 
 /**
- * @param {string} version
+ * @param {readonly string[]} streamTokens
+ * @param {string | null} defaultVersion
  * @param {string} [origin]
  */
-export function urlsFromReleaseVersion(version: string, origin = RELEASES_URL): string[] {
-  const streams = RELEASE_STREAMS.filter((stream) => releaseYamlExists(stream, version));
-  if (streams.length === 0) {
-    throw new Error(
-      `No release YAML found for version ${version} under apps/releases/content/{cli,core}/`,
-    );
+export function urlsFromReleaseStreams(
+  streamTokens: readonly string[],
+  defaultVersion: string | null,
+  origin = RELEASES_URL,
+): ReleasesIndexNowUrls {
+  const requested = parseReleaseStreamEntries(streamTokens, defaultVersion);
+  const included: ReleaseStreamVersion[] = [];
+  const skipped: SkippedReleaseStream[] = [];
+
+  for (const entry of requested) {
+    if (!releaseYamlExists(entry.stream, entry.version)) {
+      skipped.push({
+        stream: entry.stream,
+        version: entry.version,
+        reason: 'missing_yaml',
+      });
+      continue;
+    }
+    included.push(entry);
   }
-  return buildReleasesIndexNowUrlList(version, streams, origin);
+
+  const urlList = buildReleasesIndexNowUrlList(included, origin);
+  return { urlList, skipped, included };
 }

@@ -89,14 +89,23 @@ export { fetchMetaSnapshotForBuild } from './build/fetchMeta.js';
 
 export {
   INDEXNOW_DEFAULT_ENDPOINT,
+  INDEXNOW_PRESET_HOSTS,
+  INDEXNOW_PUBLIC_KEY,
+  PINGABLE_RELEASE_STREAMS,
   RELEASES_INDEXNOW_HOST,
   buildIndexNowPayload,
   buildReleasesIndexNowUrlList,
+  buildSitemapIndexNowUrlList,
   indexNowKeyLocation,
+  indexNowPresetOrigin,
   normalizeIndexNowHost,
+  parseReleaseStreamEntries,
   submitIndexNow,
 } from './indexnow.js';
 export type {
+  IndexNowPresetId,
+  PingableReleaseStream,
+  ReleaseStreamVersion,
   SubmitIndexNowInput,
   SubmitIndexNowPayload,
   SubmitIndexNowResult,

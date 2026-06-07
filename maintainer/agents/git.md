@@ -122,7 +122,7 @@ Never **`git push --force`** to `main` to fix a release; ship **`0.1.1`** instea
 - [ ] `npm whoami` / access for `i18nprune` and `@i18nprune`
 - [ ] `npm publish` (root); `npm publish` in `packages/core` if shipping SDK
 - [ ] Annotated tag `vX.Y.Z` · `git push origin main` · `git push origin vX.Y.Z`
-- [ ] `pnpm releases:deploy` then IndexNow: `INDEXNOW_KEY=... pnpm indexnow:releases -- --version X.Y.Z` (dry-run first; key file on releases host — see `apps/releases/scripts/MAINTAINERS.md`)
+- [ ] After deploys, IndexNow (manual — **not** on git push): `indexnow:releases --version X.Y.Z` · `indexnow:docs` · `indexnow:landing` · `indexnow:git` (see `apps/releases/scripts/MAINTAINERS.md`)
 
 ---
 

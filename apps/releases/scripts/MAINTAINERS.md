@@ -34,23 +34,34 @@ Writes (gitignored — run before dev/build):
 pnpm github-release-body -- --stream cli --version 1.2.0
 ```
 
-## IndexNow (after `pnpm releases:deploy`)
+## IndexNow (after deploy — manual, not on git push)
 
-Releases portal pings use a **public** verification key (IndexNow spec). Key file:
+Shared **public** verification key (`INDEXNOW_PUBLIC_KEY` in `@i18nprune/seo`). Each host serves:
 
 ```text
 apps/releases/public/7e4a9c1f2b8d6e3a5c0f1b9d8e7a6c4.txt
-→ https://releases.i18nprune.dev/7e4a9c1f2b8d6e3a5c0f1b9d8e7a6c4.txt
+apps/landing/public/7e4a9c1f2b8d6e3a5c0f1b9d8e7a6c4.txt
+apps/docs/.vitepress/public/7e4a9c1f2b8d6e3a5c0f1b9d8e7a6c4.txt
+apps/git/public/7e4a9c1f2b8d6e3a5c0f1b9d8e7a6c4.txt
 ```
 
 Set the same value in env / GitHub secret `INDEXNOW_KEY` (do not log in CI).
 
 ```bash
-# Dry-run payload
+# Releases — same version on all streams that have YAML (extension auto-skipped if missing)
 INDEXNOW_KEY=7e4a9c1f2b8d6e3a5c0f1b9d8e7a6c4 pnpm indexnow:releases -- --version 0.1.3 --dry-run
 
-# Live ping (Bing / IndexNow partners — not Google)
-INDEXNOW_KEY=7e4a9c1f2b8d6e3a5c0f1b9d8e7a6c4 pnpm indexnow:releases -- --version 0.1.3
+# Releases — per-stream versions (run separate pings when cli/core semver diverge)
+pnpm indexnow:releases -- --stream cli:0.1.3 --dry-run
+pnpm indexnow:releases -- --stream core:0.1.4 --dry-run
+pnpm indexnow:releases -- --stream cli:0.1.3,core:0.1.4 --dry-run
+
+# Docs / landing / git — after respective *:deploy (home + sitemap.xml)
+pnpm indexnow:docs -- --dry-run
+pnpm indexnow:landing -- --dry-run
+pnpm indexnow:git -- --dry-run
 ```
 
-Implementation: `packages/seo` (`submitIndexNow`) · `scripts/indexnow/ping.mts` · plan `maintainer/temp/indexnow.md`.
+GitHub: **Actions → IndexNow ping** (`workflow_dispatch`, default `dry_run=true`). Not triggered on push.
+
+Implementation: `packages/seo` (`submitIndexNow`) · `scripts/indexnow/` · `.github/workflows/indexnow.yml`.

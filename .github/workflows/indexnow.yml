@@ -1,0 +1,77 @@
+# Manual IndexNow pings after deploy (not on git push).
+#
+# Secrets: INDEXNOW_KEY — same value as */7e4a9c1f2b8d6e3a5c0f1b9d8e7a6c4.txt on each host.
+# Default dry_run=true until key files are verified live on production.
+
+name: IndexNow ping
+
+on:
+  workflow_dispatch:
+    inputs:
+      preset:
+        description: Target surface preset
+        type: choice
+        required: true
+        options:
+          - releases
+          - docs
+          - landing
+          - git
+      version:
+        description: Semver for releases preset (optional when --stream uses stream:version)
+        required: false
+        type: string
+      stream:
+        description: 'Releases only — e.g. cli, core, cli:0.1.3,core:0.1.4 (missing YAML auto-skipped)'
+        required: false
+        type: string
+      dry_run:
+        description: Print payload only (no POST)
+        required: true
+        type: boolean
+        default: true
+
+concurrency:
+  group: indexnow-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    name: IndexNow (${{ inputs.preset }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @i18nprune/seo run build
+
+      - name: IndexNow ping
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: |
+          set -euo pipefail
+          args=(--preset "${{ inputs.preset }}")
+          if [ -n "${{ inputs.version }}" ]; then
+            args+=(--version "${{ inputs.version }}")
+          fi
+          if [ -n "${{ inputs.stream }}" ]; then
+            args+=(--stream "${{ inputs.stream }}")
+          fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          if [ "${{ inputs.dry_run }}" != "true" ] && [ -z "${INDEXNOW_KEY:-}" ]; then
+            echo "INDEXNOW_KEY secret is required for live pings"
+            exit 1
+          fi
+          pnpm indexnow:ping -- "${args[@]}"

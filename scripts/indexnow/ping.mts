@@ -3,30 +3,33 @@
  * IndexNow ping CLI — notify Bing / protocol partners after deploy.
  *
  * Usage:
- *   INDEXNOW_KEY=... pnpm indexnow:ping -- --preset releases --version 0.1.3 --dry-run
- *   INDEXNOW_KEY=... pnpm indexnow:ping -- --urls https://releases.i18nprune.dev/cli/0.1.3
+ *   INDEXNOW_KEY=... pnpm indexnow:releases -- --stream cli --version 0.1.3 --dry-run
+ *   INDEXNOW_KEY=... pnpm indexnow:releases -- --stream cli:0.1.3,core:0.1.4 --dry-run
+ *   INDEXNOW_KEY=... pnpm indexnow:docs -- --dry-run
  */
-import {
-  buildIndexNowPayload,
-  RELEASES_INDEXNOW_HOST,
-  submitIndexNow,
-} from '@i18nprune/seo';
+import { buildIndexNowPayload, submitIndexNow } from '@i18nprune/seo';
 
-import { urlsFromReleaseVersion } from './urls-from-releases.mts';
+import {
+  defaultHostForPreset,
+  isIndexNowPreset,
+  resolveIndexNowPreset,
+} from './presets.mts';
 
 type CliOptions = {
   dryRun: boolean;
-  host: string;
+  host: string | undefined;
   preset: string | null;
+  streams: string[];
   urls: string[];
   version: string | null;
 };
 
 function parseArgs(argv: string[]): CliOptions {
   let dryRun = false;
-  let host = RELEASES_INDEXNOW_HOST;
+  let host: string | undefined;
   let preset: string | null = null;
   let version: string | null = null;
+  const streams: string[] = [];
   const urls: string[] = [];
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -44,8 +47,14 @@ function parseArgs(argv: string[]): CliOptions {
       version = argv[++i] ?? null;
       continue;
     }
+    if (arg === '--stream') {
+      const next = argv[++i];
+      if (next) streams.push(next);
+      continue;
+    }
     if (arg === '--host') {
-      host = argv[++i] ?? host;
+      const nextHost = argv[++i];
+      if (nextHost) host = nextHost;
       continue;
     }
     if (arg === '--urls') {
@@ -57,19 +66,28 @@ function parseArgs(argv: string[]): CliOptions {
     process.exit(1);
   }
 
-  return { dryRun, host, preset, urls, version };
+  return { dryRun, host, preset, streams, urls, version };
 }
 
-function resolveUrlList(opts: CliOptions): string[] {
-  if (opts.urls.length > 0) return opts.urls;
-  if (opts.preset === 'releases') {
-    if (!opts.version) {
-      console.error('--preset releases requires --version X.Y.Z');
+function resolveRun(opts: CliOptions): { host: string; urlList: string[] } {
+  if (opts.urls.length > 0) {
+    return { host: opts.host ?? defaultHostForPreset(opts.preset), urlList: opts.urls };
+  }
+  if (opts.preset && isIndexNowPreset(opts.preset)) {
+    try {
+      return resolveIndexNowPreset({
+        preset: opts.preset,
+        version: opts.version,
+        streams: opts.streams,
+      });
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : err);
       process.exit(1);
     }
-    return urlsFromReleaseVersion(opts.version);
   }
-  console.error('Provide --urls or --preset releases --version X.Y.Z');
+  console.error(
+    'Provide --urls or --preset releases|docs|landing|git (releases: --version and/or --stream)',
+  );
   process.exit(1);
 }
 
@@ -81,15 +99,15 @@ if (!opts.dryRun && key.length === 0) {
   process.exit(1);
 }
 
-const urlList = resolveUrlList(opts);
-const payload = buildIndexNowPayload({ host: opts.host, key: key || '<INDEXNOW_KEY>', urlList });
+const { host, urlList } = resolveRun(opts);
+const payload = buildIndexNowPayload({ host, key: key || '<INDEXNOW_KEY>', urlList });
 
 if (opts.dryRun) {
   console.log(JSON.stringify(payload, null, 2));
   process.exit(0);
 }
 
-const result = await submitIndexNow({ host: opts.host, key, urlList });
+const result = await submitIndexNow({ host, key, urlList });
 if (!result.ok) {
   console.error(`IndexNow ping failed: HTTP ${result.status}${result.body ? ` — ${result.body}` : ''}`);
   process.exit(2);

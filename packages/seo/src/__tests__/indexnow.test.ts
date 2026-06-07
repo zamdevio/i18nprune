@@ -3,7 +3,9 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   buildIndexNowPayload,
   buildReleasesIndexNowUrlList,
+  buildSitemapIndexNowUrlList,
   indexNowKeyLocation,
+  parseReleaseStreamEntries,
   submitIndexNow,
 } from '../indexnow.js';
 
@@ -38,11 +40,49 @@ describe('buildIndexNowPayload', () => {
   });
 });
 
+describe('buildSitemapIndexNowUrlList', () => {
+  it('includes home and sitemap for a host origin', () => {
+    expect(buildSitemapIndexNowUrlList('https://docs.i18nprune.dev')).toEqual([
+      'https://docs.i18nprune.dev/',
+      'https://docs.i18nprune.dev/sitemap.xml',
+    ]);
+  });
+});
+
+describe('parseReleaseStreamEntries', () => {
+  it('expands empty tokens to all streams with one version', () => {
+    expect(parseReleaseStreamEntries([], '0.1.3')).toEqual([
+      { stream: 'cli', version: '0.1.3' },
+      { stream: 'core', version: '0.1.3' },
+      { stream: 'extension', version: '0.1.3' },
+    ]);
+  });
+
+  it('parses per-stream versions from stream:version tokens', () => {
+    expect(parseReleaseStreamEntries(['cli:0.1.3', 'core:0.1.4'], null)).toEqual([
+      { stream: 'cli', version: '0.1.3' },
+      { stream: 'core', version: '0.1.4' },
+    ]);
+  });
+
+  it('applies default version to bare stream names', () => {
+    expect(parseReleaseStreamEntries(['cli,core'], '0.1.3')).toEqual([
+      { stream: 'cli', version: '0.1.3' },
+      { stream: 'core', version: '0.1.3' },
+    ]);
+  });
+});
+
 describe('buildReleasesIndexNowUrlList', () => {
   it('includes stream pages and feed/sitemap', () => {
-    expect(buildReleasesIndexNowUrlList('0.1.3', ['cli', 'core'])).toEqual([
+    expect(
+      buildReleasesIndexNowUrlList([
+        { stream: 'cli', version: '0.1.3' },
+        { stream: 'core', version: '0.1.4' },
+      ]),
+    ).toEqual([
       'https://releases.i18nprune.dev/cli/0.1.3',
-      'https://releases.i18nprune.dev/core/0.1.3',
+      'https://releases.i18nprune.dev/core/0.1.4',
       'https://releases.i18nprune.dev/sitemap.xml',
       'https://releases.i18nprune.dev/feed.xml',
     ]);
