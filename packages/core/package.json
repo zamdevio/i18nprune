@@ -14,7 +14,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsup --config tsup.config.ts && tsup --config tsup.subpaths-dts.config.ts && node ../../scripts/dts/fix-core-dts.mjs --no-test --dts=packages/core/dist/index.d.ts && node ../../scripts/report/copy-into-core.mjs",
+    "build": "tsup --config tsup.config.ts && tsup --config tsup.subpaths-dts.config.ts && node ../../scripts/dts/fix-core-dts.mjs --dts=packages/core/dist/index.d.ts && node ../../scripts/report/copy-into-core.mjs",
     "prepack": "I18NPRUNE_PUBLISH=1 pnpm run build",
     "test": "vitest run",
     "test:watch": "vitest",

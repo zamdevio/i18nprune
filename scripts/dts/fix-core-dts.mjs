@@ -7,9 +7,9 @@
  * `declare const ns_Foo: typeof Foo` lines where `Foo` is type-only (TS2693).
  *
  * Usage:
- *   node scripts/dts/fix-core-dts.mjs --no-test   # sanitize dist/core.d.ts (default)
- *   node scripts/dts/fix-core-dts.mjs --no-test --dts=packages/core/dist/index.d.ts
- *   node scripts/dts/fix-core-dts.mjs --test      # assert no invalid aliases (CI / vitest)
+ *   node scripts/dts/fix-core-dts.mjs                    # sanitize dist/core.d.ts (default)
+ *   node scripts/dts/fix-core-dts.mjs --dts=packages/core/dist/index.d.ts
+ *   node scripts/dts/fix-core-dts.mjs --test             # assert no invalid aliases (CI / vitest)
  */
 
 import fs from 'node:fs';
@@ -20,7 +20,13 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 
 const argv = process.argv.slice(2);
 const runTests = argv.includes('--test');
-const fixFile = argv.includes('--no-test') || (!runTests && !argv.includes('--test-only'));
+
+for (const arg of argv) {
+  if (arg === '--test' || arg.startsWith('--dts=')) continue;
+  console.error(`Unknown flag: ${arg}`);
+  console.error('Usage: node scripts/dts/fix-core-dts.mjs [--dts=path] | --test');
+  process.exit(1);
+}
 
 const dtsFlag = argv.find((arg) => arg.startsWith('--dts='));
 const coreDtsPath = dtsFlag
@@ -201,15 +207,10 @@ const invokedDirectly =
 
 if (invokedDirectly) {
   try {
-    if (fixFile) {
-      fixCoreDts();
-    }
     if (runTests) {
       runCoreDtsTests();
-    }
-    if (!fixFile && !runTests) {
-      console.error('Usage: node scripts/dts/fix-core-dts.mjs --no-test [--dts=path] | --test');
-      process.exit(1);
+    } else {
+      fixCoreDts();
     }
   } catch (err) {
     console.error(err instanceof Error ? err.message : err);
