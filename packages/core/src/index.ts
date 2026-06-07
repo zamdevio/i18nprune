@@ -901,6 +901,7 @@ export {
   nowMs,
 } from './shared/run/index.js';
 export type { OperationId, RunEmitter, RunEvent, RunMessageChannel, RunMessageEvent, RunMessageLevel } from './types/shared/run/index.js';
+export type { LocaleSuggestion, LocaleSuggestionKind } from './types/suggestions/index.js';
 
 export * as languages from './namespaces/languages.js';
 export {

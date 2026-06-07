@@ -35,6 +35,7 @@
     },
     "localesDir": "<fixture>/locales",
     "sourcePath": "<fixture>/locales/en.json",
+    "suggestions": [],
     "targetFiles": 1,
     "writtenFiles": 0
   },

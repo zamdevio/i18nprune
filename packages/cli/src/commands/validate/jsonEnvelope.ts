@@ -67,6 +67,7 @@ export function executeValidateCore(ctx: Context, runtime: ValidateRuntime = {})
     count: out.payload.count,
     dynamic: out.payload.dynamic,
     keyObservations: out.payload.keyObservations,
+    ...(out.payload.suggestions !== undefined ? { suggestions: out.payload.suggestions } : {}),
   };
   const readFailed = issues.some((i) => i.code === ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED);
   const envelope = buildCliJsonEnvelope('validate', data, {

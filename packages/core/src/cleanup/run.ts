@@ -10,6 +10,7 @@ import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
 import { buildKeyReferenceContextFromLiteralUsageAndDynamicSites } from '../shared/reference/context.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
+import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 import {
   ISSUE_CLEANUP_RIPGREP_UNAVAILABLE,
   ISSUE_CLEANUP_UNCERTAIN_PATHS_EXCLUDED,
@@ -213,17 +214,6 @@ export function runCleanup(
     data: { keyPaths: allKeyPaths.size, candidates: candidates.length },
   });
 
-  if (candidates.length > 0) {
-    const affected = listCleanupSourceSegmentsForKeys(ctx, candidates);
-    if (affected.length > 0) {
-      emitCleanupMessage(host, {
-        level: 'info',
-        message: `unused key path(s) only in: ${affected.map((s) => s.relativePath).join(', ')}`,
-        data: { segmentCount: affected.length },
-      });
-    }
-  }
-
   if (dynamic.length > 0) {
     emitCleanupMessage(host, {
       level: 'warn',
@@ -263,12 +253,17 @@ export function runCleanup(
     ...issuesFromCleanupUncertainExcluded(excludedUncertain),
     ...issuesFromCleanupStringPresenceUnavailable({ skipStringPresenceCheck, stringPresenceAvailable }),
   ];
-  const payload = {
+  const payload = finalizeLocaleSuggestions(host, {
+    op: 'cleanup',
+    ctx,
+    analysis,
+    dryRun: opts.dryRun,
+  }, {
     wouldRemove: safeToRemove.length,
     keys: safeToRemove,
     dynamic: dynamic.length,
     uncertainPrefixes: refCtx.uncertainPrefixes,
-  };
+  });
 
   if (safeToRemove.length === 0) {
     emitCleanupMessage(host, { level: 'info', message: 'nothing to remove (no unused keys after filters).' });

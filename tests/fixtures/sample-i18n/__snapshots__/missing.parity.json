@@ -14,6 +14,7 @@
     "shown": 0,
     "skippedNotInScan": [],
     "skippedTargets": [],
+    "suggestions": [],
     "targetKind": "source",
     "targetPath": "locales/en.json",
     "targets": [

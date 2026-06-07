@@ -31,6 +31,7 @@ import {
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
+import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 import { computeSyncedLocaleJson } from './apply.js';
 import { summarizeSyncLeavesForHumanLog } from './humanLeafSummary.js';
 import {
@@ -452,7 +453,12 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     total: targets.length,
   });
 
-  const payload = {
+  const payload = finalizeLocaleSuggestions(host, {
+    op: 'sync',
+    ctx,
+    analysis,
+    dryRun: opts.dryRun,
+  }, {
     kind: 'sync' as const,
     sourcePath,
     localesDir: dir,
@@ -462,7 +468,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     dryRun: Boolean(opts.dryRun),
     files: fileLines,
     localeMetadataReports,
-  };
+  });
 
   const issues = [
     ...issuesFromDynamicScanCount(dynamicSites.length),

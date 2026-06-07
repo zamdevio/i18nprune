@@ -4,6 +4,7 @@ import type { LocaleMetadataReport } from '../locales/leaves/index.js';
 import type { SyncProgressEvent } from '../shared/run/index.js';
 import type { SyncHumanLeafSummary } from './humanLeafSummary.js';
 import type { RunEmitter } from '../shared/run/index.js';
+import type { LocaleSuggestion } from '../suggestions/index.js';
 import type { LocalePlaceholderLeaf, SourcePlaceholderLeaf } from '../../shared/sourcePlaceholders/index.js';
 
 export type SyncFileLine = { path: string; changed: boolean };
@@ -22,6 +23,8 @@ export type SyncJsonOutput = {
   dryRun: boolean;
   files: SyncFileLine[];
   localeMetadataReports?: Record<string, LocaleMetadataReport>;
+  /** Cross-op next-step hints (additive). */
+  suggestions?: LocaleSuggestion[];
 };
 
 export type SyncRunOptions = {

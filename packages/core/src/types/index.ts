@@ -24,6 +24,7 @@ export type * from './review/index.js';
 export type * from './runtime/index.js';
 export type * from './scanner/index.js';
 export type * from './shared/index.js';
+export type * from './suggestions/index.js';
 export type * from './sync/index.js';
 export type * from './translator/index.js';
 export type * from './share/index.js';

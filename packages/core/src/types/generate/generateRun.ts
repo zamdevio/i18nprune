@@ -161,6 +161,8 @@ export type GenerateJsonPayload = {
   resumeHint?: string;
   /** Sum of {@link GenerateTargetJsonRow.markedForReview} across targets written as partial in this run. */
   markedForReview?: number;
+  /** Cross-op next-step hints (additive). */
+  suggestions?: import('../suggestions/index.js').LocaleSuggestion[];
 };
 
 /**

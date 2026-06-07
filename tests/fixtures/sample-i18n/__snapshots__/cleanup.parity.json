@@ -2,6 +2,7 @@
   "data": {
     "dynamic": 3,
     "keys": [],
+    "suggestions": [],
     "summary": {
       "command": "cleanup",
       "counts": {

@@ -72,6 +72,7 @@ import type { Issue } from '../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../types/translator/providers.js';
 import type { CoreContext } from '../types/context/index.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
+import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 import type {
   GenerateHostHooks,
   GenerateJsonPayload,
@@ -965,7 +966,7 @@ export async function runGenerate(
 
   emitProgress({ type: 'run.progress.generate', phase: 'done' });
 
-  const payload: GenerateJsonPayload = {
+  const basePayload: GenerateJsonPayload = {
     kind: 'generate',
     providerId: translationMeta.providerId,
     dryRun: Boolean(opts.dryRun),
@@ -982,6 +983,13 @@ export async function runGenerate(
         }
       : {}),
   };
+
+  const payload = finalizeLocaleSuggestions(host, {
+    op: 'generate',
+    ctx,
+    analysis,
+    dryRun: opts.dryRun,
+  }, basePayload);
 
   return { payload, issues: streakIssues };
 }

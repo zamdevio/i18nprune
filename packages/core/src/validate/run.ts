@@ -18,6 +18,7 @@ import type { Issue } from '../types/json/envelope/index.js';
 import type { ValidateHostHooks, ValidateRunOptions, ValidateRunResult } from '../types/validate/index.js';
 import { buildValidateIssues } from './issues.js';
 import { buildValidateScanPayload } from './buildPayload.js';
+import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 
 function emptyValidatePayload(): ValidateRunResult['payload'] {
   return {
@@ -145,8 +146,15 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
     ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
   ];
 
+  const payload = finalizeLocaleSuggestions(host, {
+    op: 'validate',
+    ctx,
+    analysis,
+    missingKeyPaths: data.missing,
+  }, data);
+
   return {
-    payload: data,
+    payload,
     issues,
     fullDynamicSites: dynamicSites,
     fullKeyObservations: keyObservations,

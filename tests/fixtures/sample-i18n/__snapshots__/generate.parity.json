@@ -5,6 +5,7 @@
     "force": false,
     "leavesProcessed": 15,
     "providerId": "google",
+    "suggestions": [],
     "targetResults": [
       {
         "fallbackCount": 0,

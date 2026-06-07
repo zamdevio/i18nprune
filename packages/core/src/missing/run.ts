@@ -19,6 +19,7 @@ import {
 } from '../shared/locales/targets/index.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
+import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 import {
   detectLocalePlaceholderLeaves,
   formatSourcePlaceholderMessage,
@@ -594,7 +595,7 @@ export function runMissing(
   const shownPlaceholderLeaves = listWindow.full
     ? placeholderLeaves
     : placeholderLeaves.slice(0, listWindow.limit);
-  const payload: MissingJsonOutput = {
+  const basePayload: MissingJsonOutput = {
     kind: 'missing',
     targetPath: firstTarget?.targetPath ?? '',
     ...(firstTarget?.targetPaths !== undefined ? { targetPaths: firstTarget.targetPaths } : {}),
@@ -622,6 +623,14 @@ export function runMissing(
       leaves: shownPlaceholderLeaves,
     },
   };
+  const payload = finalizeLocaleSuggestions(host, {
+    op: 'missing',
+    ctx,
+    analysis,
+    dryRun: opts.dryRun,
+    pathsAdded: basePayload.pathsAdded,
+    skippedTargets,
+  }, basePayload);
   const issues = [
     ...issuesFromDynamicScanCount(dynamicSites),
     ...issuesFromMissingSkippedNotInScan(aggregateSkippedNotInScan),

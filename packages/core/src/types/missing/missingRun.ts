@@ -1,5 +1,6 @@
 import type { Issue } from '../json/envelope/index.js';
 import type { RunEmitter } from '../shared/run/index.js';
+import type { LocaleSuggestion } from '../suggestions/index.js';
 
 export type MissingTargetKind = 'source' | 'locale';
 
@@ -22,6 +23,8 @@ export type MissingJsonOutput = {
   targets: MissingJsonTarget[];
   skippedTargets: MissingSkippedTarget[];
   placeholderLeaves: MissingPlaceholderLeafList;
+  /** Cross-op next-step hints (additive). */
+  suggestions?: LocaleSuggestion[];
 };
 
 export type MissingRunOptions = {

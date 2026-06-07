@@ -3,6 +3,7 @@ import type { Issue } from '../json/envelope/index.js';
 import type { StringLeaf } from '../json/index.js';
 import type { CleanupStringPresenceEvidence } from '../../cleanup/stringPresence.js';
 import type { RunEmitter } from '../shared/run/index.js';
+import type { LocaleSuggestion } from '../suggestions/index.js';
 
 export type CleanupJsonRunSummary = {
   durationMs: number;
@@ -18,6 +19,8 @@ export type CleanupJsonOutput = {
   uncertainPrefixes: string[];
   /** Present when the CLI emits the final `cleanup` envelope. */
   summary?: CleanupJsonRunSummary;
+  /** Cross-op next-step hints (additive). */
+  suggestions?: LocaleSuggestion[];
 };
 
 export type CleanupRunOptions = {
