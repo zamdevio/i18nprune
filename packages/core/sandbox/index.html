@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -12,11 +12,11 @@
     <script>
       (function () {
         try {
-          var s = localStorage.getItem('i18nprune-sdk-theme');
+          var s = localStorage.getItem("i18nprune-sdk-theme");
           var dark =
-            s === 'dark' ||
-            (!s && window.matchMedia('(prefers-color-scheme: dark)').matches);
-          document.documentElement.classList.toggle('dark', dark);
+            s === "dark" ||
+            (!s && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.classList.toggle("dark", dark);
         } catch (_) {}
       })();
     </script>
@@ -58,17 +58,17 @@
       }
       body {
         margin: 0;
-        font-family: 'IBM Plex Sans', system-ui, sans-serif;
+        font-family: "IBM Plex Sans", system-ui, sans-serif;
         background: hsl(var(--background));
         color: hsl(var(--foreground));
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
       }
       .font-display {
-        font-family: 'Outfit', system-ui, sans-serif;
+        font-family: "Outfit", system-ui, sans-serif;
       }
       .font-mono {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
       }
       a {
         color: inherit;
@@ -120,7 +120,7 @@
         align-items: center;
         gap: 0.6rem;
         font-weight: 700;
-        font-family: 'Outfit', system-ui, sans-serif;
+        font-family: "Outfit", system-ui, sans-serif;
         font-size: 0.95rem;
       }
       .brand svg {
@@ -206,7 +206,7 @@
         border-top: none;
       }
       .eyebrow {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 0.65rem;
         letter-spacing: 0.22em;
         text-transform: uppercase;
@@ -215,14 +215,14 @@
         margin-bottom: 0.65rem;
       }
       h1 {
-        font-family: 'Outfit', system-ui, sans-serif;
+        font-family: "Outfit", system-ui, sans-serif;
         font-size: clamp(2rem, 5vw, 3rem);
         line-height: 1.05;
         letter-spacing: -0.03em;
         margin: 0 0 1rem;
       }
       h2 {
-        font-family: 'Outfit', system-ui, sans-serif;
+        font-family: "Outfit", system-ui, sans-serif;
         font-size: clamp(1.5rem, 3vw, 2.25rem);
         margin: 0 0 0.75rem;
         letter-spacing: -0.02em;
@@ -240,13 +240,17 @@
         padding: 1.25rem 1.35rem;
       }
       .code {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 0.78rem;
         line-height: 1.65;
         padding: 1rem 1.1rem;
         border-radius: 10px;
         border: 1px solid hsl(var(--border) / 0.6);
-        background: linear-gradient(180deg, hsl(170 25% 8% / 0.04), hsl(170 30% 4% / 0.06));
+        background: linear-gradient(
+          180deg,
+          hsl(170 25% 8% / 0.04),
+          hsl(170 30% 4% / 0.06)
+        );
         overflow-x: auto;
       }
       .dark .code {
@@ -267,7 +271,7 @@
       }
       .tag {
         display: inline-block;
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 0.65rem;
         padding: 0.2rem 0.45rem;
         border-radius: 6px;
@@ -319,7 +323,7 @@
         border-color: hsl(var(--primary) / 0.4);
       }
       .rail-vlabel {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 9.5px;
         letter-spacing: 0.22em;
         text-transform: uppercase;
@@ -343,7 +347,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 0 0.35rem 0.4rem;
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 9px;
         letter-spacing: 0.2em;
         text-transform: uppercase;
@@ -370,7 +374,7 @@
         gap: 0.45rem;
         padding: 0.35rem 0.45rem;
         border-radius: 8px;
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 10.5px;
         color: hsl(var(--muted));
       }
@@ -445,14 +449,27 @@
 
     <header class="header">
       <a class="brand" href="#top" id="top">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 32 32"
+          fill="none"
+          aria-hidden="true"
+        >
           <rect width="32" height="32" rx="8" fill="hsl(172 66% 36%)" />
-          <g fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round">
+          <g
+            fill="none"
+            stroke="white"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M12.2 8.8H9.2v14.4h3" stroke-width="2.2" />
             <path d="M14.3 16.4l3.1 3.2 5.4-6.2" stroke-width="2.2" />
           </g>
         </svg>
-        <span>i18nprune <span class="muted" style="font-weight:500">SDK</span></span>
+        <span
+          >i18nprune
+          <span class="muted" style="font-weight: 500">SDK</span></span
+        >
       </a>
       <nav class="nav" id="header-nav" aria-label="Primary">
         <a href="#hero">Intro</a>
@@ -462,32 +479,63 @@
         <a href="#exports">Surface</a>
       </nav>
       <div class="header-actions">
-        <button type="button" class="btn-icon" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
+        <button
+          type="button"
+          class="btn-icon"
+          id="theme-btn"
+          title="Toggle theme"
+          aria-label="Toggle theme"
+        >
           <span id="theme-icon">◐</span>
         </button>
-        <a class="btn-primary" href="https://i18nprune.dev" target="_blank" rel="noopener noreferrer">Marketing site →</a>
+        <a
+          class="btn-primary"
+          href="https://i18nprune.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Marketing site →</a
+        >
       </div>
     </header>
 
     <main id="main" class="wrap">
       <section id="hero" aria-labelledby="hero-title">
         <div class="eyebrow">@i18nprune / core</div>
-        <h1 id="hero-title" class="font-display">Runtime-neutral engines for production i18n</h1>
+        <h1 id="hero-title" class="font-display">
+          Runtime-neutral engines for production i18n
+        </h1>
         <p class="lead">
-          This preview is a minimal static page for the <strong>@i18nprune/core</strong> package on
-          <a href="https://codesandbox.io" target="_blank" rel="noopener noreferrer" style="color:hsl(var(--primary));text-decoration:underline">CodeSandbox</a>
-          so the workspace preview has a clear entry point. It is not the full product site; for narrative, diagrams,
-          and install flows, use
-          <a href="https://i18nprune.dev" target="_blank" rel="noopener noreferrer" style="color:hsl(var(--primary));text-decoration:underline">i18nprune.dev</a>.
-          Point the sandbox static server at this file (or copy it to <code class="font-mono" style="font-size:0.9em">index.html</code> at the project root if your host expects that path).
+          This preview is a minimal static page for the
+          <strong>@i18nprune/core</strong> package on
+          <a
+            href="https://codesandbox.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: hsl(var(--primary)); text-decoration: underline"
+            >CodeSandbox</a
+          >
+          so the workspace preview has a clear entry point. It is not the full
+          product site; for narrative, diagrams, and install flows, use
+          <a
+            href="https://i18nprune.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: hsl(var(--primary)); text-decoration: underline"
+            >i18nprune.dev</a
+          >. Point the sandbox static server at this file (or copy it to
+          <code class="font-mono" style="font-size: 0.9em">index.html</code> at
+          the project root if your host expects that path).
         </p>
-        <div class="glass" style="margin-top:1.5rem">
+        <div class="glass" style="margin-top: 1.5rem">
           <span class="tag">Node · CI · programmatic</span>
-          <p class="muted" style="margin:0.75rem 0 0;font-size:0.92rem">
+          <p class="muted" style="margin: 0.75rem 0 0; font-size: 0.92rem">
             Construct <code class="font-mono">RuntimeAdapters</code> with
-            <code class="font-mono">createNodeRuntimeAdapters</code> (or web / edge factories), build
-            <code class="font-mono">createCoreContext</code>, then call <code class="font-mono">runValidate</code>,
-            <code class="font-mono">runSync</code>, and friends — same algorithms as the CLI.
+            <code class="font-mono">createNodeRuntimeAdapters</code> (or web /
+            edge factories), build
+            <code class="font-mono">createCoreContext</code>, then call
+            <code class="font-mono">runValidate</code>,
+            <code class="font-mono">runSync</code>, and friends — same
+            algorithms as the CLI.
           </p>
         </div>
       </section>
@@ -495,18 +543,33 @@
       <section id="overview">
         <div class="eyebrow">What you get</div>
         <h2 class="font-display">One core, many hosts</h2>
-        <p class="muted" style="max-width:42rem;margin:0 0 1rem">
-          Tier A hosts analyze; Tier B hosts read and write locale JSON. The SDK stays data-only — clients handle UX and
-          exit codes.
+        <p class="muted" style="max-width: 42rem; margin: 0 0 1rem">
+          Tier A hosts analyze; Tier B hosts read and write locale JSON. The SDK
+          stays data-only — clients handle UX and exit codes.
         </p>
         <div class="grid-2">
           <div class="glass">
-            <h3 class="font-display" style="margin:0 0 0.35rem;font-size:1.05rem">Validate &amp; scan</h3>
-            <p class="muted" style="margin:0;font-size:0.9rem">Literal keys, dynamic call sites, and structured payloads for CI.</p>
+            <h3
+              class="font-display"
+              style="margin: 0 0 0.35rem; font-size: 1.05rem"
+            >
+              Validate &amp; scan
+            </h3>
+            <p class="muted" style="margin: 0; font-size: 0.9rem">
+              Literal keys, dynamic call sites, and structured payloads for CI.
+            </p>
           </div>
           <div class="glass">
-            <h3 class="font-display" style="margin:0 0 0.35rem;font-size:1.05rem">Sync &amp; generate</h3>
-            <p class="muted" style="margin:0;font-size:0.9rem">Deterministic transforms and translator pipelines behind the same contracts.</p>
+            <h3
+              class="font-display"
+              style="margin: 0 0 0.35rem; font-size: 1.05rem"
+            >
+              Sync &amp; generate
+            </h3>
+            <p class="muted" style="margin: 0; font-size: 0.9rem">
+              Deterministic transforms and translator pipelines behind the same
+              contracts.
+            </p>
           </div>
         </div>
       </section>
@@ -514,11 +577,20 @@
       <section id="install">
         <div class="eyebrow">Install</div>
         <h2 class="font-display">Add the CLI (ships the SDK)</h2>
-        <pre class="code" tabindex="0"><span style="color:hsl(var(--muted))">$</span> npm i -D i18nprune
+        <pre
+          class="code"
+          tabindex="0"
+        ><span style="color:hsl(var(--muted))">$</span> npm i -D i18nprune
 <span style="color:hsl(var(--muted))">$</span> pnpm add -D i18nprune</pre>
-        <p class="muted" style="margin-top:1rem;max-width:40rem;font-size:0.92rem">
-          In app code, import from <code class="font-mono">@i18nprune/core</code> and the runtime entry that matches your host
-          (<code class="font-mono">@i18nprune/core/runtime/node</code>, <code class="font-mono">/web</code>, or
+        <p
+          class="muted"
+          style="margin-top: 1rem; max-width: 40rem; font-size: 0.92rem"
+        >
+          In app code, import from
+          <code class="font-mono">@i18nprune/core</code> and the runtime entry
+          that matches your host (<code class="font-mono"
+            >@i18nprune/core/runtime/node</code
+          >, <code class="font-mono">/web</code>, or
           <code class="font-mono">/edge</code>).
         </p>
       </section>
@@ -526,7 +598,10 @@
       <section id="runtimes">
         <div class="eyebrow">Runtimes</div>
         <h2 class="font-display">Pick adapters for the host</h2>
-        <pre class="code" tabindex="0"><span style="color:#c084fc">import</span> { createNodeRuntimeAdapters } <span style="color:#c084fc">from</span> <span style="color:#fbbf24">'@i18nprune/core/runtime/node'</span>;
+        <pre
+          class="code"
+          tabindex="0"
+        ><span style="color:#c084fc">import</span> { createNodeRuntimeAdapters } <span style="color:#c084fc">from</span> <span style="color:#fbbf24">'@i18nprune/core/runtime/node'</span>;
 <span style="color:#c084fc">import</span> { createWebRuntimeAdapters } <span style="color:#c084fc">from</span> <span style="color:#fbbf24">'@i18nprune/core/runtime/web'</span>;
 <span style="color:#c084fc">import</span> { createEdgeRuntimeAdapters } <span style="color:#c084fc">from</span> <span style="color:#fbbf24">'@i18nprune/core/runtime/edge'</span>;</pre>
       </section>
@@ -534,48 +609,118 @@
       <section id="exports">
         <div class="eyebrow">Surface</div>
         <h2 class="font-display">Namespaces &amp; ops</h2>
-        <p class="muted" style="max-width:44rem;margin:0 0 1rem;font-size:0.92rem">
-          The published package exposes focused entry points (<code class="font-mono">/validate</code>,
-          <code class="font-mono">/sync</code>, <code class="font-mono">/generate</code>, …) plus runtime barrels. See the
-          monorepo <code class="font-mono">packages/core/package.json → exports</code> for the authoritative map.
+        <p
+          class="muted"
+          style="max-width: 44rem; margin: 0 0 1rem; font-size: 0.92rem"
+        >
+          The published package exposes focused entry points (<code
+            class="font-mono"
+            >/validate</code
+          >, <code class="font-mono">/sync</code>,
+          <code class="font-mono">/generate</code>, …) plus runtime barrels. See
+          the monorepo
+          <code class="font-mono">packages/core/package.json → exports</code>
+          for the authoritative map.
         </p>
         <div class="glass">
-          <p style="margin:0;font-size:0.9rem">
-            <strong>Tip:</strong> keep <code class="font-mono">node:</code> imports out of web/worker bundles — only import
-            Node adapters from Node graphs.
+          <p style="margin: 0; font-size: 0.9rem">
+            <strong>Tip:</strong> keep
+            <code class="font-mono">node:</code> imports out of web/worker
+            bundles — only import Node adapters from Node graphs.
           </p>
         </div>
       </section>
 
       <footer id="sdk-footer" class="site-footer">
-        <div class="eyebrow" style="margin-bottom:0.75rem">Resources</div>
+        <div class="eyebrow" style="margin-bottom: 0.75rem">Resources</div>
         <ul class="footer-nav" aria-label="External links">
-          <li><a href="https://docs.i18nprune.dev" target="_blank" rel="noopener noreferrer">Documentation</a></li>
-          <li><a href="https://github.com/zamdevio/i18nprune" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-          <li><a href="https://www.npmjs.com/package/i18nprune" target="_blank" rel="noopener noreferrer">npm</a></li>
-          <li><a href="https://web.i18nprune.dev" target="_blank" rel="noopener noreferrer">Web demo</a></li>
-          <li><a href="https://worker.i18nprune.dev/docs" target="_blank" rel="noopener noreferrer">Worker API</a></li>
+          <li>
+            <a
+              href="https://docs.i18nprune.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Documentation</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/zamdevio/i18nprune"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://www.npmjs.com/package/i18nprune"
+              target="_blank"
+              rel="noopener noreferrer"
+              >npm</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://web.i18nprune.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Web demo</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://worker.i18nprune.dev/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Worker API</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://git.i18nprune.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Git Analytics</a
+            >
+          </li>
         </ul>
-        <p class="footer-meta muted">
-          Theme preference: <code class="font-mono">i18nprune-sdk-theme</code> · “On this page” rail:
-          <code class="font-mono">i18nprune-sdk-rail</code> · Toggle rail with <kbd class="font-mono">Ctrl+B</kbd> or
-          <kbd class="font-mono">⌘B</kbd> at <code class="font-mono">xl</code> breakpoints and above.
-        </p>
       </footer>
     </main>
 
     <div class="rail-host" id="rail-host" aria-label="On this page">
-      <button type="button" class="rail-toggle" id="rail-open" hidden title="Ctrl+B or ⌘B">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button
+        type="button"
+        class="rail-toggle"
+        id="rail-open"
+        hidden
+        title="Ctrl+B or ⌘B"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          <path
+            d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+          />
         </svg>
         <span class="rail-vlabel">On this page</span>
       </button>
       <div class="rail-panel" id="rail-panel" hidden>
         <div class="rail-head">
           <span>On this page</span>
-          <button type="button" class="rail-close" id="rail-close" title="Ctrl+B or ⌘B" aria-label="Collapse">›</button>
+          <button
+            type="button"
+            class="rail-close"
+            id="rail-close"
+            title="Ctrl+B or ⌘B"
+            aria-label="Collapse"
+          >
+            ›
+          </button>
         </div>
         <nav class="rail-nav" id="rail-nav"></nav>
       </div>
@@ -583,13 +728,20 @@
 
     <script>
       (function () {
-        var THEME_KEY = 'i18nprune-sdk-theme';
-        var RAIL_KEY = 'i18nprune-sdk-rail';
+        var THEME_KEY = "i18nprune-sdk-theme";
+        var RAIL_KEY = "i18nprune-sdk-rail";
         var LINE = 88;
         var HEADER_CLEAR = 56;
 
-        var navIds = ['hero', 'overview', 'install', 'runtimes', 'exports'];
-        var railIds = ['top', 'hero', 'overview', 'install', 'runtimes', 'exports'];
+        var navIds = ["hero", "overview", "install", "runtimes", "exports"];
+        var railIds = [
+          "top",
+          "hero",
+          "overview",
+          "install",
+          "runtimes",
+          "exports",
+        ];
 
         function docTop(el) {
           var r = el.getBoundingClientRect();
@@ -613,7 +765,7 @@
         }
 
         function inHeroBand(y) {
-          var hero = document.getElementById('hero');
+          var hero = document.getElementById("hero");
           if (!hero) return y < 120;
           var h = hero.offsetHeight;
           return y < Math.max(120, h * 0.36);
@@ -628,24 +780,30 @@
 
         function railActive() {
           var y = window.scrollY;
-          if (inHeroBand(y)) return 'top';
-          return pickActive(railIds.filter(function (id) { return id !== 'top'; }), y, LINE);
+          if (inHeroBand(y)) return "top";
+          return pickActive(
+            railIds.filter(function (id) {
+              return id !== "top";
+            }),
+            y,
+            LINE
+          );
         }
 
         function setHeaderNav(active) {
-          var links = document.querySelectorAll('#header-nav a');
+          var links = document.querySelectorAll("#header-nav a");
           links.forEach(function (a) {
-            var href = a.getAttribute('href') || '';
+            var href = a.getAttribute("href") || "";
             var id = href.slice(1);
-            a.classList.toggle('active', active === id);
+            a.classList.toggle("active", active === id);
           });
         }
 
         function setRailNav(active) {
-          var links = document.querySelectorAll('#rail-nav a');
+          var links = document.querySelectorAll("#rail-nav a");
           links.forEach(function (a) {
-            var id = a.getAttribute('data-id');
-            a.classList.toggle('on', id === active);
+            var id = a.getAttribute("data-id");
+            a.classList.toggle("on", id === active);
           });
         }
 
@@ -655,78 +813,101 @@
         }
 
         /* Theme */
-        document.getElementById('theme-btn').addEventListener('click', function () {
-          document.documentElement.classList.toggle('dark');
-          try {
-            localStorage.setItem(THEME_KEY, document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-          } catch (_) {}
-          document.getElementById('theme-icon').textContent = document.documentElement.classList.contains('dark')
-            ? '☀'
-            : '◐';
-        });
-        document.getElementById('theme-icon').textContent = document.documentElement.classList.contains('dark')
-          ? '☀'
-          : '◐';
+        document
+          .getElementById("theme-btn")
+          .addEventListener("click", function () {
+            document.documentElement.classList.toggle("dark");
+            try {
+              localStorage.setItem(
+                THEME_KEY,
+                document.documentElement.classList.contains("dark")
+                  ? "dark"
+                  : "light"
+              );
+            } catch (_) {}
+            document.getElementById("theme-icon").textContent =
+              document.documentElement.classList.contains("dark") ? "☀" : "◐";
+          });
+        document.getElementById("theme-icon").textContent =
+          document.documentElement.classList.contains("dark") ? "☀" : "◐";
 
         /* Rail */
-        var railHost = document.getElementById('rail-host');
-        var railOpen = document.getElementById('rail-open');
-        var railPanel = document.getElementById('rail-panel');
-        var railNav = document.getElementById('rail-nav');
-        var railClose = document.getElementById('rail-close');
+        var railHost = document.getElementById("rail-host");
+        var railOpen = document.getElementById("rail-open");
+        var railPanel = document.getElementById("rail-panel");
+        var railNav = document.getElementById("rail-nav");
+        var railClose = document.getElementById("rail-close");
 
-        var labels = { top: 'Intro', hero: 'Hero', overview: 'Overview', install: 'Install', runtimes: 'Runtimes', exports: 'Surface' };
+        var labels = {
+          top: "Intro",
+          hero: "Hero",
+          overview: "Overview",
+          install: "Install",
+          runtimes: "Runtimes",
+          exports: "Surface",
+        };
         railIds.forEach(function (id) {
-          var a = document.createElement('a');
-          a.href = '#' + (id === 'top' ? 'top' : id);
-          a.setAttribute('data-id', id);
-          a.innerHTML = '<span class="rail-dot" aria-hidden="true"></span><span>' + labels[id] + '</span>';
+          var a = document.createElement("a");
+          a.href = "#" + (id === "top" ? "top" : id);
+          a.setAttribute("data-id", id);
+          a.innerHTML =
+            '<span class="rail-dot" aria-hidden="true"></span><span>' +
+            labels[id] +
+            "</span>";
           railNav.appendChild(a);
         });
 
         function mqXl() {
-          return window.matchMedia('(min-width: 1280px)').matches;
+          return window.matchMedia("(min-width: 1280px)").matches;
         }
 
         function setRailOpen(open) {
           if (!mqXl()) return;
-          railHost.classList.toggle('open', open);
+          railHost.classList.toggle("open", open);
           railOpen.hidden = open;
           railPanel.hidden = !open;
           try {
-            localStorage.setItem(RAIL_KEY, open ? '1' : '0');
+            localStorage.setItem(RAIL_KEY, open ? "1" : "0");
           } catch (_) {}
         }
 
         var initialOpen = false;
         try {
           var v = localStorage.getItem(RAIL_KEY);
-          if (v === '1') initialOpen = true;
+          if (v === "1") initialOpen = true;
         } catch (_) {}
         setRailOpen(initialOpen);
 
-        railOpen.addEventListener('click', function () {
+        railOpen.addEventListener("click", function () {
           setRailOpen(true);
         });
-        railClose.addEventListener('click', function () {
+        railClose.addEventListener("click", function () {
           setRailOpen(false);
         });
 
         function editableTarget(t) {
           if (!t || !t.closest) return false;
-          return !!t.closest('input, textarea, select, [contenteditable="true"]');
+          return !!t.closest(
+            'input, textarea, select, [contenteditable="true"]'
+          );
         }
 
-        document.addEventListener('keydown', function (e) {
-          if (!(e.ctrlKey || e.metaKey) || String(e.key).toLowerCase() !== 'b' || e.altKey || e.shiftKey) return;
+        document.addEventListener("keydown", function (e) {
+          if (
+            !(e.ctrlKey || e.metaKey) ||
+            String(e.key).toLowerCase() !== "b" ||
+            e.altKey ||
+            e.shiftKey
+          )
+            return;
           if (editableTarget(e.target)) return;
           if (!mqXl()) return;
           e.preventDefault();
           setRailOpen(railPanel.hidden);
         });
 
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', onScroll);
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll);
         onScroll();
       })();
     </script>
