@@ -30,9 +30,9 @@ const RUNTIMES: Runtime[] = [
   {
     id: 'node',
     label: 'Node',
-    badge: 'CLI · IDE',
+    badge: 'CLI · IDE soon',
     icon: Server,
-    surfaces: 'Powers the CLI binary and IDE extensions. Tier B: read + write.',
+    surfaces: 'Powers the CLI binary today; IDE extension coming soon. Tier B: read + write.',
   },
   {
     id: 'web',

@@ -47,12 +47,15 @@ For the high-level “what do I run?” entry points, start from the CLI command
 - [Commands](../commands/README.md)
 
 Then use SDK-focused docs:
-- [SDK operations](../sdk/operations.md)
-- [Core API](../exports/core.md)
+- [SDK operations](../sdk/operations.md) — `runXxx` inventory, tiers, subpaths
+- [Architecture overview](../architecture/README.md) — envelope contract, extraction, ADRs
+- [Configuration](../config/README.md) — `defineConfig`, locale layout, policies
+
+## Known extraction limits
+Static key extraction does not cover every React / i18next pattern (for example hook destructuring). See [Regex and static-analysis limits](../architecture/extraction/regex.md) before relying on validate in exotic call styles.
 
 ## What to read next
 - [Examples hub](../examples/README.md)
-- [Configuration API](../exports/config.md)
-- [Locales config](../config/locales.md)
 - [SDK operations](../sdk/operations.md)
 - [JSON output (`--json`)](../cli/json.md)
+- [Locales config](../config/locales.md)

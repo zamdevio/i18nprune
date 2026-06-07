@@ -44,7 +44,12 @@ export default function Footer() {
               <li><a href={linkHref(links, 'webApp')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Web app</a></li>
               <li><a href={linkHref(links, 'report')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Report viewer</a></li>
               <li><a href={linkHref(links, 'gitAnalytics')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Git analytics</a></li>
-              <li><a href={linkHref(links, 'vscodeMarketplace')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">VS Code extension</a></li>
+              <li>
+                <span className="text-muted-foreground">
+                  VS Code extension{' '}
+                  <span className="text-primary/90 font-mono text-[11px]">(coming soon)</span>
+                </span>
+              </li>
               <li><a href={linkHref(links, 'license')} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">MIT license</a></li>
             </ul>
           </div>

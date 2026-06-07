@@ -27,7 +27,7 @@ describe('shared/docs urls', () => {
     expect(getDocsUrl()).toBe('https://docs.i18nprune.dev');
     expect(getDocsUrl('behavior/json-long')).toBe('https://docs.i18nprune.dev/behavior/json-long');
     expect(getDocsUrl('regex/extraction')).toBe('https://docs.i18nprune.dev/regex/extraction');
-    expect(getDocsUrl('exports/core')).toBe('https://docs.i18nprune.dev/exports/core');
+    expect(getDocsUrl('sdk/operations')).toBe('https://docs.i18nprune.dev/sdk/operations');
     expect(getDocsUrl('barriers/dynamic-keys')).toBe('https://docs.i18nprune.dev/barriers/dynamic-keys');
     expect(getDocsUrl('dynamic')).toBe('https://docs.i18nprune.dev/dynamic');
     expect(getDocsUrl('dynamic/')).toBe('https://docs.i18nprune.dev/dynamic');

@@ -16,6 +16,7 @@ CI pipelines, editors, and custom wrappers need a **stable machine-readable** su
 3. **Issue codes are API** — stable `i18nprune.*` identifiers; display copy may change; codes are not renamed without a deliberate breaking release.
 4. **JSON path rules:** one primary JSON document on stdout; no `printCommandSummary` second line; progress and prompts stay off stdout (stderr or suppressed).
 5. **Report split:** `report --format json --out` writes a project-report document; `report --json` emits the CLI envelope with `data.document` — different contracts, both documented in [json.md](../../cli/json.md).
+6. **`meta.apiVersion` vs npm semver:** envelope contract version (`"1"` today) is independent of `@i18nprune/core` package semver (`0.1.x`). Bump `apiVersion` only when envelope semantics change — see [JSON output § Version fields](../../cli/json.md#version-fields).
 
 ## Implementation
 

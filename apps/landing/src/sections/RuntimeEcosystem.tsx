@@ -14,6 +14,7 @@ interface Surface {
   icon: LucideIcon;
   /** clockwise angle in degrees, 0 = top */
   angle: number;
+  comingSoon?: boolean;
 }
 
 interface RuntimeMeta {
@@ -63,7 +64,7 @@ const RUNTIMES: RuntimeMeta[] = [
 const SURFACES: Surface[] = [
   // Node ring (top half)
   { id: 'cli', label: 'CLI', sub: 'i18nprune', runtime: 'node', tier: 'B', icon: Terminal, angle: 320 },
-  { id: 'ide', label: 'IDE extension', sub: 'cursor · vscode', runtime: 'node', tier: 'B', icon: Code2, angle: 40 },
+  { id: 'ide', label: 'IDE extension', sub: 'coming soon', runtime: 'node', tier: 'B', icon: Code2, angle: 40, comingSoon: true },
 
   // Web ring (right side) — web + report twins
   { id: 'web', label: 'web.i18nprune.dev', sub: 'playground · explorer', url: 'https://web.i18nprune.dev', runtime: 'web', tier: 'A', icon: Globe, angle: 90 },
@@ -105,7 +106,7 @@ export default function RuntimeEcosystem() {
             <span className="stat-highlight">Every runtime.</span>
           </h2>
           <p className="mt-5 text-muted-foreground leading-relaxed text-balance">
-            <code className="font-mono text-foreground bg-card/60 border border-border/50 rounded px-1.5 py-0.5 text-sm">@i18nprune/core</code> is the SDK — one engine powering five surfaces across three runtimes. Same algorithms, different bundles. Filesystem, networking, and bundle hygiene shift per host; behavior never does.
+            <code className="font-mono text-foreground bg-card/60 border border-border/50 rounded px-1.5 py-0.5 text-sm">@i18nprune/core</code> is the SDK — one engine powering four live surfaces (CLI, web, report, worker) with an IDE extension on the way. Same algorithms, different bundles. Filesystem, networking, and bundle hygiene shift per host; behavior never does.
           </p>
         </motion.div>
 
@@ -224,8 +225,8 @@ export default function RuntimeEcosystem() {
                     transition={{ duration: 0.5, delay: 0.9 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
                     onMouseEnter={() => setHover(s.id)}
                     onMouseLeave={() => setHover(null)}
-                    style={{ cursor: s.url ? 'pointer' : 'default' }}
-                    onClick={() => s.url && window.open(s.url, '_blank', 'noopener,noreferrer')}
+                    style={{ cursor: s.url && !s.comingSoon ? 'pointer' : 'default' }}
+                    onClick={() => s.url && !s.comingSoon && window.open(s.url, '_blank', 'noopener,noreferrer')}
                     data-testid={`surface-${s.id}`}
                   >
                     {/* SVG-native rounded rect — perfect corners, no clipping issues */}
@@ -237,8 +238,9 @@ export default function RuntimeEcosystem() {
                       rx={14}
                       ry={14}
                       fill={isActive ? 'hsl(var(--primary) / 0.12)' : 'hsl(var(--secondary))'}
-                      stroke={isActive ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground) / 0.3)'}
+                      stroke={isActive ? 'hsl(var(--primary))' : s.comingSoon ? 'hsl(var(--muted-foreground) / 0.35)' : 'hsl(var(--muted-foreground) / 0.3)'}
                       strokeWidth={isActive ? 1.5 : 1}
+                      strokeDasharray={s.comingSoon ? '4 4' : undefined}
                       style={{ transition: 'all 0.25s ease' }}
                     />
                     {isActive && (
@@ -263,7 +265,12 @@ export default function RuntimeEcosystem() {
                         <div className="min-w-0 flex-1">
                           <div className="text-[12px] font-semibold leading-tight text-foreground truncate flex items-center gap-1">
                             {s.label}
-                            {s.url && <ExternalLink className="w-2.5 h-2.5 text-muted-foreground shrink-0" />}
+                            {s.comingSoon && (
+                              <span className="shrink-0 text-[8px] font-mono uppercase tracking-wide px-1 py-0.5 rounded bg-primary/15 text-primary border border-primary/25">
+                                soon
+                              </span>
+                            )}
+                            {s.url && !s.comingSoon && <ExternalLink className="w-2.5 h-2.5 text-muted-foreground shrink-0" />}
                           </div>
                           <div className="text-[10px] font-mono text-muted-foreground truncate">{s.sub}</div>
                         </div>

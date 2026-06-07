@@ -153,7 +153,7 @@ const NODES: DiagramNode[] = [
       bullets: [
         'Stable programmatic API · types-first',
         'Runtime-neutral · ships node, web, and edge adapters',
-        'Powers 5 surfaces: CLI · IDE extension · web.i18nprune.dev · report.i18nprune.dev · worker.i18nprune.dev',
+        'Powers 4 live surfaces today (CLI · web · report · worker) — IDE extension coming soon',
       ],
       code: {
         lang: 'ts',
@@ -174,16 +174,16 @@ const NODES: DiagramNode[] = [
     id: 'rt-node',
     kind: 'runtime',
     title: 'Node',
-    sub: 'CLI · IDE',
+    sub: 'CLI · IDE soon',
     icon: Server,
     x: 400,
     y: 100,
     path: '@i18nprune/core/runtime/node',
     detail: {
-      summary: 'Node runtime adapter. Backs the CLI binary and IDE extensions (cursor/vscode). Native fs + path bindings, durable disk writes for Tier B operations.',
+      summary: 'Node runtime adapter. Backs the CLI binary today; IDE extension (Cursor / VS Code) coming soon. Native fs + path bindings, durable disk writes for Tier B operations.',
       bullets: [
         'Tier B · read + write',
-        'Used by: packages/cli · IDE extension',
+        'Used by: packages/cli · IDE extension (coming soon)',
         'node: imports allowed inside this graph only',
       ],
       code: {
@@ -532,7 +532,7 @@ export default function Architecture() {
               <span className="stat-highlight">Confidence out.</span>
             </h2>
             <p className="mt-5 text-muted-foreground leading-relaxed text-balance">
-              Three inputs feed a single SDK. One SDK powers five surfaces across three runtimes. Six commands return structured outcomes you can ship to CI, agents, or dashboards.
+              Three inputs feed a single SDK. One SDK powers four live surfaces plus an IDE extension on the way, across three runtimes. Six commands return structured outcomes you can ship to CI, agents, or dashboards.
             </p>
             <a
               href="#locale-layouts"

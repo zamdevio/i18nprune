@@ -10,16 +10,13 @@ interface KeyEntry {
   label: string;
   type: KeyEntryType;
   line: number;
-  lineEnd?: number;
-  multiline?: boolean;
 }
 
 const KEYS: KeyEntry[] = [
   { key: 'legacy.banner', label: 'legacy.banner', type: 'commented', line: 6 },
   { key: 'welcome_title', label: 'welcome_title', type: 'literal', line: 8 },
-  { key: 'stats.active_users', label: 'stats.active_users', type: 'literal', line: 9 },
-  { key: 'dynamic.${status}', label: 'dynamic.*', type: 'dynamic', line: 10 },
-  { key: 'pages.hero.title', label: 'pages.hero.title', type: 'literal', line: 11, lineEnd: 14, multiline: true },
+  { key: 'dashboard.active_users', label: 'dashboard.active_users', type: 'literal', line: 9 },
+  { key: 'dashboard.statuses.*', label: 'dashboard.statuses.*', type: 'dynamic', line: 10 },
 ];
 
 const CODE_LINES = [
@@ -43,13 +40,24 @@ const CODE_LINES = [
     ),
   },
   { ln: 3, content: <></> },
-  { ln: 4, content: <><span className="text-pink-400">export function</span> <span className="text-sky-300">Dashboard</span>() {'{'}</> },
+  {
+    ln: 4,
+    content: (
+      <>
+        <span className="text-pink-400">export function</span> <span className="text-sky-300">Dashboard</span>({'{ '}
+        <span className="text-sky-300">status</span>{' '}
+        {'}: {'}
+        <span className="text-sky-300">{'{ status: string }'}</span>
+        {' ) {'}
+      </>
+    ),
+  },
   {
     ln: 5,
     content: (
       <>
         {'  '}
-        <span className="text-pink-400">const</span> <span className="text-sky-300">status</span> = <span className="text-amber-300">&apos;live&apos;</span>;
+        <span className="text-pink-400">const</span> <span className="text-sky-300">NS</span> = <span className="text-amber-300">&apos;dashboard&apos;</span>;
       </>
     ),
   },
@@ -76,12 +84,12 @@ const CODE_LINES = [
     content: (
       <>
         {'    '}
-        {'<div>'}
+        {'<h1>'}
         <span className="bg-primary/10 text-primary px-1 rounded-sm" data-key="welcome_title">
           {'{renameT('}
           <span className="text-amber-300">&apos;welcome_title&apos;</span>
           {')}'}</span>
-        {'</div>'}
+        {'</h1>'}
       </>
     ),
   },
@@ -91,9 +99,9 @@ const CODE_LINES = [
       <>
         {'    '}
         {'<p>'}
-        <span className="bg-primary/10 text-primary px-1 rounded-sm" data-key="stats.active_users">
+        <span className="bg-primary/10 text-primary px-1 rounded-sm" data-key="dashboard.active_users">
           {'{i18n.t('}
-          <span className="text-amber-300">&apos;stats.active_users&apos;</span>
+          <span className="text-amber-300">{'`${NS}.active_users`'}</span>
           {')}'}</span>
         {'</p>'}
       </>
@@ -105,58 +113,16 @@ const CODE_LINES = [
       <>
         {'    '}
         {'<span>'}
-        <span className="bg-amber-500/10 text-amber-300 px-1 rounded-sm" data-key="dynamic.${status}">
+        <span className="bg-amber-500/10 text-amber-300 px-1 rounded-sm" data-key="dashboard.statuses.*">
           {'{renameT('}
-          <span className="text-amber-300">{'`dynamic.${status}`'}</span>
+          <span className="text-amber-300">{'`${NS}.statuses.${status}`'}</span>
           {')}'}</span>
         {'</span>'}
       </>
     ),
   },
-  {
-    ln: 11,
-    content: (
-      <>
-        {'    '}
-        {'<h1>'}
-        <span className="bg-primary/10 text-primary px-1 rounded-sm" data-key="pages.hero.title">
-          {'{renameT('}
-        </span>
-      </>
-    ),
-  },
-  {
-    ln: 12,
-    content: (
-      <>
-        {'      '}
-        <span className="bg-primary/10 text-primary px-1 rounded-sm">
-          <span className="text-amber-300">&apos;pages.hero.title&apos;</span>,
-        </span>
-      </>
-    ),
-  },
-  {
-    ln: 13,
-    content: (
-      <>
-        {'      '}
-        <span className="text-muted-foreground/70">{'{ count: 1 },'}</span>
-      </>
-    ),
-  },
-  {
-    ln: 14,
-    content: (
-      <>
-        {'    '}
-        <span className="bg-primary/10 text-primary px-1 rounded-sm">{')}'}</span>
-        {'</h1>'}
-      </>
-    ),
-  },
-  { ln: 15, content: <>  );</> },
-  { ln: 16, content: <>{'}'}</> },
+  { ln: 11, content: <>  );</> },
+  { ln: 12, content: <>{'}'}</> },
 ];
 
 function keyTypeTone(type: KeyEntryType): { text: string; badge: string } {
@@ -216,7 +182,7 @@ export default function CodeIntelligence() {
 
   const lineSpan =
     revealed > 0
-      ? `L${KEYS[0]!.line}–L${KEYS[KEYS.length - 1]!.lineEnd ?? KEYS[KEYS.length - 1]!.line}`
+      ? `L${KEYS[0]!.line}–L${KEYS[KEYS.length - 1]!.line}`
       : 'L-';
 
   return (
@@ -243,8 +209,11 @@ export default function CodeIntelligence() {
           <p className="mt-5 text-muted-foreground leading-relaxed text-balance">
             Per-file scanning resolves literals on every effective helper—renamed imports like{' '}
             <code className="font-mono text-primary text-sm">t as renameT</code>, namespace calls like{' '}
-            <code className="font-mono text-primary text-sm">i18n.t(...)</code>, and calls that span
-            multiple lines. A binding pass expands your configured function list before call-site detection,
+            <code className="font-mono text-primary text-sm">i18n.t(...)</code>, and{' '}
+            <code className="font-mono text-primary text-sm">{['`${NS}.key`'].join('')}</code> when{' '}
+            <code className="font-mono text-primary text-sm">NS</code> is in the file const-map. Runtime holes like{' '}
+            <code className="font-mono text-primary text-sm">{['`${NS}.statuses.${status}`'].join('')}</code> stay dynamic.
+            A binding pass expands your configured function list before call-site detection,
             so extraction and dynamic classification share the same symbol set as{' '}
             <code className="font-mono text-foreground/90 text-xs">validate</code> /{' '}
             <code className="font-mono text-foreground/90 text-xs">sync</code>—via staged text analysis,
@@ -261,9 +230,9 @@ export default function CodeIntelligence() {
             </p>
             <ul className="mt-3 space-y-1.5 text-[13px] list-none p-0 m-0">
               <li>
-                <span className="text-foreground font-semibold">Multi-line calls</span> — first-argument parsing
-                follows balanced parentheses across lines, so formatted{' '}
-                <code className="font-mono text-xs text-foreground/90">t(...)</code> blocks still resolve.
+                <span className="text-foreground font-semibold">Template + runtime hole</span> —{' '}
+                <code className="font-mono text-xs text-foreground/90">{['`${M}.statuses.${expr}`'].join('')}</code> with{' '}
+                <code className="font-mono text-xs text-foreground/90">M</code> in const-map yields an uncertain prefix, not a proven leaf.
               </li>
               <li>
                 <span className="text-foreground font-semibold">Commented-out calls</span> — every configured{' '}
@@ -309,7 +278,7 @@ export default function CodeIntelligence() {
             <div className="px-4 py-2.5 border-t border-border/50 bg-card/70 flex items-center justify-between text-[11px] font-mono gap-3">
               <span className="text-primary shrink-0">● Scan complete</span>
               <span className="text-muted-foreground text-right">
-                5 sites · 3 literal · 1 dynamic · 1 commented · <span className="text-primary">0.8ms</span>
+                4 sites · 2 literal · 1 dynamic · 1 commented · <span className="text-primary">0.8ms</span>
               </span>
             </div>
           </div>
@@ -336,14 +305,7 @@ export default function CodeIntelligence() {
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-muted-foreground/60 shrink-0">├─</span>
-                      <span className={`truncate ${tone.text}`}>
-                        {k.label}
-                        {k.multiline ? (
-                          <span className="ml-1.5 text-[10px] uppercase tracking-wider text-primary/70">
-                            multiline
-                          </span>
-                        ) : null}
-                      </span>
+                      <span className={`truncate ${tone.text}`}>{k.label}</span>
                     </div>
                     <KeyTypeBadge type={k.type} />
                   </motion.div>
@@ -354,7 +316,7 @@ export default function CodeIntelligence() {
 
             <div className="mt-6 pt-5 border-t border-border/40">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                <Stat n={3} label="Literal" tone="primary" />
+                <Stat n={2} label="Literal" tone="primary" />
                 <Stat n={1} label="Dynamic" tone="amber" />
                 <Stat n={1} label="Commented" tone="muted" />
                 <Stat n={0.8} unit="ms" label="Scan time" tone="primary" />
