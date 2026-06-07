@@ -3,13 +3,16 @@ import { createCliCoreContext, resolveContext } from '@/shared/context/index.js'
 import { getCliYesFlag } from '@/shared/context/globals.js';
 import {
   buildCliJsonEnvelope,
-  createCleanupSourceWritePlan,
+  createCleanupLocaleWritePlan,
   emitCleanupAbortMessage,
   emitCleanupAskIgnoredMessage,
   emitCleanupWriteDone,
   emitCleanupWriteIntro,
   I18nPruneError,
+  listCleanupSourceSegmentsForKeys,
+  listTargetSegmentPathsForKeys,
   noopRunEmitter,
+  sourceLocaleCodeFromContext,
   stringifyEnvelope,
   writeCleanupPlan,
 } from '@i18nprune/core';
@@ -25,27 +28,26 @@ import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 import { logger } from '@/utils/logger/index.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
 import { formatLocaleSegmentFilesLabel } from '@/shared/locales/segmentLabel.js';
-import { listCleanupSourceSegmentsForKeys, sourceLocaleCodeFromContext } from '@i18nprune/core';
+import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import type { Context } from '@/types/core/context/index.js';
 
 function createCleanupCoreContext(ctx: Awaited<ReturnType<typeof resolveContext>>): CoreContext {
   return createCliCoreContext(ctx);
 }
 
-function cleanupSourceTargetDisplay(ctx: Context, keys: readonly string[]): string {
+function cleanupLocaleTargetDisplay(ctx: Context, keys: readonly string[], target?: string): string {
   const coreCtx = createCliCoreContext(ctx);
-  const sourceCode = sourceLocaleCodeFromContext(coreCtx);
-  const segments = listCleanupSourceSegmentsForKeys(coreCtx, keys);
-  if (segments.length === 0) {
-    return ctx.paths.sourceLocale;
+  const localeCode = target ?? sourceLocaleCodeFromContext(coreCtx);
+  const segmentPaths = target
+    ? listTargetSegmentPathsForKeys(coreCtx, localeCode, keys)
+    : listCleanupSourceSegmentsForKeys(coreCtx, keys).map((s) => s.relativePath);
+  if (segmentPaths.length === 0) {
+    return target ? `${localeCode} locale` : ctx.paths.sourceLocale;
   }
-  if (segments.length === 1) {
-    return segments[0]!.relativePath;
+  if (segmentPaths.length === 1) {
+    return segmentPaths[0]!;
   }
-  return formatLocaleSegmentFilesLabel(
-    sourceCode,
-    segments.map((s) => s.relativePath),
-  );
+  return formatLocaleSegmentFilesLabel(localeCode, segmentPaths);
 }
 
 export async function cleanup(opts: CleanupOptions): Promise<void> {
@@ -117,7 +119,13 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
 
     emitCleanupCliModeNotices(ctx, opts);
 
-    const runtime = { emit: createCliRunEmitter(ctx.run), runId };
+    const listWindow = resolveCliListWindow(ctx.config);
+    const runtime = {
+      emit: createCliRunEmitter(ctx.run),
+      runId,
+      listLimit: listWindow.limit,
+      listFull: listWindow.full,
+    };
     const result = executeCore(ctx, opts, runtime);
     const summaryIssues = result.envelope.issues;
     const extractionBaseline = {
@@ -128,7 +136,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
     if (opts.dryRun) {
       if (result.safeToRemove.length > 0) {
         logger.info(
-          `dry-run: would remove ${String(result.safeToRemove.length)} path(s) from ${cleanupSourceTargetDisplay(ctx, result.safeToRemove)}`,
+          `dry-run: would remove ${String(result.safeToRemove.length)} path(s) from ${cleanupLocaleTargetDisplay(ctx, result.safeToRemove, opts.target)}`,
           ctx.run,
         );
       } else {
@@ -176,7 +184,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
       if (wantsInteractiveApproval && canAsk(ctx.run)) {
         keysToRemove = await promptApprovedRemovalKeys(keysToRemove, {
           mode: opts.askPerKey ? 'each' : 'group',
-          targetDisplay: cleanupSourceTargetDisplay(ctx, keysToRemove),
+          targetDisplay: cleanupLocaleTargetDisplay(ctx, keysToRemove, opts.target),
         });
         interactiveApprovalDone = true;
         if (keysToRemove.length === 0) {
@@ -201,7 +209,7 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
       if (!interactiveApprovalDone && canAsk(ctx.run)) {
         const ok = await duringPrompt(() =>
           confirm({
-            message: `Remove ${String(keysToRemove.length)} unused key path(s) from ${cleanupSourceTargetDisplay(ctx, keysToRemove)}?`,
+            message: `Remove ${String(keysToRemove.length)} unused key path(s) from ${cleanupLocaleTargetDisplay(ctx, keysToRemove, opts.target)}?`,
             default: false,
           }),
         );
@@ -229,14 +237,17 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
     }
 
     const coreCtx = createCleanupCoreContext(ctx);
+    const localeCode = result.localeCode;
     const plan =
       keysToRemove.length === result.writePlan.keys.length &&
       keysToRemove.every((key, idx) => key === result.writePlan.keys[idx])
         ? result.writePlan
-        : createCleanupSourceWritePlan(coreCtx, keysToRemove);
+        : createCleanupLocaleWritePlan(coreCtx, localeCode, keysToRemove);
+    const localeLabel = result.isTargetMode ? `target locale (${localeCode})` : `source locale (${localeCode})`;
     emitCleanupWriteIntro(runtime, {
       removeCount: plan.removedPaths.length,
       segmentFileCount: plan.writes.length,
+      localeLabel,
     });
     writeCleanupPlan(coreCtx, plan);
     const filesWritten = plan.writes.length;

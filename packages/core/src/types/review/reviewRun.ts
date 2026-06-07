@@ -1,5 +1,6 @@
 import type { Issue } from '../json/envelope/index.js';
 import type { RunEmitter } from '../shared/run/index.js';
+import type { LocaleSuggestion } from '../suggestions/index.js';
 
 /** Per-locale aggregates (plain strings + optional structured `{ value, status, … }` leaves). */
 export type ReviewLocaleStats = {
@@ -32,6 +33,7 @@ export type ReviewJsonData = {
   localesDir: string;
   dynamicKeySites: number;
   locales: Record<string, ReviewLocaleStats>;
+  suggestions?: LocaleSuggestion[];
 };
 
 export type ReviewHostHooks = {

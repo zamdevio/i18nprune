@@ -4,7 +4,9 @@
  */
 export { computeCleanupCandidateKeys, pathUnderRoot } from './candidates.js';
 export { applyCleanupKeysToLocaleJson } from './apply.js';
+export { emitCleanupStringPresenceEvidence, resolveCleanupEvidenceListWindow } from './evidenceEmit.js';
 export {
+  createCleanupLocaleWritePlan,
   createCleanupSourceWritePlan,
   emitCleanupAbortMessage,
   emitCleanupAskIgnoredMessage,

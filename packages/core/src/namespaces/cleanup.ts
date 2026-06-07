@@ -1,6 +1,7 @@
 export {
   applyCleanupKeysToLocaleJson,
   computeCleanupCandidateKeys,
+  createCleanupLocaleWritePlan,
   createCleanupSourceWritePlan,
   emitCleanupAbortMessage,
   emitCleanupAskIgnoredMessage,

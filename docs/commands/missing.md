@@ -55,6 +55,16 @@ i18nprune missing --target ja --dry-run --json \
   | jq '.data.placeholderLeaves.leaves[]? | {path, value}'
 ```
 
+## Suggested next steps
+
+`missing` may emit **`[tip]`** hints (and `data.suggestions[]` with `--json`):
+
+| Situation | Stable `id` | Typical command |
+|-----------|-------------|-----------------|
+| Source locale still has unused keys | `suggest.cleanup.source_unused` | `i18nprune cleanup --dry-run` |
+| Paths were added (non-dry-run) | `suggest.generate.after_missing` | `i18nprune generate --target all` |
+| Unknown `--target` (typo) | `suggest.missing.target_typo` | (fix target code; no auto command) |
+
 ## Troubleshooting
 
 - No additions with expected drift: ensure the target locale exists and is part of scanned locale config.

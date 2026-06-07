@@ -17,6 +17,8 @@ export type CleanupJsonOutput = {
   keys: string[];
   dynamic: number;
   uncertainPrefixes: string[];
+  /** Locale pruned when `--target` is set; omitted for source-locale cleanup (default). */
+  targetLocale?: string;
   /** Present when the CLI emits the final `cleanup` envelope. */
   summary?: CleanupJsonRunSummary;
   /** Cross-op next-step hints (additive). */
@@ -28,11 +30,20 @@ export type CleanupRunOptions = {
   dryRun?: boolean;
   /** Skip host string-presence (ripgrep) probes — static unused-key list only. */
   skipStringPresenceCheck?: boolean;
+  /** Target locale code to prune (non-source); omit for source-locale cleanup. */
+  target?: string;
+  /** Max string-presence skip lines in human output; default from global `--top`. */
+  top?: number;
+  /** List every string-presence skip line (global `--full`). */
+  full?: boolean;
 };
 
 export type CleanupHostHooks = {
   emit?: RunEmitter;
   runId?: string;
+  /** Max string-presence evidence rows (from CLI list window). */
+  listLimit?: number;
+  listFull?: boolean;
   isStringPresenceAvailable: () => boolean;
   hasStringPresence: (sample: string) => boolean;
   getStringPresenceLocations: (sample: string, maxHits: number) => string[];
@@ -73,4 +84,7 @@ export type CleanupRunResult = {
   keyObservationsCount: number;
   stringPresenceAvailable: boolean;
   stringPresenceEvidence: CleanupStringPresenceEvidence[];
+  /** Locale pruned in this run (source or `--target`). */
+  localeCode: string;
+  isTargetMode: boolean;
 };

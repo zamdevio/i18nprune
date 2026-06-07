@@ -403,16 +403,27 @@ program
   .option('--dry-run', 'preview removals; no writes', false)
   .option('--no-rg', 'skip ripgrep string-presence guard (static unused-key list only)')
   .option(
+    '--target <code>',
+    'target locale code to prune (extra keys vs code scan); omit for source-locale cleanup',
+  )
+  .option(
     '--ask',
     'interactive TTY: confirm removals in batches (grouped by top-level key namespace); overridden by global --yes',
     false,
   )
   .option('--ask-per-key', 'interactive TTY: confirm each unused key path separately', false)
   .action(
-    async (opts: { dryRun?: boolean; rg?: boolean; ask?: boolean; askPerKey?: boolean }) => {
+    async (opts: {
+      dryRun?: boolean;
+      rg?: boolean;
+      target?: string;
+      ask?: boolean;
+      askPerKey?: boolean;
+    }) => {
       await cleanup({
         dryRun: Boolean(opts.dryRun),
         noRg: resolveCleanupNoRg(opts),
+        target: opts.target,
         ask: Boolean(opts.ask),
         askPerKey: Boolean(opts.askPerKey),
       });

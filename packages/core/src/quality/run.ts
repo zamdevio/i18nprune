@@ -1,4 +1,6 @@
 import { resolveProjectAnalysis } from '../analysis/index.js';
+import { finalizeLocaleSuggestions } from '../suggestions/index.js';
+import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import {
   ISSUE_QUALITY_ENGLISH_IDENTICAL_LEAVES,
   ISSUE_SCAN_DYNAMIC_KEY_SITES,
@@ -14,7 +16,6 @@ import {
 } from '../shared/sourcePlaceholders/index.js';
 import { listLocaleSegmentTargets, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
 import { readLocaleSegmentFromContext } from '../shared/locales/read/index.js';
-import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { formatListShownOmitted } from '../shared/constants/listDisplay.js';
 import { buildQualityLocaleReport, formatQualityLocaleRowLabel } from './localeReport.js';
 import { buildQualityJsonData } from './payload.js';
@@ -200,5 +201,21 @@ export function runQuality(
     ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),
   ];
 
-  return { payload, issues, keyObservationsCount: analysis.keyObservations.length };
+  const targetLocaleCodes = opts.target
+    ? [normalizeLanguageCode(opts.target)]
+    : rows.filter((row) => !row.isSourceLocale).map((row) => row.code);
+
+  const finalPayload = finalizeLocaleSuggestions(
+    host,
+    {
+      op: 'quality',
+      ctx,
+      analysis,
+      targetLocaleCodes,
+      sourceIdenticalCount: total,
+    },
+    payload,
+  );
+
+  return { payload: finalPayload, issues, keyObservationsCount: analysis.keyObservations.length };
 }

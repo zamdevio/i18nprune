@@ -8,6 +8,7 @@ import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../shared/constants/issueCodes.js'
 import { formatListShownOmitted } from '../shared/constants/listDisplay.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import { resolveProjectAnalysis } from '../analysis/index.js';
+import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 import {
   detectLocalePlaceholderLeaves,
   formatSourcePlaceholderMessage,
@@ -265,16 +266,25 @@ export function runReview(
       });
     }
   }
-  if (Object.values(payload.locales).some((v) => v.englishIdentical > 0)) {
-    emitReviewMessage(host, {
-      level: 'tip',
-      message:
-        'source-identical leaves match the source locale string at the same path — use `generate --resume` (or a full `generate`) to refresh translations.',
-    });
-  }
+  const sourceIdenticalCount = Object.values(payload.locales).reduce(
+    (sum, stats) => sum + stats.englishIdentical,
+    0,
+  );
+
+  const finalPayload = finalizeLocaleSuggestions(
+    host,
+    {
+      op: 'review',
+      ctx,
+      analysis,
+      targetLocaleCodes: localeCodesInRun,
+      sourceIdenticalCount,
+    },
+    payload,
+  );
 
   return {
-    payload,
+    payload: finalPayload,
     keyObservationsCount: analysis.keyObservations.length,
     issues: [
       ...issuesFromDynamicScanCount(dynamicKeySites),

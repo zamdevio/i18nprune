@@ -34,3 +34,15 @@ i18nprune validate --json \
 ```
 
 For reusable filters across commands, see the [jq cookbook](../examples/jq-cookbook.md).
+
+## Suggested next steps
+
+After `validate`, i18nprune may emit **`[tip]`** lines (and `data.suggestions[]` with `--json`) when the scan and locale files diverge:
+
+| Situation | Stable `id` | Typical command |
+|-----------|-------------|-----------------|
+| Source locale has keys not referenced in the code scan | `suggest.cleanup.source_unused` | `i18nprune cleanup --dry-run` |
+| Target locale has extra keys vs the scan | `suggest.cleanup.target_extra` | `i18nprune cleanup --target <code> --dry-run` |
+| Literal keys in code are missing from the source locale | `suggest.missing.literal_keys` | `i18nprune missing` |
+
+Tips name the **locale code** and **segment paths** when your layout uses multiple JSON files per locale. Apply source removals with global `--yes` or `--ask`; target removals use `cleanup --target <code>`.

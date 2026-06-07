@@ -30,9 +30,14 @@ export function renderRunEvent(event: RunEvent, run: RunOptions): void {
     case 'notice':
       logger.notice(event.message, run);
       return;
-    case 'tip':
-      logger.tip(event.message, run);
+    case 'tip': {
+      const lines = event.message.split('\n');
+      logger.tip(lines[0] ?? event.message, run);
+      for (const line of lines.slice(1)) {
+        if (line.trim().length > 0) logger.detail(line, run);
+      }
       return;
+    }
     case 'warn':
       logger.warn(event.message, run);
       return;

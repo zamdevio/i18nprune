@@ -22,6 +22,9 @@ export function toCleanupRunOptions(opts: CleanupOptions): CleanupRunOptions {
   return {
     dryRun: opts.dryRun === true,
     skipStringPresenceCheck: opts.skipStringPresenceCheck ?? opts.noRg === true,
+    target: opts.target,
+    top: opts.top,
+    full: opts.full,
   };
 }
 

@@ -191,6 +191,7 @@ export * as cleanup from './namespaces/cleanup.js';
 export {
   applyCleanupKeysToLocaleJson,
   computeCleanupCandidateKeys,
+  createCleanupLocaleWritePlan,
   createCleanupSourceWritePlan,
   emitCleanupAbortMessage,
   emitCleanupAskIgnoredMessage,
@@ -901,7 +902,24 @@ export {
   nowMs,
 } from './shared/run/index.js';
 export type { OperationId, RunEmitter, RunEvent, RunMessageChannel, RunMessageEvent, RunMessageLevel } from './types/shared/run/index.js';
-export type { LocaleSuggestion, LocaleSuggestionKind } from './types/suggestions/index.js';
+export * as suggestions from './namespaces/suggestions.js';
+export {
+  buildLocaleSuggestions,
+  computeExtraTargetKeys,
+  computeExtraTargetKeysForTargets,
+  computeUnusedSourceKeys,
+  emitLocaleSuggestions,
+  finalizeLocaleSuggestions,
+  formatLocaleSuggestionHuman,
+  listTargetSegmentPathsForKeys,
+} from './namespaces/suggestions.js';
+export type {
+  BuildLocaleSuggestionsInput,
+  ExtraTargetKeysResult,
+  LocaleSuggestion,
+  LocaleSuggestionKind,
+  UnusedSourceKeysResult,
+} from './namespaces/suggestions.js';
 
 export * as languages from './namespaces/languages.js';
 export {

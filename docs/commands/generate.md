@@ -77,6 +77,17 @@ i18nprune generate --target ja,fr --json \
   | jq '.data.targetResults[] | select(.status != "ok") | {target, status, error: (.error // null)}'
 ```
 
+## Suggested next steps
+
+`generate` may emit **`[tip]`** lines when locale files contain keys outside the current code scan:
+
+| Situation | Stable `id` | Typical command |
+|-----------|-------------|-----------------|
+| Source locale has unused keys | `suggest.cleanup.source_unused` | `i18nprune cleanup --dry-run` |
+| Target locale has extra keys | `suggest.cleanup.target_extra` | `i18nprune cleanup --target <code> --dry-run` |
+
+Generate only translates keys **referenced in the scan**; unused source keys and target extras are left on disk until you run `cleanup` (source) or inspect targets manually.
+
 ## Troubleshooting
 
 - No writes in `--resume` mode usually means targets are already fully populated.

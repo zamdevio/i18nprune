@@ -33,6 +33,8 @@ export function buildCleanupHostHooks(
   return {
     emit: runtime.emit,
     runId: runtime.runId,
+    listLimit: runtime.listLimit,
+    listFull: runtime.listFull,
     isStringPresenceAvailable: () => !noRg && isRipgrepAvailable(),
     hasStringPresence: (sample) => rgFixedStringSearch(ctx.paths.srcRoot, sample),
     getStringPresenceLocations: (sample, maxHits) =>

@@ -24,7 +24,12 @@ export type CleanupOptions = CleanupRunOptions & {
   askPerKey?: boolean;
 };
 
-export type CleanupRuntime = { emit?: RunEmitter; runId?: string };
+export type CleanupRuntime = {
+  emit?: RunEmitter;
+  runId?: string;
+  listLimit?: number;
+  listFull?: boolean;
+};
 
 export type CleanupJsonRunResult = CleanupRunResult & {
   envelope: CliJsonEnvelope<'cleanup', CleanupJsonOutput>;

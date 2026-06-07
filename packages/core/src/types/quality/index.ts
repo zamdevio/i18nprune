@@ -5,6 +5,7 @@ import type { Issue } from '../json/envelope/index.js';
 import type { StringLeaf } from '../json/stringLeaf/index.js';
 import type { ParityPolicy } from '../policies/index.js';
 import type { RunEmitter } from '../shared/run/index.js';
+import type { LocaleSuggestion } from '../suggestions/index.js';
 
 /** Payload for the `quality` operation JSON envelope (`data` field). */
 export type QualityJsonData = {
@@ -16,6 +17,7 @@ export type QualityJsonData = {
   localeCount: number;
   targetLocaleCount: number;
   files: QualityFileLine[];
+  suggestions?: LocaleSuggestion[];
 };
 
 export type QualityFileLine = {

@@ -18,5 +18,7 @@
 
 ## Frozen API
 
-- **`--json`** cleanup payload; check-only / dry-run vs apply flags.
-- Apply writes only the configured **source locale**; run `sync` after cleanup to align targets.
+- **`--json`** cleanup payload; `--dry-run` for preview; global **`--yes`** / **`--ask`** for writes (no `--apply` flag).
+- **`--target <code>`** prunes extra keys from a target locale; default (no `--target`) prunes the **source** locale.
+- Global **`--top`** / **`--full`** cap string-presence skip lines (verbose detail channel).
+- Run `sync` after source cleanup to align targets when needed.

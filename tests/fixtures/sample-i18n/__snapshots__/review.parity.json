@@ -29,7 +29,8 @@
       }
     },
     "localesDir": "<fixture>/locales",
-    "sourceLocale": "en"
+    "sourceLocale": "en",
+    "suggestions": []
   },
   "issues": [
     {

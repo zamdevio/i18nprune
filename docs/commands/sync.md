@@ -71,6 +71,17 @@ i18nprune sync --metadata --dry-run --json \
   | jq '.data.localeMetadataReports[]? | {target: (.target // null), converted: (.convertedLeaves // 0)}'
 ```
 
+## Suggested next steps
+
+`sync` shares the same cross-op suggestion engine as `generate` and `validate`:
+
+| Situation | Stable `id` | Typical command |
+|-----------|-------------|-----------------|
+| Source locale has unused keys | `suggest.cleanup.source_unused` | `i18nprune cleanup --dry-run` |
+| Target locale has extra keys | `suggest.cleanup.target_extra` | `i18nprune cleanup --target <code> --dry-run` |
+
+Sync copies the **source shape** into targets; it does not remove extra target-only keys. Use the target-extra tip to preview `cleanup --target` before applying with `--yes`.
+
 ## Troubleshooting
 
 - Zero changed files with expected drift: verify `--target` selection and loaded config path.

@@ -13,12 +13,15 @@ Remove unused keys from the source locale file using extractor observations, pre
 `i18nprune cleanup -h` currently exposes:
 
 - `--dry-run`: preview removals without writing.
+- `--target <code>`: prune a **target** locale (keys present on disk but not in the code scan); omit for **source** locale cleanup (default).
 - `--no-rg`: skip ripgrep string-presence guard (static unused-key list only).
 - `--ask`: interactive TTY batch confirmation (grouped by top-level namespace).
 - `--ask-per-key`: interactive TTY per-key confirmation.
+- Global `--yes`: apply removals without prompts (non-interactive writes).
+- Global `--top` / `--full`: cap or expand string-presence skip lines in human output.
 - `-h, --help`: help output.
 
-`--ask` / `--ask-per-key` are ignored in non-interactive contexts and overridden by global `--yes`.
+`--ask` / `--ask-per-key` are ignored in non-interactive contexts and overridden by global `--yes`. Destructive runs without `--yes` require a TTY confirm (or use `--dry-run` / `--json`).
 
 ## Core behavior
 
@@ -35,6 +38,10 @@ i18nprune cleanup --dry-run --no-rg --json
 
 # Interactive review in namespaces
 i18nprune cleanup --ask
+
+# Prune extra keys from a target locale after dry-run review
+i18nprune cleanup --target ar --dry-run
+i18nprune cleanup --target ar --yes
 ```
 
 ## jq usage (`--json`)
@@ -65,6 +72,17 @@ i18nprune cleanup --dry-run --json \
 i18nprune cleanup --dry-run --json \
   | jq '{uncertainPrefixes: .data.uncertainPrefixes, issues: [.issues[]? | {code, severity}]}'
 ```
+
+## Suggested next steps
+
+During **`cleanup --dry-run`**, when candidates exist, a **`[tip]`** may suggest applying removals after review:
+
+| Situation | Stable `id` | Typical command |
+|-----------|-------------|-----------------|
+| Dry-run found removable keys | `suggest.cleanup.source_unused` / `suggest.cleanup.target_unused` | `i18nprune cleanup --yes` or `i18nprune cleanup --ask` |
+| Dry-run for target locale | `suggest.cleanup.target_unused` | `i18nprune cleanup --target <code> --yes` |
+
+Other commands (`validate`, `generate`, `sync`) emit source-unused tips with `cleanup --dry-run` and target-extra tips with `cleanup --target <code> --dry-run`.
 
 ## Troubleshooting
 
