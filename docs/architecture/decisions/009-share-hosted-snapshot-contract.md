@@ -1,5 +1,5 @@
 ---
-description: ADR 009 — hosted share upload contract: payload hash dedup, force replace, and non-interactive CI gates.
+description: "ADR 009 — hosted share upload contract: payload hash dedup, force replace, and non-interactive CI gates."
 ---
 
 # ADR 009 — Share hosted snapshot contract

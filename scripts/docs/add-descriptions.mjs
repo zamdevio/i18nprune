@@ -92,10 +92,8 @@ function deriveDescription(body) {
   return truncateDescription(`${title} — i18nprune documentation.`);
 }
 
+/** Always double-quote — VitePress parses frontmatter as YAML; bare `:` breaks values. */
 function yamlQuote(value) {
-  if (/^[\w .,;:!?()/'"-]+$/.test(value) && !value.includes('  ')) {
-    return value;
-  }
   return JSON.stringify(value);
 }
 

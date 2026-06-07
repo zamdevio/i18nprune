@@ -11,8 +11,52 @@ import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const docsAppRoot = path.resolve(here, '..');
+const repoDocsDir = path.resolve(docsAppRoot, '..', '..', 'docs');
 const contentDir = path.join(docsAppRoot, 'content');
 const syncScript = path.join(here, 'sync.js');
+
+/**
+ * @param {string} relPath
+ * @param {string} content
+ */
+function assertSafeDescriptionFrontmatter(relPath, content) {
+  if (!content.startsWith('---\n')) return;
+  const end = content.indexOf('\n---\n', 4);
+  if (end === -1) return;
+  const fm = content.slice(4, end);
+  const match = fm.match(/^description:\s*(.+)$/m);
+  if (!match) return;
+  const raw = match[1].trim();
+  const quoted =
+    (raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"));
+  if (quoted) return;
+  if (/:\s/.test(raw)) {
+    throw new Error(
+      `${relPath}: description frontmatter must be quoted (bare ":" in YAML value breaks VitePress)`,
+    );
+  }
+}
+
+function walkMd(dir, base = dir) {
+  const out = [];
+  for (const name of fs.readdirSync(dir)) {
+    const full = path.join(dir, name);
+    const st = fs.statSync(full);
+    if (st.isDirectory()) {
+      out.push(...walkMd(full, base));
+      continue;
+    }
+    if (name.endsWith('.md')) {
+      out.push(path.relative(base, full).replace(/\\/g, '/'));
+    }
+  }
+  return out.sort();
+}
+
+for (const rel of walkMd(repoDocsDir)) {
+  const body = fs.readFileSync(path.join(repoDocsDir, rel), 'utf8');
+  assertSafeDescriptionFrontmatter(`docs/${rel}`, body);
+}
 
 function walkFiles(dir, base = dir) {
   const out = [];
