@@ -16,6 +16,12 @@ export type RunOptions = {
   debugScan: boolean;
   /** When true, the CLI may print report-cache dispatch/invalidation diagnostics. */
   debugCache: boolean;
+  /** Plain text only — no ANSI styling (CLI also honors `NO_COLOR`). */
+  noColor?: boolean;
+  /** Omit `[info]` / `[warn]` / `[tip]` channel tags on human logger lines. */
+  noLogChannel?: boolean;
+  /** Omit `[i18nprune]` app prefix on human logger lines. */
+  noLogPrefix?: boolean;
   /**
    * When set and {@link RunOptions.silent} is false, the scanner invokes this for each skip
    * (directory walk skip, file excluded, non-source extension). Core never uses `console`;

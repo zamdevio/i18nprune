@@ -24,6 +24,9 @@ The **`languages`** command accepts the positional alias **`langs`** (`i18nprune
 | `-v` | `--verbose` | Command-scoped verbose mode (currently `share view`) |
 | `-q` | `--quiet` | Less noise (see [verbosity](./verbosity.md)) |
 | `-s` | `--silent` | Stricter suppression |
+| — | `--no-color` | Plain text (also when `NO_COLOR` is set) |
+| — | `--no-log-channel` | Omit `[info]` / `[warn]` tags on human lines |
+| — | `--no-log-prefix` | Omit `[i18nprune]` prefix on human lines |
 | `-h` | `--help` | Help (Commander default) |
 | `-c` | `--config` | Path to a single `i18nprune` config file |
 
@@ -39,4 +42,5 @@ Full behavior, envelope shape, supported commands, and edge cases: **[JSON outpu
 - [CLI disk cache & cross-platform paths](./cache.md)
 - [CLI prompt modules](./prompts.md)
 - [Quiet, silent & JSON](./verbosity.md)
+- [Log presentation](./output.md)
 - [CLI runtime](./runtime.md)

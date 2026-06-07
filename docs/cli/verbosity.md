@@ -56,6 +56,7 @@ A few code paths still use **`console.log`** for the bare semver (e.g. plain **`
 
 - **CI / automation:** prefer **`--json`** for stable output.
 - **Quiet vs silent:** **Quiet** keeps warnings and **primary** human output. **Silent** drops warnings and primary human output unless **`--json`** applies.
+- **Plain / grep-friendly human lines:** see [Log presentation](./output.md) (`--no-color`, `NO_COLOR`, `--no-log-prefix`, `--no-log-channel`). Presentation flags do not change content gates above.
 
 ## Adding a new command
 

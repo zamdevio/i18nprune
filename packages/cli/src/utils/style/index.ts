@@ -1,7 +1,10 @@
 import chalk from 'chalk';
+import type { RunOptions } from '@i18nprune/core';
+
+const identity = (s: string) => s;
 
 /** Low-level semantic color tokens; `ansi` composes these into lines and layout. */
-export const style = {
+const chalkStyle = {
   reset: (s: string) => chalk.reset(s),
   bold: (s: string) => chalk.bold(s),
   dim: (s: string) => chalk.dim(s),
@@ -14,3 +17,25 @@ export const style = {
   /** Orange — tip / hint channel (distinct from yellow warn). */
   tip: (s: string) => chalk.hex('#FF8C00')(s),
 };
+
+const plainStyle = {
+  reset: identity,
+  bold: identity,
+  dim: identity,
+  accent: identity,
+  ok: identity,
+  warn: identity,
+  err: identity,
+  magenta: identity,
+  blue: identity,
+  tip: identity,
+};
+
+/** Mutable style object — call {@link configureStyleFromRun} from the CLI `preAction` hook. */
+export const style = { ...chalkStyle };
+
+/** Apply `RunOptions.noColor` (identity wrappers vs chalk). */
+export function configureStyleFromRun(run: Pick<RunOptions, 'noColor'>): void {
+  const next = run.noColor ? plainStyle : chalkStyle;
+  Object.assign(style, next);
+}

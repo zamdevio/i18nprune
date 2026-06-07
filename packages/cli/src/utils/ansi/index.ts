@@ -7,6 +7,11 @@ export const style = baseStyle;
 
 export type { HeaderOptions, LogLevel } from '@/types/utils/ansi/index.js';
 
+export type LogFormatOptions = {
+  noLogChannel?: boolean;
+  noLogPrefix?: boolean;
+};
+
 const levelColor: Record<LogLevel, (s: string) => string> = {
   info: style.ok,
   notice: style.warn,
@@ -23,37 +28,55 @@ function appPrefix(): string {
   return `${style.dim('[')}${style.bold(style.accent(CLI_NAME))}${style.dim(']')}`;
 }
 
+function joinLogParts(parts: string[]): string {
+  return parts.filter((p) => p.length > 0).join(' ');
+}
+
+function formatTaggedLine(
+  channel: string,
+  channelColor: (s: string) => string,
+  message: string,
+  format: LogFormatOptions = {},
+): string {
+  const parts: string[] = [];
+  if (!format.noLogPrefix) parts.push(appPrefix());
+  if (!format.noLogChannel) parts.push(bracketTag(channel, channelColor));
+  parts.push(message);
+  return joinLogParts(parts);
+}
+
 /** Visible length for layout (ANSI SGR stripped). */
 export function stripAnsiVisible(s: string): string {
   return s.replace(/\x1b\[[0-9;]*m/g, '');
 }
 
 /** `[i18nprune] [level] message` — grep-friendly in CI. */
-export function line(level: LogLevel, message: string): string {
-  const tag = bracketTag(level, levelColor[level]);
-  return `${appPrefix()} ${tag} ${message}`;
+export function line(level: LogLevel, message: string, format: LogFormatOptions = {}): string {
+  return formatTaggedLine(level, levelColor[level], message, format);
 }
 
 /** `[i18nprune] [scan] message` — same prefix family as {@link line}; used for `--debug-scan`. */
-export function scanLine(message: string): string {
-  return `${appPrefix()} ${bracketTag('scan', style.magenta)} ${message}`;
+export function scanLine(message: string, format: LogFormatOptions = {}): string {
+  return formatTaggedLine('scan', style.magenta, message, format);
 }
 
 /** `[i18nprune] [cache] message` — report-cache status, hidden by the info gate. */
-export function cacheLine(message: string): string {
-  return `${appPrefix()} ${bracketTag('cache', style.accent)} ${message}`;
+export function cacheLine(message: string, format: LogFormatOptions = {}): string {
+  return formatTaggedLine('cache', style.accent, message, format);
 }
 
 /** `[i18nprune] [verbose] message` — share view `--verbose` internals. */
-export function verboseLine(message: string, dimBody = true): string {
-  const tag = bracketTag('verbose', style.accent);
+export function verboseLine(message: string, dimBody = true, format: LogFormatOptions = {}): string {
   const body = dimBody ? style.dim(message) : message;
-  return `${appPrefix()} ${tag} ${body}`;
+  if (format.noLogPrefix && format.noLogChannel) return body;
+  const tag = format.noLogChannel ? '' : bracketTag('verbose', style.accent);
+  const prefix = format.noLogPrefix ? '' : appPrefix();
+  return joinLogParts([prefix, tag, body]);
 }
 
 /** `[i18nprune] [tip] message` — actionable hints (orange; not warn-styled). */
-export function tipLine(message: string): string {
-  return `${appPrefix()} ${bracketTag('tip', style.tip)} ${message}`;
+export function tipLine(message: string, format: LogFormatOptions = {}): string {
+  return formatTaggedLine('tip', style.tip, message, format);
 }
 
 /**

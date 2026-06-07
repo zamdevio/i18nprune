@@ -55,6 +55,8 @@ import { printCurrentVersionLine, runVersionCheckCommand, runVersionResetCommand
 import { getRunOptions, type ScanDebugEvent } from '@i18nprune/core';
 import { emitCliJsonOptionError } from '@/shared/result/optionErrorEnvelope.js';
 import { logger } from '@/utils/logger/index.js';
+import { resolveNoColor } from '@/utils/cli/noColor.js';
+import { configureStyleFromRun } from '@/utils/style/index.js';
 
 function parseReportCommandFormat(s: string | undefined): ReportCommandFormat {
   const x = (s ?? 'html').trim().toLowerCase();
@@ -118,6 +120,9 @@ program
   )
   .option('-q, --quiet', 'less non-essential output', false)
   .option('-s, --silent', 'suppress informational and warning lines (errors still print)', false)
+  .option('--no-color', 'plain text output (also when NO_COLOR is set)')
+  .option('--no-log-channel', 'omit [info]/[warn]/[tip] tags on human log lines')
+  .option('--no-log-prefix', 'omit [i18nprune] prefix on human log lines')
   .option('--source <code>', 'override source locale language code (BCP47, e.g. en, pt-br)')
   .option('--locales-dir <path>', 'override locales directory')
   .option('--src <path>', 'override scan root (translation call sites)')
@@ -164,6 +169,9 @@ program
       jsonPretty?: string;
       quiet?: boolean;
       silent?: boolean;
+      color?: boolean;
+      logChannel?: boolean;
+      logPrefix?: boolean;
       debugScan?: boolean;
       debugCache?: boolean;
       cacheProfile?: string;
@@ -198,11 +206,17 @@ program
     }
     const debugScan = Boolean(opts.debugScan);
     const debugCache = Boolean(opts.debugCache);
+    const noColor = resolveNoColor(opts.color === false);
+    const noLogChannel = opts.logChannel === false;
+    const noLogPrefix = opts.logPrefix === false;
     const runOpts = {
       json: jsonOutput,
       jsonPretty,
       quiet,
       silent,
+      noColor,
+      noLogChannel,
+      noLogPrefix,
       debugScan,
       debugCache,
       onScanDebug:
@@ -217,6 +231,7 @@ program
           : undefined,
     };
     setRunOptions(runOpts);
+    configureStyleFromRun(runOpts);
     emitI18nPruneHomeOverrideNotice(runOpts);
     setCliListTopFlag(parseCliPositiveIntTop(opts.top, 'global: --top'));
     setCliListFullFlag(Boolean(opts.full));

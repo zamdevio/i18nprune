@@ -27,6 +27,7 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
         { text: 'CLI disk cache', link: '/cli/cache' },
         { text: 'Runtime overview', link: '/runtime/' },
         { text: 'Verbosity (quiet / silent)', link: '/cli/verbosity' },
+        { text: 'Log presentation', link: '/cli/output' },
         { text: 'Prompts', link: '/cli/prompts' },
         { text: 'JSON output (--json)', link: '/cli/json' },
         {

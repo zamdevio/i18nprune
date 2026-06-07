@@ -1,4 +1,4 @@
-import { cacheLine, line, scanLine, style, tipLine, verboseLine } from '@/utils/ansi/index.js';
+import { cacheLine, line, scanLine, style, tipLine, verboseLine, type LogFormatOptions } from '@/utils/ansi/index.js';
 import { getRunOptions } from '@i18nprune/core';
 import type { RunOptions } from '@i18nprune/core';
 import type { LoggerMask } from '@/types/core/logger/index.js';
@@ -18,6 +18,13 @@ function effective(run: RunOptions | undefined, mask?: LoggerMask): RunOptions {
   return resolveRun(baseRun(run), mask);
 }
 
+function logFormat(run: RunOptions): LogFormatOptions {
+  return {
+    noLogChannel: Boolean(run.noLogChannel),
+    noLogPrefix: Boolean(run.noLogPrefix),
+  };
+}
+
 /**
  * Process-wide CLI logger. Pass **`run`** (or **`ctx.run`**) when you already have **`Context`**;
  * otherwise **`getRunOptions()`** is used. Optional **`mask`** merges per-call (e.g. force one line
@@ -28,35 +35,35 @@ export const logger = {
   info(msg: string, run?: RunOptions, mask?: LoggerMask): void {
     const r = effective(run, mask);
     if (!canEmit(r, 'info')) return;
-    console.log(line('info', msg));
+    console.log(line('info', msg, logFormat(r)));
   },
 
   /** `[i18nprune] [notice] …` — warn-styled but respects the info gate. */
   notice(msg: string, run?: RunOptions, mask?: LoggerMask): void {
     const r = effective(run, mask);
     if (!canEmit(r, 'notice')) return;
-    console.warn(line('notice', msg));
+    console.warn(line('notice', msg, logFormat(r)));
   },
 
   /** `[i18nprune] [warn] …` — still prints in quiet unless silent/json. */
   warn(msg: string, run?: RunOptions, mask?: LoggerMask): void {
     const r = effective(run, mask);
     if (!canEmit(r, 'warn')) return;
-    console.warn(line('warn', msg));
+    console.warn(line('warn', msg, logFormat(r)));
   },
 
   /** `[i18nprune] [scan] …` — source walk skip reasons (`--debug-scan` sink); stderr, **hidden under `--quiet`** (like `info`). */
   scan(msg: string, run?: RunOptions, mask?: LoggerMask): void {
     const r = effective(run, mask);
     if (!canEmit(r, 'scan')) return;
-    console.warn(scanLine(msg));
+    console.warn(scanLine(msg, logFormat(r)));
   },
 
   /** `[i18nprune] [cache] …` — opt-in report-cache diagnostics (`--debug-cache`). */
   cache(msg: string, run?: RunOptions, mask?: LoggerMask): void {
     const r = effective(run, mask);
     if (!canEmit(r, 'cache')) return;
-    console.log(cacheLine(msg));
+    console.log(cacheLine(msg, logFormat(r)));
   },
 
   /** Indented cache detail (dim only; parent line carries `[cache]`). Gated by `--debug-cache`. */
@@ -74,19 +81,20 @@ export const logger = {
       console.log('');
       return;
     }
-    console.log(verboseLine(msg, options?.dim !== false));
+    console.log(verboseLine(msg, options?.dim !== false, logFormat(r)));
   },
 
   /** `[i18nprune] [tip] …` — actionable hints (orange tag; hidden under `--quiet` / `--json`). */
   tip(msg: string, run?: RunOptions, mask?: LoggerMask): void {
     const r = effective(run, mask);
     if (!canEmit(r, 'tip')) return;
-    console.log(tipLine(msg));
+    console.log(tipLine(msg, logFormat(r)));
   },
 
   /** Always prints (stderr). */
-  err(msg: string): void {
-    console.error(line('error', msg));
+  err(msg: string, run?: RunOptions): void {
+    const r = baseRun(run);
+    console.error(line('error', msg, logFormat(r)));
   },
 
   /** Dim secondary lines. */
