@@ -21,6 +21,7 @@ Narratives live in **user docs** below; phase checklists here are intentionally 
 | **Locales** core migration (`runDynamic`, `runLocalesList`, `writeLocaleMetaEdit`, `deleteLocaleFiles`) | Shipped | — |
 | **Core-op architecture** — all ops migrated to core `runXxx` entries; CLI is thin host | Shipped (Session A.2) | — |
 | **Extractor hardening** (Session C.1 — bindings, orchestrator expansion, prose filter, parity tests, inventory, methodology) | Shipped | [`architecture/extraction`](../../docs/architecture/extraction/README.md), [`edge-case inventory`](../../docs/edge-cases/unsolved/inventory.md) |
+| **Extractor hardening** (E.1–E.6 — mixed templates, const-map, comment parity, non-literal hints, dynamic groups/template metadata) | Shipped (core) | [`architecture/extraction/dynamic`](../../docs/architecture/extraction/dynamic.md) |
 | **Patching hardening** (integration tests, shared CLI run wiring, resolver/tests, user docs, core types/barrels) | Shipped | [`patching`](../../docs/patching/README.md) |
 | **Init / onboarding (Session F)** — `runInit`, presets + scoring, config template, CLI **`init`** (`--auto`, `--preset`, `--json`) | Shipped (core + CLI) | [`config`](../../docs/config/README.md) · extension host: [`extension/README.md`](./extension/README.md) (I1–I3 planned) |
 | **Locales multi-topology (Session H)** — reader/writer, `flat_file` / `locale_directory`, ops on segment targets, layout fixtures | Shipped (core + CLI) | [`commands/locales`](../../docs/commands/locales/README.md) |

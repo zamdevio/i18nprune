@@ -77,6 +77,8 @@ export type { TranslationSurfaceLeaf, TranslationSurfaceShape } from '../types/l
 export type {
   DynamicKeySite,
   DynamicKeySiteKind,
+  DynamicSiteGroups,
+  TemplateCallClassification,
   ConstSubstitutionStep,
   DynamicKeyRef,
   KeyObservation,

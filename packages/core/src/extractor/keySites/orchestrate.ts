@@ -26,6 +26,9 @@ export function scanProjectKeyObservations(input: ScanProjectKeyObservationsInpu
       return observations.map((obs) => ({
         ...obs,
         span: { ...obs.span, filePath: displayPath },
+        ...(obs.dynamicRef
+          ? { dynamicRef: { ...obs.dynamicRef, filePath: displayPath } }
+          : {}),
       }));
     },
   });

@@ -25,6 +25,7 @@ export {
   hasDynamicProviderForPath,
   isJavascriptLikePath,
   JAVASCRIPT_LIKE_EXTENSIONS,
+  dynamicSiteDetailLines,
 } from '../extractor/dynamic/index.js';
 
 export { lineNumberAtIndex, scanKeyObservations, resolvedKeysFromObservations } from '../extractor/keySites/index.js';

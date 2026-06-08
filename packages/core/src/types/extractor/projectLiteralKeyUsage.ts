@@ -5,7 +5,7 @@
 export type ProjectLiteralKeyUsage = {
   /** Fully resolved `literal` and `template_resolved` keys. */
   resolvedKeys: ReadonlySet<string>;
-  /** Static prefixes from `template_partial` when `uncertainPrefix` is set. */
+  /** Static prefixes from unlinked `template_partial` observations (`dynamicRef` unset). Linked partials defer to dynamic scan. */
   uncertainPrefixes: ReadonlySet<string>;
   /** First path segment (or bracket segment) of each resolved or uncertain path — prefix matching for “used under root”. */
   usedRoots: ReadonlySet<string>;

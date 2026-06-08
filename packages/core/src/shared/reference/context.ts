@@ -29,7 +29,8 @@ function collectUncertainPrefixesFromDynamic(
 ): void {
   for (const site of sites) {
     if (!includeDynamicSite(site, eff)) continue;
-    if (site.resolvedPrefix) pushUnique(out, site.resolvedPrefix);
+    const prefix = site.staticPrefix ?? site.resolvedPrefix;
+    if (prefix) pushUnique(out, prefix);
   }
 }
 

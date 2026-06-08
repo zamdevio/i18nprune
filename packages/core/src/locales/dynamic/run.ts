@@ -3,6 +3,7 @@ import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../../shared/constants/issueCodes.
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
 import { DEFAULT_LIST_TOP } from '../../shared/constants/listDisplay.js';
 import { resolveListWindow, applyListWindow } from '../../shared/options/listWindow.js';
+import { groupDynamicKeySites } from '../../extractor/dynamic/groups.js';
 import type { CoreContext } from '../../types/context/index.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type {
@@ -57,6 +58,7 @@ export function runDynamic(
     dynamic: {
       count: allSites.length,
       sites: shownSites,
+      groups: groupDynamicKeySites(allSites),
     },
   };
 

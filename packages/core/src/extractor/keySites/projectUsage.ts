@@ -25,9 +25,10 @@ export function literalKeyUsageFromObservations(observations: KeyObservation[]):
       continue;
     }
     if (o.kind === 'template_partial' && o.uncertainPrefix) {
-      uncertainPrefixes.add(o.uncertainPrefix);
       const root = topPathSegment(o.uncertainPrefix);
       if (root) usedRoots.add(root);
+      // Linked partials defer prefix to the dynamic pass (single uncertainPrefixes contribution).
+      if (!o.dynamicRef) uncertainPrefixes.add(o.uncertainPrefix);
     }
   }
 

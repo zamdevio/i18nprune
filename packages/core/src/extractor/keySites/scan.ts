@@ -1,6 +1,5 @@
-import { resolveKeyPlaceholdersWithTrace } from '../constmap/resolve.js';
-import { tryResolveTemplatePrefixBeforeUnknown } from '../dynamic/rebuild.js';
 import { findTranslationCallSites } from '../shared/calls.js';
+import { analyzeTemplateCall } from '../shared/templateAnalysis.js';
 import { offsetInCommentRanges } from '../shared/jslikeTextRanges.js';
 import type { KeyObservation, SourceSpan } from '../../types/extractor/keySites/index.js';
 import { lineNumberAtIndex } from './line.js';
@@ -50,33 +49,27 @@ export function scanKeyObservations(
     const tplMatch = arg.match(/^`([\s\S]*)`$/);
     if (!tplMatch) continue;
     const templateRaw = tplMatch[1]!;
-    const trace = resolveKeyPlaceholdersWithTrace(templateRaw, constMap);
+    const analysis = analyzeTemplateCall(templateRaw, constMap);
     const span = spanAtOffset(text, call.matchIndex, call.functionName, call.isMultilineCall);
 
-    if (trace.resolved !== null) {
+    if (analysis.classification === 'fully_resolved' && analysis.resolvedKey !== null) {
       out.push({
         kind: 'template_resolved',
-        resolvedKey: trace.resolved,
+        resolvedKey: analysis.resolvedKey,
         templateRaw,
-        substitutions: trace.substitutions,
+        substitutions: analysis.substitutions,
         span,
       });
     } else {
-      const unresolved: string[] = [];
-      const rem = trace.remainder;
-      const ph = /\$\{([A-Za-z_$][\w$]*)\}/g;
-      let pm: RegExpExecArray | null;
-      while ((pm = ph.exec(rem)) !== null) {
-        unresolved.push(pm[1]!);
-      }
-      const uncertainPrefix = tryResolveTemplatePrefixBeforeUnknown(templateRaw, constMap) ?? undefined;
       out.push({
         kind: 'template_partial',
         templateRaw,
-        substitutions: trace.substitutions,
-        unresolvedPlaceholders: unresolved,
+        substitutions: analysis.substitutions,
+        unresolvedPlaceholders: analysis.unresolvedPlaceholders,
         span,
-        ...(uncertainPrefix !== undefined ? { uncertainPrefix } : {}),
+        // Pairs with a dynamic `template_interpolation` site; reference merge uses dynamic prefix once.
+        dynamicRef: { line: span.line },
+        ...(analysis.staticPrefix !== null ? { uncertainPrefix: analysis.staticPrefix } : {}),
       });
     }
   }

@@ -22,6 +22,7 @@ export {
 } from './providers/javascript.js';
 export { hasDynamicProviderForPath, findDynamicKeySitesForFile } from './providers/index.js';
 export { analyzeDynamicKeysFromSourceText, scanProjectDynamicKeySites } from './orchestrate.js';
+export { dynamicSiteDetailLines } from './formatSiteDetail.js';
 export type { ScanProjectDynamicKeySitesInput } from '../../types/extractor/dynamic/orchestrate.js';
 
 import type { DynamicKeySite } from '../../types/extractor/dynamic/index.js';

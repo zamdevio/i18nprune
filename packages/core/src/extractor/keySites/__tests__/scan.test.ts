@@ -24,6 +24,16 @@ export const a = t('a.b') + t(\`\${NS}.title\`);
     expect(obs.some((o) => o.kind === 'template_partial')).toBe(true);
   });
 
+  it('links template_partial to dynamic via dynamicRef', () => {
+    const text = "const M = 'orders';\nt(`${M}.statuses.${data.status}`);";
+    const obs = scanKeyObservations(text, ['t'], { M: 'orders' });
+    const partial = obs.find((o) => o.kind === 'template_partial');
+    expect(partial?.dynamicRef).toEqual({ line: 2 });
+    if (partial?.kind === 'template_partial') {
+      expect(partial.uncertainPrefix).toBe('orders.statuses');
+    }
+  });
+
   it('records line numbers', () => {
     const text = "line1\nline2\nt('x.y')\n";
     const obs = scanKeyObservations(text, ['t'], {});

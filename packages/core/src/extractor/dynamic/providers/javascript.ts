@@ -1,12 +1,12 @@
 import { buildConstStringMap } from '../../constmap/build.js';
 import { findTranslationCallSites } from '../../shared/calls.js';
+import { dynamicTemplateFieldsFromAnalysis } from '../../shared/templateDynamicFields.js';
+import { nonLiteralHintsForFirstArg } from '../hints.js';
+import type { NonLiteralDynamicHints } from '../hints.js';
 import type { DynamicKeySite } from '../../../types/extractor/dynamic/index.js';
 import { commentRangesForJsLikeText, offsetInCommentRanges } from '../../shared/jslikeTextRanges.js';
 import { offsetToLineColumn, snippetRange } from '../helpers.js';
-import {
-  tryRebuildTemplateKeyFromConsts,
-  tryResolveTemplatePrefixBeforeUnknown,
-} from '../rebuild.js';
+import { analyzeTemplateCall } from '../../shared/templateAnalysis.js';
 
 const PREVIEW = 72;
 
@@ -58,7 +58,7 @@ export function findDynamicKeySitesInJavascriptFile(
       isMultilineCall: site.isMultilineCall,
       isCommented: commented,
       isSourceFile: true,
-      ...(site.resolvedPrefix !== undefined ? { resolvedPrefix: site.resolvedPrefix } : {}),
+      ...rawSiteToDynamicFields(site),
     });
   }
 
@@ -71,8 +71,13 @@ type RawSite = {
   matchIndex: number;
   closeParenIndex: number;
   isMultilineCall: boolean;
-  resolvedPrefix?: string;
+  templateFields?: ReturnType<typeof dynamicTemplateFieldsFromAnalysis>;
+  nonLiteralHints?: NonLiteralDynamicHints;
 };
+
+function rawSiteToDynamicFields(site: RawSite): Partial<DynamicKeySite> {
+  return { ...site.templateFields, ...site.nonLiteralHints };
+}
 
 /**
  * Returns candidate dynamic sites. Template literals whose `${}` segments are all resolvable
@@ -103,16 +108,15 @@ function findDynamicKeySitesRaw(
     if (first === '`' && arg.endsWith('`')) {
       const inner = arg.slice(1, -1);
       if (!/\$\{/.test(inner)) continue;
-      const rebuilt = tryRebuildTemplateKeyFromConsts(inner, constMap);
-      if (rebuilt !== null) continue;
-      const resolvedPrefix = tryResolveTemplatePrefixBeforeUnknown(inner, constMap) ?? undefined;
+      const analysis = analyzeTemplateCall(inner, constMap);
+      if (analysis.classification === 'fully_resolved') continue;
       out.push({
         kind: 'template_interpolation',
         functionName: call.functionName,
         matchIndex: at,
         closeParenIndex: call.closeParenIndex,
         isMultilineCall: call.isMultilineCall,
-        ...(resolvedPrefix !== undefined ? { resolvedPrefix } : {}),
+        templateFields: dynamicTemplateFieldsFromAnalysis(analysis),
       });
       continue;
     }
@@ -122,6 +126,7 @@ function findDynamicKeySitesRaw(
       matchIndex: at,
       closeParenIndex: call.closeParenIndex,
       isMultilineCall: call.isMultilineCall,
+      nonLiteralHints: nonLiteralHintsForFirstArg(text, arg, constMap),
     });
   }
   return out;
@@ -141,7 +146,7 @@ export function findDynamicKeySitesInJavascriptMergedText(
     functionName: site.functionName,
     preview: snippetRange(text, site.matchIndex, site.closeParenIndex + 1, PREVIEW),
     isMultilineCall: site.isMultilineCall,
-    ...(site.resolvedPrefix !== undefined ? { resolvedPrefix: site.resolvedPrefix } : {}),
+    ...rawSiteToDynamicFields(site),
   }));
 }
 

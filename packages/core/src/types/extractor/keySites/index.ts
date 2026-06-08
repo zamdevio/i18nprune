@@ -52,6 +52,11 @@ export type TemplatePartialKeyObservation = {
   /** `${name}` segments still unresolved after constMap */
   unresolvedPlaceholders: string[];
   span: SourceSpan;
+  /**
+   * Cross-link to the paired dynamic `template_interpolation` site (same call).
+   * When set, {@link literalKeyUsageFromObservations} omits `uncertainPrefix` so reference
+   * merge collects the static prefix from the dynamic pass exactly once.
+   */
   dynamicRef?: DynamicKeyRef;
   /**
    * Longest static key path prefix before the first unresolvable `${…}` (see dynamic rebuild),

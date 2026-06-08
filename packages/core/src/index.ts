@@ -469,6 +469,7 @@ export type {
 
 export * as localesDynamic from './namespaces/localesDynamic.js';
 export { runDynamic } from './namespaces/localesDynamic.js';
+export { dynamicSiteDetailLines } from './namespaces/extractor.js';
 export type {
   DynamicRunOptions,
   DynamicHostHooks,

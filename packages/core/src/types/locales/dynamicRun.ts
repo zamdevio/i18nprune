@@ -1,4 +1,5 @@
 import type { DynamicKeySite } from '../extractor/dynamic/index.js';
+import type { DynamicSiteGroups } from '../extractor/dynamic/groups.js';
 import type { Issue } from '../json/envelope/index.js';
 import type { RunEmitter } from '../shared/run/index.js';
 
@@ -22,6 +23,7 @@ export type DynamicJsonPayload = {
   dynamic: {
     count: number;
     sites: DynamicKeySite[];
+    groups: DynamicSiteGroups;
   };
 };
 

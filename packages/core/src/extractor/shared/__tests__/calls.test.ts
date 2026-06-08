@@ -25,4 +25,20 @@ describe('findTranslationCallSites (prose first-arg filter)', () => {
     expect(findTranslationCallSites(`t(new Date())\n`, ['t'])).toHaveLength(1);
     expect(findTranslationCallSites(`t(Foo.bar)\n`, ['t'])).toHaveLength(1);
   });
+
+  it('does not treat nested-call first args as prose (E.4b)', () => {
+    const text = 't(fn(`x.${y}`));';
+    const sites = findTranslationCallSites(text, ['t']);
+    expect(sites).toHaveLength(1);
+    expect(sites[0]!.firstArgRaw).toBe('fn(`x.${y}`)');
+  });
+
+  it('skips markdown-style prose samples with lowercase word runs (E.4a)', () => {
+    expect(findTranslationCallSites('t (see also docs)\n', ['t'])).toHaveLength(0);
+    expect(findTranslationCallSites('t(for example only)\n', ['t'])).toHaveLength(0);
+  });
+
+  it('does not match optional chaining call forms without further support (E.4c)', () => {
+    expect(findTranslationCallSites(`i18n.t?.('key')\n`, ['t'])).toHaveLength(0);
+  });
 });
