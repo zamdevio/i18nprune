@@ -75,18 +75,31 @@
   },
   {
     "week": "2026-W23",
-    "label": "Week 23 — Release",
-    "theme": "CI pipeline, tree/naming pass, cross-platform, docs, npm publish, v0.1.0",
+    "label": "Week 23 — Release & platform",
+    "theme": "v0.1.0 public release and CI/tree pass, then git analytics portal, SEO/IndexNow, v1-readiness docs, and CLI hardening before extractor sprint",
     "color": "coral",
     "shipped": [
-      "CI 3-OS matrix (ubuntu/mac/windows)",
-      "Turborepo affected DAG",
-      "Tree + naming parity (T0–T10)",
-      "Cross-platform path fixes (XP-0–7)",
-      "publish:verify gate",
-      "npm v0.1.0 public release",
-      "@i18nprune/seo package",
-      "Releases portal"
+      "CI 3-OS matrix (ubuntu/mac/windows) and turborepo affected DAG",
+      "Tree + naming parity (T0–T10) and cross-platform path fixes (XP-0–7)",
+      "npm v0.1.0 public release, releases portal, publish:verify gate",
+      "0.1.1–0.1.3 patch releases (build-injected versions, cleanup --rg, dynamic summary)",
+      "git.i18nprune.dev — analytics SPA, sync pipeline, validate gate, CI auto-deploy",
+      "@i18nprune/seo — OG cards, favicons, middleware across web/landing/docs",
+      "IndexNow — releases + docs/landing/git presets, workflow_dispatch CI",
+      "v1-readiness docs — description frontmatter, sync:verify, --json contract hub, VitePress pin",
+      "CLI hardening — locale suggestions, cleanup --target/--rg, --no-color logging flags",
+      "Report HTML shell moved to core renderReportHtml; report SPA asset wiring"
+    ]
+  },
+  {
+    "week": "2026-W24",
+    "label": "Week 24 — Extractor fusion",
+    "theme": "Mixed-template extractor hardening (E.1–E.6) and locales dynamic JSON contract",
+    "color": "purple",
+    "shipped": [
+      "E.1–E.6 — partitionTemplateHoles, analyzeTemplateCall, dynamicRef, staticPrefix, uncertainPrefixes dedupe",
+      "E.2 const-map hardening · E.3 non_literal hints · E.4 lexical safety · E.5 comment parity tests",
+      "locales dynamic — mixed_const_runtime groups and template detail in CLI --json output"
     ]
   }
 ]

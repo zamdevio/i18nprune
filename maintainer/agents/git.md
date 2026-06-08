@@ -132,19 +132,43 @@ The public git dashboard (`apps/git`, **git.i18nprune.dev**) merges **git-derive
 
 | Artifact | Role |
 |----------|------|
-| `apps/git/scripts/phases.config.json` | **Manual** — label, theme, color, `shipped[]` per ISO week |
+| `apps/git/scripts/phases.config.json` | **Manual** — label, theme, color, **`shipped[]` (required when that week has commits)** per ISO week |
 | `apps/git/src/data/*.json` | **Generated, gitignored** — sync on `dev` / `build` / `typecheck` (`pnpm git:sync`) |
-| `apps/git/scripts/validate/phases.ts` | **Gate** — `pnpm git:build` fails if commits exist in weeks missing from config |
+| `apps/git/scripts/validate/data.ts` | **Gate** — fails if any phase has `commits > 0` and `shipped` is empty |
+| `apps/git/scripts/validate/phases.ts` | **Gate** — fails if commits exist in ISO weeks missing from config |
 
-**Weekly check (when shipping dashboard-related work or closing a dev week):**
+### CI deploy gate (every `main` push)
 
-1. `pnpm git:sync`
-2. If validate fails, add the missing week block to `phases.config.json` (copy shape from an existing entry).
-3. Commit **`phases.config.json` only** — do not track generated JSON (avoids sync-after-every-commit churn).
+[`.github/workflows/deploy-git.yml`](../../.github/workflows/deploy-git.yml) runs **`pnpm git:build`** (sync → validate → Vite). **No curated phase update → deploy fails.** There is no auto-pass for new ISO weeks.
 
-Sync **cannot** infer phase themes or shipped bullets — only counts. Unconfigured weeks still render with generic fallbacks in dev, but **build is blocked** until config catches up.
+Typical failure after a week of commits on `main`:
 
-App README: [`apps/git/README.md`](../../apps/git/README.md).
+```text
+phases[N].shipped must not be empty when commits > 0
+```
+
+That means sync merged a week (or you added a block without `shipped` bullets) while commits exist — **`phases.config.json` must be updated on `main` before the dashboard can ship.**
+
+Empty configured weeks with **zero** commits → **warn only** (deploy continues). Missing config entry for a week **with** commits → validate **exit 1**.
+
+### Weekly maintainer duty
+
+**Each ISO week that receives commits on `main` needs a hand-written phase block** before the next deploy is allowed. Treat this like a changelog for the Timeline UI — sync cannot infer themes or shipped bullets.
+
+**When closing a dev week or before expecting git.i18nprune.dev to update:**
+
+1. `pnpm git:sync` (or `pnpm git:typecheck` — runs sync + validate)
+2. On failure, edit `apps/git/scripts/phases.config.json`:
+   - **New week** — add a block (`week`, `label`, `theme`, `color`, `shipped[]` with ≥1 bullet)
+   - **Existing week** — ensure `shipped[]` is non-empty if that week has commits
+3. Re-run `pnpm git:sync` until validate passes
+4. Commit **`phases.config.json` only** — never commit generated `src/data/*.json`
+
+Copy shape from the previous week entry. Colors: `teal` | `gray` | `purple` | `coral`.
+
+Sync may inject a **placeholder** phase for unconfigured weeks (`shipped: []`) into generated `phases.json`; **data validate intentionally rejects that** so the portal never ships nameless weeks with activity.
+
+App README: [`apps/git/README.md`](../../apps/git/README.md) · CI map: [`maintainer/systems/ci.md`](../systems/ci.md) § Deploy git.
 
 ---
 
