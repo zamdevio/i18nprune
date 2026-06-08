@@ -1,4 +1,4 @@
-import type { DynamicKeySite } from '@i18nprune/core';
+import type { DynamicKeySite, DynamicSiteGroups } from '@i18nprune/core';
 
 export type LocalesListJsonRow = {
   code: string;
@@ -28,6 +28,7 @@ export type LocalesDynamicJsonPayload = {
   dynamic: {
     count: number;
     sites: DynamicKeySite[];
+    groups: DynamicSiteGroups;
   };
 };
 

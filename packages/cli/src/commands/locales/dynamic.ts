@@ -1,5 +1,5 @@
 import { resolveContext } from '@/shared/context/index.js';
-import { formatListShownOmitted, getDocsUrl } from '@i18nprune/core';
+import { formatListShownOmitted, getDocsUrl, dynamicSiteDetailLines } from '@i18nprune/core';
 import { printCommandSummary } from '@/output/index.js';
 import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
@@ -42,6 +42,13 @@ export async function localesDynamic(run?: RunOptions): Promise<void> {
     dynamic: {
       count: 0,
       sites: [],
+      groups: {
+        mixedConstRuntime: 0,
+        templateInterpolation: 0,
+        nonLiteral: 0,
+        emptyCall: 0,
+        commented: 0,
+      },
     },
   };
   const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'locales-dynamic' });
@@ -109,6 +116,13 @@ export async function localesDynamic(run?: RunOptions): Promise<void> {
         `${String(allSites.length)} dynamic key site(s) · scan ${ctx.paths.srcRoot} · source ${payload.sourceLocaleCode}`,
         r,
       );
+      const { groups } = payload.dynamic;
+      if (allSites.length > 0) {
+        logger.detail(
+          `  · groups: mixed_const_runtime=${String(groups.mixedConstRuntime)} · template_interpolation=${String(groups.templateInterpolation)} · non_literal=${String(groups.nonLiteral)} · empty_call=${String(groups.emptyCall)} · commented=${String(groups.commented)}`,
+          r,
+        );
+      }
       if (allSites.length === 0) {
         logger.detail('  no non-literal key patterns matched configured translation helpers.', r);
       } else {
@@ -118,6 +132,9 @@ export async function localesDynamic(run?: RunOptions): Promise<void> {
               ? `${s.filePath}:${String(s.line)} `
               : '';
           logger.detail(`  · [${s.kind}] ${loc}${s.functionName} — ${s.preview}`, r);
+          for (const line of dynamicSiteDetailLines(s)) {
+            logger.detail(`      ${line}`, r);
+          }
         }
         const omittedSites = allSites.length - payload.dynamic.sites.length;
         if (omittedSites > 0) {
