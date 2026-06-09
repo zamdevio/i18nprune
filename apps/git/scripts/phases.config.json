@@ -94,12 +94,13 @@
   {
     "week": "2026-W24",
     "label": "Week 24 — Extractor fusion",
-    "theme": "Mixed-template extractor hardening (E.1–E.6) and locales dynamic JSON contract",
+    "theme": "Mixed-template extractor hardening (E.1–E.6), locales dynamic JSON contract, dynamic count split (D.1)",
     "color": "purple",
     "shipped": [
       "E.1–E.6 — partitionTemplateHoles, analyzeTemplateCall, dynamicRef, staticPrefix, uncertainPrefixes dedupe",
       "E.2 const-map hardening · E.3 non_literal hints · E.4 lexical safety · E.5 comment parity tests",
-      "locales dynamic — mixed_const_runtime groups and template detail in CLI --json output"
+      "locales dynamic — mixed_const_runtime groups and template detail in CLI --json output",
+      "D.1 — active vs commented dynamic counts (summary dynamic=active, optional commented=M, additive JSON across commands)"
     ]
   }
 ]

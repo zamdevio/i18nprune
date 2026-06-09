@@ -9,7 +9,7 @@
 | Doc | Role |
 |-----|------|
 | [`active-phase.md`](./active-phase.md) | **Current sprint focus** (post-v1: extension) |
-| [`shipped-slices.md`](./shipped-slices.md) | Closed slices — check before re-implementing |
+| [`shipped-slices.md`](./shipped-slices.md) | Closed slices — **ISO week timeline**; check before re-implementing |
 
 Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
@@ -35,6 +35,6 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 ## Lifecycle
 
 1. Scope from the **active plan doc** only — one slice per PR.
-2. Close slices in [`shipped-slices.md`](./shipped-slices.md); fold durable notes into [`systems/`](../systems/).
+2. Close slices in [`shipped-slices.md`](./shipped-slices.md) under the matching **ISO week**; sync [`apps/git/scripts/phases.config.json`](../../apps/git/scripts/phases.config.json); fold durable notes into [`systems/`](../systems/).
 3. Session noise → **`maintainer/temp/`** only.
 4. **Publish / tag:** checklist in [`agents/git.md`](../agents/git.md) (no separate phase file).
