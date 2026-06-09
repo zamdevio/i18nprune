@@ -8,6 +8,8 @@ describe('buildReviewJsonData', () => {
       sourceLocalePath: '/tmp/locales/en.json',
       localesDir: '/tmp/locales',
       dynamicKeySites: 2,
+      dynamicKeySitesActive: 2,
+      dynamicKeySitesCommented: 0,
       sourceLocaleJson: { home: { title: 'Home' } },
       targetLocaleJsonByFile: {
         'ja.json': { home: { title: 'Home' } },
@@ -24,6 +26,8 @@ describe('buildReviewJsonData', () => {
       sourceLocalePath: '/tmp/locales/en.json',
       localesDir: '/tmp/locales',
       dynamicKeySites: 0,
+      dynamicKeySitesActive: 0,
+      dynamicKeySitesCommented: 0,
       sourceLocaleJson: { home: { title: 'Home' } },
       targetLocaleJsonByFile: {
         'ja.json': { home: { title: 'Home' } },

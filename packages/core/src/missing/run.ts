@@ -467,12 +467,12 @@ export function runMissing(
     }
     placeholderLeaves.push(...leaves.map((leaf) => placeholderLeafForTarget(ctx, target, leaf)));
   }
-  const dynamicSites = analysis.dynamicSites.length;
-  if (dynamicSites > 0) {
+  const { dynamicSites: dynamicSitesTotal, dynamicActive, dynamicCommented } = analysis.counts;
+  if (dynamicActive > 0) {
     emitMissingMessage(host, {
       level: 'warn',
-      message: `${String(dynamicSites)} translation call(s) use a non-literal key — missing only adds paths for literal keys seen in the scan; use \`validate\` or \`locales dynamic\` for dynamic call sites.`,
-      data: { dynamicSites },
+      message: `${String(dynamicActive)} translation call(s) use a non-literal key — missing only adds paths for literal keys seen in the scan; use \`validate\` or \`locales dynamic\` for dynamic call sites.`,
+      data: { dynamicSites: dynamicSitesTotal, dynamicSitesActive: dynamicActive, dynamicSitesCommented: dynamicCommented },
     });
   }
   if (sourcePlaceholderLeaves.length > 0) {
@@ -596,7 +596,7 @@ export function runMissing(
     skippedTargets,
   }, basePayload);
   const issues = [
-    ...issuesFromDynamicScanCount(dynamicSites),
+    ...issuesFromDynamicScanCount(dynamicActive),
     ...issuesFromMissingSkippedNotInScan(aggregateSkippedNotInScan),
     ...issuesFromSkippedTargets(skippedTargets),
     ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
@@ -610,7 +610,9 @@ export function runMissing(
     skippedTargets,
     toAdd: aggregatePaths,
     skippedNotInScan: aggregateSkippedNotInScan,
-    dynamicSites,
+    dynamicSites: dynamicSitesTotal,
+    dynamicSitesActive: dynamicActive,
+    dynamicSitesCommented: dynamicCommented,
     keyObservationsCount: analysis.keyObservations.length,
     placeholderLeaves,
   };

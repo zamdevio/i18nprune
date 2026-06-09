@@ -1,6 +1,9 @@
 import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js';
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
+import { buildProjectAnalysisCounts } from './counts.js';
+import { splitDynamicSiteCounts } from '../extractor/dynamic/groups.js';
+import type { DynamicKeySite } from '../types/extractor/dynamic/index.js';
 import { emitCacheDispatchMessages, getOrBuildCachedProjectData } from '../cache/index.js';
 import { resolveCacheRebuildConfig } from '../cache/resolveConfig.js';
 import { listSourceFiles } from '../shared/scanner/files.js';
@@ -32,20 +35,43 @@ function isAnalysisCounts(v: unknown): v is ProjectAnalysisCounts {
   );
 }
 
+function normalizeProjectAnalysisCounts(
+  counts: {
+    keyObservations: number;
+    dynamicSites: number;
+    sourceFilesScanned: number;
+    missingKeys: number;
+    dynamicActive?: number;
+    dynamicCommented?: number;
+  },
+  dynamicSites: readonly DynamicKeySite[],
+): ProjectAnalysisCounts {
+  const split = splitDynamicSiteCounts(dynamicSites);
+  return {
+    keyObservations: counts.keyObservations,
+    dynamicSites: counts.dynamicSites,
+    dynamicActive: counts.dynamicActive ?? split.active,
+    dynamicCommented: counts.dynamicCommented ?? split.commented,
+    sourceFilesScanned: counts.sourceFilesScanned,
+    missingKeys: counts.missingKeys,
+  };
+}
+
 function parseProjectAnalysisCacheData(data: unknown): { ok: true; data: ProjectAnalysisCacheData } | { ok: false } {
   if (!isRecord(data)) return { ok: false };
   if (data.version !== 1) return { ok: false };
   if (!Array.isArray(data.keyObservations) || !Array.isArray(data.dynamicSites)) return { ok: false };
   if (!Array.isArray(data.missingKeys)) return { ok: false };
   if (!isAnalysisCounts(data.counts)) return { ok: false };
+  const dynamicSites = data.dynamicSites as ProjectAnalysisCacheData['dynamicSites'];
   return {
     ok: true,
     data: {
       version: 1,
       keyObservations: data.keyObservations as ProjectAnalysisCacheData['keyObservations'],
-      dynamicSites: data.dynamicSites as ProjectAnalysisCacheData['dynamicSites'],
+      dynamicSites,
       missingKeys: data.missingKeys as string[],
-      counts: data.counts,
+      counts: normalizeProjectAnalysisCounts(data.counts, dynamicSites),
     },
   };
 }
@@ -71,12 +97,12 @@ function scanProjectAnalysis(ctx: CoreContext): ProjectAnalysisCacheData {
     keyObservations,
     dynamicSites,
     missingKeys,
-    counts: {
+    counts: buildProjectAnalysisCounts({
       keyObservations: keyObservations.length,
-      dynamicSites: dynamicSites.length,
+      dynamicSites,
       sourceFilesScanned,
       missingKeys: missingKeys.length,
-    },
+    }),
   };
 }
 

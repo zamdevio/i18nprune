@@ -6,7 +6,12 @@ import type { OperationId, RunEmitter } from '../shared/run/index.js';
 
 export type ProjectAnalysisCounts = {
   keyObservations: number;
+  /** All dynamic inventory rows (includes commented). */
   dynamicSites: number;
+  /** Runtime-relevant dynamic sites (excludes commented). */
+  dynamicActive: number;
+  /** Inactive dynamic sites inside comments. */
+  dynamicCommented: number;
   sourceFilesScanned: number;
   missingKeys: number;
 };

@@ -43,7 +43,14 @@ function analysisWithKeys(keys: string[]): ProjectAnalysis {
     keyObservations: [],
     dynamicSites: [],
     missingKeys: [],
-    counts: { keyObservations: keys.length, dynamicSites: 0, sourceFilesScanned: 1, missingKeys: 0 },
+    counts: {
+      keyObservations: keys.length,
+      dynamicSites: 0,
+      dynamicActive: 0,
+      dynamicCommented: 0,
+      sourceFilesScanned: 1,
+      missingKeys: 0,
+    },
     usage: { resolvedKeys, uncertainPrefixes: new Set(), usedRoots: new Set() },
   };
 }

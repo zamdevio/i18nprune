@@ -20,6 +20,8 @@ export type BuildReviewJsonDataInput = {
   sourceLocalePath: string;
   localesDir: string;
   dynamicKeySites: number;
+  dynamicKeySitesActive: number;
+  dynamicKeySitesCommented: number;
   parity?: ParityPolicy;
   sourceLocaleJson: unknown;
   targetLocaleJsonByFile: Readonly<Record<string, unknown>>;
@@ -77,6 +79,8 @@ export function buildReviewJsonData(input: BuildReviewJsonDataInput): ReviewJson
     sourceLocale: sourceBase,
     localesDir: input.localesDir,
     dynamicKeySites: input.dynamicKeySites,
+    dynamicKeySitesActive: input.dynamicKeySitesActive,
+    dynamicKeySitesCommented: input.dynamicKeySitesCommented,
     locales,
   };
 }

@@ -1,4 +1,5 @@
 import { resolveProjectAnalysis } from '../analysis/index.js';
+import { buildProjectAnalysisCounts } from '../analysis/counts.js';
 import type { ProjectAnalysis } from '../types/analysis/index.js';
 import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js';
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
@@ -24,7 +25,7 @@ function emptyValidatePayload(): ValidateRunResult['payload'] {
   return {
     missing: [],
     count: 0,
-    dynamic: { count: 0 },
+    dynamic: { count: 0, active: 0, commented: 0 },
     keyObservations: { count: 0 },
   };
 }
@@ -81,12 +82,12 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
       keyObservations,
       dynamicSites,
       missingKeys: [],
-      counts: {
+      counts: buildProjectAnalysisCounts({
         keyObservations: keyObservations.length,
-        dynamicSites: dynamicSites.length,
+        dynamicSites,
         sourceFilesScanned: 0,
         missingKeys: 0,
-      },
+      }),
       usage: literalKeyUsageFromObservations(keyObservations),
     };
     return readFailureResult(ctx, err, analysis);
@@ -140,7 +141,7 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
   const issues: Issue[] = [
     ...buildValidateIssues({
       missingCount: data.missing.length,
-      dynamicSiteCount: dynamicSites.length,
+      dynamicSiteCount: data.dynamic.active,
       sourceLocalePath: sourcePath,
     }),
     ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),

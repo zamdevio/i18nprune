@@ -385,6 +385,8 @@ function buildCleanupBatchPayload(
   slices: readonly CleanupLocaleSlice[],
   input: {
     dynamic: number;
+    dynamicActive: number;
+    dynamicCommented: number;
     uncertainPrefixes: string[];
     isTargetMode: boolean;
     targetLocaleCodes: string[];
@@ -408,6 +410,8 @@ function buildCleanupBatchPayload(
     wouldRemove,
     keys,
     dynamic: input.dynamic,
+    dynamicActive: input.dynamicActive,
+    dynamicCommented: input.dynamicCommented,
     uncertainPrefixes: input.uncertainPrefixes,
     ...(input.isTargetMode && !multiTarget && input.targetLocaleCodes[0]
       ? { targetLocale: input.targetLocaleCodes[0] }
@@ -442,6 +446,7 @@ export function runCleanup(
   const eff = resolveReferenceConfig('cleanup', ctx.config);
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'cleanup', runId: host.runId });
   const dynamic = analysis.dynamicSites;
+  const { dynamicSites: dynamicTotal, dynamicActive, dynamicCommented } = analysis.counts;
   const refCtx = buildKeyReferenceContextFromLiteralUsageAndDynamicSites(analysis.usage, dynamic, eff);
 
   const skipStringPresenceCheck = Boolean(opts.skipStringPresenceCheck);
@@ -453,11 +458,11 @@ export function runCleanup(
     });
   }
 
-  if (dynamic.length > 0) {
+  if (dynamicActive > 0) {
     emitCleanupMessage(host, {
       level: 'warn',
-      message: `${String(dynamic.length)} translation call(s) use a non-literal key — cleanup literal-key inference may miss usage; tighten \`reference\` uncertain-key rules or inspect \`i18nprune validate\` / \`locales dynamic\`.`,
-      data: { dynamic: dynamic.length },
+      message: `${String(dynamicActive)} translation call(s) use a non-literal key — cleanup literal-key inference may miss usage; tighten \`reference\` uncertain-key rules or inspect \`i18nprune validate\` / \`locales dynamic\`.`,
+      data: { dynamic: dynamicTotal, dynamicActive, dynamicCommented },
     });
   }
 
@@ -478,7 +483,7 @@ export function runCleanup(
       ...job,
       multi: isMultiTarget,
       analysis,
-      dynamicCount: dynamic.length,
+      dynamicCount: dynamicActive,
       refCtx,
       eff,
       skipStringPresenceCheck,
@@ -508,7 +513,9 @@ export function runCleanup(
   }
 
   const payload = buildCleanupBatchPayload(localeSlices, {
-    dynamic: dynamic.length,
+    dynamic: dynamicTotal,
+    dynamicActive,
+    dynamicCommented,
     uncertainPrefixes: isTargetMode ? [] : refCtx.uncertainPrefixes,
     isTargetMode,
     targetLocaleCodes,
@@ -519,7 +526,7 @@ export function runCleanup(
   const first = localeSlices[0]!;
   const writePlan = mergeCleanupWritePlans(localeSlices.map((slice) => slice.writePlan));
   const issues = [
-    ...issuesFromDynamicScanCount(dynamic.length),
+    ...issuesFromDynamicScanCount(dynamicActive),
     ...issuesFromCleanupUncertainExcluded(
       localeSlices.reduce((sum, slice) => sum + slice.excludedUncertain, 0),
     ),

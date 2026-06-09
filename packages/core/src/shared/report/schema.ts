@@ -33,6 +33,8 @@ export const projectReportDocumentSchema = z.object({
   summary: z.object({
     missingKeysCount: z.number(),
     dynamicSitesCount: z.number(),
+    dynamicSitesActiveCount: z.number().int().nonnegative().optional(),
+    dynamicSitesCommentedCount: z.number().int().nonnegative().optional(),
     keyObservationsCount: z.number(),
     sourceFilesScannedCount: z.number().int().nonnegative().optional(),
     ok: z.boolean(),

@@ -1,5 +1,6 @@
 import type { DynamicKeySite } from '../types/extractor/dynamic/index.js';
 import type { KeyObservation } from '../types/extractor/keySites/index.js';
+import { splitDynamicSiteCounts } from '../extractor/dynamic/groups.js';
 import { computeMissingLiteralKeysFromLeaves, computeMissingLiteralKeysFromResolvedKeys } from './missingLiterals.js';
 import type { TranslationSurfaceLeaf } from '../types/locales/leaves/translationSurface.js';
 
@@ -11,6 +12,8 @@ export type ValidateScanPayload = {
   count: number;
   dynamic: {
     count: number;
+    active: number;
+    commented: number;
   };
   keyObservations: {
     count: number;
@@ -34,11 +37,14 @@ export function buildValidateScanPayload(input: {
       : computeMissingLiteralKeysFromResolvedKeys(input.sourceLocaleJson ?? {}, input.resolvedKeys);
   const ko = input.keyObservations;
   const dyn = input.dynamicSites;
+  const split = splitDynamicSiteCounts(dyn);
   return {
     missing,
     count: ko.length,
     dynamic: {
-      count: dyn.length,
+      count: split.total,
+      active: split.active,
+      commented: split.commented,
     },
     keyObservations: {
       count: ko.length,

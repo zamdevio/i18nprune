@@ -1,4 +1,5 @@
 import { DEFAULT_LIST_TOP } from '../shared/constants/listDisplay.js';
+import { splitDynamicSiteCounts } from '../extractor/dynamic/groups.js';
 import type { DynamicKeySite } from '../types/extractor/dynamic/index.js';
 
 export type BuildValidateHumanViewInput = {
@@ -10,6 +11,7 @@ export type BuildValidateHumanViewInput = {
 
 export type ValidateHumanView = {
   dynamicWarning?: string;
+  dynamicCommentedNote?: string;
   dynamicPreview: string[];
   dynamicHiddenCount: number;
   missingMessage: string;
@@ -21,10 +23,15 @@ export type ValidateHumanView = {
 export function buildValidateHumanView(input: BuildValidateHumanViewInput): ValidateHumanView {
   const missingLimit = input.missingPreviewLimit ?? DEFAULT_LIST_TOP;
   const missingPreview = input.missing.slice(0, missingLimit);
+  const split = splitDynamicSiteCounts(input.dynamicSites);
   return {
     dynamicWarning:
-      input.dynamicSites.length > 0
-        ? `${String(input.dynamicSites.length)} translation call(s) use a non-literal key — not validated as fixed literal paths. Run \`i18nprune locales dynamic\` for file:line samples.`
+      split.active > 0
+        ? `${String(split.active)} translation call(s) use a non-literal key — not validated as fixed literal paths. Run \`i18nprune locales dynamic\` for file:line samples.`
+        : undefined,
+    dynamicCommentedNote:
+      split.commented > 0
+        ? `(+ ${String(split.commented)} commented call site(s) omitted from runtime scan — use \`i18nprune locales dynamic --full\`)`
         : undefined,
     dynamicPreview: [],
     dynamicHiddenCount: 0,

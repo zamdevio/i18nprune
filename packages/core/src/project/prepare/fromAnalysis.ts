@@ -102,6 +102,8 @@ export function buildReportDocumentFromAnalysis(
     summary: {
       missingKeysCount: counts.missingKeys,
       dynamicSitesCount: counts.dynamicSites,
+      dynamicSitesActiveCount: counts.dynamicActive,
+      dynamicSitesCommentedCount: counts.dynamicCommented,
       keyObservationsCount: counts.keyObservations,
       sourceFilesScannedCount: counts.sourceFilesScanned,
       ok: counts.missingKeys === 0,
@@ -113,7 +115,7 @@ export function buildReportDocumentFromAnalysis(
     },
   };
 
-  return { document, dynamicSitesCount: dynamicSites.length };
+  return { document, dynamicSitesCount: counts.dynamicActive };
 }
 
 /** Resolves analysis once (respecting cache policy via {@link CoreContext}). */

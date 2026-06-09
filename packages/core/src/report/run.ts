@@ -8,6 +8,7 @@ import type {
 import type { Issue } from '../types/json/envelope/index.js';
 import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
+import { splitDynamicSiteCounts } from '../extractor/dynamic/groups.js';
 import { buildReportDocument } from './build.js';
 
 /**
@@ -47,9 +48,16 @@ export function runReport(
 
   if (opts.source === 'file' && opts.preloadedDocument !== undefined) {
     document = opts.preloadedDocument as Record<string, unknown>;
-    const details = document.details as Record<string, unknown> | undefined;
-    const dynamicSitesRaw = details?.dynamicSites as unknown[] | undefined;
-    dynamicSitesCount = Array.isArray(dynamicSitesRaw) ? dynamicSitesRaw.length : 0;
+    const summary = document.summary as Record<string, unknown> | undefined;
+    if (typeof summary?.dynamicSitesActiveCount === 'number') {
+      dynamicSitesCount = summary.dynamicSitesActiveCount;
+    } else {
+      const details = document.details as Record<string, unknown> | undefined;
+      const dynamicSitesRaw = details?.dynamicSites;
+      dynamicSitesCount = Array.isArray(dynamicSitesRaw)
+        ? splitDynamicSiteCounts(dynamicSitesRaw as Parameters<typeof splitDynamicSiteCounts>[0]).active
+        : 0;
+    }
   } else {
     const built = buildReportDocument(ctx, {
       environment: host.environment,

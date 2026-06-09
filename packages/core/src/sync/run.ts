@@ -184,13 +184,17 @@ export function emitSyncHumanMessages(
       message: `locale file(s) not found (skipped): ${result.missingLocaleCodes.map((m) => `${m}.json`).join(', ')}`,
     });
   }
-  if (result.dynamicSites.length > 0) {
+  if (result.dynamicActive > 0) {
     emitRunMessage(host.emit, {
       op: 'sync',
       runId: host.runId,
       level: 'warn',
-      message: `${String(result.dynamicSites.length)} translation call(s) use a non-literal key — sync only aligns locale JSON shapes; computed keys from code are not merged or enumerated.`,
-      data: { dynamicSites: result.dynamicSites.length },
+      message: `${String(result.dynamicActive)} translation call(s) use a non-literal key — sync only aligns locale JSON shapes; computed keys from code are not merged or enumerated.`,
+      data: {
+        dynamicKeySites: result.dynamicSites.length,
+        dynamicKeySitesActive: result.dynamicActive,
+        dynamicKeySitesCommented: result.dynamicCommented,
+      },
     });
   }
   if (result.sourcePlaceholderLeaves.length > 0) {
@@ -229,7 +233,7 @@ export function emitSyncHumanMessages(
     op: 'sync',
     runId: host.runId,
     level: 'info',
-    message: `${String(result.fileLines.length)} target file(s) · ${String(result.dynamicSites.length)} dynamic key site(s)`,
+    message: `${String(result.fileLines.length)} target file(s) · ${String(result.dynamicActive)} dynamic key site(s)`,
   });
   const changed = result.fileLines.filter((f) => f.changed).length;
   const verb = input.dryRun ? 'Would change' : 'Updated';
@@ -262,7 +266,7 @@ export function emitSyncHumanMessages(
       message: omittedLine,
     });
   }
-  if (result.dynamicSites.length > 0) {
+  if (result.dynamicActive > 0) {
     emitRunMessage(host.emit, {
       op: 'sync',
       runId: host.runId,
@@ -323,15 +327,16 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'sync', runId: host.runId });
   const observations = analysis.keyObservations;
   const dynamicSites = analysis.dynamicSites;
+  const { dynamicActive, dynamicCommented } = analysis.counts;
   const schemaPaths = analysis.usage.resolvedKeys;
   const eff = resolveReferenceConfig('sync', ctx.config);
   const refCtx = buildKeyReferenceContextFromReportDetails(observations, dynamicSites, eff);
   host.emitProgress({
     type: 'run.progress.sync',
     phase: 'scan_dynamic_sites',
-    current: dynamicSites.length,
-    total: dynamicSites.length,
-    label: `${String(dynamicSites.length)} dynamic key site(s)`,
+    current: dynamicActive,
+    total: dynamicActive,
+    label: `${String(dynamicActive)} dynamic key site(s)`,
   });
 
   const sourcePath = ctx.paths.sourceLocale;
@@ -491,13 +496,15 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     targetFiles: targets.length,
     writtenFiles: updated,
     dynamicKeySites: dynamicSites.length,
+    dynamicKeySitesActive: dynamicActive,
+    dynamicKeySitesCommented: dynamicCommented,
     dryRun: Boolean(opts.dryRun),
     files: fileLines,
     localeMetadataReports,
   });
 
   const issues = [
-    ...issuesFromDynamicScanCount(dynamicSites.length),
+    ...issuesFromDynamicScanCount(dynamicActive),
     ...issuesFromSyncMissingLocaleFiles(missingLocaleCodes),
     ...issueFromMetadataFlagConflict(modeDecision.conflict),
     ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
@@ -512,6 +519,8 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     targets: targets.map((s) => s.reportKey),
     updated,
     dynamicSites,
+    dynamicActive,
+    dynamicCommented,
     keyObservationsCount: observations.length,
     missingLocaleCodes,
     humanLeafSummaryByLocaleFile,

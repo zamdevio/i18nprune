@@ -22,6 +22,8 @@ export type DynamicJsonPayload = {
   shown: number;
   dynamic: {
     count: number;
+    active: number;
+    commented: number;
     sites: DynamicKeySite[];
     groups: DynamicSiteGroups;
   };

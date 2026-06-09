@@ -51,6 +51,8 @@ export function localReviewData(session: ParsedProjectUpload) {
       sourceLocalePath,
       localesDir: snapshot.extraction.localesDir,
       dynamicKeySites: snapshot.extraction.dynamicSitesCount,
+      dynamicKeySitesActive: snapshot.extraction.dynamicSitesCount,
+      dynamicKeySitesCommented: 0,
       sourceLocaleJson: snapshot.sourceLocaleJson,
       targetLocaleJsonByFile,
     }),

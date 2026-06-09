@@ -153,6 +153,8 @@ export type GenerateJsonPayload = {
   force: boolean;
   targets: string[];
   dynamicKeySites: number;
+  dynamicKeySitesActive: number;
+  dynamicKeySitesCommented: number;
   leavesProcessed: number;
   targetResults: GenerateTargetJsonRow[];
   /** Present when at least one target was written from a partial run (`translate.policy.onIncompleteRun`). */

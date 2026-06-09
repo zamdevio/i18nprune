@@ -469,7 +469,15 @@ export type {
 
 export * as localesDynamic from './namespaces/localesDynamic.js';
 export { runDynamic } from './namespaces/localesDynamic.js';
-export { dynamicSiteDetailLines } from './namespaces/extractor.js';
+export {
+  dynamicSiteDetailLines,
+  groupDynamicKeySites,
+  isCommentedDynamicSite,
+  splitDynamicSiteCounts,
+  dynamicSummaryCountFields,
+} from './namespaces/extractor.js';
+export type { DynamicSiteGroups, DynamicSiteCountSplit } from './namespaces/extractor.js';
+export { buildProjectAnalysisCounts } from './analysis/counts.js';
 export type {
   DynamicRunOptions,
   DynamicHostHooks,

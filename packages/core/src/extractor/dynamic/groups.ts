@@ -1,5 +1,24 @@
 import type { DynamicKeySite } from '../../types/extractor/dynamic/index.js';
-import type { DynamicSiteGroups } from '../../types/extractor/dynamic/groups.js';
+import type { DynamicSiteCountSplit, DynamicSiteGroups } from '../../types/extractor/dynamic/groups.js';
+
+export function isCommentedDynamicSite(site: DynamicKeySite): boolean {
+  return site.kind === 'commented' || site.isCommented === true;
+}
+
+/** Active vs commented totals for command summaries and analysis counts. */
+export function splitDynamicSiteCounts(sites: readonly DynamicKeySite[]): DynamicSiteCountSplit {
+  const groups = groupDynamicKeySites(sites);
+  const commented = groups.commented;
+  const total = sites.length;
+  return { total, active: total - commented, commented };
+}
+
+/** `summary: dynamic=N · commented=M` fields (`commented` omitted when zero). */
+export function dynamicSummaryCountFields(split: DynamicSiteCountSplit): Record<string, number> {
+  const out: Record<string, number> = { dynamic: split.active };
+  if (split.commented > 0) out.commented = split.commented;
+  return out;
+}
 
 /** Roll-up counts for `locales dynamic` JSON / CLI grouping (E.6c). */
 export function groupDynamicKeySites(sites: readonly DynamicKeySite[]): DynamicSiteGroups {
@@ -11,7 +30,7 @@ export function groupDynamicKeySites(sites: readonly DynamicKeySite[]): DynamicS
     commented: 0,
   };
   for (const site of sites) {
-    if (site.kind === 'commented') {
+    if (isCommentedDynamicSite(site)) {
       groups.commented += 1;
       continue;
     }
@@ -31,4 +50,4 @@ export function groupDynamicKeySites(sites: readonly DynamicKeySite[]): DynamicS
   return groups;
 }
 
-export type { DynamicSiteGroups } from '../../types/extractor/dynamic/groups.js';
+export type { DynamicSiteGroups, DynamicSiteCountSplit } from '../../types/extractor/dynamic/groups.js';

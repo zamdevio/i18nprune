@@ -29,6 +29,8 @@ export type CleanupJsonOutput = {
   wouldRemove: number;
   keys: string[];
   dynamic: number;
+  dynamicActive: number;
+  dynamicCommented: number;
   uncertainPrefixes: string[];
   /** Single target locale when `--target` resolves to one code. */
   targetLocale?: string;

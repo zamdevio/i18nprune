@@ -973,6 +973,8 @@ export async function runGenerate(
     force: Boolean(opts.force),
     targets: targets.slice(),
     dynamicKeySites: opts.dynamicKeySites,
+    dynamicKeySitesActive: analysis.counts.dynamicActive,
+    dynamicKeySitesCommented: analysis.counts.dynamicCommented,
     leavesProcessed: totalLeavesProcessed,
     targetResults,
     ...(generatePayloadPartial

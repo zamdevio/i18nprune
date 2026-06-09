@@ -6,3 +6,5 @@ export type DynamicSiteGroups = {
   emptyCall: number;
   commented: number;
 };
+
+export type { DynamicSiteCountSplit } from './counts.js';

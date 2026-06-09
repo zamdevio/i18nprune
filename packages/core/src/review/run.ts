@@ -124,7 +124,8 @@ export function runReview(
   host: ReviewHostHooks,
 ): ReviewRunResult {
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'review', runId: host.runId });
-  const dynamicKeySites = analysis.dynamicSites.length;
+  const { dynamicSites: dynamicKeySites, dynamicActive: dynamicKeySitesActive, dynamicCommented: dynamicKeySitesCommented } =
+    analysis.counts;
   const layout = resolveLocalesLayoutFromContext(ctx);
   const sourcePath = ctx.paths.sourceLocale;
   const sourceCode = sourceLocaleCodeFromContext(ctx);
@@ -172,6 +173,8 @@ export function runReview(
     sourceLocalePath: sourcePath,
     localesDir: ctx.paths.localesDir,
     dynamicKeySites,
+    dynamicKeySitesActive,
+    dynamicKeySitesCommented,
     parity: ctx.config.policies?.parity,
     sourceLocaleJson: readLocaleJsonFromContextSync(ctx, sourcePath),
     targetLocaleJsonByFile,
@@ -202,11 +205,11 @@ export function runReview(
     message:
       'Reads plain string leaves and structured `{ value, status?, confidence?, needsReview?, source? }` terminals; nested objects without `value` are traversed.',
   });
-  if (dynamicKeySites > 0) {
+  if (dynamicKeySitesActive > 0) {
     emitReviewMessage(host, {
       level: 'warn',
-      message: `${String(dynamicKeySites)} translation call(s) use a non-literal key — run \`i18nprune validate\` or \`i18nprune locales dynamic\` for file:line samples.`,
-      data: { dynamicKeySites },
+      message: `${String(dynamicKeySitesActive)} translation call(s) use a non-literal key — run \`i18nprune validate\` or \`i18nprune locales dynamic\` for file:line samples.`,
+      data: { dynamicKeySites, dynamicKeySitesActive, dynamicKeySitesCommented },
     });
   }
   const groupedByLocale = new Map<string, { files: string[]; stats: ReviewLocaleStats[] }>();
@@ -287,7 +290,7 @@ export function runReview(
     payload: finalPayload,
     keyObservationsCount: analysis.keyObservations.length,
     issues: [
-      ...issuesFromDynamicScanCount(dynamicKeySites),
+      ...issuesFromDynamicScanCount(dynamicKeySitesActive),
       ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
       ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),
     ],

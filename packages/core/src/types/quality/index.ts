@@ -12,6 +12,8 @@ export type QualityJsonData = {
   total: number;
   perFile: Record<string, number>;
   dynamicKeySites: number;
+  dynamicKeySitesActive: number;
+  dynamicKeySitesCommented: number;
   sourceLocale: string;
   localesDir: string;
   localeCount: number;

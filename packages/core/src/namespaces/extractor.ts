@@ -26,7 +26,12 @@ export {
   isJavascriptLikePath,
   JAVASCRIPT_LIKE_EXTENSIONS,
   dynamicSiteDetailLines,
+  groupDynamicKeySites,
+  isCommentedDynamicSite,
+  splitDynamicSiteCounts,
+  dynamicSummaryCountFields,
 } from '../extractor/dynamic/index.js';
+export type { DynamicSiteGroups, DynamicSiteCountSplit } from '../extractor/dynamic/index.js';
 
 export { lineNumberAtIndex, scanKeyObservations, resolvedKeysFromObservations } from '../extractor/keySites/index.js';
 export { scanProjectKeyObservations } from '../extractor/keySites/index.js';

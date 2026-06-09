@@ -52,6 +52,8 @@ export function buildReportDocument(
     summary: {
       missingKeysCount: counts.missingKeys,
       dynamicSitesCount: counts.dynamicSites,
+      dynamicSitesActiveCount: counts.dynamicActive,
+      dynamicSitesCommentedCount: counts.dynamicCommented,
       keyObservationsCount: counts.keyObservations,
       sourceFilesScannedCount: counts.sourceFilesScanned,
       ok: counts.missingKeys === 0,
@@ -63,5 +65,5 @@ export function buildReportDocument(
     },
   };
 
-  return { document, dynamicSitesCount: dynamicSites.length };
+  return { document, dynamicSitesCount: counts.dynamicActive };
 }

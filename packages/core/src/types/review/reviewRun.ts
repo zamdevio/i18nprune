@@ -32,6 +32,8 @@ export type ReviewJsonData = {
   sourceLocale: string;
   localesDir: string;
   dynamicKeySites: number;
+  dynamicKeySitesActive: number;
+  dynamicKeySitesCommented: number;
   locales: Record<string, ReviewLocaleStats>;
   suggestions?: LocaleSuggestion[];
 };

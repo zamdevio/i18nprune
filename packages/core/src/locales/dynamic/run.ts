@@ -1,4 +1,5 @@
 import { resolveProjectAnalysis } from '../../analysis/index.js';
+import { splitDynamicSiteCounts } from '../../extractor/dynamic/groups.js';
 import { ISSUE_SCAN_DYNAMIC_KEY_SITES } from '../../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../../shared/docs/issueAnchors.js';
 import { DEFAULT_LIST_TOP } from '../../shared/constants/listDisplay.js';
@@ -47,6 +48,7 @@ export function runDynamic(
   const shownSites = applyListWindow(allSites, window);
 
   const sourceLocaleCode = sourceLocaleCodeFromContext(ctx);
+  const split = splitDynamicSiteCounts(allSites);
 
   const payload: DynamicJsonPayload = {
     kind: 'locales-dynamic',
@@ -56,23 +58,29 @@ export function runDynamic(
     full: window.full,
     shown: shownSites.length,
     dynamic: {
-      count: allSites.length,
+      count: split.total,
+      active: split.active,
+      commented: split.commented,
       sites: shownSites,
       groups: groupDynamicKeySites(allSites),
     },
   };
 
-  const issues = buildDynamicIssues(allSites.length);
+  const issues = buildDynamicIssues(split.active, split.commented);
   return { payload, issues, allSites };
 }
 
-function buildDynamicIssues(dynamicCount: number): Issue[] {
-  if (dynamicCount === 0) return [];
+function buildDynamicIssues(activeCount: number, commentedCount: number): Issue[] {
+  if (activeCount <= 0 && commentedCount <= 0) return [];
+  const parts =
+    commentedCount > 0
+      ? `${String(activeCount)} active + ${String(commentedCount)} commented`
+      : String(activeCount);
   return [
     {
       severity: 'warning',
       code: ISSUE_SCAN_DYNAMIC_KEY_SITES,
-      message: `${String(dynamicCount)} translation call(s) use a non-literal key — static analysis cannot enumerate computed keys as fixed paths.`,
+      message: `${parts} translation call(s) use a non-literal key — static analysis cannot enumerate computed keys as fixed paths.`,
       docPath: issueCodeRepoDocPathForIssueCode(ISSUE_SCAN_DYNAMIC_KEY_SITES),
     },
   ];

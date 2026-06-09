@@ -20,6 +20,8 @@ export type SyncJsonOutput = {
   targetFiles: number;
   writtenFiles: number;
   dynamicKeySites: number;
+  dynamicKeySitesActive: number;
+  dynamicKeySitesCommented: number;
   dryRun: boolean;
   files: SyncFileLine[];
   localeMetadataReports?: Record<string, LocaleMetadataReport>;
@@ -53,6 +55,8 @@ export type SyncRunResult = {
   targets: string[];
   updated: number;
   dynamicSites: DynamicKeySite[];
+  dynamicActive: number;
+  dynamicCommented: number;
   keyObservationsCount: number;
   /** Requested locale codes with no matching file under `localesDir` (human-mode warning). */
   missingLocaleCodes: string[];

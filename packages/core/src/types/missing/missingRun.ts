@@ -110,6 +110,8 @@ export type MissingRunResult = {
   toAdd: string[];
   skippedNotInScan: string[];
   dynamicSites: number;
+  dynamicSitesActive: number;
+  dynamicSitesCommented: number;
   keyObservationsCount: number;
   placeholderLeaves: MissingPlaceholderLeaf[];
 };

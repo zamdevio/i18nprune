@@ -3,6 +3,8 @@ import { PROJECT_REPORT_KIND, PROJECT_REPORT_SCHEMA_VERSION } from '../constants
 export type ProjectReportSummary = {
   missingKeysCount: number;
   dynamicSitesCount: number;
+  dynamicSitesActiveCount?: number;
+  dynamicSitesCommentedCount?: number;
   keyObservationsCount: number;
   /**
    * Source files scanned under `project.srcRoot` (same scope as key-site and dynamic scans).

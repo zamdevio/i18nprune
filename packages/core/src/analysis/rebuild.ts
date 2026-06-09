@@ -6,6 +6,7 @@ import { readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.
 import { invalidateLocaleReadCacheForLocaleCode } from '../shared/locales/read/index.js';
 import { sourceLocaleCodeFromContext } from '../shared/locales/targets/context.js';
 import { computeMissingLiteralKeysFromLeaves } from '../validate/missingLiterals.js';
+import { buildProjectAnalysisCounts } from './counts.js';
 import type { ClassifiedSrcDelta } from '../types/cache/index.js';
 import type { ProjectAnalysisCacheData } from '../types/analysis/index.js';
 import type { CoreContext } from '../types/context/index.js';
@@ -104,12 +105,12 @@ export function patchProjectAnalysisFromSrcDelta(
     keyObservations,
     dynamicSites,
     missingKeys,
-    counts: {
+    counts: buildProjectAnalysisCounts({
       keyObservations: keyObservations.length,
-      dynamicSites: dynamicSites.length,
+      dynamicSites,
       sourceFilesScanned: Math.max(0, sourceFilesScanned),
       missingKeys: missingKeys.length,
-    },
+    }),
   };
 }
 

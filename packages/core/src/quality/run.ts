@@ -54,7 +54,8 @@ export function runQuality(
   host: QualityHostHooks,
 ): QualityRunResult {
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'quality', runId: host.runId });
-  const dynamicKeySites = analysis.dynamicSites.length;
+  const { dynamicSites: dynamicKeySites, dynamicActive: dynamicKeySitesActive, dynamicCommented: dynamicKeySitesCommented } =
+    analysis.counts;
   const sourcePath = ctx.paths.sourceLocale;
   const sourceCode = sourceLocaleCodeFromContext(ctx);
   const placeholderValues = sourcePlaceholderValues(ctx.config.missing?.placeholder);
@@ -100,6 +101,8 @@ export function runQuality(
     total,
     perFile,
     dynamicKeySites,
+    dynamicKeySitesActive,
+    dynamicKeySitesCommented,
     sourceLocale: sourceCode,
     localesDir: ctx.paths.localesDir,
     localeCount: rows.length,
@@ -151,13 +154,13 @@ export function runQuality(
     message: `Source-identical leaves (target value still equals source locale at path): ${String(total)}`,
     data: { total },
   });
-  if (dynamicKeySites > 0) {
+  if (dynamicKeySitesActive > 0) {
     emitRunMessage(host.emit, {
       op: 'quality',
       runId: host.runId,
       level: 'warn',
-      message: `${String(dynamicKeySites)} translation call(s) use a non-literal key — separate from the source-identical parity count above; use \`validate\` or \`locales dynamic\` for samples.`,
-      data: { dynamicKeySites },
+      message: `${String(dynamicKeySitesActive)} translation call(s) use a non-literal key — separate from the source-identical parity count above; use \`validate\` or \`locales dynamic\` for samples.`,
+      data: { dynamicKeySites, dynamicKeySitesActive, dynamicKeySitesCommented },
     });
   }
   if (sourcePlaceholderLeaves.length > 0) {
@@ -195,7 +198,7 @@ export function runQuality(
   }
 
   const issues = [
-    ...issuesFromDynamicScanCount(dynamicKeySites),
+    ...issuesFromDynamicScanCount(dynamicKeySitesActive),
     ...issuesFromQualityEnglishIdentical(total),
     ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
     ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),

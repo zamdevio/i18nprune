@@ -4,6 +4,8 @@ export function buildQualityJsonData(input: {
   total: number;
   perFile: Record<string, number>;
   dynamicKeySites: number;
+  dynamicKeySitesActive: number;
+  dynamicKeySitesCommented: number;
   sourceLocale: string;
   localesDir: string;
   localeCount: number;
@@ -14,6 +16,8 @@ export function buildQualityJsonData(input: {
     total: input.total,
     perFile: input.perFile,
     dynamicKeySites: input.dynamicKeySites,
+    dynamicKeySitesActive: input.dynamicKeySitesActive,
+    dynamicKeySitesCommented: input.dynamicKeySitesCommented,
     sourceLocale: input.sourceLocale,
     localesDir: input.localesDir,
     localeCount: input.localeCount,

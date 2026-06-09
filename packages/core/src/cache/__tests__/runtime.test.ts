@@ -313,14 +313,28 @@ describe('core cache runtime', () => {
       keyObservations: unknown[];
       dynamicSites: unknown[];
       missingKeys: string[];
-      counts: { keyObservations: number; dynamicSites: number; sourceFilesScanned: number; missingKeys: number };
+      counts: {
+        keyObservations: number;
+        dynamicSites: number;
+        dynamicActive: number;
+        dynamicCommented: number;
+        sourceFilesScanned: number;
+        missingKeys: number;
+      };
     };
     const payload: Payload = {
       version: 1,
       keyObservations: [{ path: 'app.title' }],
       dynamicSites: [],
       missingKeys: [],
-      counts: { keyObservations: 1, dynamicSites: 0, sourceFilesScanned: 1, missingKeys: 0 },
+      counts: {
+        keyObservations: 1,
+        dynamicSites: 0,
+        dynamicActive: 0,
+        dynamicCommented: 0,
+        sourceFilesScanned: 1,
+        missingKeys: 0,
+      },
     };
     const input: CachedProjectInput<Payload> = {
       state,

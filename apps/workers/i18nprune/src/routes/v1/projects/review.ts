@@ -35,6 +35,8 @@ export function reviewRoute(app: Hono<WorkerEnv>): void {
       sourceLocalePath,
       localesDir: project.snapshot.extraction.localesDir,
       dynamicKeySites: project.snapshot.extraction.dynamicSitesCount,
+      dynamicKeySitesActive: project.snapshot.extraction.dynamicSitesCount,
+      dynamicKeySitesCommented: 0,
       sourceLocaleJson: project.snapshot.sourceLocaleJson,
       targetLocaleJsonByFile,
     });

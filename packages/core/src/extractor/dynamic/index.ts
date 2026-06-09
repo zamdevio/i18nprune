@@ -23,6 +23,13 @@ export {
 export { hasDynamicProviderForPath, findDynamicKeySitesForFile } from './providers/index.js';
 export { analyzeDynamicKeysFromSourceText, scanProjectDynamicKeySites } from './orchestrate.js';
 export { dynamicSiteDetailLines } from './formatSiteDetail.js';
+export {
+  groupDynamicKeySites,
+  isCommentedDynamicSite,
+  splitDynamicSiteCounts,
+  dynamicSummaryCountFields,
+} from './groups.js';
+export type { DynamicSiteGroups, DynamicSiteCountSplit } from './groups.js';
 export type { ScanProjectDynamicKeySitesInput } from '../../types/extractor/dynamic/orchestrate.js';
 
 import type { DynamicKeySite } from '../../types/extractor/dynamic/index.js';

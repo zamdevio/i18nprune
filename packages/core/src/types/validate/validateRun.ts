@@ -8,7 +8,7 @@ import type { LocaleSuggestion } from '../suggestions/index.js';
 export type ValidateJsonPayload = {
   missing: string[];
   count: number;
-  dynamic: { count: number };
+  dynamic: { count: number; active: number; commented: number };
   keyObservations: { count: number };
   /** Cross-op next-step hints (additive). */
   suggestions?: LocaleSuggestion[];

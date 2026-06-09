@@ -37,7 +37,7 @@ describe('buildValidateScanPayload', () => {
       keyObservations,
       dynamicSites,
     });
-    expect(payload.dynamic).toEqual({ count: 250 });
+    expect(payload.dynamic).toEqual({ count: 250, active: 250, commented: 0 });
     expect(payload.keyObservations).toEqual({ count: 400 });
     expect(payload.count).toBe(400);
   });
