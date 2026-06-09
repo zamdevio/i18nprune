@@ -125,6 +125,9 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
     if (humanView.dynamicWarning) {
       logger.warn(humanView.dynamicWarning, ctx.run);
     }
+    if (humanView.dynamicCommentedNote) {
+      logger.detail(humanView.dynamicCommentedNote, ctx.run);
+    }
     if (readFailed) {
       const m = envelope.issues.find((i) => i.code === ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED)?.message;
       if (m) logger.warn(m, ctx.run);
@@ -147,7 +150,10 @@ export async function validate(_opts: ValidateOptions): Promise<void> {
         durationMs: wall.elapsedMs(),
         counts: {
           missing: envelope.data.missing.length,
-          dynamic: fullDynamicSites.length,
+          dynamic: envelope.data.dynamic.active,
+          ...(envelope.data.dynamic.commented > 0
+            ? { commented: envelope.data.dynamic.commented }
+            : {}),
           keyObservations: fullKeyObservations.length,
         },
         issues: envelope.issues,

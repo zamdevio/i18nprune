@@ -98,7 +98,11 @@ export async function doctor(opts: DoctorOptions): Promise<void> {
     if (!readinessIssues) {
       const coreCtx = createCliCoreContext(ctx);
       const analysis = resolveProjectAnalysis(coreCtx, { emit: createCliRunEmitter(run), op: 'doctor', runId });
-      baseline = { dynamic: analysis.dynamicSites.length, keyObservations: analysis.keyObservations.length };
+      baseline = {
+        dynamic: analysis.counts.dynamicActive,
+        ...(analysis.counts.dynamicCommented > 0 ? { commented: analysis.counts.dynamicCommented } : {}),
+        keyObservations: analysis.keyObservations.length,
+      };
     }
     const patchingAnalysis = await analyzePatchingState({
       command: 'sync',

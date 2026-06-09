@@ -22,7 +22,7 @@ export function emptyValidateData(): ValidateJsonOutput {
   return {
     missing: [],
     count: 0,
-    dynamic: { count: 0 },
+    dynamic: { count: 0, active: 0, commented: 0 },
     keyObservations: { count: 0 },
   };
 }
@@ -130,7 +130,10 @@ export function runValidate(
       issueCount: envelope.issues.length,
       counts: {
         missing: envelope.data.missing.length,
-        dynamic: envelope.data.dynamic.count,
+        dynamic: envelope.data.dynamic.active,
+        ...(envelope.data.dynamic.commented > 0
+          ? { commented: envelope.data.dynamic.commented }
+          : {}),
         keyObservations: envelope.data.keyObservations.count,
       },
     });
@@ -159,7 +162,10 @@ export function runValidate(
       issueCount: envelope.issues.length,
       counts: {
         missing: envelope.data.missing.length,
-        dynamic: envelope.data.dynamic.count,
+        dynamic: envelope.data.dynamic.active,
+        ...(envelope.data.dynamic.commented > 0
+          ? { commented: envelope.data.dynamic.commented }
+          : {}),
         keyObservations: envelope.data.keyObservations.count,
       },
     });

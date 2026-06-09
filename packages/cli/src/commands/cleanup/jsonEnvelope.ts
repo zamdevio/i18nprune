@@ -33,6 +33,8 @@ export function emptyCleanupPayload(): CleanupJsonOutput {
     wouldRemove: 0,
     keys: [],
     dynamic: 0,
+    dynamicActive: 0,
+    dynamicCommented: 0,
     uncertainPrefixes: [],
   };
 }
@@ -71,7 +73,11 @@ export function executeCore(
       at: nowMs(),
       ok: envelope.ok,
       issueCount: envelope.issues.length,
-      counts: { wouldRemove: envelope.data.wouldRemove, dynamic: envelope.data.dynamic },
+      counts: {
+        wouldRemove: envelope.data.wouldRemove,
+        dynamic: envelope.data.dynamicActive,
+        ...(envelope.data.dynamicCommented > 0 ? { commented: envelope.data.dynamicCommented } : {}),
+      },
     });
     return { ...out, envelope };
   } catch (err) {

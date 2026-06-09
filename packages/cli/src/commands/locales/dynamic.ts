@@ -41,6 +41,8 @@ export async function localesDynamic(run?: RunOptions): Promise<void> {
     shown: 0,
     dynamic: {
       count: 0,
+      active: 0,
+      commented: 0,
       sites: [],
       groups: {
         mixedConstRuntime: 0,
@@ -106,16 +108,23 @@ export async function localesDynamic(run?: RunOptions): Promise<void> {
     }
 
     if (canPrintInfo(r)) {
-      if (allSites.length > 0) {
+      const { active, commented } = payload.dynamic;
+      if (active > 0) {
         logger.warn(
-          `${String(allSites.length)} translation call(s) use a non-literal key — listing callsites below (heuristic scan).`,
+          `${String(active)} translation call(s) use a non-literal key — listing callsites below (heuristic scan).`,
           r,
         );
       }
       logger.info(
-        `${String(allSites.length)} dynamic key site(s) · scan ${ctx.paths.srcRoot} · source ${payload.sourceLocaleCode}`,
+        `${String(active)} dynamic key site(s) · scan ${ctx.paths.srcRoot} · source ${payload.sourceLocaleCode}`,
         r,
       );
+      if (commented > 0) {
+        logger.detail(
+          `(+ ${String(commented)} commented call site(s) omitted from runtime scan — use \`locales dynamic --full\`)`,
+          r,
+        );
+      }
       const { groups } = payload.dynamic;
       if (allSites.length > 0) {
         logger.detail(
@@ -155,7 +164,11 @@ export async function localesDynamic(run?: RunOptions): Promise<void> {
         command: 'locales dynamic',
         ok: true,
         durationMs: wall.elapsedMs(),
-        counts: { dynamic: allSites.length, keyObservations: result.payload.shown },
+        counts: {
+          dynamic: payload.dynamic.active,
+          ...(payload.dynamic.commented > 0 ? { commented: payload.dynamic.commented } : {}),
+          keyObservations: result.payload.shown,
+        },
         issues: summaryIssues,
       },
       ctx,

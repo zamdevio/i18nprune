@@ -2,6 +2,8 @@
   "data": {
     "dryRun": true,
     "dynamicKeySites": 3,
+    "dynamicKeySitesActive": 3,
+    "dynamicKeySitesCommented": 0,
     "files": [
       {
         "changed": false,

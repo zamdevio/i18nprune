@@ -2,6 +2,8 @@
   "data": {
     "count": 16,
     "dynamic": {
+      "active": 3,
+      "commented": 0,
       "count": 3
     },
     "keyObservations": {

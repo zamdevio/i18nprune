@@ -23,6 +23,8 @@ export function emptyReviewPayload(ctx: Context): ReviewJsonData {
     sourceLocale: '',
     localesDir: ctx.paths.localesDir,
     dynamicKeySites: 0,
+    dynamicKeySitesActive: 0,
+    dynamicKeySitesCommented: 0,
     locales: {},
   };
 }
@@ -62,7 +64,13 @@ export function runReviewJsonEnvelope(
       at: nowMs(),
       ok: result.envelope.ok,
       issueCount: result.envelope.issues.length,
-      counts: { locales: Object.keys(result.payload.locales).length, dynamicKeySites: result.payload.dynamicKeySites },
+      counts: {
+        locales: Object.keys(result.payload.locales).length,
+        dynamicKeySites: result.payload.dynamicKeySitesActive,
+        ...(result.payload.dynamicKeySitesCommented > 0
+          ? { commented: result.payload.dynamicKeySitesCommented }
+          : {}),
+      },
     });
     return { envelope: result.envelope, result };
   } catch (err) {

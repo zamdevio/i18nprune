@@ -21,6 +21,8 @@ export function emptySyncPayload(ctx: Context, opts: { dryRun?: boolean }): Sync
     targetFiles: 0,
     writtenFiles: 0,
     dynamicKeySites: 0,
+    dynamicKeySitesActive: 0,
+    dynamicKeySitesCommented: 0,
     dryRun: Boolean(opts.dryRun),
     files: [],
   };
@@ -60,7 +62,8 @@ export function executeCore(
       counts: {
         targets: out.targets.length,
         written: out.updated,
-        dynamicKeySites: out.dynamicSites.length,
+        dynamicKeySites: out.dynamicActive,
+        ...(out.dynamicCommented > 0 ? { commented: out.dynamicCommented } : {}),
       },
     });
     return { ...out, envelope };

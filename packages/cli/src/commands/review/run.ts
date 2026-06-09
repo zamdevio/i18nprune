@@ -68,7 +68,10 @@ export async function review(opts: { target?: string }): Promise<void> {
         durationMs: wall.elapsedMs(),
         counts: {
           localeFiles: Object.keys(locales).length,
-          dynamic: payload.dynamicKeySites,
+          dynamic: payload.dynamicKeySitesActive,
+          ...(payload.dynamicKeySitesCommented > 0
+            ? { commented: payload.dynamicKeySitesCommented }
+            : {}),
           keyObservations: keyObservationsCount,
         },
         issues: envelope.issues,

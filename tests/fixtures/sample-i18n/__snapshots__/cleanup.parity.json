@@ -1,6 +1,8 @@
 {
   "data": {
     "dynamic": 3,
+    "dynamicActive": 3,
+    "dynamicCommented": 0,
     "keys": [],
     "suggestions": [],
     "summary": {

@@ -72,6 +72,8 @@ export function emptyGeneratePayload(ctx: Context, opts: GenerateOptions): Gener
     force: Boolean(opts.force),
     targets: [],
     dynamicKeySites: 0,
+    dynamicKeySitesActive: 0,
+    dynamicKeySitesCommented: 0,
     leavesProcessed: 0,
     targetResults: [],
   };
@@ -95,10 +97,11 @@ export async function executeCore(
   };
 
   emitProgress({ type: 'run.progress.generate', phase: 'scan_dynamic_sites' });
-  const dynamicSites = resolveProjectAnalysisFromContext(ctx).dynamicSites;
-  if (dynamicSites.length > 0 && canPrintWarn(ctx.run)) {
+  const analysis = resolveProjectAnalysisFromContext(ctx);
+  const { dynamicActive, dynamicSites: dynamicTotal } = analysis.counts;
+  if (dynamicActive > 0 && canPrintWarn(ctx.run)) {
     logger.warn(
-      `${String(dynamicSites.length)} translation call(s) use a non-literal key — generation follows source JSON paths only; computed keys are not enumerated here.`,
+      `${String(dynamicActive)} translation call(s) use a non-literal key — generation follows source JSON paths only; computed keys are not enumerated here.`,
       ctx.run,
     );
   }
@@ -181,7 +184,7 @@ export async function executeCore(
     coreCtx,
     {
       targets,
-      dynamicKeySites: dynamicSites.length,
+      dynamicKeySites: dynamicTotal,
       source: merged.source,
       preloadedRaw,
       provider: merged.provider,
@@ -199,7 +202,7 @@ export async function executeCore(
 
   const issues = mergeIssues(
     issuesFromDiscoveryWarnings(ctx.meta.warnings),
-    issuesFromDynamicScanCount(dynamicSites.length),
+    issuesFromDynamicScanCount(dynamicActive),
     coreIssues,
   );
 

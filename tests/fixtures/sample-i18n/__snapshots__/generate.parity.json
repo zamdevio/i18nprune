@@ -2,6 +2,8 @@
   "data": {
     "dryRun": true,
     "dynamicKeySites": 3,
+    "dynamicKeySitesActive": 3,
+    "dynamicKeySitesCommented": 0,
     "force": false,
     "leavesProcessed": 15,
     "providerId": "google",

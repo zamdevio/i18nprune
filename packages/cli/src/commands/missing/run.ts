@@ -95,7 +95,8 @@ export async function missing(opts: MissingOptions): Promise<void> {
 
     const resolved = resolveMissingData(ctx, coreOpts, runtime);
     const extractionBaseline = {
-      dynamic: resolved.dynamicSites,
+      dynamic: resolved.dynamicSitesActive,
+      ...(resolved.dynamicSitesCommented > 0 ? { commented: resolved.dynamicSitesCommented } : {}),
       keyObservations: resolved.keyObservationsCount,
     };
     const summaryIssues = resolved.envelope.issues;

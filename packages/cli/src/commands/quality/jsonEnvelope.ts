@@ -22,6 +22,8 @@ export function emptyQualityPayload(): QualityJsonData {
     total: 0,
     perFile: {},
     dynamicKeySites: 0,
+    dynamicKeySitesActive: 0,
+    dynamicKeySitesCommented: 0,
     sourceLocale: '',
     localesDir: '',
     localeCount: 0,
@@ -65,7 +67,13 @@ export function runQualityJsonEnvelope(
       at: nowMs(),
       ok: result.envelope.ok,
       issueCount: result.envelope.issues.length,
-      counts: { total: result.payload.total, dynamicKeySites: result.payload.dynamicKeySites },
+      counts: {
+        total: result.payload.total,
+        dynamicKeySites: result.payload.dynamicKeySitesActive,
+        ...(result.payload.dynamicKeySitesCommented > 0
+          ? { commented: result.payload.dynamicKeySitesCommented }
+          : {}),
+      },
     });
     return { envelope: result.envelope, result };
   } catch (err) {

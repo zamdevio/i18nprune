@@ -10,6 +10,8 @@ export type ValidateJsonOutput = {
   count: number;
   dynamic: {
     count: number;
+    active: number;
+    commented: number;
   };
   keyObservations: {
     count: number;

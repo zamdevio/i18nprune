@@ -63,10 +63,10 @@ export async function quality(opts: QualityOptions): Promise<void> {
       runId,
       listLimit: listWindow.limit,
     });
-    const { total, dynamicKeySites } = payload;
+    const { total, dynamicKeySitesActive, dynamicKeySitesCommented } = payload;
     const summaryIssues = mergeIssues(
       issuesFromDiscoveryWarnings(ctx.meta.warnings),
-      issuesFromDynamicScanCount(dynamicKeySites),
+      issuesFromDynamicScanCount(dynamicKeySitesActive),
       issuesFromQualityEnglishIdentical(total),
     );
     printCommandSummary(
@@ -74,7 +74,12 @@ export async function quality(opts: QualityOptions): Promise<void> {
         command: 'quality',
         ok: true,
         durationMs: wall.elapsedMs(),
-        counts: { total, dynamic: dynamicKeySites, keyObservations: keyObservationsCount },
+        counts: {
+          total,
+          dynamic: dynamicKeySitesActive,
+          ...(dynamicKeySitesCommented > 0 ? { commented: dynamicKeySitesCommented } : {}),
+          keyObservations: keyObservationsCount,
+        },
         issues: summaryIssues,
       },
       ctx,

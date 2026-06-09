@@ -7,14 +7,20 @@ export function resolveProjectAnalysisFromContext(ctx: Context) {
 }
 
 export function resolveDynamicSitesCount(ctx: Context): number {
-  return resolveProjectAnalysisFromContext(ctx).counts.dynamicSites;
+  return resolveProjectAnalysisFromContext(ctx).counts.dynamicActive;
 }
 
 /** Human summaries: align with **`validate`** (`dynamic`, `keyObservations`). */
 export function resolveExtractionBaselineCounts(ctx: Context): {
   dynamic: number;
+  commented?: number;
   keyObservations: number;
 } {
   const { counts } = resolveProjectAnalysisFromContext(ctx);
-  return { dynamic: counts.dynamicSites, keyObservations: counts.keyObservations };
+  const out: { dynamic: number; commented?: number; keyObservations: number } = {
+    dynamic: counts.dynamicActive,
+    keyObservations: counts.keyObservations,
+  };
+  if (counts.dynamicCommented > 0) out.commented = counts.dynamicCommented;
+  return out;
 }

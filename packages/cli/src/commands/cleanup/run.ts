@@ -71,7 +71,11 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
               durationMs,
               command: 'cleanup',
               ok: false,
-              counts: { remove: d.wouldRemove, dynamic: d.dynamic },
+              counts: {
+                remove: d.wouldRemove,
+                dynamic: d.dynamicActive,
+                ...(d.dynamicCommented > 0 ? { commented: d.dynamicCommented } : {}),
+              },
             },
           },
         };
@@ -105,7 +109,11 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
             durationMs,
             command: 'cleanup',
             ok: envelope.ok,
-            counts: { remove: d.wouldRemove, dynamic: d.dynamic },
+            counts: {
+              remove: d.wouldRemove,
+              dynamic: d.dynamicActive,
+              ...(d.dynamicCommented > 0 ? { commented: d.dynamicCommented } : {}),
+            },
           },
         },
       };
@@ -125,8 +133,14 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
     };
     const result = executeCore(ctx, opts, runtime);
     const summaryIssues = result.envelope.issues;
+    const split = {
+      total: result.dynamic.length,
+      active: result.payload.dynamicActive,
+      commented: result.payload.dynamicCommented,
+    };
     const extractionBaseline = {
-      dynamic: result.dynamic.length,
+      dynamic: split.active,
+      ...(split.commented > 0 ? { commented: split.commented } : {}),
       keyObservations: result.keyObservationsCount,
     };
 
@@ -180,7 +194,8 @@ export async function cleanup(opts: CleanupOptions): Promise<void> {
             ...(result.skippedTargets.length > 0
               ? { skippedTargets: result.skippedTargets.length }
               : {}),
-            dynamic: result.dynamic.length,
+            dynamic: split.active,
+            ...(split.commented > 0 ? { commented: split.commented } : {}),
           },
           issues: summaryIssues,
         },
