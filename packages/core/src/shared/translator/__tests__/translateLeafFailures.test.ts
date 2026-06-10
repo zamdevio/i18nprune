@@ -18,6 +18,18 @@ describe('translateLeaf failure issue codes', () => {
     expect(out.leafMeta.needsReview).toBe(true);
   });
 
+  it('restores spaced placeholder sentinels from MyMemory-style output', async () => {
+    const source = '{{who}} · {{status}} · {{priority}}';
+    const provider: Translator = {
+      async translate(masked) {
+        return masked.replace(/__I18NPRUNE_(\d+)__/g, (_, n) => `__ I18NPRUNE_${n} __`);
+      },
+    };
+    const out = await translateLeaf(provider, source, 'en', 'zh-cn', { providerId: 'mymemory' });
+    expect(out.text).toBe(source);
+    expect(out.text).not.toMatch(/I18NPRUNE_\d+/i);
+  });
+
   it('sets decision=translated and needsReview=false on a clean translation', async () => {
     const provider: Translator = {
       async translate() {

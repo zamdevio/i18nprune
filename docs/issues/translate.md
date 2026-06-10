@@ -91,6 +91,20 @@ Each section below follows the **[topic page pattern](./README.md#authoring-topi
 
 ---
 
+## `placeholder_sentinel_mangled`
+
+**Code:** `n/a` — not emitted as `issues[]`; troubleshooting anchor for mangled `{{…}}` placeholders after MT.  
+**Severity:** `warning` (troubleshooting only).  
+**When:** **`generate`** writes locale leaves that contain literal `I18NPRUNE_0`-style tokens (often with extra spaces) instead of `{{var}}` placeholders. Common with **MyMemory** and other free MT backends that treat mask sentinels as translatable text.  
+**Who:** **`mask`** / **`restore`** / **`validateRestored`** in `@i18nprune/core`; surfaced when **`translateLeaf`** cannot restore placeholders after the provider returns.  
+**What to do:**
+
+1. Re-run affected paths with a provider that preserves tokens better (**Google**, **DeepL**, **LibreTranslate** with a tuned instance).
+2. Re-run **`generate`** (or **`generate --resume`**) — leaves that are *only* `{{…}}` placeholders plus punctuation/separators are copied from source **without MT** by default (e.g. `{{pageTitle}} · {{siteName}}`).
+3. For prefix-wide protection (e.g. dynamic `t(item.labelKey)` nav configs), use **`policies.preserve.copyPrefixes`** in your project config.
+
+---
+
 ## `config_file_rejected_at_load`
 
 **Code:** See **`i18nprune.config.*`** on **[Config issues](./config.md)** (usually **`invalid`** for bad **`translate.*`** shape).  

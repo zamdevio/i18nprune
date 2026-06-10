@@ -5,6 +5,44 @@ import { TranslateCacheL1Memo } from '../../translator/cache/index.js';
 import type { Translator } from '../../types/translator/index.js';
 
 describe('buildTranslatedLocaleFromSourceLeaves', () => {
+  it('copies placeholder-only leaves without calling the translator', async () => {
+    const translate = vi.fn();
+    const provider = { translate } as unknown as Translator;
+    const sourceLeaves = [{ path: 'meta', value: '{{who}} · {{status}} · {{priority}}' }];
+    const out = await buildTranslatedLocaleFromSourceLeaves({
+      sourceLeaves,
+      working: {},
+      existingRaw: null,
+      dryRun: false,
+      force: false,
+      provider,
+      persistStructuredLeafMetadata: false,
+      providerId: 'mymemory',
+      targetLang: 'zh-cn',
+      tickProgress: () => {},
+    });
+    expect(translate).not.toHaveBeenCalled();
+    expect(out.working).toEqual({ meta: '{{who}} · {{status}} · {{priority}}' });
+  });
+
+  it('still translates leaves that mix placeholders with real words', async () => {
+    const translate = vi.fn(async () => 'hola {{name}}');
+    const provider = { translate } as unknown as Translator;
+    await buildTranslatedLocaleFromSourceLeaves({
+      sourceLeaves: [{ path: 'greet', value: 'Hello {{name}}' }],
+      working: {},
+      existingRaw: null,
+      dryRun: false,
+      force: false,
+      provider,
+      persistStructuredLeafMetadata: false,
+      providerId: 'google',
+      targetLang: 'es',
+      tickProgress: () => {},
+    });
+    expect(translate).toHaveBeenCalled();
+  });
+
   it('copies preserve paths without calling the translator', async () => {
     const translate = vi.fn();
     const provider = { translate } as unknown as Translator;

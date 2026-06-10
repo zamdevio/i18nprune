@@ -3,6 +3,7 @@ import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.
 import { getProjectedLeafString, projectLocaleLeaves } from '../shared/locales/projection.js';
 import { isParityExcluded } from '../policies/parity.js';
 import { isPreservePath } from '../policies/preserve.js';
+import { isPlaceholderOnlyLeaf } from '../shared/placeholders/index.js';
 import { localeJsonValueFromTranslation } from '../shared/translator/index.js';
 import { localePathLooksTranslatedFromSource } from '../shared/translator/localePathTranslated.js';
 import type { GenerateTranslateCache } from '../types/translator/cache.js';
@@ -34,6 +35,8 @@ type GenerateLeafRow =
   | { k: 'existing_manual' }
   /** Source string leaf is whitespace-only — copy without **`translateLeaf`** (see **`i18nprune.generate.source_empty_string_leaves`**). */
   | { k: 'empty_copy' }
+  /** Only `{{…}}` placeholders plus punctuation/separators — copy source without MT. */
+  | { k: 'placeholder_copy' }
   /** Completed by an earlier provider attempt — keep path when fallback resumes (see **`TranslateRunInterruptedError`**). */
   | { k: 'resume_prior' }
   | { k: 'translate' };
@@ -207,6 +210,10 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
       rows.push({ k: 'preserve' });
       continue;
     }
+    if (isPlaceholderOnlyLeaf(leaf.value)) {
+      rows.push({ k: 'placeholder_copy' });
+      continue;
+    }
     if (isParityExcluded(leaf.path, leaf.value, input.parity)) {
       rows.push({ k: 'parity' });
       continue;
@@ -343,6 +350,22 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
         wal += 1;
         continue;
       }
+      if (row.k === 'placeholder_copy') {
+        const nextNode = localeJsonValueFromTranslation(input.persistStructuredLeafMetadata, {
+          text: leaf.value,
+          leafMeta: {
+            status: 'translated',
+            confidence: null,
+            needsReview: false,
+            needsTranslationAgain: false,
+            source: 'generated',
+          },
+        });
+        working = setAtPath(working, leaf.path, nextNode);
+        tick(wal, leaf.path);
+        wal += 1;
+        continue;
+      }
       if (row.k === 'resume_prior') {
         const cur = getAtPath(working as object, leaf.path);
         working = setAtPath(working, leaf.path, cur === undefined ? leaf.value : cur);
@@ -461,6 +484,10 @@ export function listResumeTranslationJobs(input: ListResumeTranslationJobsInput)
       dryRunCandidateCount += 1;
       continue;
     }
+    const srcVal = input.sourceMap.get(leaf.path);
+    if (srcVal !== undefined && isPlaceholderOnlyLeaf(srcVal)) {
+      continue;
+    }
     if (localePathLooksTranslatedFromSource(input.next, leaf.path, leaf.value)) {
       continue;
     }
@@ -576,6 +603,40 @@ export async function translateResumeCandidateLeaves(input: {
   let successfulLeaves = 0;
   let markedForReview = 0;
   let cacheHits = 0;
+
+  for (let i = 0; i < input.tLeaves.length; i++) {
+    const leaf = input.tLeaves[i]!;
+    const srcVal = input.sourceMap.get(leaf.path);
+    if (srcVal === undefined || !isPlaceholderOnlyLeaf(srcVal)) continue;
+    if (
+      !isResumeCandidateLeaf({
+        leaf,
+        sourceMap: input.sourceMap,
+        refCtx: input.refCtx,
+        eff: input.eff,
+        preserve: input.preserve,
+        parity: input.parity,
+      })
+    ) {
+      continue;
+    }
+    if (localePathLooksTranslatedFromSource(next, leaf.path, srcVal)) continue;
+    next = setAtPath(
+      next,
+      leaf.path,
+      localeJsonValueFromTranslation(input.persistStructuredLeafMetadata, {
+        text: srcVal,
+        leafMeta: {
+          status: 'translated',
+          confidence: null,
+          needsReview: false,
+          needsTranslationAgain: false,
+          source: 'generated',
+        },
+      }),
+    );
+    changed += 1;
+  }
 
   try {
     if (jobs.length > 0) {

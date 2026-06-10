@@ -12,12 +12,13 @@
 
 ## 2026-W24 · Extractor fusion
 
-**Theme:** Mixed-template extractor hardening (E.1–E.6), locales dynamic JSON contract, dynamic count semantics (D.1).
+**Theme:** Mixed-template extractor hardening (E.1–E.6), locales dynamic JSON contract, dynamic count semantics (D.1), translate placeholder hardening (T.1).
 
 | Slice | Receipt | User docs |
 |-------|---------|-----------|
 | **E.1–E.6** | Mixed-template fusion (`partitionTemplateHoles`, `analyzeTemplateCall`, `dynamicRef`, `staticPrefix` / `runtimeSegments` / `classification`), const-map hardening (E.2), non-literal hints (E.3), lexical safety tests (E.4), comment parity (E.5), `groupDynamicKeySites` + template detail in `locales dynamic` JSON (E.6) | [`architecture/extraction/dynamic`](../../docs/architecture/extraction/dynamic.md) |
 | **D.1** | **Active vs commented** dynamic counts — summary `dynamic=active`, optional `commented=M`; warnings/issues use active; `dynamicSites` / `count` stay total; additive JSON (`dynamicActive`, `dynamic.commented`, …) across validate/cleanup/missing/sync/quality/review/generate/report | [`dynamic/README`](../../docs/dynamic/README.md) |
+| **T.1** | **Placeholder sentinel hardening** — `restore()` accepts MT spacing/case variants (`__ I18NPRUNE_0 __`); `validateRestored` / leak check on `I18NPRUNE_\d+`; generate **always** copies placeholder-only leaves (`{{a}} · {{b}}`) without MT; resume repairs same; tests + `issues/translate#placeholder-sentinel-mangled` | [`issues/translate`](../../docs/issues/translate.md) |
 
 ---
 
