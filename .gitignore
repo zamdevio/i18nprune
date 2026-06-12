@@ -17,12 +17,14 @@ coverage/
 # Cursor — keep shared `.cursor/rules/*.mdc` in git; ignore other local/workspace-only entries
 .cursor/*
 !.cursor/rules/
-!.cursor/rules/**
+!.cursor/skills/
 .agents/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+!.vscode/launch.json
 !.vscode/mcp.json
+!.vscode/tasks.json
 
 # Docs site (VitePress)
 # Mirrored from repo `docs/` by `pnpm docs:sync` (also runs before `pnpm docs:build`). Do not commit.

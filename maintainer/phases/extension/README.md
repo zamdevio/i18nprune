@@ -62,7 +62,8 @@ Status values: **planned** | **in progress** | **done** | **blocked** | **deferr
 | Monorepo home | [apps/extension/README.md](../../../apps/extension/README.md) | **done** | Extension sources under **`apps/extension/`** |
 | Foundation | [foundation.md](./foundation.md) | planned | Minimal stable core surface for project binding; core **extractor** trajectory |
 | Core integration | [core-integration.md](./core-integration.md) | planned | Foundation; documented core entrypoints + `CoreContext` / paths story |
-| Workspace intelligence | [workspace-intelligence.md](./workspace-intelligence.md) | planned | Foundation; **core integration** checklist; core **locales** + normalized project model |
+| Multi-config runtime | [multi-config-runtime.md](./multi-config-runtime.md) | planned | **Foundation** (discovery + active project); hardens registry, hot switch, per-config isolation |
+| Workspace intelligence | [workspace-intelligence.md](./workspace-intelligence.md) | planned | Foundation; **multi-config runtime**; **core integration** checklist; core **locales** + normalized project model |
 | Generate (dashboard) | [generate.md](./generate.md) | planned | Foundation; **core integration**; stable **`runGenerate`** + host hooks (can parallel early WI if context-only) |
 | Hover | [hover.md](./hover.md) | planned | Workspace intelligence |
 | Diagnostics | [diagnostics.md](./diagnostics.md) | planned | Workspace intelligence; **after** hover patterns prove noise levels |
@@ -93,6 +94,7 @@ Status values: **planned** | **in progress** | **done** | **blocked** | **deferr
 |-------|-----------|
 | Source-of-truth core paths, SDK `runGenerate` example, API shape (`GenerateHostHooks` required) | [core-integration.md](./core-integration.md) |
 | Checklist before tightening `@i18nprune/core` (paths, cancellation, envelopes, multi-root, tests, release) | [core-integration.md](./core-integration.md) |
+| Multi-config registry, hot project switch, per-config isolation, no reload | [multi-config-runtime.md](./multi-config-runtime.md) |
 | Generate dashboard tab, IPC, host hooks, implementation slices, non-goals | [generate.md](./generate.md) |
 | Interactive diff, multi-language editor, project breadcrumbs | [post-mvp.md](./post-mvp.md) (deferred) |
 | Architecture / hover / diagnostics / completions / performance / foundation / dashboard / init UI | Matching sibling `*.md` in this folder |
