@@ -1,0 +1,60 @@
+schemaVersion: 1
+stream: core
+version: 0.1.4
+date: 2026-06-13
+status: stable
+summary: Patch release — report HTML in core; locale suggestion engine and cross-op tips; cleanup multi-target resolution; extractor E.1–E.6 mixed-template hardening; D.1 active vs commented dynamic counts; T.1 placeholder sentinel hardening.
+highlights:
+  - "`renderReportHtml(doc, { fs, templatePath? })` exported from `@i18nprune/core` with packaged report SPA in dist"
+  - "Locale suggestion engine surfaces `data.suggestions[]` on validate, missing, cleanup, and sync JSON envelopes"
+  - "`resolveCleanupTargets` supports `cleanup --target <code[,code]|all>` with per-locale planning"
+  - "Dynamic site counts split into `dynamicSitesActiveCount` and `dynamicSitesCommentedCount` (D.1)"
+  - "Extractor E.1–E.6 hardening for mixed-template and dynamic-key edge cases"
+sections:
+  added:
+    - "Public `renderReportHtml`, `injectJsonIntoPayloadScript`, and `resolveReportSpaTemplatePath` for report SPA embedding"
+    - "`suggestExistingLocaleTargets` and `MAX_LOCALE_TARGET_SUGGESTIONS` for unknown `--target` typo hints"
+    - "Locale suggestion engine for cross-op tips (`data.suggestions[]` on validate, missing, cleanup, sync)"
+    - "`resolveCleanupTargets` for multi-target cleanup planning (`targetLocales[]`, `targets[]` on JSON)"
+    - "`RunOptions` optional `noColor`, `noLogChannel`, `noLogPrefix` (CLI presentation; SDK hosts may ignore)"
+    - "D.1 report/summary types: `dynamicSitesActiveCount` and `dynamicSitesCommentedCount` alongside existing `dynamic` counts"
+    - "Extractor E.1–E.6 mixed-template hardening (dynamic keys, nested templates, comment-aware sites)"
+    - "Tests: `packages/core/src/report/__tests__/html.test.ts`, `packages/core/src/cleanup/__tests__/resolveTargets.test.ts`"
+  changed:
+    - "Core build copies report SPA into dist via `copy-into-core.mjs`"
+    - "Cleanup JSON payloads include `targetLocales[]` and `targets[]` when `--target` selects multiple locales"
+    - "Sync clarity: `i18nprune.sync.scan_extras_retained` issue when scan finds extras post-sync"
+    - "D.1 dynamic site counts split into active vs commented (additive JSON fields; existing `dynamic` unchanged)"
+    - "T.1 generate/resume placeholder sentinel restore hardened; skip machine translation for placeholder-only leaves"
+  fixed:
+    - "Report HTML bundle: drop Node imports so Vite browser consumers load cleanly"
+    - "Multi-target cleanup `--target` resolution and locale typo hints (`zh-ch` → Did you mean: zh-cn?)"
+    - "T.1 placeholder sentinel restore and resume skip logic for placeholder-only leaves"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install @i18nprune/core@0.1.4"
+    - "Hosts embedding report UI: prefer `renderReportHtml` instead of vendoring CLI HTML shell"
+    - "SDK parsers: optional `data.suggestions[]` on validate, missing, cleanup, and sync JSON envelopes"
+    - "Cleanup `--json`: read `targetLocales` / `targets` when using multi-target `--target`"
+    - "D.1 consumers: optional `dynamicSitesActiveCount` / `dynamicSitesCommentedCount` on summaries; existing `dynamic` field unchanged"
+    - "Pin the same semver as CLI when mixing SDK + CLI (`@i18nprune/core@0.1.4` with `i18nprune@0.1.4`)"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/0.1.4
+    - label: SDK operations
+      href: https://docs.i18nprune.dev/sdk/operations
+    - label: cleanup command
+      href: https://docs.i18nprune.dev/commands/cleanup
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@0.1.4
+git:
+  tag: core-v0.1.4
+  githubReleaseUrl: ""
+compat: []
+tags:
+  - patch

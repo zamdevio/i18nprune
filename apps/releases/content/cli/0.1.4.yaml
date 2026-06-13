@@ -1,0 +1,61 @@
+schemaVersion: 1
+stream: cli
+version: 0.1.4
+date: 2026-06-13
+status: stable
+summary: Patch release — cleanup defaults to static scan with opt-in `--rg`; multi-target prune; grep-friendly log flags; locale suggestions and D.1 dynamic summaries; `locales dynamic` template detail.
+highlights:
+  - "`cleanup --rg` opt-in ripgrep string-presence guard (default static scan only); `--no-rg` removed"
+  - "`cleanup --target <code[,code]|all>` — per-locale scan/dry-run lines, JSON `targetLocales[]` + `targets[]`, typo hints"
+  - "Global `--no-color` (also `NO_COLOR` env), `--no-log-channel`, `--no-log-prefix` for grep-friendly CI logs"
+  - "Human summaries surface `dynamic=active` and optional `commented=M` counts (D.1)"
+  - "`locales dynamic` shows template detail and grouped dynamic-key sites"
+  - "`renderProjectReportSpaHtml` delegates to core `renderReportHtml`"
+sections:
+  added:
+    - "Global `--no-color`, `--no-log-channel`, and `--no-log-prefix` presentation flags"
+    - "`cleanup --rg` opt-in ripgrep string-presence guard"
+    - "`locales dynamic` template detail and grouped dynamic-key site output"
+    - "`docs/cli/output.md` — log presentation and grep-friendly CI patterns"
+  changed:
+    - "Cleanup banner and docs: static scan by default; mention `--rg` for paranoid substring guard"
+    - "Cleanup `--target` multi-locale UX — per-locale `(code)` lines, per-locale confirm/`--ask`, JSON `targetLocales[]` + `targets[]`"
+    - "Locale suggestion tips on unknown `--target` and cross-op hints in validate, missing, cleanup, sync output"
+    - "D.1 human summaries: `dynamic=active` with optional `commented=M` alongside existing counts"
+    - "`RunOptions` presentation flags wired from `preAction`; logger, ansi, and style respect them"
+    - "`renderProjectReportSpaHtml` delegates report HTML shell to core `renderReportHtml`"
+    - "Sync-after source writes: `[notice]` channel only (less noisy default)"
+  fixed:
+    - "Ripgrep no longer over-blocks cleanup by default (former `--no-rg` workaround is now the default)"
+    - "Multi-target cleanup `--target` resolution and locale typo hints aligned with core"
+  removed:
+    - "`cleanup --no-rg` flag (default is static-only; pass `--rg` when you want the ripgrep guard)"
+  breaking:
+    - "Argv: `--no-rg` removed — drop the flag from cleanup scripts (default is already static-only)"
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install -g i18nprune@0.1.4"
+    - "Pin `@i18nprune/core@0.1.4` when using the SDK alongside this CLI line"
+    - "Remove `--no-rg` from cleanup scripts; use default static scan or pass `--rg` for the ripgrep guard"
+    - "CI grep-friendly logs: `i18nprune validate --no-color --no-log-prefix --no-log-channel` or `NO_COLOR=1`"
+    - "JSON consumers: optional `data.suggestions[]` on validate, missing, cleanup, sync; D.1 `dynamic=active` / `commented=` in human summaries only"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/0.1.4
+    - label: CLI output
+      href: https://docs.i18nprune.dev/cli/output
+    - label: cleanup command
+      href: https://docs.i18nprune.dev/commands/cleanup
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@0.1.4
+git:
+  tag: cli-v0.1.4
+  githubReleaseUrl: ""
+compat:
+  - stream: core
+    version: 0.1.4
+tags:
+  - patch
