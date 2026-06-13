@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { ArrowRight, Package } from "lucide-react";
 import StreamBadge from "./StreamBadge";
+import ReleaseInlineText from '@/features/release/inline-text';
 import { STREAM_META } from '@/features/catalog/streams';
 import type { ReleaseRecordV1, StreamId } from '@/types';
 
@@ -37,7 +38,7 @@ export default function LatestReleaseCard({ release, streamId }: LatestReleaseCa
               v{release.version}
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-2">
-              {release.summary}
+              <ReleaseInlineText text={release.summary} />
             </p>
             <Link
               to={`/${streamId}/${release.version}`}

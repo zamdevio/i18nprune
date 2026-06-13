@@ -1,3 +1,4 @@
+import ReleaseInlineText from '@/features/release/inline-text';
 import type { ReleaseSections } from '@/types';
 import { Plus, RefreshCw, Bug, Trash2, AlertTriangle, Shield, Zap } from 'lucide-react';
 
@@ -43,7 +44,7 @@ export default function ReleaseSectionList({ sections }: ReleaseSectionListProps
             <ul className="space-y-1.5 ml-6">
               {items.map((item, i) => (
                 <li key={i} className="text-sm text-card-foreground/90 leading-relaxed relative before:absolute before:left-[-1rem] before:top-[0.6em] before:h-1 before:w-1 before:rounded-full before:bg-muted-foreground/40">
-                  {item}
+                  <ReleaseInlineText text={item} />
                 </li>
               ))}
             </ul>

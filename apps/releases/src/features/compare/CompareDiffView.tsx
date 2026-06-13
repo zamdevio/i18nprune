@@ -1,4 +1,5 @@
 import type { ReleaseCompareResult, SectionDiff } from '@/features/compare/releases';
+import ReleaseInlineText from '@/features/release/inline-text';
 import { Link } from 'react-router-dom';
 import type { StreamId } from '@/types';
 
@@ -25,7 +26,7 @@ function LineList({
           className={`text-sm rounded-md border px-3 py-2 text-foreground/90 ${styles}`}
         >
           <span className={`${markColor} font-medium mr-2`}>{mark}</span>
-          {line}
+          <ReleaseInlineText text={line} />
         </li>
       ))}
     </ul>
@@ -84,8 +85,12 @@ export default function CompareDiffView({ stream, result }: CompareDiffViewProps
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
             Summary
           </p>
-          <p className="text-sm text-muted-foreground line-through mb-2">{from.summary}</p>
-          <p className="text-sm text-foreground">{to.summary}</p>
+          <p className="text-sm text-muted-foreground line-through mb-2">
+            <ReleaseInlineText text={from.summary} />
+          </p>
+          <p className="text-sm text-foreground">
+            <ReleaseInlineText text={to.summary} />
+          </p>
         </div>
       )}
 

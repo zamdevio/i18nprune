@@ -1,3 +1,4 @@
+import ReleaseInlineText from '@/features/release/inline-text';
 import type { ReleaseRecordV1 } from '@/types';
 import { ArrowRight, BookOpen } from 'lucide-react';
 
@@ -21,7 +22,7 @@ export default function MigrationCallout({ migration }: MigrationCalloutProps) {
         <ul className="space-y-2 mb-4">
           {migration.notes.map((note, i) => (
             <li key={i} className="text-sm text-foreground/80 leading-relaxed pl-4 border-l-2 border-primary/30">
-              {note}
+              <ReleaseInlineText text={note} />
             </li>
           ))}
         </ul>

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import StatusBadge from './StatusBadge';
 import StreamBadge from './StreamBadge';
 import { hasBreaking } from '@/features/catalog/semver';
+import ReleaseInlineText from '@/features/release/inline-text';
 import type { ReleaseRecordV1 } from '@/types';
 
 type ReleaseCardProps = {
@@ -39,7 +40,7 @@ export default function ReleaseCard({ release, showStream = false }: ReleaseCard
         </div>
 
         <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-          {release.summary}
+          <ReleaseInlineText text={release.summary} />
         </p>
 
         {(release.highlights?.length ?? 0) > 0 && (
@@ -49,7 +50,7 @@ export default function ReleaseCard({ release, showStream = false }: ReleaseCard
                 key={i}
                 className="max-w-[200px] truncate rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
               >
-                {h}
+                <ReleaseInlineText text={h} />
               </span>
             ))}
             {(release.highlights?.length ?? 0) > 3 && (

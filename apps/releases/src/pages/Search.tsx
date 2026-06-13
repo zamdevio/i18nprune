@@ -4,7 +4,7 @@ import ReleaseSearchField from '@/features/search/ReleaseSearchField';
 import StreamBadge from '@/features/release/StreamBadge';
 import StatusBadge from '@/features/release/StatusBadge';
 import { useListPagination } from '@/hooks/useListPagination';
-import { highlightTokens } from '@/features/search/highlight';
+import { highlightInlineText } from '@/features/search/highlight';
 import { focusReleaseSearch } from '@/features/search/keyboard';
 import { searchMatchSnippets, searchReleases, tokenizeQuery } from '@/features/search/search';
 import { format } from 'date-fns';
@@ -96,7 +96,7 @@ export default function SearchPage() {
                       </span>
                     </div>
                     <p className="line-clamp-2 text-sm text-foreground/90">
-                      {highlightTokens(release.summary, tokens)}
+                      {highlightInlineText(release.summary, tokens)}
                     </p>
                     {snippets.length > 0 && (
                       <ul className="mt-2 space-y-1 border-t border-border/60 pt-2">
@@ -105,7 +105,7 @@ export default function SearchPage() {
                             key={line}
                             className="line-clamp-1 text-xs text-muted-foreground"
                           >
-                            {highlightTokens(line, tokens)}
+                            {highlightInlineText(line, tokens)}
                           </li>
                         ))}
                       </ul>
@@ -115,7 +115,7 @@ export default function SearchPage() {
                       {matches.map((term, i) => (
                         <span key={term}>
                           {i > 0 ? ', ' : null}
-                          {highlightTokens(term, tokens)}
+                          {highlightInlineText(term, tokens)}
                         </span>
                       ))}
                     </p>

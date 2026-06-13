@@ -11,6 +11,7 @@ import { installTargetFromRelease } from '@/lib/install-snippets';
 import ReleaseSectionList from '@/features/release/list';
 import MigrationCallout from "@/features/release/migration";
 import BreakingBanner from "@/features/release/breaking";
+import ReleaseInlineText from '@/features/release/inline-text';
 import EmptyState from "@/components/EmptyState";
 import { getRelease } from '@/features/catalog';
 import { isStreamId, STREAM_META } from '@/features/catalog/streams';
@@ -77,7 +78,7 @@ export default function ReleaseDetail() {
         </div>
 
         <p className="text-base sm:text-lg text-foreground/80 leading-relaxed max-w-3xl">
-          {release.summary}
+          <ReleaseInlineText text={release.summary} />
         </p>
       </motion.div>
 
@@ -130,7 +131,7 @@ export default function ReleaseDetail() {
             {(release.highlights ?? []).map((h, i) => (
               <div key={i} className="flex items-start gap-2 rounded-md bg-muted/50 px-3 py-2.5">
                 <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                <span className="text-sm text-foreground/90">{h}</span>
+                <ReleaseInlineText text={h} className="text-sm text-foreground/90" />
               </div>
             ))}
           </div>
