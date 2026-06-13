@@ -1,4 +1,5 @@
 <div align="center">
+  <img src="https://i18nprune.dev/i18nprune.svg" width="72" height="72" alt="i18nprune logo" />
 
   <h1>@i18nprune/core</h1>
 
@@ -121,14 +122,14 @@ Deep wiring table (maintainer clone): `maintainer/systems/operations/entrypoints
 | Browser tooling | `@i18nprune/core/runtime/web` |
 | Workers / edge | `@i18nprune/core/runtime/edge` |
 
-Docs: [Runtime overview](https://docs.i18nprune.dev/runtime/).
+Docs: [Runtime overview](https://docs.i18nprune.dev/runtime)
 
 ## Config, cache, and contracts
 
-- **Config:** `locales.structure`, cache profiles (`safe` | `balanced` | `fast`), translation providers — see [Config hub](https://docs.i18nprune.dev/config/).
-- **Cache:** per-project analysis + persisted translation cache; hosts must not fork rebuild policy — see [CLI cache](https://docs.i18nprune.dev/cli/cache.md).
-- **CLI JSON parity:** stable issue codes and `--json` envelope helpers via `result` exports — see [CLI JSON](https://docs.i18nprune.dev/cli/json.md) and [Issues](https://docs.i18nprune.dev/issues/).
-- **Reports:** build payloads with `runReport`; validate ingest with `@i18nprune/core/report-schema` before upload.
+- **Config:** `locales.structure`, cache profiles (`safe` | `balanced` | `fast`), translation providers — see [Config hub](https://docs.i18nprune.dev/config)
+- **Cache:** per-project analysis + persisted translation cache; hosts must not fork rebuild policy — see [CLI cache](https://docs.i18nprune.dev/cli/cache)
+- **CLI JSON parity:** stable issue codes and `--json` envelope helpers via `result` exports — see [CLI JSON](https://docs.i18nprune.dev/cli/json) and [Issues](https://docs.i18nprune.dev/issues)
+- **Reports:** build payloads with `runReport`; validate ingest with `@i18nprune/core/report-schema` before upload
 
 ## Examples (monorepo)
 
@@ -155,9 +156,9 @@ Bundled programmatic surface: `import … from 'i18nprune/core'` (rolled build, 
 
 ## Documentation
 
-- [SDK operations](https://docs.i18nprune.dev/sdk/operations.html)
-- [Architecture](https://docs.i18nprune.dev/architecture/)
-- [Commands](https://docs.i18nprune.dev/commands/)
+- [SDK operations](https://docs.i18nprune.dev/sdk/operations)
+- [Architecture](https://docs.i18nprune.dev/architecture)
+- [Commands](https://docs.i18nprune.dev/commands)
 - Live site: [docs.i18nprune.dev](https://docs.i18nprune.dev)
 
 ## License

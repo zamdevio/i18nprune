@@ -37,7 +37,7 @@ pnpm run publish:verify
 
 Runs `cli:build`, DTS alias test (`scripts/dts/fix-core-dts.mjs --test`), `pnpm pack`, fixture install, and `tsc` with `--skipLibCheck false`.
 
-Faster when `dist/` and `i18nprune-0.1.0.tgz` already exist:
+Faster when `dist/` and `i18nprune-<root-version>.tgz` already exist:
 
 ```bash
 pnpm run publish:verify:fixture
@@ -63,9 +63,9 @@ Quick pass with lib checking disabled (app sources only):
 pnpm exec tsc -p tsconfig.json --skipLibCheck true
 ```
 
-The fixture `package.json` points at `file:../../../i18nprune-0.1.0.tgz` (not committed; produced by `pnpm pack` at repo root).
+`run.mjs` syncs the fixture `package.json` dependency to `file:../../../i18nprune-<version>.tgz` from root `package.json` before install (and drops a stale fixture lockfile).
 
 ## Prerequisites
 
-- `i18nprune-0.1.0.tgz` at the repo root (from `pnpm pack`).
+- `i18nprune-<version>.tgz` at the repo root (from `pnpm pack`, version = root `package.json`).
 - `pnpm run cli:build` so `prepack` / DTS fix have already produced a clean `dist/core.d.ts` inside the tarball.
