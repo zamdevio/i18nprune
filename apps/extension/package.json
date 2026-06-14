@@ -112,8 +112,8 @@
   },
   "scripts": {
     "build:webview": "pnpm --filter @i18nprune/extension-webview build",
-    "compile": "esbuild src/extension/extension.ts --bundle --platform=node --target=node20 --external:vscode --outfile=out/extension.js --format=cjs --sourcemap",
-    "watch": "esbuild src/extension/extension.ts --bundle --platform=node --target=node20 --external:vscode --outfile=out/extension.js --format=cjs --sourcemap --watch",
+    "compile": "esbuild src/extension/extension.ts --bundle --platform=node --target=node20 --external:vscode --external:@i18nprune/core --external:@i18nprune/core/* --external:jiti --outfile=out/extension.js --format=cjs --sourcemap",
+    "watch": "esbuild src/extension/extension.ts --bundle --platform=node --target=node20 --external:vscode --external:@i18nprune/core --external:@i18nprune/core/* --external:jiti --outfile=out/extension.js --format=cjs --sourcemap --watch",
     "build": "pnpm run build:webview && pnpm run compile",
     "typecheck:host": "tsc --noEmit",
     "vscode:prepublish": "pnpm run build"

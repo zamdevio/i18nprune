@@ -1,0 +1,10 @@
+.vscode/**
+.vscode-test/**
+src/**
+**/*.ts
+**/*.tsx
+**/*.map
+**/.turbo/**
+**/*.log
+tsconfig.json
+src/webview/node_modules/**
