@@ -13,6 +13,7 @@ import {
   persistTimelineSnapshot,
 } from './persist.js';
 import type { CacheOptions, SnapshotResult } from './types.js';
+import { rebuildCacheStatus, shouldReadCache, shouldWriteCache } from './mode.js';
 import { isFullSnapshot, isTimelineSnapshot } from './validation.js';
 
 function readWorktreeSource(): string {
@@ -38,7 +39,7 @@ export function getWorktreeSnapshot(options: CacheOptions = {}): SnapshotResult 
   const profile = resolveProfile(options);
   const reader = createWorktreeReader();
 
-  if (!options.noCache) {
+  if (shouldReadCache(options)) {
     const cached = readCachedForProfile(headSha, profile);
     if (cached && worktreeFingerprintMatches(cached, fingerprint)) {
       if (profile === 'full' && isFullSnapshot(cached)) {
@@ -50,12 +51,13 @@ export function getWorktreeSnapshot(options: CacheOptions = {}): SnapshotResult 
     }
   }
 
-  if (options.noCache) {
-    const snapshot =
-      profile === 'timeline'
-        ? buildTimelineSnapshot({ sha: headSha, refLabel: 'working tree', source })
-        : buildSnapshot({ sha: headSha, refLabel: 'working tree', source, reader });
-    return { snapshot, cache: 'bypass', barrelPath: rootIndexRepoPath };
+  const buildSnapshotForProfile = () =>
+    profile === 'timeline'
+      ? buildTimelineSnapshot({ sha: headSha, refLabel: 'working tree', source })
+      : buildSnapshot({ sha: headSha, refLabel: 'working tree', source, reader });
+
+  if (!shouldWriteCache(options)) {
+    return { snapshot: buildSnapshotForProfile(), cache: rebuildCacheStatus(options), barrelPath: rootIndexRepoPath };
   }
 
   const meta = loadCacheMeta();
@@ -63,9 +65,9 @@ export function getWorktreeSnapshot(options: CacheOptions = {}): SnapshotResult 
   if (profile === 'timeline') {
     const snapshot = buildTimelineSnapshot({ sha: headSha, refLabel: 'working tree', source });
     persistTimelineSnapshot(headSha, 'working tree', snapshot, meta);
-    return { snapshot, cache: 'miss', barrelPath: rootIndexRepoPath };
+    return { snapshot, cache: rebuildCacheStatus(options), barrelPath: rootIndexRepoPath };
   }
 
   const snapshot = parseAndPersistFull(headSha, 'working tree', source, reader, meta);
-  return { snapshot, cache: 'miss', barrelPath: rootIndexRepoPath };
+  return { snapshot, cache: rebuildCacheStatus(options), barrelPath: rootIndexRepoPath };
 }

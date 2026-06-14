@@ -30,7 +30,6 @@ export function classifySymbolTier(name: string): StabilityTier {
   }
 
   if (
-    name.startsWith('assertSyncPort') ||
     name.startsWith('internal') ||
     name.endsWith('Internal') ||
     name === 'wrapCoreEnvelope' ||

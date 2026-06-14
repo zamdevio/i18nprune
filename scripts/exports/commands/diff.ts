@@ -6,13 +6,14 @@ import { printCommandLine, printDiffReport, printDiffVerbose, printDiffCacheDeta
 export interface DiffCliOptions {
   range?: string;
   noCache?: boolean;
+  force?: boolean;
   verbose?: boolean;
 }
 
 export function runExportsDiff(options: DiffCliOptions): void {
   const t0 = performance.now();
   const { left, right, rangeLabel } = parseDiffRange(options.range);
-  const cacheOpts = { noCache: options.noCache };
+  const cacheOpts = { noCache: options.noCache, force: options.force };
 
   const leftResult = getSnapshot(left, cacheOpts);
   const rightResult = getSnapshot(right, cacheOpts);

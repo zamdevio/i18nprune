@@ -5,6 +5,7 @@ import { printCommandLine, printTrendReport } from '../logger/index.js';
 export interface TrendCliOptions {
   tagLimit?: number;
   noCache?: boolean;
+  force?: boolean;
   verbose?: boolean;
 }
 
@@ -19,7 +20,7 @@ export function runExportsTrend(options: TrendCliOptions = {}): void {
 
   const rows = tags.map((tag) => {
     const ref = resolveSourceRef(tag);
-    const { snapshot, cache } = getSnapshot(ref, { noCache: options.noCache });
+    const { snapshot, cache } = getSnapshot(ref, { noCache: options.noCache, force: options.force });
     return {
       tag,
       sha: ref.kind === 'commit' ? ref.sha : snapshot.sha,

@@ -1,3 +1,4 @@
+import { SNAPSHOT_VERSION, TOOL_VERSION } from '../paths.js';
 import type { StabilityTier } from './tiers.js';
 
 export type { StabilityTier } from './tiers.js';
@@ -95,8 +96,8 @@ export interface SnapshotGitMeta {
 export type SnapshotScanDepth = 'full' | 'light';
 
 export interface InventorySnapshot {
-  version: 1;
-  toolVersion: 1;
+  version: typeof SNAPSHOT_VERSION;
+  toolVersion: typeof TOOL_VERSION;
   sha: string;
   refLabel: string;
   generatedAt: string;

@@ -1,18 +1,22 @@
 import chalk from 'chalk';
 
+import path from 'node:path';
+
 import type { CacheStatus, SnapshotResult } from '../cache/index.js';
 import { ExportError } from '../errors/index.js';
 import { printHelp } from '../help/index.js';
 import type { DiffResult } from '../format/index.js';
 import { shortSha, type SourceRef } from '../git/index.js';
 import type { InventorySnapshot } from '../inventory/index.js';
-import { rootIndexRepoPath } from '../paths.js';
+import { cacheDirForSha, repoRoot, rootIndexRepoPath } from '../paths.js';
 import {
   compactCoreSourcePath,
   formatInventoryCategory,
   formatInventoryName,
+  formatInventorySymbolKind,
   formatInventoryTier,
   formatSubject,
+  formatVerboseInventoryHeader,
 } from './format.js';
 
 const BRAND = chalk.bold.cyan('exports');
@@ -30,12 +34,18 @@ function formatDelta(before: number, after: number): string {
   return `${chalk.dim(String(before))} ${chalk.dim('→')} ${chalk.green(String(after))} ${chalk.green(`(${delta})`)}`;
 }
 
+function inventoryCacheDirDisplay(sha: string): string {
+  return `${path.relative(repoRoot, cacheDirForSha(sha)).replace(/\\/g, '/')}/`;
+}
+
 function cacheLabel(status: CacheStatus): string {
   switch (status) {
     case 'hit':
       return chalk.green('hit');
     case 'miss':
       return chalk.yellow('miss');
+    case 'refresh':
+      return chalk.cyan('refresh');
     case 'bypass':
       return chalk.dim('bypass');
     default:
@@ -100,7 +110,7 @@ export function printInventoryReport(input: {
   printMeta({
     ref: refLine(ref, snapshot),
     barrel: chalk.dim(barrelPath),
-    cache: `${cacheLabel(cache)} ${chalk.dim(`· .exports/cache/${shortSha(snapshot.sha)}/`)}`,
+    cache: `${cacheLabel(cache)} ${chalk.dim(`· ${inventoryCacheDirDisplay(snapshot.sha)}`)}`,
     generated: chalk.dim(new Date(snapshot.generatedAt).toISOString()),
     commit: snapshot.git?.commitDate ? chalk.dim(snapshot.git.commitDate) : undefined,
     edges: chalk.dim(String(snapshot.edges.length)),
@@ -129,23 +139,28 @@ export function printInventoryReport(input: {
   }
 }
 
+const VERBOSE_INVENTORY_ROW_PREFIX = '       · ';
+
 export function printVerboseInventory(snapshot: InventorySnapshot): void {
   const flat = [...snapshot.symbols].sort((a, b) => a.name.localeCompare(b.name));
 
   console.log('');
   console.log(chalk.bold.dim('       Symbols (root flat)'));
-  console.log(chalk.dim('       name · tier · category · symbolKind · targetSubpath'));
+  console.log(chalk.dim(`${VERBOSE_INVENTORY_ROW_PREFIX}${formatVerboseInventoryHeader()}`));
   for (const sym of flat) {
+    const tierPlain = formatInventoryTier(sym.tier);
     const tier =
       sym.tier === 'stable'
-        ? chalk.green(formatInventoryTier(sym.tier))
+        ? chalk.green(tierPlain)
         : sym.tier === 'advanced'
-          ? chalk.yellow(formatInventoryTier(sym.tier))
+          ? chalk.yellow(tierPlain)
           : sym.tier === 'internal'
-            ? chalk.magenta(formatInventoryTier(sym.tier))
-            : chalk.red(formatInventoryTier(sym.tier));
+            ? chalk.magenta(tierPlain)
+            : chalk.red(tierPlain);
+    const category = chalk.cyan(formatInventoryCategory(sym.category));
+    const symbolKind = chalk.white(formatInventorySymbolKind(sym.symbolKind));
     console.log(
-      `       ${chalk.dim('·')} ${formatInventoryName(sym.name)} ${tier} ${chalk.cyan(formatInventoryCategory(sym.category))} ${chalk.white(sym.symbolKind.padEnd(10))} ${chalk.dim(sym.targetSubpath)}`,
+      `${VERBOSE_INVENTORY_ROW_PREFIX}${formatInventoryName(sym.name)} ${tier} ${category} ${symbolKind} ${chalk.dim(sym.targetSubpath)}`,
     );
   }
 

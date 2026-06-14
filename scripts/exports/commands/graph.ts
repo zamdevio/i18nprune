@@ -6,6 +6,7 @@ import { printCommandLine, printGraphReport } from '../logger/index.js';
 export interface GraphCliOptions {
   ref?: string;
   noCache?: boolean;
+  force?: boolean;
   verbose?: boolean;
 }
 
@@ -67,7 +68,11 @@ function namespaceRows(namespaces: InventoryNamespace[]): { name: string; target
 export function runExportsGraph(options: GraphCliOptions = {}): void {
   const t0 = performance.now();
   const ref = resolveSourceRef(options.ref);
-  const { snapshot, cache } = getSnapshot(ref, { noCache: options.noCache, profile: 'full' });
+  const { snapshot, cache } = getSnapshot(ref, {
+    noCache: options.noCache,
+    force: options.force,
+    profile: 'full',
+  });
 
   printCommandLine('graph', 'ok', Math.round(performance.now() - t0));
   printGraphReport({

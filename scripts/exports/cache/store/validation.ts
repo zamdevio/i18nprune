@@ -1,4 +1,9 @@
 import type { InventorySnapshot } from '../../inventory/index.js';
+import { SNAPSHOT_VERSION, TOOL_VERSION } from '../../paths.js';
+
+export function snapshotMatchesToolVersion(snapshot: InventorySnapshot): boolean {
+  return snapshot.toolVersion === TOOL_VERSION;
+}
 
 export function isValidSummary(value: unknown): value is InventorySnapshot['summary'] {
   if (!value || typeof value !== 'object') return false;
@@ -13,8 +18,8 @@ export function isValidSnapshot(value: unknown): value is InventorySnapshot {
   if (!value || typeof value !== 'object') return false;
   const s = value as Record<string, unknown>;
   return (
-    s.version === 1 &&
-    s.toolVersion === 1 &&
+    s.version === SNAPSHOT_VERSION &&
+    s.toolVersion === TOOL_VERSION &&
     typeof s.sha === 'string' &&
     typeof s.refLabel === 'string' &&
     typeof s.generatedAt === 'string' &&

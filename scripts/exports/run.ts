@@ -29,11 +29,11 @@ function flagHint(command: Command): string {
     case 'validate':
       return 'Flags: -v, --verbose, --since=<ref>, -h, --help';
     case 'trend':
-      return 'Flags: --tags=<n>, -v, --verbose, --no-cache, -h, --help';
+      return 'Flags: --tags=<n>, -v, --verbose, -f, --force, --no-cache, -h, --help';
     case 'timeline':
-      return 'Flags: --limit=<n>, -v, --verbose, --no-cache, -h, --help';
+      return 'Flags: --limit=<n>, -v, --verbose, -f, --force, --no-cache, -h, --help';
     default:
-      return 'Flags: -v, --verbose, --no-cache, -h, --help';
+      return 'Flags: -v, --verbose, -f, --force, --no-cache, -h, --help';
   }
 }
 
@@ -42,6 +42,7 @@ function parseArgs(argv: string[]): {
   positional: string[];
   verbose: boolean;
   noCache: boolean;
+  force: boolean;
   since?: string;
   tagLimit?: number;
   commitLimit?: number;
@@ -55,6 +56,7 @@ function parseArgs(argv: string[]): {
       positional: [],
       verbose: false,
       noCache: false,
+      force: false,
       helpTopic: 'all',
     };
   }
@@ -71,6 +73,7 @@ function parseArgs(argv: string[]): {
   
   let verbose = false;
   let noCache = false;
+  let force = false;
   let since: string | undefined;
   let tagLimit: number | undefined;
   let commitLimit: number | undefined;
@@ -80,6 +83,7 @@ function parseArgs(argv: string[]): {
   for (const arg of rest) {
     if (arg === '--verbose' || arg === '-v') verbose = true;
     else if (arg === '--no-cache') noCache = true;
+    else if (arg === '--force' || arg === '-f') force = true;
     else if (arg.startsWith('--since=')) since = arg.slice('--since='.length);
     else if (arg.startsWith('--tags=')) tagLimit = Number(arg.slice('--tags='.length));
     else if (arg.startsWith('--limit=')) commitLimit = Number(arg.slice('--limit='.length));
@@ -92,12 +96,22 @@ function parseArgs(argv: string[]): {
     } else positional.push(arg);
   }
 
-  return { command, positional, verbose, noCache, since, tagLimit, commitLimit, helpTopic };
+  if (noCache && force) {
+    throw new ExportError('Cannot combine --no-cache with --force', 'usage', {
+      exitCode: 2,
+      details: {
+        command,
+        suggestion: 'Use --force to rebuild and overwrite cache, or --no-cache to skip cache entirely.',
+      },
+    });
+  }
+
+  return { command, positional, verbose, noCache, force, since, tagLimit, commitLimit, helpTopic };
 }
 
 function main(): void {
   try {
-    const { command, positional, verbose, noCache, since, tagLimit, commitLimit, helpTopic } = parseArgs(
+    const { command, positional, verbose, noCache, force, since, tagLimit, commitLimit, helpTopic } = parseArgs(
       process.argv,
     );
 
@@ -107,18 +121,18 @@ function main(): void {
     }
 
     if (command === 'inventory') {
-      runExportsInventory({ ref: positional[0], verbose, noCache });
+      runExportsInventory({ ref: positional[0], verbose, noCache, force });
       return;
     }
 
     if (command === 'diff') {
-      runExportsDiff({ range: positional[0], noCache, verbose });
+      runExportsDiff({ range: positional[0], noCache, force, verbose });
       return;
     }
 
     if (command === 'trend') {
       const limit = tagLimit ?? (positional[0] ? Number(positional[0]) : undefined);
-      runExportsTrend({ tagLimit: limit && !Number.isNaN(limit) ? limit : 12, noCache, verbose });
+      runExportsTrend({ tagLimit: limit && !Number.isNaN(limit) ? limit : 12, noCache, force, verbose });
       return;
     }
 
@@ -129,13 +143,14 @@ function main(): void {
         range: positional[0],
         limit: timelineLimit,
         noCache,
+        force,
         verbose,
       });
       return;
     }
 
     if (command === 'graph') {
-      runExportsGraph({ ref: positional[0], noCache, verbose });
+      runExportsGraph({ ref: positional[0], noCache, force, verbose });
       return;
     }
 

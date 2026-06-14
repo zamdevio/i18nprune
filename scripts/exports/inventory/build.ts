@@ -9,7 +9,7 @@ import {
   type SourceReader,
 } from './source.js';
 import { classifySymbolTier } from './tiers.js';
-import { TOOL_VERSION, rootIndexRepoPath } from '../paths.js';
+import { SNAPSHOT_VERSION, TOOL_VERSION, rootIndexRepoPath } from '../paths.js';
 import { gitCommitMeta } from '../git/commit-meta.js';
 import type {
   GraphEdge,
@@ -208,7 +208,7 @@ export function buildLightSnapshot(input: {
   const git = input.git ?? gitCommitMeta(input.sha) ?? undefined;
 
   return {
-    version: 1,
+    version: SNAPSHOT_VERSION,
     toolVersion: TOOL_VERSION,
     sha: input.sha,
     refLabel: input.refLabel,
@@ -246,7 +246,7 @@ export function buildSnapshot(input: {
   const git = gitCommitMeta(input.sha);
 
   return {
-    version: 1,
+    version: SNAPSHOT_VERSION,
     toolVersion: TOOL_VERSION,
     sha: input.sha,
     refLabel: input.refLabel,

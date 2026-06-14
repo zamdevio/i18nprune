@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
 
 import type { InventorySnapshot } from '../../inventory/index.js';
 import {
@@ -10,6 +10,7 @@ import {
   fullSnapshotPathForSha,
 } from '../../paths.js';
 import { readJsonFile, writeJsonAtomic } from './io.js';
+import { purgeStaleCacheForSha } from './files.js';
 import type { CacheMeta, CacheMetaEntry } from './types.js';
 import { isValidSnapshot, isValidSummary, snapshotMatchesSha } from './validation.js';
 
@@ -50,11 +51,7 @@ export function healCacheMeta(meta: CacheMeta): CacheMeta {
     }
     const snapshot = readJsonFile<InventorySnapshot>(inventoryPath);
     if (!isValidSnapshot(snapshot) || !snapshotMatchesSha(sha, snapshot)) {
-      try {
-        unlinkSync(inventoryPath);
-      } catch {
-        /* best effort */
-      }
+      purgeStaleCacheForSha(sha);
       delete next.entries[sha];
     } else if (!isValidSummary(entry.summary)) {
       next.entries[sha] = entryFromInventoryDir(sha)!;
@@ -66,6 +63,7 @@ export function healCacheMeta(meta: CacheMeta): CacheMeta {
       if (name === 'meta.json') continue;
       const dirPath = cacheDirForSha(name);
       if (!statSync(dirPath).isDirectory()) continue;
+      purgeStaleCacheForSha(name);
       if (next.entries[name]) continue;
       const recovered = entryFromInventoryDir(name);
       if (recovered) next.entries[name] = recovered;
@@ -84,15 +82,20 @@ export function loadCacheMeta(): CacheMeta {
   }
 
   const fromDisk = readJsonFile<CacheMeta>(exportsMetaPath);
-  const meta =
+  const metaValid =
     fromDisk &&
     fromDisk.version === CACHE_META_VERSION &&
+    fromDisk.toolVersion === TOOL_VERSION &&
     typeof fromDisk.entries === 'object' &&
-    fromDisk.entries
-      ? { ...fromDisk, entries: { ...fromDisk.entries } }
-      : defaultMeta();
+    fromDisk.entries;
+  const meta = metaValid
+    ? { ...fromDisk, entries: { ...fromDisk.entries } }
+    : defaultMeta();
 
   metaMemo = healCacheMeta(meta);
+  if (!metaValid) {
+    saveCacheMeta(metaMemo);
+  }
   return { ...metaMemo, entries: { ...metaMemo.entries } };
 }
 

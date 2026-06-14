@@ -1,10 +1,12 @@
 import type { InventorySnapshot } from '../../inventory/index.js';
 import type { SourceRef } from '../../git/index.js';
 import { getCommitSnapshot } from './commit.js';
+import { loadCacheMeta } from './meta.js';
 import type { CacheOptions, SnapshotResult } from './types.js';
 import { getWorktreeSnapshot } from './worktree.js';
 
 export function getSnapshot(ref: SourceRef, options: CacheOptions = {}): SnapshotResult {
+  loadCacheMeta();
   if (ref.kind === 'worktree') return getWorktreeSnapshot(options);
   return getCommitSnapshot(ref, options);
 }

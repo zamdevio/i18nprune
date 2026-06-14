@@ -1,11 +1,9 @@
-import { existsSync, unlinkSync } from 'node:fs';
-
-import { buildSnapshot, type InventorySnapshot } from '../../inventory/index.js';
+import { buildSnapshot } from '../../inventory/index.js';
 import { createGitReader } from '../../inventory/source.js';
 import { ExportError } from '../../errors/index.js';
 import { gitShowFile, shortSha, type SourceRef } from '../../git/index.js';
 import { rootIndexRepoPath } from '../../paths.js';
-import { readCachedForProfile, snapshotPathsForSha } from './files.js';
+import { readCachedForProfile, purgeStaleCacheForSha } from './files.js';
 import { loadCacheMeta, touchMetaEntry } from './meta.js';
 import {
   buildTimelineSnapshot,
@@ -13,8 +11,7 @@ import {
   persistTimelineSnapshot,
 } from './persist.js';
 import type { CacheOptions, SnapshotResult } from './types.js';
-import { isValidSnapshot, snapshotMatchesSha } from './validation.js';
-import { readJsonFile } from './io.js';
+import { rebuildCacheStatus, shouldReadCache, shouldWriteCache } from './mode.js';
 
 function barrelMissingError(ref: SourceRef & { kind: 'commit' }): ExportError {
   return new ExportError(`Root barrel not found at ref "${ref.label}"`, 'barrel_missing', {
@@ -43,7 +40,7 @@ export function getCommitSnapshot(
   const profile = resolveProfile(options);
   const meta = loadCacheMeta();
 
-  if (!options.noCache) {
+  if (shouldReadCache(options)) {
     const cached = readCachedForProfile(sha, profile);
     if (cached) {
       if (profile === 'full') {
@@ -52,17 +49,7 @@ export function getCommitSnapshot(
       return { snapshot: cached, cache: 'hit', barrelPath: rootIndexRepoPath };
     }
 
-    for (const stalePath of snapshotPathsForSha(sha)) {
-      if (!existsSync(stalePath)) continue;
-      const stale = readJsonFile<InventorySnapshot>(stalePath);
-      if (!stale || !isValidSnapshot(stale) || !snapshotMatchesSha(sha, stale)) {
-        try {
-          unlinkSync(stalePath);
-        } catch {
-          /* best effort */
-        }
-      }
-    }
+    purgeStaleCacheForSha(sha);
   }
 
   const source = gitShowFile(sha, rootIndexRepoPath);
@@ -70,13 +57,13 @@ export function getCommitSnapshot(
     throw barrelMissingError(ref);
   }
 
-  if (options.noCache) {
+  if (!shouldWriteCache(options)) {
     const reader = createGitReader(sha);
     const snapshot =
       profile === 'timeline'
         ? buildTimelineSnapshot({ sha, refLabel: label, source, git: options.git ?? undefined })
         : buildSnapshot({ sha, refLabel: label, source, reader });
-    return { snapshot, cache: 'bypass', barrelPath: rootIndexRepoPath };
+    return { snapshot, cache: rebuildCacheStatus(options), barrelPath: rootIndexRepoPath };
   }
 
   if (profile === 'timeline') {
@@ -87,9 +74,9 @@ export function getCommitSnapshot(
       git: options.git ?? undefined,
     });
     persistTimelineSnapshot(sha, label, snapshot, meta);
-    return { snapshot, cache: 'miss', barrelPath: rootIndexRepoPath };
+    return { snapshot, cache: rebuildCacheStatus(options), barrelPath: rootIndexRepoPath };
   }
 
   const snapshot = parseAndPersistFull(sha, label, source, createGitReader(sha), meta);
-  return { snapshot, cache: 'miss', barrelPath: rootIndexRepoPath };
+  return { snapshot, cache: rebuildCacheStatus(options), barrelPath: rootIndexRepoPath };
 }

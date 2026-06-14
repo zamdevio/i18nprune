@@ -137,7 +137,8 @@ pnpm exports:validate --since=HEAD~1   # reserved; noted in verbose output
 | Flag | Commands | Effect |
 |------|----------|--------|
 | `-v`, `--verbose` | inventory, diff, validate | Extra detail (see below) |
-| `--no-cache` | inventory, diff | Skip `.exports/cache/` for this run |
+| `-f`, `--force` | inventory, diff, graph, trend, timeline | Skip cache read; rebuild and overwrite on disk (`refresh`) |
+| `--no-cache` | inventory, diff, graph, trend, timeline | Skip cache read and write for this run (`bypass`) |
 | `-h`, `--help` | all | Command-specific or full help |
 | `--since=<ref>` | validate | Reserved for future delta validation |
 
@@ -153,12 +154,21 @@ pnpm exports:validate --since=HEAD~1   # reserved; noted in verbose output
 
 ## Snapshot schema (v1)
 
-Cached snapshots use **`version: 1`** / **`toolVersion: 1`** until a deliberate bump.
+Cached snapshots use three independent version fields (all in `paths.ts`):
+
+| Constant | File | Purpose |
+|----------|------|---------|
+| **`SNAPSHOT_VERSION`** | `inventory.full.json`, `timeline.summary.json` | JSON **shape** (fields, arrays) |
+| **`TOOL_VERSION`** | same + `meta.json` | **Scanner logic** (tiers, parser) — auto-expire on bump |
+| **`CACHE_META_VERSION`** | `meta.json` only | Index **shape** (`entries` map) — not the snapshot payload |
+
+**Auto-expire:** stale `toolVersion` (and mismatched `SNAPSHOT_VERSION`) purge on read; stale `CACHE_META_VERSION` resets `meta.json` and re-heals from disk.
 
 | Field | Purpose |
 |-------|---------|
+| `version` | Snapshot schema — must match `SNAPSHOT_VERSION` or cache is purged |
+| `toolVersion` | Scanner generation — must match `TOOL_VERSION` or cache is purged |
 | `git.commitDate` | Trend / timeline axis (ISO timestamp) |
-| `summary.root` | Counts by tier, tsKind, symbolKind, category |
 | `summary.subpaths[]` | Rollup per published npm subpath (full profile only) |
 | `symbols[]` | Flat root exports with `category`, `symbolKind`, `targetSubpath`, `sourceModule` |
 | `namespaces[]` | Root `export * as` mirrors |
@@ -190,7 +200,8 @@ Historical snapshots live under **`.exports/cache/`** (gitignored). Two profiles
 - First resolve → **miss** (build + write); repeat → **hit**.
 - Worktree HEAD checks **`sourceFingerprint`** on full cache.
 - Corrupt JSON or SHA mismatch → removed on next access → rebuild.
-- **`--no-cache`** — skip read/write for that run.
+- **`--force` / `-f`** → skip read, rebuild, overwrite → **refresh** (use after tier/heuristic script changes).
+- **`--no-cache`** → skip read and write → **bypass** (ephemeral result only).
 
 Old refs are read via **`git show <sha>:packages/core/src/index.ts`**. Missing barrel at ref → clean `ExportError` (no stack trace).
 

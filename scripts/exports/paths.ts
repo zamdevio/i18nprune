@@ -18,8 +18,12 @@ export const FULL_SNAPSHOT_FILENAME = 'inventory.full.json';
 /** Timeline-only root summary (never loads full symbol graph). */
 export const TIMELINE_SNAPSHOT_FILENAME = 'timeline.summary.json';
 
-export const CACHE_META_VERSION = 1;
-export const TOOL_VERSION = 1;
+/** `meta.json` index shape (`entries`, requested refs, rollups). */
+export const CACHE_META_VERSION = 1 as const;
+/** On-disk snapshot JSON shape (`inventory.full.json`, `timeline.summary.json`). */
+export const SNAPSHOT_VERSION = 1 as const;
+/** Scanner logic generation (tiers, parser, graph rules) — bump invalidates all cached snapshots. */
+export const TOOL_VERSION = 1 as const;
 
 /** Published subpath → source entry (relative to packages/core). */
 export const subpathSourceEntries: Record<string, string> = {

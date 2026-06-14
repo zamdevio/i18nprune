@@ -6,13 +6,14 @@ export interface InventoryCliOptions {
   ref?: string;
   verbose?: boolean;
   noCache?: boolean;
+  force?: boolean;
 }
 
 export function runExportsInventory(options: InventoryCliOptions): void {
   resetGitRunStats();
   const t0 = performance.now();
   const ref = resolveSourceRef(options.ref);
-  const result = getSnapshot(ref, { noCache: options.noCache, profile: 'full' });
+  const result = getSnapshot(ref, { noCache: options.noCache, force: options.force, profile: 'full' });
   printCommandLine('inventory', 'ok', Math.round(performance.now() - t0));
   printInventoryReport({
     ref,

@@ -11,6 +11,7 @@ export interface TimelineCliOptions {
   /** `0` means no limit; omitted defaults to 20. */
   limit?: number;
   noCache?: boolean;
+  force?: boolean;
   verbose?: boolean;
 }
 
@@ -42,6 +43,7 @@ export function runExportsTimeline(options: TimelineCliOptions = {}): void {
       { kind: 'commit', sha: commit.sha, label: shortSha(commit.sha) },
       {
         noCache: options.noCache,
+        force: options.force,
         profile: 'timeline',
         git: { commitDate: commit.date },
       },
