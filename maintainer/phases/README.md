@@ -20,6 +20,7 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 | Doc | Status |
 |-----|--------|
 | [`extension/README.md`](./extension/README.md) | **Next vertical** — VS Code extension (`apps/extension/`) |
+| [`exports.md`](./exports.md) | **Planned** — `@i18nprune/core` stability tiers + subpaths (major breaking) |
 
 **Shipped reference (future hardening, not blockers):**
 

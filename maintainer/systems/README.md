@@ -24,6 +24,7 @@
 | **Tree T0–T10** ([`shipped-slices.md`](../phases/shipped-slices.md)) | **Shipped** (core + CLI); apps shim cleanup `96aed18`; no app tree pass for v1 |
 | **CI CI-1–5** ([`shipped-slices.md`](../phases/shipped-slices.md)) | **Shipped** — split verify DAG, PR annotations, nightly knip/madge, debug artifacts, Turborepo scope |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
+| **`systems/exports.md`** | `@i18nprune/core` stability tiers, subpath catalog, root barrel rules, host import matrix |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
 Design rules: **`maintainer/agents/architecture.md`** and **`maintainer/agents/rules.md`**.
@@ -54,6 +55,7 @@ maintainer/systems/
 ├── ci.md
 ├── health.md
 ├── knip.md
+├── exports.md
 ├── operations/
 │   ├── README.md
 │   └── entrypoints.md
@@ -85,6 +87,7 @@ Keep this tree truthful with `git`; don't maintain a brittle wall of filenames h
 | **Health gates (typecheck, test, knip, madge)** | `maintainer/systems/health.md` |
 | **Runtime UI kit (`@i18nprune/ui`)** | `maintainer/systems/ui.md` |
 | **Knip config / ignore catalog** | `maintainer/systems/knip.md` |
+| **Core export tiers / subpaths** | `maintainer/systems/exports.md` · phase [`phases/exports.md`](../phases/exports.md) |
 | **Agent authoring rules** | `maintainer/agents/` (architecture, rules, jsdoc, git) |
 
 ---

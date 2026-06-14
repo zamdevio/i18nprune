@@ -29,5 +29,7 @@ Contributor-only planning and systems maps. **`docs/`** syncs to the public site
 | [`phases/active-phase.md`](phases/active-phase.md) | **Current sprint** |
 | [`phases/shipped-slices.md`](phases/shipped-slices.md) | Shipped receipts |
 | [`phases/extension/README.md`](phases/extension/README.md) | Extension roadmap + specs |
+| [`phases/exports.md`](phases/exports.md) | Core export tiers phase (planned major) |
+| [`systems/exports.md`](systems/exports.md) | Export system rules + host matrix |
 | [`phases/extractor.md`](phases/extractor.md) | Shipped extractor reference (future hardening) |
 | [`systems/README.md`](systems/README.md) | Engineering maps (cache, share, ops, commands) |
