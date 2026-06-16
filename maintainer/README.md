@@ -10,7 +10,7 @@ Contributor-only planning and systems maps. **`docs/`** syncs to the public site
 
 | Need | Where |
 |------|--------|
-| **What to build next** | [`phases/active-phase.md`](phases/active-phase.md) — currently **extension** |
+| **What to build next** | [`phases/active-phase.md`](phases/active-phase.md) — extractor v2, then search / AST / extension |
 | **What not to redo** | [`phases/shipped-slices.md`](phases/shipped-slices.md) |
 | **How subsystems wire** | [`systems/README.md`](systems/README.md) |
 | **Commit / tag / npm** | [`agents/git.md`](agents/git.md) |
@@ -29,7 +29,10 @@ Contributor-only planning and systems maps. **`docs/`** syncs to the public site
 | [`phases/active-phase.md`](phases/active-phase.md) | **Current sprint** |
 | [`phases/shipped-slices.md`](phases/shipped-slices.md) | Shipped receipts |
 | [`phases/extension/README.md`](phases/extension/README.md) | Extension roadmap + specs |
+| [`phases/extractor/README.md`](phases/extractor/README.md) | Extractor hub — shipped receipts + v2 phases |
+| [`phases/extractor/architecture.md`](phases/extractor/architecture.md) | Extractor engines, normalizer, incremental cache |
+| [`phases/extractor/guardrails.md`](phases/extractor/guardrails.md) | Extractor safety & PR checklist |
+| [`phases/search.md`](phases/search.md) | Planned `search` command phase |
 | [`phases/exports.md`](phases/exports.md) | Core export tiers phase (planned major) |
 | [`systems/exports.md`](systems/exports.md) | Export system rules + host matrix |
-| [`phases/extractor.md`](phases/extractor.md) | Shipped extractor reference (future hardening) |
 | [`systems/README.md`](systems/README.md) | Engineering maps (cache, share, ops, commands) |

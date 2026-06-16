@@ -6,7 +6,7 @@
 
 **Convention:** Weeks use **ISO-8601** (`YYYY-Www`, Monday start). Sections are **newest first**. Each row is one closed slice; `Status` is always shipped unless noted.
 
-**Next vertical:** VS Code extension — [`extension/README.md`](./extension/README.md).
+**Next work:** Extractor v2 — [`extractor/README.md`](./extractor/README.md) · then AST tier · then extension — [`active-phase.md`](./active-phase.md).
 
 ---
 
@@ -63,7 +63,7 @@
 
 | Slice | Receipt | User docs |
 |-------|---------|-----------|
-| **Extractor (C.1)** | Bindings, orchestrator expansion, prose filter, parity tests, inventory entries, methodology docs | [`architecture/extraction`](../../docs/architecture/extraction/README.md) · [`extractor.md`](./extractor.md) |
+| **Extractor (C.1)** | Bindings, orchestrator expansion, prose filter, parity tests, inventory entries, methodology docs | [`architecture/extraction`](../../docs/architecture/extraction/README.md) · [`extractor/README.md`](./extractor/README.md) |
 | **Patching hardening** | Integration tests, shared CLI run wiring, resolver/tests, user docs, core types/barrels | [`patching`](../../docs/patching/README.md) |
 | **Init (Session F)** | `runInit`, presets + scoring, config template, CLI **`init`** (`--auto`, `--preset`, `--json`) | [`config`](../../docs/config/README.md) |
 | **Locales multi-topology (H)** | Reader/writer, `flat_file` / `locale_directory`, ops on segment targets, layout fixtures | [`commands/locales`](../../docs/commands/locales/README.md) |

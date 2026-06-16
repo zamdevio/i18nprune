@@ -2,7 +2,7 @@
 
 **Audience:** Maintainers and agents changing `packages/core/src/extractor/**` or call-site behavior.  
 **User-facing mirror:** `docs/extractor/README.md` (behavior, limits, examples).  
-**Phase sequencing:** `maintainer/phases/extractor.md` (design reference; Session **C.1** shipped).
+**Phase sequencing:** [`maintainer/phases/extractor/README.md`](../phases/extractor/README.md) · **Architecture:** [`maintainer/phases/extractor/architecture.md`](../phases/extractor/architecture.md).
 
 ---
 

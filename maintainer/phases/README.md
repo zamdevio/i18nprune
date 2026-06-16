@@ -8,7 +8,7 @@
 
 | Doc | Role |
 |-----|------|
-| [`active-phase.md`](./active-phase.md) | **Current sprint focus** (post-v1: extension) |
+| [`active-phase.md`](./active-phase.md) | **Current sprint focus** |
 | [`shipped-slices.md`](./shipped-slices.md) | Closed slices — **ISO week timeline**; check before re-implementing |
 
 Scratch / spikes: **`maintainer/temp/`** (gitignored).
@@ -19,15 +19,19 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
-| [`extension/README.md`](./extension/README.md) | **Next vertical** — VS Code extension (`apps/extension/`) |
+| [`extractor/README.md`](./extractor/README.md) | **Extractor v2** — HOC, light-dataflow, cross-file, finite-keys, AST tier |
+| [`extractor/architecture.md`](./extractor/architecture.md) | **Architecture** — engines, normalizer, incremental cache |
+| [`search.md`](./search.md) | **Planned** — `search` command (key ↔ call-site index; read-only) |
+| [`extension/README.md`](./extension/README.md) | **After AST tier** — VS Code extension (`apps/extension/`) |
 | [`exports.md`](./exports.md) | **Planned** — `@i18nprune/core` stability tiers + subpaths (major breaking) |
 
-**Shipped reference (future hardening, not blockers):**
+**Shipped reference (do not re-implement):**
 
 | Doc | Role |
 |-----|------|
-| [`extractor.md`](./extractor.md) | Session C.1 shipped — extractor improvements + inventory links |
-| [`extension/`](./extension/) | Extension specs (execute per extension README) |
+| [`extractor/README.md`](./extractor/README.md) | C.1 + E.1–E.6 + D.1 receipts + v2 sequencing |
+| [`extractor/architecture.md`](./extractor/architecture.md) | Normalizer, depths, cache model |
+| [`extension/`](./extension/) | Extension specs (execute per extension README when active) |
 
 **Systems maps (engineering truth):** [`systems/README.md`](../systems/README.md) — `cache.md`, `share.md`, `extractor.md`, …
 
