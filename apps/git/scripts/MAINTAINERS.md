@@ -17,7 +17,7 @@ From repo root: `pnpm git:sync` · `pnpm git:sync:force`
 
 | File | Source |
 |------|--------|
-| `commits.json` | `git log` + `--numstat` (hash, author, body, files, +/- lines) |
+| `commits.json` | `git log --branches` + `--numstat` (hash, author, body, files, +/- lines) |
 | `summary.json` | Derived totals (commits, authors, peak day, TS/MD line counts, tags) |
 | `phases.json` | `scripts/phases.config.json` merged with weekly commit counts |
 | `authors.json` | Per-author totals + GitHub profile fields |
@@ -32,7 +32,7 @@ Script-only state under `apps/git/.cache/`:
 
 | File | Role |
 |------|------|
-| `sync-state.json` | `HEAD` + commit-count fingerprint; enables &lt;1s no-op skip when git unchanged |
+| `sync-state.json` | `HEAD` + all local branch tips + commit-count fingerprint; enables &lt;1s no-op skip when git unchanged |
 | `github-profiles.json` | Login-keyed GitHub API cache (7-day TTL, sticky enriched rows on API failure) |
 
 **Policy:**
@@ -44,13 +44,15 @@ Script-only state under `apps/git/.cache/`:
 
 ## Fast path
 
-When `sync-state.json` fingerprint matches current `HEAD` + `rev-list --count` and all six output files exist, sync prints:
+When `sync-state.json` fingerprint matches current `HEAD`, local branch tips, and `rev-list --count --branches`, and all six output files exist, sync prints:
 
 ```text
 Sync skipped (no git changes since …, HEAD abc1234)
 ```
 
-Rebase / new commits change the fingerprint → full sync runs automatically.
+Rebase / new commits / new branch tips change the fingerprint → full sync runs automatically.
+
+Side branches own only commits exclusive to that branch (`rev-list branch --not main`); shared history stays on `main` for filtering and `branches.json` totals.
 
 ## Validation
 

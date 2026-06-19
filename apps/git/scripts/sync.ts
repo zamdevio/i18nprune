@@ -1,9 +1,14 @@
 import path from 'node:path';
 import { buildAuthorsWithGitHub } from './lib/authors.js';
-import { buildBranches, buildCommitBranchMap } from './lib/branches.js';
+import {
+  buildBranches,
+  buildCommitBranchMap,
+  buildExclusiveCommitMap,
+  resolveDefaultBranch,
+} from './lib/branches.js';
 import { formatGitHubEnrichmentSummary } from './lib/github/api.js';
 import { GitHubProfileCache } from './lib/github/cache.js';
-import { fetchGitLog, tryGit } from './lib/git.js';
+import { fetchGitLog, listLocalBranches } from './lib/git.js';
 import { mergePhases, loadPhaseConfig } from './lib/phases.js';
 import { parseGitLog, toExportCommit } from './lib/parse.js';
 import { DATA_DIR } from './lib/paths.js';
@@ -45,10 +50,17 @@ async function main(): Promise<void> {
   const baseCommits = parsed.map(toExportCommit);
   const tags = buildTags();
   const tagMap = buildCommitTagMap(tags);
-  const branchMap = buildCommitBranchMap(
-    tryGit(['branch', '--list', '--format=%(refname:short)'])?.split('\n').filter(Boolean) ?? [],
+  const branchNames = listLocalBranches();
+  const defaultBranch = resolveDefaultBranch(branchNames);
+  const branchMap = buildCommitBranchMap(branchNames);
+  const exclusiveByBranch = buildExclusiveCommitMap(branchNames, defaultBranch);
+  const commits = annotateCommitRefs(
+    baseCommits,
+    tagMap,
+    branchMap,
+    exclusiveByBranch,
+    defaultBranch,
   );
-  const commits = annotateCommitRefs(baseCommits, tagMap, branchMap);
   const summary = buildSummary(commits);
   const phases = mergePhases(loadPhaseConfig(), commits);
   const parseMs = performance.now() - parseStart;

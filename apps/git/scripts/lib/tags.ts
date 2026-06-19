@@ -1,5 +1,5 @@
 import type { ExportCommit } from './parse.js';
-import { pickPrimaryBranch } from './branches.js';
+import { pickPrimaryBranch, type ExclusiveCommitMap } from './branches.js';
 import { tryGit } from './git.js';
 
 export interface TagOutput {
@@ -39,6 +39,8 @@ export function annotateCommitRefs(
   commits: ExportCommit[],
   tagMap: Map<string, string[]>,
   branchMap: Map<string, string[]>,
+  exclusiveByBranch: ExclusiveCommitMap,
+  defaultBranch: string,
 ): Array<ExportCommit & { tags: string[]; branches: string[]; branch: string | null }> {
   return commits.map((commit) => {
     const branches = branchMap.get(commit.fullHash) ?? [];
@@ -46,7 +48,7 @@ export function annotateCommitRefs(
       ...commit,
       tags: tagMap.get(commit.fullHash) ?? [],
       branches,
-      branch: pickPrimaryBranch(commit.fullHash, branches),
+      branch: pickPrimaryBranch(commit.fullHash, branches, exclusiveByBranch, defaultBranch),
     };
   });
 }

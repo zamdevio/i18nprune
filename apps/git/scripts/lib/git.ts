@@ -17,12 +17,19 @@ export function tryGit(args: string[], cwd = REPO_ROOT): string | null {
   }
 }
 
+export function listLocalBranches(): string[] {
+  return tryGit(['branch', '--list', '--format=%(refname:short)'])?.split('\n').filter(Boolean) ?? [];
+}
+
 const RECORD = '\x1e--END--\x1e';
 
+/** Walk all local branches so side-branch-only commits appear in commits.json. */
 export function fetchGitLog(): string {
   const fields = ['%H', '%h', '%ad', '%an', '%ae', '%s', '%b'].join('\x1e');
   return git([
     'log',
+    '--branches',
+    '--topo-order',
     `--pretty=format:${fields}${RECORD}`,
     '--date=short',
     '--numstat',

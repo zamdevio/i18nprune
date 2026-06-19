@@ -2,7 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { CACHE_DIR, SYNC_STATE_FILE } from './cache-dir.js';
 import { DATA_DIR } from './paths.js';
-import { git } from './git.js';
+import { git, listLocalBranches, tryGit } from './git.js';
+
+function branchRef(name: string): string {
+  return `refs/heads/${name}`;
+}
 
 export const SYNC_OUTPUT_FILES = [
   'commits.json',
@@ -32,14 +36,22 @@ function syncStatePath(): string {
 
 export function computeGitFingerprint(): GitSyncFingerprint {
   const headSha = git(['rev-parse', 'HEAD']);
-  const commitCount = Number.parseInt(git(['rev-list', '--count', 'HEAD']), 10);
+  const branchNames = listLocalBranches();
+  const tips = branchNames
+    .map((name) => {
+      const tip = tryGit(['rev-parse', branchRef(name)]);
+      return tip ? `${name}@${tip}` : name;
+    })
+    .sort()
+    .join(',');
+  const commitCount = Number.parseInt(git(['rev-list', '--count', '--branches']), 10);
   if (!Number.isFinite(commitCount) || commitCount < 0) {
     throw new Error('git rev-list --count returned an invalid value');
   }
   return {
     headSha,
     commitCount,
-    fingerprint: `${headSha}:${commitCount}`,
+    fingerprint: `${headSha}:${commitCount}:${tips}`,
   };
 }
 

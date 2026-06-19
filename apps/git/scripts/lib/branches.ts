@@ -19,6 +19,8 @@ export interface BranchOutput {
   lastCommit: string;
 }
 
+export type ExclusiveCommitMap = Map<string, Set<string>>;
+
 function branchRef(name: string): string {
   return `refs/heads/${name}`;
 }
@@ -27,36 +29,53 @@ function revListHashes(branchName: string): string[] {
   return tryGit(['rev-list', branchRef(branchName)])?.split('\n').filter(Boolean) ?? [];
 }
 
-function distanceToTip(commitHash: string, branchName: string): number | null {
-  const raw = tryGit(['rev-list', '--count', `${commitHash}..${branchRef(branchName)}`]);
-  if (raw === null) return null;
-  const distance = Number.parseInt(raw, 10);
-  return Number.isNaN(distance) ? null : distance;
+export function resolveDefaultBranch(branchNames: string[]): string {
+  if (branchNames.includes('main')) return 'main';
+  if (branchNames.includes('master')) return 'master';
+  return branchNames[0] ?? 'main';
 }
 
-/** Branch whose tip is closest to the commit — avoids tagging every commit with new feature branches. */
-export function pickPrimaryBranch(commitHash: string, containing: string[]): string | null {
+/** Commits reachable from `branchName` but not from the default branch. */
+export function buildExclusiveCommitMap(
+  branchNames: string[],
+  defaultBranch = resolveDefaultBranch(branchNames),
+): ExclusiveCommitMap {
+  const map: ExclusiveCommitMap = new Map();
+
+  for (const name of branchNames) {
+    if (name === defaultBranch) continue;
+    const raw = tryGit(['rev-list', branchRef(name), '--not', branchRef(defaultBranch)]);
+    map.set(name, new Set(raw?.split('\n').filter(Boolean) ?? []));
+  }
+
+  return map;
+}
+
+/**
+ * Primary branch for filtering: side branches own only their exclusive commits;
+ * shared history stays on main (or master).
+ */
+export function pickPrimaryBranch(
+  commitHash: string,
+  containing: string[],
+  exclusiveByBranch: ExclusiveCommitMap,
+  defaultBranch = 'main',
+): string | null {
   if (containing.length === 0) return null;
-  if (containing.length === 1) return containing[0];
 
-  let best = containing[0];
-  let bestDistance = Number.POSITIVE_INFINITY;
-
-  for (const name of containing) {
-    const distance = distanceToTip(commitHash, name);
-    if (distance === null) continue;
-
-    const isBetter =
-      distance < bestDistance ||
-      (distance === bestDistance && name === 'main' && best !== 'main');
-
-    if (isBetter) {
-      bestDistance = distance;
-      best = name;
+  for (const [branchName, hashes] of exclusiveByBranch) {
+    if (hashes.has(commitHash) && containing.includes(branchName)) {
+      return branchName;
     }
   }
 
-  return best;
+  for (const name of ['main', 'master'] as const) {
+    if (containing.includes(name)) return name;
+  }
+
+  if (containing.length === 1) return containing[0];
+
+  return [...containing].sort((left, right) => left.localeCompare(right))[0] ?? null;
 }
 
 export function buildCommitBranchMap(branchNames: string[]): Map<string, string[]> {
@@ -95,7 +114,6 @@ export function buildBranches(
       const logLine = hash ? tryGit(['log', '-1', '--format=%ad\x1e%s', '--date=short', hash]) : null;
       const [date = '', subject = ''] = logLine?.split('\x1e') ?? [];
 
-      // Primary-branch ownership — same rule as /commits?branch= and commit.branch
       const branchCommits = commits.filter((commit) => commit.branch === name);
 
       const authorEmails = [...new Set(branchCommits.map((commit) => commit.email))].sort();
@@ -121,7 +139,6 @@ export function buildBranches(
         deletions,
         netLines: insertions - deletions,
         activeDays,
-        // Side branches may have no commits in the main-line export; use tip date from `git log -1`.
         firstCommit: dates[0] ?? tipDate,
         lastCommit: dates.at(-1) ?? tipDate,
       };
