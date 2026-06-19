@@ -7,7 +7,7 @@
 ## Mental model
 
 - **Core:** deterministic engines, no **`console.*`**, IO via adapters where applicable.
-- **CLI / hosts:** resolve config, filesystem, **`RunEmitter`**, **`--json`** envelopes, exit codes, human UI.
+- **CLI / hosts:** resolve config, filesystem, **`RunEmitter`**, **`--json`** envelopes, exit codes, human UI. Terminal protocol exploitation (OSC progress, titles, hyperlinks) is CLI-only — see [`phases/terminal.md`](../../phases/terminal.md).
 
 ## Emission (summary)
 

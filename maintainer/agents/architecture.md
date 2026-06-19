@@ -29,7 +29,7 @@ tests/
   fixtures/      Sample i18n apps
 ```
 
-**Rule:** Domain logic lives in `packages/core/`. The CLI is a host — it calls core and renders. If you're writing business logic, it goes in core. If you're writing UI (prompts, colors, banners, spinners), it goes in CLI.
+**Rule:** Domain logic lives in `packages/core/`. The CLI is a host — it calls core and renders. If you're writing business logic, it goes in core. If you're writing UI (prompts, colors, banners, spinners, terminal protocols), it goes in CLI. Planned terminal exploitation: [`phases/terminal.md`](../phases/terminal.md).
 
 ---
 

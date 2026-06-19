@@ -34,5 +34,6 @@ Contributor-only planning and systems maps. **`docs/`** syncs to the public site
 | [`phases/extractor/guardrails.md`](phases/extractor/guardrails.md) | Extractor safety & PR checklist |
 | [`phases/search.md`](phases/search.md) | Planned `search` command phase |
 | [`phases/exports.md`](phases/exports.md) | Core export tiers phase (planned major) |
+| [`phases/terminal.md`](phases/terminal.md) | Terminal protocol exploitation (CLI presentation; research) |
 | [`systems/exports.md`](systems/exports.md) | Export system rules + host matrix |
 | [`systems/README.md`](systems/README.md) | Engineering maps (cache, share, ops, commands) |

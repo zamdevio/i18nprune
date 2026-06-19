@@ -19,6 +19,8 @@
 
 **Side branch:** [`feat/studio`](../../apps/studio/) — Tauri studio app bootstrap; not on `main` git timeline until merged.
 
+**Parallel research:** [`terminal.md`](./terminal.md) — exploit terminal protocols to surface existing SDK telemetry (titles, OSC progress, hyperlinks, notifications). Does not block extractor v2; ship in small CLI-only slices when active.
+
 ---
 
 ## Shipped reference (future work only)
@@ -28,6 +30,7 @@
 | **Extractor** | [`extractor/README.md`](./extractor/README.md) | Shipped baseline + v2 program + deferred provider registry |
 | **Extension** | [`extension/README.md`](./extension/README.md) | Post–AST-tier vertical — `apps/extension/` |
 | **Search** | [`search.md`](./search.md) | Planned read-only key ↔ call-site op |
+| **Terminal** | [`terminal.md`](./terminal.md) | Research — protocol exploitation (presentation only; parallel track) |
 
 ---
 

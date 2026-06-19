@@ -20,6 +20,7 @@
 | **`systems/share.md`** | Share ecosystem: core `runShare*`, CLI/web/report hosts, `workers/i18nprune` routes, DO storage, metadata builders |
 | **`systems/cache.md`** | Project cache: `files.json` / `analysis.json` rebuild policy, profiles, invalidate rules (shipped H-cache) |
 | **`systems/platform.md`** | CLI + SDK on Windows / macOS / Linux / WSL — adapters, home layout, path warnings, CI matrix |
+| **Terminal presentation (planned)** | Phase [`phases/terminal.md`](../phases/terminal.md) — OSC progress/titles/hyperlinks; CLI exploits `RunEvent` telemetry |
 | **`systems/ci.md`** | GitHub Actions: job DAG, matrix, artifacts, PR annotations, architecture nightly |
 | **Tree T0–T10** ([`shipped-slices.md`](../phases/shipped-slices.md)) | **Shipped** (core + CLI); apps shim cleanup `96aed18`; no app tree pass for v1 |
 | **CI CI-1–5** ([`shipped-slices.md`](../phases/shipped-slices.md)) | **Shipped** — split verify DAG, PR annotations, nightly knip/madge, debug artifacts, Turborepo scope |

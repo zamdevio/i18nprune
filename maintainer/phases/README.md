@@ -24,6 +24,7 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 | [`search.md`](./search.md) | **Planned** — `search` command (key ↔ call-site index; read-only) |
 | [`extension/README.md`](./extension/README.md) | **After AST tier** — VS Code extension (`apps/extension/`) |
 | [`exports.md`](./exports.md) | **Planned** — `@i18nprune/core` stability tiers + subpaths (major breaking) |
+| [`terminal.md`](./terminal.md) | **Research / planned** — terminal protocol exploitation (CLI presentation; SDK telemetry surfaces) |
 
 **Shipped reference (do not re-implement):**
 
