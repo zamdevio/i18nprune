@@ -17,6 +17,8 @@
 
 **v1 gate closed:** cross-platform (XP), tree (T0–T10), CI (CI-1–5), docs (D), release prep (npm `@i18nprune/core` + `publish:verify`). Extractor hardening C.1 / E.1–E.6 / D.1 shipped — see [`extractor/README.md`](./extractor/README.md).
 
+**Side branch:** [`feat/studio`](../../apps/studio/) — Tauri studio app bootstrap; not on `main` git timeline until merged.
+
 ---
 
 ## Shipped reference (future work only)

@@ -6,7 +6,22 @@
 
 **Convention:** Weeks use **ISO-8601** (`YYYY-Www`, Monday start). Sections are **newest first**. Each row is one closed slice; `Status` is always shipped unless noted.
 
-**Next work:** Extractor v2 — [`extractor/README.md`](./extractor/README.md) · then AST tier · then extension — [`active-phase.md`](./active-phase.md).
+**Next work:** Extractor v2 — [`extractor/README.md`](./extractor/README.md) · then search · AST tier · extension — [`active-phase.md`](./active-phase.md).  
+**Side branch:** `feat/studio` — `apps/studio/` (not on `main` timeline until merged).
+
+---
+
+## 2026-W25 · Planning & exports governance
+
+**Theme:** EX-0 export inventory, extractor phase architecture (`fast` | `balanced` | `typed`), search phase, extension host bundle, marketing positioning.
+
+| Slice | Receipt | User docs |
+|-------|---------|-----------|
+| **EX-0** | **`scripts/exports/`** — `pnpm exports:{inventory,diff,validate,trend,timeline,graph,help}`; `.exports/cache/`; cache refresh flags + version-based auto-expire; tier rules; audit in [`phases/exports.md`](./exports.md) | [`systems/exports.md`](../systems/exports.md) · [`scripts/exports/README.md`](../../scripts/exports/README.md) |
+| **Extractor phases** | Hub under `maintainer/phases/extractor/` — [`architecture.md`](./extractor/architecture.md) (normalizer, depths, incremental cache), [`guardrails.md`](./extractor/guardrails.md), v2 specs (HOC, cross-file, …); provider registry on hold | [`extractor/README.md`](./extractor/README.md) |
+| **Search phase** | [`search.md`](./search.md) — read-only key ↔ call-site command plan | — (maintainer only until ship) |
+| **Extension** | esbuild host bundle externalizes `@i18nprune/core` + `jiti` | `apps/extension/` |
+| **Positioning** | [`maintainer/marketing/positioning.md`](../marketing/positioning.md) — pre-v1 / extension-coming-soon copy rules | — |
 
 ---
 
@@ -19,7 +34,6 @@
 | **E.1–E.6** | Mixed-template fusion (`partitionTemplateHoles`, `analyzeTemplateCall`, `dynamicRef`, `staticPrefix` / `runtimeSegments` / `classification`), const-map hardening (E.2), non-literal hints (E.3), lexical safety tests (E.4), comment parity (E.5), `groupDynamicKeySites` + template detail in `locales dynamic` JSON (E.6) | [`architecture/extraction/dynamic`](../../docs/architecture/extraction/dynamic.md) |
 | **D.1** | **Active vs commented** dynamic counts — summary `dynamic=active`, optional `commented=M`; warnings/issues use active; `dynamicSites` / `count` stay total; additive JSON (`dynamicActive`, `dynamic.commented`, …) across validate/cleanup/missing/sync/quality/review/generate/report | [`dynamic/README`](../../docs/dynamic/README.md) |
 | **T.1** | **Placeholder sentinel hardening** — `restore()` accepts MT spacing/case variants (`__ I18NPRUNE_0 __`); `validateRestored` / leak check on `I18NPRUNE_\d+`; generate **always** copies placeholder-only leaves (`{{a}} · {{b}}`) without MT; resume repairs same; tests + `issues/translate#placeholder-sentinel-mangled` | [`issues/translate`](../../docs/issues/translate.md) |
-| **EX-0** | **`scripts/exports/`** — `pnpm exports:{inventory,diff,validate,trend,timeline,graph,help}`; `.exports/cache/` (`inventory.full.json`, `timeline.summary.json`); tier rules in code; EX-0 audit (deep imports + host checklist) in [`phases/exports.md`](./exports.md) | [`systems/exports.md`](../systems/exports.md) · [`scripts/exports/README.md`](../../scripts/exports/README.md) |
 
 ---
 
@@ -137,6 +151,8 @@
 
 | ID | Week | One-line |
 |----|------|----------|
+| **EX-0** | W25 | Export inventory governance scripts + cache |
+| **Extractor phases** | W25 | architecture.md + v2 hub under phases/extractor/ |
 | **D.1** | W24 | Active vs commented dynamic counts |
 | **E.1–E.6** | W24 | Mixed-template extractor hardening + dynamic groups |
 | **C.1** | W21 | Extractor bindings + prose filter |

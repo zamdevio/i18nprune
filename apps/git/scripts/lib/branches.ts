@@ -105,6 +105,7 @@ export function buildBranches(
       const activeDays = new Set(branchCommits.map((commit) => commit.date)).size;
 
       const tipCommit = commitByHash.get(hash);
+      const tipDate = tipCommit?.date ?? date;
 
       return {
         name,
@@ -120,8 +121,9 @@ export function buildBranches(
         deletions,
         netLines: insertions - deletions,
         activeDays,
-        firstCommit: dates[0] ?? '',
-        lastCommit: dates.at(-1) ?? '',
+        // Side branches may have no commits in the main-line export; use tip date from `git log -1`.
+        firstCommit: dates[0] ?? tipDate,
+        lastCommit: dates.at(-1) ?? tipDate,
       };
     })
     .sort((left, right) => {
