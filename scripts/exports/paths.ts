@@ -11,7 +11,6 @@ export const rootIndexAbsPath = path.join(repoRoot, rootIndexRepoPath);
 
 export const exportsCacheRoot = path.join(repoRoot, '.exports/cache');
 export const exportsMetaPath = path.join(exportsCacheRoot, 'meta.json');
-export const exportsWorktreesRoot = path.join(repoRoot, '.exports/worktrees');
 
 /** Full inventory snapshot (inventory, diff, graph, validate, trend). */
 export const FULL_SNAPSHOT_FILENAME = 'inventory.full.json';

@@ -2,7 +2,9 @@
 
 Maintainer tooling for inspecting and validating the `@i18nprune/core` public export surface. These scripts answer questions like “how big is our SDK root barrel?”, “what changed since the last tag?”, and “does the working tree violate tier rules?”
 
-**Not user-facing.** End users never run these. See [`maintainer/systems/exports.md`](../../maintainer/systems/exports.md) for the full engineering map.
+**Canonical operator manual** — this file (`pnpm exports:*` commands, flags, cache, examples).  
+**Durable rules + architecture:** [`maintainer/systems/exports.md`](../../maintainer/systems/exports.md).  
+**Slice plan + post-refactor checklist:** [`maintainer/phases/exports.md`](../../maintainer/phases/exports.md).
 
 ---
 

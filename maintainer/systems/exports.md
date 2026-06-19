@@ -1,9 +1,9 @@
 # `@i18nprune/core` export system
 
 **Audience:** Maintainers and agents changing `packages/core` barrels, `package.json` exports, or host imports.  
-**Execution sequencing:** [`../phases/exports.md`](../phases/exports.md) (slices EX-0…EX-5).  
-**Script operator manual:** [`../../scripts/exports/README.md`](../../scripts/exports/README.md) — commands, flags, cache layout, examples (canonical for `pnpm exports:*`).  
-**User-facing mirror:** `docs/exports/README.md` (EX-5).
+**Execution sequencing + run checklist:** [`../phases/exports.md`](../phases/exports.md) (slices EX-0…EX-5).  
+**Script operator manual:** [`../../scripts/exports/README.md`](../../scripts/exports/README.md) — all `pnpm exports:*` usage (canonical).  
+**User-facing mirror:** [`docs/sdk/exports.md`](../../docs/sdk/exports.md) (EX-5) — under SDK docs, not `docs/exports/`.
 
 ---
 
@@ -262,7 +262,7 @@ New subpaths require: source barrel → tsup entry → `package.json` exports �
 | **tsconfig ↔ exports parity** | No `@i18nprune/core/*` wildcard; allowlist matches `package.json` |
 | **Deep import grep** | Hosts must not import unpublished `@i18nprune/core/...` paths |
 | Forbidden importers | `apps/extension/**`, `examples/sdk/**` must not import `/internal` |
-| **`pnpm exports:validate`** | CI gate — structural rules + paths + host imports (see [`exports.md`](./exports.md)) |
+| **`pnpm exports:validate`** | CI gate — see [`phases/exports.md`](../phases/exports.md) EX-4 + script hardening table |
 | Knip | Barrel files listed in [`knip.md`](./knip.md) — do not “fix” knip by deleting public re-exports |
 | Extension host size | `@i18nprune/core` externalized in esbuild — prefer subpaths over bundling root |
 | No `@deprecated` | Remove export and update call sites ([`agents/rules.md`](../agents/rules.md)) |
@@ -278,234 +278,86 @@ Today root and `/shared` both expose names like `json`, `scanner`, `errors`. Aft
 
 ---
 
-## Export validation scripts (`scripts/exports/`)
+## Export governance scripts (`scripts/exports/`)
 
-**Yes — put tooling here.** Same pattern as [`scripts/ui/purity-check.mjs`](../../scripts/ui/purity-check.mjs) (guard) and [`scripts/catalog/`](../../scripts/catalog/) (domain pipeline): maintainer-facing scripts under `scripts/exports/`, wired from root `package.json`, spec in this file.
+**Operator manual (canonical):** [`scripts/exports/README.md`](../../scripts/exports/README.md) — every `pnpm exports:*` command, flag, cache profile, output legend, and example.  
+**Slice sequencing + post-refactor checklist:** [`phases/exports.md`](../phases/exports.md).
 
-**Not** under `packages/core` (core stays pure — no `process`, no repo introspection). **Not** only in `tests/` — this is ongoing governance, not a one-off fixture test (though add Vitest for parsers if useful).
+Maintainer tooling lives under **`scripts/exports/`** (same pattern as `scripts/ui/purity-check.mjs`, `scripts/catalog/`). **Not** in `packages/core` — core stays pure (no repo introspection, no `process`).
 
-### Why export scripts matter
+### Why it exists
 
-The export refactor is mostly mechanical; the **real failure mode** is slow API drift — someone adds `export { buildEnvelope } from './foo'` to root without noticing. **`exports:validate`** (CI) + **`exports:diff`** (review) turn that into a 2-second answer instead of reading barrels at 2 AM.
+The barrel refactor is mostly mechanical; the failure mode is **slow API drift** — a symbol lands on root without a tier decision. **`exports:inventory`** / **`exports:graph`** answer “what is the surface?”; **`exports:diff`** answers “what changed?”; **`exports:validate`** (EX-4 CI gate) answers “does the tree violate policy?”
 
-**No committed inventory JSON.** Git history, tags, and **`git show <sha>:…`** are the source of truth for past states. The scripts **parse barrels** at `HEAD`, at a ref, or from the working tree; results live in **ignored** `.exports/cache/` only.
+**No committed inventory JSON.** Git history and `git show <sha>:packages/core/src/index.ts` are the source of truth for past states. Parsed snapshots live only in gitignored **`.exports/cache/`**.
 
-### Storage model
-
-| Location | Git | Role |
-|----------|-----|------|
-| **`scripts/exports/`** | Tracked | Parsers, tier rules, validate, diff, cache heal |
-| **`.exports/`** | **Ignored** | Generated snapshots per commit SHA + cache index |
-| **`packages/core/src/**` barrels** | Tracked | Actual API — history via normal commits |
-
-```text
-.exports/
-  cache/
-    meta.json                    # index of all <sha>/ entries (auto-healed)
-    <sha>/
-      inventory.generated.json   # parsed exports + tier + summary at that commit
-  worktrees/<sha>/               # optional — git worktree fallback only
-```
-
-**Cache behavior:** resolving a ref writes snapshots under `.exports/cache/` (gitignored, auto-healed). Nothing in `maintainer/systems/` or the repo tree is regenerated or committed by these commands.
-
-### Cache index (`cache/meta.json`)
-
-Single index file listing every warmed SHA directory. Updated whenever a snapshot is built or healed.
-
-```json
-{
-  "version": 1,
-  "toolVersion": 1,
-  "entries": {
-    "abc123…": {
-      "requestedRefs": ["v0.2.0", "main"],
-      "generatedAt": "2026-06-15T12:00:00.000Z",
-      "summary": { "rootFlat": 342, "stable": 280, "advanced": 0, "internal": 0 }
-    }
-  }
-}
-```
-
-**Auto-heal (same posture as project disk cache — see [`cache.md`](./cache.md)):** cache problems should **recover**, not block maintainers when fixable.
-
-| Condition | Behavior |
-|-----------|----------|
-| `meta.json` missing | Rebuild from existing `<sha>/` dirs that have valid `inventory.full.json` |
-| `<sha>/` on disk but missing from meta | Add entry from dir contents |
-| Meta entry but dir missing / corrupt JSON | Drop meta row; regenerate on next `exports:diff` for that ref |
-| Partial write / truncated file | Delete bad artifact; regenerate from `git show` |
-| **`--no-cache`** | Skip read/write for this run; still use git |
-
-**`exports:validate`** always parses the **working tree** (and host imports) — never depends on cache being warm.
-
-### Tier classification (in code, not JSON)
-
-Tiers come from **`scripts/exports/inventory/tiers.ts`** (rules aligned with this doc): barrel path, subpath entry file, root flat vs namespace, post–EX-3 layout. Examples:
-
-- Symbol re-exported only from `src/exports/internal.ts` → **internal**
-- `runXxx` on root flat → **stable**
-- `ISSUE_*` from issues barrel → **stable** on `/issues`
-
-**Unclassified** = rule table could not assign a tier → **`exports:validate` fails** (fix rules or barrel layout).
-
-### How refs are read
-
-| Step | Mechanism |
-|------|-----------|
-| Resolve ref | `git rev-parse ref^{commit}` → cache key `<sha>` |
-| Sources at ref | **`git show <sha>:packages/core/src/...`** per barrel file (default) |
-| Heavy fallback | `git worktree add .exports/worktrees/<sha> <sha> --detach` |
-| Range `A..B` | Resolve both SHAs; diff two cached/generated snapshots |
-
-No copying the repo to `/tmp` — worktrees stay under ignored `.exports/`.
-
-### Root scripts (EX-0 shipped)
-
-**Operator reference:** [`scripts/exports/README.md`](../../scripts/exports/README.md) — full command list, flags, cache profiles, output legends.
-
-| Script | Args | Fails? | Role |
-|--------|------|--------|------|
-| **`pnpm exports:inventory`** | optional `[ref]` | No | Root/tier summary; `-v` symbol table |
-| **`pnpm exports:diff`** | `[ref\|A..B]`, `--no-cache`, `-v` | No | Flat export delta between refs |
-| **`pnpm exports:validate`** | `-v`, `--since=` | **Yes** (stub until EX-4) | tsconfig ↔ exports parity + unclassified gate |
-| **`pnpm exports:trend`** | `--tags=`, `-v` | No | Per-tag flat/stable/advanced/internal |
-| **`pnpm exports:timeline`** | range, `--limit=` (`0` = none), `-v` | No | Barrel-touching commits + flat Δ |
-| **`pnpm exports:graph`** | `[ref]`, `-v` | No | Re-export map (subpaths + modules) |
-| **`pnpm exports:help`** | topic | No | Usage |
+### Layout (implementation)
 
 ```text
 scripts/exports/
-  run.ts              CLI entry
-  README.md           operator manual (start here for pnpm exports:*)
-  commands/           inventory, diff, validate, trend, timeline, graph
-  inventory/          parse barrels, tiers, categories, graph edges
-  cache/store/        meta.json heal + inventory.full.json + timeline.summary.json
-  git/                ref resolve, git show, session timing stats
-  logger/             output + column legends
-  help/               --help text
-  time/               timeline range tokens (@4w, ISO week, …)
+  run.ts                 CLI entry (tsx)
+  paths.ts               SNAPSHOT_VERSION, TOOL_VERSION, CACHE_META_VERSION, subpath map
+  commands/              inventory, diff, validate, trend, timeline, graph
+  inventory/             parse barrel, tiers.ts, categories, graph edges
+  cache/store/           read/write, meta heal, toolVersion purge
+  git/                   rev-parse, git show, barrel log
+  logger/, help/, time/
 ```
 
-Wire: `tsx --tsconfig tsconfig.json scripts/exports/run.ts <command>`. Cache root: **`.exports/cache/`** (gitignored). Optional **`//#exports:validate`** in typecheck after EX-4.
+Wire: root `package.json` → `pnpm exports:<cmd>` → `tsx scripts/exports/run.ts <cmd>`.
 
-### Command progression (supported roadmap)
+### Cache model (rules)
 
-Build in order — each step is useful alone (ChatGPT “maintainer happiness” arc, scoped to what we need):
+| Artifact | Profile | Used by |
+|----------|---------|---------|
+| `<sha>/inventory.full.json` | full | inventory, diff, graph, trend, validate |
+| `<sha>/timeline.summary.json` | timeline | timeline only (never loads full graph) |
+| `meta.json` | index | trend heal; lists warmed full snapshots |
 
-#### Phase 1 — `exports:inventory` (EX-0)
+| Constant (`paths.ts`) | Invalidates |
+|-----------------------|-------------|
+| **`SNAPSHOT_VERSION`** | Snapshot JSON **shape** |
+| **`TOOL_VERSION`** | Scanner **logic** (tiers, parser) — all SHAs on bump |
+| **`CACHE_META_VERSION`** | `meta.json` index shape only |
 
-```bash
-pnpm exports:inventory
-pnpm exports:inventory HEAD
-```
+**Auto-heal:** corrupt JSON, SHA mismatch, stale versions → delete file → rebuild on next access. **`--force` / `-f`** skip read and overwrite; **`--no-cache`** skip read and write. Details: [`scripts/exports/README.md` § Cache](../../scripts/exports/README.md#cache).
 
-```text
-@i18nprune/core export surface (HEAD)
+**`exports:validate`** always reads the **working tree** — never depends on cache being warm.
 
-  root flat:   342
-  stable:      280
-  advanced:      0
-  internal:      0
-  unclassified:  0
-```
+### Tier classification (in code)
 
-Optional `--verbose`: symbol → tier → subpath table.
+Rules live in **`scripts/exports/inventory/tiers.ts`** and **`categories.ts`** (aligned with stability tiers in this doc). Bootstrap heuristics use export **names**; post–EX-1 hardening should prefer **barrel path / source module** where possible ([`phases/exports.md` § Post-refactor script hardening](../phases/exports.md#post-refactor-script-hardening-apply-during-ex-1ex-4)).
 
-#### Phase 2 — `exports:diff` (EX-0 / EX-4)
+**Unclassified** at `HEAD` → **`exports:validate` fails** (EX-4).
 
-```bash
-pnpm exports:diff                  # working tree vs HEAD
-pnpm exports:diff main             # vs main
-pnpm exports:diff v0.2.0           # vs tag (uses cache/<sha>/)
-pnpm exports:diff v0.1.0..HEAD     # range
-pnpm exports:diff v0.2.0 --no-cache
-```
-
-```text
-Export surface delta (v0.2.0 → working tree)
-
-  root flat:   412 → 87
-  stable:      380 → 298
-
-Added:
-  + runDoctor
-  + ISSUE_XYZ
-
-Removed:
-  - oldFoo
-
-✓ No tier violations (or list violations)
-```
-
-#### Phase 3 — `exports:validate` (EX-4)
-
-```bash
-pnpm exports:validate
-pnpm exports:validate --since=HEAD~1
-```
-
-```text
-✓ tsconfig paths match package.json exports
-✓ No forbidden host imports
-✓ No internal/advanced root flat leaks
-✓ root flat count within budget
-```
-
-#### Phase 4 — `exports:trend` / `exports:timeline` / `exports:graph` (EX-0)
-
-Shipped with EX-0 (see [`scripts/exports/README.md`](../../scripts/exports/README.md)):
-
-- **`exports:trend`** — root counts per `v*` tag; uses `cache/meta.json` + full snapshots
-- **`exports:timeline`** — commits that **edit** `packages/core/src/index.ts` only; **`timeline.summary.json`** cache profile; **`Δ`** = flat change vs row above
-- **`exports:graph`** — target subpath groups, namespace → source module, top edge modules
-
-#### Phase 5 — defer
-
-### Diff vs validate
+### Command roles (summary)
 
 | Command | Question | Fails CI? |
 |---------|----------|-----------|
-| **`exports:inventory`** | “What does the surface look like?” | No |
-| **`exports:diff`** | “What changed vs ref / range?” | No (`--strict` optional later) |
-| **`exports:validate`** | “Does current tree violate governance rules?” | **Yes** |
+| **`exports:inventory`** | What does the surface look like? | No |
+| **`exports:graph`** | Where do re-exports land (target subpath / module)? | No |
+| **`exports:diff`** | What changed vs ref or range? | No |
+| **`exports:trend`** / **`timeline`** | How did counts move across tags / barrel commits? | No |
+| **`exports:validate`** | Does the working tree violate governance? | **Yes (EX-4)** |
 
-### What `exports:validate` checks
+Full flags (`-v`, `-f`, `--no-cache`, timeline ranges, etc.): **README only**.
 
-1. **Paths parity** — tsconfig ⊆ `package.json` exports; no wildcard  
-2. **Host imports** — allowlisted subpaths; extension/examples ≠ `/internal`  
-3. **Root barrel policy** — no flat leaks from tier subpaths (post–EX-3 rules)  
-4. **Tier rules** — no **unclassified** symbols at `HEAD`  
+### What `exports:validate` will enforce (EX-4)
+
+1. **Paths parity** — tsconfig `paths` ⊆ `package.json` `exports`; no `@i18nprune/core/*` wildcard  
+2. **Host imports** — allowlisted subpaths only; extension/examples ≠ `/internal`  
+3. **Root barrel policy** — no flat leaks from tier subpaths (post–EX-3)  
+4. **Tier rules** — zero **unclassified** symbols  
 5. **Optional:** root flat count budget (post–EX-3)
 
-### What `exports:inventory` parses
-
-**Where:** `packages/core/src/index.ts`, subpath barrels, `src/shared/index.ts` (AST via `ts-morph` or TS API).
-
-**At `HEAD`:** read working tree (includes uncommitted changes — intentional for pre-push).
-
-**At ref:** `git show` + cache, or `--no-cache` fresh parse.
-
-Per-symbol generated shape inside **`cache/<sha>/inventory.full.json`** (full profile) or **`timeline.summary.json`** (timeline profile) — not committed.
-
-**Cache profiles:** full commands write/read **`inventory.full.json`**; timeline writes/read **`timeline.summary.json`** only so analytics never load 500KB full graphs. See [`scripts/exports/README.md` § Cache](../../scripts/exports/README.md#cache).
-
-### CI placement
-
-| Option | When |
-|--------|------|
-| **`pnpm exports:validate` in CI verify** | EX-4 — required |
-| **`//#exports:validate` in typecheck** | After script is stable |
-| **`exports:diff` in CI** | Optional informational job — not required for green |
-
-### What this does **not** replace
+### What scripts do **not** replace
 
 | Tool | Still owns |
 |------|------------|
-| **knip** | Unused files/deps |
-| **publish-types** | Packed tarball `tsc` |
+| **knip** | Unused files / deps |
+| **publish-types** | Packed tarball resolution |
 | **parity tests** | CLI `--json` bytes |
-| **git history** | When/API changed over time — scripts **read** git, don’t duplicate it |
+| **git** | History — scripts read refs, they do not duplicate commits |
 
 ---
 
@@ -515,7 +367,7 @@ Per-symbol generated shape inside **`cache/<sha>/inventory.full.json`** (full pr
 2. Add to the correct **subpath barrel**, not root flat (unless stable `runXxx`-class entry)
 3. Extend **`scripts/exports/inventory/tiers.ts`** if a new pattern needs a rule
 4. Run **`pnpm exports:diff`** then **`pnpm exports:validate`**
-5. Update `docs/exports/README.md` if user-facing stable surface grows (EX-5)
+5. Update [`docs/sdk/exports.md`](../../docs/sdk/exports.md) if user-facing stable surface grows (EX-5)
 6. Run `pnpm run core:build`, `pnpm typecheck`, `pnpm test`
 
 ---

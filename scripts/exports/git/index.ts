@@ -11,7 +11,6 @@ export { gitCommitMeta, type GitCommitMeta } from './commit-meta.js';
 export { listBarrelCommits, listVersionTags, type GitCommitRow } from './log.js';
 export {
   formatGitRunStats,
-  getGitRunStats,
   resetGitRunStats,
   runGit,
   type GitInvocation,

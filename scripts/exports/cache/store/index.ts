@@ -11,7 +11,6 @@ export { readJsonFile, writeJsonAtomic } from './io.js';
 export {
   healCacheMeta,
   loadCacheMeta,
-  resetCacheMetaMemo,
   touchMetaEntry,
 } from './meta.js';
 export {

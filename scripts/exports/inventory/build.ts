@@ -261,7 +261,3 @@ export function buildSnapshot(input: {
     edges: root.edges,
   };
 }
-
-export function summarizeInventory(snapshot: Pick<InventorySnapshot, 'summary'>): InventorySummary {
-  return snapshot.summary;
-}

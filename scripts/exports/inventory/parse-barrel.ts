@@ -56,10 +56,3 @@ export function parseBarrelExports(source: string, fileName: string): ParsedExpo
 
   return exports;
 }
-
-export function countParsedExports(parsed: ParsedExport[]): { flat: number; namespace: number } {
-  return {
-    flat: parsed.filter((e) => e.exportKind === 'flat').length,
-    namespace: parsed.filter((e) => e.exportKind === 'namespace').length,
-  };
-}

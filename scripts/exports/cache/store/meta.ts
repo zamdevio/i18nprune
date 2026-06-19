@@ -99,9 +99,6 @@ export function loadCacheMeta(): CacheMeta {
   return { ...metaMemo, entries: { ...metaMemo.entries } };
 }
 
-export function resetCacheMetaMemo(): void {
-  metaMemo = undefined;
-}
 
 function saveCacheMeta(meta: CacheMeta): void {
   writeJsonAtomic(exportsMetaPath, meta);

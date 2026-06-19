@@ -6,7 +6,6 @@ export {
   healCacheMeta,
   loadCacheMeta,
   readCachedForProfile,
-  resetCacheMetaMemo,
   snapshotPathsForSha,
   trendRollupFromSnapshot,
   writePathForProfile,

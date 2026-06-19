@@ -192,7 +192,7 @@ An extension that **does not fork** i18n semantics: diagnostics and commands mus
 | Doc | Role |
 |-----|------|
 | [SDK operations](../../../docs/sdk/operations.md) | `run*` helpers vs CLI `--json` |
-| [`docs/exports/README.md`](../../../docs/exports/README.md) | Published API tiers |
+| [`docs/sdk/exports.md`](../../../docs/sdk/exports.md) | Published API tiers (EX-5) |
 
 ---
 

@@ -1,8 +1,9 @@
 # Phase — `@i18nprune/core` export tiers
 
-**Status:** **EX-0 shipped** (scripts + cache); **EX-1…EX-5 planned** — major breaking refactor on `@i18nprune/core` semver.  
-**Engineering map:** [`../systems/exports.md`](../systems/exports.md) (durable rules, host matrix, barrel patterns).  
-**User-facing mirror (EX-5):** `docs/exports/README.md`.
+**Status:** **EX-0 shipped** (governance scripts + cache); **EX-1…EX-5 planned** — major breaking refactor on `@i18nprune/core` semver.  
+**Engineering map:** [`../systems/exports.md`](../systems/exports.md) (tiers, barrels, host matrix, script architecture).  
+**Script operator manual:** [`scripts/exports/README.md`](../../scripts/exports/README.md) (`pnpm exports:*` commands, flags, cache).  
+**User-facing mirror (EX-5):** [`docs/sdk/exports.md`](../../docs/sdk/exports.md) — stability tiers and import guidance under the SDK docs tree (no top-level `docs/exports/`).
 
 **Goal:** Split the root barrel into **stability tiers** with dedicated subpaths, keep root as a **trim facade** (stable flat entrypoints + namespace mirrors), and migrate monorepo hosts via **import path adjustments only** — no CLI `--json`, issue code string, or envelope behavior changes.
 
@@ -103,7 +104,99 @@ Status: **planned** | **in progress** | **done**
 
 One slice per PR where possible; EX-1 may split per subpath if review size demands it.
 
-**Important (EX-4):** Monorepo `tsconfig` `paths` must match `package.json` `exports`; **`exports:validate`** in CI; **`.exports/`** cache for `exports:diff <ref>` — see [`systems/exports.md`](../systems/exports.md).
+**Important (EX-4):** Monorepo `tsconfig` `paths` must match `package.json` `exports`; **`exports:validate`** in CI; **`.exports/`** cache for historical refs — see [Governance scripts](#governance-scripts--already-in-place) and [`systems/exports.md`](../systems/exports.md).
+
+---
+
+## Governance scripts — already in place
+
+**EX-0 delivered** the maintainer export governance system. The barrel refactor (EX-1…EX-3) does **not** need new tooling bootstrap — it needs **correct barrels** and **script updates** as the surface changes.
+
+| Layer | Location | Role |
+|-------|----------|------|
+| **Operator manual** | [`scripts/exports/README.md`](../../scripts/exports/README.md) | Commands, flags, cache layout, examples |
+| **Implementation** | [`scripts/exports/`](../../scripts/exports/) | Parse, tier rules, diff, validate stub, cache |
+| **Durable rules** | [`systems/exports.md`](../systems/exports.md) | Tiers, barrels, host matrix, script patterns |
+| **This file** | `phases/exports.md` | Slice sequencing, exit criteria, post-refactor hardening |
+
+**Shipped commands:** `pnpm exports:{inventory,diff,validate,trend,timeline,graph,help}`  
+**Cache:** `.exports/cache/<full-sha>/` (`inventory.full.json`, `timeline.summary.json`, `meta.json`) — gitignored, auto-healed, `toolVersion` auto-expire on bump.
+
+---
+
+## Run after each refactor slice
+
+Use this checklist at the **end of every EX-1…EX-4 PR** (and before opening EX-3 merge). Goal: prove the working tree matches intent before `typecheck` / `test` alone would catch drift.
+
+### 1. Inspect surface (always)
+
+```bash
+pnpm exports:inventory -v          # tier, category, targetSubpath per flat symbol
+pnpm exports:graph -v              # namespace → module → target subpath
+pnpm exports:diff HEAD             # uncommitted barrel edits vs last commit
+```
+
+After EX-1 subpaths exist, also:
+
+```bash
+pnpm exports:inventory -v          # confirm new symbols map to ./issues, ./utils, etc.
+pnpm exports:diff v0.1.4..HEAD     # or last tag — range delta for release notes
+```
+
+### 2. Validate governance (required from EX-4; run locally during EX-1…EX-3)
+
+```bash
+pnpm exports:validate -v           # paths parity, unclassified, host rules (grows per slice)
+```
+
+Today `exports:validate` is a **stub** with minimal checks; **EX-4** turns it into the CI gate. Run it anyway during EX-1…EX-3 so failures surface early.
+
+### 3. Repo gates (always)
+
+```bash
+pnpm run core:build
+pnpm typecheck
+pnpm test
+```
+
+### 4. Refresh cache when rules or barrels change materially
+
+```bash
+pnpm exports:inventory -f          # rebuild HEAD snapshot after tier/parser edits
+# or bump TOOL_VERSION in scripts/exports/paths.ts → all caches auto-expire
+```
+
+| Slice closes | Minimum exports run |
+|--------------|---------------------|
+| **EX-1** | `inventory -v`, `graph`, `diff HEAD`, `validate -v` |
+| **EX-2** | above + `diff` per host PR; grep deep imports gone |
+| **EX-3** | above + `diff` vs pre-slim tag; root flat &lt;150; `trend` / `timeline` spot-check |
+| **EX-4** | `exports:validate` green in CI; no manual skip |
+
+---
+
+## Post-refactor script hardening (apply during EX-1…EX-4)
+
+The scripts work on **today’s** root-heavy barrel. As EX-1…EX-3 land, **update the scripts in the same PR** (or immediately after) — do not defer to “later cleanup.”
+
+| Hardening | When | What to change |
+|-----------|------|----------------|
+| **`subpathSourceEntries`** | EX-1 | Add `./issues`, `./utils`, `./advanced`, `./internal` in `scripts/exports/paths.ts` |
+| **`targetSubpathFor` / categories** | EX-1 | Map symbols to new tier subpaths; stop guessing `./internal` from name heuristics where barrel path is known |
+| **`tiers.ts` rules** | EX-1, EX-3 | Classify by **source module** / export barrel when layout is stable; remove bootstrap name-prefix hacks |
+| **Parse new barrels** | EX-1 | Inventory should read tier subpath entry files, not only root `index.ts` (if symbols move off root before EX-3) |
+| **`exports:validate` paths parity** | EX-4 | Fail on `@i18nprune/core/*` tsconfig wildcard; allowlist === `package.json` `exports` |
+| **`exports:validate` host imports** | EX-4 | Grep `packages/cli`, `apps/*`, `examples/*`, `scripts/*` for non-allowlisted `@i18nprune/core/...` |
+| **`exports:validate` root policy** | EX-3–EX-4 | No flat leaks from `/internal`, `/advanced`, `/issues`, `/utils`, `/shared`; optional root flat budget (&lt;150) |
+| **`exports:validate` unclassified** | EX-1+ | Fail when any root flat symbol has tier `unclassified` |
+| **`exports:diff` tier violations** | EX-3 | Report internal/advanced symbols appearing as root flats |
+| **`exports:diff --strict`** (optional) | EX-4 | Fail CI on unexpected added root flats (policy TBD) |
+| **Bump `TOOL_VERSION`** | Any script logic change | Invalidates all `.exports/cache/` snapshots repo-wide |
+| **Bump `SNAPSHOT_VERSION`** | Snapshot JSON shape change | Same purge behavior for on-disk files |
+| **Vitest for parsers** | EX-4 (optional) | Fixture barrels under `tests/exports/` for tier/category edge cases |
+| **CI wire** | EX-4 | `pnpm exports:validate` in verify or `//#exports:validate` in typecheck |
+
+**Not in scope for scripts:** CLI `--json` parity (existing `tests/parity/`), knip unused files, packed tarball `publish-types` — see [`systems/exports.md`](../systems/exports.md).
 
 ---
 
@@ -113,8 +206,8 @@ One slice per PR where possible; EX-1 may split per subpath if review size deman
 
 | Task | Output |
 |------|--------|
-| Add **`scripts/exports/`** | See [`systems/exports.md` § Export validation scripts](../systems/exports.md#export-validation-scripts-scriptsexports) |
-| **`scripts/exports/tiers.mts`** | Stable / advanced / internal rules from barrel layout |
+| Add **`scripts/exports/`** | See [`systems/exports.md`](../systems/exports.md) + [`scripts/exports/README.md`](../../scripts/exports/README.md) |
+| **`scripts/exports/inventory/tiers.ts`** | Stable / advanced / internal rules (bootstrap heuristics; refine in EX-1…) |
 | **`cache/meta.json` + heal** | Per-SHA snapshots under `.exports/cache/<sha>/` |
 | **`pnpm exports:inventory`** | Print-only summary (Phase 1) |
 | **`pnpm exports:diff`** | vs `HEAD`, ref, or `A..B` (Phase 2) |
@@ -174,6 +267,8 @@ Re-run **`pnpm exports:inventory -v`** and **`pnpm exports:graph`** before/after
 - [ ] `import { … } from '@i18nprune/core/issues'` (etc.) works from monorepo consumers
 - [ ] Root `index.ts` still builds unchanged
 - [ ] `pnpm run core:build` + `pnpm typecheck` green
+- [ ] [`Run after each refactor slice`](#run-after-each-refactor-slice) — inventory/graph/diff/validate
+- [ ] [`Post-refactor script hardening`](#post-refactor-script-hardening-apply-during-ex-1ex-4) rows for EX-1 applied (`paths.ts`, categories, tier rules)
 
 ---
 
@@ -192,6 +287,7 @@ Re-run **`pnpm exports:inventory -v`** and **`pnpm exports:graph`** before/after
 
 - [ ] Grep: zero `@i18nprune/core/internal` (and no root `internal.*` usage) from `apps/extension/**` and `examples/sdk/**`
 - [ ] `pnpm typecheck` + `pnpm test` green
+- [ ] [`Run after each refactor slice`](#run-after-each-refactor-slice) per host PR (`diff`, `inventory -v` on touched imports)
 
 ---
 
@@ -220,6 +316,8 @@ Re-run **`pnpm exports:inventory -v`** and **`pnpm exports:graph`** before/after
 - [ ] No flat re-exports from `/internal` or `/advanced` on root
 - [ ] Major version bump on `@i18nprune/core`
 - [ ] Receipt row in [`shipped-slices.md`](./shipped-slices.md) + `apps/git/scripts/phases.config.json`
+- [ ] [`Run after each refactor slice`](#run-after-each-refactor-slice) + `exports:diff` vs last release tag
+- [ ] [`Post-refactor script hardening`](#post-refactor-script-hardening-apply-during-ex-1ex-4) EX-3 rows (root policy, tier violations in diff)
 
 ---
 
@@ -266,7 +364,7 @@ That resolves **any** deep source path in typecheck (e.g. `@i18nprune/core/share
 - [ ] CI fails on forbidden `/internal` imports from extension/examples
 - [ ] CI fails on non-allowlisted `@i18nprune/core/...` imports from hosts
 - [ ] **`pnpm exports:validate`** green in CI (wired in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) or `//#exports:validate` in typecheck)
-- [ ] Documented in [`systems/exports.md`](../systems/exports.md)
+- [ ] All [`Post-refactor script hardening`](#post-refactor-script-hardening-apply-during-ex-1ex-4) rows for EX-4 complete
 
 ---
 
@@ -274,15 +372,28 @@ That resolves **any** deep source path in typecheck (e.g. `@i18nprune/core/share
 
 **Goal:** Integrators know stability tiers without reading maintainer docs.
 
+**Location:** Add **[`docs/sdk/exports.md`](../../docs/sdk/exports.md)** — sibling to [`docs/sdk/operations.md`](../../docs/sdk/operations.md). There is **no** `docs/exports/` tree and we do not add one; export surface docs live in the SDK section only.
+
 | Task | Output |
 |------|--------|
-| Add `docs/exports/README.md` | Public tier table, import examples, semver notes |
-| Update `packages/core/README.md` | Subpath table includes `/issues`, `/utils`, `/advanced`, `/internal` |
-| Update [`docs/sdk/operations.md`](../../docs/sdk/operations.md) | Cross-link stability tiers vs runtime A/B |
-| Fix stale link in [`extension/README.md`](./extension/README.md) | Point to `docs/exports/README.md` |
+| Add **`docs/sdk/exports.md`** | Stability tier table (stable / advanced / internal); subpath catalog (`/issues`, `/utils`, `/shared`, `/advanced`, `/internal`, op subpaths); import examples; semver notes; cross-link runtime Tier A/B vs stability tiers |
+| Update `packages/core/README.md` | Subpath table includes new tier subpaths |
+| Update [`docs/sdk/operations.md`](../../docs/sdk/operations.md) | Link to `docs/sdk/exports.md` for “which subpath should I import?” |
+| Update VitePress nav / index if needed | `exports` page under SDK sidebar (same cluster as operations) |
+| Fix stale links | [`extension/README.md`](./extension/README.md) maintainer table → `docs/sdk/exports.md` |
+
+**`docs/sdk/exports.md` outline (draft for EX-5):**
+
+1. **Why subpaths** — bundle size + semver clarity (plain language, no maintainer jargon)
+2. **Stability tiers** — stable / advanced / internal table with support promise
+3. **Subpath catalog** — root facade vs `/validate`, `/issues`, `/utils`, `/shared`, `/advanced`, `/internal`, `/runtime/*`, `/types`, …
+4. **Import patterns** — bundled host vs script quick-start (`runXxx` from op subpath vs root namespace)
+5. **Runtime Tier A/B** — link to operations.md (orthogonal axis)
+6. **What not to import** — `/internal` unsupported for external semver; extension/examples guidance
 
 **Exit criteria:**
 
+- [ ] `docs/sdk/exports.md` exists; no `docs/exports/` directory
 - [ ] No maintainer-only links in VitePress user docs (docs boundary rule)
 - [ ] `pnpm sync:verify` green if frontmatter/index touched
 
@@ -364,14 +475,8 @@ Extension [`core-integration.md`](./extension/core-integration.md) should pin **
 
 ## See also
 
-- [`../systems/exports.md`](../systems/exports.md) — durable export system rules
+- [`../systems/exports.md`](../systems/exports.md) — tiers, barrels, host matrix, script architecture
+- [`scripts/exports/README.md`](../../scripts/exports/README.md) — `pnpm exports:*` operator manual
 - [`../systems/knip.md`](../systems/knip.md) — barrel ignore catalog
 - [`../systems/health.md`](../systems/health.md) — `core:build` before typecheck
 - [`docs/sdk/operations.md`](../../docs/sdk/operations.md) — `runXxx` + runtime Tier A/B
-- [`systems/exports.md` § Export validation scripts](../systems/exports.md#export-validation-scripts-scriptsexports) — `pnpm exports:*` tooling
-
----
-
-## Export validation scripts (`scripts/exports/`)
-
-**Spec:** [`systems/exports.md` § Export validation scripts](../systems/exports.md#export-validation-scripts-scriptsexports). Implement in **EX-0** (bootstrap + committed inventory); enforce in **EX-4** (CI).

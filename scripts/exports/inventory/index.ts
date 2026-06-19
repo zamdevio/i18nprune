@@ -1,7 +1,6 @@
 export {
   buildLightSnapshot,
   buildSnapshot,
-  summarizeInventory,
 } from './build.js';
 export { parseBarrelExports } from './parse-barrel.js';
 export { classifyExportCategory, targetSubpathFor } from './categories.js';

@@ -47,9 +47,6 @@ export function runGit(args: string[]): GitRunResult {
   };
 }
 
-export function getGitRunStats(): Readonly<GitRunStats> {
-  return sessionStats;
-}
 
 export function resetGitRunStats(): void {
   sessionStats = { invocations: 0, totalMs: 0 };
