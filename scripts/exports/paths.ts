@@ -12,6 +12,9 @@ export const rootIndexAbsPath = path.join(repoRoot, rootIndexRepoPath);
 export const exportsCacheRoot = path.join(repoRoot, '.exports/cache');
 export const exportsMetaPath = path.join(exportsCacheRoot, 'meta.json');
 
+/** Cache dir key for working-tree snapshots — never reuse a commit SHA (avoids collision with HEAD). */
+export const WORKTREE_CACHE_KEY = '__worktree__';
+
 /** Full inventory snapshot (inventory, diff, graph, validate, trend). */
 export const FULL_SNAPSHOT_FILENAME = 'inventory.full.json';
 /** Timeline-only root summary (never loads full symbol graph). */

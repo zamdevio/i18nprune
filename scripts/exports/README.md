@@ -189,9 +189,12 @@ Historical snapshots live under **`.exports/cache/`** (gitignored). Two profiles
 ```text
 .exports/cache/
   meta.json                              # index of full snapshots (trend/heal)
-  <sha>/
-    inventory.full.json                  # full scan
-    timeline.summary.json                # timeline root summary only
+  <commit-sha>/
+    inventory.full.json                  # barrel at that commit (git show)
+    timeline.summary.json
+  __worktree__/                          # disk barrel only — never shares HEAD's dir
+    inventory.full.json
+    timeline.summary.json
 ```
 
 | Profile | File | Commands |
@@ -200,7 +203,9 @@ Historical snapshots live under **`.exports/cache/`** (gitignored). Two profiles
 | **timeline** | `timeline.summary.json` | timeline |
 
 - First resolve → **miss** (build + write); repeat → **hit**.
-- Worktree HEAD checks **`sourceFingerprint`** on full cache.
+- **Working tree** caches under **`__worktree__`** (not the HEAD SHA) so `exports:diff` can compare committed vs uncommitted barrel without collision.
+- Worktree checks **`sourceFingerprint`** on full cache (invalidates when `index.ts` edits on disk).
+- Commit refs cache under their **git SHA** via `git show`.
 - Corrupt JSON or SHA mismatch → removed on next access → rebuild.
 - **`--force` / `-f`** → skip read, rebuild, overwrite → **refresh** (use after tier/heuristic script changes).
 - **`--no-cache`** → skip read and write → **bypass** (ephemeral result only).

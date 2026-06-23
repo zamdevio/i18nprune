@@ -15,7 +15,6 @@
     "apps/*/functions/**"
   ],
   "ignoreExportsUsedInFile": true,
-  "ignoreBinaries": ["printf", "awk"],
   "workspaces": {
     "apps/landing": {
       "entry": ["src/**/*.{ts,tsx}"],

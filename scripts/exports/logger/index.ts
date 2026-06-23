@@ -6,9 +6,9 @@ import type { CacheStatus, SnapshotResult } from '../cache/index.js';
 import { ExportError } from '../errors/index.js';
 import { printHelp } from '../help/index.js';
 import type { DiffResult } from '../format/index.js';
-import { shortSha, type SourceRef } from '../git/index.js';
+import { gitRevParse, shortSha, type SourceRef } from '../git/index.js';
 import type { InventorySnapshot } from '../inventory/index.js';
-import { cacheDirForSha, repoRoot, rootIndexRepoPath } from '../paths.js';
+import { cacheDirForSha, repoRoot, rootIndexRepoPath, WORKTREE_CACHE_KEY } from '../paths.js';
 import {
   compactCoreSourcePath,
   formatInventoryCategory,
@@ -53,9 +53,16 @@ function cacheLabel(status: CacheStatus): string {
   }
 }
 
+function snapshotShaLabel(snapshot: InventorySnapshot): string {
+  if (snapshot.sha === WORKTREE_CACHE_KEY) {
+    return `HEAD ${shortSha(gitRevParse('HEAD'))}`;
+  }
+  return shortSha(snapshot.sha);
+}
+
 function refLine(ref: SourceRef, snapshot: InventorySnapshot): string {
   if (ref.kind === 'worktree') {
-    return `working tree ${chalk.dim(`(HEAD ${shortSha(snapshot.sha)})`)}`;
+    return `working tree ${chalk.dim(`(${snapshotShaLabel(snapshot)})`)}`;
   }
   return `${ref.label} ${chalk.dim(`(${shortSha(ref.sha)})`)}`;
 }
@@ -196,8 +203,8 @@ export function printDiffReport(input: {
 
   printMeta({
     range: rangeLabel,
-    from: `${left.snapshot.refLabel} ${chalk.dim(`(${shortSha(left.snapshot.sha)})`)}`,
-    to: `${right.snapshot.refLabel} ${chalk.dim(`(${shortSha(right.snapshot.sha)})`)}`,
+    from: `${left.snapshot.refLabel} ${chalk.dim(`(${snapshotShaLabel(left.snapshot)})`)}`,
+    to: `${right.snapshot.refLabel} ${chalk.dim(`(${snapshotShaLabel(right.snapshot)})`)}`,
     cache: `${cacheLabel(left.cache)} / ${cacheLabel(right.cache)}`,
   });
 
