@@ -8,7 +8,8 @@
 
 | Priority | Vertical | Doc |
 |----------|----------|-----|
-| **Now** | Extractor v2 (accuracy tiers) | [`extractor/README.md`](./extractor/README.md) → start [`extractor/hoc.md`](./extractor/hoc.md) |
+| **Now** | **Kits CLI (v0.1.5)** | [`kits.md`](./kits.md) — native `i18nprune kits …`, gates, aliases, publish |
+| **Then** | Extractor v2 (accuracy tiers) | [`extractor/README.md`](./extractor/README.md) → start [`extractor/hoc.md`](./extractor/hoc.md) |
 | **Then** | AST tier (opt-in typed assist) | [`extractor/ast-tier.md`](./extractor/ast-tier.md) |
 | **Then** | VS Code extension | [`extension/README.md`](./extension/README.md) |
 | **Queued** | `search` command | [`search.md`](./search.md) — after S.1 index; overlaps extractor v2 |

@@ -48,6 +48,7 @@ apps/extension/pnpm-lock.yaml
 
 # Export governance scripts — cache keyed by git SHA (see maintainer/systems/exports.md)
 .exports/
+.expgov/
 
 # Maintainer scratch (never commit). Rest of `maintainer/` stays tracked for collaborators.
 # Do not gitignore all of `maintainer/` — see `maintainer/README.md`.

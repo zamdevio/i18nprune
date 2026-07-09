@@ -92,6 +92,18 @@
     ]
   },
   {
+    "week": "2026-W26",
+    "label": "Week 26 — Tooling & kits prep",
+    "theme": "Stats harness, exports worktree hygiene, kits v0.1.5 planning, pnpm v11 workspace config",
+    "color": "teal",
+    "shipped": [
+      "pre — stats harness (scripts/stats tsx; cross-platform files/lines; drop knip ignoreBinaries)",
+      "pre — exports worktree cache isolated under __worktree__ (exports:diff without -f)",
+      "pre — kits release tracker — maintainer/phases/kits.md (v0.1.5 single plan; kit → kits)",
+      "pre — pnpm v11 overrides moved from package.json to pnpm-workspace.yaml"
+    ]
+  },
+  {
     "week": "2026-W25",
     "label": "Week 25 — Planning & exports governance",
     "theme": "EX-0 export inventory scripts, extractor architecture (fast|balanced|typed), search phase, extension bundle fix, positioning",

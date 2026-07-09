@@ -4,3 +4,7 @@ packages:
   - apps/workers/*
   # VS Code extension dashboard (Vite/React); separate package.json from extension host
   - apps/extension/src/webview
+
+overrides:
+  '@types/react': 18.3.28
+  '@types/react-dom': 18.3.7

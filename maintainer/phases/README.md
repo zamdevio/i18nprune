@@ -19,6 +19,7 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
+| [`kits.md`](./kits.md) | **Active — v0.1.5** — native `i18nprune kits …` (replaces external toolkit) |
 | [`extractor/README.md`](./extractor/README.md) | **Extractor v2** — HOC, light-dataflow, cross-file, finite-keys, AST tier |
 | [`extractor/architecture.md`](./extractor/architecture.md) | **Architecture** — engines, normalizer, incremental cache |
 | [`search.md`](./search.md) | **Planned** — `search` command (key ↔ call-site index; read-only) |
