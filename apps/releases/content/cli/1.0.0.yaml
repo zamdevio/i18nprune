@@ -5,8 +5,8 @@ date: 2026-07-09
 status: stable
 summary: v1.0.0 — native `i18nprune kits` audit commands (dynamic, identical, honest, baseline, pr); standard CliJsonEnvelope; global short flags; replaces external Kits toolkit.
 highlights:
-  - "Native **`i18nprune kits`** — `dynamic`, `identical`, `honest`, `baseline`, `pr` (read-only; SDK `runValidate` / `runDynamic` / `runQuality` / `runReview`)"
-  - "Kits JSON uses standard **`CliJsonEnvelope`** (`-j` pretty by default; `-jp false` minified)"
+  - "Native `i18nprune kits` — `dynamic`, `identical`, `honest`, `baseline`, `pr` (read-only; SDK `runValidate` / `runDynamic` / `runQuality` / `runReview`)"
+  - "Kits JSON uses standard `CliJsonEnvelope` (`-j` pretty by default; `-jp false` minified)"
   - "Global short flags — `-j`, `-jp`, `-T`, `-F`, `-ds`, `-dc`; kits flags `-t`, `-o`, `-fon`, `-mxdy`, `-b`, `-sb`"
   - "Baseline paths project-relative via `-c/--config` (no `--cwd`); `-sb` saves terminal-matching `.md` or `.json`"
   - "Policy gates — `-fon` / `-mxdy` / `--strict` with exit code 2 for CI"
@@ -16,7 +16,7 @@ sections:
     - "Docs — `docs/commands/kits/*`"
     - "Kits error JSON — `i18nprune.io.read_failed` envelope on missing baseline files"
   changed:
-    - "Release milestone **0.1.x → 1.0.0** (kits ship as v1, not 0.1.5)"
+    - "Release milestone `0.1.x` → `1.0.0` (kits ship as the v1 line)"
     - "Global Commander short aliases on root program (`-j`, `-jp`, `-T`, `-F`, `-ds`, `-dc`)"
   fixed:
     - "Kits respect global `-q` / `-s` / `--json` printing policy (logger + envelope, no duplicate summary in JSON mode)"

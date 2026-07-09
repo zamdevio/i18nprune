@@ -10,12 +10,9 @@
     "packages/core/src/runtime/factory/index.ts",
     "packages/core/src/runtime/guards/index.ts",
     "packages/core/src/runtime/index.ts",
-    "packages/core/src/shared/index.ts",
-    "packages/core/src/shared/result/index.ts",
     "apps/workers/**/public/**",
     "apps/*/functions/**"
   ],
-  "ignoreDependencies": ["@expgov/cli"],
   "ignoreExportsUsedInFile": true,
   "workspaces": {
     "apps/landing": {
