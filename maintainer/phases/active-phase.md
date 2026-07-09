@@ -8,17 +8,17 @@
 
 | Priority | Vertical | Doc |
 |----------|----------|-----|
-| **Now** | **SDK export tiers (EX-P0 → EX-1…)** | [`exports.md`](./exports.md) — **`expgov validate` green** + CI; **blocks npm v1 publish** |
-| **Paused** | Extractor v2 (accuracy tiers) | [`extractor/README.md`](./extractor/README.md) — resume after EX-P0 |
+| **Now** | **SDK export tiers (EX-1…)** | [`exports.md`](./exports.md) — subpath barrels; EX-P0 gate shipped |
+| **Paused** | Extractor v2 (accuracy tiers) | [`extractor/README.md`](./extractor/README.md) — resume after EX-1 slice 1 |
 | **Then** | AST tier (opt-in typed assist) | [`extractor/ast-tier.md`](./extractor/ast-tier.md) |
 | **Then** | VS Code extension | [`extension/README.md`](./extension/README.md) |
 | **Queued** | `search` command | [`search.md`](./search.md) — after S.1 index; overlaps extractor v2 |
 
-**Kits v1.0.0 shipped** — receipt [`shipped/kits/kits.md`](../shipped/kits/kits.md). Git/monorepo version fields at `1.0.0`; **npm publish held** until [`exports.md`](./exports.md) EX-P0 passes.
+**Kits v1.0.0 shipped** — receipt [`shipped/kits/kits.md`](../shipped/kits/kits.md). Git/monorepo version fields at `1.0.0`; **npm publish unblocked** after EX-P0 — see [`agents/git.md`](../agents/git.md) release checklist.
 
 **On hold:** [`extractor/provider-registry.md`](./extractor/provider-registry.md) (non-JS languages) — only after AST tier + extension are released without regressions.
 
-**v1 product gates (shipped):** cross-platform (XP), tree (T0–T10), CI (CI-1–5), docs (D), kits, release prep (`publish:verify`). **v1 npm gate (open):** EX-P0 export governance — see [`exports.md`](./exports.md).
+**v1 product gates (shipped):** cross-platform (XP), tree (T0–T10), CI (CI-1–5), docs (D), kits, release prep (`publish:verify`). **v1 npm gate (shipped):** EX-P0 export governance — see [`exports.md`](./exports.md).
 
 **Side branch:** [`feat/studio`](../../apps/studio/) — Tauri studio app bootstrap; not on `main` git timeline until merged.
 
@@ -53,5 +53,5 @@ Engineering maps: [`systems/README.md`](../systems/README.md) (`platform.md`, `c
 - **CI-first:** `validate --json` + stable `issues[]` codes as the default gate; **`expgov validate`** for SDK surface.
 - **Opt-in mutation:** never patch user project files implicitly.
 - **One slice per PR** — scope from the active plan doc only (`exports.md` while EX-P0 / tiering is active).
-- **No npm v1** until EX-P0 exit criteria in [`exports.md`](./exports.md).
+- **No npm v1** until EX-P0 exit criteria in [`exports.md`](./exports.md) — **EX-P0 shipped**; follow [`agents/git.md`](../agents/git.md) for publish.
 - **Edge-case honesty:** [`docs/edge-cases/unsolved/inventory.md`](../../docs/edge-cases/unsolved/inventory.md).

@@ -1,5 +1,5 @@
 import type { TranslateTargetLanguage } from '@i18nprune/core/types';
-import { normalizeLanguageCode } from '@i18nprune/core/shared/languages/normalize.js';
+import { normalizeLanguageCode } from '@i18nprune/core';
 
 export type GeneratedLanguageRow = TranslateTargetLanguage;
 

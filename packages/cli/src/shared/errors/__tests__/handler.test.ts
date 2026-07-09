@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { ConfigValidationError } from '@i18nprune/core/config';
-import { ISSUE_PROJECT_LOCALES_SOURCE_NOT_LANGUAGE_CODE } from '@i18nprune/core/shared/constants/issueCodes.js';
+import { ISSUE_PROJECT_LOCALES_SOURCE_NOT_LANGUAGE_CODE } from '@i18nprune/core/shared';
 import { resetRunOptions, setRunOptions } from '@i18nprune/core';
 import { reportCliError } from '../handler.js';
 

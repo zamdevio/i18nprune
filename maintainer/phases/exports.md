@@ -1,7 +1,7 @@
 # Phase — `@i18nprune/core` export tiers
 
-**Status:** **ACTIVE** — **blocks npm v1 publish** until **EX-P0** passes.  
-**EX-0 shipped** (expgov migration + `.exports/cache/`); **EX-P0 in progress** (tier classification + `expgov validate` green + CI); **EX-1…EX-5 planned** (barrel refactor; **major** bump at EX-3).  
+**Status:** **ACTIVE** — **EX-P0 shipped** (npm v1 publish unblocked pending release checklist).  
+**EX-0 shipped** (expgov migration + `.exports/cache/`); **EX-P0 done** (tier classification + `expgov validate` green + CI); **EX-1…EX-5 planned** (barrel refactor; **major** bump at EX-3).  
 **Engineering map:** [`../systems/exports.md`](../systems/exports.md) (tiers, barrels, host matrix).  
 **Governance tool:** [`expgov.config.ts`](../../expgov.config.ts) + **`expgov`** CLI (`@expgov/cli` devDependency).  
 **User-facing mirror (EX-5):** [`docs/sdk/exports.md`](../../docs/sdk/exports.md) — stability tiers and import guidance under the SDK docs tree (no top-level `docs/exports/`).
@@ -113,8 +113,8 @@ Status: **planned** | **in progress** | **done**
 | Slice | Focus | Depends on | Status |
 |-------|--------|------------|--------|
 | **EX-0** | Export governance — **`expgov`** + `expgov.config.ts` + `.exports/cache/` (replaced `scripts/exports/`) | — | **done** |
-| **EX-P0** | **Preflight for npm v1** — classify all root flats in `expgov.config.ts` / `@sdkTier`; tsconfig paths allowlist; **`expgov validate` green**; CI job | EX-0 | **in progress** |
-| **EX-1** | New subpath barrels + `package.json` / tsup | EX-P0 | planned |
+| **EX-P0** | **Preflight for npm v1** — classify all root flats in `expgov.config.ts` / `@sdkTier`; tsconfig paths allowlist; **`expgov validate` green**; CI job | EX-0 | **done** |
+| **EX-1** | New subpath barrels + `package.json` / tsup | EX-P0 | **in progress** |
 | **EX-2** | Migrate monorepo hosts | EX-1 | planned |
 | **EX-3** | Slim root `index.ts` | EX-2 | planned |
 | **EX-4** | CI hardening + host import guards | EX-3 | planned |
@@ -273,7 +273,7 @@ Re-run **`expgov inventory -v`** and **`expgov graph`** before/after each EX-2 h
 
 ---
 
-### EX-P0 — Preflight for npm v1 (in progress)
+### EX-P0 — Preflight for npm v1 (done)
 
 **Goal:** **`expgov validate` green** on `main` + CI — **unblocks npm publish** for v1.0.0. Non-breaking: classification and tsconfig parity only (no root slim yet).
 
@@ -288,11 +288,11 @@ Re-run **`expgov inventory -v`** and **`expgov graph`** before/after each EX-2 h
 
 **Exit criteria:**
 
-- [ ] `expgov validate` exits 0 locally (`unclassified=0`, `violations=0`)
-- [ ] CI runs `expgov validate` on PRs touching `packages/core/**`, `expgov.config.ts`, root `tsconfig.json`
-- [ ] No `@i18nprune/core/*` wildcard in tsconfig
-- [ ] Receipt note in [`shipped/tooling/tooling.md`](../shipped/tooling/tooling.md) or new week row when EX-P0 closes
-- [ ] **npm v1 publish allowed** per [npm v1 publish gate](#npm-v1-publish-gate-active)
+- [x] `expgov validate` exits 0 locally (`unclassified=0`, `violations=0`)
+- [x] CI runs `expgov validate` on PRs touching `packages/core/**`, `expgov.config.ts`, root `tsconfig.json`
+- [x] No `@i18nprune/core/*` wildcard in tsconfig
+- [x] Receipt note in [`shipped/tooling/tooling.md`](../shipped/tooling/tooling.md) or new week row when EX-P0 closes
+- [x] **npm v1 publish allowed** per [npm v1 publish gate](#npm-v1-publish-gate-active)
 
 ---
 

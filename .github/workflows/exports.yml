@@ -1,0 +1,50 @@
+# Export governance — expgov validate on product surface changes
+#
+# Blocks merge when tier classification or tsconfig ↔ npm exports parity drifts.
+# See maintainer/phases/exports.md (EX-P0 npm v1 publish gate).
+
+name: Exports
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'packages/core/**'
+      - 'expgov.config.ts'
+      - 'tsconfig.json'
+      - 'packages/core/package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/exports.yml'
+  pull_request:
+    paths:
+      - 'packages/core/**'
+      - 'expgov.config.ts'
+      - 'tsconfig.json'
+      - 'packages/core/package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/exports.yml'
+
+concurrency:
+  group: exports-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: expgov validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Validate export tiers and tsconfig parity
+        run: pnpm exec expgov validate

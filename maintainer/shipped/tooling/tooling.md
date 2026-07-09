@@ -4,6 +4,7 @@
 
 | Slice | Receipt |
 |-------|---------|
+| **EX-P0** | `expgov validate` green; tsconfig ↔ npm exports allowlist; `.github/workflows/exports.yml` |
 | **Exports worktree** | Cache isolated under `__worktree__` (`exports:diff` without `-f`) |
 | **Kits v1.0.0** | Native `i18nprune kits` shipped W28 — [`shipped/kits/kits.md`](../../shipped/kits/kits.md) |
 | **pnpm v11** | Overrides moved from `package.json` to `pnpm-workspace.yaml` |

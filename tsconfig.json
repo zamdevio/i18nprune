@@ -20,6 +20,8 @@
       "@i18nprune/core": ["./packages/core/src/index.ts"],
       "i18nprune/core": ["./packages/core/src/index.ts"],
       "@i18nprune/core/types": ["./packages/core/src/types/index.ts"],
+      "@i18nprune/core/types/shared": ["./packages/core/src/types/shared/index.ts"],
+      "@i18nprune/core/locales": ["./packages/core/src/namespaces/locales.ts"],
       "@i18nprune/core/shared": ["./packages/core/src/shared/index.ts"],
       "@i18nprune/core/config": ["./packages/core/src/config/index.ts"],
       "i18nprune/core/config": ["./packages/core/src/config/index.ts"],
@@ -34,10 +36,6 @@
       "@i18nprune/core/runtime/web": ["./packages/core/src/runtime/exports/web.ts"],
       "@i18nprune/core/runtime/edge": ["./packages/core/src/runtime/exports/edge.ts"],
       "@i18nprune/core/runtime/helpers/sync": ["./packages/core/src/runtime/exports/helpers/sync.ts"],
-      "@i18nprune/core/*": [
-        "./packages/core/src/*",
-        "./packages/core/src/*/index.ts"
-      ],
       "@i18nprune/core/report-schema": ["./packages/core/src/shared/report/index.ts"],
       "@i18nprune/seo": ["./packages/seo/src/index.ts"],
       "@i18nprune/seo/*": ["./packages/seo/src/*", "./packages/seo/src/*/index.ts"],
