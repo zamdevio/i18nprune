@@ -1,0 +1,51 @@
+schemaVersion: 1
+stream: cli
+version: 1.0.0
+date: 2026-07-09
+status: stable
+summary: v1.0.0 — native `i18nprune kits` audit commands (dynamic, identical, honest, baseline, pr); standard CliJsonEnvelope; global short flags; replaces external Kits toolkit.
+highlights:
+  - "Native **`i18nprune kits`** — `dynamic`, `identical`, `honest`, `baseline`, `pr` (read-only; SDK `runValidate` / `runDynamic` / `runQuality` / `runReview`)"
+  - "Kits JSON uses standard **`CliJsonEnvelope`** (`-j` pretty by default; `-jp false` minified)"
+  - "Global short flags — `-j`, `-jp`, `-T`, `-F`, `-ds`, `-dc`; kits flags `-t`, `-o`, `-fon`, `-mxdy`, `-b`, `-sb`"
+  - "Baseline paths project-relative via `-c/--config` (no `--cwd`); `-sb` saves terminal-matching `.md` or `.json`"
+  - "Policy gates — `-fon` / `-mxdy` / `--strict` with exit code 2 for CI"
+sections:
+  added:
+    - "`i18nprune kits` command group with five read-only audit subcommands"
+    - "Docs — `docs/commands/kits/*`"
+    - "Kits error JSON — `i18nprune.io.read_failed` envelope on missing baseline files"
+  changed:
+    - "Release milestone **0.1.x → 1.0.0** (kits ship as v1, not 0.1.5)"
+    - "Global Commander short aliases on root program (`-j`, `-jp`, `-T`, `-F`, `-ds`, `-dc`)"
+  fixed:
+    - "Kits respect global `-q` / `-s` / `--json` printing policy (logger + envelope, no duplicate summary in JSON mode)"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install -g i18nprune@1.0.0"
+    - "Pin `@i18nprune/core@1.0.0` when using the SDK alongside this CLI line"
+    - "Replace external `~/Tools/Kits/i18nprune` scripts with `i18nprune kits …` and global `-c/--config` instead of `--cwd`"
+    - "Kits JSON consumers: parse standard envelope (`ok`, `kind`, `data`, `issues`, `meta`); payload in `data`"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/1.0.0
+    - label: kits command
+      href: https://docs.i18nprune.dev/commands/kits
+    - label: CLI JSON output
+      href: https://docs.i18nprune.dev/cli/json
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@1.0.0
+git:
+  tag: v1.0.0
+  githubReleaseUrl: ""
+compat:
+  - stream: core
+    version: 1.0.0
+tags:
+  - major
+  - kits

@@ -41,8 +41,11 @@ Domain behavior stays in `packages/cli/src/core/**`. Rationale: [ADR 006](../arc
 | `help` | [help](./help.md) |
 | `report` | [report](./report.md) |
 | `share` | [share](./share/README.md) (`upload`, `list`, `view`, `delete`) |
+| `kits` | [kits](./kits/README.md) (`dynamic`, `identical`, `honest`, `baseline`, `pr`) |
 
 **`locales`:** [list](./locales/list.md), [dynamic](./locales/dynamic.md), [delete](./locales/delete.md).
+
+**`kits`:** [dynamic](./kits/dynamic.md), [identical](./kits/identical.md), [honest](./kits/honest.md), [baseline](./kits/baseline.md), [pr](./kits/pr.md).
 
 Subcommands use **full names only** (no short aliases like `gen` / `val`). Exception: **`languages`** also accepts the positional alias **`langs`** (`i18nprune langs`).
 

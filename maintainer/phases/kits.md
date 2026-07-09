@@ -1,6 +1,6 @@
-# Kits release — v0.1.5
+# Kits release — v1.0.0
 
-**Status:** active sprint  
+**Status:** shipped (v1.0.0 tagged)  
 **Supersedes:** `KIT_ONLY_NEXT_RELEASE.md`, `IMPORTANT.md`, `PATH_ISSUE.md`, `CEPATEDGE_DYNAMIC_KEYS_REVIEW.md`, `NEXT_TASKS.md` (deleted — this file is the single tracker)
 
 ---
@@ -13,47 +13,48 @@ Check off as each slice lands. One concern per PR where possible.
 
 - [x] **0.1** Catalog `languages.json` writes to the correct path only (no home-dir / wrong-cwd writes when bundled CLI runs or `pnpm cli:build` triggers ensure)
 - [x] **0.2** `loader_generated` emits `./`-prefixed relative ESM import paths in `localeLoaders` (fix `computeGeneratedModuleImportBase` + tests)
-- [ ] **0.3** Kits dynamic-key messaging matches CepatEdge review gate (no “detected = complete” implication)
+- [x] **0.3** Kits dynamic-key messaging matches CepatEdge review gate (no “detected = complete” implication)
 - [x] **0.4** npm `homepage` on `i18nprune` + `@i18nprune/core` → `https://docs.i18nprune.dev`
 
 ### Phase 1 — Native `i18nprune kits` command group
 
-- [ ] **1.1** Register `kits` in `packages/cli/bin/cli.ts` with subcommands: `dynamic`, `identical`, `honest`, `baseline`, `pr`
-- [ ] **1.2** Port logic from external kit `~/Tools/Kits/i18nprune/src/` into `packages/cli/src/commands/kits/`
-- [ ] **1.3** Read-only safety: only analyze SDK ops (`runValidate`, `runDynamic`, `runQuality`, `runReview`) — no writes
-- [ ] **1.4** Project root via global `-c/--config` (no `--cwd`; see [Decisions](#decisions))
+- [x] **1.1** Register `kits` in `packages/cli/bin/cli.ts` with subcommands: `dynamic`, `identical`, `honest`, `baseline`, `pr`
+- [x] **1.2** Port logic from external kit `~/Tools/Kits/i18nprune/src/` into `packages/cli/src/commands/kits/`
+- [x] **1.3** Read-only safety: only analyze SDK ops (`runValidate`, `runDynamic`, `runQuality`, `runReview`) — no writes
+- [x] **1.4** Project root via global `-c/--config` (no `--cwd`; see [Decisions](#decisions))
 
 ### Phase 2 — UX contract
 
-- [ ] **2.1** JSON minified by default when `-j`; pretty only when `-jp=true`
-- [ ] **2.2** Human output: plain values; `chalk` on section labels only; respect `--no-color`; never color JSON
-- [ ] **2.3** `--top` / `--full` (global `-T` / `-F`) affect terminal lists **and** `-sb` saved files
-- [ ] **2.4** `-sb/--save-baseline <path>`: default `.md` (terminal-matching); with `-j` → `.json` minified unless `-jp=true`
-- [ ] **2.5** No write-oriented flags inside kits (reporting/auditing surface only)
-- [ ] **2.6** Per-subcommand `--help` + examples when args missing
+- [x] **2.1** JSON pretty by default when `-j` (global contract); minified only when `-jp false`
+- [x] **2.2** Human output: plain values; `chalk` on section labels only; respect `--no-color`; never color JSON
+- [x] **2.3** `--top` / `--full` (global `-T` / `-F`) affect terminal lists **and** `-sb` saved files
+- [x] **2.4** `-sb/--save-baseline <path>`: default `.md` (terminal-matching); with `-j` → `.json` minified unless `-jp=true`
+- [x] **2.5** No write-oriented flags inside kits (reporting/auditing surface only)
+- [x] **2.6** Per-subcommand `--help` + examples when args missing
 
 ### Phase 3 — Short flag aliases
 
-- [ ] **3.1** `--json` → `-j`
-- [ ] **3.2** `--json-pretty` → `-jp`
-- [ ] **3.3** `--top` → `-T`
-- [ ] **3.4** `--full` → `-F`
-- [ ] **3.5** `--debug-scan` → `-ds`
-- [ ] **3.6** `--debug-cache` → `-dc`
-- [ ] **3.7** `--target` (per-command) → `-t`
-- [ ] **3.8** `--out` (per-command) → `-o`
-- [ ] **3.9** Do not break existing long-name or legacy aliases
+- [x] **3.1** `--json` → `-j`
+- [x] **3.2** `--json-pretty` → `-jp`
+- [x] **3.3** `--top` → `-T`
+- [x] **3.4** `--full` → `-F`
+- [x] **3.5** `--debug-scan` → `-ds`
+- [x] **3.6** `--debug-cache` → `-dc`
+- [x] **3.7** `--target` (per-command) → `-t`
+- [x] **3.8** `--out` (per-command) → `-o`
+- [x] **3.9** Do not break existing long-name or legacy aliases
 
 ### Phase 4 — Docs + verification
 
-- [ ] **4.1** `docs/commands/kits/*.md` + `docs/commands/README.md` index row
-- [ ] **4.2** CepatEdge E2E (mirror external `workflow.sh` against `apps/web`)
-- [ ] **4.3** `pnpm typecheck` · `pnpm test` · `pnpm publish:verify`
-- [ ] **4.4** Version bump `0.1.4` → `0.1.5` (root + `@i18nprune/core` + private `@i18nprune/cli`)
-- [ ] **4.5** Close slice in `shipped-slices.md`; sync `apps/git/scripts/phases.config.json`
-- [ ] **4.6** **Git timeline** — replace W26 `pre —` bullets in `apps/git/scripts/phases.config.json` with final kits v0.1.5 shipped items (required for `pnpm git:build` / deploy)
+- [x] **4.1** `docs/commands/kits/*.md` + `docs/commands/README.md` index row
+- [x] **4.2** CepatEdge E2E (mirror external `workflow.sh` against `apps/web`) — smoke run pre-tag; temp script removed after confirm
+- [x] **4.3** `pnpm typecheck` · `pnpm test` · `pnpm publish:verify` (typecheck + test + publish:verify green at 1.0.0)
+- [x] **4.4** Version bump `0.1.4` → **`1.0.0`** (root + `@i18nprune/core` + private `@i18nprune/cli`) — both SDK and CLI publish together unless a change is core-bundle-only (still tag v1)
+- [x] **4.5** Close slice in `shipped-slices.md`; sync `apps/git/scripts/phases.config.json`
+- [x] **4.6** **Git timeline** — W28 kits **v1.0.0** shipped items in `apps/git/scripts/phases.config.json`
+- [x] **4.7** **`apps/releases`** — add v1.0.0 release entry + regenerate catalog (`pnpm releases:generate` or equivalent)
 
-### Phase 5 — Post-tag (after v0.1.5 ships)
+### Phase 5 — Post-tag (after v1.0.0 ships)
 
 - [ ] **5.1** Delete external toolkit `~/Tools/Kits/i18nprune`
 - [ ] **5.2** CepatEdge docs/maintainer: replace `Kits/i18nprune` → `i18nprune kits …`
@@ -67,7 +68,7 @@ Check off as each slice lands. One concern per PR where possible.
 |-------|----------|
 | Command name | **`kits`** (plural), not `kit` — `i18nprune kits dynamic …` (**locked** — agreed over external kit’s singular naming) |
 | Project root | **Global `-c/--config`** only — no `--cwd`. Config path implies project root the same way native i18nprune already works. External kit’s `--cwd` is dropped on port. |
-| Release scope | **Kits-only** for v0.1.5 — no extractor v2, AST tier, extension, or `search` in this tag |
+| Release scope | **Kits + v1 milestone** — ship native `i18nprune kits` as **v1.0.0** (skip 0.1.5); no extractor v2, AST tier, extension, or `search` in this tag |
 | Post-release roadmap | Resume [`active-phase.md`](./active-phase.md) extractor → AST → extension after tag |
 
 ---
@@ -92,17 +93,17 @@ Port source: `/home/amf/Tools/Kits/i18nprune` (delete after Phase 5).
 
 ## Relationship to other phase docs
 
-| Doc | v0.1.5 |
+| Doc | v1.0.0 |
 |-----|--------|
 | [`active-phase.md`](./active-phase.md) | **Paused** — extractor v2 / AST / extension resume after kits ships |
 | Former `NEXT_TASKS.md` | AST tier + agent JSON pipes + PR surfaces → **after** kits; `kits pr` partially covers PR helper |
-| [`extractor/cross-file.md`](./extractor/cross-file.md) | **Not in v0.1.5** — kits documents dynamic-key limits; does not resolve `i18nKey` tracing |
+| [`extractor/cross-file.md`](./extractor/cross-file.md) | **Not in v1.0.0** — kits documents dynamic-key limits; does not resolve `i18nKey` tracing |
 
 ---
 
 ## Kits behavioral contract
 
-1. **Default JSON is minified** when `-j` / `--json` is on; pretty only when `-jp` / `--json-pretty=true`.
+1. **Default JSON is pretty** when `-j` / `--json` is on (same as other commands); minified only when `-jp false` / `--json-pretty=false`.
 2. **Human output stays readable** — plain result values; `chalk` on shared section labels only; `--no-color` respected; never color JSON.
 3. **Listing limits affect saved baselines** — `-T`/`--top` and `-F`/`--full` control list contents in terminal **and** in files written by `baseline` / `-sb` flows.
 4. **`-sb/--save-baseline`** writes the same format users see in the terminal: default **markdown** (`.md`); with `-j` → **JSON** (`.json`), minified unless `-jp=true`.
@@ -212,7 +213,7 @@ const localeLoaders = {
 3. Author real strings in source locale — not empty scaffolds
 4. `cleanup --dry-run` → `wouldRemove: 0`
 
-**Upstream (post-v0.1.5):** cross-file resolution (`extractor/cross-file.md`), finite-keys inference, empty-scaffold quality rule.
+**Upstream (post-v1.0.0):** cross-file resolution (`extractor/cross-file.md`), finite-keys inference, empty-scaffold quality rule.
 
 ### Key CepatEdge paths (reference)
 
@@ -297,7 +298,8 @@ i18nprune kits pr -T 3 -sb pr.md
 | Area | Path |
 |------|------|
 | CLI registration | `packages/cli/bin/cli.ts` |
-| Kits commands | `packages/cli/src/commands/kits/` (new) |
+| Kits commands | `packages/cli/src/commands/kits/` |
+| Kits types | `packages/cli/src/types/command/kits/index.ts` |
 | Port from | `~/Tools/Kits/i18nprune/src/*.ts`, `lib/*` |
 | Global flags / aliases | `packages/cli/bin/cli.ts`, `packages/cli/src/argv/` |
 | JSON defaults | `packages/core/src/shared/options/runOptions.ts`, `cli.ts` preAction |
@@ -307,7 +309,7 @@ i18nprune kits pr -T 3 -sb pr.md
 
 ---
 
-## Definition of done (v0.1.5)
+## Definition of done (v1.0.0)
 
 - [ ] `i18nprune kits` subcommands work end-to-end per contract above
 - [ ] Gates 0.1–0.4 satisfied
@@ -321,7 +323,7 @@ i18nprune kits pr -T 3 -sb pr.md
 
 ```text
 Phase 0 (gates) → Phase 1 (scaffold + port) → Phase 2 (UX) → Phase 3 (aliases)
-  → Phase 4 (docs + E2E + publish) → tag v0.1.5 → Phase 5 (cleanup)
+  → Phase 4 (docs + E2E + publish) → tag **v1.0.0** → Phase 5 (cleanup + `apps/git` + `apps/releases`)
 ```
 
 ---
@@ -330,4 +332,5 @@ Phase 0 (gates) → Phase 1 (scaffold + port) → Phase 2 (UX) → Phase 3 (alia
 
 | Date | Note |
 |------|------|
+| 2026-07-09 | Types → `src/types/command/kits/`; Phases 2–3 UX/aliases; docs `commands/kits/*`; kits `--json` wiring |
 | 2026-07-09 | Created from consolidated release docs; command renamed `kit` → `kits`; `--cwd` → `-c/--config` |

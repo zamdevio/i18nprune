@@ -25,4 +25,9 @@ export const COMMANDS_WITH_JSON_OUTPUT = new Set([
   'list',
   'dynamic',
   'delete',
+  'kits-dynamic',
+  'kits-identical',
+  'kits-honest',
+  'kits-baseline',
+  'kits-pr',
 ]);

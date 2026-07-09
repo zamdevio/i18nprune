@@ -1,0 +1,42 @@
+schemaVersion: 1
+stream: core
+version: 1.0.0
+date: 2026-07-09
+status: stable
+summary: v1.0.0 — semver milestone aligned with CLI kits release; core scan/validate/quality/review surfaces unchanged API for kits orchestration.
+highlights:
+  - "Semver **1.0.0** milestone — stable SDK line shipped with `i18nprune@1.0.0`"
+  - "Kits CLI orchestrates existing `runValidate`, `runDynamic`, `runQuality`, `runReview` (no new core ops required)"
+  - "Phase 0 gates — catalog path fix, ESM `./` loader imports, npm `homepage`"
+sections:
+  added: []
+  changed:
+    - "Release version **0.1.4 → 1.0.0** (kits v1 milestone)"
+  fixed:
+    - "Catalog `languages.json` ensure targets monorepo artifact only when bundled"
+    - "`loader_generated` relative imports always `./` or `../` prefixed (PATH_ISSUE)"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install @i18nprune/core@1.0.0"
+    - "Pin the same semver as CLI when mixing SDK + CLI (`@i18nprune/core@1.0.0` with `i18nprune@1.0.0`)"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/1.0.0
+    - label: SDK operations
+      href: https://docs.i18nprune.dev/sdk/operations
+    - label: kits command
+      href: https://docs.i18nprune.dev/commands/kits
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@1.0.0
+git:
+  tag: v1.0.0
+  githubReleaseUrl: ""
+compat: []
+tags:
+  - major
+  - kits

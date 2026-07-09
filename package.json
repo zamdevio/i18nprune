@@ -1,6 +1,6 @@
 {
   "name": "i18nprune",
-  "version": "0.1.4",
+  "version": "1.0.0",
   "description": "Production-grade i18n toolkit. CLI + stable programmatic API for validation, sync, pruning, generation and quality control of translation files.",
   "homepage": "https://docs.i18nprune.dev",
   "type": "module",
@@ -179,7 +179,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@expgov/cli": "^1.0.0",
+    "@expgov/cli": "^1.0.1",
     "@i18nprune/core": "workspace:*",
     "@i18nprune/seo": "workspace:*",
     "@types/node": "^22.10.0",

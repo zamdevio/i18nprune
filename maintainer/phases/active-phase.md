@@ -8,11 +8,12 @@
 
 | Priority | Vertical | Doc |
 |----------|----------|-----|
-| **Now** | **Kits CLI (v0.1.5)** | [`kits.md`](./kits.md) — native `i18nprune kits …`, gates, aliases, publish |
-| **Then** | Extractor v2 (accuracy tiers) | [`extractor/README.md`](./extractor/README.md) → start [`extractor/hoc.md`](./extractor/hoc.md) |
+| **Now** | **Extractor v2 (accuracy tiers)** | [`extractor/README.md`](./extractor/README.md) → start [`extractor/hoc.md`](./extractor/hoc.md) |
 | **Then** | AST tier (opt-in typed assist) | [`extractor/ast-tier.md`](./extractor/ast-tier.md) |
 | **Then** | VS Code extension | [`extension/README.md`](./extension/README.md) |
 | **Queued** | `search` command | [`search.md`](./search.md) — after S.1 index; overlaps extractor v2 |
+
+**Kits v1.0.0 shipped** — see [`kits.md`](./kits.md) · [`shipped-slices.md`](./shipped-slices.md) W28. Resume extractor v2 after tag.
 
 **On hold:** [`extractor/provider-registry.md`](./extractor/provider-registry.md) (non-JS languages) — only after AST tier + extension are released without regressions.
 

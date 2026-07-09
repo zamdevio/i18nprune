@@ -35,8 +35,8 @@ importers:
         version: 4.3.6
     devDependencies:
       '@expgov/cli':
-        specifier: ^1.0.0
-        version: 1.0.0(@types/node@22.19.17)
+        specifier: ^1.0.1
+        version: 1.0.1(@types/node@22.19.17)
       '@i18nprune/core':
         specifier: workspace:*
         version: link:packages/core
@@ -1270,8 +1270,8 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@expgov/cli@1.0.0':
-    resolution: {integrity: sha512-EFid8Dsok+vAOZQcGFS+1sipZ7Pgs3hBHS6EkGdPZ/wJ+m15DczNM1cqEjpG4Imp88Ys0BdG8l7bEf2GMTh+Ug==}
+  '@expgov/cli@1.0.1':
+    resolution: {integrity: sha512-L20Lpzh4hFp80v0DvqYUFTpsIEhv76XSSyhiqppdpWEbXZhl1pXCLxA/aNMTiuxmRQpPYrlxA0q+woZPLOqf6A==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -5904,7 +5904,7 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@expgov/cli@1.0.0(@types/node@22.19.17)':
+  '@expgov/cli@1.0.1(@types/node@22.19.17)':
     dependencies:
       '@inquirer/prompts': 8.3.2(@types/node@22.19.17)
       chalk: 5.6.2

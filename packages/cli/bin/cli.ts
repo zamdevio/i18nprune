@@ -37,6 +37,7 @@ import { doctor } from '@/commands/doctor/index.js';
 import { patch } from '@/commands/patch/index.js';
 import { localesList, localesDynamic, localesDelete } from '@/commands/locales/index.js';
 import { shareUpload, shareList, shareView, shareDelete } from '@/commands/share/index.js';
+import { kitsBaseline, kitsDynamic, kitsHonest, kitsIdentical, kitsPr } from '@/commands/kits/index.js';
 import { report } from '@/commands/report/index.js';
 import { configureCliHelp } from '@/commands/help/index.js';
 import { CLI_NAME, CLI_ROOT_DESCRIPTION } from '@/constants/cli.js';
@@ -109,13 +110,13 @@ program
     false,
   )
   .option(
-    '--json',
+    '-j, --json',
     'machine-readable output (only commands that support it; e.g. config, init, validate, generate, doctor — ignored for help)',
     false,
   )
   .option(
-    '--json-pretty <bool>',
-    'when --json is enabled, pretty-print envelope JSON',
+    '-jp, --json-pretty <bool>',
+    'when --json is enabled, pretty-print JSON (kits: minified unless -jp true)',
     'true',
   )
   .option('-q, --quiet', 'less non-essential output', false)
@@ -141,17 +142,17 @@ program
     'override cache.profile for this run (safe | balanced | fast); explicit cache.rebuild / fullRescanThresholdPercent / mode in config still win',
   )
   .option(
-    '--debug-cache',
+    '-dc, --debug-cache',
     'log report-cache dispatch, invalidation, and per-file delta decisions',
     false,
   )
   .option(
-    '--debug-scan',
+    '-ds, --debug-scan',
     'log source scan skip decisions to stderr (built-in skips, exclude rules, non-scanned extensions)',
     false,
   )
-  .option('--top <n>', 'global list limit for human/list outputs (default: 3 per command; use --full for all)')
-  .option('--full', 'global full list mode (still bounded by core hard cap)', false)
+  .option('-T, --top <n>', 'global list limit for human/list outputs (default: 3 per command; use --full for all)')
+  .option('-F, --full', 'global full list mode (still bounded by core hard cap)', false)
   .hook('preAction', async (_thisCommand, actionCommand) => {
     const opts = program.opts<{
       config?: string;
@@ -613,6 +614,157 @@ localesCmd
   .option('--ask', 'interactive TTY: require one extra confirmation before delete', false)
   .action(async (opts: { target?: string; ask?: boolean }) => {
     await localesDelete({ target: opts.target, ask: Boolean(opts.ask) });
+  });
+
+const KITS_SUBCOMMANDS = ['dynamic', 'identical', 'honest', 'baseline', 'pr'] as const;
+
+function parseKitsMaxDynamic(raw: string | undefined): number | undefined {
+  if (raw === undefined || raw === '') return undefined;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0) {
+    throw new Error('Invalid --max-dynamic: expected a non-negative number.');
+  }
+  return n;
+}
+
+const kitsCmd = program
+  .command('kits')
+  .description(
+    'Read-only audit reports: dynamic sites, source-identical leaves, honest combined signal, baseline snapshot, PR markdown. Project root from global -c/--config (no --cwd).',
+  )
+  .action((_, cmd) => {
+    const unknown = typeof cmd?.args?.[0] === 'string' ? cmd.args[0] : undefined;
+    if (unknown && !KITS_SUBCOMMANDS.includes(unknown as (typeof KITS_SUBCOMMANDS)[number])) {
+      console.error(`Unknown kits subcommand "${unknown}". Try: ${KITS_SUBCOMMANDS.join(', ')}.`);
+      process.exitCode = 1;
+      return;
+    }
+    kitsCmd.help({ error: false });
+  });
+
+kitsCmd
+  .command('dynamic')
+  .description('List dynamic translation key call sites (read-only; uses runDynamic).')
+  .option('-t, --target <code>', 'optional locale filter (reserved)')
+  .option('-o, --out <path>', 'write output to file')
+  .option('-fon, --fail-on <list>', 'comma-separated policy gates (issues,dynamic,missing,source-identical)')
+  .option('-mxdy, --max-dynamic <n>', 'fail when dynamic site count exceeds n')
+  .option('-b, --baseline <path>', 'compare against a saved JSON baseline (project-relative)')
+  .option('-sb, --save-baseline <path>', 'save terminal-matching report (.md default; -j → .json)')
+  .option('-cn, --contains <text>', 'filter sites by substring in file path or preview')
+  .action(async (opts: {
+    target?: string;
+    out?: string;
+    failOn?: string;
+    maxDynamic?: string;
+    baseline?: string;
+    saveBaseline?: string;
+    contains?: string;
+  }) => {
+    await kitsDynamic({
+      target: opts.target,
+      out: opts.out,
+      failOn: opts.failOn,
+      maxDynamic: parseKitsMaxDynamic(opts.maxDynamic),
+      baseline: opts.baseline,
+      saveBaseline: opts.saveBaseline,
+      contains: opts.contains,
+    });
+  });
+
+kitsCmd
+  .command('identical')
+  .description('Report source-identical leaf paths per locale file (parity excludes unless --raw).')
+  .option('-t, --target <code>', 'optional locale filter')
+  .option('-o, --out <path>', 'write output to file')
+  .option('-fon, --fail-on <list>', 'comma-separated policy gates')
+  .option('-b, --baseline <path>', 'compare against a saved JSON baseline')
+  .option('-sb, --save-baseline <path>', 'save terminal-matching report')
+  .option('-r, --raw', 'disable policies.parity excludes', false)
+  .option('--strict', 'exit 2 when any source-identical leaves are found', false)
+  .action(async (opts: {
+    target?: string;
+    out?: string;
+    failOn?: string;
+    baseline?: string;
+    saveBaseline?: string;
+    raw?: boolean;
+    strict?: boolean;
+  }) => {
+    await kitsIdentical({
+      target: opts.target,
+      out: opts.out,
+      failOn: opts.failOn,
+      baseline: opts.baseline,
+      saveBaseline: opts.saveBaseline,
+      raw: Boolean(opts.raw),
+      strict: Boolean(opts.strict),
+    });
+  });
+
+kitsCmd
+  .command('honest')
+  .description('Combined validate + dynamic + quality + review honest audit (markdown default).')
+  .option('-t, --target <code>', 'optional locale filter')
+  .option('-o, --out <path>', 'write output to file')
+  .option('-fon, --fail-on <list>', 'comma-separated policy gates')
+  .option('-mxdy, --max-dynamic <n>', 'fail when dynamic site count exceeds n')
+  .option('-b, --baseline <path>', 'compare against a saved JSON baseline')
+  .option('-sb, --save-baseline <path>', 'save terminal-matching report')
+  .option('-f, --focus <text>', 'filter dynamic sites by substring')
+  .option('--strict', 'exit 2 on missing keys or source-identical leaves', false)
+  .action(async (opts: {
+    target?: string;
+    out?: string;
+    failOn?: string;
+    maxDynamic?: string;
+    baseline?: string;
+    saveBaseline?: string;
+    focus?: string;
+    strict?: boolean;
+  }) => {
+    await kitsHonest({
+      target: opts.target,
+      out: opts.out,
+      failOn: opts.failOn,
+      maxDynamic: parseKitsMaxDynamic(opts.maxDynamic),
+      baseline: opts.baseline,
+      saveBaseline: opts.saveBaseline,
+      focus: opts.focus,
+      strict: Boolean(opts.strict),
+    });
+  });
+
+kitsCmd
+  .command('baseline')
+  .description('Signal snapshot (missing literals, dynamic count, source-identical) with optional baseline delta.')
+  .option('-t, --target <code>', 'optional locale filter')
+  .option('-o, --out <path>', 'write output to file')
+  .option('-b, --baseline <path>', 'compare against a saved JSON baseline')
+  .option('-sb, --save-baseline <path>', 'save terminal-matching report')
+  .action(async (opts: { target?: string; out?: string; baseline?: string; saveBaseline?: string }) => {
+    await kitsBaseline({
+      target: opts.target,
+      out: opts.out,
+      baseline: opts.baseline,
+      saveBaseline: opts.saveBaseline,
+    });
+  });
+
+kitsCmd
+  .command('pr')
+  .description('PR-style markdown audit summary (dynamic samples + counts).')
+  .option('-t, --target <code>', 'optional locale filter')
+  .option('-o, --out <path>', 'write output to file')
+  .option('-sb, --save-baseline <path>', 'save terminal-matching report')
+  .option('-f, --focus <text>', 'filter dynamic sites by substring')
+  .action(async (opts: { target?: string; out?: string; saveBaseline?: string; focus?: string }) => {
+    await kitsPr({
+      target: opts.target,
+      out: opts.out,
+      saveBaseline: opts.saveBaseline,
+      focus: opts.focus,
+    });
   });
 
 program
