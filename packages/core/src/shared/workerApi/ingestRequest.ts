@@ -9,6 +9,7 @@ import {
   workerReportIngestUrl,
 } from './ingestForce.js';
 
+/** @sdkTier internal */
 export function buildHostedProjectUploadRequest(input: {
   workerBaseUrl: string;
   envelope: HostedProjectIngestEnvelope;
@@ -23,6 +24,7 @@ export function buildHostedProjectUploadRequest(input: {
   };
 }
 
+/** @sdkTier internal */
 export function buildHostedReportUploadRequest(input: {
   workerBaseUrl: string;
   document: unknown;

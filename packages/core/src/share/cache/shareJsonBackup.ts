@@ -3,7 +3,10 @@ import { SHARE_BAK_DIRNAME, SHARE_JSON_BASENAME } from '../../shared/constants/s
 import type { CacheRuntime } from '../../types/cache/index.js';
 import type { ShareJsonBackupResult } from '../../types/share/cache.js';
 
-/** `{projectCacheDir}/share.bak/` */
+/**
+ * @sdkTier internal
+ * `{projectCacheDir}/share.bak/`
+ */
 export function resolveShareBakDir(projectDir: string, path: { join: (...parts: string[]) => string }): string {
   return path.join(projectDir, SHARE_BAK_DIRNAME);
 }
@@ -13,6 +16,7 @@ function shareJsonBackupFilename(stamp: number | string): string {
 }
 
 /**
+ * @sdkTier internal
  * Copies the current `share.json` bytes to `share.bak/share.json.bak.<stamp>.json` (raw text — invalid JSON is preserved).
  * Used from {@link loadShareJsonFile} corrupt/oversize paths only — not from normal {@link saveShareJsonFile} writes.
  * Does not remove or modify `share.json`.
@@ -37,6 +41,7 @@ export function backupShareJsonRaw(sharePath: string, runtime: CacheRuntime): Sh
 }
 
 /**
+ * @sdkTier internal
  * Backs up then deletes `share.json` (used when the on-disk file is unreadable and will be replaced).
  */
 export function backupAndRemoveCorruptShareJson(sharePath: string, runtime: CacheRuntime): ShareJsonBackupResult {
@@ -50,18 +55,30 @@ export function backupAndRemoveCorruptShareJson(sharePath: string, runtime: Cach
   return backed;
 }
 
-/** Bullet label before the `share.bak/` path in human / issue copy. */
+/**
+ * @sdkTier internal
+ * Bullet label before the `share.bak/` path in human / issue copy.
+ */
 export const SHARE_JSON_HEAL_BACKUP_LABEL = 'Corrupt backup preserved:' as const;
 
-/** Bullet when a canonical `share.json` was written after heal. */
+/**
+ * @sdkTier internal
+ * Bullet when a canonical `share.json` was written after heal.
+ */
 export const SHARE_JSON_HEAL_CANONICAL_SAVED = 'Saved canonical share.json' as const;
 
-/** Detail rows stored on {@link ShareJsonHealReport.details} when a backup was created. */
+/**
+ * @sdkTier internal
+ * Detail rows stored on {@link ShareJsonHealReport.details} when a backup was created.
+ */
 export function shareJsonBackupDetailEntries(bakPath: string): readonly [typeof SHARE_JSON_HEAL_BACKUP_LABEL, string] {
   return [SHARE_JSON_HEAL_BACKUP_LABEL, bakPath];
 }
 
-/** One warn block for hosts when load-time heal replaced `share.json` after backing up corrupt bytes. */
+/**
+ * @sdkTier internal
+ * One warn block for hosts when load-time heal replaced `share.json` after backing up corrupt bytes.
+ */
 export function shareJsonBackupWarnMessage(bakPath: string): string {
   return [
     `Previous ${SHARE_JSON_BASENAME} was replaced after repair.`,

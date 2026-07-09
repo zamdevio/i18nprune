@@ -30,12 +30,18 @@ function snapshotForShareContentHash(snapshot: ProjectSnapshot): Record<string, 
   };
 }
 
-/** Snapshot fields used for share skip policy (excludes per-run ids and timestamps). */
+/**
+ * @sdkTier internal
+ * Snapshot fields used for share skip policy (excludes per-run ids and timestamps).
+ */
 export function hostedSnapshotForShareContentHash(snapshot: ProjectSnapshot): Record<string, unknown> {
   return snapshotForShareContentHash(snapshot);
 }
 
-/** Ingest envelope fields hashed for share skip policy (excludes prepareMeta and volatile snapshot ids). */
+/**
+ * @sdkTier internal
+ * Ingest envelope fields hashed for share skip policy (excludes prepareMeta and volatile snapshot ids).
+ */
 export function hostedIngestEnvelopeForShareContentHash(
   envelope: HostedProjectIngestEnvelope,
 ): Record<string, unknown> {

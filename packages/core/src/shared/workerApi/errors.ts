@@ -27,7 +27,10 @@ function isInvalidPayloadIssue(code: string): boolean {
   );
 }
 
-/** Build a worker API error item with optional UX fields for CLI/SPA. */
+/**
+ * @sdkTier internal
+ * Build a worker API error item with optional UX fields for CLI/SPA.
+ */
 export function buildWorkerApiError(input: {
   code: string;
   message: string;
@@ -48,7 +51,10 @@ export function buildWorkerApiError(input: {
   };
 }
 
-/** Suggested HTTP status for a canonical worker error code. */
+/**
+ * @sdkTier internal
+ * Suggested HTTP status for a canonical worker error code.
+ */
 export function workerErrorHttpStatus(code: string): WorkerErrorHttpStatus {
   switch (code) {
     case 'PAYLOAD_TOO_LARGE':
@@ -94,7 +100,10 @@ function reducePayloadError(
   });
 }
 
-/** Maps a worker route error code into a structured API error item. */
+/**
+ * @sdkTier internal
+ * Maps a worker route error code into a structured API error item.
+ */
 export function workerErrorFromCode(
   code: string,
   message: string,
@@ -126,7 +135,10 @@ function issueCodeTail(issue: Issue): string {
   return issue.code.replace(/^i18nprune\.(project|report|share)\./, '').replace(/\./g, '_').toUpperCase();
 }
 
-/** Maps a core {@link Issue} from validateHosted* into a structured worker error. */
+/**
+ * @sdkTier internal
+ * Maps a core {@link Issue} from validateHosted* into a structured worker error.
+ */
 export function workerErrorFromIssue(issue: Issue): WorkerApiErrorItem {
   if (
     PAYLOAD_TOO_LARGE_CODES.has(issue.code) ||
@@ -153,6 +165,7 @@ export function workerErrorFromIssue(issue: Issue): WorkerApiErrorItem {
   });
 }
 
+/** @sdkTier internal */
 export function workerPayloadTooLargeError(input: {
   kind: 'project_prepared' | 'project_zip' | 'report';
   receivedBytes: number;
@@ -170,6 +183,7 @@ export function workerPayloadTooLargeError(input: {
   });
 }
 
+/** @sdkTier internal */
 export function workerRateLimitedError(retryAfterSeconds = 60): WorkerApiErrorItem {
   return buildWorkerApiError({
     code: 'RATE_LIMITED',
@@ -181,6 +195,7 @@ export function workerRateLimitedError(retryAfterSeconds = 60): WorkerApiErrorIt
   });
 }
 
+/** @sdkTier internal */
 export function workerBusyError(): WorkerApiErrorItem {
   return buildWorkerApiError({
     code: 'WORKER_BUSY',
@@ -194,6 +209,7 @@ export function workerBusyError(): WorkerApiErrorItem {
 
 const SELF_HOST_DOC = `${GITHUB_REPO_URL}/tree/main/apps/workers/i18nprune`;
 
+/** @sdkTier internal */
 export function workerStorageLimitError(message = 'Worker storage limit reached for this isolate.'): WorkerApiErrorItem {
   return buildWorkerApiError({
     code: 'STORAGE_QUOTA_EXCEEDED',
@@ -207,6 +223,7 @@ export function workerStorageLimitError(message = 'Worker storage limit reached 
   });
 }
 
+/** @sdkTier internal */
 export function workerProjectNotFoundError(): WorkerApiErrorItem {
   return buildWorkerApiError({
     code: 'PROJECT_NOT_FOUND',
@@ -218,6 +235,7 @@ export function workerProjectNotFoundError(): WorkerApiErrorItem {
   });
 }
 
+/** @sdkTier internal */
 export function workerHashAlreadyExistsWarning(
   kind: 'project' | 'report',
   existingId: string,
@@ -230,6 +248,7 @@ export function workerHashAlreadyExistsWarning(
   };
 }
 
+/** @sdkTier internal */
 export function workerReportNotFoundError(): WorkerApiErrorItem {
   return buildWorkerApiError({
     code: 'REPORT_NOT_FOUND',

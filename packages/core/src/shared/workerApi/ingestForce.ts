@@ -3,28 +3,39 @@ import { WORKER_INGEST_FORCE_QUERY } from '../constants/worker.js';
 import type { HostedProjectIngestEnvelope } from '../../types/project/prepare/index.js';
 
 /**
+ * @sdkTier internal
  * Force ingest does **not** change the content hash — `projectHash` / `payloadContentHash` stay the
  * SHA256 of the zip or report bytes. Force only skips `HASH_ALREADY_EXISTS` dedup and replaces the
  * single cached row for that hash (new `projectId` / `reportId`, same hash index → one DO row per hash).
  */
 
-/** Resolves share/worker upload force (CLI `--force` → `ShareRunInput.force`). Default false. */
+/**
+ * @sdkTier internal
+ * Resolves share/worker upload force (CLI `--force` → `ShareRunInput.force`). Default false.
+ */
 export function resolveShareUploadForce(force?: boolean): boolean {
   return force === true;
 }
 
-/** Query `?force=true` on POST ingest/archive routes. */
+/**
+ * @sdkTier internal
+ * Query `?force=true` on POST ingest/archive routes.
+ */
 export function parseWorkerIngestForceQuery(value: string | null | undefined): boolean {
   if (value === null || value === undefined || value === '') return false;
   const v = value.trim().toLowerCase();
   return v === 'true' || v === '1' || v === 'yes';
 }
 
-/** JSON body `force: true` on prepared/report ingest. */
+/**
+ * @sdkTier internal
+ * JSON body `force: true` on prepared/report ingest.
+ */
 export function parseWorkerIngestForceField(raw: unknown): boolean {
   return raw === true;
 }
 
+/** @sdkTier internal */
 export function coalesceWorkerIngestForce(input: {
   query?: string | null;
   bodyFlag?: unknown;
@@ -32,6 +43,7 @@ export function coalesceWorkerIngestForce(input: {
   return parseWorkerIngestForceQuery(input.query) || parseWorkerIngestForceField(input.bodyFlag);
 }
 
+/** @sdkTier internal */
 export function appendWorkerIngestForceQuery(url: string, force: boolean): string {
   if (!force) return url;
   const parsed = new URL(url);
@@ -39,6 +51,7 @@ export function appendWorkerIngestForceQuery(url: string, force: boolean): strin
   return parsed.toString();
 }
 
+/** @sdkTier internal */
 export function withHostedProjectIngestForce(
   envelope: HostedProjectIngestEnvelope,
   force: boolean,
@@ -47,6 +60,7 @@ export function withHostedProjectIngestForce(
   return { ...envelope, force: true };
 }
 
+/** @sdkTier internal */
 export function serializeHostedProjectIngestBody(
   envelope: HostedProjectIngestEnvelope,
   force?: boolean,
@@ -55,20 +69,24 @@ export function serializeHostedProjectIngestBody(
   return stableStringify(payload);
 }
 
+/** @sdkTier internal */
 export function serializeHostedReportIngestBody(document: unknown, force?: boolean): string {
   const payload: { document: unknown; force?: boolean } = { document };
   if (resolveShareUploadForce(force)) payload.force = true;
   return stableStringify(payload);
 }
 
+/** @sdkTier internal */
 export function workerProjectIngestUrl(workerBaseUrl: string, force?: boolean): string {
   return appendWorkerIngestForceQuery(`${workerBaseUrl.replace(/\/$/, '')}/v1/projects`, resolveShareUploadForce(force));
 }
 
+/** @sdkTier internal */
 export function workerReportIngestUrl(workerBaseUrl: string, force?: boolean): string {
   return appendWorkerIngestForceQuery(`${workerBaseUrl.replace(/\/$/, '')}/v1/reports`, resolveShareUploadForce(force));
 }
 
+/** @sdkTier internal */
 export function workerProjectArchiveIngestUrl(workerBaseUrl: string, force?: boolean): string {
   return appendWorkerIngestForceQuery(
     `${workerBaseUrl.replace(/\/$/, '')}/v1/projects/archive`,
@@ -76,6 +94,7 @@ export function workerProjectArchiveIngestUrl(workerBaseUrl: string, force?: boo
   );
 }
 
+/** @sdkTier internal */
 export function workerReportArchiveIngestUrl(workerBaseUrl: string, force?: boolean): string {
   return appendWorkerIngestForceQuery(
     `${workerBaseUrl.replace(/\/$/, '')}/v1/reports/archive`,

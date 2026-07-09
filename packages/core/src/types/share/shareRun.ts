@@ -15,12 +15,14 @@ export type ShareRunShareJsonSession = {
 };
 import type { ShareManifest, ShareProjectManifest, ShareReportManifest } from './manifest.js';
 
+/** @sdkTier internal */
 export type ShareWorkerProjectRef = {
   kind: 'project';
   workerBaseUrl: string;
   workerProjectId: string;
 };
 
+/** @sdkTier internal */
 export type ShareWorkerReportRef = {
   kind: 'report';
   workerBaseUrl: string;
@@ -86,6 +88,7 @@ export type ShareRunInput =
   | ShareRunInputReportDocument
   | ShareRunInputReportWorkerRef;
 
+/** @sdkTier internal */
 export type ShareHostHooks = {
   emit?: RunEmitter;
   runId?: string;

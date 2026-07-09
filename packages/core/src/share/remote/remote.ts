@@ -26,6 +26,7 @@ const REPORT_REJECT_CODES = new Set(['REPORT_PAYLOAD_INVALID', 'REPORT_SCHEMA_IN
 const UPLOAD_REJECT_PREFIX = 'UPLOAD_';
 
 /**
+ * @sdkTier internal
  * Parses worker JSON body into a minimal envelope shape. Unknown bodies yield `success: false`.
  */
 export function parseWorkerShareEnvelope(body: unknown): WorkerShareEnvelope {
@@ -63,7 +64,10 @@ export function parseWorkerShareEnvelope(body: unknown): WorkerShareEnvelope {
   return { success, code, data, errors, ...(warnings.length > 0 ? { warnings } : {}) };
 }
 
-/** Reads `expiresAt` from a successful worker upload `data` payload. */
+/**
+ * @sdkTier internal
+ * Reads `expiresAt` from a successful worker upload `data` payload.
+ */
 export function workerUploadExpiresAt(data: unknown, kind: 'project' | 'report'): string | undefined {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
   const d = data as Record<string, unknown>;
@@ -84,6 +88,7 @@ export function workerUploadExpiresAt(data: unknown, kind: 'project' | 'report')
   return typeof exp === 'string' && exp.length > 0 ? exp : undefined;
 }
 
+/** @sdkTier internal */
 export function workerUploadWasDeduped(envelope: WorkerShareEnvelope): boolean {
   if (envelope.code === 'HASH_ALREADY_EXISTS') return true;
   return (envelope.warnings ?? []).some((w) => w.code === 'HASH_ALREADY_EXISTS');
@@ -101,15 +106,19 @@ function firstWorkerCode(env: WorkerShareEnvelope): string | undefined {
 }
 
 /**
- * Maps HTTP status + worker error codes to a stable {@link Issue} for share flows.
+ * @sdkTier internal
+ * True when the worker confirmed the project/report id does not exist (safe to drop stale `share.json` rows).
  */
-/** True when the worker confirmed the project/report id does not exist (safe to drop stale `share.json` rows). */
 export function isShareRemoteNotFoundIssue(issue: Issue): boolean {
   return (
     issue.code === ISSUE_SHARE_REMOTE_PROJECT_NOT_FOUND || issue.code === ISSUE_SHARE_REMOTE_REPORT_NOT_FOUND
   );
 }
 
+/**
+ * @sdkTier internal
+ * Maps HTTP status + worker error codes to a stable {@link Issue} for share flows.
+ */
 export function shareRemoteIssueFromWorker(input: {
   httpStatus: number;
   envelope: WorkerShareEnvelope;
@@ -217,6 +226,7 @@ export function shareRemoteIssueFromWorker(input: {
   };
 }
 
+/** @sdkTier internal */
 export type ShareRemoteDeleteOutcome = {
   /** Worker row removed or was already absent (idempotent DELETE). */
   deletedRemote: boolean;
@@ -226,6 +236,7 @@ export type ShareRemoteDeleteOutcome = {
 };
 
 /**
+ * @sdkTier internal
  * Maps worker `DELETE` responses for share delete (idempotent: 404 / not-found → success + warning).
  */
 export function resolveShareRemoteDeleteOutcome(input: {
@@ -282,21 +293,30 @@ export function resolveShareRemoteDeleteOutcome(input: {
   };
 }
 
-/** Reads `data.projectId` from a successful worker upload envelope. */
+/**
+ * @sdkTier internal
+ * Reads `data.projectId` from a successful worker upload envelope.
+ */
 export function workerDataProjectId(data: unknown): string | undefined {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
   const id = (data as Record<string, unknown>).projectId;
   return typeof id === 'string' && id.length > 0 ? id : undefined;
 }
 
-/** Reads `data.deleted` from a successful worker DELETE envelope (`true` = row existed and was removed). */
+/**
+ * @sdkTier internal
+ * Reads `data.deleted` from a successful worker DELETE envelope (`true` = row existed and was removed).
+ */
 export function workerDataDeleteRemoved(data: unknown): boolean | undefined {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
   const deleted = (data as Record<string, unknown>).deleted;
   return typeof deleted === 'boolean' ? deleted : undefined;
 }
 
-/** Reads `data.reportId` from a successful worker report upload envelope. */
+/**
+ * @sdkTier internal
+ * Reads `data.reportId` from a successful worker report upload envelope.
+ */
 export function workerDataReportId(data: unknown): string | undefined {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
   const id = (data as Record<string, unknown>).reportId;

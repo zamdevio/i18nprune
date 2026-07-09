@@ -2,6 +2,7 @@ import { DEFAULT_WORKER_API_URL } from '../../shared/constants/links.js';
 import { normalizeWorkerBaseUrl } from '../policy/policy.js';
 
 /**
+ * @sdkTier internal
  * Normalizes a host-supplied worker API origin, or {@link DEFAULT_WORKER_API_URL} when omitted.
  * Env / CLI flags are resolved by the host before calling share ops.
  */

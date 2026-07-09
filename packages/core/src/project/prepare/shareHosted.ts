@@ -24,6 +24,7 @@ function toIssue(code: string, message: string): Issue {
 }
 
 /**
+ * @sdkTier internal
  * One analysis pass when both project snapshot and report document are needed (CLI `--project` + `--report`).
  */
 export async function prepareShareHostedFromContext(

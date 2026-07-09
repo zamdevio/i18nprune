@@ -40,6 +40,7 @@ function shareJsonRepairedIssue(heal: ShareJsonHealReport, sharePath: string): I
 }
 
 /**
+ * @sdkTier internal
  * Resolves `{projectDir}/share.json` using the host path port.
  */
 export function resolveShareJsonPath(projectDir: string, path: { join: (...parts: string[]) => string }): string {
@@ -52,6 +53,7 @@ function entryDedupeKey(e: ShareCacheEntry): string {
 }
 
 /**
+ * @sdkTier internal
  * Merges duplicate worker rows (same kind + base URL + worker id), keeping the newest `lastUsedAt`.
  */
 export function mergeDuplicateShareEntries(entries: ShareCacheEntry[]): { entries: ShareCacheEntry[]; merged: number } {
@@ -185,6 +187,7 @@ function recordShareJsonBackup(heal: ShareJsonHealReport, backed: { created: boo
 }
 
 /**
+ * @sdkTier internal
  * Loads `share.json` with self-heal: never throws; returns issues when repair occurred.
  */
 export function loadShareJsonFile(input: {
@@ -244,6 +247,7 @@ export function loadShareJsonFile(input: {
 }
 
 /**
+ * @sdkTier internal
  * Writes `share.json` atomically. Does not create `share.bak/` copies — backups happen
  * only in {@link loadShareJsonFile} when the on-disk file is corrupt or oversize.
  */
@@ -270,6 +274,7 @@ export function saveShareJsonFile(input: {
 }
 
 /**
+ * @sdkTier internal
  * Byte length of serialized `share.json` (UTF-8) for diagnostics.
  */
 export function shareJsonSerializedByteLength(file: ShareJsonFile, runtime: CacheRuntime): number {
