@@ -11,10 +11,10 @@ Check off as each slice lands. One concern per PR where possible.
 
 ### Phase 0 — Release gates (block tag)
 
-- [ ] **0.1** Catalog `languages.json` writes to the correct path only (no home-dir / wrong-cwd writes when bundled CLI runs or `pnpm cli:build` triggers ensure)
-- [ ] **0.2** `loader_generated` emits `./`-prefixed relative ESM import paths in `localeLoaders` (fix `computeGeneratedModuleImportBase` + tests)
+- [x] **0.1** Catalog `languages.json` writes to the correct path only (no home-dir / wrong-cwd writes when bundled CLI runs or `pnpm cli:build` triggers ensure)
+- [x] **0.2** `loader_generated` emits `./`-prefixed relative ESM import paths in `localeLoaders` (fix `computeGeneratedModuleImportBase` + tests)
 - [ ] **0.3** Kits dynamic-key messaging matches CepatEdge review gate (no “detected = complete” implication)
-- [ ] **0.4** npm `homepage` on `i18nprune` + `@i18nprune/core` → `https://docs.i18nprune.dev`
+- [x] **0.4** npm `homepage` on `i18nprune` + `@i18nprune/core` → `https://docs.i18nprune.dev`
 
 ### Phase 1 — Native `i18nprune kits` command group
 

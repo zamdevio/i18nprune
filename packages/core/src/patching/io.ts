@@ -109,6 +109,13 @@ export function resolveLocalesDir(
 }
 
 /** `import()` path prefix inside `loaders.generated.ts` — relative from that file to the locale directory. */
+export function toEsmRelativeImportPath(relativePath: string): string {
+  let rel = relativePath.replace(/\\/g, '/');
+  if (!rel || rel === '.') return './';
+  if (rel.startsWith('.')) return rel;
+  return `./${rel}`;
+}
+
 export function computeGeneratedModuleImportBase(
   runtime: PatchingRunInput['runtime'],
   config: ResolvedPatchingConfig,
@@ -117,9 +124,8 @@ export function computeGeneratedModuleImportBase(
   const localesAbs = resolveLocalesDir(runtime, config, projectRoot);
   const loaderAbs = resolvePatchingFilePath(runtime, projectRoot, config.loaderPath);
   const genDir = runtime.path.dirname(loaderAbs);
-  let rel = runtime.path.relative(genDir, localesAbs).replace(/\\/g, '/');
-  if (!rel || rel === '') rel = '.';
-  return rel;
+  const rel = runtime.path.relative(genDir, localesAbs);
+  return toEsmRelativeImportPath(rel);
 }
 
 export function listLocaleFilesFromDir(runtime: PatchingRunInput['runtime'], localesDir: string): string[] {

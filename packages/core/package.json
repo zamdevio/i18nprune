@@ -4,6 +4,7 @@
   "private": false,
   "type": "module",
   "description": "Pure domain engine package for i18nprune.",
+  "homepage": "https://docs.i18nprune.dev",
   "license": "MIT",
   "publishConfig": {
     "access": "public",

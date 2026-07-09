@@ -2,6 +2,7 @@
   "name": "i18nprune",
   "version": "0.1.4",
   "description": "Production-grade i18n toolkit. CLI + stable programmatic API for validation, sync, pruning, generation and quality control of translation files.",
+  "homepage": "https://docs.i18nprune.dev",
   "type": "module",
   "bin": {
     "i18nprune": "./dist/cli.js"
@@ -110,13 +111,6 @@
     "indexnow:docs": "tsx --tsconfig tsconfig.json scripts/indexnow/ping.mts --preset docs",
     "indexnow:landing": "tsx --tsconfig tsconfig.json scripts/indexnow/ping.mts --preset landing",
     "indexnow:git": "tsx --tsconfig tsconfig.json scripts/indexnow/ping.mts --preset git",
-    "exports:inventory": "expgov inventory",
-    "exports:diff": "expgov diff",
-    "exports:validate": "expgov validate",
-    "exports:trend": "expgov trend",
-    "exports:timeline": "expgov timeline",
-    "exports:graph": "expgov graph",
-    "exports:help": "expgov --help",
     "git:sync": "pnpm --filter @i18nprune/git run sync",
     "git:sync:force": "pnpm --filter @i18nprune/git run sync:force",
     "git:validate": "pnpm --filter @i18nprune/git run validate",
@@ -138,10 +132,7 @@
     "empty:dir": "find . -path '*node_modules' -prune -o -path '*/.wrangler' -prune -o -path ./.git -prune -o -type d -empty -print",
     "empty:file": "find . -path '*node_modules' -prune -o -path '*/.wrangler' -prune -o -path ./.git -prune -o -type f -empty -print",
     "empty:dir:del": "find . -type d -empty ! -path '*/node_modules' ! -path '*/node_modules/*' ! -path '*/.wrangler' ! -path '*/.wrangler/*' ! -path './.git' ! -path './.git/*' -print -delete",
-    "empty:file:del": "find . -type f -empty ! -path '*/node_modules/*' ! -path '*/.wrangler/*' ! -path './.git/*' -print -delete",
-    "files": "tsx --tsconfig tsconfig.json scripts/stats/files.ts",
-    "lines": "tsx --tsconfig tsconfig.json scripts/stats/lines.ts",
-    "stats": "tsx --tsconfig tsconfig.json scripts/stats/run.ts"
+    "empty:file:del": "find . -type f -empty ! -path '*/node_modules/*' ! -path '*/.wrangler/*' ! -path './.git/*' -print -delete"
   },
   "keywords": [
     "i18n",

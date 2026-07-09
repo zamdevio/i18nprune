@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { catalogCodesJsonPath, defaultLanguagesJsonPath } from './paths.js';
+import { resolveCatalogCodesJsonPath, resolveDefaultLanguagesJsonPath } from './paths.js';
 import { writeGeneratedLanguageCatalogToPath } from './write.js';
 
 const LOG = '[generate:languages]';
@@ -17,17 +17,25 @@ function formatBytes(n: number): string {
 }
 
 export function runLanguageCatalogGeneration(): void {
-  const t0 = performance.now();
-  console.log(`${LOG} Input   ${displayPath(catalogCodesJsonPath)}`);
-  console.log(`${LOG} Output  ${displayPath(defaultLanguagesJsonPath)}`);
+  const codesPath = resolveCatalogCodesJsonPath();
+  const outputPath = resolveDefaultLanguagesJsonPath();
+  if (!codesPath || !outputPath) {
+    throw new Error(
+      'Could not resolve monorepo catalog paths. Run from the i18nprune repository root.',
+    );
+  }
 
-  const { rows, bytesWritten, inputCodeCount } = writeGeneratedLanguageCatalogToPath(defaultLanguagesJsonPath);
+  const t0 = performance.now();
+  console.log(`${LOG} Input   ${displayPath(codesPath)}`);
+  console.log(`${LOG} Output  ${displayPath(outputPath)}`);
+
+  const { rows, bytesWritten, inputCodeCount } = writeGeneratedLanguageCatalogToPath(outputPath);
 
   const ms = Math.round(performance.now() - t0);
   console.log(
     `${LOG} Wrote   ${rows.length} language row(s) from ${inputCodeCount} code(s) → ${formatBytes(bytesWritten)} in ${ms}ms`,
   );
-  console.log(`${LOG} Done. Commit ${displayPath(defaultLanguagesJsonPath)} if contents changed.`);
+  console.log(`${LOG} Done. Commit ${displayPath(outputPath)} if contents changed.`);
 }
 
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : '';
