@@ -15,8 +15,7 @@
     "verbatimModuleSyntax": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "rootDir": ".",
-    "baseUrl": "."
+    "rootDir": "."
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

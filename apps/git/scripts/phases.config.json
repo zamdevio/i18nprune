@@ -92,6 +92,17 @@
     ]
   },
   {
+    "week": "2026-W28",
+    "label": "Week 28 — Kits Phase 0 + tooling",
+    "theme": "Release gates (catalog paths, ESM loader imports, npm homepage), kits planning consolidation, expgov migration",
+    "color": "teal",
+    "shipped": [
+      "pre — Phase 0 gates: ESM ./ loader paths, monorepo-only catalog ensure, npm homepage",
+      "pre — kits v0.1.5 tracker (maintainer/phases/kits.md) + expgov @expgov/cli migration",
+      "pre — git portal: recharts v3, W26 timeline placeholders"
+    ]
+  },
+  {
     "week": "2026-W26",
     "label": "Week 26 — Tooling & kits prep",
     "theme": "Stats harness, exports worktree hygiene, kits v0.1.5 planning, pnpm v11 workspace config",

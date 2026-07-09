@@ -16,8 +16,7 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "rootDir": ".",
-    "baseUrl": "."
+    "rootDir": "."
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"]
 }

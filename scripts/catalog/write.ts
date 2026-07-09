@@ -5,7 +5,7 @@ import codes from './codes.json' with { type: 'json' };
 
 import { buildGeneratedLanguageCatalog } from './build.js';
 import type { GeneratedLanguageRow } from './build.js';
-import { catalogCodesJsonPath } from './paths.js';
+import { resolveCatalogCodesJsonPath } from './paths.js';
 
 export type WriteLanguageCatalogResult = {
   rows: GeneratedLanguageRow[];
@@ -16,6 +16,10 @@ export type WriteLanguageCatalogResult = {
 };
 
 export function writeGeneratedLanguageCatalogToPath(targetFile: string): WriteLanguageCatalogResult {
+  const codesPath = resolveCatalogCodesJsonPath();
+  if (!codesPath) {
+    throw new Error('Could not resolve scripts/catalog/codes.json path (not in i18nprune monorepo).');
+  }
   const codeList = codes as string[];
   const list = buildGeneratedLanguageCatalog(codeList);
   const body = `${JSON.stringify(list, null, 2)}\n`;
@@ -24,7 +28,7 @@ export function writeGeneratedLanguageCatalogToPath(targetFile: string): WriteLa
   return {
     rows: list,
     outputPath: targetFile,
-    codesPath: catalogCodesJsonPath,
+    codesPath,
     inputCodeCount: codeList.length,
     bytesWritten: Buffer.byteLength(body, 'utf8'),
   };

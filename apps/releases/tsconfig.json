@@ -12,7 +12,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@i18nprune/ui/react/theme": ["../../packages/ui/src/react/theme/index.ts"],

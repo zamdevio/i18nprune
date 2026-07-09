@@ -49,23 +49,3 @@ export function resolveDefaultLanguagesJsonPath(startDir: string = moduleDir): s
     'languages.json',
   );
 }
-
-/** @deprecated Prefer {@link resolveCatalogCodesJsonPath} — kept for scripts run from source tree. */
-export const catalogCodesJsonPath =
-  resolveCatalogCodesJsonPath() ?? path.join(moduleDir, 'codes.json');
-
-/** @deprecated Prefer {@link resolveDefaultLanguagesJsonPath}. */
-export const defaultLanguagesJsonPath =
-  resolveDefaultLanguagesJsonPath() ??
-  path.join(
-    moduleDir,
-    '..',
-    '..',
-    'packages',
-    'core',
-    'src',
-    'shared',
-    'languages',
-    'catalog',
-    'languages.json',
-  );

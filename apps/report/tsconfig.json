@@ -10,7 +10,6 @@
     "noEmit": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
     "paths": {
       "@i18nprune/core": ["../../packages/core/src/index.ts"],
       "@i18nprune/core/report-schema": ["../../packages/core/src/shared/report/index.ts"],

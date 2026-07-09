@@ -10,9 +10,8 @@
     "noEmit": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "@i18nprune/ui/react/toolbar": ["../../packages/ui/src/react/toolbar/index.ts"],
       "@i18nprune/ui/react/pagination": ["../../packages/ui/src/react/pagination/index.ts"]
     }
