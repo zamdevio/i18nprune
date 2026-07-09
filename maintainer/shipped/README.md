@@ -14,9 +14,9 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | Week | Theme | Doc |
 |------|-------|-----|
-| 2026-W28 | **Kits v1.0.0** — native `i18nprune kits`, gates, semver 1.0.0 | [`kits/kits.md`](./kits/kits.md) |
+| 2026-W28 | **Kits v1.0.0** + export publish preflight | [`kits/kits.md`](./kits/kits.md) · [`exports/governance.md`](./exports/governance.md) |
 | 2026-W26 | Tooling & kits prep (expgov migration, pnpm v11) | [`tooling/tooling.md`](./tooling/tooling.md) |
-| 2026-W25 | EX-0 exports governance, extractor/search phases | [`tooling/tooling.md`](./tooling/tooling.md) |
+| 2026-W25 | Export governance bootstrap, extractor/search phases | [`tooling/tooling.md`](./tooling/tooling.md) |
 | 2026-W24 | Extractor fusion E.1–E.6, D.1, T.1 | [`extractor/fusion.md`](./extractor/fusion.md) |
 | 2026-W23 | Release & platform (CI, XP, tree, npm, git portal) | [`platform/platform.md`](./platform/platform.md) · [`platform/ci.md`](./platform/ci.md) |
 | 2026-W22 | Share + worker + web/report UX | [`share/share.md`](./share/share.md) |
@@ -33,7 +33,8 @@ Closed slices only — check here before re-implementing. Durable engineering de
 | ID | Week | One-line | Doc |
 |----|------|----------|-----|
 | **Kits v1** | W28 | Native `i18nprune kits` + semver 1.0.0 | [`kits/kits.md`](./kits/kits.md) |
-| **EX-0** | W25 | Export inventory governance | [`tooling/tooling.md`](./tooling/tooling.md) |
+| **Publish preflight** | W28 | expgov validate + npm v1 gate | [`exports/governance.md`](./exports/governance.md) |
+| **Governance bootstrap** | W25 | expgov + `.exports/cache/` | [`tooling/tooling.md`](./tooling/tooling.md) |
 | **D.1** | W24 | Active vs commented dynamic counts | [`extractor/fusion.md`](./extractor/fusion.md) |
 | **E.1–E.6** | W24 | Mixed-template extractor hardening | [`extractor/fusion.md`](./extractor/fusion.md) |
 | **C.1** | W21 | Extractor bindings + prose filter | [`extractor/c1.md`](./extractor/c1.md) |
@@ -52,7 +53,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 | Group | Weeks / slices | Doc |
 |-------|----------------|-----|
 | Kits v1 | W28 | [`kits/kits.md`](./kits/kits.md) |
-| Tooling & planning | W25–W26, EX-0 | [`tooling/tooling.md`](./tooling/tooling.md) |
+| Exports governance | W25–W28 | [`exports/governance.md`](./exports/governance.md) · [`tooling/tooling.md`](./tooling/tooling.md) · active [`exports/tiers.md`](./exports/tiers.md) · [`exports/program.md`](./exports/program.md) |
 | Extractor & dynamic | W21 C.1, W24 E/D/T | [`extractor/c1.md`](./extractor/c1.md) · [`extractor/fusion.md`](./extractor/fusion.md) |
 | Platform & release | W23 CI/XP/T/npm/git | [`platform/platform.md`](./platform/platform.md) · [`platform/ci.md`](./platform/ci.md) |
 | Share & workers | W22 | [`share/share.md`](./share/share.md) |

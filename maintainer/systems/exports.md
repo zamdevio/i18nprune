@@ -1,9 +1,9 @@
 # `@i18nprune/core` export system
 
 **Audience:** Maintainers and agents changing `packages/core` barrels, `package.json` exports, or host imports.  
-**Execution sequencing + run checklist:** [`../phases/exports.md`](../phases/exports.md) (slices EX-0, EX-P0, EX-1…EX-5).  
+**Execution sequencing:** [`shipped/exports/program.md`](../shipped/exports/program.md) · **Governance shipped:** [`shipped/exports/governance.md`](../shipped/exports/governance.md) · **Tier work:** [`shipped/exports/tiers.md`](../shipped/exports/tiers.md)  
 **Governance tool:** [`expgov.config.ts`](../../expgov.config.ts) + **`expgov`** CLI (`@expgov/cli`). Legacy `scripts/exports/` removed — use `expgov inventory|diff|validate|graph|…`.  
-**User-facing mirror:** [`docs/sdk/exports.md`](../../docs/sdk/exports.md) (EX-5) — under SDK docs, not `docs/exports/`.
+**User-facing mirror:** [`docs/sdk/exports.md`](../../docs/sdk/exports.md) — stability tiers under the SDK docs tree.
 
 ---
 
@@ -23,7 +23,7 @@ Without this, every refactor asks: “Can I remove this export without breaking 
 
 | Vocabulary | Where documented | Question it answers |
 |------------|------------------|---------------------|
-| **Stability tiers** | This file + [`phases/exports.md`](../phases/exports.md) | Will this break on a minor npm bump? |
+| **Stability tiers** | This file + [`shipped/exports/program.md`](../shipped/exports/program.md) | Will this break on a minor npm bump? |
 | **Runtime Tier A / B** | [`docs/sdk/operations.md`](../../docs/sdk/operations.md) | Is it safe to call from this host (read-only vs writes)? |
 
 ---
@@ -46,7 +46,7 @@ Without this, every refactor asks: “Can I remove this export without breaking 
 
 ## Subpath catalog (target state)
 
-After [`phases/exports.md`](../phases/exports.md) EX-3:
+After root slim ([`shipped/exports/program.md`](../shipped/exports/program.md)):
 
 | Subpath | Holds | Root namespace mirror |
 |---------|-------|----------------------|
@@ -74,7 +74,7 @@ After [`phases/exports.md`](../phases/exports.md) EX-3:
 
 Op subpaths exist for **bundle graphs**; tier subpaths exist for **API governance**. Both stay.
 
-**Backlog (not EX-1):** Additional domain subpaths (`/doctor`, `/share`, `/cache`, `/analysis`, …) — see [`phases/exports.md` § Recommended future subpaths](../phases/exports.md#recommended-future-subpaths-backlog).
+**Backlog:** Additional domain subpaths — see [`shipped/exports/program.md` § Recommended future subpaths](../shipped/exports/program.md#recommended-future-subpaths-backlog).
 
 ---
 
@@ -90,14 +90,14 @@ Root and `packages/core` tsconfig include:
 "@i18nprune/core/*": ["packages/core/src/*", "packages/core/src/*/index.ts"]
 ```
 
-Any import like `@i18nprune/core/shared/constants/issueCodes.js` typechecks in the monorepo but is **not** a published export. Known violations to fix in EX-4:
+Known violations to fix during host migration / CI hardening:
 
 | Import | Fix target |
 |--------|------------|
 | `@i18nprune/core/shared/constants/issueCodes.js` (CLI test) | `@i18nprune/core/issues` |
 | `@i18nprune/core/shared/languages/normalize.js` (`scripts/catalog/build.ts`) | `@i18nprune/core/shared` or `/utils` / languages surface |
 
-### Required policy (EX-4)
+### Required policy
 
 | Rule | Detail |
 |------|--------|
@@ -111,13 +111,13 @@ Any import like `@i18nprune/core/shared/constants/issueCodes.js` typechecks in t
 tsconfig paths  ⊆  package.json exports keys  ⊆  intentional public API
 ```
 
-Do **not** widen `package.json` exports to match arbitrary `src/**` folders — add a subpath barrel instead ([`phases/exports.md`](../phases/exports.md)).
+Do **not** widen `package.json` exports to match arbitrary `src/**` folders — add a subpath barrel instead ([`shipped/exports/program.md`](../shipped/exports/program.md)).
 
 ---
 
 ## Recommended future subpaths (backlog)
 
-Same pattern as EX-1 tier subpaths and existing op subpaths: **full surface on subpath**, **`export * as <name>` on root only**. Not scheduled for immediate implementation — prioritize in EX-0 inventory.
+Same pattern as tier subpaths and existing op subpaths: **full surface on subpath**, **`export * as <name>` on root only**.
 
 | Candidate | Root namespace | Rationale | Priority |
 |-----------|----------------|-----------|----------|
@@ -134,7 +134,7 @@ Same pattern as EX-1 tier subpaths and existing op subpaths: **full surface on s
 
 **Not candidates:** per-file subpaths under `shared/` (`/json`, `/scanner`, …) — use **`/shared`** + root `shared.*`.
 
-Execution detail and overlap notes: [`phases/exports.md` § Recommended future subpaths](../phases/exports.md#recommended-future-subpaths-backlog).
+Execution detail: [`shipped/exports/program.md` § Recommended future subpaths](../shipped/exports/program.md#recommended-future-subpaths-backlog).
 
 ---
 
@@ -144,7 +144,7 @@ Execution detail and overlap notes: [`phases/exports.md` § Recommended future s
 
 - All **`runXxx`** orchestration entrypoints
 - **`resolveContext`**, **`tryResolveContext`**, **`createCoreContext`**, **`createTranslateContext`**, and other documented quick-start symbols
-- Do **not** add new flat exports without updating the inventory ([`phases/exports.md`](../phases/exports.md) EX-0)
+- Do **not** add new flat exports without running `expgov inventory` ([`shipped/exports/governance.md`](../shipped/exports/governance.md))
 
 ### Namespace exports on root
 
@@ -255,14 +255,14 @@ New subpaths require: source barrel → tsup entry → `package.json` exports �
 
 ---
 
-## CI and hygiene guards (EX-4)
+## CI and hygiene guards
 
 | Guard | Intent |
 |-------|--------|
 | **tsconfig ↔ exports parity** | No `@i18nprune/core/*` wildcard; allowlist matches `package.json` |
 | **Deep import grep** | Hosts must not import unpublished `@i18nprune/core/...` paths |
 | Forbidden importers | `apps/extension/**`, `examples/sdk/**` must not import `/internal` |
-| **`pnpm exports:validate`** | CI gate — see [`phases/exports.md`](../phases/exports.md) EX-4 + script hardening table |
+| **`expgov validate`** | CI gate — see [`shipped/exports/program.md`](../shipped/exports/program.md) |
 | Knip | Barrel files listed in [`knip.md`](./knip.md) — do not “fix” knip by deleting public re-exports |
 | Extension host size | `@i18nprune/core` externalized in esbuild — prefer subpaths over bundling root |
 | No `@deprecated` | Remove export and update call sites ([`agents/rules.md`](../agents/rules.md)) |
@@ -271,93 +271,30 @@ New subpaths require: source barrel → tsup entry → `package.json` exports �
 
 ## Namespace overlap cleanup
 
-Today root and `/shared` both expose names like `json`, `scanner`, `errors`. After EX-3:
+Today root and `/shared` both expose names like `json`, `scanner`, `errors`. After root slim:
 
 - **Domain namespaces** on root (`validate`, `generate`, …) — keep
 - **Shared module namespaces** (`json`, `scanner`, …) — **`/shared` subpath only**; root exposes **`shared.*`** not duplicate top-level `scanner`
 
 ---
 
-## Export governance scripts (`scripts/exports/`)
+## Export governance (expgov)
 
-**Operator manual (canonical):** [`scripts/exports/README.md`](../../scripts/exports/README.md) — every `pnpm exports:*` command, flag, cache profile, output legend, and example.  
-**Slice sequencing + post-refactor checklist:** [`phases/exports.md`](../phases/exports.md).
+**Config:** [`expgov.config.ts`](../../expgov.config.ts) · **CI:** [`.github/workflows/exports.yml`](../../.github/workflows/exports.yml) · **Workstreams:** [`shipped/exports/program.md`](../shipped/exports/program.md)
 
-Maintainer tooling lives under **`scripts/exports/`** (same pattern as `scripts/ui/purity-check.mjs`, `scripts/catalog/`). **Not** in `packages/core` — core stays pure (no repo introspection, no `process`).
+Run from repo root:
 
-### Why it exists
-
-The barrel refactor is mostly mechanical; the failure mode is **slow API drift** — a symbol lands on root without a tier decision. **`exports:inventory`** / **`exports:graph`** answer “what is the surface?”; **`exports:diff`** answers “what changed?”; **`exports:validate`** (EX-4 CI gate) answers “does the tree violate policy?”
-
-**No committed inventory JSON.** Git history and `git show <sha>:packages/core/src/index.ts` are the source of truth for past states. Parsed snapshots live only in gitignored **`.exports/cache/`**.
-
-### Layout (implementation)
-
-```text
-scripts/exports/
-  run.ts                 CLI entry (tsx)
-  paths.ts               SNAPSHOT_VERSION, TOOL_VERSION, CACHE_META_VERSION, subpath map
-  commands/              inventory, diff, validate, trend, timeline, graph
-  inventory/             parse barrel, tiers.ts, categories, graph edges
-  cache/store/           read/write, meta heal, toolVersion purge
-  git/                   rev-parse, git show, barrel log
-  logger/, help/, time/
+```bash
+expgov inventory -v
+expgov graph -v
+expgov diff HEAD
+expgov validate          # CI gate
+expgov suggest -T 20
 ```
 
-Wire: root `package.json` → `pnpm exports:<cmd>` → `tsx scripts/exports/run.ts <cmd>`.
+Cache: gitignored **`.exports/cache/<sha>/`**. Legacy `scripts/exports/` was removed — do not reintroduce.
 
-### Cache model (rules)
-
-| Artifact | Profile | Used by |
-|----------|---------|---------|
-| `<sha>/inventory.full.json` | full | inventory, diff, graph, trend, validate |
-| `<sha>/timeline.summary.json` | timeline | timeline only (never loads full graph) |
-| `meta.json` | index | trend heal; lists warmed full snapshots |
-
-| Constant (`paths.ts`) | Invalidates |
-|-----------------------|-------------|
-| **`SNAPSHOT_VERSION`** | Snapshot JSON **shape** |
-| **`TOOL_VERSION`** | Scanner **logic** (tiers, parser) — all SHAs on bump |
-| **`CACHE_META_VERSION`** | `meta.json` index shape only |
-
-**Auto-heal:** corrupt JSON, SHA mismatch, stale versions → delete file → rebuild on next access. **`--force` / `-f`** skip read and overwrite; **`--no-cache`** skip read and write. Details: [`scripts/exports/README.md` § Cache](../../scripts/exports/README.md#cache).
-
-**`exports:validate`** always reads the **working tree** — never depends on cache being warm.
-
-### Tier classification (in code)
-
-Rules live in **`scripts/exports/inventory/tiers.ts`** and **`categories.ts`** (aligned with stability tiers in this doc). Bootstrap heuristics use export **names**; post–EX-1 hardening should prefer **barrel path / source module** where possible ([`phases/exports.md` § Post-refactor script hardening](../phases/exports.md#post-refactor-script-hardening-apply-during-ex-1ex-4)).
-
-**Unclassified** at `HEAD` → **`exports:validate` fails** (EX-4).
-
-### Command roles (summary)
-
-| Command | Question | Fails CI? |
-|---------|----------|-----------|
-| **`exports:inventory`** | What does the surface look like? | No |
-| **`exports:graph`** | Where do re-exports land (target subpath / module)? | No |
-| **`exports:diff`** | What changed vs ref or range? | No |
-| **`exports:trend`** / **`timeline`** | How did counts move across tags / barrel commits? | No |
-| **`exports:validate`** | Does the working tree violate governance? | **Yes (EX-4)** |
-
-Full flags (`-v`, `-f`, `--no-cache`, timeline ranges, etc.): **README only**.
-
-### What `exports:validate` will enforce (EX-4)
-
-1. **Paths parity** — tsconfig `paths` ⊆ `package.json` `exports`; no `@i18nprune/core/*` wildcard  
-2. **Host imports** — allowlisted subpaths only; extension/examples ≠ `/internal`  
-3. **Root barrel policy** — no flat leaks from tier subpaths (post–EX-3)  
-4. **Tier rules** — zero **unclassified** symbols  
-5. **Optional:** root flat count budget (post–EX-3)
-
-### What scripts do **not** replace
-
-| Tool | Still owns |
-|------|------------|
-| **knip** | Unused files / deps |
-| **publish-types** | Packed tarball resolution |
-| **parity tests** | CLI `--json` bytes |
-| **git** | History — scripts read refs, they do not duplicate commits |
+**Unclassified** symbols at `HEAD` → **`expgov validate` fails**.
 
 ---
 
@@ -365,9 +302,9 @@ Full flags (`-v`, `-f`, `--no-cache`, timeline ranges, etc.): **README only**.
 
 1. Classify tier: stable / advanced / internal / domain-only (this doc + barrel location)
 2. Add to the correct **subpath barrel**, not root flat (unless stable `runXxx`-class entry)
-3. Extend **`scripts/exports/inventory/tiers.ts`** if a new pattern needs a rule
-4. Run **`pnpm exports:diff`** then **`pnpm exports:validate`**
-5. Update [`docs/sdk/exports.md`](../../docs/sdk/exports.md) if user-facing stable surface grows (EX-5)
+3. Update **`expgov.config.ts`** tier rules or add `@sdkTier` on the defining export
+4. Run **`expgov diff HEAD`** then **`expgov validate`**
+5. Update [`docs/sdk/exports.md`](../../docs/sdk/exports.md) when user-facing stable surface grows
 6. Run `pnpm run core:build`, `pnpm typecheck`, `pnpm test`
 
 ---
@@ -376,8 +313,9 @@ Full flags (`-v`, `-f`, `--no-cache`, timeline ranges, etc.): **README only**.
 
 | Doc | Role |
 |-----|------|
-| [`scripts/exports/README.md`](../../scripts/exports/README.md) | **`pnpm exports:*` operator manual** (commands, cache, examples) |
-| [`phases/exports.md`](../phases/exports.md) | Slice sequencing EX-0…EX-5 |
+| [`shipped/exports/governance.md`](../shipped/exports/governance.md) | Shipped governance + publish preflight |
+| [`shipped/exports/program.md`](../shipped/exports/program.md) | Barrel refactor workstreams |
+| [`shipped/exports/tiers.md`](../shipped/exports/tiers.md) | Honest tier classification |
 | [`operations/entrypoints.md`](./operations/entrypoints.md) | `runXxx` wiring table |
 | [`knip.md`](./knip.md) | Ignored public barrels |
 | [`health.md`](./health.md) | When to run core build + knip |

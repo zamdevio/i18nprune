@@ -33,7 +33,9 @@ Contributor-only planning and systems maps. **`docs/`** syncs to the public site
 | [`phases/extractor/architecture.md`](phases/extractor/architecture.md) | Extractor engines, normalizer, incremental cache |
 | [`phases/extractor/guardrails.md`](phases/extractor/guardrails.md) | Extractor safety & PR checklist |
 | [`phases/search.md`](phases/search.md) | Planned `search` command phase |
-| [`phases/exports.md`](phases/exports.md) | Core export tiers phase (planned major) |
+| [`shipped/exports/governance.md`](shipped/exports/governance.md) | Export governance — expgov + validate CI (shipped) |
+| [`shipped/exports/tiers.md`](shipped/exports/tiers.md) | Honest tier classification (in progress) |
+| [`shipped/exports/program.md`](shipped/exports/program.md) | Barrel refactor program |
 | [`phases/terminal.md`](phases/terminal.md) | Terminal protocol exploitation (CLI presentation; research) |
 | [`systems/exports.md`](systems/exports.md) | Export system rules + host matrix |
 | [`systems/README.md`](systems/README.md) | Engineering maps (cache, share, ops, commands) |

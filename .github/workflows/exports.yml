@@ -1,7 +1,7 @@
 # Export governance — expgov validate on product surface changes
 #
 # Blocks merge when tier classification or tsconfig ↔ npm exports parity drifts.
-# See maintainer/phases/exports.md (EX-P0 npm v1 publish gate).
+# See maintainer/shipped/exports/governance.md and maintainer/shipped/exports/program.md.
 
 name: Exports
 

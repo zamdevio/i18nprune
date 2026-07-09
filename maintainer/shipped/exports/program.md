@@ -1,32 +1,10 @@
-# Phase — `@i18nprune/core` export tiers
+# Export program — `@i18nprune/core` barrel refactor
 
-**Status:** **ACTIVE** — **EX-P0 shipped** (npm v1 publish unblocked pending release checklist).  
-**EX-0 shipped** (expgov migration + `.exports/cache/`); **EX-P0 done** (tier classification + `expgov validate` green + CI); **EX-1…EX-5 planned** (barrel refactor; **major** bump at EX-3).  
-**Engineering map:** [`../systems/exports.md`](../systems/exports.md) (tiers, barrels, host matrix).  
-**Governance tool:** [`expgov.config.ts`](../../expgov.config.ts) + **`expgov`** CLI (`@expgov/cli` devDependency).  
-**User-facing mirror (EX-5):** [`docs/sdk/exports.md`](../../docs/sdk/exports.md) — stability tiers and import guidance under the SDK docs tree (no top-level `docs/exports/`).
-
-**Goal:** Split the root barrel into **stability tiers** with dedicated subpaths, keep root as a **trim facade** (stable flat entrypoints + namespace mirrors), and migrate monorepo hosts via **import path adjustments only** — no CLI `--json`, issue code string, or envelope behavior changes.
+**Status:** active — honest tier labels + subpath barrels + root slim.  
+**Shipped:** [`governance.md`](./governance.md) · **Tier remediation:** [`tiers.md`](./tiers.md)  
+**Engineering map:** [`systems/exports.md`](../../systems/exports.md) · **Governance:** [`expgov.config.ts`](../../../expgov.config.ts)
 
 ---
-
-## npm v1 publish gate (ACTIVE)
-
-**Do not** `npm publish` **`i18nprune`** or **`@i18nprune/core@1.0.0`** until **EX-P0** exit criteria are met.
-
-| Allowed now | Blocked until EX-P0 |
-|-------------|---------------------|
-| Git push, CI, deploy docs / git / releases portals | `npm publish` (root + `packages/core`) |
-| Kits v1.0.0 git tag / monorepo `1.0.0` version fields (already bumped) | Claiming semver-clean SDK surface on npm |
-| Local `expgov validate` (expected to fail during EX-P0 work) | Tagging a **published** npm release as stable 1.0 |
-
-**EX-P0 minimum:** `expgov validate` exits 0 on `main` (zero unclassified root flats, tsconfig ↔ npm `exports` parity, no wildcard `@i18nprune/core/*`). Wire the same command in CI (`.github/workflows/exports.yml` or `ci.yml` job) before publish.
-
-**After EX-P0:** npm v1 publish unblocks per [`agents/git.md`](../agents/git.md). **EX-3** still requires **`@i18nprune/core` major** (2.0) when root slimming lands.
-
----
-
-## Why now
 
 `packages/core/src/index.ts` is an SDK surface definition (~1,000+ exported symbols). Everything looks equally public, but only some symbols are semver-governed integrator contracts. Subpaths for ops (`/validate`, `/generate`, …) already exist for bundle size; the root barrel still re-exports most of `shared/` and advanced/internal helpers, defeating both goals.
 
@@ -100,42 +78,41 @@ Host glue and orchestration internals: `buildCliJsonEnvelope`, `stringifyEnvelop
 
 ## Release
 
-- Bump **`@i18nprune/core` major** when EX-3 lands (root slimming).
+- Bump **`@i18nprune/core` major** when root slimming lands.
 - Land monorepo host import fixes in the **same merge window** (workspace `workspace:*` makes this practical).
 - **Frozen (unchanged):** CLI `--json` envelope shape, `issues[].code` **strings**, exit-code parity, issue code rename policy in workspace rules.
 
 ---
 
-## Slices
+## Workstreams
 
-Status: **planned** | **in progress** | **done**
+| Stream | Focus | Depends on | Status |
+|--------|-------|------------|--------|
+| **Governance bootstrap** | **`expgov`** + `expgov.config.ts` + `.exports/cache/` | — | **done** — [`governance.md`](./governance.md) |
+| **Publish preflight** | `expgov validate` green + CI + tsconfig allowlist | bootstrap | **done** — [`governance.md`](./governance.md) |
+| **Honest tier labels** | `@sdkTier`, shrink `stable.exact`, module-by-module | preflight | **in progress** — [`tiers.md`](./tiers.md) |
+| **Subpath barrels** | `/issues`, `/utils`, `/advanced`, `/internal` + tsup | tier labels | **in progress** |
+| **Host migration** | Monorepo import paths | subpath barrels | planned |
+| **Root slim** | &lt;150 flat exports on root; **2.0** major | host migration | planned |
+| **CI hardening** | Host import guards | root slim | planned |
+| **User docs** | `docs/sdk/exports.md` | root slim | planned |
 
-| Slice | Focus | Depends on | Status |
-|-------|--------|------------|--------|
-| **EX-0** | Export governance — **`expgov`** + `expgov.config.ts` + `.exports/cache/` (replaced `scripts/exports/`) | — | **done** |
-| **EX-P0** | **Preflight for npm v1** — classify all root flats in `expgov.config.ts` / `@sdkTier`; tsconfig paths allowlist; **`expgov validate` green**; CI job | EX-0 | **done** |
-| **EX-1** | New subpath barrels + `package.json` / tsup | EX-P0 | **in progress** |
-| **EX-2** | Migrate monorepo hosts | EX-1 | planned |
-| **EX-3** | Slim root `index.ts` | EX-2 | planned |
-| **EX-4** | CI hardening + host import guards | EX-3 | planned |
-| **EX-5** | User + package README docs | EX-3 | planned |
+One stream per PR where possible; subpath barrels may split per subpath if review size demands it.
 
-One slice per PR where possible; EX-1 may split per subpath if review size demands it.
-
-**Important:** Monorepo `tsconfig` `paths` must match `package.json` `exports`; **`expgov validate`** is the CI gate (EX-P0 wires it; EX-4 extends host rules). Cache: **`.exports/cache/<sha>/`** — see [Governance tool](#governance-tool-expgov).
+**Important:** `tsconfig` `paths` must match `package.json` `exports`; **`expgov validate`** is the CI gate. Cache: **`.exports/cache/<sha>/`** — see [Governance tool](#governance-tool-expgov).
 
 ---
 
 ## Governance tool (expgov)
 
-**EX-0 delivered** export governance via **[expgov](https://www.npmjs.com/package/@expgov/cli)** (portable successor to the removed `scripts/exports/` host). The barrel refactor (EX-1…EX-3) needs **correct barrels** and **`expgov.config.ts` tier rules** updated as the surface changes — not new tooling bootstrap.
+**governance bootstrap delivered** export governance via **[expgov](https://www.npmjs.com/package/@expgov/cli)** (portable successor to the removed `scripts/exports/` host). The barrel refactor (subpath barrels…root slim) needs **correct barrels** and **`expgov.config.ts` tier rules** updated as the surface changes — not new tooling bootstrap.
 
 | Layer | Location | Role |
 |-------|----------|------|
 | **Config** | [`expgov.config.ts`](../../expgov.config.ts) | Package name, barrel path, tier buckets (`stable` / `advanced` / `internal`), cache dir |
 | **CLI** | `expgov` (`@expgov/cli` devDependency) | `inventory`, `diff`, `validate`, `graph`, `trend`, `timeline`, `suggest`, `doctor` |
 | **Durable rules** | [`systems/exports.md`](../systems/exports.md) | Tiers, barrels, host matrix |
-| **This file** | `phases/exports.md` | Slice sequencing, npm gate, exit criteria |
+| **Tracker** | [`program.md`](./program.md) | Workstream sequencing + exit criteria |
 
 **Run from repo root** (config auto-discovered):
 
@@ -150,15 +127,15 @@ expgov doctor                    # config + cache hygiene
 
 **Flags:** `-j` JSON envelope · `-q` / `-s` quiet · `-T` / `-F` list limits · `-c` config path.
 
-**Cache:** `.exports/cache/<full-sha>/` — gitignored; expgov warms per ref. Tier rules in config supersede the old `scripts/exports/inventory/tiers.ts` bootstrap (migrated into `expgov.config.ts` with a smaller allowlist — **~700 unclassified at HEAD is why EX-P0 is active**).
+**Cache:** `.exports/cache/<full-sha>/` — gitignored; expgov warms per ref. Tier rules in config supersede the old `scripts/exports/inventory/tiers.ts` bootstrap (migrated into `expgov.config.ts` with a smaller allowlist — **~700 unclassified at HEAD is why publish preflight is active**).
 
-**Legacy:** `pnpm exports:*` and `scripts/exports/` were removed in W26 (see [`shipped/tooling/tooling.md`](../shipped/tooling/tooling.md)). Do not reintroduce a parallel host.
+**Legacy:** `pnpm exports:*` and `scripts/exports/` were removed in W26 (see [`shipped/tooling/tooling.md`](../shipped/exports/governance.md)). Do not reintroduce a parallel host.
 
 ---
 
 ## Run after each refactor slice
 
-Use this checklist at the **end of every EX-P0 / EX-1…EX-4 PR**. Goal: prove the working tree matches intent before `typecheck` / `test` alone would catch drift.
+Use this checklist at the **end of every publish preflight / subpath barrels…CI hardening PR**. Goal: prove the working tree matches intent before `typecheck` / `test` alone would catch drift.
 
 ### 1. Inspect surface (always)
 
@@ -168,14 +145,14 @@ expgov graph -v                  # re-export map
 expgov diff HEAD                 # vs last commit
 ```
 
-After EX-1 subpaths exist:
+After subpath barrels subpaths exist:
 
 ```bash
 expgov inventory -v              # confirm symbols map to tier subpaths
 expgov diff v1.0.0..HEAD         # range delta for release notes
 ```
 
-### 2. Validate governance (required — EX-P0 blocks npm until green)
+### 2. Validate governance (required — publish preflight blocks npm until green)
 
 ```bash
 expgov validate -v               # paths parity, unclassified, tier violations
@@ -198,36 +175,36 @@ expgov suggest -F -T 50          # review stable.exact candidates
 
 | Slice closes | Minimum expgov run |
 |--------------|-------------------|
-| **EX-P0** | `validate` green locally + in CI; tsconfig allowlist matches `package.json` `exports` |
-| **EX-1** | `inventory -v`, `graph`, `diff HEAD`, `validate -v` |
-| **EX-2** | above + `diff` per host PR; grep deep imports gone |
-| **EX-3** | above + `diff` vs pre-slim tag; root flat &lt;150; `trend` / `timeline` spot-check |
-| **EX-4** | `expgov validate` green in CI with extended host-import rules |
+| **publish preflight** | `validate` green locally + in CI; tsconfig allowlist matches `package.json` `exports` |
+| **subpath barrels** | `inventory -v`, `graph`, `diff HEAD`, `validate -v` |
+| **host migration** | above + `diff` per host PR; grep deep imports gone |
+| **root slim** | above + `diff` vs pre-slim tag; root flat &lt;150; `trend` / `timeline` spot-check |
+| **CI hardening** | `expgov validate` green in CI with extended host-import rules |
 
 ---
 
-## Post-refactor expgov hardening (apply during EX-P0…EX-4)
+## Post-refactor expgov hardening (apply during publish preflight…CI hardening)
 
-Tier rules in **`expgov.config.ts`** reflect today's root-heavy barrel. As EX-1…EX-3 land, **update config in the same PR** — do not defer.
+Tier rules in **`expgov.config.ts`** reflect today's root-heavy barrel. As subpath barrels…root slim land, **update config in the same PR** — do not defer.
 
 | Hardening | When | What to change |
 |-----------|------|----------------|
-| **`core.subpaths` in config** | EX-1 | Register `./issues`, `./utils`, `./advanced`, `./internal` barrels for inventory/graph |
-| **Tier `exact` / `prefix` buckets** | EX-P0, EX-1 | Classify every root flat; use `expgov suggest`; add `@sdkTier` JSDoc where prefix rules are noisy |
-| **Classify by source module** | EX-1, EX-3 | Prefer barrel-path rules over name-prefix hacks as layout stabilizes |
-| **Parse new barrels** | EX-1 | Ensure `expgov inventory` reads tier subpath entry files, not only root `index.ts` |
-| **`expgov validate` paths parity** | EX-P0 | Fail on `@i18nprune/core/*` tsconfig wildcard; allowlist === `package.json` `exports` |
-| **`expgov validate` host imports** | EX-4 | Block non-allowlisted `@i18nprune/core/...` from `packages/cli`, `apps/*`, `examples/*`, `scripts/*` |
-| **`expgov validate` root policy** | EX-3–EX-4 | No flat leaks from `/internal`, `/advanced`, `/issues`, `/utils`, `/shared`; optional root flat budget (&lt;150) |
-| **`expgov validate` unclassified** | EX-P0+ | Fail when any root flat symbol is unclassified |
-| **`expgov diff` tier violations** | EX-3 | Report internal/advanced symbols appearing as root flats |
-| **CI wire** | EX-P0 | `expgov validate` in [`.github/workflows/exports.yml`](../../.github/workflows/exports.yml) or `ci.yml` |
+| **`core.subpaths` in config** | subpath barrels | Register `./issues`, `./utils`, `./advanced`, `./internal` barrels for inventory/graph |
+| **Tier `exact` / `prefix` buckets** | publish preflight, subpath barrels | Classify every root flat; use `expgov suggest`; add `@sdkTier` JSDoc where prefix rules are noisy |
+| **Classify by source module** | subpath barrels, root slim | Prefer barrel-path rules over name-prefix hacks as layout stabilizes |
+| **Parse new barrels** | subpath barrels | Ensure `expgov inventory` reads tier subpath entry files, not only root `index.ts` |
+| **`expgov validate` paths parity** | publish preflight | Fail on `@i18nprune/core/*` tsconfig wildcard; allowlist === `package.json` `exports` |
+| **`expgov validate` host imports** | CI hardening | Block non-allowlisted `@i18nprune/core/...` from `packages/cli`, `apps/*`, `examples/*`, `scripts/*` |
+| **`expgov validate` root policy** | root slim–CI hardening | No flat leaks from `/internal`, `/advanced`, `/issues`, `/utils`, `/shared`; optional root flat budget (&lt;150) |
+| **`expgov validate` unclassified** | publish preflight+ | Fail when any root flat symbol is unclassified |
+| **`expgov diff` tier violations** | root slim | Report internal/advanced symbols appearing as root flats |
+| **CI wire** | publish preflight | `expgov validate` in [`.github/workflows/exports.yml`](../../.github/workflows/exports.yml) or `ci.yml` |
 
 **Not in scope for expgov:** CLI `--json` parity (existing `tests/parity/`), knip unused files, packed tarball `publish-types` — see [`systems/exports.md`](../systems/exports.md).
 
 ---
 
-### EX-0 — Expgov migration (done)
+### governance bootstrap — Expgov migration (done)
 
 **Goal:** Replace `scripts/exports/` with **`expgov`** + root **`expgov.config.ts`** + `.exports/cache/`.
 
@@ -235,8 +212,8 @@ Tier rules in **`expgov.config.ts`** reflect today's root-heavy barrel. As EX-1�
 |------|--------|
 | Add **`expgov.config.ts`** | Tier buckets migrated from legacy `tiers.ts` bootstrap |
 | **`@expgov/cli`** devDependency | `expgov inventory|diff|validate|graph|trend|timeline|suggest|doctor` |
-| Remove **`scripts/exports/`** | W26 — see [`shipped/tooling/tooling.md`](../shipped/tooling/tooling.md) |
-| **`expgov validate`** | Full governance checks (not a stub) — fails until EX-P0 classifies surface |
+| Remove **`scripts/exports/`** | W26 — see [`shipped/tooling/tooling.md`](../shipped/exports/governance.md) |
+| **`expgov validate`** | Full governance checks (not a stub) — fails until publish preflight classifies surface |
 
 **Exit criteria:**
 
@@ -248,32 +225,32 @@ Tier rules in **`expgov.config.ts`** reflect today's root-heavy barrel. As EX-1�
 
 Also shipped: **`expgov trend`**, **`timeline`**, **`graph`**, **`suggest`**, **`doctor`**.
 
-#### EX-0 — deep imports (fix in EX-1 / EX-2)
+#### governance bootstrap — deep imports (fix in subpath barrels / host migration)
 
 These resolve today via tsconfig **`@i18nprune/core/*`** wildcard but are **not** npm `exports` keys — invalid for external SDK consumers.
 
 | Import | Location | Target fix |
 |--------|----------|------------|
-| `@i18nprune/core/shared/constants/issueCodes.js` | `packages/cli/src/shared/errors/__tests__/handler.test.ts` | `@i18nprune/core/issues` (EX-1) |
-| `@i18nprune/core/shared/languages/normalize.js` | `scripts/catalog/build.ts` | `@i18nprune/core/shared` public export (EX-1) |
+| `@i18nprune/core/shared/constants/issueCodes.js` | `packages/cli/src/shared/errors/__tests__/handler.test.ts` | `@i18nprune/core/issues` (subpath barrels) |
+| `@i18nprune/core/shared/languages/normalize.js` | `scripts/catalog/build.ts` | `@i18nprune/core/shared` public export (subpath barrels) |
 
 Published **`runtime/node`**, **`runtime/web`**, **`runtime/edge`**, **`runtime/helpers/sync`** are valid — not violations.
 
-#### EX-0 — host migration checklist (execute in EX-2)
+#### governance bootstrap — host migration checklist (execute in host migration)
 
-| Host | Current surface | EX-2 target |
+| Host | Current surface | host migration target |
 |------|-----------------|-------------|
 | **`packages/cli`** | Root barrel + `/config`, `/runtime/*`, `/report-schema`; 2 deep `shared/*` imports above | Op subpaths where bundle helps; **`/issues`** for codes; **`/internal`** for envelope glue; zero deep paths |
 | **`apps/extension`** | Root `runXxx` + `/runtime/node` | Stable + op subpaths only; **no `/internal`** |
-| **`apps/web`**, **`apps/report`**, **`apps/workers/*`** | `/runtime/web` or `/edge`, `/report-schema` | Stable + op subpaths; avoid root flat cherry-picks post–EX-3 |
+| **`apps/web`**, **`apps/report`**, **`apps/workers/*`** | `/runtime/web` or `/edge`, `/report-schema` | Stable + op subpaths; avoid root flat cherry-picks post–root slim |
 | **`examples/sdk/**`** | Root + `/runtime/node` | Stable + **`/advanced`** when needed; **no `/internal`** |
 | **`apps/landing`** | `/runtime/*` (docs strings) | Keep published runtime subpaths only |
 
-Re-run **`expgov inventory -v`** and **`expgov graph`** before/after each EX-2 host PR.
+Re-run **`expgov inventory -v`** and **`expgov graph`** before/after each host migration host PR.
 
 ---
 
-### EX-P0 — Preflight for npm v1 (done)
+### publish preflight — Preflight for npm v1 (done)
 
 **Goal:** **`expgov validate` green** on `main` + CI — **unblocks npm publish** for v1.0.0. Non-breaking: classification and tsconfig parity only (no root slim yet).
 
@@ -284,21 +261,21 @@ Re-run **`expgov inventory -v`** and **`expgov graph`** before/after each EX-2 h
 | **tsconfig allowlist** | Remove `@i18nprune/core/*` wildcard; explicit `paths` per `package.json` `exports` key |
 | **Fix parity violations** | e.g. `@i18nprune/core/types/shared`, `@i18nprune/core/locales` missing from root tsconfig |
 | **CI job** | `.github/workflows/exports.yml` (or `ci.yml` step): `pnpm exec expgov validate` on product path changes |
-| **Publish gate doc** | [`agents/git.md`](../agents/git.md) checklist references EX-P0 |
+| **Publish gate doc** | [`agents/git.md`](../agents/git.md) checklist references publish preflight |
 
 **Exit criteria:**
 
 - [x] `expgov validate` exits 0 locally (`unclassified=0`, `violations=0`)
 - [x] CI runs `expgov validate` on PRs touching `packages/core/**`, `expgov.config.ts`, root `tsconfig.json`
 - [x] No `@i18nprune/core/*` wildcard in tsconfig
-- [x] Receipt note in [`shipped/tooling/tooling.md`](../shipped/tooling/tooling.md) or new week row when EX-P0 closes
-- [x] **npm v1 publish allowed** per [npm v1 publish gate](#npm-v1-publish-gate-active)
+- [x] Receipt note in [`shipped/tooling/tooling.md`](../shipped/exports/governance.md) or new week row when publish preflight closes
+- [x] **npm v1 publish allowed** — see [`shipped/exports/governance.md`](../shipped/exports/governance.md)
 
 ---
 
-### EX-1 — Add subpath barrels (non-breaking)
+### subpath barrels — Add subpath barrels (non-breaking)
 
-**Goal:** New import paths exist; root unchanged until EX-3.
+**Goal:** New import paths exist; root unchanged until root slim.
 
 | Task | Detail |
 |------|--------|
@@ -314,11 +291,11 @@ Re-run **`expgov inventory -v`** and **`expgov graph`** before/after each EX-2 h
 - [ ] Root `index.ts` still builds unchanged
 - [ ] `pnpm run core:build` + `pnpm typecheck` green
 - [ ] [`Run after each refactor slice`](#run-after-each-refactor-slice) — inventory/graph/diff/validate
-- [ ] [`Post-refactor expgov hardening`](#post-refactor-expgov-hardening-apply-during-ex-p0ex-4) rows for EX-1 applied
+- [ ] [`Post-refactor expgov hardening`](#post-refactor-expgov-hardening-apply-during-ex-p0ex-4) rows for subpath barrels applied
 
 ---
 
-### EX-2 — Migrate monorepo hosts
+### host migration — Migrate monorepo hosts
 
 **Goal:** First-party packages import from correct subpaths; behavior unchanged.
 
@@ -337,7 +314,7 @@ Re-run **`expgov inventory -v`** and **`expgov graph`** before/after each EX-2 h
 
 ---
 
-### EX-3 — Slim root barrel (breaking)
+### root slim — Slim root barrel (breaking)
 
 **Goal:** Root contains stable flat entrypoints + namespaces only.
 
@@ -363,11 +340,11 @@ Re-run **`expgov inventory -v`** and **`expgov graph`** before/after each EX-2 h
 - [ ] Major version bump on `@i18nprune/core`
 - [ ] Receipt row in [`shipped/README.md`](../shipped/README.md) + `apps/git/scripts/phases.config.json`
 - [ ] [`Run after each refactor slice`](#run-after-each-refactor-slice) + `exports:diff` vs last release tag
-- [ ] [`Post-refactor expgov hardening`](#post-refactor-expgov-hardening-apply-during-ex-p0ex-4) EX-3 rows (root policy, tier violations in diff)
+- [ ] [`Post-refactor expgov hardening`](#post-refactor-expgov-hardening-apply-during-ex-p0ex-4) root slim rows (root policy, tier violations in diff)
 
 ---
 
-### EX-4 — CI guards + tsconfig ↔ npm parity
+### CI hardening — CI guards + tsconfig ↔ npm parity
 
 **Goal:** Tiers stay honest after refactors; monorepo dev imports cannot bypass published API.
 
@@ -386,7 +363,7 @@ That resolves **any** deep source path in typecheck (e.g. `@i18nprune/core/share
 | Task | Detail |
 |------|--------|
 | **Remove** `@i18nprune/core/*` wildcard | From root + `packages/core/tsconfig.json` |
-| **Replace with explicit allowlist** | One `paths` entry per key in `packages/core/package.json` `exports` (including new `/issues`, `/utils`, `/advanced`, `/internal` after EX-1) |
+| **Replace with explicit allowlist** | One `paths` entry per key in `packages/core/package.json` `exports` (including new `/issues`, `/utils`, `/advanced`, `/internal` after subpath barrels) |
 | **Fix violations** | Repoint deep imports to tier/op subpaths (known today: CLI test → issue code; `scripts/catalog/build.ts` → language normalize) |
 | **CI grep** | Fail when `packages/cli`, `apps/*`, `examples/*`, `scripts/*` import `@i18nprune/core/<path>` where `<path>` is not in the allowlist |
 | **Inside `packages/core`** | Relative imports between modules only — no `@i18nprune/core/*` self-imports (tsup-safe) |
@@ -410,11 +387,11 @@ That resolves **any** deep source path in typecheck (e.g. `@i18nprune/core/share
 - [ ] CI fails on forbidden `/internal` imports from extension/examples
 - [ ] CI fails on non-allowlisted `@i18nprune/core/...` imports from hosts
 - [ ] **`expgov validate`** green in CI (wired in [`.github/workflows/exports.yml`](../../.github/workflows/exports.yml) or `ci.yml`)
-- [ ] All [`Post-refactor expgov hardening`](#post-refactor-expgov-hardening-apply-during-ex-p0ex-4) rows for EX-4 complete
+- [ ] All [`Post-refactor expgov hardening`](#post-refactor-expgov-hardening-apply-during-ex-p0ex-4) rows for CI hardening complete
 
 ---
 
-### EX-5 — User docs
+### user docs — User docs
 
 **Goal:** Integrators know stability tiers without reading maintainer docs.
 
@@ -426,9 +403,9 @@ That resolves **any** deep source path in typecheck (e.g. `@i18nprune/core/share
 | Update `packages/core/README.md` | Subpath table includes new tier subpaths |
 | Update [`docs/sdk/operations.md`](../../docs/sdk/operations.md) | Link to `docs/sdk/exports.md` for “which subpath should I import?” |
 | Update VitePress nav / index if needed | `exports` page under SDK sidebar (same cluster as operations) |
-| Fix stale links | [`extension/README.md`](./extension/README.md) maintainer table → `docs/sdk/exports.md` |
+| Fix stale links | [`extension/README.md`](../phases/extension/README.md) maintainer table → `docs/sdk/exports.md` |
 
-**`docs/sdk/exports.md` outline (draft for EX-5):**
+**`docs/sdk/exports.md` outline (draft for user docs):**
 
 1. **Why subpaths** — bundle size + semver clarity (plain language, no maintainer jargon)
 2. **Stability tiers** — stable / advanced / internal table with support promise
@@ -447,7 +424,7 @@ That resolves **any** deep source path in typecheck (e.g. `@i18nprune/core/share
 
 ## Recommended future subpaths (backlog)
 
-**Not in EX-1 scope** — decide during EX-0 inventory and add **after** tier subpaths (`/issues`, `/utils`, `/advanced`, `/internal`) land. Same pattern always:
+**Not in subpath barrels scope** — decide during governance bootstrap inventory and add **after** tier subpaths (`/issues`, `/utils`, `/advanced`, `/internal`) land. Same pattern always:
 
 - **Subpath:** full flat + nested namespace exports for that domain
 - **Root:** `export * as <name>` only — no flat duplicates from the subpath
@@ -459,9 +436,9 @@ That resolves **any** deep source path in typecheck (e.g. `@i18nprune/core/share
 |---------|----------------|-------|
 | `/validate`, `/sync`, `/generate`, `/init`, `/locales`, `/missing`, `/cleanup`, `/quality` | `validate`, `sync`, … | Op bundle graphs — keep promoting |
 | `/config`, `/types`, `/report-schema`, `/runtime/*` | `config`, … (partial) | Infrastructure |
-| `/shared` | **`shared`** (after EX-3) | i18n cross-cutting — stop root cherry-picks |
+| `/shared` | **`shared`** (after root slim) | i18n cross-cutting — stop root cherry-picks |
 
-### EX-1 (locked — implement in this phase)
+### subpath barrels (locked — implement in this phase)
 
 | Subpath | Root namespace | Stability |
 |---------|----------------|-----------|
@@ -470,7 +447,7 @@ That resolves **any** deep source path in typecheck (e.g. `@i18nprune/core/share
 | **`/advanced`** | **`advanced`** | Advanced |
 | **`/internal`** | **`internal`** | Internal |
 
-### Backlog — recommended domain subpaths (evaluate before EX-3)
+### Backlog — recommended domain subpaths (evaluate before root slim)
 
 These domains are **large on the root barrel today** but lack a dedicated npm subpath. Adding them reduces root noise and matches how hosts already think about the platform.
 
@@ -489,18 +466,18 @@ These domains are **large on the root barrel today** but lack a dedicated npm su
 | **`/reference`** | `reference` | Reference / uncertain-key policy reads | **Low** | Likely `/advanced` or `/shared` |
 | **`/policies`** | `policies` | Preserve / parity policy helpers | **Low** | Overlap with op payloads — avoid unless bundle wins clear |
 
-**Naming:** prefer **`/translate`** (verb, matches `runTranslate`) with root namespace `translator` *or* align both to `translate` during inventory — pick one in EX-0, document in [`systems/exports.md`](../systems/exports.md).
+**Naming:** prefer **`/translate`** (verb, matches `runTranslate`) with root namespace `translator` *or* align both to `translate` during inventory — pick one in governance bootstrap, document in [`systems/exports.md`](../systems/exports.md).
 
 **Do not add** a subpath per `shared/` leaf (`/json`, `/scanner`, …) — those stay under **`/shared`** with root `shared.*`.
 
-### Backlog decision checklist (EX-0)
+### Backlog decision checklist (governance bootstrap)
 
 For each candidate row:
 
 1. Is there a **`runXxx`** or a host that needs a **standalone bundle graph**?
 2. Would root namespace **`export * as`** duplicate an existing op subpath?
 3. Does the graph overlap `/generate` or `/advanced` enough to merge instead?
-4. Add to EX-1 follow-up slice or defer to post-1.0?
+4. Add to subpath barrels follow-up slice or defer to post-1.0?
 
 ---
 
@@ -515,7 +492,7 @@ For each candidate row:
 
 ## Relationship to extension phase
 
-Extension [`core-integration.md`](./extension/core-integration.md) should pin **stable + op subpaths** after EX-3. Revisit extension import list when EX-2 closes.
+Extension [`core-integration.md`](../phases/extension/core-integration.md) should pin **stable + op subpaths** after root slim. Revisit extension import list when host migration closes.
 
 ---
 

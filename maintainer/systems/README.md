@@ -88,7 +88,7 @@ Keep this tree truthful with `git`; don't maintain a brittle wall of filenames h
 | **Health gates (typecheck, test, knip, madge)** | `maintainer/systems/health.md` |
 | **Runtime UI kit (`@i18nprune/ui`)** | `maintainer/systems/ui.md` |
 | **Knip config / ignore catalog** | `maintainer/systems/knip.md` |
-| **Core export tiers / subpaths** | `maintainer/systems/exports.md` · phase [`phases/exports.md`](../phases/exports.md) |
+| **Core export tiers / subpaths** | `maintainer/systems/exports.md` · [`shipped/exports/governance.md`](../shipped/exports/governance.md) · [`shipped/exports/tiers.md`](../shipped/exports/tiers.md) · [`shipped/exports/program.md`](../shipped/exports/program.md) |
 | **Agent authoring rules** | `maintainer/agents/` (architecture, rules, jsdoc, git) |
 
 ---

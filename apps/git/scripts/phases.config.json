@@ -101,7 +101,8 @@
       "Kits gates — catalog path, ESM ./ loader imports, dynamic-key honesty, npm homepage",
       "Global CLI short flags — -j, -jp, -T, -F, -ds, -dc; kits -t, -o, -fon, -mxdy, -b, -sb",
       "docs/commands/kits/* + releases portal cli/core 1.0.0 YAML",
-      "CepatEdge E2E smoke — kits against apps/web config (pre-tag verification)"
+      "CepatEdge E2E smoke — kits against apps/web config (pre-tag verification)",
+      "expgov validate green + exports.yml CI (receipt maintainer/shipped/exports/governance.md)"
     ]
   },
   {
@@ -118,15 +119,15 @@
   {
     "week": "2026-W25",
     "label": "Week 25 — Planning & exports governance",
-    "theme": "EX-0 export inventory scripts, extractor architecture (fast|balanced|typed), search phase, extension bundle fix, positioning",
+    "theme": "Export governance bootstrap, extractor architecture (fast|balanced|typed), search phase, extension bundle fix, positioning",
     "color": "teal",
     "shipped": [
-      "EX-0 — scripts/exports governance (inventory, diff, validate, trend, timeline, graph, help) + cache refresh flags",
+      "Export governance — expgov inventory/diff/validate + gitignored .exports/cache/",
       "Extractor phases — architecture.md (normalizer, incremental cache), guardrails.md, v2 hub under maintainer/phases/extractor/",
       "search command phase — maintainer/phases/search.md (key ↔ call-site index plan)",
       "Extension — esbuild externalize @i18nprune/core and jiti in host bundle",
       "Marketing positioning guide — maintainer/marketing/positioning.md",
-      "Exports phase — SDK doc target docs/sdk/exports.md; EX-1…EX-5 planned in phases/exports.md"
+      "Honest tier labels + barrel program — maintainer/shipped/exports/tiers.md and program.md"
     ]
   },
   {
