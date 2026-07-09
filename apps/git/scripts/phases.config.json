@@ -93,13 +93,15 @@
   },
   {
     "week": "2026-W28",
-    "label": "Week 28 — Kits Phase 0 + tooling",
-    "theme": "Release gates (catalog paths, ESM loader imports, npm homepage), kits planning consolidation, expgov migration",
-    "color": "teal",
+    "label": "Week 28 — Kits v1.0.0",
+    "theme": "Native i18nprune kits audit commands, release gates, semver 1.0.0",
+    "color": "coral",
     "shipped": [
-      "pre — Phase 0 gates: ESM ./ loader paths, monorepo-only catalog ensure, npm homepage",
-      "pre — kits v0.1.5 tracker (maintainer/phases/kits.md) + expgov @expgov/cli migration",
-      "pre — git portal: recharts v3, W26 timeline placeholders"
+      "i18nprune kits — dynamic, identical, honest, baseline, pr (read-only; CliJsonEnvelope JSON)",
+      "Kits gates — catalog path, ESM ./ loader imports, dynamic-key honesty, npm homepage",
+      "Global CLI short flags — -j, -jp, -T, -F, -ds, -dc; kits -t, -o, -fon, -mxdy, -b, -sb",
+      "docs/commands/kits/* + releases portal cli/core 1.0.0 YAML",
+      "CepatEdge E2E smoke — kits against apps/web config (pre-tag verification)"
     ]
   },
   {
