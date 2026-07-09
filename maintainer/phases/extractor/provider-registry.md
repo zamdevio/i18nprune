@@ -94,5 +94,5 @@ packages/core/src/extractor/providers/
 
 - [ ] `pnpm typecheck` + `pnpm test`
 - [ ] Provider unit tests + JS parity green
-- [ ] [`maintainer/phases/shipped-slices.md`](../shipped-slices.md) receipt when slice ships
+- [ ] [`maintainer/shipped/README.md`](../../shipped/README.md) receipt when slice ships
 - [ ] User doc touch when behavior visible (`docs/architecture/extraction/` language matrix)

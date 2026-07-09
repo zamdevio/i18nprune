@@ -6,7 +6,7 @@ alwaysApply: true
 ## Source of truth
 - **Local-only WIP:** `maintainer/temp/` — temporary plans and scratch (**gitignored**; not in clone history; read on disk only if the user keeps notes there).
 - **Sprint / sequencing:** `maintainer/phases/V1-RELEASE.md`, `maintainer/phases/active-phase.md`.
-- **Shipped receipts:** `maintainer/phases/shipped-slices.md` (check before re-implementing).
+- **Shipped receipts:** `maintainer/shipped/README.md` (check before re-implementing).
 - **Engineering maps:** `maintainer/systems/README.md` (cache, share, extractor, commands, operations).
 - **Agent guides:** `maintainer/agents/README.md` · **Architecture:** `maintainer/agents/architecture.md` · **Git:** `maintainer/agents/git.md` · **JSDoc:** `maintainer/agents/jsdoc.md`.
 

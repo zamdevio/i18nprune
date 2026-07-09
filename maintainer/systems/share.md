@@ -2,7 +2,7 @@
 
 **Audience:** Maintainers and agents touching **share** across core, CLI, web, report, or the hosted worker (`apps/workers/i18nprune`).  
 **Audience is not:** end users (`docs/commands/share/`, `docs/runtime/worker.md`).  
-**Companion:** [`operations/entrypoints.md`](./operations/entrypoints.md) · [`ui.md`](./ui.md) for worker `/docs` Swagger shell · **Shipped receipts:** [`shipped-slices.md`](../phases/shipped-slices.md) (C.3+ rows 0–10).
+**Companion:** [`operations/entrypoints.md`](./operations/entrypoints.md) · [`ui.md`](./ui.md) for worker `/docs` Swagger shell · **Shipped receipts:** [`shipped/share/share.md`](../shipped/share/share.md) (C.3+ rows 0–10).
 
 ---
 
@@ -149,7 +149,7 @@ Same envelope on **GET** + successful **POST** (including `/archive`) for projec
 
 ## Cross-links
 
-- **Shipped slices:** [`maintainer/phases/shipped-slices.md`](../phases/shipped-slices.md) (C.3+ share rows)
+- **Shipped slices:** [`maintainer/shipped/share/share.md`](../shipped/share/share.md) (C.3+ share rows)
 - **User docs:** [`docs/commands/share/README.md`](../../docs/commands/share/README.md) · [`docs/runtime/worker.md`](../../docs/runtime/worker.md)
 
 ---
@@ -158,4 +158,4 @@ Same envelope on **GET** + successful **POST** (including `/archive`) for projec
 
 - Update **this file** when share wiring changes across core, CLI, web, report, or worker routes/storage/metadata/errors.
 - Update user docs (`docs/commands/share/`, `docs/runtime/worker.md`) for behavior visible to operators.
-- Update [`shipped-slices.md`](../phases/shipped-slices.md) only when a slice is actually closed.
+- Update [`shipped/README.md`](../shipped/README.md) only when a slice is actually closed.

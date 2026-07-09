@@ -61,7 +61,7 @@ Read in order; skip deep dives until you touch that area.
 | 1 | [`architecture.md`](./architecture.md) | Package topology, `runXxx`, core purity, parity |
 | 2 | [`rules.md`](./rules.md) | TS, errors, logging, tests, commits |
 | 3 | [`../phases/active-phase.md`](../phases/active-phase.md) | What sprint is active **right now** |
-| 4 | [`../phases/shipped-slices.md`](../phases/shipped-slices.md) | Do not re-implement closed work |
+| 4 | [`../shipped/README.md`](../shipped/README.md) | Do not re-implement closed work |
 | 5 | [`../systems/README.md`](../systems/README.md) | Where per-subsystem maps live |
 | 5b | [`../systems/platform.md`](../systems/platform.md) | Multi-OS CLI/SDK — paths, home, WSL vs Windows |
 | 6 | [`../systems/operations/entrypoints.md`](../systems/operations/entrypoints.md) | `runXxx` wiring table |

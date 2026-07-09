@@ -24,7 +24,7 @@ Guides for humans and coding agents working in this repo.
 1. Read [`onboarding.md`](./onboarding.md) (reading order + trace-a-command).
 2. Run `pnpm install`, `pnpm typecheck`, `pnpm test`.
 3. Check the active sprint: [`maintainer/phases/active-phase.md`](../phases/active-phase.md).
-4. Before re-implementing a feature, scan [`shipped-slices.md`](../phases/shipped-slices.md).
+4. Before re-implementing a feature, scan [`shipped/README.md`](../shipped/README.md).
 5. Follow [`git.md`](./git.md) for commits; use its **publish / tag checklist** before npm release.
 
 ---
@@ -58,7 +58,7 @@ Report **schema** lives only in **`packages/core`** (`@i18nprune/core/report-sch
 | Need | Location |
 |------|----------|
 | Active plans | `maintainer/phases/active-phase.md` |
-| Shipped receipts | `maintainer/phases/shipped-slices.md` |
+| Shipped receipts | `maintainer/shipped/README.md` |
 | System maps | `maintainer/systems/` |
 | Scratch / spikes | `maintainer/temp/` (gitignored) |
 | User-facing docs | `docs/` |

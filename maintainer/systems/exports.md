@@ -1,8 +1,8 @@
 # `@i18nprune/core` export system
 
 **Audience:** Maintainers and agents changing `packages/core` barrels, `package.json` exports, or host imports.  
-**Execution sequencing + run checklist:** [`../phases/exports.md`](../phases/exports.md) (slices EX-0…EX-5).  
-**Script operator manual:** [`../../scripts/exports/README.md`](../../scripts/exports/README.md) — all `pnpm exports:*` usage (canonical).  
+**Execution sequencing + run checklist:** [`../phases/exports.md`](../phases/exports.md) (slices EX-0, EX-P0, EX-1…EX-5).  
+**Governance tool:** [`expgov.config.ts`](../../expgov.config.ts) + **`expgov`** CLI (`@expgov/cli`). Legacy `scripts/exports/` removed — use `expgov inventory|diff|validate|graph|…`.  
 **User-facing mirror:** [`docs/sdk/exports.md`](../../docs/sdk/exports.md) (EX-5) — under SDK docs, not `docs/exports/`.
 
 ---

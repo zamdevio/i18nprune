@@ -4,7 +4,7 @@ Short messaging guide for social posts, landing tone, and release copy. **Do not
 
 **Facts live elsewhere (do not duplicate inventories here):**
 
-- Shipped work → [`maintainer/phases/shipped-slices.md`](../phases/shipped-slices.md)
+- Shipped work → [`maintainer/shipped/README.md`](../shipped/README.md)
 - Changelog → [releases.i18nprune.dev](https://releases.i18nprune.dev)
 - Build timeline → [git.i18nprune.dev](https://git.i18nprune.dev)
 - Commands & limits → [docs.i18nprune.dev](https://docs.i18nprune.dev)

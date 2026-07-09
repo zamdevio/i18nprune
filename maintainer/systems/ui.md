@@ -35,7 +35,7 @@ The repository has **three UI domains**. Only one consumes `@i18nprune/ui`.
 
 - Tailwind 3, React 19, Motion, marketing sections — high freedom for visual iteration.
 - Not optimized for runtime operational consistency; intentionally allowed to diverge.
-- Listed **out of C.3 scope** — landing is marketing-only; see [`shipped-slices.md`](../phases/shipped-slices.md) (D.2).
+- Listed **out of C.3 scope** — landing is marketing-only; see [`shipped/cache/init.md`](../shipped/cache/init.md) (D.2).
 
 ### Why extension stays isolated
 

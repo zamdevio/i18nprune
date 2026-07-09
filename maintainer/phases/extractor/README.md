@@ -1,7 +1,7 @@
 # Extractor — phases hub
 
 **Status:** **C.1 + E.1–E.6 + D.1 shipped** on `main` — v2 accuracy program is the active extractor track.  
-**Implementation:** `packages/core/src/extractor/**` · **Engineering map:** [`maintainer/systems/extractor.md`](../../systems/extractor.md) · **Receipts:** [`../shipped-slices.md`](../shipped-slices.md).
+**Implementation:** `packages/core/src/extractor/**` · **Engineering map:** [`maintainer/systems/extractor.md`](../../systems/extractor.md) · **Receipts:** [`shipped/README.md`](../../shipped/README.md).
 
 **User docs:** [`docs/architecture/extraction/`](../../../docs/architecture/extraction/README.md) · **Inventory:** [`docs/edge-cases/unsolved/inventory.md`](../../../docs/edge-cases/unsolved/inventory.md).
 
@@ -13,9 +13,9 @@
 
 | Track | Slices | Receipt |
 |-------|--------|---------|
-| **C.1** | C.1.1 bindings · C.1.2 orchestrator wiring · C.1.3 prose first-arg filter · C.1.4 commented-call parity · C.1.5 inventory rows · C.1.6 methodology docs | [`shipped-slices.md`](../shipped-slices.md) W21 |
-| **E.1–E.6** | Mixed-template fusion, const-map, non-literal hints, lexical safety, comment parity, `locales dynamic` groups | [`shipped-slices.md`](../shipped-slices.md) W24 |
-| **D.1** | Active vs commented dynamic counts — `dynamicActive` / `dynamicCommented` in analysis + CLI/JSON | [`shipped-slices.md`](../shipped-slices.md) W24 · [`docs/dynamic/README.md`](../../../docs/dynamic/README.md) |
+| **C.1** | C.1.1 bindings · C.1.2 orchestrator wiring · C.1.3 prose first-arg filter · C.1.4 commented-call parity · C.1.5 inventory rows · C.1.6 methodology docs | [`shipped/extractor/c1.md`](../../shipped/extractor/c1.md) |
+| **E.1–E.6** | Mixed-template fusion, const-map, non-literal hints, lexical safety, comment parity, `locales dynamic` groups | [`shipped/extractor/fusion.md`](../../shipped/extractor/fusion.md) |
+| **D.1** | Active vs commented dynamic counts — `dynamicActive` / `dynamicCommented` in analysis + CLI/JSON | [`shipped/extractor/fusion.md`](../../shipped/extractor/fusion.md) · [`docs/dynamic/README.md`](../../../docs/dynamic/README.md) |
 
 ### C.1 detail
 

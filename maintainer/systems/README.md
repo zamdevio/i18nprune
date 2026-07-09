@@ -22,8 +22,8 @@
 | **`systems/platform.md`** | CLI + SDK on Windows / macOS / Linux / WSL — adapters, home layout, path warnings, CI matrix |
 | **Terminal presentation (planned)** | Phase [`phases/terminal.md`](../phases/terminal.md) — OSC progress/titles/hyperlinks; CLI exploits `RunEvent` telemetry |
 | **`systems/ci.md`** | GitHub Actions: job DAG, matrix, artifacts, PR annotations, architecture nightly |
-| **Tree T0–T10** ([`shipped-slices.md`](../phases/shipped-slices.md)) | **Shipped** (core + CLI); apps shim cleanup `96aed18`; no app tree pass for v1 |
-| **CI CI-1–5** ([`shipped-slices.md`](../phases/shipped-slices.md)) | **Shipped** — split verify DAG, PR annotations, nightly knip/madge, debug artifacts, Turborepo scope |
+| **Tree T0–T10** ([`shipped/platform/ci.md`](../shipped/platform/ci.md)) | **Shipped** (core + CLI); apps shim cleanup `96aed18`; no app tree pass for v1 |
+| **CI CI-1–5** ([`shipped/platform/ci.md`](../shipped/platform/ci.md)) | **Shipped** — split verify DAG, PR annotations, nightly knip/madge, debug artifacts, Turborepo scope |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
 | **`systems/exports.md`** | `@i18nprune/core` stability tiers, subpath catalog, root barrel rules, host import matrix |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
@@ -36,7 +36,7 @@ Design rules: **`maintainer/agents/architecture.md`** and **`maintainer/agents/r
 
 Adding or changing **`systems/commands/<op>.md`** or **`systems/operations/`** MUST land as part of PRs touching `packages/*/src/**`.
 
-- Update **`maintainer/phases/active-phase.md`**, **`shipped-slices.md`**, or **`maintainer/phases/extension/*.md`** only when the PR is **actually** recording phase or extension planning (not for routine wiring-only changes).
+- Update **`maintainer/phases/active-phase.md`**, **`maintainer/shipped/README.md`**, or **`maintainer/phases/extension/*.md`** only when the PR is **actually** recording phase or extension planning (not for routine wiring-only changes).
 - Prefer updating **`maintainer/agents/`** when **agent authoring rules change**.
 
 ---

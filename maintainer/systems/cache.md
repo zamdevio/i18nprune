@@ -2,7 +2,7 @@
 
 **Audience:** Maintainers and agents touching any cache layer in core or CLI.  
 **User-facing:** [`docs/cli/cache.md`](../../docs/cli/cache.md) (disk project cache + flags only).  
-**Receipts:** [`shipped-slices.md`](../phases/shipped-slices.md) · **Multi-OS paths / home:** [`platform.md`](./platform.md).
+**Receipts:** [`shipped/cache/cache.md`](../shipped/cache/cache.md) · **Multi-OS paths / home:** [`platform.md`](./platform.md).
 
 ---
 

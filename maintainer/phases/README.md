@@ -9,7 +9,7 @@
 | Doc | Role |
 |-----|------|
 | [`active-phase.md`](./active-phase.md) | **Current sprint focus** |
-| [`shipped-slices.md`](./shipped-slices.md) | Closed slices — **ISO week timeline**; check before re-implementing |
+| [`shipped/`](../shipped/README.md) | Closed slices — **ISO week timeline**; check before re-implementing |
 
 Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
@@ -19,12 +19,11 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
-| [`kits.md`](./kits.md) | **Active — v0.1.5** — native `i18nprune kits …` (replaces external toolkit) |
 | [`extractor/README.md`](./extractor/README.md) | **Extractor v2** — HOC, light-dataflow, cross-file, finite-keys, AST tier |
 | [`extractor/architecture.md`](./extractor/architecture.md) | **Architecture** — engines, normalizer, incremental cache |
 | [`search.md`](./search.md) | **Planned** — `search` command (key ↔ call-site index; read-only) |
 | [`extension/README.md`](./extension/README.md) | **After AST tier** — VS Code extension (`apps/extension/`) |
-| [`exports.md`](./exports.md) | **Planned** — `@i18nprune/core` stability tiers + subpaths (major breaking) |
+| [`exports.md`](./exports.md) | **ACTIVE — EX-P0** — `expgov validate` + tier classification; **blocks npm v1 publish** |
 | [`terminal.md`](./terminal.md) | **Research / planned** — terminal protocol exploitation (CLI presentation; SDK telemetry surfaces) |
 
 **Shipped reference (do not re-implement):**
@@ -42,6 +41,6 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 ## Lifecycle
 
 1. Scope from the **active plan doc** only — one slice per PR.
-2. Close slices in [`shipped-slices.md`](./shipped-slices.md) under the matching **ISO week**; sync [`apps/git/scripts/phases.config.json`](../../apps/git/scripts/phases.config.json); fold durable notes into [`systems/`](../systems/).
+2. Close slices in [`shipped/`](../shipped/README.md) under the matching **ISO week**; sync [`apps/git/scripts/phases.config.json`](../../apps/git/scripts/phases.config.json); fold durable notes into [`systems/`](../systems/).
 3. Session noise → **`maintainer/temp/`** only.
 4. **Publish / tag:** checklist in [`agents/git.md`](../agents/git.md) (no separate phase file).

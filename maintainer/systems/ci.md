@@ -1,11 +1,11 @@
 # CI systems — maintainer map
 
 **Audience:** Maintainers and agents changing GitHub Actions, Vitest CI reporters, or debug artifacts.  
-**Receipt:** [`shipped-slices.md`](../phases/shipped-slices.md) (CI-1–5) · **Platform matrix (product):** [`platform.md`](./platform.md) · **Knip/madge remediation:** [`health.md`](./health.md)
+**Receipt:** [`shipped/platform/ci.md`](../shipped/platform/ci.md) (CI-1–5) · **Platform matrix (product):** [`platform.md`](./platform.md) · **Knip/madge remediation:** [`health.md`](./health.md)
 
 **Update this page when workflow structure changes** (job DAG, matrix, artifacts, reporters, or new workflows).
 
-**Workflow source comments:** use plain descriptive headers in `.github/workflows/*`, `vitest.config.ts`, and other non-maintainer files. Phase slice IDs (**CI-1**, **CI-2**, …) belong in this map and [`shipped-slices.md`](../phases/shipped-slices.md) only — not `(CI-n)` tags in workflow YAML or config.
+**Workflow source comments:** use plain descriptive headers in `.github/workflows/*`, `vitest.config.ts`, and other non-maintainer files. Phase slice IDs (**CI-1**, **CI-2**, …) belong in this map and [`shipped/README.md`](../shipped/README.md) only — not `(CI-n)` tags in workflow YAML or config.
 
 ---
 
@@ -219,7 +219,7 @@ Workspace rename for turbo uniqueness: **`packages/cli`** → **`@i18nprune/cli`
 
 ## Related
 
-- [`shipped-slices.md`](../phases/shipped-slices.md) — CI-1–5 shipped receipt
+- [`shipped/platform/ci.md`](../shipped/platform/ci.md) — CI-1–5 shipped receipt
 - [`platform.md`](./platform.md) — OS support promise and path policy
 - [`health.md`](./health.md) — knip / madge scripts and when to run locally
-- [`shipped-slices.md`](../phases/shipped-slices.md) — close phase rows when slices land
+- [`shipped/README.md`](../shipped/README.md) — close phase rows when slices land

@@ -56,6 +56,6 @@ See [`git.md`](./git.md) for full rules. Key points:
 ## Maintainer planning
 
 - **Scratch** → `maintainer/temp/` (gitignored, never commit).
-- **Sessions** → `maintainer/phases/active-phase.md` + `maintainer/phases/shipped-slices.md`.
+- **Sessions** → `maintainer/phases/active-phase.md` + `maintainer/shipped/README.md`.
 - **Public docs** → `docs/` only — never leak maintainer files into user-facing pages.
 - **Hub:** `maintainer/README.md` → `maintainer/phases/README.md`.

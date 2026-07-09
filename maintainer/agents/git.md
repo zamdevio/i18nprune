@@ -117,6 +117,7 @@ Never **`git push --force`** to `main` to fix a release; ship **`0.1.1`** instea
 
 ### Release checklist
 
+- [ ] **`expgov validate` green** — required for **v1.0.0 npm publish** ([`phases/exports.md`](../phases/exports.md) EX-P0); do not publish `@i18nprune/core` while unclassified exports remain
 - [ ] `version` aligned: root, `@i18nprune/core`, `@i18nprune/cli`
 - [ ] `pnpm typecheck` · `pnpm test` · `pnpm run publish:verify`
 - [ ] `npm whoami` / access for `i18nprune` and `@i18nprune`

@@ -98,7 +98,7 @@ merge (buildKeyReferenceContext):
 
 ## 4. Phase A — shipped (E.1–E.6 + D.1)
 
-**Status:** shipped on `main` (W24) — see [`README.md`](./README.md) and [`shipped-slices.md`](../shipped-slices.md).
+**Status:** shipped on `main` (W24) — see [`README.md`](./README.md) and [`shipped/extractor/fusion.md`](../../shipped/extractor/fusion.md).
 
 | Slice | End-state capability |
 |-------|----------------------|

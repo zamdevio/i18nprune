@@ -152,7 +152,7 @@ An extension that **does not fork** i18n semantics: diagnostics and commands mus
 
 ### Planned — Init / onboarding (editor host; after Session F)
 
-**Prerequisite:** stable **`@i18nprune/core`** init surface (`runInit`, `detectInitProject`, `INIT_PRESET_IDS` / `formatInitPresetIdList`) and CLI **`init --json`** parity (same `CliJsonEnvelope`, issue codes, no duplicate heuristics in the host). See **[`../shipped-slices.md`](../shipped-slices.md)** (Session F). Phase detail: **[init-ui.md](./init-ui.md)**.
+**Prerequisite:** stable **`@i18nprune/core`** init surface (`runInit`, `detectInitProject`, `INIT_PRESET_IDS` / `formatInitPresetIdList`) and CLI **`init --json`** parity (same `CliJsonEnvelope`, issue codes, no duplicate heuristics in the host). See **[`../shipped/cache/init.md`](../shipped/cache/init.md)** (Session F). Phase detail: **[init-ui.md](./init-ui.md)**.
 
 **Placement:** after **Track A** smoke path is reliable (workspace `cwd`, JSON capture); can ship before full **Track B** diagnostics — onboarding is orthogonal to `validate` diagnostics.
 
@@ -199,4 +199,4 @@ An extension that **does not fork** i18n semantics: diagnostics and commands mus
 ## See also
 
 - [JSON output (`--json`)](../../../docs/cli/json.md) · [Command orchestration](../../../docs/architecture/decisions/006-command-orchestrator-boundary.md)
-- **[`../shipped-slices.md`](../shipped-slices.md)** — init + locales shipped; extension must not get ahead of core contracts.
+- **[`../shipped/cache/init.md`](../shipped/cache/init.md)** — init + locales shipped; extension must not get ahead of core contracts.

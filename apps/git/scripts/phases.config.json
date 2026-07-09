@@ -110,9 +110,8 @@
     "theme": "Stats harness, exports worktree hygiene, kits v0.1.5 planning, pnpm v11 workspace config",
     "color": "teal",
     "shipped": [
-      "pre — stats harness (scripts/stats tsx; cross-platform files/lines; drop knip ignoreBinaries)",
-      "pre — exports worktree cache isolated under __worktree__ (exports:diff without -f)",
-      "pre — kits release tracker — maintainer/phases/kits.md (v0.1.5 single plan; kit → kits)",
+      "exports worktree cache isolated under __worktree__ (exports:diff without -f)",
+      "pre — kits v1.0.0 plan (kit → kits; receipt maintainer/shipped/kits/kits.md)",
       "pre — pnpm v11 overrides moved from package.json to pnpm-workspace.yaml"
     ]
   },

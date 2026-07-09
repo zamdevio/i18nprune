@@ -1,7 +1,7 @@
 # Search command — phase plan
 
 **Status:** **planned** — read-only op; ships after extractor baseline (C.1 / E / D) is stable; can overlap extractor v2 S.1+ index work.  
-**Tracker:** [`active-phase.md`](./active-phase.md) · **Receipts:** [`shipped-slices.md`](./shipped-slices.md) (when shipped).  
+**Tracker:** [`active-phase.md`](./active-phase.md) · **Receipts:** [`shipped/README.md`](../shipped/README.md) (when shipped).  
 **Implementation:** `packages/core/src/search/` (TBD) · CLI host · **Depends on:** project analysis + `KeyObservation` / `dynamicSites` from [`systems/extractor.md`](../systems/extractor.md).
 
 **Goal:** Let operators look up **any dotted key path** (or fragment) across locale JSON and `src/` with explicit **lookup mode** and **advanced flags** — and **map every resolvable key to its call-site evidence** (literal, template-resolved, and **fully traced dynamic sites**) without stitching `validate`, `locales dynamic`, and manual `rg`.
@@ -314,4 +314,4 @@ Search **supersedes** the common “run `locales dynamic` then grep” workflow 
 - User: `docs/commands/search.md` — must include **Dynamic call sites** section stating full indexer behavior vs `validate` / `locales dynamic`.
 - Maintainer: `maintainer/systems/commands/search.md`
 - Issues: `docs/issues/search.md` (optional)
-- Shipped receipt in [`shipped-slices.md`](./shipped-slices.md)
+- Shipped receipt in [`shipped/README.md`](../shipped/README.md)
