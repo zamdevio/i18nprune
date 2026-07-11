@@ -261,15 +261,15 @@ export function isSentinelLeakPending(
 - [x] `logger.notice` with copy vs translate counts  
 - [x] JSON `sentinelRepairs` with `mode`  
 - [x] Tests extend `localeTranslate.test.ts`  
-- [ ] Resume integration fixture test  
-- [ ] Docs: `docs/commands/generate.md` sentinel section
+- [x] Resume integration tests (`resumeSentinelLeak.test.ts`)  
+- [x] Docs: `docs/commands/generate.md` sentinel section
 
 ### PS-2b — `generate --resume` integration
 
-- [x] Resume pending set uses `isSentinelLeakPending(targetValue)` via `localePathLooksTranslatedFromSource`  
+- [x] Resume pending set uses `isSentinelLeakPending(targetValue)` via `localePathLooksTranslatedFromSource` + `isResumeCandidateLeaf`  
 - [x] Generate cache/state: leaked path not marked complete until repair succeeds  
-- [ ] Test: leak → partial generate fails path → `--resume` fixes → validate clean  
-- [ ] Docs: `docs/commands/generate.md` resume + sentinel section
+- [x] Test: resume re-queues leaked placeholder + prose paths  
+- [x] Docs: `docs/commands/generate.md` resume + sentinel section
 
 ### PS-3 — Release v1.0.1
 

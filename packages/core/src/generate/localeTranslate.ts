@@ -508,13 +508,14 @@ export function listResumeTranslationJobs(input: ListResumeTranslationJobsInput)
       continue;
     }
     const srcVal = input.sourceMap.get(leaf.path);
+    if (srcVal === undefined) continue;
     if (srcVal !== undefined && isPlaceholderOnlyLeaf(srcVal)) {
       continue;
     }
-    if (localePathLooksTranslatedFromSource(input.next, leaf.path, leaf.value)) {
+    if (localePathLooksTranslatedFromSource(input.next, leaf.path, srcVal)) {
       continue;
     }
-    jobs.push({ leafIndex: i, path: leaf.path, value: leaf.value });
+    jobs.push({ leafIndex: i, path: leaf.path, value: srcVal });
   }
   return { jobs, dryRunCandidateCount };
 }

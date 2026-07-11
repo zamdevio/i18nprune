@@ -1,6 +1,7 @@
 import { leafMatchesSourceForResume } from './leafMatchesSourceForResume.js';
 import { isParityExcluded } from '../../policies/parity.js';
 import { isPreservePath } from '../../policies/preserve.js';
+import { isSentinelLeakPending } from '../../shared/placeholders/sentinelLeak.js';
 import { pathUnderAnyUncertainPrefix } from '../../shared/reference/paths.js';
 import type { GenerateResumeCandidateLeafInput } from '../../types/generate/resumeCandidates.js';
 
@@ -27,6 +28,8 @@ export function isResumeCandidateLeaf(input: GenerateResumeCandidateLeafInput): 
     if (pathUnderAnyUncertainPrefix(leaf.path, refCtx.uncertainPrefixes)) return false;
   }
   if (isParityExcluded(leaf.path, leaf.value, parity)) return false;
+
+  if (isSentinelLeakPending(leaf.value)) return true;
 
   const useMeta = leaf.shape === 'structured' && leaf.structuredMetaComplete === true;
   if (useMeta) {

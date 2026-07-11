@@ -15,8 +15,8 @@
 
 | Slice | Notes |
 |-------|--------|
-| **PS-2/2b docs + resume integration test** | User docs + resume fixture test |
 | **PS-5** Kits terminal MD dim | Separate kits output feat |
+| **CLI `--no-repair-sentinel-leaks`** | `GenerateRunOptions` only; wire argv |
 | **PS-3** Release bump | 1.0.1 + changelog when ready to publish |
 
 ## Core module
