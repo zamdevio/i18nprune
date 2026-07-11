@@ -108,8 +108,8 @@
       "v1.0.1 — spaced-variant sentinel detection (__I18NPRUNE _0__); JSON sentinelRepairs[] + bounded detail lists",
       "v1.0.1 — kits terminal MD dim (formatKitsTerminalMarkdown); plain markdown on --out",
       "v1.0.1 — generate sentinel repair UX (dry-run before translate; live notice after progress; -T/-F listLimit)",
-      "v1.0.1 — CLI help Workflows appendix + per-command Examples / Related / Notes (expgov-style)",
-      "v1.0.1 — CLI aliases — loc/v/g/cfg positional; locales+share sub shorts; global -y/-n/-m",
+      "v1.0.1 — CLI help (Workflows, Examples/Related/Notes, inline Commands aliases, styled Examples)",
+      "v1.0.1 — CLI aliases — mnemonic positional (val/gen/cfg/…); group subs; flag shorts (-n/-m/-t, -f/-fcs, -wu, …)",
       "releases portal cli/core 1.0.1 YAML (receipt maintainer/shipped/locale/sentinel-repair.md)"
     ]
   },

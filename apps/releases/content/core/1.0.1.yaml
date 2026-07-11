@@ -18,7 +18,8 @@ sections:
     - "Dry-run `wouldRepairSentinelLeaks` count on sync and generate"
   changed:
     - "Sentinel leak regex — `I18NPRUNE[\\s_]*\\d+` detects spaced variants; `__I18NPRUNE_MISSING__` excluded from leak classification"
-    - "`emitSyncHumanMessages` sentinel repair details respect global list limit (`--top` / `--full`)"
+    - "`emitSyncHumanMessages` / `sentinelHumanEmit` repair details respect list limit (`--top` / `--full` via host `listLimit`)"
+    - "`generate` live sentinel repair notice — after progress on live runs; dry-run preview before translate"
     - "Detect ops emit dim suggestion detail lines via `emitSentinelLeakSuggestionDetails`"
   fixed:
     - "`localePathLooksTranslatedFromSource` returns false when target still contains numeric mask sentinels"
