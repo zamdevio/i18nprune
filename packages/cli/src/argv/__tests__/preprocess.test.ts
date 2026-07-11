@@ -66,11 +66,19 @@ describe('preprocessArgv', () => {
     );
   });
 
-  it('scopes -f to --force on generate and --focus on kits', () => {
+  it('scopes -f to --force on generate and -fcs to --focus on kits', () => {
     expect(preprocessArgv(argv('generate', '-f'))).toEqual(argv('generate', '--force'));
-    expect(preprocessArgv(argv('kits', 'honest', '-f', 'router'))).toEqual(
+    expect(preprocessArgv(argv('kits', 'honest', '-fcs', 'router'))).toEqual(
       argv('kits', 'honest', '--focus', 'router'),
     );
+  });
+
+  it('expands -chk, -flt, and -rch command flags', () => {
+    expect(preprocessArgv(argv('version', '-chk'))).toEqual(argv('version', '--check'));
+    expect(preprocessArgv(argv('languages', '-flt', 'arabic'))).toEqual(
+      argv('languages', '--filter', 'arabic'),
+    );
+    expect(preprocessArgv(argv('init', '-rch'))).toEqual(argv('init', '--rich'));
   });
 
   it('expands generate and sync command-scoped flags', () => {

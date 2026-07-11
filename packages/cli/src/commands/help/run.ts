@@ -6,7 +6,7 @@ import { docsCommandUrl, getDocsUrl } from '@i18nprune/core';
 import { docsSlugForCommand } from '@/utils/cli/docsSlug.js';
 import { header } from '@/utils/ansi/index.js';
 import { formatCommandHelpExtras } from '@/utils/help/commandHelp.js';
-import { formatAliasesAppendix } from '@/utils/help/aliasesAppendix.js';
+import { injectRootCommandAliases } from '@/utils/help/injectRootCommandAliases.js';
 import { styleExampleLine } from '@/utils/help/exampleLine.js';
 import { styleCommandHelpTerm } from '@/utils/help/term.js';
 import { formatWorkflowAppendix } from '@/utils/help/workflowAppendix.js';
@@ -14,7 +14,7 @@ import { style } from '@/utils/style/index.js';
 import type { HelpColorizeSection } from '@/types/help/index.js';
 
 const SECTION_HEADER =
-  /^(Options|Commands|Arguments|Global Options|Aliases|Workflows|Examples|Related|Notes):$/;
+  /^(Options|Commands|Arguments|Global Options|Workflows|Examples|Related|Notes):$/;
 const HELP_ROW = /^(\s{2})(.+?)(\s{2,})(.*)$/;
 const DEFAULT_NOTE = /\(default:[^)]+\)/g;
 
@@ -25,13 +25,14 @@ export function configureCliHelp(program: Command): void {
   program.configureHelp({
     formatHelp(cmd: Command, helper: Help) {
       const raw = Help.prototype.formatHelp.call(helper, cmd, helper);
-      const extras = formatCommandHelpExtras(cmd, CLI_NAME);
-      const colored = colorizeHelpText(extras ? `${raw}${extras}` : raw);
       const opts = program.opts<{ json?: boolean; silent?: boolean }>();
       const isRoot = cmd.parent === undefined || cmd.name() === CLI_NAME;
+      const withAliases = isRoot ? injectRootCommandAliases(raw) : raw;
+      const extras = formatCommandHelpExtras(cmd, CLI_NAME);
+      const colored = colorizeHelpText(extras ? `${withAliases}${extras}` : withAliases);
       let body = colored;
       if (isRoot && !opts.json && !opts.silent) {
-        body = `${colored}${formatAliasesAppendix()}${formatWorkflowAppendix()}`;
+        body = `${colored}${formatWorkflowAppendix()}`;
       }
       if (Boolean(opts.json) || Boolean(opts.silent)) {
         return appendDocsFooter(body, cmd);
@@ -57,7 +58,6 @@ export function colorizeHelpText(text: string): string {
       else if (line === 'Options:') section = 'options';
       else if (line === 'Arguments:') section = 'arguments';
       else if (line === 'Global Options:') section = 'global-options';
-      else if (line === 'Aliases:') section = 'aliases';
       else if (line === 'Workflows:') section = 'workflows';
       else if (line === 'Examples:') section = 'examples';
       else if (line === 'Related:') section = 'related';
@@ -72,10 +72,6 @@ export function colorizeHelpText(text: string): string {
     }
     if (section === 'workflows' && /^\s{2}\S/.test(line)) {
       out.push(`  ${style.dim(line.trim())}`);
-      continue;
-    }
-    if (section === 'aliases' && /^\s{2}\S/.test(line)) {
-      out.push(line.startsWith('  ') && !line.startsWith('   ') ? line : `  ${style.dim(line.trim())}`);
       continue;
     }
     if (section === 'examples' && /^\s{2}\S/.test(line)) {
@@ -99,6 +95,7 @@ export function colorizeHelpText(text: string): string {
       const looksLikeFlagOrCommand =
         /^-/.test(term) ||
         term.includes('|') ||
+        term.includes(',') ||
         /^\[[^\]]+\]/.test(term.trimStart()) ||
         (section === 'commands' && /^[a-z]/i.test(term.trimStart()));
       if (looksLikeFlagOrCommand) {
@@ -113,7 +110,12 @@ export function colorizeHelpText(text: string): string {
 
 function styleUsageLine(line: string): string {
   const rest = line.slice('Usage:'.length).trimStart();
-  return `${style.bold(style.magenta('Usage:'))} ${style.bold(style.accent(rest))}`;
+  const m = new RegExp(`^(${CLI_NAME})(\\s+[\\s\\S]*)?$`).exec(rest);
+  if (!m) {
+    return `${style.bold(style.magenta('Usage:'))} ${style.bold(style.accent(rest))}`;
+  }
+  const tail = m[2] ?? '';
+  return `${style.bold(style.magenta('Usage:'))} ${style.bold(style.brand(CLI_NAME))}${style.bold(style.accent(tail))}`;
 }
 
 function styleSectionHeader(line: string): string {
@@ -130,6 +132,12 @@ function styleTerm(term: string, section: HelpColorizeSection): string {
         return style.accent(part);
       })
       .join('');
+  }
+  if (section === 'commands') {
+    const aliasComma = /^([\w-]+),\s*(.+)$/.exec(term.trim());
+    if (aliasComma) {
+      return `${style.accent(aliasComma[1]!)}${style.dim(', ')}${styleCommandHelpTerm(aliasComma[2]!)}`;
+    }
   }
   if (term.includes('|')) {
     return term

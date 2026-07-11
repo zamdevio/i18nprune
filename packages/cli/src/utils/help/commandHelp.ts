@@ -162,7 +162,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
     examples: [
       `${CLI_NAME} kits honest`,
       `${CLI_NAME} kits honest -t ar --strict`,
-      `${CLI_NAME} kits honest -f dashboard -o honest.md`,
+      `${CLI_NAME} kits honest -fcs dashboard -o honest.md`,
     ],
     related: ['validate', 'kits pr', 'quality'],
     notes: [NOTE_KITS, NOTE_LIST],
@@ -180,7 +180,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
     examples: [
       `${CLI_NAME} kits pr`,
       `${CLI_NAME} kits pr -o pr.md`,
-      `${CLI_NAME} kits pr -f router --strict`,
+      `${CLI_NAME} kits pr -fcs router --strict`,
       `${CLI_NAME} kits pr -sb pr-baseline.json`,
     ],
     related: ['kits honest', 'validate', 'report'],

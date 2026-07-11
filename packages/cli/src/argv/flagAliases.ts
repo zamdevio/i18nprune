@@ -14,7 +14,7 @@ export const GLOBAL_BOOL_FLAG_ALIASES: Readonly<Record<string, string>> = {
   '-p': '--patch',
 };
 
-/** Global value short → long flag (root program). */
+/** Global value short → long flag (root program). `--source` and `--src` stay long-only (avoid confusion). */
 export const GLOBAL_VALUE_FLAG_ALIASES: Readonly<Record<string, string>> = {
   '-T': '--top',
   '-jp': '--json-pretty',
@@ -34,14 +34,11 @@ export const KITS_FLAG_ALIASES: Readonly<Record<string, string>> = {
   '-b': '--baseline',
   '-sb': '--save-baseline',
   '-cn': '--contains',
-  '-f': '--focus',
+  '-fcs': '--focus',
   '-r': '--raw',
 };
 
-/**
- * Per-command short → long flags (first path segment or full nested path).
- * `-f` on `generate` maps to `--force`; on `kits` maps via {@link KITS_FLAG_ALIASES} to `--focus`.
- */
+/** Per-command short → long flags (first path segment or full nested path). */
 export const COMMAND_FLAG_ALIASES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   generate: {
     '-P': '--provider',
@@ -59,6 +56,7 @@ export const COMMAND_FLAG_ALIASES: Readonly<Record<string, Readonly<Record<strin
   },
   init: {
     '-a': '--auto',
+    '-rch': '--rich',
   },
   report: {
     '-fmt': '--format',
@@ -74,6 +72,10 @@ export const COMMAND_FLAG_ALIASES: Readonly<Record<string, Readonly<Record<strin
   },
   languages: {
     '-tbl': '--table',
+    '-flt': '--filter',
+  },
+  version: {
+    '-chk': '--check',
   },
 };
 
@@ -93,6 +95,7 @@ export const VALUE_FLAG_LONGS = new Set([
   '--workers',
   '--format',
   '--only',
+  '--filter',
   '--out',
   '--fail-on',
   '--max-dynamic',
@@ -110,6 +113,8 @@ export const VALUE_FLAG_SHORTS = new Set([
   '-W',
   '-fmt',
   '-on',
+  '-flt',
+  '-fcs',
   '-c',
   '-ld',
   '-fns',
@@ -121,7 +126,6 @@ export const VALUE_FLAG_SHORTS = new Set([
   '-b',
   '-sb',
   '-cn',
-  '-f',
 ]);
 
 export function flagLongTakesValue(longFlag: string): boolean {
@@ -157,35 +161,3 @@ export function lookupFlagAlias(shortFlag: string, commandPath: string): string 
   }
   return undefined;
 }
-
-/** Short flags that appear in `-h` global options (for root Aliases appendix). */
-export const ROOT_FLAG_ALIAS_LINES = [
-  '-c config · -j json · -y yes · -n dry-run · -m metadata',
-  '-T top · -F full · -ds debug-scan · -dc debug-cache',
-  '-ncl no-color · -nlc no-log-channel · -nlp no-log-prefix',
-  '-ld locales-dir · -fns functions · -e exclude · -p patch · -nch no-cache · -cp cache-profile',
-] as const;
-
-/** Positional command aliases for root `-h` (canonical name in help Commands list). */
-export const ROOT_COMMAND_ALIAS_LINES = [
-  'v validate · g generate · s sync · cfg config · loc locales · langs languages',
-  'q quality · r review · m missing · d doctor · p patch · rep report · prov providers · h help',
-  'locales: ls list · dyn dynamic · rm delete',
-  'share: up upload · ls list · rm delete',
-] as const;
-
-/** Command-scoped flag aliases documented on root `-h` (see each command for full options). */
-export const ROOT_COMMAND_FLAG_ALIAS_LINES = [
-  'generate: -P provider · -R resume · -W workers · -f force · -nrsl no-repair-sentinel-leaks',
-  'sync: -nrsl no-repair-sentinel-leaks · -sm strip-metadata',
-  'cleanup: -apk ask-per-key · report: -fmt format · doctor: -on only',
-  'share delete: -lo local-only · patch: -fx fix · init: -a auto · languages: -tbl table',
-] as const;
-
-/**
- * Additional aliases under consideration (not implemented — see maintainer/temp/aliases.md):
- * - `-src` → `--source` · `-st` → `--strict` (kits/doctor) · `-wu` → `--worker-url` (share)
- * - `-ask` → `--ask` (cleanup/generate/locales delete) · `-rg` already canonical on cleanup
- */
-export const PROPOSED_FLAG_ALIASES_NOTE =
-  'Proposed (not yet shipped): -src source · -st strict · -wu worker-url · -ask ask';

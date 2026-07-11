@@ -12,9 +12,6 @@ export {
   GLOBAL_BOOL_FLAG_ALIASES,
   GLOBAL_VALUE_FLAG_ALIASES,
   COMMAND_FLAG_ALIASES,
-  ROOT_COMMAND_ALIAS_LINES,
-  ROOT_FLAG_ALIAS_LINES,
-  PROPOSED_FLAG_ALIASES_NOTE,
 } from '@/argv/flagAliases.js';
 
 export const CANONICAL_SUBCOMMANDS = [
@@ -131,6 +128,8 @@ const GLOBAL_OPTION_WITH_VALUE = new Set([
   '--format',
   '-on',
   '--only',
+  '-flt',
+  '--filter',
   '-o',
   '--out',
   '-fon',
@@ -145,6 +144,7 @@ const GLOBAL_OPTION_WITH_VALUE = new Set([
   '--contains',
   '-f',
   '--focus',
+  '-fcs',
 ]);
 
 function argvOptionTakesValue(token: string): boolean {

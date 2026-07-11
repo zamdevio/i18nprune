@@ -260,7 +260,7 @@ program
   .description(
     'Create i18nprune.config.ts (or .mts / .js) when missing — interactive unless --yes; --rich writes every supported namespace with defaults; --auto scores package.json + locale folders (use --yes or --json in CI)',
   )
-  .option('--rich', 'write expanded starter config (all namespaces + safe defaults)', false)
+  .option('-rch, --rich', 'write expanded starter config (all namespaces + safe defaults)', false)
   .option(
     '-a, --auto',
     'pick a starter preset from project signals (ambiguous projects exit 1 unless --preset is set)',
@@ -465,7 +465,7 @@ program
   .description(
     'List supported translation target languages (code, English name, native name) for generate',
   )
-  .option('--filter <text>', 'match code, English, or native (case-insensitive substring)')
+  .option('-flt, --filter <text>', 'match code, English, or native (case-insensitive substring)')
   .option(
     '-tbl, --table',
     'bordered table with a No. column (default is a numbered list, best for mixed scripts)',
@@ -724,7 +724,7 @@ kitsCmd
   .option('-mxdy, --max-dynamic <n>', 'fail when dynamic site count exceeds n')
   .option('-b, --baseline <path>', 'compare against a saved JSON baseline')
   .option('-sb, --save-baseline <path>', 'save terminal-matching report')
-  .option('-f, --focus <text>', 'filter dynamic sites by substring')
+  .option('-fcs, --focus <text>', 'filter dynamic sites by substring')
   .option('--strict', 'exit 2 on missing keys or source-identical leaves', false)
   .action(async (opts: {
     target?: string;
@@ -770,7 +770,7 @@ kitsCmd
   .option('-t, --target <code>', 'optional locale filter')
   .option('-o, --out <path>', 'write output to file')
   .option('-sb, --save-baseline <path>', 'save terminal-matching report')
-  .option('-f, --focus <text>', 'filter dynamic sites by substring')
+  .option('-fcs, --focus <text>', 'filter dynamic sites by substring')
   .action(async (opts: { target?: string; out?: string; saveBaseline?: string; focus?: string }) => {
     await kitsPr({
       target: opts.target,
@@ -820,7 +820,7 @@ program
   .description(
     'Print the CLI version; use --check to query npm; use --reset to clear local update state',
   )
-  .option('--check', 'fetch latest from the npm registry and show install instructions', false)
+  .option('-chk, --check', 'fetch latest from the npm registry and show install instructions', false)
   .option(
     '--reset',
     'clear cached npm update check (next automatic lookup runs fresh)',
