@@ -14,6 +14,7 @@ export type HelpColorizeSection =
   | 'options'
   | 'commands'
   | 'global-options'
+  | 'aliases'
   | 'workflows'
   | 'examples'
   | 'related'

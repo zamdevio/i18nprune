@@ -2,6 +2,20 @@
  * Canonical subcommand names. Positional aliases expand in {@link preprocessArgv}.
  */
 import { CLI_INVOCATION_COMMAND_IDS } from '@/constants/commandInvocation.js';
+import {
+  flagLongTakesValue,
+  lookupFlagAlias,
+  shortFlagTakesValue,
+} from '@/argv/flagAliases.js';
+
+export {
+  GLOBAL_BOOL_FLAG_ALIASES,
+  GLOBAL_VALUE_FLAG_ALIASES,
+  COMMAND_FLAG_ALIASES,
+  ROOT_COMMAND_ALIAS_LINES,
+  ROOT_FLAG_ALIAS_LINES,
+  PROPOSED_FLAG_ALIASES_NOTE,
+} from '@/argv/flagAliases.js';
 
 export const CANONICAL_SUBCOMMANDS = [
   'init',
@@ -89,7 +103,7 @@ const KNOWN_COMMAND_FIRST_TOKEN = new Set([
   'h',
 ]);
 
-/** Global CLI options that consume the next argv token (must not be treated as a subcommand). */
+/** Options that consume the next argv token (must not be treated as a subcommand). */
 const GLOBAL_OPTION_WITH_VALUE = new Set([
   '-c',
   '--config',
@@ -104,6 +118,19 @@ const GLOBAL_OPTION_WITH_VALUE = new Set([
   '-jp',
   '-t',
   '--target',
+  '-ld',
+  '-fns',
+  '-e',
+  '-cp',
+  '--cache-profile',
+  '-P',
+  '--provider',
+  '-W',
+  '--workers',
+  '-fmt',
+  '--format',
+  '-on',
+  '--only',
   '-o',
   '--out',
   '-fon',
@@ -120,61 +147,52 @@ const GLOBAL_OPTION_WITH_VALUE = new Set([
   '--focus',
 ]);
 
-/** Expand kit/global short flags before Commander parses argv. */
-function expandArgvShortFlags(argv: string[]): string[] {
-  const VALUE_SHORTS = new Set([
-    '-T',
-    '-jp',
-    '-t',
-    '-o',
-    '-fon',
-    '-mxdy',
-    '-b',
-    '-sb',
-    '-cn',
-    '-f',
-  ]);
-  const BOOL_SHORTS: Record<string, string> = {
-    '-j': '--json',
-    '-y': '--yes',
-    '-n': '--dry-run',
-    '-m': '--metadata',
-    '-F': '--full',
-    '-ds': '--debug-scan',
-    '-dc': '--debug-cache',
-    '-r': '--raw',
-  };
-  const VALUE_LONG: Record<string, string> = {
-    '-T': '--top',
-    '-jp': '--json-pretty',
-    '-t': '--target',
-    '-o': '--out',
-    '-fon': '--fail-on',
-    '-mxdy': '--max-dynamic',
-    '-b': '--baseline',
-    '-sb': '--save-baseline',
-    '-cn': '--contains',
-    '-f': '--focus',
-  };
+function argvOptionTakesValue(token: string): boolean {
+  if (shortFlagTakesValue(token)) return true;
+  return flagLongTakesValue(token);
+}
 
+function peekCommandPath(argv: string[]): string {
+  const args = argv.slice(2);
+  const segments: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const raw = args[i]!;
+    if (raw.startsWith('-')) {
+      if (argvOptionTakesValue(raw)) i += 1;
+      continue;
+    }
+    const key = raw.toLowerCase();
+    if (segments.length === 0) {
+      const top = POSITIONAL_COMMAND_ALIASES[key] ?? raw;
+      segments.push(top);
+      if (GROUP_COMMANDS.has(top)) continue;
+      break;
+    }
+    if (segments.length === 1 && GROUP_COMMANDS.has(segments[0]!)) {
+      const sub = GROUP_SUBCOMMAND_ALIASES[segments[0]!]?.[key] ?? raw;
+      segments.push(sub);
+    }
+    break;
+  }
+  return segments.join(' ');
+}
+
+/** Expand short flags before Commander parses argv (path-aware for kits / per-command maps). */
+function expandArgvShortFlags(argv: string[]): string[] {
+  const commandPath = peekCommandPath(argv);
   const out: string[] = [];
   for (let i = 0; i < argv.length; i++) {
     const token = argv[i]!;
-    if (token in BOOL_SHORTS) {
-      out.push(BOOL_SHORTS[token]!);
-      continue;
-    }
-    if (token in VALUE_LONG) {
-      out.push(VALUE_LONG[token]!);
-      const next = argv[i + 1];
-      if (next !== undefined && !next.startsWith('-')) {
-        out.push(next);
-        i += 1;
+    const long = lookupFlagAlias(token, commandPath);
+    if (long) {
+      out.push(long);
+      if (argvOptionTakesValue(token)) {
+        const next = argv[i + 1];
+        if (next !== undefined && !next.startsWith('-')) {
+          out.push(next);
+          i += 1;
+        }
       }
-      continue;
-    }
-    if (VALUE_SHORTS.has(token)) {
-      out.push(token);
       continue;
     }
     out.push(token);
@@ -300,7 +318,7 @@ export function resolveActiveCliCommandFromArgv(argv: string[] = process.argv): 
 
 /** Normalizes argv before Commander: positional aliases; global `-V` → `version`; short flags → long. */
 export function preprocessArgv(argv: string[]): string[] {
-  const expanded = expandArgvShortFlags(argv);
-  const aliased = rewritePositionalCommandAliases(expanded);
-  return rewriteVersionShortFlag(aliased);
+  const aliasedPositional = rewritePositionalCommandAliases(argv);
+  const expanded = expandArgvShortFlags(aliasedPositional);
+  return rewriteVersionShortFlag(expanded);
 }

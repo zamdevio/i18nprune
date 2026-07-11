@@ -6,13 +6,15 @@ import { docsCommandUrl, getDocsUrl } from '@i18nprune/core';
 import { docsSlugForCommand } from '@/utils/cli/docsSlug.js';
 import { header } from '@/utils/ansi/index.js';
 import { formatCommandHelpExtras } from '@/utils/help/commandHelp.js';
+import { formatAliasesAppendix } from '@/utils/help/aliasesAppendix.js';
+import { styleExampleLine } from '@/utils/help/exampleLine.js';
 import { styleCommandHelpTerm } from '@/utils/help/term.js';
 import { formatWorkflowAppendix } from '@/utils/help/workflowAppendix.js';
 import { style } from '@/utils/style/index.js';
 import type { HelpColorizeSection } from '@/types/help/index.js';
 
 const SECTION_HEADER =
-  /^(Options|Commands|Arguments|Global Options|Workflows|Examples|Related|Notes):$/;
+  /^(Options|Commands|Arguments|Global Options|Aliases|Workflows|Examples|Related|Notes):$/;
 const HELP_ROW = /^(\s{2})(.+?)(\s{2,})(.*)$/;
 const DEFAULT_NOTE = /\(default:[^)]+\)/g;
 
@@ -29,7 +31,7 @@ export function configureCliHelp(program: Command): void {
       const isRoot = cmd.parent === undefined || cmd.name() === CLI_NAME;
       let body = colored;
       if (isRoot && !opts.json && !opts.silent) {
-        body = `${colored}${formatWorkflowAppendix()}`;
+        body = `${colored}${formatAliasesAppendix()}${formatWorkflowAppendix()}`;
       }
       if (Boolean(opts.json) || Boolean(opts.silent)) {
         return appendDocsFooter(body, cmd);
@@ -55,6 +57,7 @@ export function colorizeHelpText(text: string): string {
       else if (line === 'Options:') section = 'options';
       else if (line === 'Arguments:') section = 'arguments';
       else if (line === 'Global Options:') section = 'global-options';
+      else if (line === 'Aliases:') section = 'aliases';
       else if (line === 'Workflows:') section = 'workflows';
       else if (line === 'Examples:') section = 'examples';
       else if (line === 'Related:') section = 'related';
@@ -71,8 +74,12 @@ export function colorizeHelpText(text: string): string {
       out.push(`  ${style.dim(line.trim())}`);
       continue;
     }
+    if (section === 'aliases' && /^\s{2}\S/.test(line)) {
+      out.push(line.startsWith('  ') && !line.startsWith('   ') ? line : `  ${style.dim(line.trim())}`);
+      continue;
+    }
     if (section === 'examples' && /^\s{2}\S/.test(line)) {
-      out.push(`  ${style.bold(style.accent(line.trim()))}`);
+      out.push(styleExampleLine(line.trim()));
       continue;
     }
     if (section === 'related' && /^\s{2}\S/.test(line)) {

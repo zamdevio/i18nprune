@@ -121,24 +121,24 @@ program
   )
   .option('-q, --quiet', 'less non-essential output', false)
   .option('-s, --silent', 'suppress informational and warning lines (errors still print)', false)
-  .option('--no-color', 'plain text output (also when NO_COLOR is set)')
-  .option('--no-log-channel', 'omit [info]/[warn]/[tip] tags on human log lines')
-  .option('--no-log-prefix', 'omit [i18nprune] prefix on human log lines')
+  .option('-ncl, --no-color', 'plain text output (also when NO_COLOR is set)')
+  .option('-nlc, --no-log-channel', 'omit [info]/[warn]/[tip] tags on human log lines')
+  .option('-nlp, --no-log-prefix', 'omit [i18nprune] prefix on human log lines')
   .option('--source <code>', 'override source locale language code (BCP47, e.g. en, pt-br)')
-  .option('--locales-dir <path>', 'override locales directory')
+  .option('-ld, --locales-dir <path>', 'override locales directory')
   .option('--src <path>', 'override scan root (translation call sites)')
   .option(
-    '--functions <list>',
+    '-fns, --functions <list>',
     'comma-separated translation helpers (e.g. t,i18n.t,$t)',
   )
   .option(
-    '--exclude <list>',
+    '-e, --exclude <list>',
     'comma-separated directory basenames to skip while scanning sources (appended to config exclude.dirs; e.g. bench,vendor)',
   )
-  .option('--patch', 'enable patching for this run (overrides config patching.enabled=false)', false)
-  .option('--no-cache', 'disable CLI cache for this run only')
+  .option('-p, --patch', 'enable patching for this run (overrides config patching.enabled=false)', false)
+  .option('-nch, --no-cache', 'disable CLI cache for this run only')
   .option(
-    '--cache-profile <id>',
+    '-cp, --cache-profile <id>',
     'override cache.profile for this run (safe | balanced | fast); explicit cache.rebuild / fullRescanThresholdPercent / mode in config still win',
   )
   .option(
@@ -262,7 +262,7 @@ program
   )
   .option('--rich', 'write expanded starter config (all namespaces + safe defaults)', false)
   .option(
-    '--auto',
+    '-a, --auto',
     'pick a starter preset from project signals (ambiguous projects exit 1 unless --preset is set)',
     false,
   )
@@ -315,7 +315,7 @@ program
     false,
   )
   .option(
-    '--strip-metadata',
+    '-sm, --strip-metadata',
     'rewrite structured `{ value, ... }` leaves to plain strings during sync (default from config localeLeaves.sync.stripMetadata)',
     false,
   )
@@ -324,7 +324,7 @@ program
     'comma-separated locale basenames, or "all" (default: all non-source locales under localesDir)',
   )
   .option(
-    '--no-repair-sentinel-leaks',
+    '-nrsl, --no-repair-sentinel-leaks',
     'skip automatic copy-source repair of stale __I18NPRUNE_* target leaves',
     false,
   )
@@ -344,7 +344,7 @@ program
     'Generate a target locale JSON from the source, or top up existing files with --resume',
   )
   .option('--target <codes>', 'target locale code(s): one code or comma-separated list (e.g. ja,ar,id)')
-  .option('--force', 're-translate even if target already has every source string path', false)
+  .option('-f, --force', 're-translate even if target already has every source string path', false)
   .option('--dry-run', 'do not call translator or write files', false)
   .option(
     '--metadata',
@@ -352,15 +352,15 @@ program
     false,
   )
   .option(
-    '--provider <id>',
+    '-P, --provider <id>',
     'translation backend — precedence: --provider → I18NPRUNE_TRANSLATE_PROVIDER → translate.primary; credentials: translate.providers row + env (see docs/config/translate.md)',
   )
   .option(
-    '--workers <n>',
+    '-W, --workers <n>',
     'max parallel translateLeaf calls this run (overrides I18NPRUNE_TRANSLATE_MAX_WORKERS, translate.workers)',
   )
   .option(
-    '--resume',
+    '-R, --resume',
     'top-up existing locale JSON: translate review-eligible leaves that still match the source (requires existing <target>.json)',
     false,
   )
@@ -371,7 +371,7 @@ program
     false,
   )
   .option(
-    '--no-repair-sentinel-leaks',
+    '-nrsl, --no-repair-sentinel-leaks',
     'skip automatic re-translate of stale __I18NPRUNE_* target leaves',
     false,
   )
@@ -440,7 +440,7 @@ program
     'interactive TTY: confirm removals in batches (grouped by top-level key namespace); overridden by global --yes',
     false,
   )
-  .option('--ask-per-key', 'interactive TTY: confirm each unused key path separately', false)
+  .option('-apk, --ask-per-key', 'interactive TTY: confirm each unused key path separately', false)
   .action(
     async (opts: {
       dryRun?: boolean;
@@ -467,7 +467,7 @@ program
   )
   .option('--filter <text>', 'match code, English, or native (case-insensitive substring)')
   .option(
-    '--table',
+    '-tbl, --table',
     'bordered table with a No. column (default is a numbered list, best for mixed scripts)',
     false,
   )
@@ -577,7 +577,7 @@ shareCmd
   .option('--project <id>', 'Worker-hosted project id')
   .option('--report <id>', 'Worker-hosted report id')
   .option('--worker-url <url>', 'Worker API base URL')
-  .option('--local-only', 'Remove share.json entry only; do not call worker DELETE', false)
+  .option('-lo, --local-only', 'Remove share.json entry only; do not call worker DELETE', false)
   .option('--all', 'Delete every share.json row for this project (TTY confirms unless --yes)', false)
   .action(async (opts: {
     project?: string;
@@ -785,7 +785,7 @@ program
   .description(
     'Project-level report from a live scan or a validated prior JSON (--from); use global --json for a stdout envelope (still writes --out unless skipped)',
   )
-  .option('--format <fmt>', 'output: html, json, csv, or text', 'html')
+  .option('-fmt, --format <fmt>', 'output: html, json, csv, or text', 'html')
   .option('--out <path>', 'output file (default: report-<timestamp>.<ext> in cwd)', undefined)
   .option('--from <file>', 'read project report JSON (must match schema) instead of scanning', undefined)
   .action(async (opts: { format?: string; out?: string; from?: string }) => {
@@ -845,7 +845,7 @@ program
   )
   .option('--init', 'create missing CLI-owned files under <src>/i18n (config.json, loaders.generated.ts); see --force', false)
   .option('--force', 'with --init only: overwrite config.json + loaders.generated.ts and reset patching config block in i18nprune.config.*', false)
-  .option('--fix', 'auto-apply suggested patch metadata corrections without prompt', false)
+  .option('-fx, --fix', 'auto-apply suggested patch metadata corrections without prompt', false)
   .option('--top <n>', 'max inconsistency items to show in patch warning/fix preview (default: 5)')
   .option('--full', 'show full inconsistency preview in patch warnings/fix output (overrides --top)', false)
   .action(async (opts: { init?: boolean; force?: boolean; fix?: boolean; top?: string; full?: boolean }) => {
@@ -865,7 +865,7 @@ program
     'Read-only environment diagnostics (Node, rg, config, paths) — use global --json for CI',
   )
   .option(
-    '--only <list>',
+    '-on, --only <list>',
     'comma-separated checks: runtime,tools,config,paths (default: all)',
   )
   .option('--strict', 'treat warnings as failures (exit 1)', false)

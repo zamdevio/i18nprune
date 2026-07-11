@@ -3,8 +3,12 @@ import type { CommandHelpExtra } from '@/types/help/index.js';
 import { getCommandInvocationPath } from '@/utils/cli/path.js';
 import type { Command } from 'commander';
 
-const KITS_LIST_NOTE =
-  'Global list options (on the root `i18nprune` program): -T, --top <n> (default 3 per list) · -F, --full';
+const NOTE_CONFIG = 'Global -c / --config selects the project config file for this run.';
+const NOTE_JSON = 'Use global -j when this command supports machine-readable output.';
+const NOTE_LIST = 'Human list rows respect global -T / -F (default 3 unless --full).';
+const NOTE_DRY_RUN = 'Preview with -n or --dry-run before writing files.';
+const NOTE_TARGET = 'Scope with -t / --target or command-specific target flags.';
+const NOTE_KITS = 'Kits read-only reports; global -j controls JSON envelope shape on supported subcommands.';
 
 /** Invocation path keys (e.g. `validate`, `kits identical`, `locales list`). */
 const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
@@ -16,10 +20,12 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} init --preset next-intl -c ./apps/web/i18nprune.config.ts`,
     ],
     related: ['config', 'validate', 'doctor'],
+    notes: ['Use -y / --yes for non-interactive bootstrap in CI.'],
   },
   config: {
     examples: [`${CLI_NAME} config`, `${CLI_NAME} config -j`, `${CLI_NAME} config -c apps/web/i18nprune.config.ts`],
     related: ['doctor', 'init', 'providers'],
+    notes: [NOTE_CONFIG, NOTE_JSON],
   },
   validate: {
     examples: [
@@ -29,6 +35,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} validate -c apps/web/i18nprune.config.ts`,
     ],
     related: ['sync', 'generate', 'kits honest', 'locales dynamic'],
+    notes: [NOTE_CONFIG, NOTE_JSON, NOTE_LIST],
   },
   missing: {
     examples: [
@@ -37,6 +44,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} missing --target ar,ja --dry-run`,
     ],
     related: ['validate', 'sync', 'generate'],
+    notes: [NOTE_DRY_RUN, NOTE_TARGET],
   },
   sync: {
     examples: [
@@ -46,7 +54,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} sync --target all -T 1`,
     ],
     related: ['validate', 'generate', 'missing', 'patch'],
-    notes: ['Sentinel repair detail lines respect global -T / -F (default 3).'],
+    notes: [NOTE_DRY_RUN, NOTE_TARGET, NOTE_LIST],
   },
   generate: {
     examples: [
@@ -58,18 +66,17 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} generate --force --metadata --target ar`,
     ],
     related: ['sync', 'validate', 'quality', 'providers'],
-    notes: [
-      'Live sentinel repair notice prints after the translate progress bar clears; dry-run preview prints before translate.',
-      'Repair details respect global -T / -F.',
-    ],
+    notes: [NOTE_DRY_RUN, NOTE_TARGET, NOTE_JSON, NOTE_LIST],
   },
   quality: {
     examples: [`${CLI_NAME} quality`, `${CLI_NAME} quality --target ar`, `${CLI_NAME} quality -j -T 10`],
     related: ['review', 'generate', 'kits identical'],
+    notes: [NOTE_TARGET, NOTE_JSON, NOTE_LIST],
   },
   review: {
     examples: [`${CLI_NAME} review`, `${CLI_NAME} review --target ar`, `${CLI_NAME} review -j`],
     related: ['quality', 'validate', 'kits identical'],
+    notes: [NOTE_TARGET, NOTE_JSON],
   },
   cleanup: {
     examples: [
@@ -78,14 +85,17 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} cleanup --ask-per-key`,
     ],
     related: ['validate', 'missing', 'sync'],
+    notes: [NOTE_DRY_RUN, NOTE_TARGET],
   },
   languages: {
     examples: [`${CLI_NAME} languages`, `${CLI_NAME} langs --filter arabic`, `${CLI_NAME} languages -T 20`],
     related: ['generate', 'locales list', 'config'],
+    notes: [NOTE_LIST],
   },
   providers: {
     examples: [`${CLI_NAME} providers`, `${CLI_NAME} providers -j`],
     related: ['generate', 'config', 'doctor'],
+    notes: [NOTE_JSON],
   },
   locales: {
     workflows: [
@@ -93,10 +103,12 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       'Dynamic key sites      locales dynamic',
       'Remove target JSON     locales delete --target <code>',
     ],
+    notes: ['Subcommands are read-only except locales delete.'],
   },
   'locales list': {
     examples: [`${CLI_NAME} locales list`, `${CLI_NAME} locales list -T 5`, `${CLI_NAME} locales list -F`],
     related: ['languages', 'sync', 'validate'],
+    notes: [NOTE_LIST],
   },
   'locales dynamic': {
     examples: [
@@ -105,6 +117,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} locales dynamic -F`,
     ],
     related: ['validate', 'kits dynamic', 'cleanup'],
+    notes: [NOTE_LIST],
   },
   'locales delete': {
     examples: [
@@ -112,6 +125,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} locales delete --target ar --ask`,
     ],
     related: ['sync', 'cleanup', 'locales list'],
+    notes: [NOTE_TARGET, 'Destructive — use --ask on a TTY for an extra confirmation.'],
   },
   kits: {
     workflows: [
@@ -121,7 +135,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       'Dynamic sites          kits dynamic -cn dashboard',
       'Baseline snapshot      kits baseline -sb baseline.json',
     ],
-    notes: [KITS_LIST_NOTE],
+    notes: [NOTE_KITS, NOTE_LIST],
   },
   'kits dynamic': {
     examples: [
@@ -131,7 +145,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} kits dynamic -o dynamic.md`,
     ],
     related: ['locales dynamic', 'validate', 'kits honest'],
-    notes: [KITS_LIST_NOTE],
+    notes: [NOTE_KITS, NOTE_LIST],
   },
   'kits identical': {
     examples: [
@@ -142,7 +156,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} kits identical --strict`,
     ],
     related: ['quality', 'review', 'generate', 'kits honest'],
-    notes: [KITS_LIST_NOTE],
+    notes: [NOTE_KITS, NOTE_LIST],
   },
   'kits honest': {
     examples: [
@@ -151,7 +165,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} kits honest -f dashboard -o honest.md`,
     ],
     related: ['validate', 'kits pr', 'quality'],
-    notes: [KITS_LIST_NOTE],
+    notes: [NOTE_KITS, NOTE_LIST],
   },
   'kits baseline': {
     examples: [
@@ -160,7 +174,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} kits baseline -b snapshots/baseline.json`,
     ],
     related: ['kits honest', 'kits pr'],
-    notes: [KITS_LIST_NOTE],
+    notes: [NOTE_KITS],
   },
   'kits pr': {
     examples: [
@@ -170,7 +184,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} kits pr -sb pr-baseline.json`,
     ],
     related: ['kits honest', 'validate', 'report'],
-    notes: [KITS_LIST_NOTE],
+    notes: [NOTE_KITS, NOTE_LIST],
   },
   share: {
     workflows: [
@@ -178,6 +192,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       'Upload report JSON     share upload --report --from report.json',
       'List local cache       share list',
     ],
+    notes: ['Requires worker URL env or --worker-url on upload/view/delete.'],
   },
   'share upload': {
     examples: [
@@ -185,10 +200,12 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} share upload --report --from ./report.json`,
     ],
     related: ['report', 'share list', 'doctor'],
+    notes: ['Pass --project or --report; omit both only on an interactive TTY.'],
   },
   'share list': {
     examples: [`${CLI_NAME} share list`, `${CLI_NAME} share list --project <id>`],
     related: ['share upload', 'share view', 'doctor'],
+    notes: ['Reads upload rows from share.json beside the project cache.'],
   },
   'share view': {
     examples: [
@@ -196,6 +213,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} share view --report <id> -v`,
     ],
     related: ['share list', 'share upload', 'report'],
+    notes: ['Fetches live worker metadata for a hosted id.'],
   },
   'share delete': {
     examples: [
@@ -203,6 +221,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} share delete --report <id> --local-only`,
     ],
     related: ['share list', 'share view', 'doctor'],
+    notes: ['Use -lo / --local-only to drop cache metadata without worker DELETE.'],
   },
   report: {
     examples: [
@@ -211,14 +230,17 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       `${CLI_NAME} report --from ./cached-report.json`,
     ],
     related: ['validate', 'share upload', 'kits pr'],
+    notes: [NOTE_JSON, 'Use --from to render a saved project report JSON without rescanning.'],
   },
   patch: {
     examples: [`${CLI_NAME} patch`, `${CLI_NAME} patch --fix`, `${CLI_NAME} patch --init`, `${CLI_NAME} patch --top 10`],
     related: ['sync', 'generate', 'doctor'],
+    notes: ['Analyze first; use --fix to apply suggested metadata corrections.'],
   },
   doctor: {
     examples: [`${CLI_NAME} doctor`, `${CLI_NAME} doctor --strict`, `${CLI_NAME} doctor -j`],
     related: ['config', 'init', 'providers'],
+    notes: [NOTE_JSON, 'Read-only diagnostics — use --strict to fail on warnings.'],
   },
   version: {
     examples: [`${CLI_NAME} version`, `${CLI_NAME} -V`, `${CLI_NAME} version --check`],

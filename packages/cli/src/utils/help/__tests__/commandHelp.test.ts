@@ -25,7 +25,7 @@ describe('formatCommandHelpExtras', () => {
     const raw = formatCommandHelpExtras(identical, CLI_NAME);
     expect(raw).toContain('kits identical -t ar');
     expect(raw).toContain('Notes:');
-    expect(raw).toContain('-T, --top');
+    expect(raw).toContain('global -T / -F');
   });
 
   it('returns group workflows for locales', () => {

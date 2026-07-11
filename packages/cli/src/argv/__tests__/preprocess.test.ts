@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { preprocessArgv, resolveHelpTopicToken } from '../index.js';
+import { preprocessArgv } from '../index.js';
+import { lookupFlagAlias } from '../flagAliases.js';
 
 function argv(...args: string[]): string[] {
   return ['node', '/bin/i18nprune', ...args];
@@ -45,7 +46,7 @@ describe('preprocessArgv', () => {
     );
   });
 
-  it('expands global -y, -n, and -m flags', () => {
+  it('expands global -y, -n, -m flags', () => {
     expect(preprocessArgv(argv('init', '-y'))).toEqual(argv('init', '--yes'));
     expect(preprocessArgv(argv('sync', '-n', '--target', 'ar'))).toEqual(
       argv('sync', '--dry-run', '--target', 'ar'),
@@ -54,12 +55,36 @@ describe('preprocessArgv', () => {
       argv('generate', '--metadata', '--target', 'ar'),
     );
   });
+
+  it('expands new global logging and config short flags', () => {
+    expect(preprocessArgv(argv('validate', '-ncl'))).toEqual(argv('validate', '--no-color'));
+    expect(preprocessArgv(argv('validate', '-ld', 'locales'))).toEqual(
+      argv('validate', '--locales-dir', 'locales'),
+    );
+    expect(preprocessArgv(argv('validate', '-cp', 'fast'))).toEqual(
+      argv('validate', '--cache-profile', 'fast'),
+    );
+  });
+
+  it('scopes -f to --force on generate and --focus on kits', () => {
+    expect(preprocessArgv(argv('generate', '-f'))).toEqual(argv('generate', '--force'));
+    expect(preprocessArgv(argv('kits', 'honest', '-f', 'router'))).toEqual(
+      argv('kits', 'honest', '--focus', 'router'),
+    );
+  });
+
+  it('expands generate and sync command-scoped flags', () => {
+    expect(preprocessArgv(argv('generate', '-P', 'llm', '-R'))).toEqual(
+      argv('generate', '--provider', 'llm', '--resume'),
+    );
+    expect(preprocessArgv(argv('sync', '-nrsl', '-sm'))).toEqual(
+      argv('sync', '--no-repair-sentinel-leaks', '--strip-metadata'),
+    );
+  });
 });
 
-describe('resolveHelpTopicToken', () => {
-  it('resolves top-level and group subcommand aliases', () => {
-    expect(resolveHelpTopicToken(null, 'loc')).toBe('locales');
-    expect(resolveHelpTopicToken('locales', 'dyn')).toBe('dynamic');
-    expect(resolveHelpTopicToken('share', 'up')).toBe('upload');
+describe('lookupFlagAlias', () => {
+  it('returns undefined for unknown shorts', () => {
+    expect(lookupFlagAlias('-zzz', 'validate')).toBeUndefined();
   });
 });

@@ -14,6 +14,8 @@ const chalkStyle = {
   err: (s: string) => chalk.red(s),
   magenta: (s: string) => chalk.magenta(s),
   blue: (s: string) => chalk.blue(s),
+  /** Bright blue — CLI binary name in help Examples (pnpm-style). */
+  brand: (s: string) => chalk.blueBright(s),
   /** Orange — tip / hint channel (distinct from yellow warn). */
   tip: (s: string) => chalk.hex('#FF8C00')(s),
 };
@@ -28,6 +30,7 @@ const plainStyle = {
   err: identity,
   magenta: identity,
   blue: identity,
+  brand: identity,
   tip: identity,
 };
 
