@@ -252,6 +252,16 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
   const rows: GenerateLeafRow[] = [];
   const emptySourceLeafPaths: string[] = [];
   for (const leaf of input.sourceLeaves) {
+    if (input.sentinelLeakPaths?.has(leaf.path)) {
+      if (isPlaceholderOnlyLeaf(leaf.value)) {
+        rows.push({ k: 'placeholder_copy' });
+      } else if (input.dryRun) {
+        rows.push({ k: 'dry' });
+      } else {
+        rows.push({ k: 'translate' });
+      }
+      continue;
+    }
     if (isPreservePath(leaf.path, input.preserve)) {
       rows.push({ k: 'preserve' });
       continue;

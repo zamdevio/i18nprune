@@ -34,6 +34,12 @@ import {
   sourceLocaleCodeFromContext,
 } from '../../shared/locales/targets/index.js';
 import { formatGenerateTranslateProgress } from '../translateProgressSummary.js';
+import { emitGenerateSentinelRepairHumanMessages } from '../sentinelHumanEmit.js';
+import {
+  buildGenerateSentinelRepairRecords,
+  planSentinelLeakGenerateRepairs,
+  scanLocaleForSentinelLeaks,
+} from '../../shared/placeholders/sentinelLeak.js';
 import { listResumeTranslationJobs, translateResumeCandidateLeaves } from '../localeTranslate.js';
 import type { Issue } from '../../types/json/envelope/index.js';
 import type { TranslationProviderId } from '../../types/translator/providers.js';
@@ -152,6 +158,25 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
     });
 
     try {
+      const repairSentinelLeaks = opts.noRepairSentinelLeaks !== true;
+      const sentinelHits =
+        repairSentinelLeaks && targetRaw !== null && targetRaw !== undefined
+          ? scanLocaleForSentinelLeaks(targetRaw, { localeCode: target })
+          : [];
+      const plannedSentinelRepairs = planSentinelLeakGenerateRepairs(sentinelHits, sourceMap);
+      const previewRepairs =
+        plannedSentinelRepairs.length > 0
+          ? buildGenerateSentinelRepairRecords(sentinelHits, plannedSentinelRepairs, target, targetPath)
+          : [];
+      if (opts.dryRun && previewRepairs.length > 0) {
+        emitGenerateSentinelRepairHumanMessages(host.emit!, host.runId, {
+          repairs: previewRepairs,
+          localeCode: target,
+          dryRun: true,
+          listLimit: host.listLimit,
+        });
+      }
+
       const resumePlan = listResumeTranslationJobs({
         tLeaves,
         next: resumeLocaleJson ?? targetRaw,
@@ -248,6 +273,14 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
       winnerProviderId = providerId;
       perTargetStreakIssues = streakGuard.flushIssues();
       session.finish();
+      if (!opts.dryRun && previewRepairs.length > 0) {
+        emitGenerateSentinelRepairHumanMessages(host.emit!, host.runId, {
+          repairs: previewRepairs,
+          localeCode: target,
+          dryRun: false,
+          listLimit: host.listLimit,
+        });
+      }
 
       const wallMs = Date.now() - input.targetStarted;
       emitGenerateMessage(host, 'info', formatGenerateTranslateProgress(target, wallMs, translateStats));

@@ -1,5 +1,6 @@
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { targetLocaleCoversAllSourceLeaves } from '../shared/json/targetCoverage.js';
+import { scanLocaleForSentinelLeaks } from '../shared/placeholders/sentinelLeak.js';
 import { existsRuntimeFsSync } from '../runtime/helpers/sync/fs.js';
 import type { LocaleSegmentWritePlan } from '../types/locales/segmentWritePlan.js';
 import type { TranslationSurfaceLeaf } from '../types/locales/leaves/translationSurface.js';
@@ -14,6 +15,8 @@ export function assessGenerateTargetPreflight(input: {
   writePlan: LocaleSegmentWritePlan;
   existingRaw: unknown | null;
   fs: RuntimeFsPort;
+  /** When set, stale `__I18NPRUNE_*` leaks prevent `fully_complete` preflight. */
+  localeCode?: string;
 }): GenerateTargetPreflight {
   const missingSegmentPaths = input.writePlan.segments
     .filter((segment) => !existsRuntimeFsSync(segment.absolutePath, input.fs))
@@ -49,6 +52,12 @@ export function assessGenerateTargetPreflight(input: {
     input.existingRaw !== undefined &&
     targetLocaleCoversAllSourceLeaves(input.sourceLeaves, input.existingRaw)
   ) {
+    if (
+      input.localeCode &&
+      scanLocaleForSentinelLeaks(input.existingRaw, { localeCode: input.localeCode }).length > 0
+    ) {
+      return { status: 'proceed', missingSegmentPaths: [], missingKeyPaths: [] };
+    }
     return { status: 'fully_complete', missingSegmentPaths: [], missingKeyPaths: [] };
   }
 

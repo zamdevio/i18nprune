@@ -1,11 +1,30 @@
 import { describe, expect, it, vi } from 'vitest';
 import { listResumeTranslationJobs, translateResumeCandidateLeaves } from '../../localeTranslate.js';
+import { isResumeCandidateLeaf } from '../../resume/eligibleResumeLeaves.js';
 import { resolveReferenceConfig } from '../../../shared/reference/resolveConfig.js';
 import type { TranslationSurfaceLeaf } from '../../../types/locales/leaves/translationSurface.js';
 
 const eff = resolveReferenceConfig('generate', {});
 
 describe('generate --resume with placeholder sentinel leaks', () => {
+  it('treats sentinel leaks as candidates even on preserve paths', () => {
+    expect(
+      isResumeCandidateLeaf({
+        leaf: {
+          path: 'seo.titleTemplate',
+          value: '__ I18NPRUNE_0 __ · __ I18NPRUNE_1 __',
+          shape: 'legacy_string',
+          confidence: null,
+          needsReview: null,
+        },
+        sourceMap: new Map([['seo.titleTemplate', '{{pageTitle}} · {{siteName}}']]),
+        refCtx: { uncertainPrefixes: [] },
+        eff,
+        preserve: { copyKeys: ['seo.titleTemplate'] },
+      }),
+    ).toBe(true);
+  });
+
   it('queues translate jobs for leaked prose using source text', () => {
     const tLeaves: TranslationSurfaceLeaf[] = [
       {

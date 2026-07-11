@@ -147,8 +147,16 @@ export function formatGenerateSentinelLeakNotice(input: {
   dryRun: boolean;
 }): string {
   const total = input.copyCount + input.translateCount;
-  const verb = input.dryRun ? 'Would re-translate' : 'Re-translated';
-  return `${verb} ${String(total)} placeholder sentinel leak(s) in ${input.localeCode} (${String(input.copyCount)} copied, ${String(input.translateCount)} translated).`;
+  const verb = input.dryRun ? 'Would repair' : 'Repaired';
+  const parts: string[] = [];
+  if (input.copyCount > 0) {
+    parts.push(`${String(input.copyCount)} placeholder-copied`);
+  }
+  if (input.translateCount > 0) {
+    parts.push(`${String(input.translateCount)} translated`);
+  }
+  const breakdown = parts.length > 0 ? parts.join(', ') : '0 actions';
+  return `${verb} ${String(total)} placeholder sentinel leak(s) in ${input.localeCode} (${breakdown}).`;
 }
 
 export function sentinelLeakSuggestionCommands(localeCode: string): string[] {

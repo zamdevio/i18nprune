@@ -60,11 +60,10 @@ import { buildGenerateSourceLeavesFromSchema } from './buildSourceLeaves.js';
 import { workingLocaleForGenerate, activeSourceLeavesForGenerate } from './missingTargetLeaves.js';
 import {
   buildGenerateSentinelRepairRecords,
-  formatGenerateSentinelLeakNotice,
-  formatSentinelRepairDetailLine,
   planSentinelLeakGenerateRepairs,
   scanLocaleForSentinelLeaks,
 } from '../shared/placeholders/sentinelLeak.js';
+import { emitGenerateSentinelRepairHumanMessages } from './sentinelHumanEmit.js';
 import { runGenerateResumeLocale } from './resume/run.js';
 import {
   bindGenerateTranslateCache,
@@ -298,6 +297,7 @@ export async function runGenerate(
         writePlan,
         existingRaw,
         fs: ctx.adapters.fs,
+        localeCode: target,
       });
       const canPrompt = !host.shouldSkipInteractivePrompts() && host.canAskInteractive();
       if (canPrompt) {
@@ -564,6 +564,19 @@ export async function runGenerate(
       lastIdentityStreakGuard = streakGuard;
 
       try {
+        const dryRunRepairs =
+          opts.dryRun && repairSentinelLeaks && plannedSentinelRepairs.length > 0
+            ? buildGenerateSentinelRepairRecords(sentinelHits, plannedSentinelRepairs, target, targetPath)
+            : [];
+        if (dryRunRepairs.length > 0) {
+          sentinelRepairs.push(...dryRunRepairs);
+          emitGenerateSentinelRepairHumanMessages(host.emit!, host.runId, {
+            repairs: dryRunRepairs,
+            localeCode: target,
+            dryRun: true,
+            listLimit: host.listLimit,
+          });
+        }
         emitProgress({
           type: 'run.progress.generate',
           phase: 'translate',
@@ -605,47 +618,15 @@ export async function runGenerate(
         working = translateResult.next;
         preserveCount = translateResult.preserveCount;
         paritySkip = translateResult.paritySkip;
-        {
-          const targetRepairs: GenerateSentinelRepairRecord[] = opts.dryRun
-            ? buildGenerateSentinelRepairRecords(sentinelHits, plannedSentinelRepairs, target, targetPath)
-            : translateResult.sentinelRepairs.map((repair) => ({
-                ...repair,
-                localeCode: target,
-                localeFile: targetPath,
-              }));
-          if (targetRepairs.length > 0) {
-            sentinelRepairs.push(...targetRepairs);
-            const copyCount = targetRepairs.filter((repair) => repair.mode === 'placeholder_copy').length;
-            const translateCount = targetRepairs.filter((repair) => repair.mode === 'translate').length;
-            emitGenerateMessage(
-              host,
-              'notice',
-              formatGenerateSentinelLeakNotice({
-                localeCode: target,
-                copyCount,
-                translateCount,
-                dryRun: Boolean(opts.dryRun),
-              }),
-            );
-            for (const repair of targetRepairs.slice(0, 5)) {
-              emitGenerateMessage(
-                host,
-                'detail',
-                formatSentinelRepairDetailLine({
-                  path: repair.path,
-                  mode: repair.mode,
-                  from: repair.from,
-                  to: repair.to ?? repair.sourceValue,
-                }),
-              );
-            }
-            if (targetRepairs.length > 5) {
-              emitGenerateMessage(
-                host,
-                'detail',
-                `  … and ${String(targetRepairs.length - 5)} more sentinel repair(s)`,
-              );
-            }
+        let liveSentinelRepairs: GenerateSentinelRepairRecord[] = [];
+        if (!opts.dryRun) {
+          liveSentinelRepairs = translateResult.sentinelRepairs.map((repair) => ({
+            ...repair,
+            localeCode: target,
+            localeFile: targetPath,
+          }));
+          if (liveSentinelRepairs.length > 0) {
+            sentinelRepairs.push(...liveSentinelRepairs);
           }
         }
         translateResult.translateStats = {
@@ -660,6 +641,14 @@ export async function runGenerate(
         targetStreakIssues = streakGuard.flushIssues();
         lastIdentityStreakGuard = undefined;
         session.finish();
+        if (liveSentinelRepairs.length > 0) {
+          emitGenerateSentinelRepairHumanMessages(host.emit!, host.runId, {
+            repairs: liveSentinelRepairs,
+            localeCode: target,
+            dryRun: false,
+            listLimit: host.listLimit,
+          });
+        }
 
         {
           const wallMs = Date.now() - targetStarted;

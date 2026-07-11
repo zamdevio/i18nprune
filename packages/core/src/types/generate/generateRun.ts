@@ -106,6 +106,9 @@ export type GenerateHostHooks = {
   printPreserveParityReport: (preserveCount: number, paritySkip: number) => void;
   printFinalizeSummary: (input: GenerateFinalizeSummaryInput) => void;
 
+  /** Bounded human list rows (global `--top` / `--full`); default 3 when unset. */
+  listLimit?: number;
+
   onIdentityAbortNotice: (err: IdentityAbortError, opts: { dryRun: boolean }) => void;
 };
 

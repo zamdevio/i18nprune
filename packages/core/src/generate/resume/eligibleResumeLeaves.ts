@@ -23,13 +23,12 @@ export function isResumeCandidateLeaf(input: GenerateResumeCandidateLeafInput): 
   const { leaf, sourceMap, refCtx, eff, preserve, parity } = input;
   const srcVal = sourceMap.get(leaf.path);
   if (srcVal === undefined) return false;
+  if (isSentinelLeakPending(leaf.value)) return true;
   if (eff.respectPreserve && isPreservePath(leaf.path, preserve)) return false;
   if (eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only') {
     if (pathUnderAnyUncertainPrefix(leaf.path, refCtx.uncertainPrefixes)) return false;
   }
   if (isParityExcluded(leaf.path, leaf.value, parity)) return false;
-
-  if (isSentinelLeakPending(leaf.value)) return true;
 
   const useMeta = leaf.shape === 'structured' && leaf.structuredMetaComplete === true;
   if (useMeta) {

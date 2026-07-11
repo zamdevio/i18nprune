@@ -9,6 +9,49 @@ import { resolveTargetLocaleWritePlan } from '../../shared/locales/targets/segme
 import { assessGenerateTargetPreflight } from '../assessTargetPreflight.js';
 
 describe('assessGenerateTargetPreflight', () => {
+  it('returns proceed when target is complete but has placeholder sentinel leaks', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-preflight-leak-'));
+    try {
+      const targetPath = path.join(dir, 'ar.json');
+      fs.writeFileSync(path.join(dir, 'en.json'), JSON.stringify({ meta: 'x', title: 'done' }), 'utf8');
+      fs.writeFileSync(
+        targetPath,
+        JSON.stringify({
+          meta: '__I18NPRUNE_0__ · __I18NPRUNE_1__',
+          title: 'done',
+        }),
+        'utf8',
+      );
+      const config = parseI18nPruneConfig({
+        locales: { source: 'en', directory: 'locales' },
+        src: 'src',
+        functions: ['t'],
+      });
+      const ctx = createCoreContext({
+        config,
+        adapters: createNodeRuntimeAdapters(),
+        env: {},
+        paths: {
+          sourceLocale: path.join(dir, 'en.json'),
+          localesDir: dir,
+          srcRoot: path.join(dir, 'src'),
+        },
+      });
+      const writePlan = resolveTargetLocaleWritePlan(ctx, 'ar');
+      const existingRaw = JSON.parse(fs.readFileSync(targetPath, 'utf8')) as object;
+      const out = assessGenerateTargetPreflight({
+        sourceLeaves: [{ path: 'meta' }, { path: 'title' }],
+        writePlan,
+        existingRaw,
+        fs: ctx.adapters.fs,
+        localeCode: 'ar',
+      });
+      expect(out.status).toBe('proceed');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('detects partial when segment files or keys are missing', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-preflight-'));
     try {

@@ -16,6 +16,7 @@ import type { GenerateFinalizeSummaryInput, GenerateHostHooks, RunEvent, RunOpti
 
 import { canAsk } from '@/shared/ask/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
+import { resolveCliListWindow } from '@/shared/context/listWindow.js';
 import { rows, up } from '@/shared/cursor/index.js';
 import { createGenerateTickProgressRelay, createSessionProgress } from '@/shared/progress/index.js';
 import {
@@ -58,6 +59,7 @@ function printGenerateFinalizeSummary(opts: GenerateFinalizeSummaryInput, run?: 
 
 export function buildGenerateHostHooks(ctx: Context, runtime: GenerateRuntime): GenerateHostHooks {
   const { emit, runId } = runtime;
+  const listLimit = resolveCliListWindow(ctx.config).limit;
   const emitProgress = (
     e: Omit<Extract<RunEvent, { type: 'run.progress.generate' }>, 'op' | 'runId' | 'at'>,
   ): void => {
@@ -67,6 +69,7 @@ export function buildGenerateHostHooks(ctx: Context, runtime: GenerateRuntime): 
     emitProgress,
     emit,
     runId,
+    listLimit,
 
     createSession: () => createSessionProgress({ quiet: ctx.run.quiet, json: ctx.run.json }),
 
