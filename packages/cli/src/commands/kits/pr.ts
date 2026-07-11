@@ -7,6 +7,19 @@ import {
   formatKitsHumanText,
   logKitsSavedBaseline,
 } from '@/commands/kits/lib/emit.js';
+import {
+  formatKitsBlockquoteMd,
+  formatKitsBlockquoteTerminal,
+  formatKitsDynamicGroupsMd,
+  formatKitsDynamicGroupsTerminal,
+  formatKitsDynamicSampleTerminal,
+  formatKitsDynamicSamplesSectionMd,
+  formatKitsHeadingMd,
+  formatKitsHeadingTerminal,
+  formatKitsListOmittedTerminal,
+  formatKitsMetricMd,
+  formatKitsMetricTerminal,
+} from '@/commands/kits/lib/humanFormat.js';
 import { resolveKitsListWindow, listModeLabel } from '@/commands/kits/lib/list.js';
 import { saveKitsBaselineReport } from '@/commands/kits/lib/baseline.js';
 import type { KitsPrOptions } from '@/types/command/kits/index.js';
@@ -49,20 +62,57 @@ export async function kitsPr(opts: KitsPrOptions): Promise<void> {
         )
       : sites;
     const listed = listWindow.full ? focused : focused.slice(0, listWindow.top);
+    const samplesTitle = `Dynamic samples${listWindow.full ? ' (full)' : ` (${listModeLabel(listWindow.full, listWindow.top)})`}`;
 
-    const md = [
-      '## i18nprune Audit',
+    const markdown = [
+      formatKitsHeadingMd(2, 'i18nprune Audit'),
       '',
-      `- Missing literal keys: **${summary.missingLiteralKeys}**`,
-      `- Dynamic key sites: **${summary.dynamic}**`,
-      `- Source-identical leaves: **${summary.sourceIdentical}**`,
+      formatKitsMetricMd('Missing literal keys', summary.missingLiteralKeys),
+      formatKitsMetricMd('Dynamic key sites', summary.dynamic),
+      formatKitsMetricMd('Source-identical leaves', summary.sourceIdentical),
       '',
-      `- Dynamic groups: \`${JSON.stringify(groups)}\``,
+      formatKitsDynamicGroupsMd(groups),
       '',
-      '> Dynamic sites are non-literal — missing=0 does not mean dynamic prefixes are fully translated.',
+      formatKitsBlockquoteMd(
+        'Dynamic sites are non-literal — missing=0 does not mean dynamic prefixes are fully translated.',
+      ),
       '',
-      `### Dynamic samples${listWindow.full ? ' (full)' : ` (${listModeLabel(listWindow.full, listWindow.top)})`}`,
-      ...listed.map((s) => `- [${s.kind}] \`${s.filePath}:${s.line}\` — \`${s.preview}\``),
+      ...formatKitsDynamicSamplesSectionMd({
+        title: samplesTitle,
+        sites: listed,
+        shownCount: listed.length,
+        totalCount: focused.length,
+      }),
+    ].join('\n');
+
+    const terminal = [
+      formatKitsHeadingTerminal('i18nprune Audit'),
+      '',
+      formatKitsMetricTerminal('Missing literal keys', summary.missingLiteralKeys),
+      formatKitsMetricTerminal('Dynamic key sites', summary.dynamic),
+      formatKitsMetricTerminal('Source-identical leaves', summary.sourceIdentical),
+      '',
+      formatKitsDynamicGroupsTerminal(groups),
+      '',
+      formatKitsBlockquoteTerminal(
+        'Dynamic sites are non-literal — missing=0 does not mean dynamic prefixes are fully translated.',
+      ),
+      '',
+      formatKitsHeadingTerminal(samplesTitle),
+      '',
+      ...(listed.length === 0
+        ? ['- (no dynamic sites)']
+        : [
+            ...listed.map((site) => formatKitsDynamicSampleTerminal(site)),
+            ...(focused.length > listed.length
+              ? [
+                  formatKitsListOmittedTerminal(
+                    `  · ${String(listed.length)} dynamic site(s) shown`,
+                    focused.length - listed.length,
+                  ),
+                ]
+              : []),
+          ]),
     ].join('\n');
 
     const data = {
@@ -79,7 +129,7 @@ export async function kitsPr(opts: KitsPrOptions): Promise<void> {
     if (opts.saveBaseline) {
       const saveContent = context.run.json
         ? emitKitsJsonResult('kits-pr', data, context, { issues: data.issues })
-        : formatKitsHumanText(md);
+        : formatKitsHumanText(markdown);
       const saved = saveKitsBaselineReport(projectRoot, opts.saveBaseline, saveContent, context.run.json);
       logKitsSavedBaseline(saved, context);
     }
@@ -88,7 +138,8 @@ export async function kitsPr(opts: KitsPrOptions): Promise<void> {
       data,
       outPath: opts.out,
       issues: data.issues,
-      humanText: md,
+      markdownText: markdown,
+      terminalText: terminal,
       summaryCounts: {
         missing: summary.missingLiteralKeys,
         dynamic: summary.dynamic,

@@ -126,6 +126,15 @@ describe('sentinelLeak', () => {
     expect(rows[1]?.to).toBeUndefined();
   });
 
+  it('scanLocaleForSentinelLeaks detects space-before-index MyMemory variant', () => {
+    const hits = scanLocaleForSentinelLeaks(
+      { meta: { value: '__I18NPRUNE _0__ · __I18NPRUNE _1__' } },
+      { localeCode: 'ar' },
+    );
+    expect(hits).toHaveLength(1);
+    expect(hits[0]!.path).toBe('meta');
+  });
+
   it('issuesFromSentinelLeakHits groups by locale with paths and suggestion commands', () => {
     const issues = issuesFromSentinelLeakHits([
       { path: 'a', value: '__I18NPRUNE_0__', localeCode: 'ar' },

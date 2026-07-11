@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { runReview } from '@i18nprune/core';
+import { formatListShownOmitted } from '@i18nprune/core';
 import { style } from '@/utils/style/index.js';
 import { resolveKitsBundle } from '@/commands/kits/lib/context.js';
 import { flattenLocaleLeafValues, readLocaleJson } from '@/commands/kits/lib/locale.js';
@@ -10,6 +11,14 @@ import {
   formatKitsHumanText,
   logKitsSavedBaseline,
 } from '@/commands/kits/lib/emit.js';
+import {
+  formatKitsHeadingMd,
+  formatKitsHeadingTerminal,
+  formatKitsIdenticalRowTerminal,
+  formatKitsListOmittedTerminal,
+  formatKitsMetricMd,
+  formatKitsMetricTerminal,
+} from '@/commands/kits/lib/humanFormat.js';
 import { evaluateKitsPolicy, parseFailOnList } from '@/commands/kits/lib/policy.js';
 import { resolveKitsListWindow, listModeLabel } from '@/commands/kits/lib/list.js';
 import { saveKitsBaselineReport } from '@/commands/kits/lib/baseline.js';
@@ -103,30 +112,45 @@ export async function kitsIdentical(opts: KitsIdenticalOptions): Promise<void> {
       policy: { failOn, reasons: policyReasons },
     };
 
-    const lines: string[] = [
-      `${style.magenta(style.bold('Source locale'))}: ${sourceCode}`,
-      `${style.accent(style.bold('Total source-identical leaves'))}: ${total}`,
-      `${style.accent(style.bold('List mode'))}: ${data.listMode}`,
+    const mdLines: string[] = [
+      formatKitsHeadingMd(2, 'Source-identical leaves'),
+      '',
+      formatKitsMetricMd('Source locale', sourceCode),
+      formatKitsMetricMd('Total source-identical leaves', total),
+      formatKitsMetricMd('List mode', data.listMode),
+    ];
+    const terminalLines: string[] = [
+      formatKitsHeadingTerminal('Source-identical leaves'),
+      '',
+      formatKitsMetricTerminal('Source locale', sourceCode),
+      formatKitsMetricTerminal('Total source-identical leaves', total),
+      formatKitsMetricTerminal('List mode', data.listMode),
     ];
     for (const locale of report) {
-      lines.push('', `${style.magenta(style.bold(`[${locale.localeCode}]`))} ${locale.file}`);
-      lines.push(`${style.accent(style.bold('count'))}=${locale.identicalCount}`);
+      mdLines.push('', `### ${locale.localeCode}`, '', formatKitsMetricMd('count', locale.identicalCount), '');
+      terminalLines.push('', style.bold(`[${locale.localeCode}] ${locale.file}`), formatKitsMetricTerminal('count', locale.identicalCount));
       for (const row of locale.identicalPaths) {
-        lines.push(`- ${row.path} = ${JSON.stringify(row.value)}`);
+        mdLines.push(`- \`${row.path}\` = ${JSON.stringify(row.value)}`);
+        terminalLines.push(formatKitsIdenticalRowTerminal(row.path, row.value));
       }
-      if (locale.identicalCount > locale.listedCount) {
-        lines.push(`... ${locale.identicalCount - locale.listedCount} more`);
+      const omitted = locale.identicalCount - locale.listedCount;
+      if (omitted > 0) {
+        const prefix = `  · ${String(locale.listedCount)} path(s) shown for ${locale.localeCode}`;
+        mdLines.push(formatListShownOmitted(prefix, omitted));
+        terminalLines.push(formatKitsListOmittedTerminal(prefix, omitted));
       }
     }
     if (policyReasons.length > 0) {
-      lines.push('', `${style.err(style.bold('Policy failure'))}: ${policyReasons.join('; ')}`);
+      mdLines.push('', `> Policy failure: ${policyReasons.join('; ')}`);
+      terminalLines.push('', style.err(`${style.bold('Policy failure')}: ${policyReasons.join('; ')}`));
     }
-    const humanText = lines.join('\n');
+    const markdown = mdLines.join('\n');
+    const terminal = terminalLines.join('\n');
 
     if (opts.saveBaseline) {
       const saveContent = context.run.json
         ? emitKitsJsonResult('kits-identical', data, context, { issues: data.issues })
-        : formatKitsHumanText(humanText);
+        : formatKitsHumanText(markdown);
       const saved = saveKitsBaselineReport(projectRoot, opts.saveBaseline, saveContent, context.run.json);
       logKitsSavedBaseline(saved, context);
     }
@@ -135,7 +159,8 @@ export async function kitsIdentical(opts: KitsIdenticalOptions): Promise<void> {
       data,
       outPath: opts.out,
       issues: data.issues,
-      humanText,
+      markdownText: markdown,
+      terminalText: terminal,
       summaryCounts: { sourceIdentical: total },
       policyFailed: policyReasons.length > 0,
     });

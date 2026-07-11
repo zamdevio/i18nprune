@@ -7,6 +7,14 @@ import {
   formatKitsHumanText,
   logKitsSavedBaseline,
 } from '@/commands/kits/lib/emit.js';
+import {
+  formatKitsBlockquoteMd,
+  formatKitsBlockquoteTerminal,
+  formatKitsHeadingMd,
+  formatKitsHeadingTerminal,
+  formatKitsMetricMd,
+  formatKitsMetricTerminal,
+} from '@/commands/kits/lib/humanFormat.js';
 import { loadKitsBaselineSignal, saveKitsBaselineReport } from '@/commands/kits/lib/baseline.js';
 import type { KitsSharedOptions } from '@/types/command/kits/index.js';
 
@@ -47,22 +55,46 @@ export async function kitsBaseline(opts: KitsSharedOptions): Promise<void> {
       };
     }
 
-    const md = [
-      '## i18nprune Baseline',
+    const markdown = [
+      formatKitsHeadingMd(2, 'i18nprune Baseline'),
       '',
-      `- Missing literal keys: **${signal.missingLiteralKeys}**`,
-      `- Dynamic key sites: **${signal.dynamicKeySites}**`,
-      `- Source-identical leaves: **${signal.sourceIdenticalLeaves}**`,
+      formatKitsMetricMd('Missing literal keys', signal.missingLiteralKeys),
+      formatKitsMetricMd('Dynamic key sites', signal.dynamicKeySites),
+      formatKitsMetricMd('Source-identical leaves', signal.sourceIdenticalLeaves),
       '',
-      '> Dynamic count reflects non-literal call sites — not proof of complete translations under dynamic prefixes.',
+      formatKitsBlockquoteMd(
+        'Dynamic count reflects non-literal call sites — not proof of complete translations under dynamic prefixes.',
+      ),
       ...(delta
         ? [
             '',
-            '### Delta vs baseline',
+            formatKitsHeadingMd(3, 'Delta vs baseline'),
             '',
-            `- missingLiteralKeys: \`${delta.missingLiteralKeys}\``,
-            `- dynamicKeySites: \`${delta.dynamicKeySites}\``,
-            `- sourceIdenticalLeaves: \`${delta.sourceIdenticalLeaves}\``,
+            formatKitsMetricMd('missingLiteralKeys Δ', delta.missingLiteralKeys),
+            formatKitsMetricMd('dynamicKeySites Δ', delta.dynamicKeySites),
+            formatKitsMetricMd('sourceIdenticalLeaves Δ', delta.sourceIdenticalLeaves),
+          ]
+        : []),
+    ].join('\n');
+
+    const terminal = [
+      formatKitsHeadingTerminal('i18nprune Baseline'),
+      '',
+      formatKitsMetricTerminal('Missing literal keys', signal.missingLiteralKeys),
+      formatKitsMetricTerminal('Dynamic key sites', signal.dynamicKeySites),
+      formatKitsMetricTerminal('Source-identical leaves', signal.sourceIdenticalLeaves),
+      '',
+      formatKitsBlockquoteTerminal(
+        'Dynamic count reflects non-literal call sites — not proof of complete translations under dynamic prefixes.',
+      ),
+      ...(delta
+        ? [
+            '',
+            formatKitsHeadingTerminal('Delta vs baseline'),
+            '',
+            formatKitsMetricTerminal('missingLiteralKeys Δ', delta.missingLiteralKeys),
+            formatKitsMetricTerminal('dynamicKeySites Δ', delta.dynamicKeySites),
+            formatKitsMetricTerminal('sourceIdenticalLeaves Δ', delta.sourceIdenticalLeaves),
           ]
         : []),
     ].join('\n');
@@ -75,11 +107,10 @@ export async function kitsBaseline(opts: KitsSharedOptions): Promise<void> {
       issues: [...v.issues, ...q.issues],
     };
 
-    let saveContent: string | undefined;
     if (opts.saveBaseline) {
-      saveContent = context.run.json
+      const saveContent = context.run.json
         ? emitKitsJsonResult('kits-baseline', data, context, { issues: data.issues })
-        : formatKitsHumanText(md);
+        : formatKitsHumanText(markdown);
       const saved = saveKitsBaselineReport(projectRoot, opts.saveBaseline, saveContent, context.run.json);
       logKitsSavedBaseline(saved, context);
     }
@@ -88,7 +119,8 @@ export async function kitsBaseline(opts: KitsSharedOptions): Promise<void> {
       data,
       outPath: opts.out,
       issues: data.issues,
-      humanText: md,
+      markdownText: markdown,
+      terminalText: terminal,
       summaryCounts: {
         missing: signal.missingLiteralKeys,
         dynamic: signal.dynamicKeySites,

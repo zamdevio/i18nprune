@@ -32,10 +32,19 @@ describe('placeholders', () => {
 
   it('detects spaced sentinel leaks after failed restore', () => {
     expect(containsPlaceholderSentinelLeak('__ I18NPRUNE_0 __')).toBe(true);
+    expect(containsPlaceholderSentinelLeak('__I18NPRUNE _0__ · __I18NPRUNE _1__')).toBe(true);
     expect(containsPlaceholderSentinelLeak('{{name}}')).toBe(false);
+    expect(containsPlaceholderSentinelLeak('__I18NPRUNE_MISSING__')).toBe(false);
     expect(() => validateRestored('{{a}}', '__ I18NPRUNE_0 __', ['a'])).toThrow(
       /placeholder sentinels/,
     );
+  });
+
+  it('restores MyMemory-style space-before-index sentinels', () => {
+    const source = '{{who}} · {{status}}';
+    const { originals } = mask(source);
+    const mangled = '__I18NPRUNE _0__ · __I18NPRUNE _1__';
+    expect(restore(mangled, originals)).toBe(source);
   });
 
   it('isPlaceholderOnlyLeaf', () => {

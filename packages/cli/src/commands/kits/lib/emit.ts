@@ -65,11 +65,17 @@ export function finishKitsRun<K extends KitsCommandId, D>(
     outPath?: string;
     issues?: Issue[];
     ok?: boolean;
+    /** Markdown for `--out` / `-sb` file saves. */
+    markdownText?: string;
+    /** Pre-styled terminal body; defaults to {@link formatKitsTerminalMarkdown} on `markdownText`. */
+    terminalText?: string;
+    /** @deprecated Use `markdownText`. */
     humanText?: string;
     summaryCounts?: Record<string, number>;
     policyFailed?: boolean;
   },
 ): void {
+  const markdown = options.markdownText ?? options.humanText;
   if (ctx.run.json) {
     const text = emitKitsJsonResult(commandId, options.data, ctx, {
       outPath: options.outPath,
@@ -77,10 +83,15 @@ export function finishKitsRun<K extends KitsCommandId, D>(
       ok: options.ok,
     });
     writeKitsOutput(text, options.outPath, ctx.run);
-  } else if (options.humanText !== undefined && canPrintPrimary(ctx.run)) {
-    writeKitsOutput(ensureTrailingNewline(options.humanText), options.outPath, ctx.run);
-  } else if (options.outPath && options.humanText !== undefined) {
-    fs.writeFileSync(options.outPath, ensureTrailingNewline(options.humanText), 'utf8');
+  } else if (markdown !== undefined && canPrintPrimary(ctx.run)) {
+    if (options.outPath) {
+      fs.writeFileSync(options.outPath, ensureTrailingNewline(markdown), 'utf8');
+    } else {
+      const terminal = options.terminalText ?? formatKitsTerminalMarkdown(markdown, ctx.run);
+      logger.plain(ensureTrailingNewline(terminal), ctx.run);
+    }
+  } else if (options.outPath && markdown !== undefined) {
+    fs.writeFileSync(options.outPath, ensureTrailingNewline(markdown), 'utf8');
   }
 
   if (!ctx.run.json && options.summaryCounts && Object.keys(options.summaryCounts).length > 0) {

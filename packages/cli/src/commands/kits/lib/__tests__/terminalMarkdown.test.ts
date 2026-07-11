@@ -19,16 +19,17 @@ describe('formatKitsTerminalMarkdown', () => {
     chalk.level = savedChalkLevel;
   });
 
-  it('dims blockquotes and docs lines on TTY', () => {
+  it('dims blockquotes and renders **bold** metrics on TTY', () => {
     const md = [
       '## i18nprune Audit',
-      '- Missing literal keys: **12**',
+      '- Missing literal keys: **0**',
       '> Dynamic sites are non-literal.',
       'Docs: https://docs.example/issues',
     ].join('\n');
     const out = formatKitsTerminalMarkdown(md, { json: false, noColor: false });
-    expect(out).toContain('## i18nprune Audit');
-    expect(out).toContain('- Missing literal keys: **12**');
+    expect(out).toContain('i18nprune Audit');
+    expect(out).toMatch(/\u001b\[[0-9;]*m0/);
+    expect(out).not.toContain('**');
     expect(out).toMatch(/\u001b\[2m> Dynamic sites/);
     expect(out).toMatch(/\u001b\[2mDocs: https:\/\/docs.example\/issues/);
   });

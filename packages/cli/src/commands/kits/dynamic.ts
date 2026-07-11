@@ -11,6 +11,17 @@ import {
 import { evaluateKitsPolicy, parseFailOnList } from '@/commands/kits/lib/policy.js';
 import { resolveKitsListWindow, listModeLabel } from '@/commands/kits/lib/list.js';
 import { dynamicKeyHonestyLines } from '@/commands/kits/lib/messaging.js';
+import {
+  formatKitsDynamicGroupsMd,
+  formatKitsDynamicGroupsTerminal,
+  formatKitsDynamicSampleTerminal,
+  formatKitsDynamicSamplesSectionMd,
+  formatKitsHeadingMd,
+  formatKitsHeadingTerminal,
+  formatKitsListOmittedTerminal,
+  formatKitsMetricMd,
+  formatKitsMetricTerminal,
+} from '@/commands/kits/lib/humanFormat.js';
 import { saveKitsBaselineReport } from '@/commands/kits/lib/baseline.js';
 import type { KitsDynamicOptions } from '@/types/command/kits/index.js';
 
@@ -84,27 +95,57 @@ export async function kitsDynamic(opts: KitsDynamicOptions): Promise<void> {
       policy: { failOn, maxDynamic: opts.maxDynamic, reasons: policyReasons },
     };
 
-    const lines: string[] = [
-      `${style.magenta(style.bold('Dynamic sites'))}: ${data.counts.total} (active: ${data.counts.active ?? '?'}, commented: ${data.counts.commented ?? '?'})`,
-      `${style.accent(style.bold('Filtered'))}: ${data.filteredCount}`,
-      `${style.accent(style.bold('Listed'))}: ${data.listedCount} (${data.listMode})`,
-    ];
-    if (Object.keys(data.groups).length > 0) {
-      lines.push(`${style.accent(style.bold('Groups'))}: ${JSON.stringify(data.groups)}`);
-    }
-    for (const site of data.sites) {
-      lines.push(`- [${site.kind}] ${site.filePath}:${site.line} :: ${site.preview}`);
-    }
-    if (policyReasons.length > 0) {
-      lines.push(`${style.err(style.bold('Policy failure'))}: ${policyReasons.join('; ')}`);
-    }
-    lines.push(...dynamicKeyHonestyLines());
-    const humanText = lines.join('\n');
+
+    const markdown = [
+      formatKitsHeadingMd(2, 'Dynamic sites'),
+      '',
+      formatKitsMetricMd('Total', data.counts.total),
+      formatKitsMetricMd('Filtered', data.filteredCount),
+      formatKitsMetricMd('Listed', `${data.listedCount} (${data.listMode})`),
+      '',
+      formatKitsDynamicGroupsMd(data.groups),
+      '',
+      ...formatKitsDynamicSamplesSectionMd({
+        title: 'Sites',
+        sites: listedSites,
+        shownCount: listedSites.length,
+        totalCount: filtered.length,
+      }),
+      ...(policyReasons.length > 0 ? ['', `> Policy failure: ${policyReasons.join('; ')}`] : []),
+    ].join('\n');
+
+    const terminal = [
+      formatKitsHeadingTerminal('Dynamic sites'),
+      '',
+      formatKitsMetricTerminal('Total', `${data.counts.total} (active: ${data.counts.active ?? '?'}, commented: ${data.counts.commented ?? '?'})`),
+      formatKitsMetricTerminal('Filtered', data.filteredCount),
+      formatKitsMetricTerminal('Listed', `${data.listedCount} (${data.listMode})`),
+      '',
+      formatKitsDynamicGroupsTerminal(data.groups),
+      '',
+      ...(listedSites.length === 0
+        ? ['- (no dynamic sites)']
+        : [
+            ...listedSites.map((site) => formatKitsDynamicSampleTerminal(site)),
+            ...(filtered.length > listedSites.length
+              ? [
+                  formatKitsListOmittedTerminal(
+                    `  · ${String(listedSites.length)} dynamic site(s) shown`,
+                    filtered.length - listedSites.length,
+                  ),
+                ]
+              : []),
+          ]),
+      ...(policyReasons.length > 0
+        ? ['', style.err(`${style.bold('Policy failure')}: ${policyReasons.join('; ')}`)]
+        : []),
+      ...dynamicKeyHonestyLines(),
+    ].join('\n');
 
     if (opts.saveBaseline) {
       const saveContent = context.run.json
         ? emitKitsJsonResult('kits-dynamic', payloadWithPolicy, context, { issues: data.issues })
-        : formatKitsHumanText(humanText);
+        : formatKitsHumanText(markdown);
       const saved = saveKitsBaselineReport(projectRoot, opts.saveBaseline, saveContent, context.run.json);
       logKitsSavedBaseline(saved, context);
     }
@@ -113,7 +154,8 @@ export async function kitsDynamic(opts: KitsDynamicOptions): Promise<void> {
       data: payloadWithPolicy,
       outPath: opts.out,
       issues: data.issues,
-      humanText,
+      markdownText: markdown,
+      terminalText: terminal,
       summaryCounts: {
         dynamic: data.counts.total ?? 0,
         listed: data.listedCount,

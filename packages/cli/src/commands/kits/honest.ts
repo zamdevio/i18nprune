@@ -1,4 +1,5 @@
 import { runDynamic, runQuality, runReview, runValidate } from '@i18nprune/core';
+import { style } from '@/utils/style/index.js';
 import { resolveKitsBundle } from '@/commands/kits/lib/context.js';
 import {
   emitKitsFailure,
@@ -7,6 +8,19 @@ import {
   formatKitsHumanText,
   logKitsSavedBaseline,
 } from '@/commands/kits/lib/emit.js';
+import {
+  formatKitsBlockquoteMd,
+  formatKitsBlockquoteTerminal,
+  formatKitsDynamicGroupsMd,
+  formatKitsDynamicGroupsTerminal,
+  formatKitsDynamicSampleTerminal,
+  formatKitsDynamicSamplesSectionMd,
+  formatKitsHeadingMd,
+  formatKitsHeadingTerminal,
+  formatKitsListOmittedTerminal,
+  formatKitsMetricMd,
+  formatKitsMetricTerminal,
+} from '@/commands/kits/lib/humanFormat.js';
 import { evaluateKitsPolicy, parseFailOnList } from '@/commands/kits/lib/policy.js';
 import { resolveKitsListWindow, listModeLabel } from '@/commands/kits/lib/list.js';
 import { loadKitsBaselineSignal, saveKitsBaselineReport } from '@/commands/kits/lib/baseline.js';
@@ -130,42 +144,97 @@ export async function kitsHonest(opts: KitsHonestOptions): Promise<void> {
     };
 
     const mdLines = [
-      '## i18nprune Honest Audit',
+      formatKitsHeadingMd(2, 'i18nprune Honest Audit'),
       '',
-      `- Missing literal keys: **${result.signal.missingLiteralKeys}**`,
-      `- Dynamic key sites: **${result.signal.dynamicKeySites}** (active=${result.signal.dynamicActive ?? '?'}, commented=${result.signal.dynamicCommented ?? '?'})`,
-      `- Source-identical leaves: **${result.signal.sourceIdenticalLeaves}**`,
+      formatKitsMetricMd('Missing literal keys', result.signal.missingLiteralKeys),
+      formatKitsMetricMd(
+        'Dynamic key sites',
+        `${result.signal.dynamicKeySites} (active=${result.signal.dynamicActive ?? '?'}, commented=${result.signal.dynamicCommented ?? '?'})`,
+      ),
+      formatKitsMetricMd('Source-identical leaves', result.signal.sourceIdenticalLeaves),
       '',
-      `- Dynamic groups: \`${JSON.stringify(result.dynamicGroups)}\``,
-      `- Listed: **${result.focusedDynamicSites.length}/${result.focusedDynamicCount}** (${result.listMode})`,
+      formatKitsDynamicGroupsMd(result.dynamicGroups),
+      formatKitsMetricMd('Listed', `${result.focusedDynamicSites.length}/${result.focusedDynamicCount} (${result.listMode})`),
       '',
-      '> Dynamic sites are not literal coverage — validate ok does not prove every dynamic suffix has locale strings.',
+      formatKitsBlockquoteMd(
+        'Dynamic sites are not literal coverage — validate ok does not prove every dynamic suffix has locale strings.',
+      ),
     ];
     if (opts.focus) mdLines.push(`- Focus: \`${opts.focus}\``);
     mdLines.push(
       '',
-      '### Dynamic samples',
-      ...result.focusedDynamicSites.map((s) => `- [${s.kind}] \`${s.filePath}:${s.line}\` — \`${s.preview}\``),
+      ...formatKitsDynamicSamplesSectionMd({
+        title: 'Dynamic samples',
+        sites: result.focusedDynamicSites,
+        shownCount: result.focusedDynamicSites.length,
+        totalCount: result.focusedDynamicCount,
+      }),
     );
     if (baselineDelta) {
       mdLines.push(
         '',
-        '### Baseline delta',
+        formatKitsHeadingMd(3, 'Baseline delta'),
         '',
-        `- missingLiteralKeys: \`${baselineDelta.missingLiteralKeys}\``,
-        `- dynamicKeySites: \`${baselineDelta.dynamicKeySites}\``,
-        `- sourceIdenticalLeaves: \`${baselineDelta.sourceIdenticalLeaves}\``,
+        formatKitsMetricMd('missingLiteralKeys Δ', baselineDelta.missingLiteralKeys),
+        formatKitsMetricMd('dynamicKeySites Δ', baselineDelta.dynamicKeySites),
+        formatKitsMetricMd('sourceIdenticalLeaves Δ', baselineDelta.sourceIdenticalLeaves),
       );
     }
     if (policyReasons.length > 0) {
-      mdLines.push('', `> **Policy failure:** ${policyReasons.join('; ')}`);
+      mdLines.push('', formatKitsBlockquoteMd(`Policy failure: ${policyReasons.join('; ')}`));
     }
-    const humanText = mdLines.join('\n');
+    const markdown = mdLines.join('\n');
+
+    const terminal = [
+      formatKitsHeadingTerminal('i18nprune Honest Audit'),
+      '',
+      formatKitsMetricTerminal('Missing literal keys', result.signal.missingLiteralKeys),
+      formatKitsMetricTerminal(
+        'Dynamic key sites',
+        `${result.signal.dynamicKeySites} (active=${result.signal.dynamicActive ?? '?'}, commented=${result.signal.dynamicCommented ?? '?'})`,
+      ),
+      formatKitsMetricTerminal('Source-identical leaves', result.signal.sourceIdenticalLeaves),
+      '',
+      formatKitsDynamicGroupsTerminal(result.dynamicGroups),
+      formatKitsMetricTerminal('Listed', `${result.focusedDynamicSites.length}/${result.focusedDynamicCount} (${result.listMode})`),
+      '',
+      formatKitsBlockquoteTerminal(
+        'Dynamic sites are not literal coverage — validate ok does not prove every dynamic suffix has locale strings.',
+      ),
+      ...(opts.focus ? ['', style.dim(`- Focus: ${opts.focus}`)] : []),
+      '',
+      formatKitsHeadingTerminal('Dynamic samples'),
+      '',
+      ...(result.focusedDynamicSites.length === 0
+        ? ['- (no dynamic sites)']
+        : [
+            ...result.focusedDynamicSites.map((site) => formatKitsDynamicSampleTerminal(site)),
+            ...(result.focusedDynamicCount > result.focusedDynamicSites.length
+              ? [
+                  formatKitsListOmittedTerminal(
+                    `  · ${String(result.focusedDynamicSites.length)} dynamic site(s) shown`,
+                    result.focusedDynamicCount - result.focusedDynamicSites.length,
+                  ),
+                ]
+              : []),
+          ]),
+      ...(baselineDelta
+        ? [
+            '',
+            formatKitsHeadingTerminal('Baseline delta'),
+            '',
+            formatKitsMetricTerminal('missingLiteralKeys Δ', baselineDelta.missingLiteralKeys),
+            formatKitsMetricTerminal('dynamicKeySites Δ', baselineDelta.dynamicKeySites),
+            formatKitsMetricTerminal('sourceIdenticalLeaves Δ', baselineDelta.sourceIdenticalLeaves),
+          ]
+        : []),
+      ...(policyReasons.length > 0 ? ['', formatKitsBlockquoteTerminal(`Policy failure: ${policyReasons.join('; ')}`)] : []),
+    ].join('\n');
 
     if (opts.saveBaseline) {
       const saveContent = context.run.json
         ? emitKitsJsonResult('kits-honest', data, context, { issues: data.issues })
-        : formatKitsHumanText(humanText);
+        : formatKitsHumanText(markdown);
       const saved = saveKitsBaselineReport(projectRoot, opts.saveBaseline, saveContent, context.run.json);
       logKitsSavedBaseline(saved, context);
     }
@@ -174,7 +243,8 @@ export async function kitsHonest(opts: KitsHonestOptions): Promise<void> {
       data,
       outPath: opts.out,
       issues: data.issues,
-      humanText,
+      markdownText: markdown,
+      terminalText: terminal,
       summaryCounts: {
         missing: result.signal.missingLiteralKeys,
         dynamic: result.signal.dynamicKeySites,
