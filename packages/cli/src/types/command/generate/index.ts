@@ -22,6 +22,8 @@ export type GenerateOptions = {
   all?: boolean;
   /** With **`resume`**: confirm before processing targets. */
   ask?: boolean;
+  /** Skip automatic re-translate of stale `__I18NPRUNE_*` target leaves (default: repair on). */
+  noRepairSentinelLeaks?: boolean;
 };
 
 export type GenerateRuntime = { emit?: RunEmitter; runId?: string };

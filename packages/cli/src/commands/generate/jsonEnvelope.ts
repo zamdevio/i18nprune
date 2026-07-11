@@ -195,6 +195,7 @@ export async function executeCore(
       ask: merged.ask,
       resume: merged.resume === true ? true : undefined,
       resumeReference,
+      noRepairSentinelLeaks: merged.noRepairSentinelLeaks === true ? true : undefined,
     },
     buildGenerateHostHooks(ctx, runtime),
     generateHooks,

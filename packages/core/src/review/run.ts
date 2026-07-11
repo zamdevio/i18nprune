@@ -18,7 +18,8 @@ import {
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
 import {
-  formatSentinelLeakMessage,
+  emitSentinelLeakSuggestionDetails,
+  formatSentinelLeakHeadline,
   issuesFromSentinelLeakHits,
   scanLeavesForSentinelLeaks,
 } from '../shared/placeholders/sentinelLeak.js';
@@ -290,10 +291,11 @@ export function runReview(
     for (const [localeCode, hits] of byLocale) {
       emitReviewMessage(host, {
         level: 'warn',
-        message: formatSentinelLeakMessage({ localeCode, count: hits.length }),
+        message: formatSentinelLeakHeadline({ localeCode, count: hits.length }),
         target: localeCode,
         data: { sentinelLeakPaths: hits.length },
       });
+      emitSentinelLeakSuggestionDetails(host.emit, { op: 'review', runId: host.runId, localeCode });
     }
   }
   const sourceIdenticalCount = Object.values(payload.locales).reduce(

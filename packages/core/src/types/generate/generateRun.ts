@@ -167,12 +167,21 @@ export type GenerateJsonPayload = {
   suggestions?: import('../suggestions/index.js').LocaleSuggestion[];
   /** Placeholder sentinel re-translate / copy repairs in this run (additive). */
   sentinelRepairs?: GenerateSentinelRepairRecord[];
+  /** Count of sentinel repairs when `--dry-run` (same length as `sentinelRepairs` when populated). */
+  wouldRepairSentinelLeaks?: number;
 };
 
 export type GenerateSentinelRepairRecord = {
   path: string;
   mode: 'placeholder_copy' | 'translate';
   localeCode: string;
+  /** Leaked target value before repair. */
+  from: string;
+  /** Source leaf at the same path (input to copy or MT). */
+  sourceValue: string;
+  /** Value after repair when known (`placeholder_copy` always; `translate` after successful write). */
+  to?: string;
+  localeFile?: string;
 };
 
 /**

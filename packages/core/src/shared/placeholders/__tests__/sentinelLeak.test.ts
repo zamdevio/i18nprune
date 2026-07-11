@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ISSUE_LOCALE_PLACEHOLDER_SENTINEL_LEAK } from '../../constants/issueCodes.js';
 import {
+  buildGenerateSentinelRepairRecords,
   containsPlaceholderSentinelLeak,
   isSentinelLeakPending,
   issuesFromSentinelLeakHits,
@@ -92,6 +93,37 @@ describe('sentinelLeak', () => {
     expect(isSentinelLeakPending('translated')).toBe(false);
     expect(isSentinelLeakPending('__I18NPRUNE_0__')).toBe(true);
     expect(isSentinelLeakPending('__ I18NPRUNE_0 __')).toBe(true);
+  });
+
+  it('buildGenerateSentinelRepairRecords maps hits to JSON rows with from/sourceValue/to', () => {
+    const hits = [
+      { path: 'meta', value: '__ I18NPRUNE_0 __', localeCode: 'ar' },
+      { path: 'title', value: '__I18NPRUNE_1__', localeCode: 'ar' },
+    ];
+    const planned = planSentinelLeakGenerateRepairs(hits, new Map([
+      ['meta', '{{who}}'],
+      ['title', 'Hello'],
+    ]));
+    const rows = buildGenerateSentinelRepairRecords(hits, planned, 'ar', '/tmp/ar.json');
+    expect(rows).toEqual([
+      expect.objectContaining({
+        path: 'meta',
+        mode: 'placeholder_copy',
+        from: '__ I18NPRUNE_0 __',
+        sourceValue: '{{who}}',
+        to: '{{who}}',
+        localeCode: 'ar',
+        localeFile: '/tmp/ar.json',
+      }),
+      expect.objectContaining({
+        path: 'title',
+        mode: 'translate',
+        from: '__I18NPRUNE_1__',
+        sourceValue: 'Hello',
+        localeCode: 'ar',
+      }),
+    ]);
+    expect(rows[1]?.to).toBeUndefined();
   });
 
   it('issuesFromSentinelLeakHits groups by locale with paths and suggestion commands', () => {

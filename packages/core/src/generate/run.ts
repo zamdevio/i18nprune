@@ -59,7 +59,9 @@ import { assessGenerateTargetPreflight } from './assessTargetPreflight.js';
 import { buildGenerateSourceLeavesFromSchema } from './buildSourceLeaves.js';
 import { workingLocaleForGenerate, activeSourceLeavesForGenerate } from './missingTargetLeaves.js';
 import {
+  buildGenerateSentinelRepairRecords,
   formatGenerateSentinelLeakNotice,
+  formatSentinelRepairDetailLine,
   planSentinelLeakGenerateRepairs,
   scanLocaleForSentinelLeaks,
 } from '../shared/placeholders/sentinelLeak.js';
@@ -94,7 +96,11 @@ import type {
 
 const LANG_CATALOG = buildLanguageCatalog(generatedLanguageCatalog);
 
-function emitGenerateMessage(host: Pick<GenerateHostHooks, 'emit' | 'runId'>, level: 'info' | 'notice' | 'warn', message: string): void {
+function emitGenerateMessage(
+  host: Pick<GenerateHostHooks, 'emit' | 'runId'>,
+  level: 'detail' | 'info' | 'notice' | 'warn',
+  message: string,
+): void {
   emitRunMessage(host.emit, { op: 'generate', runId: host.runId, level, message });
 }
 
@@ -601,16 +607,12 @@ export async function runGenerate(
         paritySkip = translateResult.paritySkip;
         {
           const targetRepairs: GenerateSentinelRepairRecord[] = opts.dryRun
-            ? plannedSentinelRepairs
-                .filter((repair): repair is { path: string; mode: 'placeholder_copy' | 'translate'; sourceValue: string } =>
-                  repair.mode === 'placeholder_copy' || repair.mode === 'translate',
-                )
-                .map((repair) => ({
-                  path: repair.path,
-                  mode: repair.mode,
-                  localeCode: target,
-                }))
-            : translateResult.sentinelRepairs.map((repair) => ({ ...repair, localeCode: target }));
+            ? buildGenerateSentinelRepairRecords(sentinelHits, plannedSentinelRepairs, target, targetPath)
+            : translateResult.sentinelRepairs.map((repair) => ({
+                ...repair,
+                localeCode: target,
+                localeFile: targetPath,
+              }));
           if (targetRepairs.length > 0) {
             sentinelRepairs.push(...targetRepairs);
             const copyCount = targetRepairs.filter((repair) => repair.mode === 'placeholder_copy').length;
@@ -625,6 +627,25 @@ export async function runGenerate(
                 dryRun: Boolean(opts.dryRun),
               }),
             );
+            for (const repair of targetRepairs.slice(0, 5)) {
+              emitGenerateMessage(
+                host,
+                'detail',
+                formatSentinelRepairDetailLine({
+                  path: repair.path,
+                  mode: repair.mode,
+                  from: repair.from,
+                  to: repair.to ?? repair.sourceValue,
+                }),
+              );
+            }
+            if (targetRepairs.length > 5) {
+              emitGenerateMessage(
+                host,
+                'detail',
+                `  … and ${String(targetRepairs.length - 5)} more sentinel repair(s)`,
+              );
+            }
           }
         }
         translateResult.translateStats = {
@@ -1025,7 +1046,12 @@ export async function runGenerate(
     dynamicKeySitesCommented: analysis.counts.dynamicCommented,
     leavesProcessed: totalLeavesProcessed,
     targetResults,
-    ...(sentinelRepairs.length > 0 ? { sentinelRepairs } : {}),
+    ...(sentinelRepairs.length > 0
+      ? {
+          sentinelRepairs,
+          ...(opts.dryRun ? { wouldRepairSentinelLeaks: sentinelRepairs.length } : {}),
+        }
+      : {}),
     ...(generatePayloadPartial
       ? {
           partial: true,

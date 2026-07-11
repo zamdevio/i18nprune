@@ -323,12 +323,18 @@ program
     '--target <codes>',
     'comma-separated locale basenames, or "all" (default: all non-source locales under localesDir)',
   )
-  .action(async (opts: { dryRun?: boolean; target?: string; stripMetadata?: boolean; metadata?: boolean }) => {
+  .option(
+    '--no-repair-sentinel-leaks',
+    'skip automatic copy-source repair of stale __I18NPRUNE_* target leaves',
+    false,
+  )
+  .action(async (opts: { dryRun?: boolean; target?: string; stripMetadata?: boolean; metadata?: boolean; noRepairSentinelLeaks?: boolean }) => {
     await sync({
       dryRun: Boolean(opts.dryRun),
       target: opts.target,
       metadata: opts.metadata === true,
       stripMetadata: opts.stripMetadata === true,
+      noRepairSentinelLeaks: opts.noRepairSentinelLeaks === true ? true : undefined,
     });
   });
 
@@ -364,6 +370,11 @@ program
     'with --resume: confirm before processing targets',
     false,
   )
+  .option(
+    '--no-repair-sentinel-leaks',
+    'skip automatic re-translate of stale __I18NPRUNE_* target leaves',
+    false,
+  )
   .action(
     async (opts: {
       source?: string;
@@ -376,6 +387,7 @@ program
       resume?: boolean;
       all?: boolean;
       ask?: boolean;
+      noRepairSentinelLeaks?: boolean;
     }) => {
       await generate({
         source: opts.source,
@@ -388,6 +400,7 @@ program
         resume: opts.resume === true ? true : undefined,
         all: opts.all === true ? true : undefined,
         ask: opts.ask === true ? true : undefined,
+        noRepairSentinelLeaks: opts.noRepairSentinelLeaks === true ? true : undefined,
       });
     },
   );

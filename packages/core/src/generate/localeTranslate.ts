@@ -213,12 +213,39 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
   translateStats: TranslateRunPartialStats;
   /** Count of translated leaves classified as review-needed by policy/meta pipeline. */
   markedForReview: number;
-  sentinelRepairs: Array<{ path: string; mode: Extract<SentinelRepairMode, 'placeholder_copy' | 'translate'> }>;
+  sentinelRepairs: Array<{
+    path: string;
+    mode: Extract<SentinelRepairMode, 'placeholder_copy' | 'translate'>;
+    from: string;
+    sourceValue: string;
+    to?: string;
+  }>;
 }> {
-  const sentinelRepairs: Array<{ path: string; mode: Extract<SentinelRepairMode, 'placeholder_copy' | 'translate'> }> =
-    [];
-  const noteSentinelRepair = (path: string, mode: Extract<SentinelRepairMode, 'placeholder_copy' | 'translate'>): void => {
-    if (input.sentinelLeakPaths?.has(path)) sentinelRepairs.push({ path, mode });
+  const sentinelRepairs: Array<{
+    path: string;
+    mode: Extract<SentinelRepairMode, 'placeholder_copy' | 'translate'>;
+    from: string;
+    sourceValue: string;
+    to?: string;
+  }> = [];
+  const noteSentinelRepair = (
+    path: string,
+    mode: Extract<SentinelRepairMode, 'placeholder_copy' | 'translate'>,
+    to?: string,
+  ): void => {
+    if (!input.sentinelLeakPaths?.has(path)) return;
+    const leaf = input.sourceLeaves.find((row) => row.path === path);
+    const from =
+      input.existingRaw && typeof input.existingRaw === 'object'
+        ? readTargetLeafString(getAtPath(input.existingRaw, path)) ?? ''
+        : '';
+    sentinelRepairs.push({
+      path,
+      mode,
+      from,
+      sourceValue: leaf?.value ?? '',
+      ...(to !== undefined ? { to } : {}),
+    });
   };
   const existingProj = input.existingRaw ? projectLocaleLeaves(input.existingRaw) : undefined;
   const maxParallel = Math.max(1, Math.min(64, Math.floor(input.maxParallelTranslates ?? 1)));
@@ -382,7 +409,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
           },
         });
         working = setAtPath(working, leaf.path, nextNode);
-        noteSentinelRepair(leaf.path, 'placeholder_copy');
+        noteSentinelRepair(leaf.path, 'placeholder_copy', leaf.value);
         tick(wal, leaf.path);
         wal += 1;
         continue;
@@ -398,7 +425,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
       if (!tr) break;
       const nextNode = localeJsonValueFromTranslation(input.persistStructuredLeafMetadata, tr);
       working = setAtPath(working, leaf.path, nextNode);
-      noteSentinelRepair(leaf.path, 'translate');
+      noteSentinelRepair(leaf.path, 'translate', tr.text);
       tick(wal, leaf.path);
       wal += 1;
     }

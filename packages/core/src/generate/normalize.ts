@@ -57,7 +57,7 @@ export async function translateAndNormalizeGenerateLocale(input: {
   issues: Issue[];
   translateStats: TranslateRunPartialStats;
   markedForReview: number;
-  sentinelRepairs: Array<{ path: string; mode: 'placeholder_copy' | 'translate' }>;
+  sentinelRepairs: Array<{ path: string; mode: 'placeholder_copy' | 'translate'; from: string; sourceValue: string; to?: string }>;
 }> {
   const modeDecision = resolveLocaleLeafMode(input.localeLeafResolve);
   const built = await buildTranslatedLocaleFromSourceLeaves({
@@ -139,7 +139,7 @@ export function finalizePartialTranslatedLocaleForGenerate(input: {
   issues: Issue[];
   translateStats: TranslateRunPartialStats;
   markedForReview: number;
-  sentinelRepairs: Array<{ path: string; mode: 'placeholder_copy' | 'translate' }>;
+  sentinelRepairs: Array<{ path: string; mode: 'placeholder_copy' | 'translate'; from: string; sourceValue: string; to?: string }>;
 } {
   const norm = applyLocaleLeafNormalization({
     localeJson: input.working,

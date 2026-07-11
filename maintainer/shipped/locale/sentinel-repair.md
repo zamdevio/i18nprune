@@ -16,7 +16,7 @@
 | Slice | Notes |
 |-------|--------|
 | **PS-5** Kits terminal MD dim | Separate kits output feat |
-| **CLI `--no-repair-sentinel-leaks`** | `GenerateRunOptions` only; wire argv |
+| **CLI `--no-repair-sentinel-leaks`** | **Shipped** | `generate` + `sync` argv |
 | **PS-3** Release bump | 1.0.1 + changelog when ready to publish |
 
 ## Core module

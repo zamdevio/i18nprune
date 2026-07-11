@@ -312,7 +312,15 @@ describe('buildTranslatedLocaleFromSourceLeaves', () => {
     });
     expect(translate).toHaveBeenCalledOnce();
     expect(out.working).toEqual({ greeting: 'Hello {{who}}-ar' });
-    expect(out.sentinelRepairs).toEqual([{ path: 'greeting', mode: 'translate' }]);
+    expect(out.sentinelRepairs).toEqual([
+      {
+        path: 'greeting',
+        mode: 'translate',
+        from: '__ I18NPRUNE_0 __',
+        sourceValue: 'Hello {{who}}',
+        to: 'Hello {{who}}-ar',
+      },
+    ]);
   });
 
   it('placeholder_copy sentinel leaks without MT when source is placeholder-only', async () => {
@@ -333,6 +341,14 @@ describe('buildTranslatedLocaleFromSourceLeaves', () => {
     });
     expect(translate).not.toHaveBeenCalled();
     expect(out.working).toEqual({ meta: '{{who}} · {{status}}' });
-    expect(out.sentinelRepairs).toEqual([{ path: 'meta', mode: 'placeholder_copy' }]);
+    expect(out.sentinelRepairs).toEqual([
+      {
+        path: 'meta',
+        mode: 'placeholder_copy',
+        from: '__ I18NPRUNE_0 __ · __ I18NPRUNE_1 __',
+        sourceValue: '{{who}} · {{status}}',
+        to: '{{who}} · {{status}}',
+      },
+    ]);
   });
 });

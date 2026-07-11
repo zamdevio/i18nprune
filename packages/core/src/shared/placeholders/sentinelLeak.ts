@@ -1,3 +1,5 @@
+import { emitRunMessage } from '../run/index.js';
+import type { RunEmitter } from '../../types/shared/run/index.js';
 import {
   ISSUE_LOCALE_PLACEHOLDER_SENTINEL_LEAK,
 } from '../constants/issueCodes.js';
@@ -156,12 +158,86 @@ export function sentinelLeakSuggestionCommands(localeCode: string): string[] {
   ];
 }
 
-export function formatSentinelLeakMessage(input: { localeCode: string; count: number }): string {
+export function formatSentinelLeakHeadline(input: { localeCode: string; count: number }): string {
   return (
-    `Target locale "${input.localeCode}" has ${String(input.count)} leaf(es) with stale placeholder sentinels (__I18NPRUNE_*). ` +
-    `Quick fix (copy source structure): i18nprune sync --target ${input.localeCode}  ` +
-    `Proper fix (re-translate):       i18nprune generate --metadata --target ${input.localeCode}`
+    `Target locale "${input.localeCode}" has ${String(input.count)} leaf(es) with stale placeholder sentinels (__I18NPRUNE_*).`
   );
+}
+
+/** Human suggestion lines (CLI renders at detail/dim; issues use {@link sentinelLeakSuggestionCommands}). */
+export function formatSentinelLeakSuggestionLines(localeCode: string): string[] {
+  return [
+    `Quick fix (copy source structure): i18nprune sync --target ${localeCode}`,
+    `Proper fix (re-translate):       i18nprune generate --metadata --target ${localeCode}`,
+  ];
+}
+
+export function formatSentinelLeakMessage(input: { localeCode: string; count: number }): string {
+  return [formatSentinelLeakHeadline(input), ...formatSentinelLeakSuggestionLines(input.localeCode)].join('  ');
+}
+
+function truncateSentinelRepairValue(value: string, max = 48): string {
+  const oneLine = value.replace(/\s+/g, ' ').trim();
+  if (oneLine.length <= max) return oneLine;
+  return `${oneLine.slice(0, max - 1)}…`;
+}
+
+/** Per-path repair preview for sync/generate human detail lines. */
+export function formatSentinelRepairDetailLine(input: {
+  path: string;
+  mode: string;
+  from: string;
+  to: string;
+}): string {
+  return `  ${input.path} (${input.mode}): ${truncateSentinelRepairValue(input.from)} → ${truncateSentinelRepairValue(input.to)}`;
+}
+
+export function emitSentinelLeakSuggestionDetails(
+  emit: RunEmitter | undefined,
+  input: { op: 'validate' | 'quality' | 'review'; runId?: string; localeCode: string },
+): void {
+  if (!emit) return;
+  for (const line of formatSentinelLeakSuggestionLines(input.localeCode)) {
+    emitRunMessage(emit, {
+      op: input.op,
+      runId: input.runId,
+      level: 'detail',
+      message: line,
+      target: input.localeCode,
+    });
+  }
+}
+
+/** Build generate JSON repair rows from scan hits + planned modes (dry-run or preview). */
+export function buildGenerateSentinelRepairRecords(
+  hits: readonly SentinelLeakHit[],
+  planned: ReturnType<typeof planSentinelLeakGenerateRepairs>,
+  localeCode: string,
+  localeFile?: string,
+): Array<{
+  path: string;
+  mode: 'placeholder_copy' | 'translate';
+  localeCode: string;
+  from: string;
+  sourceValue: string;
+  to?: string;
+  localeFile?: string;
+}> {
+  const hitByPath = new Map(hits.map((hit) => [hit.path, hit.value]));
+  return planned
+    .filter(
+      (row): row is { path: string; mode: 'placeholder_copy' | 'translate'; sourceValue: string } =>
+        row.mode === 'placeholder_copy' || row.mode === 'translate',
+    )
+    .map((row) => ({
+      path: row.path,
+      mode: row.mode,
+      localeCode,
+      from: hitByPath.get(row.path) ?? '',
+      sourceValue: row.sourceValue,
+      ...(row.mode === 'placeholder_copy' ? { to: row.sourceValue } : {}),
+      ...(localeFile !== undefined ? { localeFile } : {}),
+    }));
 }
 
 export function issuesFromSentinelLeakHits(hits: readonly SentinelLeakHit[]): Issue[] {

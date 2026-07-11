@@ -11,7 +11,8 @@ import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
 import {
-  formatSentinelLeakMessage,
+  emitSentinelLeakSuggestionDetails,
+  formatSentinelLeakHeadline,
   issuesFromSentinelLeakHits,
   scanLeavesForSentinelLeaks,
 } from '../shared/placeholders/sentinelLeak.js';
@@ -167,10 +168,11 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
         op: 'validate',
         runId,
         level: 'warn',
-        message: formatSentinelLeakMessage({ localeCode, count: hits.length }),
+        message: formatSentinelLeakHeadline({ localeCode, count: hits.length }),
         target: localeCode,
         data: { sentinelLeakPaths: hits.length },
       });
+      emitSentinelLeakSuggestionDetails(host.emit, { op: 'validate', runId, localeCode });
     }
   }
   const issues: Issue[] = [

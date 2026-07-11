@@ -15,7 +15,8 @@ import {
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
 import {
-  formatSentinelLeakMessage,
+  emitSentinelLeakSuggestionDetails,
+  formatSentinelLeakHeadline,
   issuesFromSentinelLeakHits,
   scanLeavesForSentinelLeaks,
 } from '../shared/placeholders/sentinelLeak.js';
@@ -216,10 +217,11 @@ export function runQuality(
         op: 'quality',
         runId: host.runId,
         level: 'warn',
-        message: formatSentinelLeakMessage({ localeCode, count: hits.length }),
+        message: formatSentinelLeakHeadline({ localeCode, count: hits.length }),
         target: localeCode,
         data: { sentinelLeakPaths: hits.length },
       });
+      emitSentinelLeakSuggestionDetails(host.emit, { op: 'quality', runId: host.runId, localeCode });
     }
   }
 

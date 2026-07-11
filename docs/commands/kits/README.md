@@ -47,6 +47,20 @@ Baseline paths are **relative to the project root** (not a global kit directory)
 
 Kits never imply that `validate ok` means every dynamic prefix has locale strings. See [dynamic key sites](../../issues/validate.md#dynamic-key-sites).
 
+## Terminal output
+
+Markdown subcommands (`kits pr`, `kits honest`, `kits baseline`, …) print layered contrast when stdout is a TTY:
+
+| Line kind | Treatment |
+|-----------|-----------|
+| `##` / `###` headings | Primary (full brightness) |
+| Bullet metrics (`- Missing …`) | Primary |
+| Blockquotes `>` | Dim |
+| `Docs:` / `Note:` footnotes | Dim |
+| Dynamic sample rows | `[kind]` primary; path/preview suffix dim |
+
+`--out path.md` and `--json` stay plain markdown/JSON with **no ANSI**. Use `-o` for CI artifacts; use terminal output for local triage.
+
 ## Examples
 
 ```bash

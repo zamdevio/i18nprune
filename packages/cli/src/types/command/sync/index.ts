@@ -9,6 +9,8 @@ export type SyncOptions = {
   metadata?: boolean;
   /** Force reset structured leaf metadata to plain string values. */
   stripMetadata?: boolean;
+  /** Skip automatic copy-source repair of stale `__I18NPRUNE_*` target leaves (default: repair on). */
+  noRepairSentinelLeaks?: boolean;
 };
 
 export type SyncRuntime = {

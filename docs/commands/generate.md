@@ -42,8 +42,9 @@ When target leaves contain stale MT mask sentinels (`__I18NPRUNE_*`), **`generat
 - **`placeholder_copy`** when the source leaf is placeholder-only (`{{who}} · {{status}}`)
 - **Full MT** (`translateLeaf` + mask/restore) for normal prose
 - **`--resume`** treats leaked leaves as incomplete — same as missing/stale work
-- **`--json`:** optional `sentinelRepairs[]` with `mode: "placeholder_copy" | "translate"`
-- Opt out: `noRepairSentinelLeaks` on **`GenerateRunOptions`** (CLI flag TBD)
+- **`--json`:** optional `sentinelRepairs[]` with `path`, `mode`, `from`, `sourceValue`, optional `to`, `localeCode`
+- **`--dry-run`:** same `sentinelRepairs[]` preview plus `wouldRepairSentinelLeaks` count
+- Opt out: **`--no-repair-sentinel-leaks`** (or `noRepairSentinelLeaks` on **`GenerateRunOptions`**)
 
 Fail-closed: if MT still leaves sentinels after restore, the path is not written (existing `translateLeaf` / `validateRestored` behavior). See [Locale issues — `placeholder_sentinel_leak`](../issues/locale.md#placeholder-sentinel-leak).
 

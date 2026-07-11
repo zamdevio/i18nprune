@@ -34,6 +34,7 @@ import {
 import {
   applySentinelLeakRepairsToLocaleJson,
   findSentinelLeakCopySkipped,
+  formatSentinelRepairDetailLine,
   formatSyncSentinelLeakNotice,
   formatSyncSentinelLeakSourceAlsoLeaksMessage,
   repairSentinelLeaksCopyFromSource,
@@ -256,6 +257,31 @@ export function emitSyncHumanMessages(
         target: repairs[0]?.localeCode,
         data: { sentinelRepairs: repairs.length },
       });
+      for (const repair of repairs.slice(0, 5)) {
+        emitRunMessage(host.emit, {
+          op: 'sync',
+          runId: host.runId,
+          level: 'detail',
+          message: formatSentinelRepairDetailLine({
+            path: repair.path,
+            mode: repair.mode,
+            from: repair.from,
+            to: repair.to,
+          }),
+          path: localeFile,
+          target: repair.localeCode,
+        });
+      }
+      if (repairs.length > 5) {
+        emitRunMessage(host.emit, {
+          op: 'sync',
+          runId: host.runId,
+          level: 'detail',
+          message: `  … and ${String(repairs.length - 5)} more sentinel repair(s)`,
+          path: localeFile,
+          target: repairs[0]?.localeCode,
+        });
+      }
     }
   }
   emitRunMessage(host.emit, {
@@ -465,8 +491,13 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     const mergedTargetLeaves = new Map(
       collectTranslationSurfaceLeaves(next).map((leaf) => [leaf.path, leaf.value] as const),
     );
-    const { repairs } = repairSentinelLeaksCopyFromSource(segmentSourceMap, mergedTargetLeaves);
-    const skippedCopy = findSentinelLeakCopySkipped(segmentSourceMap, mergedTargetLeaves);
+    const repairSentinelLeaks = opts.noRepairSentinelLeaks !== true;
+    const { repairs } = repairSentinelLeaks
+      ? repairSentinelLeaksCopyFromSource(segmentSourceMap, mergedTargetLeaves)
+      : { repairs: [] as ReturnType<typeof repairSentinelLeaksCopyFromSource>['repairs'] };
+    const skippedCopy = repairSentinelLeaks
+      ? findSentinelLeakCopySkipped(segmentSourceMap, mergedTargetLeaves)
+      : [];
     if (skippedCopy.length > 0) {
       emitRunMessage(host.emit, {
         op: 'sync',
