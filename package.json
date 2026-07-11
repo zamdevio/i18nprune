@@ -1,6 +1,6 @@
 {
   "name": "i18nprune",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Production-grade i18n toolkit. CLI + stable programmatic API for validation, sync, pruning, generation and quality control of translation files.",
   "homepage": "https://docs.i18nprune.dev",
   "type": "module",
@@ -165,7 +165,7 @@
     "i18nprune"
   ],
   "license": "MIT",
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@11.11.0",
   "engines": {
     "node": ">=18"
   },

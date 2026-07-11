@@ -1,6 +1,6 @@
 {
   "name": "@i18nprune/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "type": "module",
   "description": "Pure domain engine package for i18nprune.",
