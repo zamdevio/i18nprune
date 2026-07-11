@@ -6,7 +6,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 **Convention:** Weeks use **ISO-8601** (`YYYY-Www`, Monday start). Newest weeks first below.
 
-**Next work:** Extractor v2 — [`phases/extractor/README.md`](../phases/extractor/README.md) · then search · AST tier · extension — [`phases/active-phase.md`](../phases/active-phase.md).
+**Next work:** VS Code extension — [`phases/extension/README.md`](../phases/extension/README.md) · [`phases/active-phase.md`](../phases/active-phase.md).
 
 ---
 
@@ -14,7 +14,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | Week | Theme | Doc |
 |------|-------|-----|
-| 2026-W28 | **Kits v1.0.0** + export publish preflight | [`kits/kits.md`](./kits/kits.md) · [`exports/governance.md`](./exports/governance.md) |
+| 2026-W28 | **v1.0.0 kits** + **v1.0.1 sentinel repair** + export publish gate | [`kits/kits.md`](./kits/kits.md) · [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) · [`exports/governance.md`](./exports/governance.md) |
 | 2026-W26 | Tooling & kits prep (expgov migration, pnpm v11) | [`tooling/tooling.md`](./tooling/tooling.md) |
 | 2026-W25 | Export governance bootstrap, extractor/search phases | [`tooling/tooling.md`](./tooling/tooling.md) |
 | 2026-W24 | Extractor fusion E.1–E.6, D.1, T.1 | [`extractor/fusion.md`](./extractor/fusion.md) |
@@ -33,6 +33,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 | ID | Week | One-line | Doc |
 |----|------|----------|-----|
 | **Kits v1** | W28 | Native `i18nprune kits` + semver 1.0.0 | [`kits/kits.md`](./kits/kits.md) |
+| **Sentinel repair** | W28 | Placeholder leak detect + sync/generate repair (v1.0.1) | [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) |
 | **Publish preflight** | W28 | expgov validate + npm v1 gate | [`exports/governance.md`](./exports/governance.md) |
 | **Governance bootstrap** | W25 | expgov + `.exports/cache/` | [`tooling/tooling.md`](./tooling/tooling.md) |
 | **D.1** | W24 | Active vs commented dynamic counts | [`extractor/fusion.md`](./extractor/fusion.md) |
@@ -53,7 +54,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 | Group | Weeks / slices | Doc |
 |-------|----------------|-----|
 | Kits v1 | W28 | [`kits/kits.md`](./kits/kits.md) |
-| Exports governance | W25–W28 | [`exports/governance.md`](./exports/governance.md) · [`tooling/tooling.md`](./tooling/tooling.md) · active [`exports/tiers.md`](./exports/tiers.md) · [`exports/program.md`](./exports/program.md) |
+| Exports governance | W25–W28 | [`exports/governance.md`](./exports/governance.md) · [`tooling/tooling.md`](./tooling/tooling.md) |
 | Extractor & dynamic | W21 C.1, W24 E/D/T | [`extractor/c1.md`](./extractor/c1.md) · [`extractor/fusion.md`](./extractor/fusion.md) |
 | Platform & release | W23 CI/XP/T/npm/git | [`platform/platform.md`](./platform/platform.md) · [`platform/ci.md`](./platform/ci.md) |
 | Share & workers | W22 | [`share/share.md`](./share/share.md) |

@@ -93,8 +93,8 @@
   },
   {
     "week": "2026-W28",
-    "label": "Week 28 — Kits v1.0.0",
-    "theme": "Native i18nprune kits audit commands, release gates, semver 1.0.0",
+    "label": "Week 28 — v1.0.0 + v1.0.1",
+    "theme": "Kits v1.0.0, export publish gate, placeholder sentinel repair patch",
     "color": "coral",
     "shipped": [
       "i18nprune kits — dynamic, identical, honest, baseline, pr (read-only; CliJsonEnvelope JSON)",
@@ -102,7 +102,12 @@
       "Global CLI short flags — -j, -jp, -T, -F, -ds, -dc; kits -t, -o, -fon, -mxdy, -b, -sb",
       "docs/commands/kits/* + releases portal cli/core 1.0.0 YAML",
       "CepatEdge E2E smoke — kits against apps/web config (pre-tag verification)",
-      "expgov validate green + exports.yml CI (receipt maintainer/shipped/exports/governance.md)"
+      "expgov validate green + exports.yml CI (receipt maintainer/shipped/exports/governance.md)",
+      "v1.0.1 — placeholder sentinel leak detect (validate/quality/review) + sync copy_source repair + generate retranslate",
+      "v1.0.1 — generate --resume pending leaked paths; --no-repair-sentinel-leaks on sync/generate",
+      "v1.0.1 — spaced-variant sentinel detection (__I18NPRUNE _0__); JSON sentinelRepairs[] + bounded detail lists",
+      "v1.0.1 — kits terminal MD dim (formatKitsTerminalMarkdown); plain markdown on --out",
+      "releases portal cli/core 1.0.1 YAML (receipt maintainer/shipped/locale/sentinel-repair.md)"
     ]
   },
   {

@@ -1,0 +1,53 @@
+schemaVersion: 1
+stream: core
+version: 1.0.1
+date: 2026-07-11
+status: stable
+summary: v1.0.1 — shared placeholder sentinel leak module; sync copy repair; generate retranslate + resume pending; read-only detect on validate/quality/review.
+highlights:
+  - "Shared `sentinelLeak.ts` — `scanLocaleForSentinelLeaks`, `repairSentinelLeaksCopyFromSource`, `planSentinelLeakGenerateRepairs`, `isSentinelLeakPending`"
+  - "Issue code `i18nprune.locale.placeholder_sentinel_leak` on validate, quality, review (warn only)"
+  - "`runSync` post-merge copy_source repair; JSON `sentinelRepairs[]` with bounded human detail lines"
+  - "`runGenerate` force-queue + placeholder_copy or MT repair; fail-closed on post-MT leak (`placeholder_sentinel_mangled`)"
+  - "Resume — leaked leaves stay pending via `isSentinelLeakPending` + `isResumeCandidateLeaf`"
+sections:
+  added:
+    - "`packages/core/src/shared/placeholders/sentinelLeak.ts` — single module for detect + sync/generate repair"
+    - "`SyncRunOptions.noRepairSentinelLeaks` / `GenerateRunOptions.noRepairSentinelLeaks`"
+    - "JSON `sentinelRepairs[]` on sync and generate payloads with rich per-path metadata (`from`, `to`, `sourceValue`, `localeCode`, `localeFile`)"
+    - "Dry-run `wouldRepairSentinelLeaks` count on sync and generate"
+  changed:
+    - "Sentinel leak regex — `I18NPRUNE[\\s_]*\\d+` detects spaced variants; `__I18NPRUNE_MISSING__` excluded from leak classification"
+    - "`emitSyncHumanMessages` sentinel repair details respect global list limit (`--top` / `--full`)"
+    - "Detect ops emit dim suggestion detail lines via `emitSentinelLeakSuggestionDetails`"
+  fixed:
+    - "`localePathLooksTranslatedFromSource` returns false when target still contains numeric mask sentinels"
+    - "`generate --resume` re-queues leaked paths with correct source text for MT jobs"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install @i18nprune/core@1.0.1"
+    - "Pin the same semver as CLI when mixing SDK + CLI (`@i18nprune/core@1.0.1` with `i18nprune@1.0.1`)"
+    - "SDK hosts: pass `noRepairSentinelLeaks: true` on `runSync` / `runGenerate` to skip automatic repair"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/1.0.1
+    - label: placeholder_sentinel_leak
+      href: https://docs.i18nprune.dev/issues/locale#placeholder-sentinel-leak
+    - label: SDK operations
+      href: https://docs.i18nprune.dev/sdk/operations
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@1.0.1
+git:
+  tag: v1.0.1
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.0.1"
+compat:
+  - stream: cli
+    version: 1.0.1
+tags:
+  - patch
+  - locale

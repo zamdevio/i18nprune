@@ -69,13 +69,11 @@ export function finishKitsRun<K extends KitsCommandId, D>(
     markdownText?: string;
     /** Pre-styled terminal body; defaults to {@link formatKitsTerminalMarkdown} on `markdownText`. */
     terminalText?: string;
-    /** @deprecated Use `markdownText`. */
-    humanText?: string;
     summaryCounts?: Record<string, number>;
     policyFailed?: boolean;
   },
 ): void {
-  const markdown = options.markdownText ?? options.humanText;
+  const markdown = options.markdownText;
   if (ctx.run.json) {
     const text = emitKitsJsonResult(commandId, options.data, ctx, {
       outPath: options.outPath,

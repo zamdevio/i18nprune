@@ -30,8 +30,8 @@ npm:
   package: "@i18nprune/core"
   installSnippet: npm install @i18nprune/core@0.1.2
 git:
-  tag: core-v0.1.2
-  githubReleaseUrl: ""
+  tag: v0.1.2
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v0.1.2"
 compat: []
 tags:
   - patch

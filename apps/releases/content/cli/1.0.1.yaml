@@ -1,0 +1,63 @@
+schemaVersion: 1
+stream: cli
+version: 1.0.1
+date: 2026-07-11
+status: stable
+summary: v1.0.1 — placeholder sentinel leak detect + repair on sync/generate; kits terminal markdown readability; spaced-variant leak detection.
+highlights:
+  - "Placeholder sentinel repair — `validate`/`quality`/`review` warn with `i18nprune.locale.placeholder_sentinel_leak`; `sync` copies source over leaks; `generate` re-translates leaked paths"
+  - "`generate --resume` treats leaked leaves as pending until repair succeeds"
+  - "Opt out — `--no-repair-sentinel-leaks` on `sync` and `generate`"
+  - "Kits terminal output — dim blockquotes, doc links, and sample rows on TTY; plain markdown on `--out`"
+  - "Detect spaced MT mask variants (`__I18NPRUNE _0__`) in addition to tight `__I18NPRUNE_0__` tokens"
+sections:
+  added:
+    - "`--no-repair-sentinel-leaks` on `sync` and `generate` (skip automatic sentinel repair)"
+    - "JSON `sentinelRepairs[]` on `sync` and `generate` with `path`, `mode`, `from`, `to` / `sourceValue`, `localeCode`, `localeFile`"
+    - "Dry-run preview — `wouldRepairSentinelLeaks` count plus bounded per-path `detail` lines (respects `--top` / `--full`)"
+    - "Kits dual output — `markdownText` for files, `formatKitsTerminalMarkdown` for TTY"
+    - "Docs — sentinel sections in `docs/commands/sync.md`, `docs/commands/generate.md`, `docs/issues/locale.md`"
+  changed:
+    - "`sync` post-merge repair copies source strings over stale `__I18NPRUNE_*` mask tokens at leaked paths"
+    - "`generate` force-queues leaked paths even when target values are non-empty; `placeholder_copy` vs full MT by leaf kind"
+    - "Kits human output — structural/secondary markdown lines dim on terminal; saved `.md` files stay ANSI-free"
+    - "Sentinel leak suggestion lines on detect ops use dim `detail` styling"
+  fixed:
+    - "Leak scan matches spaced sentinel variants (`I18NPRUNE _N`) that MyMemory and weak MT backends leave in locale JSON"
+    - "`__I18NPRUNE_MISSING__` scaffold tokens are not classified as MT leaks (numeric index only)"
+    - "`generate --resume` re-queues leaked placeholder paths instead of treating them as already translated"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install -g i18nprune@1.0.1"
+    - "Pin `@i18nprune/core@1.0.1` when using the SDK alongside this CLI line"
+    - "After upgrading: run `i18nprune validate` to detect stale sentinels; fix with `i18nprune sync --metadata --target <locale>` (copy) then `i18nprune generate --metadata --target <locale>` (localized repair)"
+    - "Use `--no-repair-sentinel-leaks` when you need detect-only sync/generate runs without automatic repair"
+    - "Kits JSON consumers unchanged — standard `CliJsonEnvelope`; terminal-only styling does not affect `--json` or `-o` files"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/1.0.1
+    - label: sync — sentinel repair
+      href: https://docs.i18nprune.dev/commands/sync
+    - label: generate — sentinel repair
+      href: https://docs.i18nprune.dev/commands/generate
+    - label: placeholder_sentinel_leak issue
+      href: https://docs.i18nprune.dev/issues/locale#placeholder-sentinel-leak
+    - label: kits command
+      href: https://docs.i18nprune.dev/commands/kits
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@1.0.1
+git:
+  tag: v1.0.1
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.0.1"
+compat:
+  - stream: core
+    version: 1.0.1
+tags:
+  - patch
+  - locale
+  - kits

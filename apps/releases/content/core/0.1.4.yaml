@@ -53,8 +53,8 @@ npm:
   package: "@i18nprune/core"
   installSnippet: npm install @i18nprune/core@0.1.4
 git:
-  tag: core-v0.1.4
-  githubReleaseUrl: ""
+  tag: v0.1.4
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v0.1.4"
 compat: []
 tags:
   - patch

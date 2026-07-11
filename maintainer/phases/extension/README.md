@@ -1,10 +1,10 @@
 # Phase — VS Code extension
 
-**Status:** **Planned** — execute only after explicit scheduling.  
+**Status:** **Now** — primary sprint after v1.0.1 ships.  
 **Implementation home:** **`apps/extension/`** (this monorepo).  
 **Planning home:** **`maintainer/phases/extension/`** (this file + sibling `*.md` specs).
 
-**Prerequisite:** stable **`@i18nprune/core`** (published SDK subpaths), CLI **`--json`** contracts, v1 verticals shipped, and **extractor AST tier** stable (see **[`../active-phase.md`](../active-phase.md)** — extension follows extractor v2 + AST).
+**Prerequisite:** **`@i18nprune/core`** published with op subpaths, CLI **`--json`** contracts, v1.0.1 shipped. Extractor v2 / AST tier can proceed in parallel once extension scaffolding lands.
 
 Update **[`apps/extension/README.md`](../../../apps/extension/README.md)** when the **workspace** entrypoints or scope blurbs change; keep **deep** sequencing and rules **here**.
 

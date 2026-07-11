@@ -29,8 +29,8 @@ npm:
   package: i18nprune
   installSnippet: npm install -g i18nprune@0.1.2
 git:
-  tag: cli-v0.1.2
-  githubReleaseUrl: ""
+  tag: v0.1.2
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v0.1.2"
 compat:
   - stream: core
     version: 0.1.2

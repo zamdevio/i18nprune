@@ -44,6 +44,7 @@ import { computeExtraTargetKeys } from '../suggestions/computeExtraTargetKeys.js
 import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 import { computeSyncedLocaleJson } from './apply.js';
 import { summarizeSyncLeavesForHumanLog } from './humanLeafSummary.js';
+import { formatListOmittedSuffix } from '../shared/constants/listDisplay.js';
 import {
   buildSyncLocaleDisplayGroups,
   formatSyncFileListOmittedLine,
@@ -257,7 +258,8 @@ export function emitSyncHumanMessages(
         target: repairs[0]?.localeCode,
         data: { sentinelRepairs: repairs.length },
       });
-      for (const repair of repairs.slice(0, 5)) {
+      const shownRepairs = repairs.slice(0, input.listLimit);
+      for (const repair of shownRepairs) {
         emitRunMessage(host.emit, {
           op: 'sync',
           runId: host.runId,
@@ -272,12 +274,13 @@ export function emitSyncHumanMessages(
           target: repair.localeCode,
         });
       }
-      if (repairs.length > 5) {
+      const omittedRepairs = repairs.length - shownRepairs.length;
+      if (omittedRepairs > 0) {
         emitRunMessage(host.emit, {
           op: 'sync',
           runId: host.runId,
           level: 'detail',
-          message: `  … and ${String(repairs.length - 5)} more sentinel repair(s)`,
+          message: `  ${formatListOmittedSuffix(omittedRepairs)}`,
           path: localeFile,
           target: repairs[0]?.localeCode,
         });

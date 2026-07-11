@@ -15,16 +15,13 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 ---
 
-## Active work
+## Active work (planned only)
 
 | Doc | Status |
 |-----|--------|
-| [`placeholder-sentinel-repair.md`](./placeholder-sentinel-repair.md) | **Now — v1.0.1** · detect `__I18NPRUNE_*`, `sync` repair, `generate` guard |
-| [`shipped/exports/tiers.md`](../shipped/exports/tiers.md) | **Honest expgov tier classification** (in progress) |
-| [`shipped/exports/program.md`](../shipped/exports/program.md) | **Barrel refactor** — subpaths, host migration, root slim |
-| [`extractor/README.md`](./extractor/README.md) | **Extractor v2** — paused until v1.0.1 lands |
+| [`extension/README.md`](./extension/README.md) | **Now** — VS Code extension |
+| [`extractor/README.md`](./extractor/README.md) | **Paused** — resume after extension kickoff |
 | [`search.md`](./search.md) | **Planned** — `search` command |
-| [`extension/README.md`](./extension/README.md) | **After AST tier** — VS Code extension |
 | [`terminal.md`](./terminal.md) | **Research** — terminal protocol exploitation |
 
 **Systems maps:** [`systems/README.md`](../systems/README.md) — `cache.md`, `share.md`, `extractor.md`, `exports.md`, …

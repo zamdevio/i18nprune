@@ -35,7 +35,7 @@ npm:
   installSnippet: npm install @i18nprune/core@1.0.0
 git:
   tag: v1.0.0
-  githubReleaseUrl: ""
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.0.0"
 compat: []
 tags:
   - major
