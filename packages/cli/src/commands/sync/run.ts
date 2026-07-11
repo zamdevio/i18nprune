@@ -93,6 +93,7 @@ export async function sync(opts: SyncOptions): Promise<void> {
       humanLeafSummaryByLocaleFile,
       sourcePlaceholderLeaves,
       targetPlaceholderLeaves,
+      sentinelRepairs,
     } = resolveSyncData(ctx, opts, {
       emit: createCliRunEmitter(ctx.run),
       runId,
@@ -118,6 +119,7 @@ export async function sync(opts: SyncOptions): Promise<void> {
           humanLeafSummaryByLocaleFile,
           sourcePlaceholderLeaves,
           targetPlaceholderLeaves,
+          sentinelRepairs,
         },
         dryRun: Boolean(opts.dryRun),
         listLimit: summaryListWindow.limit,

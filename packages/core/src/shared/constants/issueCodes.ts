@@ -46,6 +46,9 @@ export const ISSUE_SYNC_SCAN_EXTRAS_RETAINED = 'i18nprune.sync.scan_extras_retai
 export const ISSUE_LOCALE_SOURCE_PLACEHOLDER_LEAVES = 'i18nprune.locale.source_placeholder_leaves' as const;
 /** Locale read: target JSON still has placeholder leaves (e.g. untranslated stubs). */
 export const ISSUE_LOCALE_TARGET_PLACEHOLDER_LEAVES = 'i18nprune.locale.target_placeholder_leaves' as const;
+/** Locale read: target JSON contains stale MT mask sentinels (`__I18NPRUNE_*`) instead of `{{…}}`. */
+export const ISSUE_LOCALE_PLACEHOLDER_SENTINEL_LEAK =
+  'i18nprune.locale.placeholder_sentinel_leak' as const;
 /** Cleanup: paths skipped because classification was uncertain (safety). */
 export const ISSUE_CLEANUP_UNCERTAIN_PATHS_EXCLUDED = 'i18nprune.cleanup.uncertain_paths_excluded' as const;
 /** Cleanup: ripgrep (`rg`) not available where required for the cleanup strategy. */

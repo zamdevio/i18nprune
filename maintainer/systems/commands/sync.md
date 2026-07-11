@@ -22,6 +22,7 @@
 | Concern | Location |
 |---------|----------|
 | Merge + prune (pure) | `packages/core/src/sync/apply.ts` → **`computeSyncedLocaleJson`**; re-exports **`mergeToTemplateShape`**, **`pruneToTemplateShape`** on `packages/core/src/sync/index.ts`, namespace **`@i18nprune/core/sync`** |
+| Placeholder sentinel copy repair | `packages/core/src/shared/placeholders/sentinelLeak.ts` → **`repairSentinelLeaksCopyFromSource`**, **`applySentinelLeakRepairsToLocaleJson`** (wired in **`runSync`** after merge) |
 | Template string leaves → map | `collectStringLeaves` + `Map` paths (CLI uses `@i18nprune/core`) |
 | Structured / strip metadata | `packages/core/src/shared/localeLeaves/index.ts` → **`applyLocaleLeafMode`**, **`resolveLocaleLeafMode`** |
 | Target selection | `parseSyncLangSelection`, **`resolveSyncTargetFiles`** |
@@ -33,6 +34,7 @@
 2. Read **template** (source locale JSON); **`collectStringLeaves`** → **`sourceMap`**.
 3. Resolve **target files**; for each locale file:
    - **`computeSyncedLocaleJson(template, cur, preserve, mergeOpts)`** → **`next`**.
+   - **Sentinel leak repair (v1.0.1):** **`repairSentinelLeaksCopyFromSource`** on merged leaves → **`applySentinelLeakRepairsToLocaleJson`** when target has stale **`__I18NPRUNE_*`** (copy source string; structured leaves update **`.value`** only).
    - **Human counts (merge/prune only):** **`summarizeSyncLeavesForHumanLog(sourceLeaves, cur, next)`**.
    - If **`--metadata`** or **`--strip-metadata`**: **`resolveLocaleLeafMode`** (explicit flags only in this orchestration path) → **`applyLocaleLeafMode({ localeJson: next, sourceMap, mode })`** → **`finalNext`** + **`localeMetadataReports[file]`**.
    - Else: **`finalNext = next`**; **`idleLocaleMetadataReportForSkippedSync`** for JSON row.

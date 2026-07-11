@@ -31,6 +31,13 @@ import {
   issuesFromTargetPlaceholderLeaves,
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
+import {
+  applySentinelLeakRepairsToLocaleJson,
+  findSentinelLeakCopySkipped,
+  formatSyncSentinelLeakNotice,
+  formatSyncSentinelLeakSourceAlsoLeaksMessage,
+  repairSentinelLeaksCopyFromSource,
+} from '../shared/placeholders/sentinelLeak.js';
 import { emitRunMessage } from '../shared/run/index.js';
 import { computeExtraTargetKeys } from '../suggestions/computeExtraTargetKeys.js';
 import { finalizeLocaleSuggestions } from '../suggestions/index.js';
@@ -50,6 +57,7 @@ import type { Issue } from '../types/json/envelope/index.js';
 import type { LocaleMetadataRepairReason, LocaleMetadataReport } from '../types/locales/leaves/index.js';
 import type { SyncHumanLeafSummary } from '../types/sync/humanLeafSummary.js';
 import type { SyncHostHooks, SyncRunOptions, SyncRunResult } from '../types/sync/index.js';
+import type { SyncSentinelRepairRecord } from '../types/sync/syncRun.js';
 import type { LocalePlaceholderLeaf } from '../shared/sourcePlaceholders/index.js';
 
 function zeroByReason(): Record<LocaleMetadataRepairReason, number> {
@@ -229,6 +237,27 @@ export function emitSyncHumanMessages(
       });
     }
   }
+  if (result.sentinelRepairs.length > 0) {
+    const byFile = new Map<string, SyncSentinelRepairRecord[]>();
+    for (const repair of result.sentinelRepairs) {
+      byFile.set(repair.localeFile, [...(byFile.get(repair.localeFile) ?? []), repair]);
+    }
+    for (const [localeFile, repairs] of byFile) {
+      emitRunMessage(host.emit, {
+        op: 'sync',
+        runId: host.runId,
+        level: 'notice',
+        message: formatSyncSentinelLeakNotice({
+          count: repairs.length,
+          localeFile,
+          dryRun: input.dryRun,
+        }),
+        path: localeFile,
+        target: repairs[0]?.localeCode,
+        data: { sentinelRepairs: repairs.length },
+      });
+    }
+  }
   emitRunMessage(host.emit, {
     op: 'sync',
     runId: host.runId,
@@ -376,6 +405,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
   const sourcePlaceholderPaths = new Set(sourcePlaceholderLeaves.map((leaf) => leaf.path));
   const localeMetadataReports: Record<string, LocaleMetadataReport> = {};
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
+  const sentinelRepairs: SyncSentinelRepairRecord[] = [];
 
   for (let i = 0; i < targets.length; i++) {
     const segment = targets[i]!;
@@ -432,6 +462,39 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       ctx.config.policies?.preserve,
       mergeOpts,
     );
+    const mergedTargetLeaves = new Map(
+      collectTranslationSurfaceLeaves(next).map((leaf) => [leaf.path, leaf.value] as const),
+    );
+    const { repairs } = repairSentinelLeaksCopyFromSource(segmentSourceMap, mergedTargetLeaves);
+    const skippedCopy = findSentinelLeakCopySkipped(segmentSourceMap, mergedTargetLeaves);
+    if (skippedCopy.length > 0) {
+      emitRunMessage(host.emit, {
+        op: 'sync',
+        runId: host.runId,
+        level: 'warn',
+        message: formatSyncSentinelLeakSourceAlsoLeaksMessage({
+          count: skippedCopy.length,
+          samplePaths: skippedCopy.slice(0, 5).map((row) => row.path),
+        }),
+        path: full,
+        target: targetCode,
+        data: { sentinelCopySkipped: skippedCopy.length },
+      });
+    }
+    let mergedNext = next;
+    if (repairs.length > 0) {
+      mergedNext = applySentinelLeakRepairsToLocaleJson(next, repairs);
+      sentinelRepairs.push(
+        ...repairs.map((repair) => ({
+          path: repair.path,
+          mode: 'copy_source' as const,
+          from: repair.from,
+          to: repair.to,
+          localeCode: targetCode,
+          localeFile: full,
+        })),
+      );
+    }
     host.emitProgress({
       type: 'run.progress.sync',
       phase: 'prune',
@@ -439,10 +502,10 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
       current: i + 1,
       total: targets.length,
     });
-    humanLeafSummaryByLocaleFile[file] = summarizeSyncLeavesForHumanLog(segmentFillLeaves, cur, next);
-    let finalNext: unknown = next;
+    humanLeafSummaryByLocaleFile[file] = summarizeSyncLeavesForHumanLog(segmentFillLeaves, cur, mergedNext);
+    let finalNext: unknown = mergedNext;
     if (explicitStripMetadata || explicitMetadata) {
-      let metadataInput = next;
+      let metadataInput = mergedNext;
       if (explicitMetadata && targetPlaceholderPaths.length > 0) {
         for (const placeholderPath of targetPlaceholderPaths) {
           metadataInput = setAtPath(metadataInput, placeholderPath, null);
@@ -501,6 +564,12 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     dryRun: Boolean(opts.dryRun),
     files: fileLines,
     localeMetadataReports,
+    ...(sentinelRepairs.length > 0
+      ? {
+          sentinelRepairs,
+          ...(opts.dryRun ? { wouldRepairSentinelLeaks: sentinelRepairs.length } : {}),
+        }
+      : {}),
   });
 
   const issues = [
@@ -526,5 +595,6 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     humanLeafSummaryByLocaleFile,
     sourcePlaceholderLeaves,
     targetPlaceholderLeaves,
+    sentinelRepairs,
   };
 }

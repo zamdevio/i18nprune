@@ -16,7 +16,7 @@
 
 ## Core & shared
 
-- **Payload / issues:** `@i18nprune/core` — `buildValidateIssues`, `buildValidateScanPayload`, extractor scan path; see imports in `jsonEnvelope.ts`.
+- **Payload / issues:** `@i18nprune/core` — `buildValidateIssues`, `buildValidateScanPayload`, extractor scan path; **`sentinelLeak`** target scan → **`i18nprune.locale.placeholder_sentinel_leak`** (warn only); see imports in `jsonEnvelope.ts`.
 
 ## Flow (short)
 

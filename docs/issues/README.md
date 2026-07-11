@@ -73,6 +73,7 @@ Issue code string constants **`ISSUE_*`** are exported from **`i18nprune/core`**
 | `i18nprune.locale.target_not_found` | `error` / `warning` | **`locales edit`**, **`locales delete`**, **`missing --target`**, … |
 | `i18nprune.locale.source_placeholder_leaves` | `warning` | **`validate`**, **`missing`**, **`sync`**, **`quality`**, **`review`** when the source locale contains missing placeholders |
 | `i18nprune.locale.target_placeholder_leaves` | `warning` | **`missing --target`**, **`sync`**, **`quality`**, **`review`** when non-source locales contain missing placeholders |
+| `i18nprune.locale.placeholder_sentinel_leak` | `warning` | **`validate`**, **`quality`**, **`review`** when target locales contain stale MT mask sentinels (`__I18NPRUNE_*`); see [locale — `placeholder_sentinel_leak`](./locale.md#placeholder-sentinel-leak) |
 | `i18nprune.translate.identity_streak_warning` | `warning` | **`generate`** (including **`--resume`**) |
 | `i18nprune.translate.identity_streak_abort` | `error` | **`generate`** (including **`--resume`**) |
 | `i18nprune.translate.unknown_translation_provider` | `error` | Provider id resolution / validation |

@@ -27,6 +27,19 @@ export type SyncJsonOutput = {
   localeMetadataReports?: Record<string, LocaleMetadataReport>;
   /** Cross-op next-step hints (additive). */
   suggestions?: LocaleSuggestion[];
+  /** Placeholder sentinel copy-source repairs applied (or would apply with `--dry-run`). */
+  sentinelRepairs?: SyncSentinelRepairRecord[];
+  /** Count of sentinel repairs when `--dry-run` (same length as `sentinelRepairs` when populated). */
+  wouldRepairSentinelLeaks?: number;
+};
+
+export type SyncSentinelRepairRecord = {
+  path: string;
+  mode: 'copy_source';
+  from: string;
+  to: string;
+  localeCode: string;
+  localeFile: string;
 };
 
 export type SyncRunOptions = {
@@ -66,4 +79,6 @@ export type SyncRunResult = {
   sourcePlaceholderLeaves: SourcePlaceholderLeaf[];
   /** Target placeholder leaves observed before sync applies its source-shape plan. */
   targetPlaceholderLeaves: LocalePlaceholderLeaf[];
+  /** Sentinel leak copy-source repairs applied or previewed in this run. */
+  sentinelRepairs: SyncSentinelRepairRecord[];
 };

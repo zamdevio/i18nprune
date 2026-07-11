@@ -17,6 +17,12 @@ import {
   issuesFromTargetPlaceholderLeaves,
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
+import {
+  formatSentinelLeakMessage,
+  issuesFromSentinelLeakHits,
+  scanLeavesForSentinelLeaks,
+} from '../shared/placeholders/sentinelLeak.js';
+import type { SentinelLeakHit } from '../shared/placeholders/sentinelLeak.js';
 import { formatCountMap, mergeReviewLocaleStats } from './aggregate.js';
 import { buildReviewJsonData } from './report.js';
 import { parseReviewTargetCodes } from './targetScope.js';
@@ -150,6 +156,7 @@ export function runReview(
   const targetLocaleJsonByFile: Record<string, unknown> = {};
   const pairedSourceLocaleJsonByTargetFile: Record<string, unknown> = {};
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
+  const sentinelLeakHits: SentinelLeakHit[] = [];
   for (const segment of segments) {
     const file = segment.reportKey;
     const full = segment.absolutePath;
@@ -166,6 +173,12 @@ export function runReview(
         localeCode: segment.locale,
         localePath: full,
       }),
+    );
+    sentinelLeakHits.push(
+      ...scanLeavesForSentinelLeaks(
+        targetRead.ok ? targetRead.leaves : [],
+        normalizeLanguageCode(segment.locale),
+      ),
     );
   }
 
@@ -269,6 +282,20 @@ export function runReview(
       });
     }
   }
+  if (sentinelLeakHits.length > 0) {
+    const byLocale = new Map<string, SentinelLeakHit[]>();
+    for (const hit of sentinelLeakHits) {
+      byLocale.set(hit.localeCode, [...(byLocale.get(hit.localeCode) ?? []), hit]);
+    }
+    for (const [localeCode, hits] of byLocale) {
+      emitReviewMessage(host, {
+        level: 'warn',
+        message: formatSentinelLeakMessage({ localeCode, count: hits.length }),
+        target: localeCode,
+        data: { sentinelLeakPaths: hits.length },
+      });
+    }
+  }
   const sourceIdenticalCount = Object.values(payload.locales).reduce(
     (sum, stats) => sum + stats.englishIdentical,
     0,
@@ -293,6 +320,7 @@ export function runReview(
       ...issuesFromDynamicScanCount(dynamicKeySitesActive),
       ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
       ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),
+      ...issuesFromSentinelLeakHits(sentinelLeakHits),
     ],
   };
 }

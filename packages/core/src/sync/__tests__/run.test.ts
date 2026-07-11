@@ -140,4 +140,92 @@ describe('runSync', () => {
       fs.rmSync(root, { recursive: true, force: true });
     }
   });
+
+  it('copies source strings over placeholder sentinel leaks in target locale', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-sync-sentinel-'));
+    try {
+      const localesDir = path.join(root, 'locales');
+      const srcRoot = path.join(root, 'src');
+      fs.mkdirSync(localesDir, { recursive: true });
+      fs.mkdirSync(srcRoot, { recursive: true });
+      const sourcePath = path.join(localesDir, 'en.json');
+      const targetPath = path.join(localesDir, 'ar.json');
+      fs.writeFileSync(
+        sourcePath,
+        JSON.stringify({
+          dashboard: {
+            recentActivity: {
+              meta: '{{who}} · {{status}} · {{priority}}',
+            },
+          },
+        }),
+      );
+      fs.writeFileSync(
+        targetPath,
+        JSON.stringify({
+          dashboard: {
+            recentActivity: {
+              meta: '__ I18NPRUNE_0 __ · __ I18NPRUNE_1 __ · __ I18NPRUNE_2 __',
+            },
+          },
+        }),
+      );
+
+      const rt = createNodeRuntimeAdapters();
+      const config = parseI18nPruneConfig({
+        ...DEFAULT_CONFIG,
+        locales: {
+          source: 'en',
+          directory: 'locales',
+        },
+        src: 'src',
+        functions: ['t'],
+      });
+      const ctx = createCoreContext({
+        config,
+        adapters: rt,
+        env: {},
+        paths: { sourceLocale: sourcePath, localesDir, srcRoot },
+      });
+      const events: RunEvent[] = [];
+      const out = runSync(ctx, { target: 'ar' }, {
+        emit: (event) => events.push(event),
+        runId: 'test',
+        emitProgress: () => {},
+      });
+      emitSyncHumanMessages(
+        { emit: (event) => events.push(event), runId: 'test' },
+        {
+          result: out,
+          dryRun: false,
+          listLimit: 10,
+          explicitStripMetadata: false,
+          explicitMetadata: false,
+        },
+      );
+
+      const target = JSON.parse(fs.readFileSync(targetPath, 'utf8')) as {
+        dashboard?: { recentActivity?: { meta?: string } };
+      };
+      expect(target.dashboard?.recentActivity?.meta).toBe('{{who}} · {{status}} · {{priority}}');
+      expect(out.sentinelRepairs).toEqual([
+        expect.objectContaining({
+          path: 'dashboard.recentActivity.meta',
+          mode: 'copy_source',
+          localeCode: 'ar',
+        }),
+      ]);
+      expect(out.payload.sentinelRepairs?.[0]?.mode).toBe('copy_source');
+      expect(
+        events.some(
+          (event) =>
+            event.type === 'run.message' &&
+            event.level === 'notice' &&
+            event.message.includes('placeholder sentinel leaks'),
+        ),
+      ).toBe(true);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
 });

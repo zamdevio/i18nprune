@@ -5,8 +5,17 @@ import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js'
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
 import { readSourceLocaleLeaves } from '../shared/locales/surface/localeSurface.js';
+import { readLocaleSegmentFromContext } from '../shared/locales/read/index.js';
+import { listLocaleSegmentTargets, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
+import { normalizeLanguageCode } from '../shared/languages/normalize.js';
 import { ISSUE_VALIDATE_SOURCE_LOCALE_READ_FAILED } from '../shared/constants/issueCodes.js';
 import { issueCodeRepoDocPathForIssueCode } from '../shared/docs/issueAnchors.js';
+import {
+  formatSentinelLeakMessage,
+  issuesFromSentinelLeakHits,
+  scanLeavesForSentinelLeaks,
+} from '../shared/placeholders/sentinelLeak.js';
+import type { SentinelLeakHit } from '../shared/placeholders/sentinelLeak.js';
 import { emitRunEvent, emitRunMessage, nowMs } from '../shared/run/index.js';
 import {
   detectSourcePlaceholderLeaves,
@@ -138,6 +147,32 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
       data: { sourcePlaceholderLeaves: sourcePlaceholderLeaves.length },
     });
   }
+  const sourceCode = sourceLocaleCodeFromContext(ctx);
+  const sentinelLeakHits: SentinelLeakHit[] = [];
+  for (const segment of listLocaleSegmentTargets(ctx)) {
+    if (normalizeLanguageCode(segment.locale) === sourceCode) continue;
+    const read = readLocaleSegmentFromContext(ctx, segment.absolutePath);
+    if (!read.ok) continue;
+    sentinelLeakHits.push(
+      ...scanLeavesForSentinelLeaks(read.leaves, normalizeLanguageCode(segment.locale)),
+    );
+  }
+  if (sentinelLeakHits.length > 0) {
+    const byLocale = new Map<string, SentinelLeakHit[]>();
+    for (const hit of sentinelLeakHits) {
+      byLocale.set(hit.localeCode, [...(byLocale.get(hit.localeCode) ?? []), hit]);
+    }
+    for (const [localeCode, hits] of byLocale) {
+      emitRunMessage(host.emit, {
+        op: 'validate',
+        runId,
+        level: 'warn',
+        message: formatSentinelLeakMessage({ localeCode, count: hits.length }),
+        target: localeCode,
+        data: { sentinelLeakPaths: hits.length },
+      });
+    }
+  }
   const issues: Issue[] = [
     ...buildValidateIssues({
       missingCount: data.missing.length,
@@ -145,6 +180,7 @@ export function runValidate(ctx: CoreContext, _opts: ValidateRunOptions, host: V
       sourceLocalePath: sourcePath,
     }),
     ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
+    ...issuesFromSentinelLeakHits(sentinelLeakHits),
   ];
 
   const payload = finalizeLocaleSuggestions(host, {

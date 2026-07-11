@@ -14,6 +14,12 @@ export type Issue = {
   docPath?: string;
   /** Full HTTPS URL to the documented issue section (e.g. `docs/issues/scan#…`). */
   docHref?: string;
+  /** Target locale code when the issue is scoped to one locale. */
+  localeCode?: string;
+  /** Leaf paths related to this issue (automation). */
+  paths?: string[];
+  /** Copy-paste CLI commands for remediation. */
+  suggestion?: { commands: string[] };
 };
 
 export type ResultMeta = {

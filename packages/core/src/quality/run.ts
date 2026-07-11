@@ -14,6 +14,12 @@ import {
   issuesFromTargetPlaceholderLeaves,
   sourcePlaceholderValues,
 } from '../shared/sourcePlaceholders/index.js';
+import {
+  formatSentinelLeakMessage,
+  issuesFromSentinelLeakHits,
+  scanLeavesForSentinelLeaks,
+} from '../shared/placeholders/sentinelLeak.js';
+import type { SentinelLeakHit } from '../shared/placeholders/sentinelLeak.js';
 import { listLocaleSegmentTargets, sourceLocaleCodeFromContext } from '../shared/locales/targets/index.js';
 import { readLocaleSegmentFromContext } from '../shared/locales/read/index.js';
 import { formatListShownOmitted } from '../shared/constants/listDisplay.js';
@@ -82,6 +88,7 @@ export function runQuality(
     segmentTargets = segmentTargets.filter((s) => normalizeLanguageCode(s.locale) === want);
   }
   const targetPlaceholderLeaves: LocalePlaceholderLeaf[] = [];
+  const sentinelLeakHits: SentinelLeakHit[] = [];
   for (const segment of segmentTargets) {
     const read = readLocaleSegmentFromContext(ctx, segment.absolutePath);
     const leaves = read.ok ? read.leaves : [];
@@ -93,6 +100,9 @@ export function runQuality(
         localeCode: segment.locale,
         localePath: segment.absolutePath,
       }),
+    );
+    sentinelLeakHits.push(
+      ...scanLeavesForSentinelLeaks(leaves, normalizeLanguageCode(segment.locale)),
     );
   }
 
@@ -196,12 +206,29 @@ export function runQuality(
       });
     }
   }
+  if (sentinelLeakHits.length > 0) {
+    const byLocale = new Map<string, SentinelLeakHit[]>();
+    for (const hit of sentinelLeakHits) {
+      byLocale.set(hit.localeCode, [...(byLocale.get(hit.localeCode) ?? []), hit]);
+    }
+    for (const [localeCode, hits] of byLocale) {
+      emitRunMessage(host.emit, {
+        op: 'quality',
+        runId: host.runId,
+        level: 'warn',
+        message: formatSentinelLeakMessage({ localeCode, count: hits.length }),
+        target: localeCode,
+        data: { sentinelLeakPaths: hits.length },
+      });
+    }
+  }
 
   const issues = [
     ...issuesFromDynamicScanCount(dynamicKeySitesActive),
     ...issuesFromQualityEnglishIdentical(total),
     ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
     ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),
+    ...issuesFromSentinelLeakHits(sentinelLeakHits),
   ];
 
   const targetLocaleCodes = opts.target

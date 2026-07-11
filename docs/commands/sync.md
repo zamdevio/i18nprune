@@ -51,6 +51,16 @@ If both `--metadata` and `--strip-metadata` are passed, `--strip-metadata` wins.
 
 `sync --metadata` does not call translation providers. It applies shared normalize/promote/repair leaf handling. `sync --strip-metadata` is the explicit rollback path that removes structured fields and keeps only plain string values.
 
+## Placeholder sentinel repair
+
+When a target leaf still contains stale MT mask sentinels (`__I18NPRUNE_*` or spaced variants) instead of `{{…}}` tokens, **`sync`** copies the **source** string at the same path over the leaked target value (no machine translation). Placeholders work in the UI; copy may remain in the source language until **`generate`**.
+
+- Human output: **`notice`** when repairs apply — `Copied N source value(s) over placeholder sentinel leaks in …`
+- **`--dry-run`:** preview only; JSON includes **`wouldRepairSentinelLeaks`** and **`sentinelRepairs[]`** with **`mode: "copy_source"`**
+- Skipped when the **source** also leaks at the same path — fix source copy first
+
+Detect-only (no writes): **`validate`**, **`quality`**, **`review`** emit **`i18nprune.locale.placeholder_sentinel_leak`**. Proper localized repair: **`generate --metadata --target <locale>`**. See [Locale issues — `placeholder_sentinel_leak`](../issues/locale.md#placeholder-sentinel-leak).
+
 ## Examples
 
 ```bash
@@ -75,6 +85,8 @@ i18nprune sync --strip-metadata --target ja --dry-run
 - `dynamicKeySites`, `dryRun`
 - `files[]` (`path`, `changed`)
 - optional `localeMetadataReports`
+- optional `sentinelRepairs[]` (`path`, `mode: "copy_source"`, `from`, `to`, `localeCode`, `localeFile`)
+- optional `wouldRepairSentinelLeaks` on `--dry-run` when sentinel repairs would apply
 
 ```bash
 # List changed files only

@@ -40,3 +40,19 @@ description: Locale file issue codes — missing targets, placeholder leaves, an
 1. Run **`i18nprune missing --target <locale> --full`** to list every placeholder path in that target locale with its file and best-effort JSON line.
 2. Run **`i18nprune sync`** to align the target locale with the source locale shape.
 3. Run **`i18nprune generate --resume`** to translate the placeholder paths.
+
+---
+
+## `placeholder_sentinel_leak`
+
+**Code:** `i18nprune.locale.placeholder_sentinel_leak`  
+**Severity:** `warning`  
+**When:** a non-source locale leaf still contains stale MT mask sentinels (`__I18NPRUNE_*` or spaced `__ I18NPRUNE_0 __`) instead of restored `{{…}}` interpolation tokens.  
+**Who:** **`validate`**, **`quality`**, **`review`**, and the shared **`sentinelLeak`** module ( **`sync`** / **`generate`** repair in v1.0.1).  
+**What to do:**
+1. Run **`i18nprune validate`** (or **`quality`** / **`review`**) to list affected locales — read-only ops **never write**.
+2. **Quick structure fix:** **`i18nprune sync --target <locale>`** — copies non-leak **source** strings over leaked paths (placeholders work; copy may stay in English until generate).
+3. **Proper localized fix:** **`i18nprune generate --metadata --target <locale>`** — re-translates leaked paths with mask/restore.
+4. After a partial generate, **`i18nprune generate --resume --target <locale>`** keeps leaked paths pending until repair succeeds.
+
+**`--json`:** each issue includes **`localeCode`**, **`paths[]`**, and **`suggestion.commands[]`** (`sync` + `generate` hints). See also **[`placeholder_sentinel_mangled`](./translate.md#placeholder-sentinel-mangled)** on the translate write path.

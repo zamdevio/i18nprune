@@ -58,6 +58,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 | Platform & release | W23 CI/XP/T/npm/git | [`platform/platform.md`](./platform/platform.md) · [`platform/ci.md`](./platform/ci.md) |
 | Share & workers | W22 | [`share/share.md`](./share/share.md) |
 | Engine & cache | W20–W21 | [`cache/generate.md`](./cache/generate.md) · [`cache/cache.md`](./cache/cache.md) · [`cache/init.md`](./cache/init.md) |
+| Locale sentinel repair | W28 (v1.0.1 patch) | [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) |
 | Core & foundation | W15–W19 | [`core/core.md`](./core/core.md) |
 
 ---

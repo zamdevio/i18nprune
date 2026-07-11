@@ -28,6 +28,7 @@ export * from './locales/index.js';
 export * from './projects/index.js';
 export * from './translator/index.js';
 export * from './placeholders/index.js';
+export * from './placeholders/sentinelLeak.js';
 export * from './sourcePlaceholders/index.js';
 export * from './scanner/index.js';
 export * from './errors/index.js';
