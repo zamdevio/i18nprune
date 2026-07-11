@@ -254,20 +254,22 @@ export function isSentinelLeakPending(
 
 ### PS-2 — `generate` write repair (`retranslate`)
 
-- [ ] Shared scan → `planSentinelLeakGenerateRepairs`  
-- [ ] Force leaked paths into translate queue (even if target non-empty)  
-- [ ] `placeholder_copy` vs full `translateLeaf` + mask/restore  
-- [ ] Fail-closed on post-MT leak; `logger.warn` + skip write  
-- [ ] `logger.notice` with copy vs translate counts  
-- [ ] JSON `sentinelRepairs` with `mode`  
-- [ ] Tests extend `localeTranslate.test.ts` + resume fixture
+- [x] Shared scan → `planSentinelLeakGenerateRepairs`  
+- [x] Force leaked paths into translate queue (even if target non-empty)  
+- [x] `placeholder_copy` vs full `translateLeaf` + mask/restore  
+- [x] Fail-closed on post-MT leak; `logger.warn` + skip write  
+- [x] `logger.notice` with copy vs translate counts  
+- [x] JSON `sentinelRepairs` with `mode`  
+- [x] Tests extend `localeTranslate.test.ts`  
+- [ ] Resume integration fixture test  
+- [ ] Docs: `docs/commands/generate.md` sentinel section
 
 ### PS-2b — `generate --resume` integration
 
-- [ ] Resume pending set uses `isSentinelLeakPending(targetValue)`  
-- [ ] Generate cache/state: leaked path not marked complete until repair succeeds  
+- [x] Resume pending set uses `isSentinelLeakPending(targetValue)` via `localePathLooksTranslatedFromSource`  
+- [x] Generate cache/state: leaked path not marked complete until repair succeeds  
 - [ ] Test: leak → partial generate fails path → `--resume` fixes → validate clean  
-- [ ] Docs: `docs/commands/generate/README.md` resume + sentinel section
+- [ ] Docs: `docs/commands/generate.md` resume + sentinel section
 
 ### PS-3 — Release v1.0.1
 

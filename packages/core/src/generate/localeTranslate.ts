@@ -4,6 +4,8 @@ import { getProjectedLeafString, projectLocaleLeaves } from '../shared/locales/p
 import { isParityExcluded } from '../policies/parity.js';
 import { isPreservePath } from '../policies/preserve.js';
 import { isPlaceholderOnlyLeaf } from '../shared/placeholders/index.js';
+import { isSentinelLeakPending } from '../shared/placeholders/sentinelLeak.js';
+import type { SentinelRepairMode } from '../shared/placeholders/sentinelLeak.js';
 import { localeJsonValueFromTranslation } from '../shared/translator/index.js';
 import { localePathLooksTranslatedFromSource } from '../shared/translator/localePathTranslated.js';
 import type { GenerateTranslateCache } from '../types/translator/cache.js';
@@ -47,6 +49,15 @@ type OrderedTranslateStringJob<TKey extends number | string = number> = {
   readonly path: string;
   readonly value: string;
 };
+
+function readTargetLeafString(cur: unknown): string | undefined {
+  if (typeof cur === 'string') return cur;
+  if (cur && typeof cur === 'object' && !Array.isArray(cur)) {
+    const v = (cur as { value?: unknown }).value;
+    if (typeof v === 'string') return v;
+  }
+  return undefined;
+}
 
 function createTranslateRateWindowLimiter(rateLimit?: TranslateStartRateLimit): () => Promise<void> {
   const gapMs = Math.max(
@@ -191,6 +202,8 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
   rateLimit?: TranslateStartRateLimit;
   tickProgress: TranslationTickProgressFn;
   onTranslatedLeaf?: (sourceText: string, translatedText: string, path: string) => Promise<void> | void;
+  /** Paths with stale target sentinels — repairs are recorded in {@link sentinelRepairs}. */
+  sentinelLeakPaths?: ReadonlySet<string>;
 }): Promise<{
   working: unknown;
   preserveCount: number;
@@ -200,7 +213,13 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
   translateStats: TranslateRunPartialStats;
   /** Count of translated leaves classified as review-needed by policy/meta pipeline. */
   markedForReview: number;
+  sentinelRepairs: Array<{ path: string; mode: Extract<SentinelRepairMode, 'placeholder_copy' | 'translate'> }>;
 }> {
+  const sentinelRepairs: Array<{ path: string; mode: Extract<SentinelRepairMode, 'placeholder_copy' | 'translate'> }> =
+    [];
+  const noteSentinelRepair = (path: string, mode: Extract<SentinelRepairMode, 'placeholder_copy' | 'translate'>): void => {
+    if (input.sentinelLeakPaths?.has(path)) sentinelRepairs.push({ path, mode });
+  };
   const existingProj = input.existingRaw ? projectLocaleLeaves(input.existingRaw) : undefined;
   const maxParallel = Math.max(1, Math.min(64, Math.floor(input.maxParallelTranslates ?? 1)));
   const rows: GenerateLeafRow[] = [];
@@ -231,7 +250,8 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
         existingProj !== undefined
           ? getProjectedLeafString(existingProj, leaf.path)
           : (getAtPath(input.existingRaw, leaf.path) as unknown);
-      if (typeof cur === 'string' && cur !== leaf.value) {
+      const curStr = readTargetLeafString(cur);
+      if (curStr !== undefined && curStr !== leaf.value && !isSentinelLeakPending(curStr)) {
         rows.push({ k: 'existing_manual' });
         continue;
       }
@@ -362,6 +382,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
           },
         });
         working = setAtPath(working, leaf.path, nextNode);
+        noteSentinelRepair(leaf.path, 'placeholder_copy');
         tick(wal, leaf.path);
         wal += 1;
         continue;
@@ -377,6 +398,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
       if (!tr) break;
       const nextNode = localeJsonValueFromTranslation(input.persistStructuredLeafMetadata, tr);
       working = setAtPath(working, leaf.path, nextNode);
+      noteSentinelRepair(leaf.path, 'translate');
       tick(wal, leaf.path);
       wal += 1;
     }
@@ -446,6 +468,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
       cacheHits,
     },
     markedForReview,
+    sentinelRepairs,
   };
 }
 

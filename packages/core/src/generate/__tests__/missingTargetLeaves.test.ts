@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sourceLeavesMissingFromTarget, workingLocaleForGenerate } from '../missingTargetLeaves.js';
+import { activeSourceLeavesForGenerate, sourceLeavesMissingFromTarget, workingLocaleForGenerate } from '../missingTargetLeaves.js';
 import type { TranslationSurfaceLeaf } from '../../types/locales/leaves/translationSurface.js';
 
 const leaf = (path: string, value: string): TranslationSurfaceLeaf => ({
@@ -21,6 +21,24 @@ describe('sourceLeavesMissingFromTarget', () => {
     const existing = { a: '1', b: 'kept' };
     const missing = sourceLeavesMissingFromTarget(source, existing);
     expect(missing.map((l) => l.path)).toEqual(['c']);
+  });
+});
+
+describe('activeSourceLeavesForGenerate', () => {
+  it('includes leaked paths when fillMissingOnly even if path exists on target', () => {
+    const source = [leaf('meta', '{{who}} · {{status}}'), leaf('title', 'Hello')];
+    const existing = {
+      meta: '__ I18NPRUNE_0 __ · __ I18NPRUNE_1 __',
+      title: 'Hola',
+    };
+    const active = activeSourceLeavesForGenerate({
+      sourceLeaves: source,
+      existingRaw: existing,
+      fillMissingOnly: true,
+      repairSentinelLeaks: true,
+      localeCode: 'ar',
+    });
+    expect(active.map((l) => l.path).sort()).toEqual(['meta']);
   });
 });
 

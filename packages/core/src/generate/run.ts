@@ -57,7 +57,12 @@ import { IdentityAbortError } from '../translator/identity/error.js';
 import type { IdentityStreakGuard } from '../types/translator/identityStreak.js';
 import { assessGenerateTargetPreflight } from './assessTargetPreflight.js';
 import { buildGenerateSourceLeavesFromSchema } from './buildSourceLeaves.js';
-import { sourceLeavesMissingFromTarget, workingLocaleForGenerate } from './missingTargetLeaves.js';
+import { workingLocaleForGenerate, activeSourceLeavesForGenerate } from './missingTargetLeaves.js';
+import {
+  formatGenerateSentinelLeakNotice,
+  planSentinelLeakGenerateRepairs,
+  scanLocaleForSentinelLeaks,
+} from '../shared/placeholders/sentinelLeak.js';
 import { runGenerateResumeLocale } from './resume/run.js';
 import {
   bindGenerateTranslateCache,
@@ -76,6 +81,7 @@ import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 import type {
   GenerateHostHooks,
   GenerateJsonPayload,
+  GenerateSentinelRepairRecord,
   GenerateRunOptions,
   GenerateRunResult,
   GenerateTargetJsonRow,
@@ -245,6 +251,7 @@ export async function runGenerate(
   const streakIssues: Issue[] = [];
   let generatePayloadPartial = false;
   let generatePayloadPartialMarkedSum = 0;
+  const sentinelRepairs: GenerateSentinelRepairRecord[] = [];
 
   for (const target of targets) {
     emitProgress({ type: 'run.progress.generate', phase: 'build_target', target });
@@ -426,9 +433,20 @@ export async function runGenerate(
       continue;
     }
 
-    const activeSourceLeaves = fillMissingOnly
-      ? sourceLeavesMissingFromTarget(sourceLeaves, existingRaw)
-      : sourceLeaves;
+    const repairSentinelLeaks = opts.noRepairSentinelLeaks !== true;
+    const sentinelHits =
+      repairSentinelLeaks && existingRaw !== null && existingRaw !== undefined
+        ? scanLocaleForSentinelLeaks(existingRaw, { localeCode: target })
+        : [];
+    const sentinelLeakPaths = new Set(sentinelHits.map((hit) => hit.path));
+    const plannedSentinelRepairs = planSentinelLeakGenerateRepairs(sentinelHits, sourceMap);
+    const activeSourceLeaves = activeSourceLeavesForGenerate({
+      sourceLeaves,
+      existingRaw,
+      fillMissingOnly,
+      repairSentinelLeaks,
+      localeCode: target,
+    });
     if (fillMissingOnly && activeSourceLeaves.length === 0) {
       emitGenerateMessage(host, 'info', `generate (${target}): no missing keys or segment files to translate.`);
       emitProgress({ type: 'run.progress.generate', phase: 'done', target, label: 'skipped_nothing_missing' });
@@ -576,10 +594,39 @@ export async function runGenerate(
           },
           maxParallelTranslates,
           rateLimit,
+          sentinelLeakPaths,
         });
         working = translateResult.next;
         preserveCount = translateResult.preserveCount;
         paritySkip = translateResult.paritySkip;
+        {
+          const targetRepairs: GenerateSentinelRepairRecord[] = opts.dryRun
+            ? plannedSentinelRepairs
+                .filter((repair): repair is { path: string; mode: 'placeholder_copy' | 'translate'; sourceValue: string } =>
+                  repair.mode === 'placeholder_copy' || repair.mode === 'translate',
+                )
+                .map((repair) => ({
+                  path: repair.path,
+                  mode: repair.mode,
+                  localeCode: target,
+                }))
+            : translateResult.sentinelRepairs.map((repair) => ({ ...repair, localeCode: target }));
+          if (targetRepairs.length > 0) {
+            sentinelRepairs.push(...targetRepairs);
+            const copyCount = targetRepairs.filter((repair) => repair.mode === 'placeholder_copy').length;
+            const translateCount = targetRepairs.filter((repair) => repair.mode === 'translate').length;
+            emitGenerateMessage(
+              host,
+              'notice',
+              formatGenerateSentinelLeakNotice({
+                localeCode: target,
+                copyCount,
+                translateCount,
+                dryRun: Boolean(opts.dryRun),
+              }),
+            );
+          }
+        }
         translateResult.translateStats = {
           requestAttempts: aggTranslateStats.requestAttempts + translateResult.translateStats.requestAttempts,
           retriesMade: aggTranslateStats.retriesMade + translateResult.translateStats.retriesMade,
@@ -829,6 +876,7 @@ export async function runGenerate(
           translateResult = {
             ...finalized,
             translateStats: { ...aggTranslateStats },
+            sentinelRepairs: [],
           };
           working = translateResult.next;
           preserveCount = translateResult.preserveCount;
@@ -977,6 +1025,7 @@ export async function runGenerate(
     dynamicKeySitesCommented: analysis.counts.dynamicCommented,
     leavesProcessed: totalLeavesProcessed,
     targetResults,
+    ...(sentinelRepairs.length > 0 ? { sentinelRepairs } : {}),
     ...(generatePayloadPartial
       ? {
           partial: true,

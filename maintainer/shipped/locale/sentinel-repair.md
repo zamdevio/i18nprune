@@ -8,13 +8,14 @@
 |-------|--------|---------|
 | **PS-0** Shared module + read-only detect | **Shipped** | Core `sentinelLeak.ts`; `validate` / `quality` / `review` warn-only; issue `i18nprune.locale.placeholder_sentinel_leak`; `docs/issues/locale.md` |
 | **PS-1** `sync` copy_source repair | **Shipped** | `runSync` post-merge repair; JSON `sentinelRepairs[]`; `docs/commands/sync.md` |
+| **PS-2** `generate` retranslate repair | **Shipped** | Force queue + `placeholder_copy`/MT; JSON `sentinelRepairs[]`; resume via `localePathLooksTranslatedFromSource` |
+| **PS-2b** `generate --resume` pending | **Shipped** | Leaked leaves not treated as translated (`isSentinelLeakPending`) |
 
 ## Pending (v1.0.1)
 
 | Slice | Notes |
 |-------|--------|
-| **PS-2** `generate` retranslate repair | Force leaked paths into translate queue; fail-closed on post-MT leak |
-| **PS-2b** `generate --resume` pending | `isSentinelLeakPending` in resume set |
+| **PS-2/2b docs + resume integration test** | User docs + resume fixture test |
 | **PS-5** Kits terminal MD dim | Separate kits output feat |
 | **PS-3** Release bump | 1.0.1 + changelog when ready to publish |
 

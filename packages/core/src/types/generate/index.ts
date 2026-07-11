@@ -12,6 +12,7 @@ export type {
   GenerateProgressEmit,
   GenerateRunOptions,
   GenerateRunResult,
+  GenerateSentinelRepairRecord,
   GenerateTargetJsonRow,
   GenerateTargetProgressSummary,
   ProviderAttemptReportJson,

@@ -293,4 +293,46 @@ describe('buildTranslatedLocaleFromSourceLeaves', () => {
     expect(translate).toHaveBeenCalledWith('two', 'en', 'fr');
     expect(out.working).toEqual({ one: 'one-fr', two: 'two-de' });
   });
+
+  it('re-translates sentinel-leaked target strings without --force', async () => {
+    const translate = vi.fn(async (text: string) => `${text}-ar`);
+    const provider = { translate } as unknown as Translator;
+    const out = await buildTranslatedLocaleFromSourceLeaves({
+      sourceLeaves: [{ path: 'greeting', value: 'Hello {{who}}' }],
+      working: { greeting: '__ I18NPRUNE_0 __' },
+      existingRaw: { greeting: '__ I18NPRUNE_0 __' },
+      dryRun: false,
+      force: false,
+      provider,
+      persistStructuredLeafMetadata: false,
+      providerId: 'google',
+      targetLang: 'ar',
+      tickProgress: () => {},
+      sentinelLeakPaths: new Set(['greeting']),
+    });
+    expect(translate).toHaveBeenCalledOnce();
+    expect(out.working).toEqual({ greeting: 'Hello {{who}}-ar' });
+    expect(out.sentinelRepairs).toEqual([{ path: 'greeting', mode: 'translate' }]);
+  });
+
+  it('placeholder_copy sentinel leaks without MT when source is placeholder-only', async () => {
+    const translate = vi.fn(async (text: string) => text);
+    const provider = { translate } as unknown as Translator;
+    const out = await buildTranslatedLocaleFromSourceLeaves({
+      sourceLeaves: [{ path: 'meta', value: '{{who}} · {{status}}' }],
+      working: { meta: '__ I18NPRUNE_0 __ · __ I18NPRUNE_1 __' },
+      existingRaw: { meta: '__ I18NPRUNE_0 __ · __ I18NPRUNE_1 __' },
+      dryRun: false,
+      force: false,
+      provider,
+      persistStructuredLeafMetadata: false,
+      providerId: 'google',
+      targetLang: 'ar',
+      tickProgress: () => {},
+      sentinelLeakPaths: new Set(['meta']),
+    });
+    expect(translate).not.toHaveBeenCalled();
+    expect(out.working).toEqual({ meta: '{{who}} · {{status}}' });
+    expect(out.sentinelRepairs).toEqual([{ path: 'meta', mode: 'placeholder_copy' }]);
+  });
 });

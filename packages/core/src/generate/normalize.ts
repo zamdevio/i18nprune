@@ -45,6 +45,7 @@ export async function translateAndNormalizeGenerateLocale(input: {
   rateLimit?: TranslateStartRateLimit;
   /** Per-run L1 memo; omitted when host bypassed cache (`--no-cache`). */
   translationCache?: GenerateTranslateCache;
+  sentinelLeakPaths?: ReadonlySet<string>;
 }): Promise<{
   preserveCount: number;
   paritySkip: number;
@@ -56,6 +57,7 @@ export async function translateAndNormalizeGenerateLocale(input: {
   issues: Issue[];
   translateStats: TranslateRunPartialStats;
   markedForReview: number;
+  sentinelRepairs: Array<{ path: string; mode: 'placeholder_copy' | 'translate' }>;
 }> {
   const modeDecision = resolveLocaleLeafMode(input.localeLeafResolve);
   const built = await buildTranslatedLocaleFromSourceLeaves({
@@ -76,6 +78,7 @@ export async function translateAndNormalizeGenerateLocale(input: {
     onTranslatedLeaf: input.onTranslatedLeaf,
     maxParallelTranslates: input.maxParallelTranslates,
     rateLimit: input.rateLimit,
+    sentinelLeakPaths: input.sentinelLeakPaths,
   });
   const norm = applyLocaleLeafNormalization({
     localeJson: built.working,
@@ -111,6 +114,7 @@ export async function translateAndNormalizeGenerateLocale(input: {
     issues,
     translateStats: built.translateStats,
     markedForReview: built.markedForReview,
+    sentinelRepairs: built.sentinelRepairs,
   };
 }
 
@@ -135,6 +139,7 @@ export function finalizePartialTranslatedLocaleForGenerate(input: {
   issues: Issue[];
   translateStats: TranslateRunPartialStats;
   markedForReview: number;
+  sentinelRepairs: Array<{ path: string; mode: 'placeholder_copy' | 'translate' }>;
 } {
   const norm = applyLocaleLeafNormalization({
     localeJson: input.working,
@@ -173,5 +178,6 @@ export function finalizePartialTranslatedLocaleForGenerate(input: {
     issues,
     translateStats: input.translateStats,
     markedForReview,
+    sentinelRepairs: [],
   };
 }

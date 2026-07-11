@@ -138,6 +138,17 @@ export function formatSyncSentinelLeakSourceAlsoLeaksMessage(input: {
   return `${String(input.count)} placeholder sentinel leak(s) skipped — source locale also leaks at the same path(s). Fix source copy first, then re-run sync. Sample paths: ${sample}`;
 }
 
+export function formatGenerateSentinelLeakNotice(input: {
+  localeCode: string;
+  copyCount: number;
+  translateCount: number;
+  dryRun: boolean;
+}): string {
+  const total = input.copyCount + input.translateCount;
+  const verb = input.dryRun ? 'Would re-translate' : 'Re-translated';
+  return `${verb} ${String(total)} placeholder sentinel leak(s) in ${input.localeCode} (${String(input.copyCount)} copied, ${String(input.translateCount)} translated).`;
+}
+
 export function sentinelLeakSuggestionCommands(localeCode: string): string[] {
   return [
     `i18nprune sync --target ${localeCode}`,

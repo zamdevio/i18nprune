@@ -35,6 +35,18 @@ Key flags:
 
 If `--metadata` is not passed, output remains in plain string leaf mode unless your configured leaf mode is already structured.
 
+## Placeholder sentinel repair
+
+When target leaves contain stale MT mask sentinels (`__I18NPRUNE_*`), **`generate`** automatically re-queues those paths (even when the target value is non-empty):
+
+- **`placeholder_copy`** when the source leaf is placeholder-only (`{{who}} · {{status}}`)
+- **Full MT** (`translateLeaf` + mask/restore) for normal prose
+- **`--resume`** treats leaked leaves as incomplete — same as missing/stale work
+- **`--json`:** optional `sentinelRepairs[]` with `mode: "placeholder_copy" | "translate"`
+- Opt out: `noRepairSentinelLeaks` on **`GenerateRunOptions`** (CLI flag TBD)
+
+Fail-closed: if MT still leaves sentinels after restore, the path is not written (existing `translateLeaf` / `validateRestored` behavior). See [Locale issues — `placeholder_sentinel_leak`](../issues/locale.md#placeholder-sentinel-leak).
+
 ## Examples
 
 ```bash

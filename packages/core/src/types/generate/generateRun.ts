@@ -165,6 +165,14 @@ export type GenerateJsonPayload = {
   markedForReview?: number;
   /** Cross-op next-step hints (additive). */
   suggestions?: import('../suggestions/index.js').LocaleSuggestion[];
+  /** Placeholder sentinel re-translate / copy repairs in this run (additive). */
+  sentinelRepairs?: GenerateSentinelRepairRecord[];
+};
+
+export type GenerateSentinelRepairRecord = {
+  path: string;
+  mode: 'placeholder_copy' | 'translate';
+  localeCode: string;
 };
 
 /**
@@ -197,6 +205,8 @@ export type GenerateRunOptions = {
    * second read and preserve **`run.progress`** ordering (**`read_source` → `resolve_targets`**).
    */
   readonly preloadedRaw?: unknown;
+  /** When true, skip automatic re-translate of stale `__I18NPRUNE_*` target leaves (default: repair on). */
+  readonly noRepairSentinelLeaks?: boolean;
 };
 
 export type GenerateRunResult = {
