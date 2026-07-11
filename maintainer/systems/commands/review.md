@@ -16,8 +16,9 @@
 
 - Review collection / report in `packages/core/src/review/`.
 - Core reads source/target locale JSON via adapters and returns `{ payload, issues }`.
+- **Sentinel leak detect (read-only):** `scanLocaleForSentinelLeaks` → **`i18nprune.locale.placeholder_sentinel_leak`** (warn only; never writes).
 - CLI owns envelope shaping and human output.
 
 ## Frozen API
 
-- **`--json`** review payload (**`localeReview`** / per-locale shape).
+- **`--json`** review payload (**`localeReview`** / per-locale shape); includes **`i18nprune.locale.placeholder_sentinel_leak`** when target leaves leak sentinels.

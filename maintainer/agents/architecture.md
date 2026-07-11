@@ -155,8 +155,10 @@ Knip config and ignore catalog: **[`maintainer/systems/knip.md`](../systems/knip
 Every new `issues[]` code must be wired in three places in one change:
 
 1. **Constant** — `packages/core/src/shared/constants/issueCodes.ts`
-2. **Docs** — `docs/issues/README.md` (registry row + section)
+2. **Docs** — `docs/issues/README.md` (registry row + section); user-facing detail page under `docs/issues/<domain>.md`
 3. **Emitter** — the command or helper that produces the issue
+
+Maintainer maps: command system sheets under `maintainer/systems/commands/` (issue table when parity-frozen); shipped receipt when the slice closes (e.g. [`shipped/locale/sentinel-repair.md`](../shipped/locale/sentinel-repair.md) for **`i18nprune.locale.placeholder_sentinel_leak`**).
 
 Issue codes are **stable API** — never rename existing codes even when display copy changes.
 

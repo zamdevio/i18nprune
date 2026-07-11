@@ -27,7 +27,8 @@
 ## Core & shared
 
 - **`runGenerate`** in `packages/core/src/generate/run.ts` owns translation orchestration,
-  provider fallback, identity guard, locale-leaf normalization, and file IO via
+  provider fallback, identity guard, locale-leaf normalization, sentinel leak retranslate
+  (`planSentinelLeakGenerateRepairs`, `activeSourceLeavesForGenerate`), and file IO via
   **`RuntimeAdapters`**. The CLI is one host of many — SDK / extension / web / worker
   consumers call **`runGenerate`** directly with their own **`GenerateHostHooks`** (see
   `examples/sdk/generate/runGenerate.ts`). Mid-run decision points are exposed through
@@ -40,4 +41,13 @@
 
 ## Frozen API
 
-- **`--json`** generate payload (**`targetResults`**, provider meta, issues).
+- **`--json`** generate payload (**`targetResults`**, provider meta, issues, optional **`sentinelRepairs[]`**).
+
+## Issue codes (sentinel repair v1.0.1)
+
+| Code | When | Write? |
+|------|------|--------|
+| **`i18nprune.locale.placeholder_sentinel_leak`** | Pre-run target scan finds stale **`__I18NPRUNE_*`** | **Yes** — re-queue + repair via **`placeholder_copy`** or MT |
+| **`placeholder_sentinel_mangled`** (translate) | Post-MT restore still leaks sentinels | **No** — fail-closed skip write |
+
+Shared module: `packages/core/src/shared/placeholders/sentinelLeak.ts`. Resume: **`localePathLooksTranslatedFromSource`** returns false when **`isSentinelLeakPending`**. User docs: `docs/commands/generate.md`, `docs/issues/locale.md`.

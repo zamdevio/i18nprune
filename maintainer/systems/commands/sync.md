@@ -46,7 +46,15 @@
 
 ## Frozen API
 
-- **`--json`** payload kind **`sync`**, **`data.files`**, **`localeMetadataReports`**, issues such as **`i18nprune.sync.metadata_flag_conflict`** / missing locale warnings — parity rules in workspace **`i18nprune`**.
+- **`--json`** payload kind **`sync`**, **`data.files`**, **`localeMetadataReports`**, optional **`sentinelRepairs[]`**, issues such as **`i18nprune.sync.metadata_flag_conflict`** / missing locale warnings — parity rules in workspace **`i18nprune`**.
+
+## Issue codes (sentinel repair v1.0.1)
+
+| Code | When | Write? |
+|------|------|--------|
+| **`i18nprune.locale.placeholder_sentinel_leak`** | Target scan before/after merge (detect in read-only ops) | **Yes (sync)** — **`repairSentinelLeaksCopyFromSource`** copies source string at path |
+
+User docs: `docs/commands/sync.md`, `docs/issues/locale.md`. Receipt: [`shipped/locale/sentinel-repair.md`](../../shipped/locale/sentinel-repair.md).
 
 ## Related
 

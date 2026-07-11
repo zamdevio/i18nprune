@@ -16,8 +16,9 @@
 
 - Quality / parity checks — `packages/core/src/quality/`.
 - Core reads source/target locale JSON via adapters and returns `{ payload, issues }`, including locale file rows used by the human summary.
+- **Sentinel leak detect (read-only):** `scanLocaleForSentinelLeaks` → **`i18nprune.locale.placeholder_sentinel_leak`** (warn only; never writes).
 - CLI owns envelope shaping and human output.
 
 ## Frozen API
 
-- **`--json`** quality payload; stable issue codes (**e.g.** `english_identical_leaves`).
+- **`--json`** quality payload; stable issue codes (**e.g.** `english_identical_leaves`, **`i18nprune.locale.placeholder_sentinel_leak`**).

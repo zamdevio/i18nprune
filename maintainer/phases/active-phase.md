@@ -8,7 +8,7 @@
 
 | Priority | Vertical | Doc |
 |----------|----------|-----|
-| **Now** | Placeholder sentinel repair | [`placeholder-sentinel-repair.md`](./placeholder-sentinel-repair.md) — **v1.0.1**: detect `__I18NPRUNE_*`, `sync` repair, `generate` guard |
+| **Now** | Placeholder sentinel repair | [`placeholder-sentinel-repair.md`](./placeholder-sentinel-repair.md) — **v1.0.1**: PS-0–PS-2b shipped; **next:** resume fixture test, PS-5 kits dim, PS-3 release |
 | **Then** | Honest SDK tier labels | [`shipped/exports/tiers.md`](../shipped/exports/tiers.md) — start worker + share glue |
 | **Then** | Subpath barrels | [`shipped/exports/program.md`](../shipped/exports/program.md) |
 | **Paused** | Extractor v2 | [`extractor/README.md`](./extractor/README.md) — resume after v1.0.1 + first subpath barrel |
