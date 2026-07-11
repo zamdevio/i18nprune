@@ -5,10 +5,14 @@ import { getTopicBannerSubtitle, toolDisplayTitle } from '@/utils/cli/banner.js'
 import { docsCommandUrl, getDocsUrl } from '@i18nprune/core';
 import { docsSlugForCommand } from '@/utils/cli/docsSlug.js';
 import { header } from '@/utils/ansi/index.js';
+import { formatCommandHelpExtras } from '@/utils/help/commandHelp.js';
 import { styleCommandHelpTerm } from '@/utils/help/term.js';
+import { formatWorkflowAppendix } from '@/utils/help/workflowAppendix.js';
 import { style } from '@/utils/style/index.js';
+import type { HelpColorizeSection } from '@/types/help/index.js';
 
-const SECTION_HEADER = /^(Options|Commands|Arguments|Global Options):$/;
+const SECTION_HEADER =
+  /^(Options|Commands|Arguments|Global Options|Workflows|Examples|Related|Notes):$/;
 const HELP_ROW = /^(\s{2})(.+?)(\s{2,})(.*)$/;
 const DEFAULT_NOTE = /\(default:[^)]+\)/g;
 
@@ -19,14 +23,20 @@ export function configureCliHelp(program: Command): void {
   program.configureHelp({
     formatHelp(cmd: Command, helper: Help) {
       const raw = Help.prototype.formatHelp.call(helper, cmd, helper);
-      const colored = colorizeHelpText(raw);
+      const extras = formatCommandHelpExtras(cmd, CLI_NAME);
+      const colored = colorizeHelpText(extras ? `${raw}${extras}` : raw);
       const opts = program.opts<{ json?: boolean; silent?: boolean }>();
+      const isRoot = cmd.parent === undefined || cmd.name() === CLI_NAME;
+      let body = colored;
+      if (isRoot && !opts.json && !opts.silent) {
+        body = `${colored}${formatWorkflowAppendix()}`;
+      }
       if (Boolean(opts.json) || Boolean(opts.silent)) {
-        return appendDocsFooter(colored, cmd);
+        return appendDocsFooter(body, cmd);
       }
       const title = toolDisplayTitle(cmd);
       const subtitle = getTopicBannerSubtitle(cmd);
-      return appendDocsFooter(`\n${header(title, { subtitle })}\n\n${colored}`, cmd);
+      return appendDocsFooter(`\n${header(title, { subtitle })}\n\n${body}`, cmd);
     },
   });
 }
@@ -34,7 +44,7 @@ export function configureCliHelp(program: Command): void {
 export function colorizeHelpText(text: string): string {
   const lines = text.split('\n');
   const out: string[] = [];
-  let section: 'none' | 'arguments' | 'options' | 'commands' | 'global-options' = 'none';
+  let section: HelpColorizeSection = 'none';
   for (const line of lines) {
     if (line.startsWith('Usage:')) {
       out.push(styleUsageLine(line));
@@ -45,10 +55,36 @@ export function colorizeHelpText(text: string): string {
       else if (line === 'Options:') section = 'options';
       else if (line === 'Arguments:') section = 'arguments';
       else if (line === 'Global Options:') section = 'global-options';
+      else if (line === 'Workflows:') section = 'workflows';
+      else if (line === 'Examples:') section = 'examples';
+      else if (line === 'Related:') section = 'related';
+      else if (line === 'Notes:') section = 'notes';
       out.push(styleSectionHeader(line));
       continue;
     }
-    if (line === '') section = 'none';
+    if (line === '') {
+      section = 'none';
+      out.push('');
+      continue;
+    }
+    if (section === 'workflows' && /^\s{2}\S/.test(line)) {
+      out.push(`  ${style.dim(line.trim())}`);
+      continue;
+    }
+    if (section === 'examples' && /^\s{2}\S/.test(line)) {
+      out.push(`  ${style.bold(style.accent(line.trim()))}`);
+      continue;
+    }
+    if (section === 'related' && /^\s{2}\S/.test(line)) {
+      const parts = line.trim().split(/\s+·\s+/);
+      const styled = parts.map((part) => styleCommandHelpTerm(part.trim())).join(style.dim('  ·  '));
+      out.push(`  ${styled}`);
+      continue;
+    }
+    if (section === 'notes' && /^\s{2}\S/.test(line)) {
+      out.push(`  ${style.dim(line.trim())}`);
+      continue;
+    }
     const row = HELP_ROW.exec(line);
     if (row) {
       const [, indent, termRaw, gap, desc] = row;
@@ -62,10 +98,6 @@ export function colorizeHelpText(text: string): string {
         out.push(`${indent}${styleTerm(term, section)}${gap}${styleDescription(desc)}`);
         continue;
       }
-    }
-    if (line === '') {
-      out.push('');
-      continue;
     }
     out.push(styleDescription(line));
   }
@@ -81,10 +113,7 @@ function styleSectionHeader(line: string): string {
   return style.bold(style.magenta(line));
 }
 
-function styleTerm(
-  term: string,
-  section: 'none' | 'arguments' | 'options' | 'commands' | 'global-options',
-): string {
+function styleTerm(term: string, section: HelpColorizeSection): string {
   if (/^-/.test(term)) {
     return term
       .split(/(,\s+|\|)/g)

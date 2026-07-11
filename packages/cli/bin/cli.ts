@@ -695,10 +695,6 @@ kitsCmd
   .option('-sb, --save-baseline <path>', 'save terminal-matching report')
   .option('-r, --raw', 'disable policies.parity excludes', false)
   .option('--strict', 'exit 2 when any source-identical leaves are found', false)
-  .addHelpText(
-    'after',
-    '\nGlobal list options (on the root `i18nprune` program): -T, --top <n> (default 3 per list) · -F, --full\n',
-  )
   .action(async (opts: {
     target?: string;
     out?: string;
