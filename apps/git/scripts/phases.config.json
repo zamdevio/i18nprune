@@ -101,7 +101,7 @@
       "Kits gates — catalog path, ESM ./ loader imports, dynamic-key honesty, npm homepage",
       "Global CLI short flags — -j, -jp, -T, -F, -ds, -dc; kits -t, -o, -fon, -mxdy, -b, -sb",
       "docs/commands/kits/* + releases portal cli/core 1.0.0 YAML",
-      "CepatEdge E2E smoke — kits against apps/web config (pre-tag verification)",
+      "publish-types fixture @ 1.0.1 (publish:verify gate green)",
       "expgov validate green + exports.yml CI (receipt maintainer/shipped/exports/governance.md)",
       "v1.0.1 — placeholder sentinel leak detect (validate/quality/review) + sync copy_source repair + generate retranslate",
       "v1.0.1 — generate --resume pending leaked paths; --no-repair-sentinel-leaks on sync/generate",

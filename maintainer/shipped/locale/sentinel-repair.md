@@ -17,7 +17,7 @@
 
 | Slice | Notes |
 |-------|--------|
-| **PS-3** Release publish | Tag `v1.0.1`, npm publish — releases YAML added; smoke on consumer repo before tag |
+| **PS-3** Release publish | Tag `v1.0.1`, npm publish — releases YAML added |
 
 ## Core module
 

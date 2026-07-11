@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "i18nprune": "file:../../../i18nprune-1.0.0.tgz"
+    "i18nprune": "file:../../../i18nprune-1.0.1.tgz"
   },
   "devDependencies": {
     "typescript": "^5.9.0"

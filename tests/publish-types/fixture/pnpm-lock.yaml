@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       i18nprune:
-        specifier: file:../../../i18nprune-1.0.0.tgz
-        version: file:../../../i18nprune-1.0.0.tgz
+        specifier: file:../../../i18nprune-1.0.1.tgz
+        version: file:../../../i18nprune-1.0.1.tgz
     devDependencies:
       typescript:
         specifier: ^5.9.0
@@ -231,9 +231,9 @@ packages:
     resolution: {integrity: sha512-QRbvDIbx6YklUe6RxeTeleMR0yv3cYH6PsPZHcnVn7xv7zO1BHN8r0XETu8n6Ye3Q+ahtSarc3WgtNWmehIBfA==}
     engines: {node: '>=18'}
 
-  i18nprune@file:../../../i18nprune-1.0.0.tgz:
-    resolution: {integrity: sha512-BgzgfZSjusnzbjbAib/90Zbi5t9zooU4q4ovCm728YRLUFrNIIfiR3khEuk7TPFA8f+gRqan5kI1dRCgYG0lfA==, tarball: file:../../../i18nprune-1.0.0.tgz}
-    version: 1.0.0
+  i18nprune@file:../../../i18nprune-1.0.1.tgz:
+    resolution: {integrity: sha512-kbMehahM0I8kDwGA6IWKOK6tJn8j26rzJlo407GQ/mY8dZRDQqlBHblE2rZhrNUpyTGCR4nWnJzS+IgRFStFqg==, tarball: file:../../../i18nprune-1.0.1.tgz}
+    version: 1.0.1
     engines: {node: '>=18'}
     hasBin: true
 
@@ -444,7 +444,7 @@ snapshots:
 
   get-east-asian-width@1.6.0: {}
 
-  i18nprune@file:../../../i18nprune-1.0.0.tgz:
+  i18nprune@file:../../../i18nprune-1.0.1.tgz:
     dependencies:
       '@inquirer/core': 10.3.2
       '@inquirer/prompts': 8.5.2
