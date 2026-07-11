@@ -23,6 +23,8 @@ sections:
   fixed:
     - "`localePathLooksTranslatedFromSource` returns false when target still contains numeric mask sentinels"
     - "`generate --resume` re-queues leaked paths with correct source text for MT jobs"
+    - "`assessGenerateTargetPreflight` treats sentinel leaks as proceed (not fully_complete)"
+    - "Resume candidates include sentinel leaks even on preserve paths"
   removed: []
   breaking: []
   security: []

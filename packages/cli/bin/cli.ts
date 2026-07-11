@@ -4,7 +4,7 @@ import { ensureLanguageCatalogFile } from '../../../scripts/catalog/ensure.js';
 import { Command } from 'commander';
 
 ensureLanguageCatalogFile();
-import { preprocessArgv } from '@/argv/index.js';
+import { preprocessArgv, resolveHelpTopicToken } from '@/argv/index.js';
 import { ensureConfig } from '@/commands/init/index.js';
 import {
   clearContextCache,
@@ -105,7 +105,7 @@ program
     'path to i18nprune.config (.ts, .mts, .js, .mjs — not JSON)',
   )
   .option(
-    '--yes',
+    '-y, --yes',
     'if no config file exists, write defaults without prompting (same as global --json for that bootstrap)',
     false,
   )
@@ -888,15 +888,19 @@ program
       .split(/\s+/)
       .filter(Boolean);
     let cur: Command | undefined = program;
+    let parentGroup: string | null = null;
     for (const p of parts) {
       if (!cur) break;
-      const found: Command | undefined = cur.commands.find((c) => c.name() === p);
+      const resolved = resolveHelpTopicToken(parentGroup, p);
+      const found: Command | undefined = cur.commands.find((c) => c.name() === resolved);
       if (!found) {
         console.error(`Unknown command: ${cmd}`);
         program.outputHelp();
         process.exitCode = 1;
         return;
       }
+      parentGroup =
+        resolved === 'locales' || resolved === 'share' ? resolved : null;
       cur = found;
     }
     if (cur && cur !== program) {

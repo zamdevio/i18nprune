@@ -1,5 +1,5 @@
 /**
- * Canonical subcommand names. Positional alias: `langs` → `languages` (see preprocess + Commander alias).
+ * Canonical subcommand names. Positional aliases expand in {@link preprocessArgv}.
  */
 import { CLI_INVOCATION_COMMAND_IDS } from '@/constants/commandInvocation.js';
 
@@ -17,13 +17,41 @@ export const CANONICAL_SUBCOMMANDS = [
   'help',
 ] as const;
 
-/** Positional subcommand shorthand → canonical name. */
+/** Positional subcommand shorthand → canonical name (top-level only). */
 export const POSITIONAL_COMMAND_ALIASES: Readonly<Record<string, string>> = {
   langs: 'languages',
+  loc: 'locales',
+  v: 'validate',
+  g: 'generate',
+  cfg: 'config',
+  s: 'sync',
+  q: 'quality',
+  r: 'review',
+  m: 'missing',
+  d: 'doctor',
+  p: 'patch',
+  rep: 'report',
+  prov: 'providers',
+  h: 'help',
+};
+
+/** Second-token aliases under group commands. */
+export const GROUP_SUBCOMMAND_ALIASES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  locales: {
+    ls: 'list',
+    dyn: 'dynamic',
+    rm: 'delete',
+  },
+  share: {
+    up: 'upload',
+    ls: 'list',
+    rm: 'delete',
+  },
 };
 
 const SUB_SET = new Set<string>(CANONICAL_SUBCOMMANDS);
 const VERSION_SHORT_FLAG = '-V';
+const GROUP_COMMANDS = new Set(['locales', 'share']);
 
 const KNOWN_COMMAND_FIRST_TOKEN = new Set([
   'init',
@@ -42,8 +70,23 @@ const KNOWN_COMMAND_FIRST_TOKEN = new Set([
   'version',
   'help',
   'locales',
+  'loc',
   'share',
   'kits',
+  'providers',
+  'patch',
+  'v',
+  'g',
+  'cfg',
+  's',
+  'q',
+  'r',
+  'm',
+  'd',
+  'p',
+  'rep',
+  'prov',
+  'h',
 ]);
 
 /** Global CLI options that consume the next argv token (must not be treated as a subcommand). */
@@ -93,6 +136,9 @@ function expandArgvShortFlags(argv: string[]): string[] {
   ]);
   const BOOL_SHORTS: Record<string, string> = {
     '-j': '--json',
+    '-y': '--yes',
+    '-n': '--dry-run',
+    '-m': '--metadata',
     '-F': '--full',
     '-ds': '--debug-scan',
     '-dc': '--debug-cache',
@@ -178,11 +224,50 @@ function rewriteVersionShortFlag(argv: string[]): string[] {
   return out;
 }
 
+function rewritePositionalCommandAliases(argv: string[]): string[] {
+  const out = [...argv];
+  let currentGroup: string | null = null;
+  for (let i = 2; i < out.length; i++) {
+    const token = out[i]!;
+    if (token.startsWith('-')) {
+      if (GLOBAL_OPTION_WITH_VALUE.has(token)) {
+        i += 1;
+      }
+      continue;
+    }
+    const key = token.toLowerCase();
+    let rewritten = token;
+    if (i === 2) {
+      const top = POSITIONAL_COMMAND_ALIASES[key];
+      if (top) rewritten = top;
+      currentGroup = GROUP_COMMANDS.has(rewritten) ? rewritten : null;
+    } else if (currentGroup) {
+      const sub = GROUP_SUBCOMMAND_ALIASES[currentGroup]?.[key];
+      if (sub) rewritten = sub;
+      currentGroup = null;
+    }
+    out[i] = rewritten;
+  }
+  return out;
+}
+
 export function resolveArgvCommandToken(input: string): string | null {
   const k = input.toLowerCase().trim();
   if (POSITIONAL_COMMAND_ALIASES[k]) return POSITIONAL_COMMAND_ALIASES[k]!;
   if (SUB_SET.has(k)) return k;
   return null;
+}
+
+/** Resolve one help topic segment (e.g. `loc` → `locales`, `ls` under locales → `list`). */
+export function resolveHelpTopicToken(parentGroup: string | null, token: string): string {
+  const k = token.toLowerCase().trim();
+  const top = POSITIONAL_COMMAND_ALIASES[k];
+  if (top) return top;
+  if (parentGroup) {
+    const sub = GROUP_SUBCOMMAND_ALIASES[parentGroup]?.[k];
+    if (sub) return sub;
+  }
+  return token;
 }
 
 function resolveInvocationPathFromArgv(args: string[]): string {
@@ -213,16 +298,9 @@ export function resolveActiveCliCommandFromArgv(argv: string[] = process.argv): 
   return resolveArgvCommandToken(token) ?? token;
 }
 
-/** Normalizes argv before Commander: `langs` → `languages`; global `-V` → `version`; short flags → long. */
+/** Normalizes argv before Commander: positional aliases; global `-V` → `version`; short flags → long. */
 export function preprocessArgv(argv: string[]): string[] {
   const expanded = expandArgvShortFlags(argv);
-  const out = [...expanded];
-  const idx = 2;
-  if (idx >= out.length) return rewriteVersionShortFlag(out);
-  const tok = out[idx];
-  const positional = tok !== undefined ? resolveArgvCommandToken(tok) : null;
-  if (positional !== null && positional !== tok) {
-    out[idx] = positional;
-  }
-  return rewriteVersionShortFlag(out);
+  const aliased = rewritePositionalCommandAliases(expanded);
+  return rewriteVersionShortFlag(aliased);
 }

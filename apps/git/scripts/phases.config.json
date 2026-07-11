@@ -107,6 +107,9 @@
       "v1.0.1 — generate --resume pending leaked paths; --no-repair-sentinel-leaks on sync/generate",
       "v1.0.1 — spaced-variant sentinel detection (__I18NPRUNE _0__); JSON sentinelRepairs[] + bounded detail lists",
       "v1.0.1 — kits terminal MD dim (formatKitsTerminalMarkdown); plain markdown on --out",
+      "v1.0.1 — generate sentinel repair UX (dry-run before translate; live notice after progress; -T/-F listLimit)",
+      "v1.0.1 — CLI help Workflows appendix + per-command Examples / Related / Notes (expgov-style)",
+      "v1.0.1 — CLI aliases — loc/v/g/cfg positional; locales+share sub shorts; global -y/-n/-m",
       "releases portal cli/core 1.0.1 YAML (receipt maintainer/shipped/locale/sentinel-repair.md)"
     ]
   },

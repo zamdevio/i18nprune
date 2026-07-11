@@ -3,13 +3,15 @@ stream: cli
 version: 1.0.1
 date: 2026-07-11
 status: stable
-summary: v1.0.1 — placeholder sentinel leak detect + repair on sync/generate; kits terminal markdown readability; spaced-variant leak detection.
+summary: v1.0.1 — placeholder sentinel leak detect + repair on sync/generate; kits terminal markdown readability; CLI help workflows and command aliases.
 highlights:
   - "Placeholder sentinel repair — `validate`/`quality`/`review` warn with `i18nprune.locale.placeholder_sentinel_leak`; `sync` copies source over leaks; `generate` re-translates leaked paths"
   - "`generate --resume` treats leaked leaves as pending until repair succeeds"
   - "Opt out — `--no-repair-sentinel-leaks` on `sync` and `generate`"
   - "Kits terminal output — dim blockquotes, doc links, and sample rows on TTY; plain markdown on `--out`"
   - "Detect spaced MT mask variants (`__I18NPRUNE _0__`) in addition to tight `__I18NPRUNE_0__` tokens"
+  - "CLI help — root `Workflows:` appendix; per-command `Examples` / `Related` / `Notes` on `-h` and `help <topic>`"
+  - "CLI aliases — `loc`/`v`/`g`/`cfg` positional shortcuts; `locales`/`share` subcommand shorts; global `-y`, `-n`, `-m` flag aliases"
 sections:
   added:
     - "`--no-repair-sentinel-leaks` on `sync` and `generate` (skip automatic sentinel repair)"
@@ -17,11 +19,18 @@ sections:
     - "Dry-run preview — `wouldRepairSentinelLeaks` count plus bounded per-path `detail` lines (respects `--top` / `--full`)"
     - "Kits dual output — `markdownText` for files, `formatKitsTerminalMarkdown` for TTY"
     - "Docs — sentinel sections in `docs/commands/sync.md`, `docs/commands/generate.md`, `docs/issues/locale.md`"
+    - "Root help `Workflows:` recipes (bootstrap, sentinel fix, CI gate, share snapshot)"
+    - "Per-command help extras — `Examples`, `Related`, group `Workflows`, and `Notes` on every command"
+    - "Positional aliases — `loc`, `v`, `g`, `cfg`, `s`, `q`, `r`, `m`, `d`, `p`, `rep`, `prov`, `h`"
+    - "Group subcommand aliases — `locales ls|dyn|rm`, `share up|ls|rm`"
+    - "Global flag aliases — `-y` (`--yes`), `-n` (`--dry-run`), `-m` (`--metadata`)"
   changed:
     - "`sync` post-merge repair copies source strings over stale `__I18NPRUNE_*` mask tokens at leaked paths"
     - "`generate` force-queues leaked paths even when target values are non-empty; `placeholder_copy` vs full MT by leaf kind"
     - "Kits human output — structural/secondary markdown lines dim on terminal; saved `.md` files stay ANSI-free"
     - "Sentinel leak suggestion lines on detect ops use dim `detail` styling"
+    - "`generate` live sentinel repair notice prints after translate progress clears; dry-run preview before translate; repair details honor global `-T` / `-F`"
+    - "`help <topic>` resolves alias paths (`help loc dynamic`, `help v`)"
   fixed:
     - "Leak scan matches spaced sentinel variants (`I18NPRUNE _N`) that MyMemory and weak MT backends leave in locale JSON"
     - "`__I18NPRUNE_MISSING__` scaffold tokens are not classified as MT leaks (numeric index only)"
@@ -61,3 +70,4 @@ tags:
   - patch
   - locale
   - kits
+  - cli
