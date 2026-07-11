@@ -192,7 +192,7 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
       'Upload report JSON     share upload --report --from report.json',
       'List local cache       share list',
     ],
-    notes: ['Requires worker URL env or --worker-url on upload/view/delete.'],
+    notes: ['Requires worker URL env or -wu / --worker-url on upload/view/delete.'],
   },
   'share upload': {
     examples: [

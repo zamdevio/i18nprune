@@ -56,10 +56,12 @@ export const COMMAND_FLAG_ALIASES: Readonly<Record<string, Readonly<Record<strin
   },
   init: {
     '-a': '--auto',
-    '-rch': '--rich',
   },
   report: {
     '-fmt': '--format',
+  },
+  share: {
+    '-wu': '--worker-url',
   },
   'share delete': {
     '-lo': '--local-only',
@@ -73,9 +75,6 @@ export const COMMAND_FLAG_ALIASES: Readonly<Record<string, Readonly<Record<strin
   languages: {
     '-tbl': '--table',
     '-flt': '--filter',
-  },
-  version: {
-    '-chk': '--check',
   },
 };
 
@@ -115,6 +114,7 @@ export const VALUE_FLAG_SHORTS = new Set([
   '-on',
   '-flt',
   '-fcs',
+  '-wu',
   '-c',
   '-ld',
   '-fns',

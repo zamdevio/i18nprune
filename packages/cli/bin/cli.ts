@@ -260,7 +260,7 @@ program
   .description(
     'Create i18nprune.config.ts (or .mts / .js) when missing — interactive unless --yes; --rich writes every supported namespace with defaults; --auto scores package.json + locale folders (use --yes or --json in CI)',
   )
-  .option('-rch, --rich', 'write expanded starter config (all namespaces + safe defaults)', false)
+  .option('--rich', 'write expanded starter config (all namespaces + safe defaults)', false)
   .option(
     '-a, --auto',
     'pick a starter preset from project signals (ambiguous projects exit 1 unless --preset is set)',
@@ -518,7 +518,7 @@ shareCmd
   .option('--project', 'Upload prepared project snapshot (JSON) to the worker')
   .option('--report', 'Upload report JSON to the worker (stored report link)')
   .option('--from <file>', 'Report JSON path (with --report; default: scan in-process)')
-  .option('--worker-url <url>', 'Worker API base URL (default: I18NPRUNE_WORKER_URL or https://worker.i18nprune.dev)')
+  .option('-wu, --worker-url <url>', 'Worker API base URL (default: I18NPRUNE_WORKER_URL or https://worker.i18nprune.dev)')
   .option('--force', 'Ignore hash-based skip and re-upload', false)
   .action(async (opts: { project?: boolean; report?: boolean; from?: string; workerUrl?: string; force?: boolean }) => {
     await shareUpload({
@@ -537,7 +537,7 @@ shareCmd
   )
   .option('--project <id>', 'Filter to one worker project id')
   .option('--report <id>', 'Filter to one worker report id')
-  .option('--worker-url <url>', 'Worker base URL hint when filtering (unused for list-only)')
+  .option('-wu, --worker-url <url>', 'Worker base URL hint when filtering (unused for list-only)')
   .action(async (opts: { project?: string; report?: string; workerUrl?: string }) => {
     await shareList(opts);
   });
@@ -549,7 +549,7 @@ shareCmd
   )
   .option('--project <id>', 'Worker-hosted project id')
   .option('--report <id>', 'Worker-hosted report id')
-  .option('--worker-url <url>', 'Worker API base URL')
+  .option('-wu, --worker-url <url>', 'Worker API base URL')
   .option(
     '-v, --verbose',
     'Include processor, extraction, cache, and timing sections (human and --json)',
@@ -576,7 +576,7 @@ shareCmd
   )
   .option('--project <id>', 'Worker-hosted project id')
   .option('--report <id>', 'Worker-hosted report id')
-  .option('--worker-url <url>', 'Worker API base URL')
+  .option('-wu, --worker-url <url>', 'Worker API base URL')
   .option('-lo, --local-only', 'Remove share.json entry only; do not call worker DELETE', false)
   .option('--all', 'Delete every share.json row for this project (TTY confirms unless --yes)', false)
   .action(async (opts: {
@@ -820,7 +820,7 @@ program
   .description(
     'Print the CLI version; use --check to query npm; use --reset to clear local update state',
   )
-  .option('-chk, --check', 'fetch latest from the npm registry and show install instructions', false)
+  .option('--check', 'fetch latest from the npm registry and show install instructions', false)
   .option(
     '--reset',
     'clear cached npm update check (next automatic lookup runs fresh)',

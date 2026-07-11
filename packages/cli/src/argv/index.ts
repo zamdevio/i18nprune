@@ -125,6 +125,8 @@ const GLOBAL_OPTION_WITH_VALUE = new Set([
   '--only',
   '-flt',
   '--filter',
+  '-wu',
+  '--worker-url',
   '-o',
   '--out',
   '-fon',

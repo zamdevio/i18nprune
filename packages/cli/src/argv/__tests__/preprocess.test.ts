@@ -77,12 +77,16 @@ describe('preprocessArgv', () => {
     );
   });
 
-  it('expands -chk, -flt, and -rch command flags', () => {
-    expect(preprocessArgv(argv('version', '-chk'))).toEqual(argv('version', '--check'));
+  it('expands -flt on languages', () => {
     expect(preprocessArgv(argv('languages', '-flt', 'arabic'))).toEqual(
       argv('languages', '--filter', 'arabic'),
     );
-    expect(preprocessArgv(argv('init', '-rch'))).toEqual(argv('init', '--rich'));
+  });
+
+  it('expands -wu on share subcommands', () => {
+    expect(preprocessArgv(argv('share', 'view', '-wu', 'https://worker.example'))).toEqual(
+      argv('share', 'view', '--worker-url', 'https://worker.example'),
+    );
   });
 
   it('expands generate and sync command-scoped flags', () => {
