@@ -6,7 +6,7 @@ import { docsCommandUrl, getDocsUrl } from '@i18nprune/core';
 import { docsSlugForCommand } from '@/utils/cli/docsSlug.js';
 import { header } from '@/utils/ansi/index.js';
 import { formatCommandHelpExtras } from '@/utils/help/commandHelp.js';
-import { injectRootCommandAliases } from '@/utils/help/injectRootCommandAliases.js';
+import { injectCommandAliasesIntoHelp } from '@/utils/help/injectRootCommandAliases.js';
 import { styleExampleLine } from '@/utils/help/exampleLine.js';
 import { styleCommandHelpTerm } from '@/utils/help/term.js';
 import { formatWorkflowAppendix } from '@/utils/help/workflowAppendix.js';
@@ -27,7 +27,7 @@ export function configureCliHelp(program: Command): void {
       const raw = Help.prototype.formatHelp.call(helper, cmd, helper);
       const opts = program.opts<{ json?: boolean; silent?: boolean }>();
       const isRoot = cmd.parent === undefined || cmd.name() === CLI_NAME;
-      const withAliases = isRoot ? injectRootCommandAliases(raw) : raw;
+      const withAliases = injectCommandAliasesIntoHelp(raw, cmd, CLI_NAME);
       const extras = formatCommandHelpExtras(cmd, CLI_NAME);
       const colored = colorizeHelpText(extras ? `${withAliases}${extras}` : withAliases);
       let body = colored;

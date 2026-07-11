@@ -1,18 +1,25 @@
-import { POSITIONAL_COMMAND_ALIASES } from '@/argv/index.js';
+import {
+  GROUP_SUBCOMMAND_ALIASES,
+  POSITIONAL_COMMAND_ALIASES,
+} from '@/argv/index.js';
+import { getCommandInvocationPath } from '@/utils/cli/path.js';
+import type { Command } from 'commander';
 
 const HELP_ROW = /^(\s{2})(.+?)(\s{2,})(.*)$/;
 
-/** Prefer shortest positional alias per canonical command name. */
-function preferredCommandShortAliases(): Readonly<Record<string, string>> {
+/** Canonical command name → positional alias shown in help. */
+function rootCommandShortAliases(): Readonly<Record<string, string>> {
   const out: Record<string, string> = {};
   for (const [short, canonical] of Object.entries(POSITIONAL_COMMAND_ALIASES)) {
-    const prev = out[canonical];
-    if (!prev || short.length < prev.length) out[canonical] = short;
+    out[canonical] = short;
   }
   return out;
 }
 
-function normalizeRootCommandTerm(term: string, reverse: Readonly<Record<string, string>>): string {
+function normalizeCommandTermWithAlias(
+  term: string,
+  reverse: Readonly<Record<string, string>>,
+): string {
   const pipeIdx = term.indexOf('|');
   if (pipeIdx !== -1) {
     const left = term.slice(0, pipeIdx);
@@ -28,11 +35,11 @@ function normalizeRootCommandTerm(term: string, reverse: Readonly<Record<string,
   return term.replace(base, `${short}, ${base}`);
 }
 
-/**
- * Inlines positional command aliases into the root `Commands:` table (`v, validate` style).
- */
-export function injectRootCommandAliases(raw: string): string {
-  const reverse = preferredCommandShortAliases();
+function injectCommandsSectionAliases(
+  raw: string,
+  reverse: Readonly<Record<string, string>>,
+  stopAt: RegExp,
+): string {
   const lines = raw.split('\n');
   let inCommands = false;
   for (let i = 0; i < lines.length; i++) {
@@ -41,7 +48,7 @@ export function injectRootCommandAliases(raw: string): string {
       inCommands = true;
       continue;
     }
-    if (inCommands && (line === '' || line === 'Global Options:' || line.startsWith('Options:'))) {
+    if (inCommands && (line === '' || stopAt.test(line))) {
       inCommands = false;
     }
     if (!inCommands) continue;
@@ -50,10 +57,38 @@ export function injectRootCommandAliases(raw: string): string {
     const [, indent, termRaw, gap, desc] = row;
     const term = termRaw.trimEnd();
     if (!/^[a-z]/i.test(term)) continue;
-    const nextTerm = normalizeRootCommandTerm(term, reverse);
+    const nextTerm = normalizeCommandTermWithAlias(term, reverse);
     if (nextTerm !== term) {
       lines[i] = `${indent}${nextTerm}${gap}${desc}`;
     }
   }
   return lines.join('\n');
+}
+
+/** Root program — top-level command aliases (`val, validate`). */
+export function injectRootCommandAliases(raw: string): string {
+  return injectCommandsSectionAliases(raw, rootCommandShortAliases(), /^Global Options:|^Options:/);
+}
+
+/** Group parents (`locales`, `share`, `kits`) — subcommand aliases (`ls, list`). */
+export function injectGroupSubcommandAliases(raw: string, group: string): string {
+  const reverse: Record<string, string> = {};
+  const subs = GROUP_SUBCOMMAND_ALIASES[group];
+  if (!subs) return raw;
+  for (const [short, canonical] of Object.entries(subs)) {
+    reverse[canonical] = short;
+  }
+  return injectCommandsSectionAliases(raw, reverse, /^Options:|^Global Options:/);
+}
+
+/** Inline command/subcommand aliases before help colorization. */
+export function injectCommandAliasesIntoHelp(raw: string, cmd: Command, rootName: string): string {
+  const path = getCommandInvocationPath(cmd, rootName);
+  if (path === '' || cmd.name() === rootName) {
+    return injectRootCommandAliases(raw);
+  }
+  if (path in GROUP_SUBCOMMAND_ALIASES) {
+    return injectGroupSubcommandAliases(raw, path);
+  }
+  return raw;
 }

@@ -28,25 +28,20 @@ export const CANONICAL_SUBCOMMANDS = [
   'help',
 ] as const;
 
-/** Positional subcommand shorthand → canonical name (top-level only). */
+/** Positional subcommand shorthand → canonical name (top-level only). ≤4-char names and cleanup/patch/doctor/share stay canonical. */
 export const POSITIONAL_COMMAND_ALIASES: Readonly<Record<string, string>> = {
   langs: 'languages',
-  loc: 'locales',
-  v: 'validate',
-  g: 'generate',
+  val: 'validate',
+  gen: 'generate',
   cfg: 'config',
-  s: 'sync',
-  q: 'quality',
-  r: 'review',
-  m: 'missing',
-  d: 'doctor',
-  p: 'patch',
+  miss: 'missing',
+  qual: 'quality',
+  rev: 'review',
   rep: 'report',
   prov: 'providers',
-  h: 'help',
 };
 
-/** Second-token aliases under group commands. */
+/** Second-token aliases under group commands. Parent names (`locales`, `kits`, `share`) stay canonical. */
 export const GROUP_SUBCOMMAND_ALIASES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   locales: {
     ls: 'list',
@@ -58,46 +53,46 @@ export const GROUP_SUBCOMMAND_ALIASES: Readonly<Record<string, Readonly<Record<s
     ls: 'list',
     rm: 'delete',
   },
+  kits: {
+    id: 'identical',
+    dyn: 'dynamic',
+    bl: 'baseline',
+  },
 };
 
 const SUB_SET = new Set<string>(CANONICAL_SUBCOMMANDS);
 const VERSION_SHORT_FLAG = '-V';
-const GROUP_COMMANDS = new Set(['locales', 'share']);
+export const GROUP_COMMANDS = new Set(Object.keys(GROUP_SUBCOMMAND_ALIASES));
 
 const KNOWN_COMMAND_FIRST_TOKEN = new Set([
   'init',
   'config',
   'validate',
+  'val',
   'missing',
+  'miss',
   'sync',
   'generate',
+  'gen',
   'quality',
+  'qual',
   'review',
+  'rev',
   'cleanup',
   'languages',
   'langs',
   'doctor',
   'report',
+  'rep',
   'version',
   'help',
   'locales',
-  'loc',
   'share',
   'kits',
   'providers',
-  'patch',
-  'v',
-  'g',
-  'cfg',
-  's',
-  'q',
-  'r',
-  'm',
-  'd',
-  'p',
-  'rep',
   'prov',
-  'h',
+  'patch',
+  'cfg',
 ]);
 
 /** Options that consume the next argv token (must not be treated as a subcommand). */

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { preprocessArgv } from '../index.js';
+import { preprocessArgv, resolveHelpTopicToken } from '../index.js';
 import { lookupFlagAlias } from '../flagAliases.js';
 
 function argv(...args: string[]): string[] {
@@ -31,27 +31,31 @@ describe('preprocessArgv', () => {
     expect(preprocessArgv(argv('langs'))).toEqual(argv('languages'));
   });
 
-  it('maps top-level positional aliases', () => {
-    expect(preprocessArgv(argv('v'))).toEqual(argv('validate'));
-    expect(preprocessArgv(argv('g', '--metadata', '--target', 'ar', '-n'))).toEqual(
+  it('maps mnemonic top-level positional aliases', () => {
+    expect(preprocessArgv(argv('val'))).toEqual(argv('validate'));
+    expect(preprocessArgv(argv('gen', '-m', '-t', 'ar', '-n'))).toEqual(
       argv('generate', '--metadata', '--target', 'ar', '--dry-run'),
     );
     expect(preprocessArgv(argv('cfg', '-j'))).toEqual(argv('config', '--json'));
-    expect(preprocessArgv(argv('loc', 'ls'))).toEqual(argv('locales', 'list'));
+    expect(preprocessArgv(argv('locales', 'ls'))).toEqual(argv('locales', 'list'));
+    expect(preprocessArgv(argv('sync'))).toEqual(argv('sync'));
   });
 
-  it('maps share subcommand aliases', () => {
+  it('maps share and kits subcommand aliases', () => {
     expect(preprocessArgv(argv('share', 'up', '--project'))).toEqual(
       argv('share', 'upload', '--project'),
+    );
+    expect(preprocessArgv(argv('kits', 'id', '-t', 'ar'))).toEqual(
+      argv('kits', 'identical', '--target', 'ar'),
     );
   });
 
   it('expands global -y, -n, -m flags', () => {
     expect(preprocessArgv(argv('init', '-y'))).toEqual(argv('init', '--yes'));
-    expect(preprocessArgv(argv('sync', '-n', '--target', 'ar'))).toEqual(
+    expect(preprocessArgv(argv('sync', '-n', '-t', 'ar'))).toEqual(
       argv('sync', '--dry-run', '--target', 'ar'),
     );
-    expect(preprocessArgv(argv('generate', '-m', '--target', 'ar'))).toEqual(
+    expect(preprocessArgv(argv('generate', '-m', '-t', 'ar'))).toEqual(
       argv('generate', '--metadata', '--target', 'ar'),
     );
   });
@@ -88,6 +92,15 @@ describe('preprocessArgv', () => {
     expect(preprocessArgv(argv('sync', '-nrsl', '-sm'))).toEqual(
       argv('sync', '--no-repair-sentinel-leaks', '--strip-metadata'),
     );
+  });
+});
+
+describe('resolveHelpTopicToken', () => {
+  it('resolves top-level and group subcommand aliases', () => {
+    expect(resolveHelpTopicToken(null, 'val')).toBe('validate');
+    expect(resolveHelpTopicToken('locales', 'dyn')).toBe('dynamic');
+    expect(resolveHelpTopicToken('share', 'up')).toBe('upload');
+    expect(resolveHelpTopicToken('kits', 'id')).toBe('identical');
   });
 });
 

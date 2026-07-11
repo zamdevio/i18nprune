@@ -296,8 +296,8 @@ program
 program
   .command('missing')
   .description('Add keys used in code but missing from source or a locale JSON (placeholders)')
-  .option('--target <codes>', 'target locale code(s): one code, comma-separated list, or "all" (default: source locale file)')
-  .option('--dry-run', 'list paths only; do not write', false)
+  .option('-t, --target <codes>', 'target locale code(s): one code, comma-separated list, or "all" (default: source locale file)')
+  .option('-n, --dry-run', 'list paths only; do not write', false)
   .action(async (opts: { target?: string; dryRun?: boolean }) => {
     await missing({
       target: opts.target,
@@ -308,9 +308,9 @@ program
 program
   .command('sync')
   .description('Align locale file shapes to the source (merge + prune; honors policies.preserve)')
-  .option('--dry-run', 'show targets only; do not write files', false)
+  .option('-n, --dry-run', 'show targets only; do not write files', false)
   .option(
-    '--metadata',
+    '-m, --metadata',
     'write/repair structured locale leaves (`{ value, status, confidence, needsReview, source }`)',
     false,
   )
@@ -320,7 +320,7 @@ program
     false,
   )
   .option(
-    '--target <codes>',
+    '-t, --target <codes>',
     'comma-separated locale basenames, or "all" (default: all non-source locales under localesDir)',
   )
   .option(
@@ -343,11 +343,11 @@ program
   .description(
     'Generate a target locale JSON from the source, or top up existing files with --resume',
   )
-  .option('--target <codes>', 'target locale code(s): one code or comma-separated list (e.g. ja,ar,id)')
+  .option('-t, --target <codes>', 'target locale code(s): one code or comma-separated list (e.g. ja,ar,id)')
   .option('-f, --force', 're-translate even if target already has every source string path', false)
-  .option('--dry-run', 'do not call translator or write files', false)
+  .option('-n, --dry-run', 'do not call translator or write files', false)
   .option(
-    '--metadata',
+    '-m, --metadata',
     'write/repair structured locale leaves (`{ value, status, confidence, needsReview, source }`)',
     false,
   )
@@ -408,7 +408,7 @@ program
 program
   .command('quality')
   .description('Parity / source-identical vs source locale / drift (uses config policies when implemented)')
-  .option('--target <code>', 'only this locale file (basename)')
+  .option('-t, --target <code>', 'only this locale file (basename)')
   .action(async (opts: { target?: string }) => {
     await quality({ target: opts.target });
   });
@@ -419,7 +419,7 @@ program
     'Locale review vs source: paths, source-identical counts, structured leaf metadata when present (use global --json)',
   )
   .option(
-    '--target <codes>',
+    '-t, --target <codes>',
     'locale basenames: `all` (default), one code, or comma list (`ja`, `ja,ar`); optional `.json` suffix',
   )
   .action(async (opts: { target?: string }) => {
@@ -429,10 +429,10 @@ program
 program
   .command('cleanup')
   .description('Remove unused keys (static scan by default; --rg for optional ripgrep string-presence guard)')
-  .option('--dry-run', 'preview removals; no writes', false)
+  .option('-n, --dry-run', 'preview removals; no writes', false)
   .option('--rg', 'enable ripgrep string-presence guard (substring search on translation values in src/)')
   .option(
-    '--target <code>',
+    '-t, --target <code>',
     'target locale code(s) to prune: one code, comma-separated list, or all; omit for source-locale cleanup',
   )
   .option(
@@ -623,7 +623,7 @@ localesCmd
   .description(
     'Delete a target locale JSON (and .meta.json if present); future: loader auto-patches',
   )
-  .option('--target <codes>', 'locale code(s): one code, comma-separated list, or "all"')
+  .option('-t, --target <codes>', 'locale code(s): one code, comma-separated list, or "all"')
   .option('--ask', 'interactive TTY: require one extra confirmation before delete', false)
   .action(async (opts: { target?: string; ask?: boolean }) => {
     await localesDelete({ target: opts.target, ask: Boolean(opts.ask) });
@@ -786,7 +786,7 @@ program
     'Project-level report from a live scan or a validated prior JSON (--from); use global --json for a stdout envelope (still writes --out unless skipped)',
   )
   .option('-fmt, --format <fmt>', 'output: html, json, csv, or text', 'html')
-  .option('--out <path>', 'output file (default: report-<timestamp>.<ext> in cwd)', undefined)
+  .option('-o, --out <path>', 'output file (default: report-<timestamp>.<ext> in cwd)', undefined)
   .option('--from <file>', 'read project report JSON (must match schema) instead of scanning', undefined)
   .action(async (opts: { format?: string; out?: string; from?: string }) => {
     let format: ReportCommandFormat;
@@ -900,7 +900,7 @@ program
         return;
       }
       parentGroup =
-        resolved === 'locales' || resolved === 'share' ? resolved : null;
+        resolved === 'locales' || resolved === 'share' || resolved === 'kits' ? resolved : null;
       cur = found;
     }
     if (cur && cur !== program) {
