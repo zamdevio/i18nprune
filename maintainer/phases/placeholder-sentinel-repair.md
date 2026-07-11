@@ -305,13 +305,13 @@ export function isSentinelLeakPending(
 
 **Implementation sketch:**
 
-- [ ] Add `formatKitsTerminalMarkdown(md: string, run): string` — line classifier or small MD walker  
-- [ ] Use in `writeKitsOutput` when `!run.json && !outPath && process.stdout.isTTY`  
-- [ ] Reuse `style.dim` from `@/utils/style` (same as `packages/cli/src/commands/kits/lib/messaging.ts`)  
-- [ ] `--out path.md` writes **plain** markdown (no ANSI) — file stays CI/PR-safe  
-- [ ] `--json` unchanged  
+- [x] Add `formatKitsTerminalMarkdown(md: string, run): string` — line classifier or small MD walker  
+- [x] Use in `writeKitsOutput` when `!run.json && !outPath && process.stdout.isTTY`  
+- [x] Reuse `style.dim` from `@/utils/style` (same as `packages/cli/src/commands/kits/lib/messaging.ts`)  
+- [x] `--out path.md` writes **plain** markdown (no ANSI) — file stays CI/PR-safe  
+- [x] `--json` unchanged  
 - [ ] Optional: dim `validate`/`sync`/`generate` **suggestion** lines in sentinel leak `logger.warn` (same style module)  
-- [ ] Tests: snapshot or strip-ansi assert dim codes on blockquote lines only  
+- [x] Tests: strip-ansi assert dim codes on blockquote lines only  
 - [ ] Docs: `docs/commands/kits/README.md` — “Terminal output” subsection  
 
 **Release note (v1.0.1):** *Kits — improved terminal readability for markdown audit output (dim secondary lines).*

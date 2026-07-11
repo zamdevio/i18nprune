@@ -18,6 +18,7 @@ import { canPrintPrimary } from '@/utils/logger/policy.js';
 import type { Context } from '@/types/core/context/index.js';
 import type { KitsCommandId } from '@/constants/commandInvocation.js';
 import { kitsCommandLabel } from '@/constants/commandInvocation.js';
+import { formatKitsTerminalMarkdown } from '@/commands/kits/lib/terminalMarkdown.js';
 
 function ensureTrailingNewline(text: string): string {
   return text.endsWith('\n') ? text : `${text}\n`;
@@ -33,7 +34,7 @@ export function writeKitsOutput(text: string, outPath: string | undefined, run =
     console.log(trimmed);
     return;
   }
-  logger.plain(trimmed, run);
+  logger.plain(formatKitsTerminalMarkdown(trimmed, run), run);
 }
 
 export function emitKitsJsonResult<K extends KitsCommandId, D>(
