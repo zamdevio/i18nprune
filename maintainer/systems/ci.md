@@ -229,7 +229,7 @@ Independent Cloudflare Pages jobs. **`web` / `report` / `landing` / `workers/*`*
 | **Trigger** | Push annotated tags matching **`v*`** |
 | **Auth** | npm **Trusted Publishing** (OIDC) — no `NPM_TOKEN` |
 | **Job DAG** | `verify` → parallel `publish-i18nprune` + `publish-core` |
-| **verify** | `versions:verify` · typecheck · test · `expgov validate` · `I18NPRUNE_PUBLISH=1` core+cli build · `publish:verify` · tag↔version check · pack + upload artifacts |
+| **verify** | `versions:verify` · **scoped typecheck** (`@i18nprune/core` + `@i18nprune/cli` only — tag checkout is detached HEAD, so the git dashboard sync can't run) · `I18NPRUNE_PUBLISH=1` core+cli build · test (spawns `dist/cli.js`) · `expgov validate` · `publish:verify` · tag↔version check · pack + upload artifacts |
 | **publish-*** | Download tarball · skip if version already on npm · `npm publish --access public` (`--tag beta` when semver has a prerelease) |
 
 Publish jobs are independent so a partial failure can be retried without republishing a version that already succeeded. Human checklist: [`agents/git.md`](../agents/git.md).

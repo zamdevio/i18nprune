@@ -64,22 +64,29 @@ jobs:
       - name: Verify version alignment
         run: pnpm versions:verify
 
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Test
-        run: pnpm test
-
-      - name: Validate exports
-        run: pnpm exec expgov validate
+      - name: Typecheck (publishable packages only)
+        # Release runs on a tag (detached HEAD, no branch refs), so the
+        # @i18nprune/git dashboard sync cannot rebuild its timeline. That app
+        # is gated by ci.yml/deploy.yml on the main branch; the publish gate
+        # only needs the packages it ships (core + root CLI).
+        run: pnpm exec turbo run typecheck --filter=@i18nprune/core --filter=@i18nprune/cli
 
       - name: Build publishable packages
+        # Must run before tests: parity/integration specs spawn dist/cli.js and
+        # fail closed if it is missing. I18NPRUNE_PUBLISH only trims sourcemaps /
+        # .d.ts, so the CLI behaves identically for the test run.
         env:
           I18NPRUNE_PUBLISH: '1'
         run: |
           set -euo pipefail
           pnpm run core:build
           pnpm run cli:build
+
+      - name: Test
+        run: pnpm test
+
+      - name: Validate exports
+        run: pnpm exec expgov validate
 
       - name: Publish types verify
         run: pnpm run publish:verify -- --skip-build
