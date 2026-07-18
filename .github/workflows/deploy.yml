@@ -1,0 +1,169 @@
+# Deploy Cloudflare Pages sites (independent jobs)
+#
+# Jobs:
+#   git      — every push to main (fresh git history; phases validate gate)
+#   docs     — when docs / VitePress / root version change
+#   releases — when apps/releases content or app change
+#
+# Manual: Actions → Deploy → Run workflow → pick `only` (all | git | docs | releases)
+#
+# Not covered (manual `pnpm *:deploy` until automated later):
+#   web, report, landing, workers/*
+#
+# Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+
+name: Deploy
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      only:
+        description: Which site(s) to deploy
+        type: choice
+        options:
+          - all
+          - git
+          - docs
+          - releases
+        default: all
+
+concurrency:
+  group: deploy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    name: detect paths
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.resolve.outputs.docs }}
+      releases: ${{ steps.resolve.outputs.releases }}
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: github.event_name == 'push'
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+              - 'apps/docs/**'
+              - 'package.json'
+            releases:
+              - 'apps/releases/**'
+
+      - name: Resolve deploy targets
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ONLY="${{ inputs.only }}"
+            DOCS=false; RELEASES=false
+            case "$ONLY" in
+              all) DOCS=true; RELEASES=true ;;
+              docs) DOCS=true ;;
+              releases) RELEASES=true ;;
+            esac
+            echo "docs=$DOCS" >> "$GITHUB_OUTPUT"
+            echo "releases=$RELEASES" >> "$GITHUB_OUTPUT"
+          else
+            echo "docs=${{ steps.filter.outputs.docs }}" >> "$GITHUB_OUTPUT"
+            echo "releases=${{ steps.filter.outputs.releases }}" >> "$GITHUB_OUTPUT"
+          fi
+
+  git:
+    name: git.i18nprune.dev
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' &&
+        (inputs.only == 'all' || inputs.only == 'git'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: deploy-git-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build git analytics (sync + validate + vite)
+        run: pnpm git:build
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler pages deploy dist --project-name=git-i18nprune --cwd apps/git
+
+  docs:
+    name: docs.i18nprune.dev
+    needs: [changes]
+    if: needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: deploy-docs-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build docs (VitePress)
+        run: pnpm docs:build
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler pages deploy .vitepress/dist --project-name=docs-i18nprune --cwd apps/docs
+
+  releases:
+    name: releases.i18nprune.dev
+    needs: [changes]
+    if: needs.changes.outputs.releases == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: deploy-releases-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build releases portal
+        run: pnpm releases:build
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler pages deploy dist --project-name=releases-i18nprune --cwd apps/releases

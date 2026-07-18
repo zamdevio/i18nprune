@@ -16,7 +16,7 @@
 | [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) | PR + push: typecheck (incl. `versions:verify`) → cli-build → test → parity | **Required** |
 | [`.github/workflows/release.yml`](../../.github/workflows/release.yml) | Push tag `v*`: verify once → parallel OIDC publish `i18nprune` + `@i18nprune/core` | **Release** (tag only) |
 | [`.github/workflows/exports.yml`](../../.github/workflows/exports.yml) | Product-surface paths: `expgov validate` | **Required** when paths match |
-| [`.github/workflows/deploy-git.yml`](../../.github/workflows/deploy-git.yml) | Push to `main`: build + deploy **git.i18nprune.dev** | **Deploy gate** (validate / phases) |
+| [`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml) | Push to `main`: independent jobs for **git** / **docs** / **releases** Pages | **Deploy** (git validate gate; docs/releases path-filtered) |
 | [`.github/workflows/architecture.yml`](../../.github/workflows/architecture.yml) | Push to `main` + manual: knip, madge | **Non-blocking** |
 | [`.github/workflows/indexnow.yml`](../../.github/workflows/indexnow.yml) | Manual IndexNow ping after deploys | **Manual** |
 
@@ -204,19 +204,21 @@ Workspace rename for turbo uniqueness: **`packages/cli`** → **`@i18nprune/cli`
 
 ---
 
-## Deploy (`deploy-git.yml`)
+## Deploy (`deploy.yml`)
 
-| Property | Value |
-|----------|--------|
-| **Trigger** | Every **`push`** to `main` / `master`; **`workflow_dispatch`** |
-| **Checkout** | **`fetch-depth: 0`** — sync needs full git history |
-| **Build** | **`pnpm git:build`** — `prebuild` runs sync, **`validate`** (`scripts/validate/`), then Vite |
-| **Deploy** | **`wrangler pages deploy`** → project **`git-i18nprune`** |
-| **Secrets** | **`CLOUDFLARE_API_TOKEN`**, **`CLOUDFLARE_ACCOUNT_ID`** (repo secrets) |
+Independent Cloudflare Pages jobs. **`web` / `report` / `landing` / `workers/*`** stay manual (`pnpm *:deploy`) until automated later.
 
-**Validate gate:** if commits exist in an ISO week missing from **`apps/git/scripts/phases.config.json`**, validate exits **1** and the deploy job **fails** until config is updated on `main`. Configured weeks with **no** commits log a **warning** only — deploy still proceeds.
+| Job | Trigger | Build | Pages project |
+|-----|---------|-------|---------------|
+| **git** | Every **`push`** to `main` / `master`; manual `only=git\|all` | **`pnpm git:build`** (sync + validate + Vite); checkout **`fetch-depth: 0`** | **`git-i18nprune`** |
+| **docs** | Path filter: `docs/**`, `apps/docs/**`, `package.json`; manual `only=docs\|all` | **`pnpm docs:build`** | **`docs-i18nprune`** |
+| **releases** | Path filter: `apps/releases/**`; manual `only=releases\|all` | **`pnpm releases:build`** | **`releases-i18nprune`** |
 
-**Why every main push:** generated **`src/data/*.json`** is gitignored; the site refreshes commit counts and timeline data only when CI rebuilds from git.
+**Secrets:** **`CLOUDFLARE_API_TOKEN`**, **`CLOUDFLARE_ACCOUNT_ID`** (repo secrets).
+
+**Git validate gate:** if commits exist in an ISO week missing from **`apps/git/scripts/phases.config.json`**, validate exits **1** and the **git** job fails until config is updated on `main`. Configured weeks with **no** commits log a **warning** only — deploy still proceeds.
+
+**Why git on every main push:** generated **`apps/git/src/data/*.json`** is gitignored; the timeline refreshes only when CI rebuilds from git history.
 
 ---
 

@@ -1,0 +1,41 @@
+schemaVersion: 1
+stream: core
+version: 1.0.2
+date: 2026-07-18
+status: stable
+summary: v1.0.2 — kits readiness preset; lockstep with CLI 1.0.2 publish line.
+highlights:
+  - "Project readiness — new `kits` preset for kits command hosts (same family as validate)"
+  - "Published in lockstep with `i18nprune@1.0.2` (OIDC Trusted Publishing)"
+sections:
+  added:
+    - "`kits` readiness preset in `project/readiness/presets` for CLI kits hosts"
+  changed:
+    - "Readiness type union includes `kits`"
+  fixed: []
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install @i18nprune/core@1.0.2"
+    - "Pin the same semver as CLI when mixing SDK + CLI (`@i18nprune/core@1.0.2` with `i18nprune@1.0.2`)"
+    - "SDK hosts running kits-like flows can use the `kits` readiness preset via project readiness APIs"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/1.0.2
+    - label: SDK operations
+      href: https://docs.i18nprune.dev/sdk/operations
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@1.0.2
+git:
+  tag: v1.0.2
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.0.2"
+compat:
+  - stream: cli
+    version: 1.0.2
+tags:
+  - patch
+  - kits

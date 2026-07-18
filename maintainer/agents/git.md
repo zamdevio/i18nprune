@@ -153,7 +153,7 @@ The public git dashboard (`apps/git`, **git.i18nprune.dev**) merges **git-derive
 
 ### CI deploy gate (every `main` push)
 
-[`.github/workflows/deploy-git.yml`](../../.github/workflows/deploy-git.yml) runs **`pnpm git:build`** (sync → validate → Vite). **No curated phase update → deploy fails.** There is no auto-pass for new ISO weeks.
+[`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml) **git** job runs **`pnpm git:build`** (sync → validate → Vite). **No curated phase update → deploy fails.** There is no auto-pass for new ISO weeks. Docs/releases deploy from the same workflow when their paths change.
 
 Typical failure after a week of commits on `main`:
 
@@ -182,7 +182,7 @@ Copy shape from the previous week entry. Colors: `teal` | `gray` | `purple` | `c
 
 Sync may inject a **placeholder** phase for unconfigured weeks (`shipped: []`) into generated `phases.json`; **data validate intentionally rejects that** so the portal never ships nameless weeks with activity.
 
-App README: [`apps/git/README.md`](../../apps/git/README.md) · CI map: [`maintainer/systems/ci.md`](../systems/ci.md) § Deploy git.
+App README: [`apps/git/README.md`](../../apps/git/README.md) · CI map: [`maintainer/systems/ci.md`](../systems/ci.md) § Deploy.
 
 ---
 

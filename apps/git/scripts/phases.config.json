@@ -149,5 +149,21 @@
       "locales dynamic — mixed_const_runtime groups and template detail in CLI --json output",
       "D.1 — active vs commented dynamic counts (summary dynamic=active, optional commented=M, additive JSON across commands)"
     ]
+  },
+  {
+    "week": "2026-W29",
+    "label": "Week 29 — v1.0.2 release tooling",
+    "theme": "Version lockstep, OIDC publish, kits payload/readiness fixes, docs tokens, audit bumps",
+    "color": "coral",
+    "shipped": [
+      "v1.0.2 — versions:sync / versions:verify / versions:up (root ↔ core ↔ cli lockstep)",
+      "v1.0.2 — tag-triggered OIDC npm publish workflow (Trusted Publishing)",
+      "v1.0.2 — CI versions:verify in typecheck job",
+      "v1.0.2 — kits fix flat validate payload (missing / dynamic.count); kits readiness preset",
+      "v1.0.2 — docs __I18NPRUNE_VERSION__ / __I18NPRUNE_TAG__ sync + VitePress nav badge",
+      "v1.0.2 — CLI tsup platform:node + createRequire banner; root publish deps trimmed",
+      "v1.0.2 — audit quick wins (vitest/hono/vite; pnpm-workspace overrides for axios/form-data/postcss)",
+      "releases portal cli/core 1.0.2 YAML"
+    ]
   }
 ]

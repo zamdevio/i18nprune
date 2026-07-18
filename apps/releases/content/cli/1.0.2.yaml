@@ -1,0 +1,61 @@
+schemaVersion: 1
+stream: cli
+version: 1.0.2
+date: 2026-07-18
+status: stable
+summary: v1.0.2 — version lockstep + OIDC publish; kits payload/readiness fixes; docs version tokens; audit dependency bumps.
+highlights:
+  - "Version tooling — `pnpm versions:sync` / `versions:verify` / `versions:up` keep root, CLI, and core on one release line"
+  - "Tag-triggered OIDC npm publish for `i18nprune` and `@i18nprune/core` (Trusted Publishing; no NPM_TOKEN)"
+  - "Kits — fix flat validate payload reads (`missing` / `dynamic.count`); `kits` readiness preset on all five subcommands"
+  - "Docs sync — `__I18NPRUNE_VERSION__` / `__I18NPRUNE_TAG__` tokens + VitePress nav version badge"
+  - "CLI bundle — Node platform + `createRequire` banner so commander/events resolve correctly"
+  - "Audit quick wins — vitest/hono/vite bumps; pnpm workspace overrides for axios/form-data/postcss"
+sections:
+  added:
+    - "`scripts/release/sync.ts` — `--sync`, `--verify`, `--up <version>` with downgrade / far-bump risk gates"
+    - "Root scripts — `versions:sync`, `versions:verify`, `versions:up`"
+    - "`.github/workflows/release.yml` — tag `v*` → verify → parallel OIDC publish"
+    - "`versions:verify` in CI typecheck job"
+    - "Kits project readiness preset (`kits`) via `assertKitsReadiness`"
+    - "Docs `__I18NPRUNE_VERSION__` / `__I18NPRUNE_TAG__` replacement in VitePress sync"
+  changed:
+    - "Published root `dependencies` trimmed to runtime-needed packages (`jiti`, `zod`, `@inquirer/prompts`); commander/chalk/string-width moved to `devDependencies` (bundled)"
+    - "Kits banners/descriptions shortened; kits labels in `COMMAND_BANNER_LABELS`; 64-char subtitle fallback cap"
+    - "`tsup` CLI build — `platform: 'node'` + createRequire banner"
+    - "`@i18nprune/ui` — `react-dom` peer + devDep aligned with React 18"
+  fixed:
+    - "Kits baseline / honest / pr — read flat validate payload fields instead of nonexistent `summary.*`"
+    - "Kits commands require the same readiness family as validate before running"
+  removed: []
+  breaking: []
+  security:
+    - "Dependency audit — vitest ≥3.2.6, hono ≥4.12.25, vite ≥6.4.3; workspace overrides for axios ≥1.16.0, form-data ≥4.0.6, postcss ≥8.5.10"
+  performance: []
+migration:
+  notes:
+    - "npm install -g i18nprune@1.0.2"
+    - "Pin `@i18nprune/core@1.0.2` when using the SDK alongside this CLI line"
+    - "Maintainers — bump with `pnpm versions:up -- <version>`; CI fails if root/core/cli versions diverge"
+    - "Kits JSON consumers unchanged — standard `CliJsonEnvelope`; payload field paths for kits summaries now match validate (`missing`, `dynamic.count`)"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/1.0.2
+    - label: kits command
+      href: https://docs.i18nprune.dev/commands/kits
+    - label: SDK operations
+      href: https://docs.i18nprune.dev/sdk/operations
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@1.0.2
+git:
+  tag: v1.0.2
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.0.2"
+compat:
+  - stream: core
+    version: 1.0.2
+tags:
+  - patch
+  - release
+  - kits
+  - cli
