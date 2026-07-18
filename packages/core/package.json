@@ -5,6 +5,14 @@
   "type": "module",
   "description": "Pure domain engine package for i18nprune.",
   "homepage": "https://docs.i18nprune.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zamdevio/i18nprune.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/zamdevio/i18nprune/issues"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public",
