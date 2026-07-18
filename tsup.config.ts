@@ -42,6 +42,7 @@ export default defineConfig({
   },
   format: ['esm'],
   target: 'node18',
+  platform: 'node',
   outDir: 'dist',
   clean: true,
   sourcemap: !publish,
@@ -53,6 +54,10 @@ export default defineConfig({
   splitting: false,
   treeshake: true,
   external: ['jiti', 'zod', '@inquirer/prompts'],
+  // Bundled CJS deps (e.g. commander) call require("events"); ESM output needs createRequire.
+  banner: {
+    js: "import { createRequire as __i18npruneCreateRequire } from 'module'; const require = __i18npruneCreateRequire(import.meta.url);",
+  },
   esbuildOptions(options) {
     options.define = {
       ...options.define,

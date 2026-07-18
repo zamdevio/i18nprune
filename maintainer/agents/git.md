@@ -63,45 +63,59 @@ Keep these **aligned** on each release unless you intentionally split cadence:
 
 **Bump rule:** One commit sets the **same semver** in all three before tagging (e.g. `0.1.0` → `0.1.1`). Only root and `@i18nprune/core` are published; workspace apps stay on `workspace:*`.
 
+**Automation** ([`scripts/release/sync.ts`](../../scripts/release/sync.ts)):
+
+| Command | Role |
+|---------|------|
+| `pnpm versions:up -- X.Y.Z` | Set all three to `X.Y.Z` (warns on downgrade / far jumps; `--force` to override) |
+| `pnpm versions:sync` | Copy **root** version → core + cli |
+| `pnpm versions:verify` | Fail if the three differ (also runs in CI `typecheck`) |
+
 **Pre-releases:** e.g. `0.2.0-beta.1` in all three; git tag `v0.2.0-beta.1` matches the version string.
 
 ---
 
 ## Git tags & npm publish
 
-Tags mark **released semver** on `main`. They are not a substitute for npm publish.
+Tags mark **released semver** on `main`. Pushing an annotated `v*` tag runs [`.github/workflows/release.yml`](../../.github/workflows/release.yml): verify once, then **parallel** Trusted Publishing (OIDC) for `i18nprune` and `@i18nprune/core`. No `NPM_TOKEN` secret.
 
 ### Tags
 
 Annotated tags with **`v` prefix** matching root `package.json` `version`:
 
 ```bash
-git tag -a v0.1.0 -m "i18nprune 0.1.0 — CLI + SDK"
+pnpm versions:up -- 0.1.1   # or edit + pnpm versions:sync
+pnpm versions:verify
+# … gates, commit version bump …
+git tag -a v0.1.1 -m "i18nprune 0.1.1 — CLI + SDK"
 git push origin main
-git push origin v0.1.0
+git push origin v0.1.1
 ```
 
 ```bash
 git tag -l 'v*'
-git show v0.1.0
+git show v0.1.1
 ```
 
 Tag the commit that has the **version bump**, passing gates, and (if you maintain them) release notes on [releases.i18nprune.dev](https://releases.i18nprune.dev).
 
-### npm publish
+### npm publish (automated)
 
-| Order | Where | Command | Package |
-|-------|--------|---------|---------|
-| 1 | Repo root | `pnpm run publish:verify` then `npm publish` | `i18nprune` |
-| 2 | `packages/core` | `npm publish` (`publishConfig.access: public`) | `@i18nprune/core` |
+| Step | What |
+|------|------|
+| 1 | Configure **npm Trusted Publishing** for `i18nprune` and `@i18nprune/core` → GitHub `zamdevio/i18nprune`, workflow `release.yml` |
+| 2 | Push annotated tag `vX.Y.Z` |
+| 3 | Workflow: `versions:verify` · `typecheck` · `test` · `expgov validate` · publish builds · `publish:verify` · pack · publish both tarballs in parallel |
 
-The CLI tarball already bundles `i18nprune/core`. Publish **`@i18nprune/core`** for SDK-only installs (`import … from '@i18nprune/core'`). One git tag can cover both when versions match.
+Manual fallback (local): `pnpm run publish:verify` then `npm publish` at root and in `packages/core` (`publishConfig.access: public`). Prefer the tag workflow once OIDC is configured.
+
+The CLI tarball already bundles `i18nprune/core`. Publish **`@i18nprune/core`** for SDK-only installs (`import … from '@i18nprune/core'`). One git tag covers both when versions match.
 
 **Scoped E402:** `@scope/pkg` defaults to **restricted** on npm. Use **`publishConfig.access: "public"`** in `packages/core/package.json` or **`npm publish --access public`**, or free accounts get `E402 Payment Required`.
 
 **prepack:** root runs `cli:build`; `packages/core` runs tsup → `dist/`. Run **`publish:verify`** before first publish of a version; prepack is not a full test suite.
 
-**dist-tags:** stable → `latest`; betas → `npm publish --tag beta`.
+**dist-tags:** stable → `latest`; prerelease semver (`X.Y.Z-*`) → workflow publishes with `--tag beta`.
 
 **GitHub release notes:** `pnpm releases:notes -- --stream cli --version X.Y.Z` (and `core`).
 
@@ -110,7 +124,7 @@ The CLI tarball already bundles `i18nprune/core`. Publish **`@i18nprune/core`** 
 | Mistake | Action |
 |---------|--------|
 | Tag on wrong commit (not pushed) | `git tag -d vX.Y.Z` and re-tag |
-| Tag pushed, npm not published | `git push origin :refs/tags/vX.Y.Z`, fix, re-tag |
+| Tag pushed, npm not published | Fix workflow / OIDC, re-run failed publish jobs (safe: skips if version already on npm), or `git push origin :refs/tags/vX.Y.Z`, fix, re-tag |
 | npm published, tag wrong | Do not unpublish; tag correct commit on next **patch** bump |
 
 Never **`git push --force`** to `main` to fix a release; ship **`0.1.1`** instead.
@@ -118,11 +132,10 @@ Never **`git push --force`** to `main` to fix a release; ship **`0.1.1`** instea
 ### Release checklist
 
 - [ ] **`expgov validate` green** — required for **v1.0.0 npm publish** ([`shipped/exports/governance.md`](../shipped/exports/governance.md))
-- [ ] `version` aligned: root, `@i18nprune/core`, `@i18nprune/cli`
+- [ ] `pnpm versions:up -- X.Y.Z` (or sync) · `pnpm versions:verify`
 - [ ] `pnpm typecheck` · `pnpm test` · `pnpm run publish:verify`
-- [ ] `npm whoami` / access for `i18nprune` and `@i18nprune`
-- [ ] `npm publish` (root); `npm publish` in `packages/core` if shipping SDK
-- [ ] Annotated tag `vX.Y.Z` · `git push origin main` · `git push origin vX.Y.Z`
+- [ ] npm Trusted Publishing configured for both packages (or manual `npm whoami` / access)
+- [ ] Annotated tag `vX.Y.Z` · `git push origin main` · `git push origin vX.Y.Z` → [release.yml](../../.github/workflows/release.yml)
 - [ ] After deploys, IndexNow (manual — **not** on git push): `indexnow:releases --version X.Y.Z` · `indexnow:docs` · `indexnow:landing` · `indexnow:git` (see `apps/releases/scripts/MAINTAINERS.md`)
 
 ---

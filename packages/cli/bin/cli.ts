@@ -258,7 +258,7 @@ program
 program
   .command('init')
   .description(
-    'Create i18nprune.config.ts (or .mts / .js) when missing — interactive unless --yes; --rich writes every supported namespace with defaults; --auto scores package.json + locale folders (use --yes or --json in CI)',
+    'Create i18nprune.config.* when missing (interactive / --yes / --auto / --rich / --preset)',
   )
   .option('--rich', 'write expanded starter config (all namespaces + safe defaults)', false)
   .option(
@@ -407,7 +407,7 @@ program
 
 program
   .command('quality')
-  .description('Parity / source-identical vs source locale / drift (uses config policies when implemented)')
+  .description('Parity / source-identical vs source locale')
   .option('-t, --target <code>', 'only this locale file (basename)')
   .action(async (opts: { target?: string }) => {
     await quality({ target: opts.target });
@@ -415,9 +415,7 @@ program
 
 program
   .command('review')
-  .description(
-    'Locale review vs source: paths, source-identical counts, structured leaf metadata when present (use global --json)',
-  )
+  .description('Locale review vs source (paths, identical counts, structured leaf stats)')
   .option(
     '-t, --target <codes>',
     'locale basenames: `all` (default), one code, or comma list (`ja`, `ja,ar`); optional `.json` suffix',
@@ -428,7 +426,7 @@ program
 
 program
   .command('cleanup')
-  .description('Remove unused keys (static scan by default; --rg for optional ripgrep string-presence guard)')
+  .description('Remove unused keys (static scan; --rg optional)')
   .option('-n, --dry-run', 'preview removals; no writes', false)
   .option('--rg', 'enable ripgrep string-presence guard (substring search on translation values in src/)')
   .option(
@@ -462,9 +460,7 @@ program
 program
   .command('languages')
   .alias('langs')
-  .description(
-    'List supported translation target languages (code, English name, native name) for generate',
-  )
+  .description('List supported generate target languages')
   .option('-flt, --filter <text>', 'match code, English, or native (case-insensitive substring)')
   .option(
     '-tbl, --table',
@@ -480,15 +476,13 @@ program
 
 program
   .command('providers')
-  .description(
-    'List translation backends for generate: ids, env vars, and translate.{ primary, providers } config (from @i18nprune/core)',
-  )
+  .description('List translation backends for generate (ids, env, config)')
   .action(async () => {
     await providers();
   });
 
 const SHARE_CMD_DESCRIPTION =
-  'Upload hosted project snapshots and reports to the worker. Per-project cache metadata lives in share.json beside the analysis cache — use list, view, and delete to inspect or clean up rows without editing that file by hand.';
+  'Upload hosted project snapshots/reports; list, view, or delete cache rows.';
 
 const SHARE_SUBCOMMANDS = ['upload', 'list', 'view', 'delete'] as const;
 
@@ -512,9 +506,7 @@ const shareCmd = program
 /** Upload flags on `share upload` so `share delete --project <id>` is not eaten by boolean `--project`. */
 shareCmd
   .command('upload')
-  .description(
-    'Push a prepared project snapshot or report JSON to the worker API. Records worker ids and public links in share.json for this project cache. Without --project or --report, prompts for kind in a TTY.',
-  )
+  .description('Upload prepared project snapshot or report JSON to the worker')
   .option('--project', 'Upload prepared project snapshot (JSON) to the worker')
   .option('--report', 'Upload report JSON to the worker (stored report link)')
   .option('--from <file>', 'Report JSON path (with --report; default: scan in-process)')
@@ -532,9 +524,7 @@ shareCmd
 
 shareCmd
   .command('list')
-  .description(
-    'List cached upload rows for this project from share.json (kind, worker id, payload hash, links, timestamps).',
-  )
+  .description('List cached upload rows from share.json')
   .option('--project <id>', 'Filter to one worker project id')
   .option('--report <id>', 'Filter to one worker report id')
   .option('-wu, --worker-url <url>', 'Worker base URL hint when filtering (unused for list-only)')
@@ -544,9 +534,7 @@ shareCmd
 
 shareCmd
   .command('view')
-  .description(
-    'Fetch live worker metadata for a hosted project or report id (GET /v1/projects/:id or /v1/reports/:id; may match a share.json row).',
-  )
+  .description('Fetch live worker metadata for a hosted project or report id')
   .option('--project <id>', 'Worker-hosted project id')
   .option('--report <id>', 'Worker-hosted report id')
   .option('-wu, --worker-url <url>', 'Worker API base URL')
@@ -571,9 +559,7 @@ shareCmd
 
 shareCmd
   .command('delete')
-  .description(
-    'Remove a matching row from share.json and DELETE the worker copy (use --local-only to drop cache metadata only).',
-  )
+  .description('Remove share.json row and/or DELETE the worker copy')
   .option('--project <id>', 'Worker-hosted project id')
   .option('--report <id>', 'Worker-hosted report id')
   .option('-wu, --worker-url <url>', 'Worker API base URL')
@@ -597,14 +583,14 @@ shareCmd
 
 const localesCmd = program
   .command('locales')
-  .description('Locale JSON under localesDir: list files and edit existing locales (see `i18nprune help locales`).')
+  .description('Locale JSON under localesDir (list / dynamic / delete)')
   .action(() => {
     localesCmd.help({ error: false });
   });
 
 localesCmd
   .command('list')
-  .description('List locale files and key/path counts under localesDir (implementation in progress).')
+  .description('List locale files and key/path counts under localesDir')
   .action(async () => {
     await localesList();
   });
@@ -642,9 +628,7 @@ function parseKitsMaxDynamic(raw: string | undefined): number | undefined {
 
 const kitsCmd = program
   .command('kits')
-  .description(
-    'Read-only audit reports: dynamic sites, source-identical leaves, honest combined signal, baseline snapshot, PR markdown. Project root from global -c/--config (no --cwd).',
-  )
+  .description('Read-only audit reports (dynamic, identical, honest, baseline, pr).')
   .action((_, cmd) => {
     const unknown = typeof cmd?.args?.[0] === 'string' ? cmd.args[0] : undefined;
     if (unknown && !KITS_SUBCOMMANDS.includes(unknown as (typeof KITS_SUBCOMMANDS)[number])) {
@@ -657,7 +641,7 @@ const kitsCmd = program
 
 kitsCmd
   .command('dynamic')
-  .description('List dynamic translation key call sites (read-only; uses runDynamic).')
+  .description('List dynamic translation key call sites (read-only).')
   .option('-t, --target <code>', 'optional locale filter (reserved)')
   .option('-o, --out <path>', 'write output to file')
   .option('-fon, --fail-on <list>', 'comma-separated policy gates (issues,dynamic,missing,source-identical)')
@@ -687,7 +671,7 @@ kitsCmd
 
 kitsCmd
   .command('identical')
-  .description('Report source-identical leaf paths per locale file (parity excludes unless --raw).')
+  .description('Source-identical leaf paths per locale (parity excludes unless --raw).')
   .option('-t, --target <code>', 'optional locale filter')
   .option('-o, --out <path>', 'write output to file')
   .option('-fon, --fail-on <list>', 'comma-separated policy gates')
@@ -717,7 +701,7 @@ kitsCmd
 
 kitsCmd
   .command('honest')
-  .description('Combined validate + dynamic + quality + review honest audit (markdown default).')
+  .description('Combined validate + dynamic + quality + review audit.')
   .option('-t, --target <code>', 'optional locale filter')
   .option('-o, --out <path>', 'write output to file')
   .option('-fon, --fail-on <list>', 'comma-separated policy gates')
@@ -750,7 +734,7 @@ kitsCmd
 
 kitsCmd
   .command('baseline')
-  .description('Signal snapshot (missing literals, dynamic count, source-identical) with optional baseline delta.')
+  .description('Signal snapshot (missing, dynamic, source-identical); optional delta.')
   .option('-t, --target <code>', 'optional locale filter')
   .option('-o, --out <path>', 'write output to file')
   .option('-b, --baseline <path>', 'compare against a saved JSON baseline')
@@ -766,7 +750,7 @@ kitsCmd
 
 kitsCmd
   .command('pr')
-  .description('PR-style markdown audit summary (dynamic samples + counts).')
+  .description('PR markdown audit summary (counts + dynamic samples).')
   .option('-t, --target <code>', 'optional locale filter')
   .option('-o, --out <path>', 'write output to file')
   .option('-sb, --save-baseline <path>', 'save terminal-matching report')
@@ -782,9 +766,7 @@ kitsCmd
 
 program
   .command('report')
-  .description(
-    'Project-level report from a live scan or a validated prior JSON (--from); use global --json for a stdout envelope (still writes --out unless skipped)',
-  )
+  .description('Project report from live scan or --from JSON (html/json/csv/text)')
   .option('-fmt, --format <fmt>', 'output: html, json, csv, or text', 'html')
   .option('-o, --out <path>', 'output file (default: report-<timestamp>.<ext> in cwd)', undefined)
   .option('--from <file>', 'read project report JSON (must match schema) instead of scanning', undefined)
@@ -817,9 +799,7 @@ program
 
 program
   .command('version')
-  .description(
-    'Print the CLI version; use --check to query npm; use --reset to clear local update state',
-  )
+  .description('Print CLI version (--check queries npm; --reset clears update cache)')
   .option('--check', 'fetch latest from the npm registry and show install instructions', false)
   .option(
     '--reset',
@@ -840,9 +820,7 @@ program
 
 program
   .command('patch')
-  .description(
-    'Patching: analyze (then "patch --fix"); --init fills missing scaffold files; --init --force renews config.json + loaders.generated.ts and resets patching config block defaults',
-  )
+  .description('Patching analyze/fix; --init scaffolds under src/i18n')
   .option('--init', 'create missing CLI-owned files under <src>/i18n (config.json, loaders.generated.ts); see --force', false)
   .option('--force', 'with --init only: overwrite config.json + loaders.generated.ts and reset patching config block in i18nprune.config.*', false)
   .option('-fx, --fix', 'auto-apply suggested patch metadata corrections without prompt', false)

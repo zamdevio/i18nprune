@@ -15,29 +15,35 @@ const ROOT = CLI_NAME;
  * Keys are invocation paths from {@link getCommandInvocationPath} (e.g. `locales list`).
  */
 export const COMMAND_BANNER_LABELS: Record<string, CommandBannerSpec> = {
-  init: { subtitle: `${CONFIG_BASE_NAME}.ts / .mts / .js / .mjs (ESM)` },
+  init: { subtitle: `create ${CONFIG_BASE_NAME}.*` },
   config: { subtitle: 'paths, env, provenance' },
   validate: { subtitle: 'code ↔ source locale JSON' },
   missing: { subtitle: 'scaffold keys into locale JSON' },
   sync: { subtitle: 'merge + prune to source' },
   generate: { subtitle: 'generate translations from source' },
   quality: { subtitle: 'parity / drift' },
-  review: { subtitle: 'locale summaries vs source (+ structured leaf stats)' },
-  cleanup: { subtitle: 'static scan by default (--rg for optional ripgrep guard)' },
+  review: { subtitle: 'locale summaries vs source' },
+  cleanup: { subtitle: 'unused keys · static scan (--rg optional)' },
   languages: { subtitle: 'BCP47-style codes for generate' },
   providers: { subtitle: 'translation backends · env + config' },
   doctor: { subtitle: 'Node, rg, config, paths' },
-  patch: { subtitle: 'analyze patching · --init scaffold' },
+  patch: { subtitle: 'analyze · --init scaffold' },
   locales: { subtitle: 'list + edit under localesDir' },
   'locales list': { subtitle: 'files and key counts under localesDir' },
-  'locales dynamic': { subtitle: 'non-literal translation keys (read-only)' },
-  'locales delete': { subtitle: 'remove locale JSON (+ meta); future loader patches' },
-  report: { subtitle: 'project report SPA (html) · json/csv/text' },
-  share: { subtitle: 'hosted project snapshots and report links' },
-  'share upload': { subtitle: 'upload prepared project snapshot or report JSON to the worker' },
+  'locales dynamic': { subtitle: 'non-literal translation keys' },
+  'locales delete': { subtitle: 'remove locale JSON (+ meta)' },
+  kits: { subtitle: 'read-only audit reports' },
+  'kits dynamic': { subtitle: 'non-literal key call sites' },
+  'kits identical': { subtitle: 'source-identical leaves per locale' },
+  'kits honest': { subtitle: 'validate + dynamic + quality + review' },
+  'kits baseline': { subtitle: 'signal snapshot · optional delta' },
+  'kits pr': { subtitle: 'PR markdown audit summary' },
+  report: { subtitle: 'project report · html/json/csv/text' },
+  share: { subtitle: 'hosted snapshots and report links' },
+  'share upload': { subtitle: 'upload snapshot or report JSON' },
   'share list': { subtitle: 'cached uploads for this project' },
-  'share view': { subtitle: 'live worker metadata for a hosted id' },
-  'share delete': { subtitle: 'remove cache row and remote worker copy' },
+  'share view': { subtitle: 'live worker metadata' },
+  'share delete': { subtitle: 'remove cache row and remote copy' },
   version: { subtitle: 'CLI semver · npm registry check' },
 };
 
@@ -62,6 +68,7 @@ export function toolDisplayTitle(cmd: Command): string {
 
 /**
  * Subtitle for **`--help`** / box banner: labels table, else first line of **`cmd.description()`**, else path fallback.
+ * Caps length so a missing label never blows the box across the terminal.
  */
 export function getTopicBannerSubtitle(cmd: Command): string {
   const path = getCommandInvocationPath(cmd, ROOT);
@@ -70,8 +77,16 @@ export function getTopicBannerSubtitle(cmd: Command): string {
   if (spec?.subtitle) return spec.subtitle;
   const desc = cmd.description();
   const first = desc.trim().split('\n')[0]?.trim();
-  if (first) return first;
+  if (first) return truncateBannerSubtitle(first);
   return fallbackSubtitleFromPath(path);
+}
+
+/** Soft cap for banner subtitles when falling back to Commander descriptions. */
+const BANNER_SUBTITLE_MAX = 64;
+
+function truncateBannerSubtitle(text: string): string {
+  if (text.length <= BANNER_SUBTITLE_MAX) return text;
+  return `${text.slice(0, BANNER_SUBTITLE_MAX - 1).trimEnd()}…`;
 }
 
 /**

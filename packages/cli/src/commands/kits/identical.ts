@@ -2,7 +2,7 @@ import path from 'node:path';
 import { runReview } from '@i18nprune/core';
 import { formatListShownOmitted } from '@i18nprune/core';
 import { style } from '@/utils/style/index.js';
-import { resolveKitsBundle } from '@/commands/kits/lib/context.js';
+import { resolveKitsBundle, assertKitsReadiness } from '@/commands/kits/lib/context.js';
 import { flattenLocaleLeafValues, readLocaleJson } from '@/commands/kits/lib/locale.js';
 import {
   emitKitsFailure,
@@ -60,6 +60,13 @@ export async function kitsIdentical(opts: KitsIdenticalOptions): Promise<void> {
   try {
     const bundle = await resolveKitsBundle();
     ctx = bundle;
+    if (
+      !assertKitsReadiness('kits-identical', bundle, EMPTY_IDENTICAL, {
+        sourceIdentical: 0,
+      })
+    ) {
+      return;
+    }
     const { ctx: context, coreCtx, projectRoot } = bundle;
     const listWindow = resolveKitsListWindow(context.config);
     const out = runReview(coreCtx, { target: opts.target }, {});

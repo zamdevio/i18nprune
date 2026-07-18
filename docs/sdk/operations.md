@@ -132,7 +132,7 @@ Configuration types and **`defineConfig`**: [Configuration](../config/README.md)
 
 ## JSON contract parity
 
-CLI **`--json`** envelopes use stable **`issues[].code`** values and **`meta.apiVersion`** (envelope contract, currently `"1"` — independent of npm semver). See [JSON output](../cli/json.md).
+CLI **`--json`** envelopes use stable **`issues[].code`** values and **`meta.apiVersion`** (envelope contract, currently `"1"` — independent of npm semver `__I18NPRUNE_VERSION__`). See [JSON output](../cli/json.md).
 
 ## Known extraction limits
 

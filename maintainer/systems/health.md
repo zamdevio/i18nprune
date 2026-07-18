@@ -11,6 +11,7 @@
 | When | Run |
 |------|-----|
 | **Every commit that changes TS** | `pnpm typecheck` · `pnpm test` |
+| **Before release / version bump** | `pnpm versions:verify` (CI also runs this in `typecheck`) |
 | **Moved/renamed/deleted files or changed barrels** | `pnpm madge:circular` · `pnpm knip` |
 | **Refactor PR (parity-sensitive)** | Above + `tests/parity/` must pass |
 | **Changed root `exports` / `dist/*.d.ts` / npm pack layout** | `pnpm run publish:verify` (see `tests/publish-types/fixture/README.md`) |

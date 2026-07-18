@@ -1,5 +1,5 @@
 import { runQuality, runValidate } from '@i18nprune/core';
-import { resolveKitsBundle } from '@/commands/kits/lib/context.js';
+import { resolveKitsBundle, assertKitsReadiness } from '@/commands/kits/lib/context.js';
 import {
   emitKitsFailure,
   emitKitsJsonResult,
@@ -34,14 +34,27 @@ export async function kitsBaseline(opts: KitsSharedOptions): Promise<void> {
   try {
     const bundle = await resolveKitsBundle();
     ctx = bundle;
+    if (
+      !assertKitsReadiness('kits-baseline', bundle, { ...EMPTY_BASELINE, baselinePath: opts.baseline }, {
+        missing: 0,
+        dynamic: 0,
+        sourceIdentical: 0,
+      })
+    ) {
+      return;
+    }
     const { ctx: context, coreCtx, projectRoot } = bundle;
     const v = runValidate(coreCtx, {}, {});
     const q = runQuality(coreCtx, { target: opts.target }, {});
 
-    const vp = v.payload as { summary?: { missing?: unknown[]; dynamic?: { count?: number } } };
+    // Validate payload is flat (`missing`, `dynamic`) — not wrapped in `summary`.
+    const vp = v.payload as {
+      missing?: unknown[];
+      dynamic?: { count?: number; active?: number; commented?: number };
+    };
     const signal = {
-      missingLiteralKeys: vp.summary?.missing?.length ?? 0,
-      dynamicKeySites: vp.summary?.dynamic?.count ?? 0,
+      missingLiteralKeys: vp.missing?.length ?? 0,
+      dynamicKeySites: vp.dynamic?.count ?? 0,
       sourceIdenticalLeaves: (q.payload as { total?: number }).total ?? 0,
     };
 

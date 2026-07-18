@@ -35,7 +35,7 @@ Then run:
 | **Engine** | `packages/core/` | Domain logic: `runXxx`, cache, extractor, share, translator, locales. |
 | **Config** | `packages/core/src/config/` + CLI loaders | Zod schema, `defineConfig`, path resolution. |
 | **Report schema** | `packages/core/src/shared/report/` | `ProjectReportDocument` (Zod); import `@i18nprune/core/report-schema`. |
-| **Docs** | `docs/` | VitePress-ready markdown; run **`pnpm docs:sync`** after substantive edits. |
+| **Docs** | `docs/` | VitePress-ready markdown; run **`pnpm docs:sync`** after substantive edits. Current-release examples may use `__I18NPRUNE_VERSION__` / `__I18NPRUNE_TAG__` (substituted at sync from root `package.json`). |
 
 **Conventions:** ESM with **`.js`** suffix in TypeScript import paths (see `tsconfig`), **`I18nPruneError`** for user-facing failures, **`logger`** gates via **`canEmit`**—never bypass policy for “just this once.”
 

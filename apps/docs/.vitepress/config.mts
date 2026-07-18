@@ -1,4 +1,4 @@
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { renderRobotsTxtPreset } from '@i18nprune/seo'
@@ -10,6 +10,14 @@ import { sidebar } from './sidebar.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const publicDir = resolve(__dirname, 'public')
+const rootPackageJson = resolve(__dirname, '../../../package.json')
+const publishedVersion = (
+  JSON.parse(readFileSync(rootPackageJson, 'utf8')) as { version?: string }
+).version
+
+if (!publishedVersion) {
+  throw new Error(`Missing "version" in ${rootPackageJson}`)
+}
 
 writeFileSync(resolve(publicDir, 'robots.txt'), renderRobotsTxtPreset('docs'), 'utf8')
 syncWebPublicAssets({
@@ -76,6 +84,27 @@ export default defineConfig({
           { text: 'Performance', link: '/performance' },
           { text: 'Architecture', link: '/architecture/' },
           { text: 'Configuration', link: '/config/' },
+        ],
+      },
+      {
+        text: `v${publishedVersion}`,
+        items: [
+          {
+            text: 'Release notes',
+            link: 'https://releases.i18nprune.dev',
+          },
+          {
+            text: 'GitHub releases',
+            link: 'https://github.com/zamdevio/i18nprune/releases',
+          },
+          {
+            text: `npm i18nprune@${publishedVersion}`,
+            link: 'https://www.npmjs.com/package/i18nprune',
+          },
+          {
+            text: `npm @i18nprune/core@${publishedVersion}`,
+            link: 'https://www.npmjs.com/package/@i18nprune/core',
+          },
         ],
       },
     ],

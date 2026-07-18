@@ -1,5 +1,5 @@
 import { runDynamic, runQuality, runValidate } from '@i18nprune/core';
-import { resolveKitsBundle } from '@/commands/kits/lib/context.js';
+import { resolveKitsBundle, assertKitsReadiness } from '@/commands/kits/lib/context.js';
 import {
   emitKitsFailure,
   emitKitsJsonResult,
@@ -40,6 +40,15 @@ export async function kitsPr(opts: KitsPrOptions): Promise<void> {
   try {
     const bundle = await resolveKitsBundle();
     ctx = bundle;
+    if (
+      !assertKitsReadiness('kits-pr', bundle, EMPTY_PR, {
+        missing: 0,
+        dynamic: 0,
+        sourceIdentical: 0,
+      })
+    ) {
+      return;
+    }
     const { ctx: context, coreCtx, projectRoot } = bundle;
     const listWindow = resolveKitsListWindow(context.config);
 
@@ -48,7 +57,7 @@ export async function kitsPr(opts: KitsPrOptions): Promise<void> {
     const q = runQuality(coreCtx, { target: opts.target }, {});
 
     const summary = {
-      missingLiteralKeys: (v.payload as { summary?: { missing?: unknown[] } }).summary?.missing?.length ?? 0,
+      missingLiteralKeys: (v.payload as { missing?: unknown[] }).missing?.length ?? 0,
       dynamic: (d.payload as { dynamic?: { count?: number } }).dynamic?.count ?? 0,
       sourceIdentical: (q.payload as { total?: number }).total ?? 0,
     };

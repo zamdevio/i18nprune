@@ -19,7 +19,8 @@ export type ProjectReadinessCliPreset =
   | 'config'
   | 'patch'
   | 'init'
-  | 'doctor';
+  | 'doctor'
+  | 'kits';
 
 /**
  * Fine-grained checks. Set a field to **true** to run that check. Omitted / false = skip.

@@ -5,12 +5,47 @@ import { join, relative, resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DOCS2_DIR = resolve(__dirname, '..')
+const DOCS_APP_DIR = resolve(__dirname, '..')
 const REPO_ROOT = resolve(__dirname, '../../..')
 const SOURCE_DIR = resolve(REPO_ROOT, 'docs')
-const TARGET_DIR = resolve(DOCS2_DIR, 'content')
+const TARGET_DIR = resolve(DOCS_APP_DIR, 'content')
+const ROOT_PACKAGE_JSON = resolve(REPO_ROOT, 'package.json')
 /** `@see` — optional skip set for top-level `docs/` children; maintainer docs live outside `docs/`. */
 const DOCS_SYNC_SKIP = new Set([])
+
+/**
+ * Tokens authors write under docs/. Substituted from root package.json at sync
+ * so release bumps do not require hand-editing every “current release” example.
+ *
+ * - `__I18NPRUNE_VERSION__` → `1.2.3`
+ * - `__I18NPRUNE_TAG__` → `v1.2.3`
+ *
+ * Prefer these for current-release examples. Pin a concrete tag/version only when
+ * documenting a specific historical release (changelog, migration, “shipped in v1.0.1”).
+ *
+ * Do not confuse with locale MT mask sentinels (`__I18NPRUNE_MISSING__`, `__I18NPRUNE_*`)
+ * — those are product strings, not docs sync tokens.
+ */
+const VERSION_TOKEN = '__I18NPRUNE_VERSION__'
+const TAG_TOKEN = '__I18NPRUNE_TAG__'
+
+function readPublishedVersion() {
+  const pkg = JSON.parse(readFileSync(ROOT_PACKAGE_JSON, 'utf8'))
+  const version = typeof pkg.version === 'string' ? pkg.version.trim() : ''
+  if (!/^\d+\.\d+\.\d+/.test(version)) {
+    throw new Error(`Root package.json missing a semver "version" (got ${JSON.stringify(pkg.version)})`)
+  }
+  return version
+}
+
+function applyVersionTokens(raw, version = readPublishedVersion()) {
+  const tag = `v${version}`
+  return raw.split(VERSION_TOKEN).join(version).split(TAG_TOKEN).join(tag)
+}
+
+function prepareMarkdown(raw) {
+  return sanitizeMarkdownForVitePress(applyVersionTokens(raw))
+}
 
 function toVitePressTarget(target) {
   if (target.endsWith('/README.md')) return `${target.slice(0, -'README.md'.length)}index.md`
@@ -58,7 +93,7 @@ function copyRecursive(source, target) {
   ensureDir(dirname(vitepressTarget))
   if (source.endsWith('.md')) {
     const raw = readFileSync(source, 'utf8')
-    writeFileSync(vitepressTarget, sanitizeMarkdownForVitePress(raw), 'utf8')
+    writeFileSync(vitepressTarget, prepareMarkdown(raw), 'utf8')
   } else {
     copyFileSync(source, vitepressTarget)
   }
@@ -81,6 +116,8 @@ export function runSyncOnce() {
     console.error(`✗ Source directory does not exist: ${SOURCE_DIR}`)
     process.exit(1)
   }
+  const version = readPublishedVersion()
+  console.log(`· Substituting ${VERSION_TOKEN} → ${version}, ${TAG_TOKEN} → v${version}`)
   syncDirectory(SOURCE_DIR, TARGET_DIR)
   console.log('✅ Sync complete!')
 }
@@ -108,7 +145,7 @@ export function runSyncWatch() {
         ensureDir(dirname(vitepressTargetPath))
         if (sourcePath.endsWith('.md')) {
           const raw = readFileSync(sourcePath, 'utf8')
-          writeFileSync(vitepressTargetPath, sanitizeMarkdownForVitePress(raw), 'utf8')
+          writeFileSync(vitepressTargetPath, prepareMarkdown(raw), 'utf8')
         } else {
           copyFileSync(sourcePath, vitepressTargetPath)
         }

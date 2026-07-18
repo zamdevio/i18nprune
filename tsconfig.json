@@ -4,6 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
+    "types": ["node"],
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -45,6 +46,8 @@
   },
   "include": [
     "i18nprune.config.ts",
+    "tsup.config.ts",
+    "expgov.config.ts",
     "examples/**/*.ts",
     "packages/core/src/**/*.ts",
     "packages/cli/bin/**/*.ts",

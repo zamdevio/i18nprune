@@ -13,9 +13,12 @@
 
 | File | Role | Merge gate |
 |------|------|------------|
-| [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) | PR + push: typecheck → cli-build → test → parity | **Required** |
+| [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) | PR + push: typecheck (incl. `versions:verify`) → cli-build → test → parity | **Required** |
+| [`.github/workflows/release.yml`](../../.github/workflows/release.yml) | Push tag `v*`: verify once → parallel OIDC publish `i18nprune` + `@i18nprune/core` | **Release** (tag only) |
+| [`.github/workflows/exports.yml`](../../.github/workflows/exports.yml) | Product-surface paths: `expgov validate` | **Required** when paths match |
 | [`.github/workflows/deploy-git.yml`](../../.github/workflows/deploy-git.yml) | Push to `main`: build + deploy **git.i18nprune.dev** | **Deploy gate** (validate / phases) |
 | [`.github/workflows/architecture.yml`](../../.github/workflows/architecture.yml) | Push to `main` + manual: knip, madge | **Non-blocking** |
+| [`.github/workflows/indexnow.yml`](../../.github/workflows/indexnow.yml) | Manual IndexNow ping after deploys | **Manual** |
 
 ---
 
@@ -36,7 +39,7 @@ parity (same 3 OS)                    → if run_product; download cli-dist-<os>
 | Job | Matrix | Timeout | Notes |
 |-----|--------|---------|--------|
 | **scope** | `ubuntu-latest` only | 5m | Path guards + turbo filter for downstream jobs |
-| **typecheck** | `ubuntu-latest` only | 30m | `pnpm turbo run typecheck` (affected or full); **`@i18nprune/core#build` runs first** (workspace `exports` point at `dist/`); `//#ui:purity` when scoped |
+| **typecheck** | `ubuntu-latest` only | 30m | After install: **`pnpm versions:verify`**; then `pnpm turbo run typecheck` (affected or full); **`@i18nprune/core#build` runs first** (workspace `exports` point at `dist/`); `//#ui:purity` when scoped |
 | **cli-build** | 3 OS, `fail-fast: false` | ubuntu 30m · win/mac 45m | Skipped when `docs_only`; else `pnpm turbo run //#cli:build` |
 | **test** | 3 OS, `fail-fast: false` | same | Skipped when `docs_only`; `pnpm turbo run //#test` |
 | **parity** | 3 OS, `fail-fast: false` | same | Skipped when `docs_only`; `pnpm turbo run //#parity` |
@@ -217,9 +220,24 @@ Workspace rename for turbo uniqueness: **`packages/cli`** → **`@i18nprune/cli`
 
 ---
 
+## Release (`release.yml`)
+
+| Property | Value |
+|----------|--------|
+| **Trigger** | Push annotated tags matching **`v*`** |
+| **Auth** | npm **Trusted Publishing** (OIDC) — no `NPM_TOKEN` |
+| **Job DAG** | `verify` → parallel `publish-i18nprune` + `publish-core` |
+| **verify** | `versions:verify` · typecheck · test · `expgov validate` · `I18NPRUNE_PUBLISH=1` core+cli build · `publish:verify` · tag↔version check · pack + upload artifacts |
+| **publish-*** | Download tarball · skip if version already on npm · `npm publish --access public` (`--tag beta` when semver has a prerelease) |
+
+Publish jobs are independent so a partial failure can be retried without republishing a version that already succeeded. Human checklist: [`agents/git.md`](../agents/git.md).
+
+---
+
 ## Related
 
 - [`shipped/platform/ci.md`](../shipped/platform/ci.md) — CI-1–5 shipped receipt
 - [`platform.md`](./platform.md) — OS support promise and path policy
 - [`health.md`](./health.md) — knip / madge scripts and when to run locally
+- [`agents/git.md`](../agents/git.md) — version bump + tag publish checklist
 - [`shipped/README.md`](../shipped/README.md) — close phase rows when slices land

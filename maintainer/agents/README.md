@@ -7,7 +7,7 @@ Guides for humans and coding agents working in this repo.
 | [**Architecture**](./architecture.md) | Package topology, core purity, `runXxx` pattern, type/barrel layout, import discipline, health gates, cross-surface parity |
 | [**Rules**](./rules.md) | TypeScript, output contract, error handling, testing, logging, non-interactive safety, commit discipline |
 | [**JSDoc**](./jsdoc.md) | When/where/how to write JSDoc across core, CLI, and apps |
-| [**Git**](./git.md) | Commit style, version alignment, **git tags**, **npm publish** (`i18nprune` + `@i18nprune/core`) |
+| [**Git**](./git.md) | Commit style, version alignment (`versions:up` / `sync` / `verify`), **git tags**, **npm publish** via [`release.yml`](../../.github/workflows/release.yml) OIDC |
 | [**Health gates**](../systems/health.md) | `typecheck`, `test`, knip, madge, `ui:purity`, `publish:verify`, `empty:*` |
 | [**Onboarding**](./onboarding.md) | First-day reading order, trace-a-command, PR checklist, host purity |
 | [**Platform (multi-OS)**](../systems/platform.md) | Windows / macOS / Linux / WSL — adapters, CLI home, CI matrix |

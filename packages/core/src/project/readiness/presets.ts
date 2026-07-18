@@ -127,6 +127,15 @@ const PRESET_CHECKS: Record<ProjectReadinessCliPreset, ProjectReadinessChecks> =
     localesStructureRequired: true,
     srcRootDirectory: true,
   },
+  /** Kits run validate + dynamic + quality (+ review for honest) — same surface as quality/validate. */
+  kits: {
+    configFilePresent: true,
+    ...LOCALES_SOURCE_LANG,
+    sourceLocaleJsonObject: true,
+    localesDirectoryAccessible: true,
+    localesStructureRequired: true,
+    srcRootDirectory: true,
+  },
 };
 
 export function resolveProjectReadinessChecks(request: ProjectReadinessRequest): ProjectReadinessChecks {

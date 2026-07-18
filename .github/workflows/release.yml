@@ -1,0 +1,248 @@
+# Release — publish both npm packages on version tags
+#
+# Triggers on Git tags matching `v*` (e.g. v1.0.1).
+#
+# Publishes:
+#   1. i18nprune            (repository root — CLI + i18nprune/core subpaths)
+#   2. @i18nprune/core      (packages/core — scoped SDK)
+#
+# Authentication: npm Trusted Publishing via GitHub Actions OIDC
+# (owner `zamdevio`, repo `i18nprune`, workflow `release.yml`).
+# No NPM_TOKEN / NODE_AUTH_TOKEN secret is used or required.
+#
+# Structure:
+#   verify            — install, gate, build once, pack tarballs, upload artifacts
+#   publish-i18nprune — download + publish root tarball (independent)
+#   publish-core      — download + publish core tarball (independent)
+#
+# Publish jobs depend only on `verify` (not each other) so a partial failure
+# can be retried without republishing a version that already succeeded.
+# Root `i18nprune` does not declare a runtime dependency on `@i18nprune/core`
+# (core is bundled into dist/ + exposed as `i18nprune/core`), so parallel
+# publish is safe.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify version alignment
+        run: pnpm versions:verify
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Validate exports
+        run: pnpm exec expgov validate
+
+      - name: Build publishable packages
+        env:
+          I18NPRUNE_PUBLISH: '1'
+        run: |
+          set -euo pipefail
+          pnpm run core:build
+          pnpm run cli:build
+
+      - name: Publish types verify
+        run: pnpm run publish:verify -- --skip-build
+
+      - name: Validate tag matches package versions
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          EXPECTED="${TAG#v}"
+          ROOT_VERSION="$(node -p "require('./package.json').version")"
+          CORE_VERSION="$(node -p "require('./packages/core/package.json').version")"
+          CLI_VERSION="$(node -p "require('./packages/cli/package.json').version")"
+
+          echo "Tag: ${TAG}"
+          echo "Expected version: ${EXPECTED}"
+          echo "Root package.json: ${ROOT_VERSION}"
+          echo "Core package.json: ${CORE_VERSION}"
+          echo "CLI package.json: ${CLI_VERSION}"
+
+          if [ "${ROOT_VERSION}" != "${EXPECTED}" ] || [ "${CORE_VERSION}" != "${EXPECTED}" ] || [ "${CLI_VERSION}" != "${EXPECTED}" ]; then
+            echo "::error::Tag version mismatch. Tag ${TAG} requires version ${EXPECTED} in root, packages/core, and packages/cli (got root=${ROOT_VERSION}, core=${CORE_VERSION}, cli=${CLI_VERSION})."
+            exit 1
+          fi
+
+      - name: Pack i18nprune tarball
+        run: |
+          set -euo pipefail
+          mkdir -p .release-artifacts/i18nprune
+          # Build already ran above; skip prepack rebuild so the artifact matches verify.
+          npm pack --ignore-scripts --pack-destination .release-artifacts/i18nprune
+          ls -la .release-artifacts/i18nprune
+
+      - name: Pack @i18nprune/core tarball
+        run: |
+          set -euo pipefail
+          DEST="${GITHUB_WORKSPACE}/.release-artifacts/core"
+          mkdir -p "$DEST"
+          npm pack --ignore-scripts --pack-destination "$DEST"
+          ls -la "$DEST"
+        working-directory: packages/core
+
+      - name: Upload i18nprune package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18nprune-package
+          path: .release-artifacts/i18nprune/*.tgz
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload @i18nprune/core package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18nprune-core-package
+          path: .release-artifacts/core/*.tgz
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-i18nprune:
+    name: publish-i18nprune
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install --global npm@latest
+
+      - name: Show tool versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Download i18nprune package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: i18nprune-package
+          path: .release-artifacts/i18nprune
+
+      - name: Publish i18nprune (skip if already on npm)
+        run: |
+          set -euo pipefail
+          TARBALL="$(find .release-artifacts/i18nprune -name '*.tgz' -type f | head -n 1)"
+          if [ -z "${TARBALL}" ]; then
+            echo "::error::No i18nprune tarball found in artifact."
+            exit 1
+          fi
+          echo "Tarball: ${TARBALL}"
+
+          NAME="$(tar -xOf "${TARBALL}" package/package.json | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).name")"
+          VERSION="$(tar -xOf "${TARBALL}" package/package.json | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).version")"
+          echo "Package: ${NAME}@${VERSION}"
+
+          if npm view "${NAME}@${VERSION}" version >/dev/null 2>&1; then
+            echo "${NAME}@${VERSION} is already published on npm — skipping publish (safe retry)."
+            exit 0
+          fi
+
+          DIST_TAG=latest
+          if [[ "${VERSION}" == *-* ]]; then
+            DIST_TAG=beta
+          fi
+
+          echo "Publishing ${NAME}@${VERSION} (tag ${DIST_TAG}) via npm Trusted Publishing (OIDC)…"
+          npm publish "${TARBALL}" --access public --tag "${DIST_TAG}"
+
+  publish-core:
+    name: publish-core
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install --global npm@latest
+
+      - name: Show tool versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Download @i18nprune/core package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: i18nprune-core-package
+          path: .release-artifacts/core
+
+      - name: Publish @i18nprune/core (skip if already on npm)
+        run: |
+          set -euo pipefail
+          TARBALL="$(find .release-artifacts/core -name '*.tgz' -type f | head -n 1)"
+          if [ -z "${TARBALL}" ]; then
+            echo "::error::No @i18nprune/core tarball found in artifact."
+            exit 1
+          fi
+          echo "Tarball: ${TARBALL}"
+
+          NAME="$(tar -xOf "${TARBALL}" package/package.json | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).name")"
+          VERSION="$(tar -xOf "${TARBALL}" package/package.json | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).version")"
+          echo "Package: ${NAME}@${VERSION}"
+
+          if npm view "${NAME}@${VERSION}" version >/dev/null 2>&1; then
+            echo "${NAME}@${VERSION} is already published on npm — skipping publish (safe retry)."
+            exit 0
+          fi
+
+          DIST_TAG=latest
+          if [[ "${VERSION}" == *-* ]]; then
+            DIST_TAG=beta
+          fi
+
+          echo "Publishing ${NAME}@${VERSION} (tag ${DIST_TAG}) via npm Trusted Publishing (OIDC)…"
+          npm publish "${TARBALL}" --access public --tag "${DIST_TAG}"

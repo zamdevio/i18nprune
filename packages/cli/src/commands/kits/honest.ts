@@ -1,6 +1,6 @@
 import { runDynamic, runQuality, runReview, runValidate } from '@i18nprune/core';
 import { style } from '@/utils/style/index.js';
-import { resolveKitsBundle } from '@/commands/kits/lib/context.js';
+import { resolveKitsBundle, assertKitsReadiness } from '@/commands/kits/lib/context.js';
 import {
   emitKitsFailure,
   emitKitsJsonResult,
@@ -48,6 +48,15 @@ export async function kitsHonest(opts: KitsHonestOptions): Promise<void> {
   try {
     const bundle = await resolveKitsBundle();
     ctx = bundle;
+    if (
+      !assertKitsReadiness('kits-honest', bundle, EMPTY_HONEST, {
+        missing: 0,
+        dynamic: 0,
+        sourceIdentical: 0,
+      })
+    ) {
+      return;
+    }
     const { ctx: context, coreCtx, projectRoot } = bundle;
     const listWindow = resolveKitsListWindow(context.config);
 
@@ -57,11 +66,9 @@ export async function kitsHonest(opts: KitsHonestOptions): Promise<void> {
     const r = runReview(coreCtx, { target: opts.target }, {});
 
     const vp = v.payload as {
-      summary?: {
-        missing?: unknown[];
-        dynamic?: { count?: number; active?: number; commented?: number };
-        keyObservations?: { count?: number };
-      };
+      missing?: unknown[];
+      dynamic?: { count?: number; active?: number; commented?: number };
+      keyObservations?: { count?: number };
     };
     const dp = d.payload as {
       dynamic?: {
@@ -87,11 +94,11 @@ export async function kitsHonest(opts: KitsHonestOptions): Promise<void> {
     const result = {
       kind: 'kits-honest' as const,
       signal: {
-        missingLiteralKeys: vp.summary?.missing?.length ?? 0,
+        missingLiteralKeys: vp.missing?.length ?? 0,
         dynamicKeySites: dynamicSites.length,
         dynamicActive: dp.dynamic?.active,
         dynamicCommented: dp.dynamic?.commented,
-        keyObservations: vp.summary?.keyObservations?.count,
+        keyObservations: vp.keyObservations?.count,
         sourceIdenticalLeaves: qp.total ?? 0,
       },
       dynamicGroups: dp.dynamic?.groups ?? {},

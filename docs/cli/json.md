@@ -49,7 +49,14 @@ Every JSON-capable command emits the same top-level object:
 
 ### npm package version (`i18nprune` / `@i18nprune/core`)
 
-The semver on npm (today `0.1.x`) tracks **package releases**. Pre-1.0 semver allows additive CLI/SDK behavior while the envelope stays at `apiVersion: "1"`.
+The semver on npm (currently `__I18NPRUNE_VERSION__`) tracks **package releases**. The CLI JSON envelope stays at `apiVersion: "1"` unless envelope semantics change. Annotated git tags use `__I18NPRUNE_TAG__`.
+
+Install a specific release:
+
+```bash
+npm i i18nprune@__I18NPRUNE_VERSION__
+npm i @i18nprune/core@__I18NPRUNE_VERSION__
+```
 
 ### Issue codes
 

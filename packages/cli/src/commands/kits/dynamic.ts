@@ -1,6 +1,6 @@
 import { runDynamic } from '@i18nprune/core';
 import { style } from '@/utils/style/index.js';
-import { resolveKitsBundle } from '@/commands/kits/lib/context.js';
+import { resolveKitsBundle, assertKitsReadiness } from '@/commands/kits/lib/context.js';
 import {
   emitKitsFailure,
   emitKitsJsonResult,
@@ -48,6 +48,13 @@ export async function kitsDynamic(opts: KitsDynamicOptions): Promise<void> {
   try {
     const bundle = await resolveKitsBundle();
     ctx = bundle;
+    if (
+      !assertKitsReadiness('kits-dynamic', bundle, EMPTY_DYNAMIC, {
+        dynamicKeySites: 0,
+      })
+    ) {
+      return;
+    }
     const { ctx: context, coreCtx, projectRoot } = bundle;
     const listWindow = resolveKitsListWindow(context.config);
     const out = runDynamic(coreCtx, listWindow, {});
