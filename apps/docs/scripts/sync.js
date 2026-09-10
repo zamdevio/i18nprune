@@ -9,9 +9,10 @@ const DOCS_APP_DIR = resolve(__dirname, '..')
 const REPO_ROOT = resolve(__dirname, '../../..')
 const SOURCE_DIR = resolve(REPO_ROOT, 'docs')
 const TARGET_DIR = resolve(DOCS_APP_DIR, 'content')
+const HOME_SOURCE = resolve(DOCS_APP_DIR, 'index.md')
 const ROOT_PACKAGE_JSON = resolve(REPO_ROOT, 'package.json')
-/** `@see` — optional skip set for top-level `docs/` children; maintainer docs live outside `docs/`. */
-const DOCS_SYNC_SKIP = new Set([])
+/** Top-level docs/ entries skipped during sync (home is apps/docs/index.md). */
+const DOCS_SYNC_SKIP = new Set(['README.md'])
 
 /**
  * Tokens authors write under docs/. Substituted from root package.json at sync
@@ -99,6 +100,17 @@ function copyRecursive(source, target) {
   }
 }
 
+function installHomePage() {
+  if (!existsSync(HOME_SOURCE)) {
+    console.error(`✗ Home page missing: ${HOME_SOURCE}`)
+    process.exit(1)
+  }
+  const homeTarget = join(TARGET_DIR, 'index.md')
+  ensureDir(TARGET_DIR)
+  writeFileSync(homeTarget, prepareMarkdown(readFileSync(HOME_SOURCE, 'utf8')), 'utf8')
+  console.log(`✓ Home: ${relative(REPO_ROOT, HOME_SOURCE)} → ${relative(REPO_ROOT, homeTarget)}`)
+}
+
 function syncDirectory(source, target) {
   if (existsSync(target)) rmSync(target, { recursive: true, force: true })
   ensureDir(target)
@@ -107,6 +119,7 @@ function syncDirectory(source, target) {
     if (source === SOURCE_DIR && DOCS_SYNC_SKIP.has(entry)) continue
     copyRecursive(join(source, entry), join(target, entry))
   }
+  installHomePage()
   console.log(`✓ Synced: ${relative(REPO_ROOT, source)} → ${relative(REPO_ROOT, target)}`)
 }
 
@@ -124,18 +137,20 @@ export function runSyncOnce() {
 
 export function runSyncWatch() {
   runSyncOnce()
-  console.log('👀 Watching for changes in', SOURCE_DIR)
+  console.log('👀 Watching for changes in', SOURCE_DIR, 'and', HOME_SOURCE)
   watch(SOURCE_DIR, { recursive: true }, (_eventType, filename) => {
     if (!filename) return
     const sourcePath = join(SOURCE_DIR, filename)
     const targetPath = join(TARGET_DIR, filename)
     const vitepressTargetPath = toVitePressTarget(targetPath)
     try {
+      if (DOCS_SYNC_SKIP.has(filename.split(/[/\\]/)[0])) return
       if (!existsSync(sourcePath)) {
         if (existsSync(vitepressTargetPath)) {
           rmSync(vitepressTargetPath, { recursive: true, force: true })
           console.log(`✓ Removed: ${relative(REPO_ROOT, vitepressTargetPath)}`)
         }
+        installHomePage()
         return
       }
       const stats = statSync(sourcePath)
@@ -151,8 +166,18 @@ export function runSyncWatch() {
         }
         console.log(`✓ Synced: ${relative(REPO_ROOT, sourcePath)}`)
       }
+      installHomePage()
     } catch (error) {
       console.error(`✗ Error processing ${filename}:`, error.message)
+    }
+  })
+
+  watch(HOME_SOURCE, () => {
+    try {
+      installHomePage()
+      console.log(`✓ Home updated: ${relative(REPO_ROOT, HOME_SOURCE)}`)
+    } catch (error) {
+      console.error('✗ Error updating home page:', error.message)
     }
   })
 }

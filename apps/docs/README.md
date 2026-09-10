@@ -1,6 +1,8 @@
 # i18nprune docs site (`apps/docs`)
 
-VitePress app for user-facing documentation. **Source of truth:** root `docs/`; synced copy: `apps/docs/content/` (gitignored — run `pnpm docs:sync`).
+VitePress app for user-facing documentation. **Source of truth:** root `docs/` (topic pages); synced copy: `apps/docs/content/` (gitignored — run `pnpm docs:sync`).
+
+**Custom home:** [`apps/docs/index.md`](./index.md) (YAML `layout: home`) is copied to `content/index.md` on sync — **not** sourced from `docs/README.md` (that file is skipped).
 
 ## Maintainer note: sidebar
 
