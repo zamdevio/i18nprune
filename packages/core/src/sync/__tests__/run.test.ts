@@ -228,4 +228,75 @@ describe('runSync', () => {
       fs.rmSync(root, { recursive: true, force: true });
     }
   });
+
+  it('hydrates and retains copyPrefixes trees not present in the code scan', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-sync-preserve-'));
+    try {
+      const localesDir = path.join(root, 'locales');
+      const srcRoot = path.join(root, 'src');
+      fs.mkdirSync(localesDir, { recursive: true });
+      fs.mkdirSync(srcRoot, { recursive: true });
+      const sourcePath = path.join(localesDir, 'en.json');
+      const targetPath = path.join(localesDir, 'fr.json');
+      fs.writeFileSync(
+        sourcePath,
+        JSON.stringify({
+          app: { title: 'App' },
+          navigation: { items: { home: 'Home', settings: 'Settings' } },
+        }),
+      );
+      fs.writeFileSync(
+        targetPath,
+        JSON.stringify({
+          app: { title: 'App FR' },
+          navigation: { items: { home: 'Accueil' } },
+          leftover: { orphan: 'drop me' },
+        }),
+      );
+      fs.writeFileSync(path.join(srcRoot, 'app.ts'), "export const x = t('app.title');\n");
+
+      const rt = createNodeRuntimeAdapters();
+      const config = parseI18nPruneConfig({
+        ...DEFAULT_CONFIG,
+        locales: {
+          source: 'en',
+          directory: 'locales',
+        },
+        src: 'src',
+        functions: ['t'],
+        policies: {
+          preserve: {
+            copyPrefixes: ['navigation.'],
+          },
+        },
+      });
+      const ctx = createCoreContext({
+        config,
+        adapters: rt,
+        env: {},
+        paths: { sourceLocale: sourcePath, localesDir, srcRoot },
+      });
+      const out = runSync(ctx, { target: 'fr' }, {
+        emitProgress: () => {},
+      });
+
+      const target = JSON.parse(fs.readFileSync(targetPath, 'utf8')) as {
+        app: { title: string };
+        navigation: { items: { home: string; settings: string } };
+        leftover?: unknown;
+      };
+      expect(target.app.title).toBe('App FR');
+      expect(target.navigation.items.home).toBe('Accueil');
+      expect(target.navigation.items.settings).toBe('Settings');
+      expect(target.leftover).toBeUndefined();
+
+      const retained = out.payload.scanExtrasRetained?.find((row) => row.localeCode === 'fr');
+      expect(retained?.retained.some((r) => r.path === 'navigation.items.home' && r.reason === 'copyPrefix')).toBe(
+        true,
+      );
+      expect(out.issues.some((issue) => issue.code === 'i18nprune.sync.scan_extras_retained')).toBe(true);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
 });

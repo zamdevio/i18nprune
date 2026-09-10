@@ -134,7 +134,7 @@ function buildScanExtrasRetainedByLocale(
   const out: SyncScanExtrasRetainedLocale[] = [];
   for (const segment of targetSegments) {
     const summary = humanLeafSummaryByLocaleFile[segment.reportKey];
-    if (!summary || summary.prunedExtraLeaves > 0) continue;
+    if (!summary) continue;
     const extraVsScan = readLocaleLeavesForCode(ctx, segment.locale)
       .map((leaf) => leaf.path)
       .filter((path) => !analysis.usage.resolvedKeys.has(path));
