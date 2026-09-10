@@ -1,8 +1,11 @@
+import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import {
   expandSchemaPathsForPreserve,
   mergeSyncKeepPrefixes,
 } from '../policies/preserve.js';
-import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
+import { classifySyncRetainedExtras } from './retainReasons.js';
+import { readLocaleLeavesForCode } from '../shared/locales/surface/localeSurface.js';
+import type { SyncScanExtrasRetainedLocale } from '../types/sync/syncRun.js';
 import { applyLocaleLeafMode, resolveLocaleLeafMode } from '../shared/locales/leaves/index.js';
 import { buildKeyReferenceContextFromReportDetails } from '../shared/reference/context.js';
 import { resolveReferenceConfig } from '../shared/reference/resolveConfig.js';
@@ -44,7 +47,6 @@ import {
   repairSentinelLeaksCopyFromSource,
 } from '../shared/placeholders/sentinelLeak.js';
 import { emitRunMessage } from '../shared/run/index.js';
-import { computeExtraTargetKeys } from '../suggestions/computeExtraTargetKeys.js';
 import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 import { computeSyncedLocaleJson } from './apply.js';
 import { summarizeSyncLeavesForHumanLog } from './humanLeafSummary.js';
@@ -121,23 +123,58 @@ function issuesFromSyncMissingLocaleFiles(localeCodes: readonly string[]): Issue
   ];
 }
 
-function issuesFromSyncScanExtrasRetained(
+function buildScanExtrasRetainedByLocale(
   ctx: CoreContext,
   analysis: ProjectAnalysis,
   humanLeafSummaryByLocaleFile: Record<string, SyncHumanLeafSummary | undefined>,
   targetSegments: readonly { locale: string; reportKey: string }[],
-): Issue[] {
-  const issues: Issue[] = [];
+  autoUncertainPrefixes: readonly string[],
+): SyncScanExtrasRetainedLocale[] {
+  const preserve = ctx.config.policies?.preserve;
+  const out: SyncScanExtrasRetainedLocale[] = [];
   for (const segment of targetSegments) {
     const summary = humanLeafSummaryByLocaleFile[segment.reportKey];
     if (!summary || summary.prunedExtraLeaves > 0) continue;
-    const { count } = computeExtraTargetKeys(ctx, analysis, segment.locale);
-    if (count <= 0) continue;
+    const extraVsScan = readLocaleLeavesForCode(ctx, segment.locale)
+      .map((leaf) => leaf.path)
+      .filter((path) => !analysis.usage.resolvedKeys.has(path));
+    const retained = classifySyncRetainedExtras(extraVsScan, {
+      preserve,
+      autoUncertainPrefixes,
+    });
+    if (retained.length === 0) continue;
+    out.push({
+      localeCode: segment.locale,
+      localeFile: segment.reportKey,
+      retained,
+    });
+  }
+  return out;
+}
+
+function issuesFromSyncScanExtrasRetained(
+  rows: readonly SyncScanExtrasRetainedLocale[],
+): Issue[] {
+  const issues: Issue[] = [];
+  for (const row of rows) {
+    const sample = row.retained.slice(0, 5);
+    const sampleText = sample
+      .map((r) => `${r.path} (${r.reason})`)
+      .join(', ');
+    const more =
+      row.retained.length > sample.length
+        ? ` (+${String(row.retained.length - sample.length)} more)`
+        : '';
     issues.push({
       severity: 'info',
       code: ISSUE_SYNC_SCAN_EXTRAS_RETAINED,
-      message: `Target locale ${segment.locale}: ${String(count)} key path(s) are extra vs the code scan but were retained by sync (scan ∩ source template; uncertain-prefix protect may apply). Run \`i18nprune cleanup --target ${segment.locale} --dry-run\` to preview scan-based removal.`,
+      message: `Target locale ${row.localeCode}: ${String(row.retained.length)} key path(s) extra vs the code scan were retained by sync (${sampleText}${more}). Reasons: copyKey/copyPrefix/uncertainPrefix/autoUncertain. Run \`i18nprune cleanup --target ${row.localeCode} --dry-run\` to preview scan-based removal.`,
       docPath: 'commands/sync/README',
+      localeCode: row.localeCode,
+      paths: row.retained.map((r) => r.path),
+      suggestion: {
+        commands: [`i18nprune cleanup --target ${row.localeCode} --dry-run`],
+      },
     });
   }
   return issues;
@@ -595,6 +632,14 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     total: targets.length,
   });
 
+  const scanExtrasRetained = buildScanExtrasRetainedByLocale(
+    ctx,
+    analysis,
+    humanLeafSummaryByLocaleFile,
+    targets,
+    refCtx.uncertainPrefixes,
+  );
+
   const payload = finalizeLocaleSuggestions(host, {
     op: 'sync',
     ctx,
@@ -618,6 +663,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
           ...(opts.dryRun ? { wouldRepairSentinelLeaks: sentinelRepairs.length } : {}),
         }
       : {}),
+    ...(scanExtrasRetained.length > 0 ? { scanExtrasRetained } : {}),
   });
 
   const issues = [
@@ -626,7 +672,7 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     ...issueFromMetadataFlagConflict(modeDecision.conflict),
     ...issuesFromSourcePlaceholderLeaves(sourcePlaceholderLeaves),
     ...issuesFromTargetPlaceholderLeaves(targetPlaceholderLeaves),
-    ...issuesFromSyncScanExtrasRetained(ctx, analysis, humanLeafSummaryByLocaleFile, targets),
+    ...issuesFromSyncScanExtrasRetained(scanExtrasRetained),
   ];
 
   return {

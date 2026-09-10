@@ -31,6 +31,24 @@ export type SyncJsonOutput = {
   sentinelRepairs?: SyncSentinelRepairRecord[];
   /** Count of sentinel repairs when `--dry-run` (same length as `sentinelRepairs` when populated). */
   wouldRepairSentinelLeaks?: number;
+  /**
+   * Target key paths extra vs the code scan that sync retained (preserve / uncertain keep).
+   * Additive — empty when nothing retained.
+   */
+  scanExtrasRetained?: SyncScanExtrasRetainedLocale[];
+};
+
+export type SyncRetainedExtraReason =
+  | 'copyKey'
+  | 'copyPrefix'
+  | 'uncertainPrefix'
+  | 'autoUncertain';
+
+export type SyncScanExtrasRetainedLocale = {
+  localeCode: string;
+  /** Relative locale file key used in sync reports (e.g. `fr.json` or segment path). */
+  localeFile: string;
+  retained: Array<{ path: string; reason: SyncRetainedExtraReason }>;
 };
 
 export type SyncSentinelRepairRecord = {

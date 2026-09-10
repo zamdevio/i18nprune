@@ -16,7 +16,6 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "rootDir": ".",
-    // Full IDE/typecheck map. Runtime Vitest+tsup aliases: scripts/dev/pathAliases.mjs
     "paths": {
       "@/*": ["./packages/cli/src/*"],
       "@i18nprune/core": ["./packages/core/src/index.ts"],

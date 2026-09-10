@@ -19,6 +19,14 @@ export type {
   SyncHumanLeafSummary,
   SyncJsonOutput,
   SyncLocaleDisplayGroup,
+  SyncRetainedExtraReason,
   SyncRunOptions,
   SyncRunResult,
+  SyncScanExtrasRetainedLocale,
 } from '../types/sync/index.js';
+export {
+  classifySyncRetainedExtraReason,
+  classifySyncRetainedExtras,
+  isSyncRetainProtectedPath,
+} from './retainReasons.js';
+export type { SyncRetainedExtraRow } from './retainReasons.js';

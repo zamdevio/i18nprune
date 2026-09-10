@@ -4,6 +4,8 @@ export type {
   SyncFileLine,
   SyncHostHooks,
   SyncJsonOutput,
+  SyncRetainedExtraReason,
   SyncRunOptions,
   SyncRunResult,
+  SyncScanExtrasRetainedLocale,
 } from './syncRun.js';
