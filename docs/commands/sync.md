@@ -25,23 +25,45 @@ i18nprune sync --target ja,pt-br
 
 ## Core behavior
 
-`sync` aligns each target locale file toward a **sync template**: source locale keys that appear in the **current code scan** (`resolvedKeys`), not the full source JSON file and not “extra vs scan” counts from tips.
+`sync` aligns each target locale file toward a **sync template**:
 
-Per target file it **merges** missing scan keys from source, then **prunes** paths not in that template. Prune may **retain** branches under **uncertain key prefixes** when `reference.uncertainKeyPolicy` is `protect` or `warn_only` (default) — common when dynamic `t(\`…\`)` sites exist.
+1. Start from **scan ∩ source** (`resolvedKeys` that exist in the source locale).
+2. **Expand** with source leaves under `policies.preserve` (`copyKeys`, `copyPrefixes`, `uncertainPrefixes`) so declared trees hydrate even when the scan never resolved those keys.
+3. **Merge** missing template paths from source, then **prune** paths not in the template.
 
-Human stderr reports **pruned extras** as paths removed because they are **not in the sync template** (and not kept by uncertain-prefix rules). That number is **not** the same as suggestion / tip counts of keys **extra vs the code scan**.
+Prune may **retain** branches under:
+
+- declared preserve / `uncertainPrefixes`
+- **auto** uncertain prefixes when `reference.uncertainKeyPolicy` is `protect` or `warn_only` (default) — common for dynamic `t(\`…\`)` sites
+
+Human stderr reports **pruned extras** as paths removed because they are **not in the sync template** (and not kept by those rules). That number is **not** the same as suggestion / tip counts of keys **extra vs the code scan**.
+
+### Migration (drop scan anchors)
+
+If you maintained a scan-only “dynamic anchors” file so sync would keep nav/settings trees, prefer:
+
+```ts
+policies: {
+  preserve: {
+    copyPrefixes: ['navigation.'], // verbatim / skip MT
+    // uncertainPrefixes: ['seo.routes'], // shape keep; allow generate --resume
+  },
+}
+```
+
+Then remove the anchor file once you are on **i18nprune ≥ 1.0.3**.
 
 ## Sync vs tips vs `cleanup` (different datasets)
 
 | Layer | Dataset | What “extra” means |
 |-------|---------|-------------------|
 | **Tips** (`validate`, `sync`, `generate`) | Target locale leaves vs **code scan** | Keys on disk not in `resolvedKeys` |
-| **`sync` prune log** | Target leaves vs **sync template** (scan ∩ source) | Keys removed because absent from template (after uncertain-prefix keep) |
+| **`sync` prune log** | Target leaves vs **sync template** (scan ∩ source **+ preserve expansion**) | Keys removed because absent from template (after keep rules) |
 | **`cleanup --target`** | Target leaves vs **code scan** | Keys to remove if you want the file to match the scan (subject to preserve / `--rg`) |
 
-Example: a tip may report **115 extra** keys in `so.json` while sync prints **`0 extra path(s) removed`** — sync kept those paths (often under uncertain-prefix protect). That is expected.
+Example: a tip may report **115 extra** keys in `so.json` while sync prints **`0 extra path(s) removed`** — sync kept those paths (preserve and/or uncertain-prefix protect). That is expected.
 
-When sync retains scan-extras, it emits **`i18nprune.sync.scan_extras_retained`** (`info`) with guidance to run **`cleanup --target <code> --dry-run`**. See [Sync issues — `scan_extras_retained`](../issues/sync.md#scan-extras-retained).
+When sync retains scan-extras, it emits **`i18nprune.sync.scan_extras_retained`** (`info`) with sample paths and reasons (`copyKey` / `copyPrefix` / `uncertainPrefix` / `autoUncertain`), plus **`--json`** field **`data.scanExtrasRetained`**. See [Sync issues — `scan_extras_retained`](../issues/sync.md#scan-extras-retained).
 
 `sync` does **not** replace target cleanup. Use **`cleanup --target <code>`** when you want scan-based pruning.
 

@@ -27,9 +27,10 @@ description: Sync issue codes — missing locale files, metadata flag conflicts,
 ## `scan_extras_retained`
 
 **Severity:** `info`  
-**When:** A synced **target** locale still has key paths **extra vs the code scan**, but **`sync` retained them** (human log shows **`0 extra path(s) removed (not in source)`** for that file). Typical when uncertain-prefix protect keeps branches for dynamic key sites.  
+**When:** After **`sync`**, a target locale still has key paths **extra vs the code scan** that were **retained** (preserve / uncertain keep). Reasons on each path: **`copyKey`**, **`copyPrefix`**, **`uncertainPrefix`**, or **`autoUncertain`**.  
 **Who:** **`sync`**, **`runSync`**.  
-**What to do:** This is not a failure. **`sync`** aligns to **scan ∩ source** and is conservative around dynamic keys. To preview **scan-based** removal from the target file, run:
+**JSON:** additive **`data.scanExtrasRetained[]`** — `{ localeCode, localeFile, retained: [{ path, reason }] }`. Issue includes **`paths`** and a short sample in **`message`**.  
+**What to do:** This is not a failure. **`sync`** aligns to **scan ∩ source + preserve expansion** and is conservative around dynamic / declared keep trees. To preview **scan-based** removal from the target file, run:
 
 ```bash
 i18nprune cleanup --target <code> --dry-run
