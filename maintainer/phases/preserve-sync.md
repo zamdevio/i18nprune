@@ -12,7 +12,8 @@
 
 | Slice | Receipt |
 |-------|---------|
-| — | — |
+| **P0** `copyPrefixes` → sync retain + hydrate | In tree — `expandSchemaPathsForPreserve` + `mergeSyncKeepPrefixes` in `sync/run.ts` |
+| **P0** `preserve.uncertainPrefixes[]` | Schema + sync keep/hydrate (same helpers) |
 
 ---
 
@@ -40,8 +41,6 @@ Consumer repos with dynamic i18n (`t(item.labelKey)`, `` t(`seo.routes.${id}`) `
 
 | # | Slice | Outcome | Core touchpoints |
 |---|-------|---------|------------------|
-| **P0** | **`copyPrefixes` → sync retain + hydrate** | Sync merge/prune treats `copyPrefixes` / optional `uncertainPrefixes` like auto uncertain roots; **copy missing paths from source** into targets (not only retain existing extras). | `sync/apply.ts`, `mergeToTemplateShape`, `buildKeyReferenceContext`, config schema |
-| **P0** | **Config `preserve.uncertainPrefixes[]`** | Declare roots without anchor files (`navigation.items`, `pages.domain.shared.settings.appearance`, …). | `policies.preserve` schema, reference context builder |
 | **P1** | **Cross-file const-map** | Imported `as const` string roots (e.g. shared `i18nKey` module) fold into per-file effective map. | Extractor — see [`extractor/cross-file.md`](./extractor/cross-file.md) |
 | **P1** | **Split preserve semantics** | `verbatimPrefixes` / `copyKeys` (never MT) vs `shapePrefixes` (keep in JSON, allow `generate --resume`). | `generate/resume/eligibleResumeLeaves.ts`, docs |
 | **P2** | **Sync JSON clarity** | When prune ≠ tip “extra” counts, emit retained paths + reason (`uncertainPrefix`, `copyPrefix`) in `--json`. | `runSync`, issue `scan_extras_retained` upgrade |

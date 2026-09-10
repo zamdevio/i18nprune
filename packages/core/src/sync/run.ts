@@ -1,3 +1,7 @@
+import {
+  expandSchemaPathsForPreserve,
+  mergeSyncKeepPrefixes,
+} from '../policies/preserve.js';
 import { collectTranslationSurfaceLeaves } from '../shared/locales/leaves/index.js';
 import { applyLocaleLeafMode, resolveLocaleLeafMode } from '../shared/locales/leaves/index.js';
 import { buildKeyReferenceContextFromReportDetails } from '../shared/reference/context.js';
@@ -425,8 +429,12 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     metadataFlag: explicitMetadata,
     stripMetadataFlag: explicitStripMetadata,
   });
-  const effectiveSchemaPaths = resolveGlobalSyncSchemaPaths(ctx, schemaPaths);
   const mergedSourceLeaves = readSourceLocaleLeaves(ctx);
+  const effectiveSchemaPaths = expandSchemaPathsForPreserve(
+    resolveGlobalSyncSchemaPaths(ctx, schemaPaths),
+    mergedSourceLeaves.map((l) => l.path),
+    ctx.config.policies?.preserve,
+  );
   const sourcePlaceholderLeaves = detectSourcePlaceholderLeaves(
     mergedSourceLeaves,
     sourcePlaceholderValues(ctx.config.missing?.placeholder),
@@ -470,10 +478,16 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
     });
     targetPlaceholderLeaves.push(...targetPlaceholdersForFile);
     const targetPlaceholderPaths = targetPlaceholdersForFile.map((leaf) => leaf.path);
-    const mergeOpts =
+    const keepPrefixes = mergeSyncKeepPrefixes(
       eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only'
+        ? refCtx.uncertainPrefixes
+        : undefined,
+      ctx.config.policies?.preserve,
+    );
+    const mergeOpts =
+      keepPrefixes.length > 0
         ? {
-            uncertainKeepPrefixes: refCtx.uncertainPrefixes,
+            uncertainKeepPrefixes: keepPrefixes,
             skipFillPaths: [...sourcePlaceholderPaths],
             forceFillPaths: targetPlaceholderPaths,
           }

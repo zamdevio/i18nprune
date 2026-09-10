@@ -22,6 +22,12 @@ const preserveSchema = z
       .array(z.string())
       .optional()
       .describe('Key path prefixes treated like copyKeys (prefix match).'),
+    uncertainPrefixes: z
+      .array(z.string())
+      .optional()
+      .describe(
+        'Declared uncertain key roots (no scan anchors). Sync retains/hydrates like auto uncertain prefixes.',
+      ),
   })
   .optional()
   .describe('Preserve policy: keys/prefixes that must not be freely translated or drifted.');

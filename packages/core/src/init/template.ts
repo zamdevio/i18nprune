@@ -103,6 +103,7 @@ ${body}
     preserve: {
       // copyKeys: ['brand.tagline'],
       // copyPrefixes: ['legal.'],
+      // uncertainPrefixes: ['seo.routes'],
     },
     parity: {
       // excludeKeys: ['debug.flag'],
@@ -156,6 +157,7 @@ ${body}
     preserve: {
       // copyKeys: ['brand.tagline'],
       // copyPrefixes: ['legal.'],
+      // uncertainPrefixes: ['seo.routes'],
     },
     parity: {
       // excludeKeys: ['debug.flag'],

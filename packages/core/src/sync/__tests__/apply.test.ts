@@ -26,6 +26,30 @@ describe('computeSyncedLocaleJson', () => {
     expect(r.next).toEqual({ a: '2' });
   });
 
+  it('retains extras under declared keep prefixes (copyPrefixes-normalized)', () => {
+    const t = { a: '1' };
+    const cur = { a: '2', navigation: { items: { home: 'Accueil' } } };
+    const r = computeSyncedLocaleJson(t, cur, { copyPrefixes: ['navigation.'] }, {
+      uncertainKeepPrefixes: ['navigation'],
+    });
+    expect(r.next).toEqual({
+      a: '2',
+      navigation: { items: { home: 'Accueil' } },
+    });
+  });
+
+  it('hydrates preserve trees when template includes source paths', () => {
+    const t = { a: '1', navigation: { items: { home: 'Home', settings: 'Settings' } } };
+    const cur = { a: '2', navigation: { items: { home: 'Accueil' } } };
+    const r = computeSyncedLocaleJson(t, cur, { copyPrefixes: ['navigation.'] }, {
+      uncertainKeepPrefixes: ['navigation'],
+    });
+    expect(r.next).toEqual({
+      a: '2',
+      navigation: { items: { home: 'Accueil', settings: 'Settings' } },
+    });
+  });
+
   it('strips structured metadata to plain string leaves', () => {
     const cur = {
       a: { value: 'hello', status: 'translated', confidence: 0.9, needsReview: false },
