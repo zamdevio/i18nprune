@@ -118,13 +118,20 @@ if (fs.existsSync(fixtureNodeModules)) {
   fs.rmSync(fixtureNodeModules, { recursive: true, force: true });
 }
 
-console.log('→ fixture: pnpm install --ignore-workspace');
-run('pnpm', ['install', '--ignore-workspace'], fixtureRoot, 'fixture install');
+// npm-consumer simulation: use npm so resolution cannot walk into the monorepo pnpm workspace.
+console.log('→ fixture: npm install (consumer layout)');
+run('npm', ['install', '--no-package-lock', '--ignore-scripts'], fixtureRoot, 'fixture install');
+
+const fixtureTsc = path.join(fixtureRoot, 'node_modules', 'typescript', 'bin', 'tsc');
+if (!fs.existsSync(fixtureTsc)) {
+  console.error('publish:verify failed: fixture missing typescript after npm install');
+  process.exit(1);
+}
 
 console.log('→ fixture: tsc --skipLibCheck false');
 run(
-  'pnpm',
-  ['exec', 'tsc', '-p', 'tsconfig.json', '--skipLibCheck', 'false'],
+  process.execPath,
+  [fixtureTsc, '-p', 'tsconfig.json', '--skipLibCheck', 'false'],
   fixtureRoot,
   'fixture tsc',
 );
