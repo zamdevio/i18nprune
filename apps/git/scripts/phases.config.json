@@ -165,5 +165,18 @@
       "v1.0.2 — audit quick wins (vitest/hono/vite; pnpm-workspace overrides for axios/form-data/postcss)",
       "releases portal cli/core 1.0.2 YAML"
     ]
+  },
+  {
+    "week": "2026-W37",
+    "label": "Week 37 — preserve-sync + docs home",
+    "theme": "copyPrefixes hydrate, uncertainPrefixes, retain JSON; VitePress layout home; toward 1.0.3",
+    "color": "teal",
+    "shipped": [
+      "P0 — sync retain+hydrate for copyPrefixes / uncertainPrefixes / copyKeys",
+      "P2 — scanExtrasRetained JSON + richer scan_extras_retained issues",
+      "docs — policies/sync/issues preserve contract + drop-anchor migration",
+      "docs site — VitePress layout:home from apps/docs/index.md",
+      "receipt maintainer/shipped/locale/preserve-sync.md"
+    ]
   }
 ]
