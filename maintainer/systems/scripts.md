@@ -16,3 +16,7 @@ Logical groups (for humans):
 | Hygiene | `knip`, `madge:*`, `empty:*` |
 
 **Turbo aliases** (`//#test`, `//#parity`, `//#cli:build`, `//#ui:purity`) stay — CI/Turbo invoke them by name (`pnpm turbo run //#test`). Do not rename without updating `.github/workflows/ci.yml`.
+
+**Path aliases (Vitest + tsup):** [`scripts/dev/pathAliases.mjs`](../../scripts/dev/pathAliases.mjs) — single runtime map; keep in sync with `tsconfig.json` `paths` when adding aliases used by tests or the CLI bundle.
+
+**tsup `createRequire` banner:** intentional for Node ESM CLI — bundled commander still `require("events")`. Documented on `tsup.config.ts`; do not strip without an ESM-native commander path or externalizing commander.

@@ -29,6 +29,8 @@ preserve-sync → VS Code extension → extractor v2 (AST tier)
 
 Config layout UX (`config.md`) is orthogonal CLI polish — can ship between larger tracks.
 
+**Before next npm bump:** update `FALLBACK_CLI_VERSION` in `apps/landing/src/lib/meta.ts` and `packages/seo/src/constants.ts` (today still `0.1.0` vs published `1.0.2`).
+
 ---
 
 ## Guiding rules

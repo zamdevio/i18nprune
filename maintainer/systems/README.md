@@ -28,6 +28,7 @@
 | **`systems/exports.md`** | `@i18nprune/core` stability tiers, subpath catalog, root barrel rules, host import matrix |
 | **`systems/pnpm.md`** | Workspace membership vs `allowBuilds` / `overrides` policy in `pnpm-workspace.yaml` |
 | **`systems/scripts.md`** | Root `package.json` script groups (no empty `//` comment keys); Turbo `//#*` aliases |
+| **`systems/apps.md`** | Live portals vs extension WIP — honest monorepo inventory |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
 Design rules: **`maintainer/agents/architecture.md`** and **`maintainer/agents/rules.md`**.

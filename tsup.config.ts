@@ -1,11 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'tsup';
-
-const root = path.dirname(fileURLToPath(import.meta.url));
-const cliRoot = path.join(root, 'packages', 'cli');
-const coreSrc = path.join(root, 'packages/core/src');
+import { coreSrc, esbuildAliasMap, root } from './scripts/dev/pathAliases.mjs';
 
 function readPackageVersion(packageJsonPath: string): string {
   const version = (JSON.parse(readFileSync(packageJsonPath, 'utf8')) as { version?: string }).version;
@@ -54,7 +50,13 @@ export default defineConfig({
   splitting: false,
   treeshake: true,
   external: ['jiti', 'zod', '@inquirer/prompts'],
-  // Bundled CJS deps (e.g. commander) call require("events"); ESM output needs createRequire.
+  /**
+   * Bundled CJS deps (commander) call `require("events")`. ESM output has no bare `require`,
+   * so inject `createRequire` once at the top of each chunk. Node CLI / `dist/cli.js` only —
+   * not intended for browser bundles. Prefer keeping this over externalizing commander unless
+   * we move the CLI to a pure-ESM commander path. Do not remove without a replacement that
+   * still runs `node dist/cli.js` with zero Node builtin polyfills from the host.
+   */
   banner: {
     js: "import { createRequire as __i18npruneCreateRequire } from 'module'; const require = __i18npruneCreateRequire(import.meta.url);",
   },
@@ -64,15 +66,6 @@ export default defineConfig({
       __I18NPRUNE_CLI_VERSION__: JSON.stringify(rootPackageVersion),
       __I18NPRUNE_SDK_VERSION__: JSON.stringify(corePackageVersion),
     };
-    options.alias = {
-      '@': path.join(cliRoot, 'src'),
-      // Longer paths first so `@i18nprune/core/runtime/*` does not resolve to `src/runtime/node/` (impl dir).
-      '@i18nprune/core/runtime/node': path.join(coreSrc, 'runtime/exports/node.ts'),
-      '@i18nprune/core/runtime/web': path.join(coreSrc, 'runtime/exports/web.ts'),
-      '@i18nprune/core/runtime/edge': path.join(coreSrc, 'runtime/exports/edge.ts'),
-      '@i18nprune/core/runtime/helpers/sync': path.join(coreSrc, 'runtime/exports/helpers/sync.ts'),
-      '@i18nprune/core': coreSrc,
-      '@i18nprune/core/report-schema': path.join(coreSrc, 'shared/report/index.ts'),
-    };
+    options.alias = esbuildAliasMap();
   },
 });
