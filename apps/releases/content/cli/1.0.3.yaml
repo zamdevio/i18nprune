@@ -1,0 +1,54 @@
+schemaVersion: 1
+stream: cli
+version: 1.0.3
+date: 2026-09-10
+status: stable
+summary: v1.0.3 — sync preserve hydrate (copyPrefixes / uncertainPrefixes); retain reasons in JSON; VitePress docs home.
+highlights:
+  - "Sync — `policies.preserve.copyPrefixes` / `uncertainPrefixes` / `copyKeys` retain and hydrate from source (no scan-anchor files required)"
+  - "Sync `--json` — additive `scanExtrasRetained[]` with reasons (`copyKey` / `copyPrefix` / `uncertainPrefix` / `autoUncertain`)"
+  - "Docs — policies/sync contract + migration off scan anchors; VitePress `layout: home` landing"
+  - "Tooling — shared Vitest/tsup path aliases; publish-types fixture uses npm consumer install under pnpm 12"
+sections:
+  added:
+    - "`policies.preserve.uncertainPrefixes` — declared uncertain roots for sync retain/hydrate"
+    - "`data.scanExtrasRetained` on sync JSON envelope"
+    - "Docs site home — `apps/docs/index.md` (`layout: home`) installed by docs sync"
+  changed:
+    - "Sync template = scan ∩ source **plus** preserve expansion"
+    - "`scan_extras_retained` issue includes sample paths, reasons, and `paths[]`"
+  fixed:
+    - "Sync no longer drops declared `copyPrefixes` trees that the code scan never resolved"
+    - "publish:verify — fixture install no longer resolves the monorepo workspace package under pnpm 12"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install -g i18nprune@1.0.3"
+    - "Pin `@i18nprune/core@1.0.3` when using the SDK alongside this CLI line"
+    - "Prefer `policies.preserve.copyPrefixes` / `uncertainPrefixes` over scan-only dynamic anchor files"
+    - "Additive JSON only — existing sync envelope fields unchanged"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/1.0.3
+    - label: Policies
+      href: https://docs.i18nprune.dev/config/policies
+    - label: Sync command
+      href: https://docs.i18nprune.dev/commands/sync
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@1.0.3
+git:
+  tag: v1.0.3
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.0.3"
+compat:
+  - stream: core
+    version: 1.0.3
+tags:
+  - patch
+  - release
+  - sync
+  - preserve
+  - cli

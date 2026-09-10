@@ -1,0 +1,48 @@
+schemaVersion: 1
+stream: core
+version: 1.0.3
+date: 2026-09-10
+status: stable
+summary: v1.0.3 — preserve-aware sync retain/hydrate; scanExtrasRetained; lockstep with CLI 1.0.3.
+highlights:
+  - "Sync — expand schema paths from `copyPrefixes` / `uncertainPrefixes` / `copyKeys`; merge keep prefixes with auto uncertain"
+  - "`classifySyncRetainedExtraReason` + `scanExtrasRetained` on sync payload"
+  - "Published in lockstep with `i18nprune@1.0.3`"
+sections:
+  added:
+    - "`PreservePolicy.uncertainPrefixes`"
+    - "`expandSchemaPathsForPreserve` / `mergeSyncKeepPrefixes` / sync retain reason helpers"
+    - "Additive `SyncJsonOutput.scanExtrasRetained`"
+  changed:
+    - "Sync schema paths include declared preserve trees from source"
+  fixed:
+    - "Declared preserve prefixes no longer require scan-resolved keys to survive sync prune/hydrate"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install @i18nprune/core@1.0.3"
+    - "Pin the same semver as CLI (`@i18nprune/core@1.0.3` with `i18nprune@1.0.3`)"
+    - "Additive sync JSON field — safe for existing envelope consumers"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/1.0.3
+    - label: Policies
+      href: https://docs.i18nprune.dev/config/policies
+    - label: SDK operations
+      href: https://docs.i18nprune.dev/sdk/operations
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@1.0.3
+git:
+  tag: v1.0.3
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.0.3"
+compat:
+  - stream: cli
+    version: 1.0.3
+tags:
+  - patch
+  - sync
+  - preserve
