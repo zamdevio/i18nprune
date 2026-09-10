@@ -36,7 +36,7 @@ Design rules: **`maintainer/agents/architecture.md`** and **`maintainer/agents/r
 
 Adding or changing **`systems/commands/<op>.md`** or **`systems/operations/`** MUST land as part of PRs touching `packages/*/src/**`.
 
-- Update **`maintainer/phases/active-phase.md`**, **`maintainer/shipped/README.md`**, or **`maintainer/phases/extension/*.md`** only when the PR is **actually** recording phase or extension planning (not for routine wiring-only changes).
+- Update **`maintainer/phases/focus.md`**, **`maintainer/shipped/README.md`**, or **`maintainer/phases/extension/*.md`** only when the PR is **actually** recording phase or extension planning (not for routine wiring-only changes).
 - Prefer updating **`maintainer/agents/`** when **agent authoring rules change**.
 
 ---

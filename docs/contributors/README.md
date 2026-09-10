@@ -14,7 +14,7 @@ If you are new (or you are letting an AI agent drive a small change), start with
 1. `maintainer/agents/architecture.md` (package topology and where behavior lives)
 2. `maintainer/agents/rules.md` (TypeScript conventions, errors, logging, tests)
 3. `maintainer/agents/git.md` (commit and PR discipline)
-4. `maintainer/phases/active-phase.md` (what is actively being worked on right now)
+4. `maintainer/phases/focus.md` (what is actively being worked on right now)
 5. `maintainer/shipped/README.md` (avoid re-implementing closed work)
 6. `maintainer/systems/README.md` (where the subsystem maps live)
 7. `maintainer/systems/platform.md` (multi-OS behavior and path pitfalls)

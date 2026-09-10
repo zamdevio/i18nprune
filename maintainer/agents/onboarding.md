@@ -60,7 +60,7 @@ Read in order; skip deep dives until you touch that area.
 |---|-----|-----|
 | 1 | [`architecture.md`](./architecture.md) | Package topology, `runXxx`, core purity, parity |
 | 2 | [`rules.md`](./rules.md) | TS, errors, logging, tests, commits |
-| 3 | [`../phases/active-phase.md`](../phases/active-phase.md) | What sprint is active **right now** |
+| 3 | [`../phases/focus.md`](../phases/focus.md) | What sprint is active **right now** |
 | 4 | [`../shipped/README.md`](../shipped/README.md) | Do not re-implement closed work |
 | 5 | [`../systems/README.md`](../systems/README.md) | Where per-subsystem maps live |
 | 5b | [`../systems/platform.md`](../systems/platform.md) | Multi-OS CLI/SDK — paths, home, WSL vs Windows |
@@ -142,7 +142,7 @@ CLI should pass **`cwd: ctx.adapters.system.cwd()`** via [`packages/cli/src/shar
 | Logic in `packages/cli/src/commands/*/run.ts` beyond prompts/render | Move to `packages/core/src/<op>/run.ts` |
 | Renaming an issue code | **Never** — codes are stable API |
 | Importing `@i18nprune/core` from `packages/ui` | Keep component in app; pass props |
-| Guessing phase scope | Read `active-phase.md` + hub doc; **ask** if ambiguous |
+| Guessing phase scope | Read `focus.md` + hub doc; **ask** if ambiguous |
 | Linking `maintainer/phases/*` from `maintainer/systems/*` for trackers | Systems = current wiring; phase files are ephemeral plans |
 
 ---
@@ -152,5 +152,5 @@ CLI should pass **`cwd: ctx.adapters.system.cwd()`** via [`packages/cli/src/shar
 - [`README.md`](./README.md) — agents hub
 - [`../README.md`](../README.md) — maintainer directory entry
 - [`../phases/README.md`](../phases/README.md) — phase index
-- [`../phases/active-phase.md`](../phases/active-phase.md) — current sprint focus
+- [`../phases/focus.md`](../phases/focus.md) — current sprint focus
 - [`git.md`](./git.md) — publish / tag checklist before npm release

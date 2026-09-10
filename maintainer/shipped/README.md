@@ -6,7 +6,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 **Convention:** Weeks use **ISO-8601** (`YYYY-Www`, Monday start). Newest weeks first below.
 
-**Next work:** VS Code extension — [`phases/extension/README.md`](../phases/extension/README.md) · [`phases/active-phase.md`](../phases/active-phase.md).
+**Next work:** Preserve + sync — [`phases/preserve-sync.md`](../phases/preserve-sync.md) · [`phases/focus.md`](../phases/focus.md).
 
 ---
 

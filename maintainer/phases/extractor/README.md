@@ -63,7 +63,7 @@ v2 extractor (`fast` heuristics: HOC → light-dataflow → cross-file → finit
   → provider registry (on hold)
 ```
 
-**Sprint pointer:** [`../active-phase.md`](../active-phase.md) — extractor v2 is the extractor focus; extension follows AST.
+**Sprint pointer:** [`../focus.md`](../focus.md) — extractor v2 after preserve-sync + extension; locale-only follows.
 
 ---
 

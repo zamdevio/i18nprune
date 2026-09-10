@@ -1,7 +1,7 @@
 # Search command — phase plan
 
 **Status:** **planned** — read-only op; ships after extractor baseline (C.1 / E / D) is stable; can overlap extractor v2 S.1+ index work.  
-**Tracker:** [`active-phase.md`](./active-phase.md) · **Receipts:** [`shipped/README.md`](../shipped/README.md) (when shipped).  
+**Tracker:** [`focus.md`](./focus.md) · **Receipts:** [`shipped/README.md`](../shipped/README.md) (when shipped).  
 **Implementation:** `packages/core/src/search/` (TBD) · CLI host · **Depends on:** project analysis + `KeyObservation` / `dynamicSites` from [`systems/extractor.md`](../systems/extractor.md).
 
 **Goal:** Let operators look up **any dotted key path** (or fragment) across locale JSON and `src/` with explicit **lookup mode** and **advanced flags** — and **map every resolvable key to its call-site evidence** (literal, template-resolved, and **fully traced dynamic sites**) without stitching `validate`, `locales dynamic`, and manual `rg`.

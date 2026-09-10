@@ -186,4 +186,4 @@ App README: [`apps/git/README.md`](../../apps/git/README.md) · CI map: [`mainta
 
 ---
 
-*See also: [Analysis](./analysis.md), [Contributors README](./README.md), [active phase](../phases/active-phase.md).*
+*See also: [Analysis](./analysis.md), [Contributors README](./README.md), [sprint focus](../phases/focus.md).*

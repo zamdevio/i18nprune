@@ -1,7 +1,7 @@
 # Terminal protocol exploitation — phase plan
 
 **Status:** **research / planned** — presentation-only vertical; does not block extractor v2, search, AST tier, or extension.  
-**Tracker:** [`active-phase.md`](./active-phase.md) · **Receipts:** [`shipped/README.md`](../shipped/README.md) (when slices ship).  
+**Tracker:** [`focus.md`](./focus.md) · **Receipts:** [`shipped/README.md`](../shipped/README.md) (when slices ship).  
 **Implementation home:** `packages/cli/src/shared/terminal/`, `packages/cli/src/shared/progress/`, `packages/cli/src/shared/run/` · **Data source:** `@i18nprune/core` `RunEmitter` / `RunEvent` ([`types/shared/run/`](../../packages/core/src/types/shared/run/index.ts)).
 
 **Goal:** Make the CLI feel like a first-class native developer tool by **exposing more SDK intelligence through terminal capabilities** — not by moving domain logic into the CLI or rewriting core.

@@ -1,6 +1,6 @@
 # Phase — VS Code extension
 
-**Status:** **Now** — primary sprint after v1.0.1 ships.  
+**Status:** **Next** — primary sprint after preserve-sync.  
 **Implementation home:** **`apps/extension/`** (this monorepo).  
 **Planning home:** **`maintainer/phases/extension/`** (this file + sibling `*.md` specs).
 

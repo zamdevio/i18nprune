@@ -10,7 +10,7 @@ Contributor-only planning and systems maps. **`docs/`** syncs to the public site
 
 | Need | Where |
 |------|--------|
-| **What to build next** | [`phases/active-phase.md`](phases/active-phase.md) — extractor v2, then search / AST / extension |
+| **What to build next** | [`phases/focus.md`](phases/focus.md) — preserve-sync, then extension → extractor → locale-only |
 | **What not to redo** | [`shipped/README.md`](shipped/README.md) |
 | **How subsystems wire** | [`systems/README.md`](systems/README.md) |
 | **Commit / tag / npm** | [`agents/git.md`](agents/git.md) |
@@ -26,7 +26,7 @@ Contributor-only planning and systems maps. **`docs/`** syncs to the public site
 
 | Doc | Role |
 |-----|------|
-| [`phases/active-phase.md`](phases/active-phase.md) | **Current sprint** |
+| [`phases/focus.md`](phases/focus.md) | **Current sprint** |
 | [`shipped/README.md`](shipped/README.md) | Shipped receipts (ISO weeks + topic groups) |
 | [`phases/extension/README.md`](phases/extension/README.md) | Extension roadmap + specs |
 | [`phases/extractor/README.md`](phases/extractor/README.md) | Extractor hub — shipped receipts + v2 phases |

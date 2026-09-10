@@ -8,7 +8,7 @@
 
 | Doc | Role |
 |-----|------|
-| [`active-phase.md`](./active-phase.md) | **Current sprint focus** |
+| [`focus.md`](./focus.md) | **Current sprint focus** |
 | [`shipped/`](../shipped/README.md) | Closed slices — **ISO week timeline** |
 
 Scratch / spikes: **`maintainer/temp/`** (gitignored).
@@ -19,8 +19,11 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
-| [`extension/README.md`](./extension/README.md) | **Now** — VS Code extension |
-| [`extractor/README.md`](./extractor/README.md) | **Paused** — resume after extension kickoff |
+| [`preserve-sync.md`](./preserve-sync.md) | **Now** — `copyPrefixes` / sync / hydrate alignment |
+| [`extension/README.md`](./extension/README.md) | **Next** — VS Code extension |
+| [`extractor/README.md`](./extractor/README.md) | **Then** — resume after extension kickoff |
+| [`locale-only.md`](./locale-only.md) | **Then** — generate without config / codebase |
+| [`config.md`](./config.md) | **Queued** — `config` layout-aware human + JSON |
 | [`search.md`](./search.md) | **Planned** — `search` command |
 | [`terminal.md`](./terminal.md) | **Research** — terminal protocol exploitation |
 
