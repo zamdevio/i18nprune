@@ -26,6 +26,8 @@
 | **CI CI-1–5** ([`shipped/platform/ci.md`](../shipped/platform/ci.md)) | **Shipped** — split verify DAG, PR annotations, nightly knip/madge, debug artifacts, Turborepo scope |
 | **`systems/knip.md`** | Knip config (`knip.json`) ignore catalog — barrels, edge entries, type-only deps |
 | **`systems/exports.md`** | `@i18nprune/core` stability tiers, subpath catalog, root barrel rules, host import matrix |
+| **`systems/pnpm.md`** | Workspace membership vs `allowBuilds` / `overrides` policy in `pnpm-workspace.yaml` |
+| **`systems/scripts.md`** | Root `package.json` script groups (no empty `//` comment keys); Turbo `//#*` aliases |
 | **Scaffold:** `systems/TEMPLATE.md` | Skeleton for **any** new sheet under **`operations/`**, **`commands/`**, or future siblings (not commands-only); copy and adapt |
 
 Design rules: **`maintainer/agents/architecture.md`** and **`maintainer/agents/rules.md`**.

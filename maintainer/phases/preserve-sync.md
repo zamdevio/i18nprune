@@ -23,15 +23,15 @@ Consumer repos with dynamic i18n (`t(item.labelKey)`, `` t(`seo.routes.${id}`) `
 
 | Knob | Cleanup | Sync prune retain | Generate `--resume` |
 |------|---------|-------------------|---------------------|
-| **`policies.preserve.copyPrefixes`** | ✅ protects unused removal | ❌ **not wired** to `uncertainKeepPrefixes` | ✅ skips MT when `respectPreserve: true` |
+| **`policies.preserve.copyPrefixes`** | ✅ protects unused removal | ✅ retain + hydrate (P0) | ✅ skips MT when `respectPreserve: true` |
+| **`policies.preserve.uncertainPrefixes`** | via keep list when protect | ✅ retain + hydrate (P0) | follows uncertain policy when wired |
 | **Auto uncertain prefixes** (scan) | ✅ when `protect` | ✅ retains target branches | ✅ skips MT when `protect` |
 
-**Symptoms:**
+**Symptoms (pre-P0 / still open):**
 
-- `copyPrefixes: ['navigation.']` → cleanup safe, **sync still drops ~60 live keys** (settings tree) because they are not in `resolvedKeys` template.
-- Docs say preserve applies to **sync**; implementation only retains **auto-detected** uncertain prefixes on prune.
-- Cross-file `import { i18nKey } from './keys'` → `` t(`${SETTINGS}.title`) `` invisible to scan (same-file const works).
-- `--rg` on cleanup skips dead keys when **English value** appears elsewhere (false negative).
+- ~~`copyPrefixes` → sync drops live keys~~ → **fixed in P0** (retain + hydrate).
+- Cross-file `import { i18nKey } from './keys'` → `` t(`${SETTINGS}.title`) `` invisible to scan (same-file const works) — **P1 extractor**.
+- `--rg` on cleanup skips dead keys when **English value** appears elsewhere (false negative) — separate cleanup issue.
 
 **Workarounds today:** `i18npruneDynamicAnchors.ts` (scan-only template anchors) + per-command `reference.commands.generate` overrides + literal registries (`activityActionLabel.ts`).
 

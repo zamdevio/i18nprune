@@ -28,7 +28,7 @@ const coreDtsEntries = {
   'core/runtime/web': path.join(coreSrc, 'runtime/exports/web.ts'),
   'core/runtime/edge': path.join(coreSrc, 'runtime/exports/edge.ts'),
   report: path.join(coreSrc, 'shared/report/index.ts'),
-} as const;
+};
 
 export default defineConfig({
   entry: {
