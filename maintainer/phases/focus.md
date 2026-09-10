@@ -8,13 +8,13 @@
 
 | Priority | Vertical | Doc |
 |----------|----------|-----|
-| **Now** | Preserve + sync | [`preserve-sync.md`](./preserve-sync.md) |
-| **Next** | VS Code extension | [`extension/README.md`](./extension/README.md) |
-| **Then** | Extractor v2 | [`extractor/README.md`](./extractor/README.md) |
+| **Now** | Extractor v2 (incl. cross-file) | [`extractor/README.md`](./extractor/README.md) |
+| **Next** | VS Code extension | [`extension/README.md`](./extension/README.md) *(own branch)* |
 | **Then** | Locale-only generate | [`locale-only.md`](./locale-only.md) |
 | **Queued** | Config layout UX | [`config.md`](./config.md) |
 | **Planned** | `search` command | [`search.md`](./search.md) |
 | **Research** | Terminal protocol | [`terminal.md`](./terminal.md) |
+| **Shipped** | Preserve + sync | [`preserve-sync.md`](./preserve-sync.md) · [`shipped/locale/preserve-sync.md`](../shipped/locale/preserve-sync.md) |
 
 Engineering maps: [`systems/README.md`](../systems/README.md).
 
@@ -23,13 +23,12 @@ Engineering maps: [`systems/README.md`](../systems/README.md).
 ## Dependency chain
 
 ```txt
-preserve-sync → VS Code extension → extractor v2 (AST tier)
+preserve-sync (done) → extractor v2 (cross-file / AST)
   → locale-only generate → search → …
+extension → own branch (does not block core releases)
 ```
 
 Config layout UX (`config.md`) is orthogonal CLI polish — can ship between larger tracks.
-
-**Before next npm bump:** update `FALLBACK_CLI_VERSION` in `apps/landing/src/lib/meta.ts` and `packages/seo/src/constants.ts` (today still `0.1.0` vs published `1.0.2`).
 
 ---
 

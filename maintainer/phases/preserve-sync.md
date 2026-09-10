@@ -1,10 +1,9 @@
 # Preserve + sync alignment — phase plan
 
-**Status:** **now** — dogfooded from [CepatEdge](https://github.com/zamdevio/CepatEdge) (`apps/web`); config + anchors work around core gaps today.  
-**Tracker:** [`focus.md`](./focus.md) · **Receipts:** [`shipped/README.md`](../shipped/README.md) (when shipped).  
-**Related systems:** [`systems/commands/sync.md`](../systems/commands/sync.md) · [`systems/commands/cleanup.md`](../systems/commands/cleanup.md) · [`systems/commands/generate.md`](../systems/commands/generate.md) · extractor [`cross-file.md`](./extractor/cross-file.md).
+**Status:** **shipped** (v1.0.3) — receipt [`shipped/locale/preserve-sync.md`](../shipped/locale/preserve-sync.md).  
+**Tracker:** [`focus.md`](./focus.md) · **Related:** [`systems/commands/sync.md`](../systems/commands/sync.md) · extractor [`cross-file.md`](./extractor/cross-file.md) (parked).
 
-**Goal:** Make `policies.preserve` (especially **`copyPrefixes`**) behave the way product docs imply — **one config contract** for cleanup, **sync shape**, and **generate policy** — so consumer repos never need scan-anchor files or hand-copied locale JSON.
+**Goal (met):** `policies.preserve` (especially **`copyPrefixes`**) behaves as product docs imply — one config contract for cleanup, sync shape, and generate policy — without scan-anchor files for declared trees.
 
 ---
 
@@ -12,78 +11,22 @@
 
 | Slice | Receipt |
 |-------|---------|
-| **P0** `copyPrefixes` → sync retain + hydrate | In tree — `expandSchemaPathsForPreserve` + `mergeSyncKeepPrefixes` in `sync/run.ts` |
-| **P0** `preserve.uncertainPrefixes[]` | Schema + sync keep/hydrate (same helpers) |
+| **P0** `copyPrefixes` → sync retain + hydrate | [`shipped/locale/preserve-sync.md`](../shipped/locale/preserve-sync.md) |
+| **P0** `preserve.uncertainPrefixes[]` | same |
+| **P2** Sync JSON retain reasons | same |
+| **P2** Docs parity + migration note | same |
+| Split semantics (documented, no rename) | `copy*` = verbatim · `uncertainPrefixes` = shape |
 
 ---
 
-## Problem (dogfood: CepatEdge)
+## Remaining (extractor track)
 
-Consumer repos with dynamic i18n (`t(item.labelKey)`, `` t(`seo.routes.${id}`) ``, cross-file `` `${i18nKey…}.title` ``) hit a **split brain**:
-
-| Knob | Cleanup | Sync prune retain | Generate `--resume` |
-|------|---------|-------------------|---------------------|
-| **`policies.preserve.copyPrefixes`** | ✅ protects unused removal | ✅ retain + hydrate (P0) | ✅ skips MT when `respectPreserve: true` |
-| **`policies.preserve.uncertainPrefixes`** | via keep list when protect | ✅ retain + hydrate (P0) | follows uncertain policy when wired |
-| **Auto uncertain prefixes** (scan) | ✅ when `protect` | ✅ retains target branches | ✅ skips MT when `protect` |
-
-**Symptoms (pre-P0 / still open):**
-
-- ~~`copyPrefixes` → sync drops live keys~~ → **fixed in P0** (retain + hydrate).
-- Cross-file `import { i18nKey } from './keys'` → `` t(`${SETTINGS}.title`) `` invisible to scan (same-file const works) — **P1 extractor**.
-- `--rg` on cleanup skips dead keys when **English value** appears elsewhere (false negative) — separate cleanup issue.
-
-**Workarounds today:** `i18npruneDynamicAnchors.ts` (scan-only template anchors) + per-command `reference.commands.generate` overrides + literal registries (`activityActionLabel.ts`).
-
----
-
-## Remaining (promote order)
-
-| # | Slice | Outcome | Core touchpoints |
-|---|-------|---------|------------------|
-| **P1** | **Cross-file const-map** | Imported `as const` string roots (e.g. shared `i18nKey` module) fold into per-file effective map. | Extractor — see [`extractor/cross-file.md`](./extractor/cross-file.md) |
-| **P1** | **Split preserve semantics** | `verbatimPrefixes` / `copyKeys` (never MT) vs `shapePrefixes` (keep in JSON, allow `generate --resume`). | `generate/resume/eligibleResumeLeaves.ts`, docs |
-| **P2** | **Sync JSON clarity** | When prune ≠ tip “extra” counts, emit retained paths + reason (`uncertainPrefix`, `copyPrefix`) in `--json`. | `runSync`, issue `scan_extras_retained` upgrade |
-| **P2** | **Docs parity** | Align `docs/config/policies.md` + `docs/commands/sync.md` with actual merge/prune dataset (`resolvedKeys ∩ source` vs full JSON). | Docs only |
-
----
-
-## Acceptance (phase done)
-
-1. **Fixture repo** (minimal + CepatEdge-shaped): `copyPrefixes: ['navigation.items.']` only — **no anchor file** — `sync --target all` keeps/hydrates full nav tree from source; `cleanup --dry-run` on source does not flag nav keys unused.
-2. **Settings fixture:** cross-file `i18nKey` import → scan sees `` pages.domain.shared.settings.* `` OR config prefix hydrates without anchors.
-3. **`generate --resume`:** shape prefixes translatable; brand/`copyKeys` still verbatim.
-4. **Regression:** existing uncertain-prefix behavior (`seo.routes.${id}`) unchanged; parity tests on SDK/CLI `--json`.
-5. **Consumer doc:** migration note — drop scan-anchor pattern when on fixed version.
-
----
-
-## Non-goals
-
-- Runtime execution / proving dynamic expressions always evaluate to a key.
-- Replacing literal registries for **open-ended** ids (`` actions.${unknownId} ``) — raw fallback remains correct.
-- Full-locale blind mirror (`en.json` every path regardless of scan) — still schema-first; this phase expands **declared preserve** coverage.
-
----
-
-## Agent / operator capability (when shipped)
-
-With preserve-sync fixed, an agent on a large SPA can reliably:
-
-| Task | Command flow |
-|------|----------------|
-| Add product copy | Edit source locale → `sync --target all` |
-| Fill targets | `generate --resume --all` (dynamic namespaces included when config declares prefixes) |
-| Gate CI | `validate` · `quality` · `kits identical` |
-| Remove dead keys | `cleanup --dry-run` on source (no anchor file maintenance) |
-| Triage drift | `locales ls` vs `kits identical` vs parity excludes |
-
-**No:** hand-copy target JSON, locale Python scripts, or repo-specific scan-anchor files for standard dynamic patterns.
+| # | Slice | Outcome |
+|---|-------|---------|
+| **P1** | **Cross-file const-map** | Imported `as const` roots fold into per-file map — [`extractor/cross-file.md`](./extractor/cross-file.md) |
 
 ---
 
 ## Related
 
-- Extractor v2 cross-file: [`extractor/cross-file.md`](./extractor/cross-file.md)
-- Finite-key expansion under prefix: [`extractor/finite-keys.md`](./extractor/finite-keys.md)
-- CepatEdge consumer notes: upstream handoff only (not committed here)
+- Finite-key expansion: [`extractor/finite-keys.md`](./extractor/finite-keys.md)

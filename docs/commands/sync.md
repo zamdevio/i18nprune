@@ -110,6 +110,7 @@ i18nprune sync --strip-metadata --target ja --dry-run
 - optional `localeMetadataReports`
 - optional `sentinelRepairs[]` (`path`, `mode: "copy_source"`, `from`, `to`, `localeCode`, `localeFile`)
 - optional `wouldRepairSentinelLeaks` on `--dry-run` when sentinel repairs would apply
+- optional `scanExtrasRetained[]` — `{ localeCode, localeFile, retained: [{ path, reason }] }` when sync kept scan-extras
 
 ```bash
 # List changed files only
@@ -118,6 +119,10 @@ i18nprune sync --dry-run --json | jq '.data.files[] | select(.changed)'
 # Compact run summary for CI logs
 i18nprune sync --dry-run --json \
   | jq '{targets: .data.targetFiles, changed: .data.writtenFiles, dynamic: .data.dynamicKeySites}'
+
+# Retained scan-extras with reasons
+i18nprune sync --dry-run --json \
+  | jq '.data.scanExtrasRetained[]? | {locale: .localeCode, retained}'
 
 # Show only changed paths and change type hints
 i18nprune sync --dry-run --json \

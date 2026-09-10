@@ -19,9 +19,9 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
-| [`preserve-sync.md`](./preserve-sync.md) | **Now** — `copyPrefixes` / sync / hydrate alignment |
-| [`extension/README.md`](./extension/README.md) | **Next** — VS Code extension |
-| [`extractor/README.md`](./extractor/README.md) | **Then** — resume after extension kickoff |
+| [`preserve-sync.md`](./preserve-sync.md) | **Shipped** — `copyPrefixes` / sync / hydrate (v1.0.3) |
+| [`extension/README.md`](./extension/README.md) | **Next** — VS Code extension (own branch) |
+| [`extractor/README.md`](./extractor/README.md) | **Now** — resume after preserve-sync |
 | [`locale-only.md`](./locale-only.md) | **Then** — generate without config / codebase |
 | [`config.md`](./config.md) | **Queued** — `config` layout-aware human + JSON |
 | [`search.md`](./search.md) | **Planned** — `search` command |

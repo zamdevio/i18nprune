@@ -6,7 +6,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 **Convention:** Weeks use **ISO-8601** (`YYYY-Www`, Monday start). Newest weeks first below.
 
-**Next work:** Preserve + sync — [`phases/preserve-sync.md`](../phases/preserve-sync.md) · [`phases/focus.md`](../phases/focus.md).
+**Next work:** Extractor v2 — [`phases/extractor/README.md`](../phases/extractor/README.md) · [`phases/focus.md`](../phases/focus.md).
 
 ---
 
@@ -14,6 +14,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | Week | Theme | Doc |
 |------|-------|-----|
+| 2026-W37 | **Preserve + sync** (`copyPrefixes` hydrate, `uncertainPrefixes`, retain JSON) → **1.0.3** | [`locale/preserve-sync.md`](./locale/preserve-sync.md) |
 | 2026-W28 | **v1.0.0 kits** + **v1.0.1 sentinel repair** + export publish gate | [`kits/kits.md`](./kits/kits.md) · [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) · [`exports/governance.md`](./exports/governance.md) |
 | 2026-W26 | Tooling & kits prep (expgov migration, pnpm v11) | [`tooling/tooling.md`](./tooling/tooling.md) |
 | 2026-W25 | Export governance bootstrap, extractor/search phases | [`tooling/tooling.md`](./tooling/tooling.md) |
@@ -32,6 +33,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | ID | Week | One-line | Doc |
 |----|------|----------|-----|
+| **Preserve-sync** | W37 | copyPrefixes hydrate + uncertainPrefixes + retain JSON (v1.0.3) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) |
 | **Kits v1** | W28 | Native `i18nprune kits` + semver 1.0.0 | [`kits/kits.md`](./kits/kits.md) |
 | **Sentinel repair** | W28 | Placeholder leak detect + sync/generate repair (v1.0.1) | [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) |
 | **Publish preflight** | W28 | expgov validate + npm v1 gate | [`exports/governance.md`](./exports/governance.md) |
@@ -59,6 +61,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 | Platform & release | W23 CI/XP/T/npm/git | [`platform/platform.md`](./platform/platform.md) · [`platform/ci.md`](./platform/ci.md) |
 | Share & workers | W22 | [`share/share.md`](./share/share.md) |
 | Engine & cache | W20–W21 | [`cache/generate.md`](./cache/generate.md) · [`cache/cache.md`](./cache/cache.md) · [`cache/init.md`](./cache/init.md) |
+| Locale preserve-sync | W37 (v1.0.3) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) |
 | Locale sentinel repair | W28 (v1.0.1 patch) | [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) |
 | Core & foundation | W15–W19 | [`core/core.md`](./core/core.md) |
 
