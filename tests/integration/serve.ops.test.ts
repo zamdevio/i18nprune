@@ -47,8 +47,21 @@ function spawnServe(args: string[], cwd: string, extraEnv?: NodeJS.ProcessEnv) {
   };
 }
 
-async function waitFor(predicate: () => boolean, ms = 5000): Promise<void> {
-  const start = Date.now();
+/** Deep-clone dropping every `durationMs` key, so wall-clock timing does not fail a structural compare. */
+function stripTiming(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stripTiming);
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (k === 'durationMs') continue;
+      out[k] = stripTiming(v);
+    }
+    return out;
+  }
+  return value;
+}
+
+async function waitFor(predicate: () => boolean, ms = 5000): Promise<void> {  const start = Date.now();
   while (Date.now() - start < ms) {
     if (predicate()) return;
     await new Promise((r) => setTimeout(r, 20));
@@ -57,8 +70,12 @@ async function waitFor(predicate: () => boolean, ms = 5000): Promise<void> {
 }
 
 /** One request/response round-trip against a fresh serve process, from the config-less cwd. */
-async function callServe(method: string, options?: Record<string, unknown>): Promise<Record<string, unknown>> {
-  const h = spawnServe(['--project', fixture], neutralCwd);
+async function callServe(
+  method: string,
+  options?: Record<string, unknown>,
+  extraArgs: string[] = [],
+): Promise<Record<string, unknown>> {
+  const h = spawnServe(['--project', fixture, ...extraArgs], neutralCwd);
   h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
   await waitFor(() => h.frames().length >= 1);
   h.send({ jsonrpc: '2.0', id: 2, method, params: { options: options ?? {} } });
@@ -141,7 +158,7 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
     await waitFor(() => h.frames().length >= 1);
     const res = (JSON.parse(h.frames()[0]!) as { result: { capabilities: { ops: string[] } } }).result;
-    expect(res.capabilities.ops).toEqual(['config', 'doctor', 'validate', 'languages', 'providers', 'sync']);
+    expect(res.capabilities.ops).toEqual(['config', 'doctor', 'validate', 'languages', 'providers', 'sync', 'generate']);
     h.child.stdin.end();
     await h.exited;
   });
@@ -235,6 +252,27 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
+  });
+
+  it('op.generate --dry-run matches `generate --json --dry-run --target ar` (modulo timing)', async () => {
+    const viaServe = await callServe('op.generate', { dryRun: true, target: 'ar', metadata: true }, ['--allow-writes']);
+    const viaCli = JSON.parse(runCliJson(['generate', '--dry-run', '--target', 'ar', '--metadata']));
+    // `durationMs` is wall-clock; strip it everywhere before comparing structure.
+    expect(stripTiming(viaServe)).toEqual(stripTiming(viaCli));
+  });
+
+  it('op.generate is refused on a read-only session', async () => {
+    const h = spawnServe(['--project', fixture], neutralCwd);
+    h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
+    await waitFor(() => h.frames().length >= 1);
+    h.send({ jsonrpc: '2.0', id: 2, method: 'op.generate', params: { options: { dryRun: true, target: 'ar' } } });
+    await waitFor(() => h.frames().some((l) => (JSON.parse(l) as { id?: number }).id === 2));
+    h.child.stdin.end();
+    await h.exited;
+    const err = (JSON.parse(h.frames().find((l) => (JSON.parse(l) as { id?: number }).id === 2)!) as {
+      error: { data: { code: string } };
+    }).error;
+    expect(err.data.code).toBe('SERVE_WRITES_DISABLED');
   });
 
   it('a read-only session writes nothing to disk; --allow-writes does', async () => {    const runOp = async (extraArgs: string[], extraEnv: NodeJS.ProcessEnv) => {

@@ -6,6 +6,8 @@ import { runValidate, emptyValidateData } from '@/commands/validate/jsonEnvelope
 import { runLanguages } from '@/commands/languages/jsonEnvelope.js';
 import { runProviders } from '@/commands/providers/jsonEnvelope.js';
 import { runSyncJsonEnvelope, emptySyncPayload } from '@/commands/sync/jsonEnvelope.js';
+import { runGenerateJsonEnvelope } from '@/commands/generate/jsonEnvelope.js';
+import { mergeGenerateOptionsFromEnv } from '@/commands/generate/env.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { invalidateProjectAnalysisCacheForContext } from '@/shared/cache/index.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
@@ -14,6 +16,7 @@ import { resolveConfigFilePathForRoot } from '@/shared/config/paths.js';
 import { ProtocolError, SERV_ISSUE } from './errors.js';
 import { JSONRPC_INVALID_REQUEST } from './protocol.js';
 import type { SyncOptions } from '@/types/command/sync/index.js';
+import type { GenerateOptions } from '@/types/command/generate/index.js';
 
 /**
  * A read-only operation a `serve` client can invoke. Each mirrors the matching CLI command's
@@ -26,7 +29,7 @@ export type ServeReadOpId = 'config' | 'doctor' | 'validate' | 'languages' | 'pr
  * mirrors the matching CLI command's `--json` output, including the post-envelope side effects the
  * CLI would run (patching, cache invalidation).
  */
-export type ServeWriteOpId = 'sync';
+export type ServeWriteOpId = 'sync' | 'generate';
 
 /** Every op this server can serve. */
 export type ServeOpId = ServeReadOpId | ServeWriteOpId;
@@ -43,6 +46,7 @@ export const SERVE_READ_OP_METHODS = {
 /** `op.<id>` JSON-RPC method → write op id. */
 export const SERVE_WRITE_OP_METHODS = {
   'op.sync': 'sync',
+  'op.generate': 'generate',
 } as const satisfies Record<string, ServeWriteOpId>;
 
 /** `op.<id>` JSON-RPC method → op id, across reads and writes. */
@@ -97,6 +101,10 @@ function asBoolean(value: unknown): boolean {
   return value === true;
 }
 
+function asNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
 /**
  * Run one op and return the envelope plus its serialized form. Never writes to any stream — the
  * session owns stdout. Write ops are gated on `ctx.allowWrites`; a read-only session gets a
@@ -147,6 +155,10 @@ export async function runServeOp(id: ServeOpId, ctx: ServeReadOpContext): Promis
     }
     case 'sync': {
       const envelope = await syncEnvelope(context, ctx, { emit, runId });
+      return { envelope, json: stringifyEnvelope(envelope) };
+    }
+    case 'generate': {
+      const envelope = await generateEnvelope(context, ctx, { emit, runId });
       return { envelope, json: stringifyEnvelope(envelope) };
     }
     default: {
@@ -261,6 +273,71 @@ function syncOptionsFrom(options: Record<string, unknown>): SyncOptions {
     target: asString(options.target),
     metadata: asBoolean(options.metadata),
     stripMetadata: asBoolean(options.stripMetadata),
+    noRepairSentinelLeaks: asBoolean(options.noRepairSentinelLeaks),
+  };
+}
+
+/**
+ * Generate `--json` orchestration, write-capable. Mirrors the CLI's `--json` branch of
+ * `commands/generate/run.ts`: readiness short-circuit, env-merged options, `runGenerateJsonEnvelope`,
+ * then on a successful non-dry-run the post-envelope side effects the CLI also runs — patching and
+ * analysis-cache invalidation — and finally drops the root's cached context.
+ *
+ * A serve client is non-interactive, so `runGenerateJsonEnvelope` throws a USAGE issue envelope for
+ * the cases the CLI would prompt for (missing `--target`, resume target selection). That envelope is
+ * returned as-is (`ok: false`) rather than surfaced as a transport error.
+ */
+async function generateEnvelope(
+  context: Context,
+  ctx: ServeReadOpContext,
+  runtime: { emit?: RunEmitter; runId?: string },
+): Promise<CliJsonEnvelope<string, unknown>> {
+  const opts = mergeGenerateOptionsFromEnv(generateOptionsFrom(ctx.options));
+  const envelope = (await runGenerateJsonEnvelope(context, opts, {
+    emit: runtime.emit ?? noopRunEmitter,
+    runId: runtime.runId ?? String(Date.now()),
+  })) as CliJsonEnvelope<'generate', { targetResults: GenerateTargetResult[] }>;
+
+  if (envelope.ok && opts.dryRun !== true) {
+    const written = envelope.data.targetResults.filter((row) => row.status === 'written');
+    await applyCommandPatching({
+      ctx: context,
+      command: 'generate',
+      action: 'upsert_locales',
+      localeCodes: written.map((row) => row.target),
+    });
+    const writtenLocalePaths = written.flatMap(
+      (row) => row.paths?.localeJsonPaths ?? (row.paths?.localeJson ? [row.paths.localeJson] : []),
+    );
+    invalidateProjectAnalysisCacheForContext(context, { writtenLocalePaths });
+    if (writtenLocalePaths.length > 0) {
+      ctx.onWrote?.(ctx.projectRoot);
+    }
+  }
+
+  return envelope as unknown as CliJsonEnvelope<string, unknown>;
+}
+
+/** The slice of a generate target result these side effects read (rest is untouched). */
+type GenerateTargetResult = {
+  target: string;
+  status: string;
+  paths?: { localeJson?: string; localeJsonPaths?: readonly string[] };
+};
+
+/** Map `params.options` to `GenerateOptions`, accepting only known keys (unknown keys ignored). */
+function generateOptionsFrom(options: Record<string, unknown>): GenerateOptions {
+  return {
+    provider: asString(options.provider),
+    workers: asNumber(options.workers),
+    source: asString(options.source),
+    target: asString(options.target),
+    force: asBoolean(options.force),
+    dryRun: asBoolean(options.dryRun),
+    metadata: asBoolean(options.metadata),
+    resume: asBoolean(options.resume),
+    all: asBoolean(options.all),
+    ask: asBoolean(options.ask),
     noRepairSentinelLeaks: asBoolean(options.noRepairSentinelLeaks),
   };
 }

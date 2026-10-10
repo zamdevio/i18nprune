@@ -63,10 +63,10 @@ describe('ServeSession — handshake', () => {
     expect(res.rootMode).toBe('sandbox');
     expect(res.projectRoot).toBe(path.resolve('/srv/proj'));
     expect(res.capabilities).toEqual({
-      ops: ['config', 'doctor', 'validate', 'languages', 'providers', 'sync'],
+      ops: ['config', 'doctor', 'validate', 'languages', 'providers', 'sync', 'generate'],
       progress: true,
-      progressOps: ['validate', 'sync'],
-      writeOps: ['sync'],
+      progressOps: ['validate', 'sync', 'generate'],
+      writeOps: ['sync', 'generate'],
       cancelScope: 'queued',
       writes: true,
     });

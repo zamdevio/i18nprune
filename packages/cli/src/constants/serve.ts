@@ -43,6 +43,7 @@ export const SERVE_IMPLEMENTED_OPS: readonly string[] = [
   'languages',
   'providers',
   'sync',
+  'generate',
 ];
 
 /**
@@ -50,7 +51,7 @@ export const SERVE_IMPLEMENTED_OPS: readonly string[] = [
  * here must also appear in {@link SERVE_IMPLEMENTED_OPS} — a write op that is not implemented is a
  * mistake, not a reservation.
  */
-export const SERVE_WRITE_OPS: ReadonlySet<string> = new Set<string>(['sync']);
+export const SERVE_WRITE_OPS: ReadonlySet<string> = new Set<string>(['sync', 'generate']);
 
 /**
  * Op methods that stream `$/progress` notifications. Only ops whose core entry path emits `run.*`
@@ -58,7 +59,7 @@ export const SERVE_WRITE_OPS: ReadonlySet<string> = new Set<string>(['sync']);
  * `cleanup` is read-only in core and emits nothing; `locales.delete` emits nothing. A client must not
  * expect progress from an op that is not listed.
  */
-export const SERVE_PROGRESS_OPS: ReadonlySet<string> = new Set<string>(['validate', 'sync']);
+export const SERVE_PROGRESS_OPS: ReadonlySet<string> = new Set<string>(['validate', 'sync', 'generate']);
 
 /**
  * Whether this build can honour a cancellation of a *running* op.
