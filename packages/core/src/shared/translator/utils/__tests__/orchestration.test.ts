@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { AbortError } from '../../../errors/index.js';
 import {
   mapWithConcurrency,
   mapWithConcurrencyWithProgress,
@@ -31,6 +32,26 @@ describe('mapWithConcurrency', () => {
       },
     );
     expect(maxSeen).toBeLessThanOrEqual(3);
+  });
+
+  it('stops starting new work and rejects with AbortError when the signal fires', async () => {
+    const controller = new AbortController();
+    let started = 0;
+    await expect(
+      mapWithConcurrency(
+        Array.from({ length: 50 }, (_, i) => i),
+        2,
+        async () => {
+          started += 1;
+          if (started === 2) controller.abort();
+          await new Promise<void>((r) => setTimeout(r, 5));
+          return started;
+        },
+        controller.signal,
+      ),
+    ).rejects.toBeInstanceOf(AbortError);
+    // The two in-flight slots settle, but the pool never advances to items 3..50.
+    expect(started).toBe(2);
   });
 });
 
@@ -73,6 +94,28 @@ describe('mapWithConcurrencyWithProgress', () => {
     ).rejects.toThrow('429');
     // No strict assertion on count, but it should not spam updates after failure.
     expect(progress.mock.calls.length).toBeGreaterThan(0);
+  });
+
+  it('rejects with AbortError and starts no new slot after abort', async () => {
+    const controller = new AbortController();
+    let started = 0;
+    await expect(
+      mapWithConcurrencyWithProgress(
+        Array.from({ length: 20 }, (_, i) => i),
+        2,
+        async () => {
+          started += 1;
+          if (started === 1) controller.abort();
+          await new Promise<void>((r) => setTimeout(r, 5));
+          return started;
+        },
+        () => {},
+        (item) => String(item),
+        undefined,
+        controller.signal,
+      ),
+    ).rejects.toBeInstanceOf(AbortError);
+    expect(started).toBe(1);
   });
 });
 
@@ -149,6 +192,29 @@ describe('mapWithConcurrencyWithProgressOrderedSequential', () => {
       },
     );
     expect(received).toEqual(items.map((i) => i * 2));
+  });
+
+  it('rejects with AbortError and drains without stalling when aborted', async () => {
+    const controller = new AbortController();
+    let started = 0;
+    await expect(
+      mapWithConcurrencyWithProgressOrderedSequential(
+        Array.from({ length: 40 }, (_, i) => i),
+        2,
+        async () => {
+          started += 1;
+          if (started === 1) controller.abort();
+          await new Promise<void>((r) => setTimeout(r, 5));
+          return started;
+        },
+        () => {},
+        (_, idx) => `leaf-${idx}`,
+        async () => {},
+        undefined,
+        controller.signal,
+      ),
+    ).rejects.toBeInstanceOf(AbortError);
+    expect(started).toBe(1);
   });
 });
 

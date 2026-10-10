@@ -46,6 +46,8 @@ export async function translateAndNormalizeGenerateLocale(input: {
   /** Per-run L1 memo; omitted when host bypassed cache (`--no-cache`). */
   translationCache?: GenerateTranslateCache;
   sentinelLeakPaths?: ReadonlySet<string>;
+  /** Cooperative-cancellation signal; an abort unwinds the translate pool with an `AbortError`. */
+  signal?: AbortSignal;
 }): Promise<{
   preserveCount: number;
   paritySkip: number;
@@ -79,6 +81,7 @@ export async function translateAndNormalizeGenerateLocale(input: {
     maxParallelTranslates: input.maxParallelTranslates,
     rateLimit: input.rateLimit,
     sentinelLeakPaths: input.sentinelLeakPaths,
+    signal: input.signal,
   });
   const norm = applyLocaleLeafNormalization({
     localeJson: built.working,

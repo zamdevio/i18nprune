@@ -91,6 +91,12 @@ export type TranslateOptions = {
 
   readonly hooks?: TranslateHooks;
   readonly identityGuard?: TranslateIdentityGuardOptions;
+  /**
+   * Cooperative-cancellation signal for this run. Checked before each provider attempt and at each
+   * translate-pool boundary; an abort unwinds as an `AbortError`. Defaults to
+   * {@link TranslateContext.signal} when omitted.
+   */
+  readonly signal?: AbortSignal;
 };
 
 /**

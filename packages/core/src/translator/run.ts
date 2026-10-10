@@ -4,7 +4,7 @@
  * call this directly; **`runGenerate`** uses the same primitive internally.
  */
 
-import { I18nPruneError } from '../shared/errors/index.js';
+import { I18nPruneError, isAbortError, throwIfAborted } from '../shared/errors/index.js';
 import { translateLeaf } from '../shared/translator/index.js';
 import { resolveTranslator } from '../shared/translator/providers/registry.js';
 import { resolveTranslateConfig } from '../config/resolve/translate.js';
@@ -135,6 +135,7 @@ async function translateBatchWithProvider(args: {
   hooks: TranslateOptions['hooks'];
   streakGuard?: ReturnType<typeof createIdentityStreakGuard>;
   results: Map<number, TranslateResultItem>;
+  signal?: AbortSignal;
 }): Promise<TranslateRunPartialStats> {
   const stats = { ...ZERO_STATS };
   if (args.leaves.length === 0) return stats;
@@ -146,6 +147,7 @@ async function translateBatchWithProvider(args: {
     args.leaves,
     args.workers,
     async (leaf) => {
+      throwIfAborted(args.signal);
       const tr = await translateLeaf(
         args.provider,
         leaf.source,
@@ -172,6 +174,7 @@ async function translateBatchWithProvider(args: {
     () => {},
     (leaf) => leaf.key ?? String(leaf.originalIndex),
     args.rateLimit,
+    args.signal,
   );
 
   return stats;
@@ -197,6 +200,7 @@ export async function runTranslate(
 ): Promise<TranslateOutput> {
   const allLeaves = normalizeOptionLeaves(opts);
   const sourceLang = opts.sourceLang ?? 'en';
+  const signal = opts.signal ?? ctx.signal;
 
   const { resolved, warnings } = resolveTranslateConfig({
     config: ctx.config,
@@ -233,6 +237,7 @@ export async function runTranslate(
 
   for (let pi = 0; pi < providerOrder.length; pi += 1) {
     const providerId = providerOrder[pi]!;
+    throwIfAborted(signal);
     const remaining = translatableLeaves.filter((leaf) => !results.has(leaf.originalIndex));
     if (remaining.length === 0) {
       winnerProviderId = providerId;
@@ -268,6 +273,7 @@ export async function runTranslate(
         hooks: opts.hooks,
         streakGuard,
         results,
+        signal,
       });
       const report: ProviderAttemptReport = {
         providerId,
@@ -281,6 +287,8 @@ export async function runTranslate(
       winnerProviderId = providerId;
       break;
     } catch (e) {
+      // An abort is host-driven and never a provider failure — stop the chain immediately.
+      if (isAbortError(e)) throw e;
       lastErr = e;
       const failureStats: TranslateRunPartialStats = {
         requestAttempts: attemptStats.requestAttempts,

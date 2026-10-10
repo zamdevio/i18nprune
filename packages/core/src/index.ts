@@ -976,7 +976,7 @@ export type {
 } from './namespaces/locales.js';
 
 export * as errors from './namespaces/errors.js';
-export { I18nPruneError, rethrowAsI18n } from './namespaces/errors.js';
+export { AbortError, abortErrorFrom, I18nPruneError, isAbortError, rethrowAsI18n, throwIfAborted } from './namespaces/errors.js';
 
 export * as result from './namespaces/result.js';
 export {

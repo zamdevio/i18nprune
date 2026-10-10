@@ -10,6 +10,7 @@ import type { TranslationProviderId } from '../../../types/translator/providers.
 import type { TranslationPoolProgressSnapshot } from '../../../types/progress/tick.js';
 import type { ProviderRateLimitRegistry, TranslateStartRateLimit } from '../../../types/translator/rateLimit.js';
 import { TRANSLATE_WORKERS_CAP } from '../../constants/translate.js';
+import { abortErrorFrom, throwIfAborted } from '../../errors/index.js';
 import type { ProviderHealthMonitor } from './providerHealth.js';
 
 /**
@@ -110,27 +111,43 @@ export async function mapWithConcurrency<T, R>(
   items: readonly T[],
   concurrency: number,
   mapper: (item: T, index: number) => Promise<R>,
+  signal?: AbortSignal,
 ): Promise<R[]> {
   const cap = clampInt(concurrency, 1, TRANSLATE_WORKERS_CAP);
   const results: R[] = new Array(items.length);
   let cursor = 0;
+  let poolFailure: unknown;
 
   async function worker(): Promise<void> {
     while (true) {
+      if (poolFailure !== undefined) return;
+      if (signal?.aborted) {
+        poolFailure ??= abortErrorFrom(signal);
+        return;
+      }
       const i = cursor++;
       if (i >= items.length) return;
-      results[i] = await mapper(items[i]!, i);
+      try {
+        results[i] = await mapper(items[i]!, i);
+      } catch (e) {
+        poolFailure ??= e;
+        return;
+      }
     }
   }
 
   const pool = Math.min(cap, Math.max(1, items.length));
   await Promise.all(Array.from({ length: pool }, () => worker()));
+  if (poolFailure !== undefined) throw poolFailure;
   return results;
 }
 
 /**
  * Like {@link mapWithConcurrency}, but emits **`onProgress`** whenever a slot starts or finishes work
  * so UIs can show honest in-flight paths + **`completed` / `total`** for the pool.
+ *
+ * When `signal` is supplied and aborts, no further slots start and an `AbortError` unwinds the call
+ * once the in-flight slots settle.
  */
 export async function mapWithConcurrencyWithProgress<T, R>(
   items: readonly T[],
@@ -139,6 +156,7 @@ export async function mapWithConcurrencyWithProgress<T, R>(
   onProgress: (snap: TranslationPoolProgressSnapshot) => void,
   getPath: (item: T, itemIndex: number) => string,
   rateLimit?: TranslateStartRateLimit,
+  signal?: AbortSignal,
 ): Promise<R[]> {
   const n = items.length;
   if (n === 0) return [];
@@ -169,6 +187,11 @@ export async function mapWithConcurrencyWithProgress<T, R>(
         activeItemIndex[slot] = -1;
         return;
       }
+      if (signal?.aborted) {
+        poolFailure ??= abortErrorFrom(signal);
+        activeItemIndex[slot] = -1;
+        return;
+      }
       const i = nextIndex;
       nextIndex += 1;
       if (i >= n) {
@@ -180,6 +203,7 @@ export async function mapWithConcurrencyWithProgress<T, R>(
       if (poolFailure === undefined) onProgress(snapshot());
       try {
         await waitForStartTurn();
+        throwIfAborted(signal);
         results[i] = await mapper(items[i]!, i);
         completed += 1;
       } catch (e) {
@@ -214,6 +238,7 @@ export async function mapWithConcurrencyWithProgressOrderedSequential<TItem, TRe
   getPath: (item: TItem, itemIndex: number) => string,
   onSequential: (item: TItem, itemIndex: number, result: TResult) => Promise<void> | void,
   rateLimit?: TranslateStartRateLimit,
+  signal?: AbortSignal,
 ): Promise<void> {
   const n = items.length;
   if (n === 0) return;
@@ -256,6 +281,10 @@ export async function mapWithConcurrencyWithProgressOrderedSequential<TItem, TRe
 
   const trySchedule = (): void => {
     if (poolFailure !== undefined) return;
+    if (signal?.aborted) {
+      poolFailure ??= abortErrorFrom(signal);
+      return;
+    }
     for (let pos = 0; pos < n && inFlightCount < poolSize; pos += 1) {
       if (results[pos] !== undefined || inFlightByPos[pos]) continue;
       if (pos >= nextEmit + poolSize) continue;
@@ -265,6 +294,7 @@ export async function mapWithConcurrencyWithProgressOrderedSequential<TItem, TRe
         try {
           onProgress(snapshot());
           await waitForStartTurn();
+          throwIfAborted(signal);
           const mapped = await run(items[pos]!, pos);
           if (mapped === undefined) {
             throw new Error(

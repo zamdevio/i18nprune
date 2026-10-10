@@ -234,6 +234,7 @@ export async function runGenerateResumeLocale(input: RunGenerateResumeLocaleInpu
         onTranslatedLeaf: async (sourceText, translatedText, keyPath) => {
           await streakGuard.onTranslated(sourceText, translatedText, keyPath);
         },
+        signal: opts.signal ?? ctx.signal,
       });
       next = filled.next;
       changed = filled.changed;

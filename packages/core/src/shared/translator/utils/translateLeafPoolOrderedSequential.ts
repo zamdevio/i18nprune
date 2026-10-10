@@ -17,6 +17,8 @@ export async function runTranslateLeafPoolOrderedSequential<TItem>(input: {
   tickProgress: TranslationTickProgressFn;
   poolTotal: number;
   onSequential: (item: TItem, itemIndex: number, tr: TranslationResult) => Promise<void> | void;
+  /** Cooperative-cancellation signal; an abort unwinds the pool with an `AbortError`. */
+  signal?: AbortSignal;
 }): Promise<void> {
   await mapWithConcurrencyWithProgressOrderedSequential(
     input.items,
@@ -35,5 +37,6 @@ export async function runTranslateLeafPoolOrderedSequential<TItem>(input: {
     input.getPath,
     input.onSequential,
     input.rateLimit,
+    input.signal,
   );
 }

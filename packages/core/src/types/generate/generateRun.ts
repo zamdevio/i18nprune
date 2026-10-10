@@ -219,6 +219,12 @@ export type GenerateRunOptions = {
   readonly preloadedRaw?: unknown;
   /** When true, skip automatic re-translate of stale `__I18NPRUNE_*` target leaves (default: repair on). */
   readonly noRepairSentinelLeaks?: boolean;
+  /**
+   * Cooperative-cancellation signal. Checked before each provider attempt and at each translate-pool
+   * boundary; an abort unwinds as an `AbortError`. `generate` discards the partial locale rather than
+   * writing it on abort. Defaults to the resolved `CoreContext.signal` when omitted.
+   */
+  readonly signal?: AbortSignal;
 };
 
 export type GenerateRunResult = {

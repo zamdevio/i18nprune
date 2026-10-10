@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { buildTranslatedLocaleFromSourceLeaves } from '../localeTranslate.js';
 import { TranslateRunInterruptedError } from '../../translator/errors/interrupted.js';
+import { AbortError } from '../../shared/errors/index.js';
 import { TranslateCacheL1Memo } from '../../translator/cache/index.js';
 import type { Translator } from '../../types/translator/index.js';
 
@@ -350,5 +351,40 @@ describe('buildTranslatedLocaleFromSourceLeaves', () => {
         to: '{{who}} · {{status}}',
       },
     ]);
+  });
+
+  it('unwinds the parallel translate pool on abort without inventing a provider failure', async () => {
+    const controller = new AbortController();
+    const translate = vi.fn(async (text: string) => {
+      if (text === 'b') controller.abort();
+      await new Promise<void>((r) => setTimeout(r, 5));
+      return `${text}-fr`;
+    });
+    const provider = { translate } as unknown as Translator;
+    let err: unknown;
+    try {
+      await buildTranslatedLocaleFromSourceLeaves({
+        sourceLeaves: [
+          { path: 'a', value: 'a' },
+          { path: 'b', value: 'b' },
+          { path: 'c', value: 'c' },
+        ],
+        working: {},
+        existingRaw: null,
+        dryRun: false,
+        force: false,
+        provider,
+        persistStructuredLeafMetadata: false,
+        providerId: 'google',
+        targetLang: 'fr',
+        maxParallelTranslates: 2,
+        tickProgress: () => {},
+        signal: controller.signal,
+      });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(TranslateRunInterruptedError);
+    expect((err as TranslateRunInterruptedError).cause).toBeInstanceOf(AbortError);
   });
 });

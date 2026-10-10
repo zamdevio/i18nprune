@@ -28,6 +28,12 @@ export type CoreContext = {
    */
   readonly configFileLoaded?: boolean;
   readonly run?: RunOptions;
+  /**
+   * Cooperative-cancellation signal for long-running ops. A host that wants to interrupt work
+   * (e.g. `serve`'s `$/cancelRequest`) sets this; core checks it at its natural await boundaries and
+   * unwinds with an {@link AbortError}. Omitted ⇒ no cancellation.
+   */
+  readonly signal?: AbortSignal;
   readonly cache?: {
     readonly state: CacheState;
     readonly runtime: CacheRuntime;

@@ -9,4 +9,9 @@ export type TranslateContext = {
   readonly adapters: RuntimeAdapters;
   /** Env map — required, no `process.*` access in core. Hosts pass theirs in (CLI: process.env). */
   readonly env: TranslatorEnv;
+  /**
+   * Cooperative-cancellation signal. When aborted, `runTranslate` stops before the next provider
+   * attempt and unwinds an in-flight pool with an `AbortError`. Omitted ⇒ no cancellation.
+   */
+  readonly signal?: AbortSignal;
 };

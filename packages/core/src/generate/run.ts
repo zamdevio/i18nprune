@@ -23,7 +23,7 @@ import {
   ISSUE_TRANSLATE_HANDOFF_NO_ELIGIBLE_PROVIDER,
   ISSUE_TRANSLATE_IDENTITY_STREAK_ABORT,
 } from '../shared/constants/issueCodes.js';
-import { I18nPruneError } from '../shared/errors/index.js';
+import { I18nPruneError, isAbortError, throwIfAborted } from '../shared/errors/index.js';
 import { finalizePartialTranslatedLocaleForGenerate, translateAndNormalizeGenerateLocale } from './normalize.js';
 import { TranslateRunInterruptedError } from '../translator/errors/interrupted.js';
 import { resolveTranslator, translationRunMeta } from '../shared/translator/providers/registry.js';
@@ -259,6 +259,7 @@ export async function runGenerate(
   const sentinelRepairs: GenerateSentinelRepairRecord[] = [];
 
   for (const target of targets) {
+    throwIfAborted(opts.signal ?? ctx.signal);
     emitProgress({ type: 'run.progress.generate', phase: 'build_target', target });
     const targetStarted = Date.now();
     const catalog = getLanguageByCodeFromCatalog(LANG_CATALOG, target);
@@ -614,6 +615,7 @@ export async function runGenerate(
           maxParallelTranslates,
           rateLimit,
           sentinelLeakPaths,
+          signal: opts.signal ?? ctx.signal,
         });
         working = translateResult.next;
         preserveCount = translateResult.preserveCount;
@@ -676,6 +678,12 @@ export async function runGenerate(
       } catch (e: unknown) {
         const interrupted = e instanceof TranslateRunInterruptedError ? e : undefined;
         const rootCause = interrupted !== undefined ? interrupted.cause : e;
+        // A host abort is control flow, not a provider failure — stop immediately and let the caller
+        // discard the partial locale instead of falling back or writing.
+        if (isAbortError(rootCause)) {
+          session.fail();
+          throw rootCause;
+        }
         const outcome = classifyProviderFailureOutcome(rootCause);
         const translateFailureOutcome = classifyTranslateFailure(rootCause);
         providerAttempts?.push({
@@ -835,6 +843,9 @@ export async function runGenerate(
         targetStreakIssues.push(...lastIdentityStreakGuard.flushIssues());
         lastIdentityStreakGuard = undefined;
       }
+
+      // A host abort surfaces here as the stashed cause: never write a partial locale on abort.
+      if (isAbortError(lastErr)) throw lastErr;
 
       const reason: IncompleteRunReason = isRetryableProviderFailure(lastErr)
         ? 'provider_chain_exhausted'

@@ -11,6 +11,7 @@ import { localePathLooksTranslatedFromSource } from '../shared/translator/locale
 import type { GenerateTranslateCache } from '../types/translator/cache.js';
 import { translateLeafWithGenerateCache } from '../translator/cache/index.js';
 import { runTranslateLeafPoolOrderedSequential } from '../shared/translator/utils/translateLeafPoolOrderedSequential.js';
+import { throwIfAborted } from '../shared/errors/index.js';
 import { TranslateRunInterruptedError } from '../translator/errors/interrupted.js';
 import { isResumeCandidateLeaf } from './resume/eligibleResumeLeaves.js';
 import type { TranslationResult } from '../types/translator/result.js';
@@ -96,6 +97,8 @@ async function runOrderedTranslateStringJobs<TKey extends number | string>(input
   afterEachSerial?: (ctx: { jobIndex: number; job: OrderedTranslateStringJob<TKey> }) => Promise<void> | void;
   /** After each ordered parallel drain step (e.g. full-generate **`tryAdvance`**). */
   afterEachParallelSequential?: () => Promise<void> | void;
+  /** Cooperative-cancellation signal; an abort unwinds the pool with an `AbortError`. */
+  signal?: AbortSignal;
 }): Promise<{
   requestAttempts: number;
   retriesMade: number;
@@ -147,7 +150,9 @@ async function runOrderedTranslateStringJobs<TKey extends number | string>(input
   if (maxParallel <= 1) {
     for (let ji = 0; ji < input.jobs.length; ji++) {
       const job = input.jobs[ji]!;
+      throwIfAborted(input.signal);
       await waitForRateWindow();
+      throwIfAborted(input.signal);
       const tr = await translateJob(job, async (sourceText, translatedText) => {
         await input.onTranslatedLeaf?.(sourceText, translatedText, job.path);
       });
@@ -170,6 +175,7 @@ async function runOrderedTranslateStringJobs<TKey extends number | string>(input
         await input.onTranslatedLeaf?.(j.value, tr.text, j.path);
         await input.afterEachParallelSequential?.();
       },
+      signal: input.signal,
     });
   }
 
@@ -204,6 +210,8 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
   onTranslatedLeaf?: (sourceText: string, translatedText: string, path: string) => Promise<void> | void;
   /** Paths with stale target sentinels — repairs are recorded in {@link sentinelRepairs}. */
   sentinelLeakPaths?: ReadonlySet<string>;
+  /** Cooperative-cancellation signal; an abort unwinds the translate pool with an `AbortError`. */
+  signal?: AbortSignal;
 }): Promise<{
   working: unknown;
   preserveCount: number;
@@ -467,6 +475,7 @@ export async function buildTranslatedLocaleFromSourceLeaves(input: {
         afterEachParallelSequential: async () => {
           tryAdvance();
         },
+        signal: input.signal,
       });
       requestAttempts += ran.requestAttempts;
       retriesMade += ran.retriesMade;
@@ -600,6 +609,8 @@ export async function translateResumeCandidateLeaves(input: {
   translationCache?: GenerateTranslateCache;
   tickProgress: TranslationTickProgressFn;
   onTranslatedLeaf?: (sourceText: string, translatedText: string, path: string) => Promise<void> | void;
+  /** Cooperative-cancellation signal; an abort unwinds the translate pool with an `AbortError`. */
+  signal?: AbortSignal;
 }): Promise<{
   next: unknown;
   changed: number;
@@ -722,6 +733,7 @@ export async function translateResumeCandidateLeaves(input: {
         afterEachSerial: async ({ jobIndex, job }) => {
           input.tickProgress(jobIndex + 1, barTotal, job.path);
         },
+        signal: input.signal,
       });
       requestAttempts += ran.requestAttempts;
       retriesMade += ran.retriesMade;

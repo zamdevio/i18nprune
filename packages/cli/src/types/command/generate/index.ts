@@ -26,4 +26,4 @@ export type GenerateOptions = {
   noRepairSentinelLeaks?: boolean;
 };
 
-export type GenerateRuntime = { emit?: RunEmitter; runId?: string };
+export type GenerateRuntime = { emit?: RunEmitter; runId?: string; signal?: AbortSignal };

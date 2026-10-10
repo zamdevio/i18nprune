@@ -159,4 +159,31 @@ describe('runTranslate', () => {
     const out = await runTranslate(makeCtx(), { texts: ['hi'], targetLang: 'fr' });
     expect(out.warnings.length).toBeGreaterThan(0);
   });
+
+  it('aborts without falling back when the signal fires (AbortError, not a provider failure)', async () => {
+    const controller = new AbortController();
+    const provider = vi.fn(async (t: string) => {
+      controller.abort();
+      return `${t}-fr`;
+    });
+    resolveTranslatorMock.mockReturnValue({ translate: provider });
+
+    await expect(
+      runTranslate(makeCtx(), {
+        texts: ['hello', 'world', 'again'],
+        targetLang: 'fr',
+        signal: controller.signal,
+      }),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+  });
+
+  it('refuses to start when the signal is already aborted', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    resolveTranslatorMock.mockReturnValue(fakeTranslator((t) => `${t}-fr`));
+
+    await expect(
+      runTranslate(makeCtx(), { texts: ['hello'], targetLang: 'fr', signal: controller.signal }),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+  });
 });

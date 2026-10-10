@@ -16,6 +16,8 @@ export type SyncOptions = {
 export type SyncRuntime = {
   emit?: RunEmitter;
   runId?: string;
+  /** Cooperative-cancellation signal threaded into the core context. */
+  signal?: AbortSignal;
 };
 
 export type SyncJsonRunResult = SyncRunResult & {
