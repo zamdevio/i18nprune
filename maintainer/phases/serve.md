@@ -1,6 +1,6 @@
 # Phase — `i18nprune serve` (stdio transport)
 
-**Status:** **in progress** — S.1 (transport skeleton) + S.2 (read ops) + S.3 (progress + pre-dispatch cancel) landed; S.4–S.6 pending.
+**Status:** **in progress** — S.1 (transport skeleton) + S.2 (read ops) + S.3 (progress + pre-dispatch cancel) + S.4 (write ops) landed; S.5–S.6 pending.
 **Tracker:** [`focus.md`](./focus.md) · **Contract:** [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) · **User docs (when built):** `docs/cli/serve.md`
 **Implementation home:** `packages/cli/src/serve/` (transport only — ops stay in core `runXxx`)
 **Consumers:** Tauri desktop (planned, develops outside this repo until migration), VS Code extension (own branch), scripted / SSH clients
@@ -38,7 +38,7 @@ Both remote shapes are stdio pass-through. An HTTP-only design would need port f
 5. **Fail closed on protocol version.** Never best-effort parse an unknown version.
 6. **Not a `--json` command** — excluded from `COMMANDS_WITH_JSON_OUTPUT` (`packages/cli/src/constants/jsonoutput.ts`).
 7. **Two root modes, never mixed.** `serve --project <path>` is *sandbox* (pinned, confined); `serve` alone is *hub* (root required per request). A pinned server rejects a different root — never switches.
-8. **Per-root context map, serialized writes.** Disk cache is safe by construction (`computeCacheProjectId()` hashes the absolute root); the in-memory `CoreContext` + `localeRead` are not, so they are keyed per root with a bounded LRU and invalidated after writes.
+8. **Per-root context map; serialized ops.** Disk cache is safe by construction (`computeCacheProjectId()` hashes the absolute root); the in-memory `CoreContext` + `localeRead` are not, so they are keyed per root with a bounded LRU and dropped after writes. All ops run through one dispatch queue (one at a time, arrival order), so writes never overlap; per-root read parallelism is a non-goal for now.
 9. **stdin close is the primary stop signal**; `--idle-timeout` is a backstop, `ping` resets it.
 10. **No client id in v1**, and no proxying of undocumented core internals.
 
@@ -52,8 +52,8 @@ Status: **planned** — one slice per PR; parity fixtures unchanged unless a sli
 |-------|-------|---------------|
 | **S.1 — Transport skeleton** ✅ | `packages/cli/src/serve/` — NDJSON framing, `initialize` / `shutdown` / `exit` / `ping`, capability report, version negotiation, sandbox vs hub root modes, stdin-close + idle timeout | Conformance test: exact stdout byte framing; non-protocol stdout bytes fail the test; confined root rejects a different root |
 | **S.2 — Read ops** ✅ | `op.config` · `op.doctor` · `op.validate` · `op.languages` · `op.providers` | Results byte-equal the `--json` envelope for the same fixture |
-| **S.3 — Progress + cancel** ⚠️ | Map `RunEvent` → `$/progress` (op-keyed); `$/cancelRequest` | **Landed as far as core allows:** `op.validate` streams `$/progress`; a request cancelled before dispatch returns `SERVE_REQUEST_CANCELLED`. **Real mid-flight cancel is blocked on core** — nothing accepts an `AbortSignal`, so `capabilities.cancel` is honestly `false`. See note below. |
-| **S.4 — Write ops (opt-in)** | `op.sync` · `op.generate` · `op.cleanup` · `op.locales.delete` behind `--allow-writes`; per-root serialization + context invalidation | Writes refused when read-only; that root's `CoreContext` / `localeRead` invalidated after write |
+| **S.3 — Progress + cancel** ⚠️ | Map `RunEvent` → `$/progress` (op-keyed); `$/cancelRequest` | **Landed as far as core allows:** `op.validate` / `op.sync` / `op.generate` stream `$/progress`; a request cancelled before dispatch returns `SERVE_REQUEST_CANCELLED`. **Real mid-flight cancel is blocked on core** — nothing accepts an `AbortSignal` — so `capabilities.cancelScope` is honestly `'queued'`. See note below. |
+| **S.4 — Write ops (opt-in)** ✅ | `op.sync` · `op.generate` · `op.cleanup` · `op.locales.delete` behind `--allow-writes`; context invalidation | Writes refused when read-only with `SERVE_WRITES_DISABLED`; that root's `CoreContext` / `localeRead` dropped after a write. `op.cleanup` and `op.locales.delete` required extracting reusable write entries out of their command modules first. |
 | **S.5 — Client docs + smoke** | `docs/cli/serve.md`, `docs/commands/README.md` row, sidebar entry, manual `wsl.exe` / `ssh` smoke note | A documented command a user can copy-paste actually works |
 | **S.6 — Optional HTTP transport** | `127.0.0.1` only, bearer token on stderr, hub mode only | Only if a real client needs it; never the default |
 
@@ -63,11 +63,11 @@ Status: **planned** — one slice per PR; parity fixtures unchanged unless a sli
 
 Cancellation is only real if an in-flight op can be interrupted. **Core accepts no `AbortSignal`** anywhere (verified: no `signal`/`abort` plumbing in `packages/core`), and every `serve` op is synchronous JS on the dispatch queue, so `$/cancelRequest` cannot stop work already running. Rather than advertise `cancel: true` and no-op on the wire, S.3 ships:
 
-- `$/progress` forwarding for ops whose core path emits `run.*` events (today: `validate`, via `runValidate`; `config`/`doctor`/`providers` call `runXxx` directly and emit nothing, so they are not listed).
+- `$/progress` forwarding for ops whose core path emits `run.*` events (today: `validate`, `sync`, `generate`; `config`/`doctor`/`providers`/`cleanup`/`locales.delete` emit nothing, so they are not listed).
 - `$/cancelRequest` that aborts a request **before** its dispatch microtask runs (refused with `SERVE_REQUEST_CANCELLED`), and marks a running request's signal aborted for future use.
-- `capabilities.cancel = false` and `SERVE_CANCELLATION_SUPPORTED = false`, with progress advertised truthfully per-op via `capabilities.progressOps`.
+- `capabilities.cancelScope = 'queued'` and `SERVE_CANCELLATION_SUPPORTED = false`, with progress advertised truthfully per-op via `capabilities.progressOps`.
 
-**To make `cancel` true:** thread an `AbortSignal` through the long-running core ops (generate/sync) and check it at their natural await boundaries; then flip `SERVE_CANCELLATION_SUPPORTED`.
+**To make `cancel` true:** thread an `AbortSignal` through the long-running core ops (generate/sync) and check it at their natural await boundaries; then flip `SERVE_CANCELLATION_SUPPORTED` (which moves `cancelScope` to `'running'`).
 
 ---
 

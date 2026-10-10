@@ -29,7 +29,7 @@ Per [ADR 006](./006-command-orchestrator-boundary.md), transport is a **host** c
 5. **The wire protocol is versioned separately** from npm semver and from `meta.apiVersion`. `serve` protocol version starts at `"1"` and is negotiated in `initialize`.
 6. **stdio is the only transport in v1.** An optional HTTP transport is a later slice, localhost-bound only, and never the default.
 7. **`serve` is not a `--json` command.** It is excluded from `COMMANDS_WITH_JSON_OUTPUT`; its stdout is the protocol stream, not an envelope.
-8. **Writers are serialized per project.** At most one mutating operation per project root at a time; reads may interleave; distinct projects may run in parallel.
+8. **Operations are serialized; writers never overlap.** The server dispatches every op through one ordered queue, so replies stay in arrival order and at most one mutating operation runs at a time. This is stricter than a per-root minimum (distinct projects and reads do not run in parallel today) and simpler to reason about; per-root parallelism is a deliberate non-goal until a client needs it.
 9. **Two root modes, mutually exclusive** — see [Project root modes](#project-root-modes). A pinned root stays **confined**: a request naming a different root is an error, never a silent switch.
 10. **No client identity in v1.** The server does not require or use a client id; a future optional `clientInfo` is logged to stderr only.
 11. **Writes are opt-in via `--allow-writes`**, default read-only. This guards against accidents, not a hostile client (the client spawns the server). In a read-only session the **project cache is forced read-only** (and its eager directory creation suppressed), so read ops touch no cache files or directories — read-only means no disk writes at all, not merely "no project mutation".
@@ -91,7 +91,7 @@ The server starts in exactly one of two modes; they are **mutually exclusive** a
 
 - Cache one `CoreContext` per resolved root, with a bounded LRU so a long-lived server does not grow without limit.
 - Invalidate that root's context and `localeRead` after any write to it, and when its config file changes on disk.
-- Serialize writes per root (read-only ops may overlap).
+- Serialize operations: the dispatch queue runs one op at a time, so writes never overlap and replies stay in arrival order. Per-root read parallelism is a non-goal for now (see [Principles](#principles) 8).
 
 ### Operations
 
