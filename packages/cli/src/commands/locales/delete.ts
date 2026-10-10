@@ -1,14 +1,13 @@
 import { confirm } from '@inquirer/prompts';
 import { resolveContext } from '@/shared/context/index.js';
 import { getCliYesFlag } from '@/shared/context/globals.js';
-import { I18nPruneError, deleteLocaleFiles, segmentsForLocaleCode } from '@i18nprune/core';
+import { I18nPruneError, buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import { resolveLocalesTargetCodes } from '@/shared/locales/index.js';
 import { formatLocaleSegmentFilesLabel } from '@/shared/locales/segmentLabel.js';
 import { canAsk } from '@/shared/ask/index.js';
 import { logger } from '@/utils/logger/index.js';
 import { canPrintDecorative, canPrintInfo } from '@/utils/logger/policy.js';
 import { printCommandSummary } from '@/output/index.js';
-import { buildCliJsonEnvelope, stringifyEnvelope } from '@i18nprune/core';
 import { buildIoReadFailureEnvelope } from '@/shared/result/index.js';
 import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 import {
@@ -21,10 +20,8 @@ import {
 import { formatSectionTitle } from '@/utils/style/section.js';
 import type { LocalesDeleteJsonPayload } from '@/types/command/locales/json.js';
 import type { LocalesDeleteOptions } from '@/types/commands/locales/index.js';
-import { applyCommandPatching } from '@/shared/patching/apply.js';
-import { createCliCoreContext } from '@/shared/context/coreContext.js';
+import { deleteResolvedLocales } from '@/commands/locales/deleteJsonEnvelope.js';
 import { attachWallTimer, duringPrompt } from '@/utils/timer/index.js';
-import { existsRuntimeFsSync } from '@i18nprune/core';
 import { cliReadinessIssues } from '@/shared/project/index.js';
 import { applyCliCiExitGate } from '@/shared/cli/ciExitGate.js';
 
@@ -68,20 +65,6 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
     const targets = await resolveLocalesTargetCodes(ctx, 'locales delete', opts.target, {
       promptWhenMissing: true,
     });
-    const dir = ctx.paths.localesDir;
-    const coreCtx = createCliCoreContext(ctx);
-
-    for (const target of targets) {
-      const segments = segmentsForLocaleCode(coreCtx, target);
-      const paths =
-        segments.length > 0
-          ? segments.map((s) => s.absolutePath)
-          : [ctx.adapters.path.join(dir, `${target}.json`)];
-      const anyExists = paths.some((p) => existsRuntimeFsSync(p, ctx.adapters.fs));
-      if (!anyExists) {
-        throw new I18nPruneError(`locales delete: no locale files found for ${target}`, 'USAGE');
-      }
-    }
 
     if (canAsk(ctx.run) && !getCliYesFlag()) {
       const ok = await duringPrompt(() =>
@@ -152,25 +135,10 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
       throw new I18nPruneError('locales delete: requires global --yes when non-interactive', 'USAGE');
     }
 
-    const { payload, deletedTargets } = await deleteLocaleFiles(coreCtx, targets);
-
-    await applyCommandPatching({
-      ctx,
-      command: 'locales-delete',
-      action: 'delete_locales',
-      localeCodes: targets,
-    });
+    const { envelope, deletedTargets } = await deleteResolvedLocales(ctx, targets);
 
     if (ctx.run.json) {
-      console.log(
-        stringifyEnvelope(
-          buildCliJsonEnvelope('locales-delete', payload, {
-            ok: true,
-            issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
-            cwd: cliEnvelopeCwd(ctx),
-          }),
-        ),
-      );
+      console.log(stringifyEnvelope(envelope));
     } else {
       if (canPrintDecorative(ctx.run)) {
         logger.primary('', ctx.run);
@@ -191,8 +159,8 @@ export async function localesDelete(opts: LocalesDeleteOptions): Promise<void> {
           ok: true,
           durationMs: wall.elapsedMs(),
           counts: {
-            deletedJson: payload.deletedJson,
-            deletedLocales: payload.deletedLocaleCount,
+            deletedJson: envelope.data.deletedJson,
+            deletedLocales: envelope.data.deletedLocaleCount,
           },
           issues: issuesFromDiscoveryWarnings(ctx.meta.warnings),
         },

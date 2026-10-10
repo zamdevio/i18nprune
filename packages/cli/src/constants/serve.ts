@@ -45,6 +45,7 @@ export const SERVE_IMPLEMENTED_OPS: readonly string[] = [
   'sync',
   'generate',
   'cleanup',
+  'locales.delete',
 ];
 
 /**
@@ -52,7 +53,12 @@ export const SERVE_IMPLEMENTED_OPS: readonly string[] = [
  * here must also appear in {@link SERVE_IMPLEMENTED_OPS} — a write op that is not implemented is a
  * mistake, not a reservation.
  */
-export const SERVE_WRITE_OPS: ReadonlySet<string> = new Set<string>(['sync', 'generate', 'cleanup']);
+export const SERVE_WRITE_OPS: ReadonlySet<string> = new Set<string>([
+  'sync',
+  'generate',
+  'cleanup',
+  'locales.delete',
+]);
 
 /**
  * Op methods that stream `$/progress` notifications. Only ops whose core entry path emits `run.*`

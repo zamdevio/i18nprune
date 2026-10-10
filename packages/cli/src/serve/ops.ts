@@ -9,6 +9,7 @@ import { runSyncJsonEnvelope, emptySyncPayload } from '@/commands/sync/jsonEnvel
 import { runGenerateJsonEnvelope } from '@/commands/generate/jsonEnvelope.js';
 import { mergeGenerateOptionsFromEnv } from '@/commands/generate/env.js';
 import { executeCleanupWrite, emptyCleanupPayload } from '@/commands/cleanup/jsonEnvelope.js';
+import { executeLocalesDelete } from '@/commands/locales/deleteJsonEnvelope.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { invalidateProjectAnalysisCacheForContext } from '@/shared/cache/index.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
@@ -32,7 +33,7 @@ export type ServeReadOpId = 'config' | 'doctor' | 'validate' | 'languages' | 'pr
  * mirrors the matching CLI command's `--json` output, including the post-envelope side effects the
  * CLI would run (patching, cache invalidation).
  */
-export type ServeWriteOpId = 'sync' | 'generate' | 'cleanup';
+export type ServeWriteOpId = 'sync' | 'generate' | 'cleanup' | 'locales.delete';
 
 /** Every op this server can serve. */
 export type ServeOpId = ServeReadOpId | ServeWriteOpId;
@@ -51,6 +52,7 @@ export const SERVE_WRITE_OP_METHODS = {
   'op.sync': 'sync',
   'op.generate': 'generate',
   'op.cleanup': 'cleanup',
+  'op.locales.delete': 'locales.delete',
 } as const satisfies Record<string, ServeWriteOpId>;
 
 /** `op.<id>` JSON-RPC method → op id, across reads and writes. */
@@ -167,6 +169,10 @@ export async function runServeOp(id: ServeOpId, ctx: ServeReadOpContext): Promis
     }
     case 'cleanup': {
       const envelope = cleanupEnvelope(context, ctx, { emit, runId });
+      return { envelope, json: stringifyEnvelope(envelope) };
+    }
+    case 'locales.delete': {
+      const envelope = await localesDeleteEnvelope(context, ctx);
       return { envelope, json: stringifyEnvelope(envelope) };
     }
     default: {
@@ -419,4 +425,21 @@ function cleanupOptionsFrom(options: Record<string, unknown>): CleanupOptions {
     top: asNumber(options.top),
     full: asBoolean(options.full),
   };
+}
+
+/**
+ * Locales-delete `--json` orchestration, write-capable. Delegates to `executeLocalesDelete` (the
+ * reusable, non-interactive core of `locales delete`): resolve targets, delete the segment files,
+ * best-effort patching. Non-interactive — a missing `target` is a USAGE issue envelope, never a
+ * prompt. On a real delete, drops the root's cached context so the next read sees the files gone.
+ */
+async function localesDeleteEnvelope(
+  context: Context,
+  ctx: ServeReadOpContext,
+): Promise<CliJsonEnvelope<string, unknown>> {
+  const result = await executeLocalesDelete(context, { target: asString(ctx.options.target) });
+  if (result.deletedPaths.length > 0) {
+    ctx.onWrote?.(ctx.projectRoot);
+  }
+  return result.envelope as CliJsonEnvelope<string, unknown>;
 }

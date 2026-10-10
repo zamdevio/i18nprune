@@ -158,7 +158,17 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
     await waitFor(() => h.frames().length >= 1);
     const res = (JSON.parse(h.frames()[0]!) as { result: { capabilities: { ops: string[] } } }).result;
-    expect(res.capabilities.ops).toEqual(['config', 'doctor', 'validate', 'languages', 'providers', 'sync', 'generate', 'cleanup']);
+    expect(res.capabilities.ops).toEqual([
+      'config',
+      'doctor',
+      'validate',
+      'languages',
+      'providers',
+      'sync',
+      'generate',
+      'cleanup',
+      'locales.delete',
+    ]);
     h.child.stdin.end();
     await h.exited;
   });
@@ -309,6 +319,46 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
+  });
+
+  it('op.locales.delete removes a locale file when the session has --allow-writes', async () => {
+    const { tmp, projectRoot } = copyFixtureTree();
+    try {
+      const ar = path.join(projectRoot, 'locales', 'ar.json');
+      expect(fs.existsSync(ar)).toBe(true);
+
+      const h = spawnServe(['--project', projectRoot, '--allow-writes'], neutralCwd);
+      h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
+      await waitFor(() => h.frames().length >= 1);
+      h.send({ jsonrpc: '2.0', id: 2, method: 'op.locales.delete', params: { options: { target: 'ar' } } });
+      await waitFor(() => h.frames().some((l) => (JSON.parse(l) as { id?: number }).id === 2));
+      h.child.stdin.end();
+      await h.exited;
+
+      const result = (JSON.parse(h.frames().find((l) => (JSON.parse(l) as { id?: number }).id === 2)!) as {
+        result: { kind: string; data: { deletedJson: number; deletedLocaleCount: number } };
+      }).result;
+      expect(result.kind).toBe('locales-delete');
+      expect(result.data.deletedJson).toBe(1);
+      expect(result.data.deletedLocaleCount).toBe(1);
+      expect(fs.existsSync(ar)).toBe(false);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it('op.locales.delete is refused on a read-only session', async () => {
+    const h = spawnServe(['--project', fixture], neutralCwd);
+    h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
+    await waitFor(() => h.frames().length >= 1);
+    h.send({ jsonrpc: '2.0', id: 2, method: 'op.locales.delete', params: { options: { target: 'ar' } } });
+    await waitFor(() => h.frames().some((l) => (JSON.parse(l) as { id?: number }).id === 2));
+    h.child.stdin.end();
+    await h.exited;
+    const err = (JSON.parse(h.frames().find((l) => (JSON.parse(l) as { id?: number }).id === 2)!) as {
+      error: { data: { code: string } };
+    }).error;
+    expect(err.data.code).toBe('SERVE_WRITES_DISABLED');
   });
 
   it('a read-only session writes nothing to disk; --allow-writes does', async () => {    const runOp = async (extraArgs: string[], extraEnv: NodeJS.ProcessEnv) => {
