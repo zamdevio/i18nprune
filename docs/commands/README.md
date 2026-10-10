@@ -40,6 +40,7 @@ Domain behavior stays in `packages/cli/src/core/**`. Rationale: [ADR 006](../arc
 | `doctor` | [doctor](./doctor.md) |
 | `help` | [help](./help.md) |
 | `report` | [report](./report.md) |
+| `serve` | [serve](../cli/serve.md) — stdio JSON-RPC transport, not a `--json` command |
 | `share` | [share](./share/README.md) (`upload`, `list`, `view`, `delete`) |
 | `kits` | [kits](./kits/README.md) (`dynamic`, `identical`, `honest`, `baseline`, `pr`) |
 

@@ -30,6 +30,7 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
         { text: 'Log presentation', link: '/cli/output' },
         { text: 'Prompts', link: '/cli/prompts' },
         { text: 'JSON output (--json)', link: '/cli/json' },
+        { text: 'serve (stdio transport)', link: '/cli/serve' },
         {
           text: 'Commands',
           collapsed: true,
