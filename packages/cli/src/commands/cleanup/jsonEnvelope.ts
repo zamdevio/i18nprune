@@ -1,11 +1,13 @@
 import {
   buildCliJsonEnvelope,
+  createCleanupLocaleWritePlan,
   emitRunErrorFromUnknown,
   emitRunEvent,
   nowMs,
   runCleanup as runCoreCleanup,
+  writeCleanupPlan,
 } from '@i18nprune/core';
-import type { CleanupJsonOutput, CleanupRunOptions, RunEmitter } from '@i18nprune/core';
+import type { CliJsonEnvelope, CleanupJsonOutput, CleanupRunOptions, RunEmitter } from '@i18nprune/core';
 
 import { buildCleanupHostHooks } from '@/commands/cleanup/hooks.js';
 import { createCliCoreContext } from '@/shared/context/index.js';
@@ -86,7 +88,36 @@ export function executeCore(
   }
 }
 
-/** `cleanup --json` payload (core does not write; CLI applies writes only on human runs). */
+/**
+ * Write-capable cleanup: the same report as {@link executeCore}, plus the actual removals.
+ *
+ * The CLI applies cleanup writes only on the human path (`cleanup/run.ts`), so `--json` is
+ * report-only. This entry is the reusable version of that human path without the prompts: it removes
+ * every `safeToRemove` key from each locale slice and returns the written file paths. Confirmation is
+ * the caller's concern — `serve` gates it behind `--allow-writes`.
+ *
+ * `dryRun` reports without writing (identical to the `--json` path).
+ */
+export function executeCleanupWrite(
+  ctx: Context,
+  opts: CleanupOptions,
+  runtime: CleanupRuntime = {},
+): { envelope: CliJsonEnvelope<'cleanup', CleanupJsonOutput>; writtenPaths: string[] } {
+  const result = executeCore(ctx, opts, runtime);
+  if (opts.dryRun === true) return { envelope: result.envelope, writtenPaths: [] };
+
+  const coreCtx = createCliCoreContext(ctx);
+  const writtenPaths: string[] = [];
+  for (const slice of result.localeSlices) {
+    if (slice.safeToRemove.length === 0) continue;
+    const plan = createCleanupLocaleWritePlan(coreCtx, slice.localeCode, slice.safeToRemove);
+    writeCleanupPlan(coreCtx, plan);
+    writtenPaths.push(...plan.writes.map((write) => write.sourcePath));
+  }
+  return { envelope: result.envelope, writtenPaths };
+}
+
+
 export function runCleanupJsonEnvelope(
   ctx: Context,
   opts: CleanupOptions,

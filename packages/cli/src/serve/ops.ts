@@ -8,6 +8,7 @@ import { runProviders } from '@/commands/providers/jsonEnvelope.js';
 import { runSyncJsonEnvelope, emptySyncPayload } from '@/commands/sync/jsonEnvelope.js';
 import { runGenerateJsonEnvelope } from '@/commands/generate/jsonEnvelope.js';
 import { mergeGenerateOptionsFromEnv } from '@/commands/generate/env.js';
+import { executeCleanupWrite, emptyCleanupPayload } from '@/commands/cleanup/jsonEnvelope.js';
 import { applyCommandPatching } from '@/shared/patching/apply.js';
 import { invalidateProjectAnalysisCacheForContext } from '@/shared/cache/index.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
@@ -17,6 +18,8 @@ import { ProtocolError, SERV_ISSUE } from './errors.js';
 import { JSONRPC_INVALID_REQUEST } from './protocol.js';
 import type { SyncOptions } from '@/types/command/sync/index.js';
 import type { GenerateOptions } from '@/types/command/generate/index.js';
+import type { CleanupOptions } from '@/types/command/cleanup/index.js';
+import type { CleanupJsonOutput } from '@i18nprune/core';
 
 /**
  * A read-only operation a `serve` client can invoke. Each mirrors the matching CLI command's
@@ -29,7 +32,7 @@ export type ServeReadOpId = 'config' | 'doctor' | 'validate' | 'languages' | 'pr
  * mirrors the matching CLI command's `--json` output, including the post-envelope side effects the
  * CLI would run (patching, cache invalidation).
  */
-export type ServeWriteOpId = 'sync' | 'generate';
+export type ServeWriteOpId = 'sync' | 'generate' | 'cleanup';
 
 /** Every op this server can serve. */
 export type ServeOpId = ServeReadOpId | ServeWriteOpId;
@@ -47,6 +50,7 @@ export const SERVE_READ_OP_METHODS = {
 export const SERVE_WRITE_OP_METHODS = {
   'op.sync': 'sync',
   'op.generate': 'generate',
+  'op.cleanup': 'cleanup',
 } as const satisfies Record<string, ServeWriteOpId>;
 
 /** `op.<id>` JSON-RPC method → op id, across reads and writes. */
@@ -159,6 +163,10 @@ export async function runServeOp(id: ServeOpId, ctx: ServeReadOpContext): Promis
     }
     case 'generate': {
       const envelope = await generateEnvelope(context, ctx, { emit, runId });
+      return { envelope, json: stringifyEnvelope(envelope) };
+    }
+    case 'cleanup': {
+      const envelope = cleanupEnvelope(context, ctx, { emit, runId });
       return { envelope, json: stringifyEnvelope(envelope) };
     }
     default: {
@@ -339,5 +347,76 @@ function generateOptionsFrom(options: Record<string, unknown>): GenerateOptions 
     all: asBoolean(options.all),
     ask: asBoolean(options.ask),
     noRepairSentinelLeaks: asBoolean(options.noRepairSentinelLeaks),
+  };
+}
+
+/**
+ * Cleanup `--json` orchestration, write-capable. Unlike the CLI — where `cleanup --json` is
+ * report-only and writes live only on the human path — this removes every `safeToRemove` key and then
+ * invalidates the analysis cache and drops the root's cached context. `dryRun` reports without
+ * writing. Non-interactive: no key/target prompts (a serve client gates via `--allow-writes`).
+ *
+ * The `summary` block mirrors the CLI's final envelope (wall-clock `durationMs` inclusive).
+ */
+function cleanupEnvelope(
+  context: Context,
+  ctx: ServeReadOpContext,
+  runtime: { emit?: RunEmitter; runId?: string },
+): CliJsonEnvelope<string, unknown> {
+  const startedAt = Date.now();
+  const opts = cleanupOptionsFrom(ctx.options);
+  const readiness = cliReadinessIssues(context, { mode: 'preset', preset: 'cleanup' });
+  if (readiness) {
+    const envelope = buildCliJsonEnvelope('cleanup', emptyCleanupPayload(), {
+      ok: false,
+      issues: readiness,
+      cwd: context.adapters.system.cwd(),
+    });
+    return withCleanupSummary(envelope as CliJsonEnvelope<'cleanup', CleanupJsonOutput>, startedAt);
+  }
+
+  const { envelope, writtenPaths } = executeCleanupWrite(context, opts, {
+    emit: runtime.emit ?? noopRunEmitter,
+    runId: runtime.runId ?? String(Date.now()),
+  });
+  if (writtenPaths.length > 0) {
+    invalidateProjectAnalysisCacheForContext(context, { writtenLocalePaths: writtenPaths });
+    ctx.onWrote?.(ctx.projectRoot);
+  }
+  return withCleanupSummary(envelope, startedAt);
+}
+
+/** Attach the CLI's `summary` block (duration, ok, counts) to a cleanup envelope. */
+function withCleanupSummary(
+  envelope: CliJsonEnvelope<'cleanup', CleanupJsonOutput>,
+  startedAt: number,
+): CliJsonEnvelope<string, unknown> {
+  const d = envelope.data;
+  return {
+    ...envelope,
+    data: {
+      ...d,
+      summary: {
+        durationMs: Date.now() - startedAt,
+        command: 'cleanup',
+        ok: envelope.ok,
+        counts: {
+          remove: d.wouldRemove,
+          dynamic: d.dynamicActive,
+          ...(d.dynamicCommented > 0 ? { commented: d.dynamicCommented } : {}),
+        },
+      },
+    },
+  } as CliJsonEnvelope<string, unknown>;
+}
+
+/** Map `params.options` to `CleanupOptions`, accepting only known keys (unknown keys ignored). */
+function cleanupOptionsFrom(options: Record<string, unknown>): CleanupOptions {
+  return {
+    dryRun: asBoolean(options.dryRun),
+    target: asString(options.target),
+    rg: asBoolean(options.rg),
+    top: asNumber(options.top),
+    full: asBoolean(options.full),
   };
 }

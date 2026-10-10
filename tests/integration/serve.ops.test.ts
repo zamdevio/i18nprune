@@ -158,7 +158,7 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
     await waitFor(() => h.frames().length >= 1);
     const res = (JSON.parse(h.frames()[0]!) as { result: { capabilities: { ops: string[] } } }).result;
-    expect(res.capabilities.ops).toEqual(['config', 'doctor', 'validate', 'languages', 'providers', 'sync', 'generate']);
+    expect(res.capabilities.ops).toEqual(['config', 'doctor', 'validate', 'languages', 'providers', 'sync', 'generate', 'cleanup']);
     h.child.stdin.end();
     await h.exited;
   });
@@ -273,6 +273,42 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
       error: { data: { code: string } };
     }).error;
     expect(err.data.code).toBe('SERVE_WRITES_DISABLED');
+  });
+
+  it('op.cleanup --dry-run matches `cleanup --json` structurally (modulo timing)', async () => {
+    const viaServe = await callServe('op.cleanup', { dryRun: true }, ['--allow-writes']);
+    const viaCli = JSON.parse(runCliJson(['cleanup']));
+    expect(stripTiming(viaServe)).toEqual(stripTiming(viaCli));
+  });
+
+  it('op.cleanup removes an unused key when the session has --allow-writes', async () => {
+    const { tmp, projectRoot } = copyFixtureTree();
+    try {
+      const en = path.join(projectRoot, 'locales', 'en.json');
+      const obj = JSON.parse(fs.readFileSync(en, 'utf8')) as Record<string, unknown>;
+      obj.definitely_unused_zzz = 'Nope';
+      const before = `${JSON.stringify(obj, null, 2)}\n`;
+      fs.writeFileSync(en, before);
+
+      const h = spawnServe(['--project', projectRoot, '--allow-writes'], neutralCwd);
+      h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
+      await waitFor(() => h.frames().length >= 1);
+      h.send({ jsonrpc: '2.0', id: 2, method: 'op.cleanup', params: { options: {} } });
+      await waitFor(() => h.frames().some((l) => (JSON.parse(l) as { id?: number }).id === 2));
+      h.child.stdin.end();
+      await h.exited;
+
+      const result = (JSON.parse(h.frames().find((l) => (JSON.parse(l) as { id?: number }).id === 2)!) as {
+        result: { kind: string; data: { wouldRemove: number } };
+      }).result;
+      expect(result.kind).toBe('cleanup');
+      expect(result.data.wouldRemove).toBe(1);
+      const after = fs.readFileSync(en, 'utf8');
+      expect(after).not.toBe(before);
+      expect(after).not.toContain('definitely_unused_zzz');
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   it('a read-only session writes nothing to disk; --allow-writes does', async () => {    const runOp = async (extraArgs: string[], extraEnv: NodeJS.ProcessEnv) => {
