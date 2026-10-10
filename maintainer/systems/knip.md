@@ -28,10 +28,23 @@ Run after deleting files, moving modules, changing barrels, or adding packages �
 |-----|---------|
 | **`ignore`** | Entire files excluded from analysis (see below). |
 | **`ignoreExportsUsedInFile`** | Re-export-only barrels do not flag “unused export” when the export is only consumed elsewhere. |
-| **`ignoreBinaries`** | Shell utilities invoked only from root `package.json` scripts (`files`, `lines` use `printf` / `awk` via `find` + `wc`). |
+| **`ignoreBinaries`** | Shell utilities invoked only from root `package.json` scripts or host code (`rg` is spawned by `packages/cli/src/utils/rg`; `printf` / `awk` used via `find` + `wc`). |
 | **`workspaces`** | Per-package entry globs, project scope, and workspace-local `ignoreDependencies`. |
 
-Root config applies to the whole repo; nested keys under **`workspaces`** tune **`apps/landing`**, **`apps/extension`**, **`apps/extension/src/webview`**, and **`packages/ui`**.
+Root config applies to the whole repo; nested keys under **`workspaces`** tune **`packages/core`**, **`packages/cli`**, **`apps/landing`**, **`apps/extension`**, **`apps/extension/src/webview`**, and **`packages/ui`**.
+
+### `packages/core` / `packages/cli` — `src/**/index.ts` as entries
+
+Both packages declare **every `index.ts` as an entry**:
+
+| Package | `entry` | Why |
+|---------|---------|-----|
+| `packages/core` | `["src/**/index.ts"]` | Subpath barrels (`cache`, `share`, `init`, `translator/cache`, `shared/json`, …) are published via `package.json` `exports` and consumed in-repo through `@i18nprune/core/*` tsconfig aliases. Without declaring them, knip treats their re-exports as unreachable and reports them as **unused exports** (the 221-export / 250-type noise removed in this change). |
+| `packages/cli` | `["src/**/index.ts"]` | Workspace-only package (`private: true`). `bin/cli.ts` and `src/constants/index.ts` (via the `@i18nprune/cli/constants` alias used by `apps/report`) are the only real consumers; the rest of the `index.ts` files are internal barrels. |
+
+`project: ["src/**/*.ts"]` keeps analysis scoped to sources, so built `dist/**` files are never entries.
+
+**Do not re-add file-level `ignore` rows for `packages/core/src/**/index.ts`** — the entry globs above supersede them (knip now emits a *“Remove from ignore”* hint if one is reintroduced).
 
 ---
 
@@ -66,7 +79,7 @@ If it persists, remove **`node_modules`** at the repo root and run **`pnpm insta
 
 ### Public API barrels (`packages/core/src/**/index.ts`)
 
-These **`index.ts`** files are **intentionally ignored as files** because knip’s entry graph does not see external consumers:
+These **`index.ts`** files used to sit under `ignore` because knip's entry graph did not see external consumers. They are now covered by the `packages/core` `entry: ["src/**/index.ts"]` glob (see above), so the file-level ignores were removed:
 
 | File | Role |
 |------|------|
@@ -75,7 +88,7 @@ These **`index.ts`** files are **intentionally ignored as files** because knip�
 | `packages/core/src/runtime/factory/index.ts` | Factory re-exports |
 | `packages/core/src/runtime/guards/index.ts` | Host guard helpers |
 
-**Why ignore instead of deleting exports:** Hosts import from `@i18nprune/core` or subpath exports. Those barrels aggregate stable public surface; knip only walks in-repo importers and would report every re-export as unused.
+**Why the entry glob instead of deleting exports:** hosts import from `@i18nprune/core` or subpath exports, and those barrels aggregate stable public surface. Knip only walks in-repo importers, so the barrels are declared as entries rather than the exports removed.
 
 **In-repo rule:** call sites import from the **barrel**; sibling modules use **leaf files** only — see [`health.md` § Barrel import discipline](./health.md#barrel-import-discipline-shared).
 
@@ -123,10 +136,10 @@ When a file both defines and re-exports symbols only used elsewhere (typical bar
 
 ## When to update this doc
 
-- New **public barrel** knip should ignore → row in [Public API barrels](#public-api-barrels-packagescoresrcindexts).
+- New **public barrel** with no in-repo consumer → add an `entry` glob for the package (pattern: `packages/core` / `packages/cli` above), not an `ignore` row.
 - New **edge entry** outside Vite/CLI graph → `ignore` + rationale here.
 - New **type-only** or **triple-slash** dependency knip cannot see → `ignoreDependencies` + rationale.
-- Removing an ignore → prefer fixing imports/entries first (Shiki pattern above).
+- Removing an ignore → prefer fixing imports/entries first (Shiki and `packages/core` barrel patterns above).
 
 ---
 

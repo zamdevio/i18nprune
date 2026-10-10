@@ -11,7 +11,7 @@ import type {
 } from '../../types/translator/cache.js';
 import { computeTranslateConfigEpoch } from './translateConfigEpoch.js';
 import { TranslateCacheL2Store } from './l2Store.js';
-import { createTranslateCacheL1ForContext, translateCacheL1Enabled } from './resolveL1.js';
+import { createTranslateCacheL1ForContext } from './resolveL1.js';
 
 function resolveInputFilesEpoch(ctx: CoreContext): string | undefined {
   const cache = ctx.cache;
@@ -83,5 +83,3 @@ export function bindGenerateTranslateCache(
 export function flushTranslateCacheL2(l2?: TranslateCacheL2Port): CacheWarning | undefined {
   return l2?.flush();
 }
-
-export { translateCacheL1Enabled };

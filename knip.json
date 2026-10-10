@@ -6,15 +6,21 @@
     "tests/publish-types/fixture/**",
     "examples/sdk/**",
     "i18nprune.config.ts",
-    "packages/core/src/extractor/index.ts",
-    "packages/core/src/runtime/factory/index.ts",
-    "packages/core/src/runtime/guards/index.ts",
-    "packages/core/src/runtime/index.ts",
+    "scripts/dev/pathAliases.d.mts",
     "apps/workers/**/public/**",
     "apps/*/functions/**"
   ],
   "ignoreExportsUsedInFile": true,
+  "ignoreBinaries": ["rg"],
   "workspaces": {
+    "packages/core": {
+      "entry": ["src/**/index.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/cli": {
+      "entry": ["src/**/index.ts"],
+      "project": ["src/**/*.ts"]
+    },
     "apps/landing": {
       "entry": ["src/**/*.{ts,tsx}"],
       "ignoreDependencies": ["@cloudflare/workers-types"]

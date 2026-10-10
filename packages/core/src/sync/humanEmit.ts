@@ -1,4 +1,4 @@
-import { formatListOmittedSuffix, formatListShownOmitted } from '../shared/constants/listDisplay.js';
+import { formatListShownOmitted } from '../shared/constants/listDisplay.js';
 import type { SyncLocaleDisplayGroup, SyncHumanLeafSummary, SyncRunResult } from '../types/sync/index.js';
 
 export function parseSyncReportKey(reportKey: string): { localeCode: string; segmentName: string | null } {
@@ -85,5 +85,3 @@ export function formatSyncLeafSummaryLabel(group: SyncLocaleDisplayGroup, segmen
   }
   return group.localeCode;
 }
-
-export { formatListOmittedSuffix };
