@@ -1,6 +1,6 @@
 # Phase — `i18nprune serve` (stdio transport)
 
-**Status:** **in progress** — S.1 (transport skeleton) + S.2 (read ops) + S.3 (progress + pre-dispatch cancel) + S.4 (write ops) landed; S.5–S.6 pending.
+**Status:** **in progress** — S.1 (transport skeleton) + S.2 (read ops) + S.3 (progress + pre-dispatch cancel) + S.4 (write ops) + S.5 (client docs) landed; S.6 pending.
 **Tracker:** [`focus.md`](./focus.md) · **Contract:** [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) · **User docs (when built):** `docs/cli/serve.md`
 **Implementation home:** `packages/cli/src/serve/` (transport only — ops stay in core `runXxx`)
 **Consumers:** Tauri desktop (planned, develops outside this repo until migration), VS Code extension (own branch), scripted / SSH clients
@@ -54,7 +54,7 @@ Status: **planned** — one slice per PR; parity fixtures unchanged unless a sli
 | **S.2 — Read ops** ✅ | `op.config` · `op.doctor` · `op.validate` · `op.languages` · `op.providers` | Results byte-equal the `--json` envelope for the same fixture |
 | **S.3 — Progress + cancel** ⚠️ | Map `RunEvent` → `$/progress` (op-keyed); `$/cancelRequest` | **Landed as far as core allows:** `op.validate` / `op.sync` / `op.generate` stream `$/progress`; a request cancelled before dispatch returns `SERVE_REQUEST_CANCELLED`. **Real mid-flight cancel is blocked on core** — nothing accepts an `AbortSignal` — so `capabilities.cancelScope` is honestly `'queued'`. See note below. |
 | **S.4 — Write ops (opt-in)** ✅ | `op.sync` · `op.generate` · `op.cleanup` · `op.locales.delete` behind `--allow-writes`; context invalidation | Writes refused when read-only with `SERVE_WRITES_DISABLED`; that root's `CoreContext` / `localeRead` dropped after a write. `op.cleanup` and `op.locales.delete` required extracting reusable write entries out of their command modules first. |
-| **S.5 — Client docs + smoke** | `docs/cli/serve.md`, `docs/commands/README.md` row, sidebar entry, manual `wsl.exe` / `ssh` smoke note | A documented command a user can copy-paste actually works |
+| **S.5 — Client docs + smoke** ✅ | `docs/cli/serve.md`, `docs/commands/README.md` row, sidebar entry, manual `wsl.exe` / `ssh` smoke note | `docs/cli/serve.md` published with sidebar + index row; `pnpm docs:sync:verify` passes. Manual WSL/SSH smoke still to do by hand. |
 | **S.6 — Optional HTTP transport** | `127.0.0.1` only, bearer token on stderr, hub mode only | Only if a real client needs it; never the default |
 
 **Ship order:** S.1 → S.2 → S.3 → S.4 → S.5, with S.6 gated on demand.
