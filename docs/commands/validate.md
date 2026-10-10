@@ -8,7 +8,7 @@ Ensures **string literal keys** used in translation calls exist in the **source 
 
 **Literal key set:** built from **per-file** key-site scanning so `` `${NS}.segment` `` uses each file’s own `const` map (duplicate `NS` in different files does not collide). See [Duplicate const identifiers](../architecture/extraction/regex.md).
 
-**Limits:** extraction is heuristic, not full TypeScript semantic analysis. Hook destructuring (for example `const { t } = useTranslation()`) is not resolved yet — configure explicit `functions` entries or see the [unsolved inventory](../edge-cases/unsolved/inventory.md). See [Regex and static-analysis limits](../architecture/extraction/regex.md) and [Extraction architecture](../architecture/extraction/README.md).
+**Limits:** extraction is heuristic, not full TypeScript semantic analysis. Same-file **one-hop** aliases (`const tt = t`) and preset hook binds (`useTranslation` / `useTranslations` → local `t`) are supported; multi-hop, prop/HOC tracing, and renamed destructuring are not. See the [unsolved inventory](../edge-cases/unsolved/inventory.md), [Regex and static-analysis limits](../architecture/extraction/regex.md), and [Extraction architecture](../architecture/extraction/README.md).
 
 ```bash
 i18nprune validate

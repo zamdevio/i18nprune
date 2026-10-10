@@ -14,7 +14,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | Week | Theme | Doc |
 |------|-------|-----|
-| 2026-W37 | **Preserve + sync** (`copyPrefixes` hydrate, `uncertainPrefixes`, retain JSON) → **1.0.3** | [`locale/preserve-sync.md`](./locale/preserve-sync.md) |
+| 2026-W37 | **Preserve + sync** → **1.0.3** · **Extractor HOC §A** (hooks + one-hop) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) · [`extractor/hoc-a.md`](./extractor/hoc-a.md) |
 | 2026-W28 | **v1.0.0 kits** + **v1.0.1 sentinel repair** + export publish gate | [`kits/kits.md`](./kits/kits.md) · [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) · [`exports/governance.md`](./exports/governance.md) |
 | 2026-W26 | Tooling & kits prep (expgov migration, pnpm v11) | [`tooling/tooling.md`](./tooling/tooling.md) |
 | 2026-W25 | Export governance bootstrap, extractor/search phases | [`tooling/tooling.md`](./tooling/tooling.md) |
@@ -34,6 +34,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 | ID | Week | One-line | Doc |
 |----|------|----------|-----|
 | **Preserve-sync** | W37 | copyPrefixes hydrate + uncertainPrefixes + retain JSON (v1.0.3) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) |
+| **HOC §A** | W37 | hook presets + one-hop aliases (`expandEffectiveFunctions`) | [`extractor/hoc-a.md`](./extractor/hoc-a.md) |
 | **Kits v1** | W28 | Native `i18nprune kits` + semver 1.0.0 | [`kits/kits.md`](./kits/kits.md) |
 | **Sentinel repair** | W28 | Placeholder leak detect + sync/generate repair (v1.0.1) | [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) |
 | **Publish preflight** | W28 | expgov validate + npm v1 gate | [`exports/governance.md`](./exports/governance.md) |
@@ -57,7 +58,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 |-------|----------------|-----|
 | Kits v1 | W28 | [`kits/kits.md`](./kits/kits.md) |
 | Exports governance | W25–W28 | [`exports/governance.md`](./exports/governance.md) · [`tooling/tooling.md`](./tooling/tooling.md) |
-| Extractor & dynamic | W21 C.1, W24 E/D/T | [`extractor/c1.md`](./extractor/c1.md) · [`extractor/fusion.md`](./extractor/fusion.md) |
+| Extractor & dynamic | W21 C.1, W24 E/D/T, W37 HOC §A | [`extractor/c1.md`](./extractor/c1.md) · [`extractor/fusion.md`](./extractor/fusion.md) · [`extractor/hoc-a.md`](./extractor/hoc-a.md) |
 | Platform & release | W23 CI/XP/T/npm/git | [`platform/platform.md`](./platform/platform.md) · [`platform/ci.md`](./platform/ci.md) |
 | Share & workers | W22 | [`share/share.md`](./share/share.md) |
 | Engine & cache | W20–W21 | [`cache/generate.md`](./cache/generate.md) · [`cache/cache.md`](./cache/cache.md) · [`cache/init.md`](./cache/init.md) |

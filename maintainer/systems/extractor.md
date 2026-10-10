@@ -19,7 +19,7 @@ The extractor answers: **what the source text suggests** about translation helpe
 ```txt
 config.functions ────────────────────────────────┐
                                                   ↓
-readFile → scanImportBindings → expandFunctionsWithBindings → effectiveFunctions
+readFile → expandEffectiveFunctions (bindings + HOC §A locals) → effectiveFunctions
          ├ commentRanges / const map (orchestrator-specific)
          └ findTranslationCallSites(text, effectiveFunctions)
                     ├─→ keySites (scanKeyObservations, …)
@@ -42,7 +42,7 @@ readFile → scanImportBindings → expandFunctionsWithBindings → effectiveFun
 
 ## Intentionally **out of scope** (document; do not “fix” with regex alone)
 
-- **Variable propagation:** `const tt = t`, `const fn = cond ? t : g`, passing `t` as a value, `const { t } = useTranslation()` return shapes, `const { t } = i18n` after a namespace import — needs dataflow or framework hooks.
+- **Variable propagation:** multi-hop aliases, ternaries, passing `t` as a value / prop, renamed hook binds (`t: translate`) — see HOC §B / light-dataflow. One-hop + preset hooks are shipped (HOC §A).
 - **Non-literal module specifiers:** `require(expr)`, `import(dynamicId)` when `expr` is not a string literal.
 - **Guaranteed soundness inside every string/template:** bindings blank **literal interiors** (between quotes / backticks) plus comments before import regexes; **delimiters are preserved** so `from './m'` stays matchable. Imports authored only inside a template `${ … }` hole share the template interior treatment.
 - **Compiler-only / rare forms** unless justified by fixtures: e.g. `import { default as x }` is supported; other edge forms stay explicitly listed in `docs/extractor/README.md` when added or deferred.

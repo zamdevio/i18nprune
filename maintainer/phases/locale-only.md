@@ -61,4 +61,4 @@ Today the CLI assumes a project: config file, `srcRoot`, extractor scan. That bl
 
 - Locale layout: `docs/config/` · `packages/core/src/types/locales/layout.ts`
 - Generate: [`systems/commands/generate.md`](../systems/commands/generate.md)
-- Sync shape (when locale-only sync is needed later): [`preserve-sync.md`](./preserve-sync.md)
+- Sync shape (when locale-only sync is needed later): [`shipped/locale/preserve-sync.md`](../shipped/locale/preserve-sync.md)

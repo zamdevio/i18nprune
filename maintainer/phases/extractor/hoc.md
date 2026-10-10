@@ -11,6 +11,8 @@ Covers **helper indirection**: hook destructuring, renamed locals, and `t` passe
 
 ## A. Hooks, one-hop aliases, destructuring
 
+**Status:** **shipped** (core `expandEffectiveFunctions` / `expandWithLocalHelpers`) — inventory rows `extractor-reassignment-alias`, `extractor-hook-return-destructuring`.
+
 ### Problem
 
 Import-binding expansion finds `t` from **imports** only. It does **not** connect:

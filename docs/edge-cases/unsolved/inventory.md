@@ -1,5 +1,5 @@
 ---
-description: Tracked unsolved extractor and policy gaps — hook destructuring, aliases, and planned detection rules.
+description: Tracked extractor and policy gaps — remaining multi-hop / HOC prop limits and planned detection rules.
 ---
 
 # Unsolved edge-case inventory
@@ -36,22 +36,22 @@ Use this shape for every new inventory item:
 
 - **ID:** `extractor-reassignment-alias`
 - **Surface:** `core`
-- **Status:** `open`
-- **Impact:** Translation calls made through a **renamed local** (`const tt = t; tt('key')`) are not tied to configured `t` without dataflow.
-- **Current behavior:** Regex + import-binding expansion enriches `functions` from **imports** and module patterns (`i18n.t`, aliases, etc.). It does **not** follow assignment or control flow, so `tt` is not expanded from `t`.
-- **Target behavior:** Optional future host hooks or scoped heuristics (high risk of false positives if done generically).
-- **Workaround:** Call the helper under its imported/local name from config, or add the alias name to `functions` if it is stable project-wide.
-- **Owner / phase:** `maintainer/phases/extractor/README.md` (known limits); `docs/architecture/extraction/` limits.
+- **Status:** `shipped` (HOC §A — one-hop only)
+- **Impact:** Translation calls made through a **renamed local** (`const tt = t; tt('key')`) were not tied to configured `t` without dataflow.
+- **Current behavior:** Same-file **one-hop** aliases expand into effective helpers (`const tt = t`, `const translate = i18n.t`). Multi-hop and ternaries are not followed.
+- **Target behavior:** Optional multi-hop / light-dataflow later — see [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md) · [`light-dataflow.md`](../../../maintainer/phases/extractor/light-dataflow.md).
+- **Workaround:** (n/a for one-hop) Call under the imported name, or add a stable alias to `functions`.
+- **Owner / phase:** [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md) §A; tests in `packages/core/src/extractor/bindings/__tests__/localHelpers.test.ts`.
 
 ### extractor-hook-return-destructuring
 
 - **ID:** `extractor-hook-return-destructuring`
 - **Surface:** `core`
-- **Status:** `planned`
-- **Impact:** Framework patterns such as `const { t } = useTranslation()` (runtime return) are not resolved from imports alone.
-- **Current behavior:** No model of hook return shapes; `t` from destructuring is invisible unless listed in `functions` **and** the call site uses that binding name from an import binding we can see (still won’t connect hook-only locals without extra config).
-- **Target behavior:** Framework-specific presets or optional AST-backed assist **after** JS/TS extractor is stable; see init / extension phases.
-- **Workaround:** Configure explicit `functions` entries for locals you use, or re-export a thin wrapper `export const t = …` that import scan can see.
-- **Owner / phase:** `maintainer/phases/extractor/README.md` · [`maintainer/shipped/cache/init.md`](../../maintainer/shipped/cache/init.md) (init) / extension docs for presets.
+- **Status:** `shipped` (HOC §A — preset hooks)
+- **Impact:** Framework patterns such as `const { t } = useTranslation()` (runtime return) were not resolved from imports alone when `t` was absent from `functions`.
+- **Current behavior:** Preset table (`useTranslation` / `useTranslations` → bind `t`) plus runtime named import evidence expands local `t`. Renamed binds (`t: translate`) not yet.
+- **Target behavior:** Optional renamed destructuring; namespace propagation remains hint-only.
+- **Workaround:** Include `t` in `functions` (most presets already do), or add the local alias name.
+- **Owner / phase:** [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md) §A.
 
 Add entries as soon as an unresolved behavior is accepted as known, even if implementation is not scheduled.

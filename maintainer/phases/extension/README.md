@@ -1,6 +1,6 @@
 # Phase — VS Code extension
 
-**Status:** **Next** — primary sprint after preserve-sync.  
+**Status:** **Next** — own branch after / alongside extractor v2; does not block core releases.  
 **Implementation home:** **`apps/extension/`** (this monorepo).  
 **Planning home:** **`maintainer/phases/extension/`** (this file + sibling `*.md` specs).
 

@@ -10,7 +10,7 @@ Contributor-only planning and systems maps. **`docs/`** syncs to the public site
 
 | Need | Where |
 |------|--------|
-| **What to build next** | [`phases/focus.md`](phases/focus.md) — preserve-sync, then extension → extractor → locale-only |
+| **What to build next** | [`phases/focus.md`](phases/focus.md) — extractor → extension (own branch) → locale-only |
 | **What not to redo** | [`shipped/README.md`](shipped/README.md) |
 | **How subsystems wire** | [`systems/README.md`](systems/README.md) |
 | **Commit / tag / npm** | [`agents/git.md`](agents/git.md) |

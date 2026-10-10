@@ -1,6 +1,6 @@
 # Extractor — phases hub
 
-**Status:** **C.1 + E.1–E.6 + D.1 shipped** on `main` — v2 accuracy program is the active extractor track.  
+**Status:** **C.1 + E.1–E.6 + D.1 + HOC §A shipped** on `main` — v2 accuracy program continues (light-dataflow → cross-file → finite-keys).  
 **Implementation:** `packages/core/src/extractor/**` · **Engineering map:** [`maintainer/systems/extractor.md`](../../systems/extractor.md) · **Receipts:** [`shipped/README.md`](../../shipped/README.md).
 
 **User docs:** [`docs/architecture/extraction/`](../../../docs/architecture/extraction/README.md) · **Inventory:** [`docs/edge-cases/unsolved/inventory.md`](../../../docs/edge-cases/unsolved/inventory.md).
@@ -16,6 +16,7 @@
 | **C.1** | C.1.1 bindings · C.1.2 orchestrator wiring · C.1.3 prose first-arg filter · C.1.4 commented-call parity · C.1.5 inventory rows · C.1.6 methodology docs | [`shipped/extractor/c1.md`](../../shipped/extractor/c1.md) |
 | **E.1–E.6** | Mixed-template fusion, const-map, non-literal hints, lexical safety, comment parity, `locales dynamic` groups | [`shipped/extractor/fusion.md`](../../shipped/extractor/fusion.md) |
 | **D.1** | Active vs commented dynamic counts — `dynamicActive` / `dynamicCommented` in analysis + CLI/JSON | [`shipped/extractor/fusion.md`](../../shipped/extractor/fusion.md) · [`docs/dynamic/README.md`](../../../docs/dynamic/README.md) |
+| **HOC §A** | Hook presets (`useTranslation` / `useTranslations` → `t`) + same-file one-hop aliases | [`shipped/extractor/hoc-a.md`](../../shipped/extractor/hoc-a.md) |
 
 ### C.1 detail
 
@@ -49,7 +50,7 @@
 | **Scope/const tracker** | `const NS = 'app'` for template substitution | `extractor/constmap/` |
 | **Expression evaluator** | Rebuild `` `${NS}.title` `` → `app.title` | `extractor/dynamic/rebuild.ts` |
 
-**Known limits (no full dataflow):** reassignment aliases (`const tt = t`), conditional assignment, higher-order passing, hook return destructuring (`useTranslation()`). Tracked in inventory.
+**Known limits (no full dataflow):** multi-hop aliases (`const a = t; const b = a`), conditional assignment, higher-order / prop passing (`extractor.hoc` section B), renamed hook binds (`t: translate`). Tracked in inventory / [`hoc.md`](./hoc.md).
 
 ---
 
@@ -63,7 +64,7 @@ v2 extractor (`fast` heuristics: HOC → light-dataflow → cross-file → finit
   → provider registry (on hold)
 ```
 
-**Sprint pointer:** [`../focus.md`](../focus.md) — extractor v2 after preserve-sync + extension; locale-only follows.
+**Sprint pointer:** [`../focus.md`](../focus.md) — extractor v2 now; extension on its own branch; locale-only follows.
 
 ---
 
@@ -85,14 +86,14 @@ Rules: lazy skips inside `fast`; indexes built once per scan; dogfood benchmark 
 
 | Phase | Doc | Summary | Depth |
 |-------|-----|---------|-------|
-| **HOC** | [`hoc.md`](./hoc.md) | Hooks, one-hop `tt = t`, props / HOC `t` passing | `fast` |
+| **HOC** | [`hoc.md`](./hoc.md) | §A hooks, one-hop `tt = t` **shipped**; §B props / HOC `t` passing opt-in | `fast` |
 | **Light dataflow** | [`light-dataflow.md`](./light-dataflow.md) | Same-file def-use without full AST | `fast` |
 | **Cross-file** | [`cross-file.md`](./cross-file.md) | `export const NS` via static import graph | `fast` |
 | **Finite keys** | [`finite-keys.md`](./finite-keys.md) | Locale-assisted + optional typed unions | `fast` / `typed` |
 | **AST tier** | [`ast-tier.md`](./ast-tier.md) | Opt-in TypeScript/SWC assist | `typed` |
 | **Provider registry** | [`provider-registry.md`](./provider-registry.md) | **On hold** — non-JS file providers | After `typed` + extension |
 
-**Suggested ship order:** HOC → light-dataflow → cross-file → finite-keys → HOC props (opt-in) → AST tier → extension → provider registry.
+**Suggested ship order:** ~~HOC §A~~ → light-dataflow → cross-file → finite-keys → HOC §B props (opt-in) → AST tier → extension → provider registry.
 
 ---
 
@@ -113,7 +114,7 @@ Rules: lazy skips inside `fast`; indexes built once per scan; dogfood benchmark 
 ## Where to start (next slice)
 
 1. Triage open inventory items tagged to this hub ([`inventory.md`](../../../docs/edge-cases/unsolved/inventory.md)).
-2. Pick the next row from **Phase index** — start with **HOC** unless a smaller inventory fix is blocking.
+2. Pick the next row from **Phase index** — **HOC §A done**; resume at **light-dataflow**, unless a smaller inventory fix is blocking.
 3. Keep parity discipline: `--json` envelope, issue codes, exit codes unchanged on refactors (additive JSON only).
 
 ---

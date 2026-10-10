@@ -136,7 +136,7 @@ CLI **`--json`** envelopes use stable **`issues[].code`** values and **`meta.api
 
 ## Known extraction limits
 
-Static analysis is heuristic, not full TypeScript semantics. Patterns such as **`const { t } = useTranslation()`** (hook destructuring) may not resolve today. See [Regex and static-analysis limits](../architecture/extraction/regex.md) and the [unsolved inventory](../edge-cases/unsolved/inventory.md).
+Static analysis is heuristic, not full TypeScript semantics. Same-file one-hop aliases and preset hooks (`useTranslation` / `useTranslations` → `t`) are covered; multi-hop and prop/HOC `t` are not. See [Regex and static-analysis limits](../architecture/extraction/regex.md) and the [unsolved inventory](../edge-cases/unsolved/inventory.md).
 
 ## Related
 

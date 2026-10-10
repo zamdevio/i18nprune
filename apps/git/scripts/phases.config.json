@@ -168,15 +168,17 @@
   },
   {
     "week": "2026-W37",
-    "label": "Week 37 — preserve-sync + docs home",
-    "theme": "copyPrefixes hydrate, uncertainPrefixes, retain JSON; VitePress layout home; toward 1.0.3",
+    "label": "Week 37 — preserve-sync + HOC §A",
+    "theme": "copyPrefixes hydrate + retain JSON; VitePress home; extractor hooks/one-hop; 1.0.3",
     "color": "teal",
     "shipped": [
       "P0 — sync retain+hydrate for copyPrefixes / uncertainPrefixes / copyKeys",
       "P2 — scanExtrasRetained JSON + richer scan_extras_retained issues",
       "docs — policies/sync/issues preserve contract + drop-anchor migration",
       "docs site — VitePress layout:home from apps/docs/index.md",
-      "receipt maintainer/shipped/locale/preserve-sync.md"
+      "receipt maintainer/shipped/locale/preserve-sync.md",
+      "extractor HOC §A — hook presets + one-hop aliases (expandEffectiveFunctions)",
+      "receipt maintainer/shipped/extractor/hoc-a.md"
     ]
   }
 ]
