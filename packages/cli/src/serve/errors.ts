@@ -67,6 +67,15 @@ export function notInitialized(): ProtocolError {
   );
 }
 
+/** A mutating op was requested on a read-only session (no `--allow-writes`). */
+export function writesDisabled(method: string): ProtocolError {
+  return new ProtocolError(
+    JSONRPC_INVALID_REQUEST,
+    `Method ${method} mutates disk — start the session with --allow-writes to enable it`,
+    SERV_ISSUE.writesDisabled,
+  );
+}
+
 export function internalError(message: string): ProtocolError {
   return new ProtocolError(JSONRPC_INTERNAL_ERROR, message, SERV_ISSUE.internalError);
 }

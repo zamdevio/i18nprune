@@ -9,6 +9,18 @@ import { cliSpawnEnv } from '../helpers/cliEnv.js';
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
 const fixture = path.join(root, 'tests/fixtures/sample-i18n');
+const fixturesDir = path.join(root, 'tests/fixtures');
+
+/**
+ * Copy the whole `tests/fixtures` tree into a temp dir and return the `sample-i18n` root. The tree
+ * (not just the fixture) is copied because `i18nprune.config.mjs` imports `../shared/fixtureTranslate.mjs`.
+ * Only used by write tests, which mutate locale files and must not touch the checked-in fixture.
+ */
+function copyFixtureTree(): { tmp: string; projectRoot: string } {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-fixtures-'));
+  fs.cpSync(fixturesDir, tmp, { recursive: true });
+  return { tmp, projectRoot: path.join(tmp, 'sample-i18n') };
+}
 
 /**
  * Serve is launched from a config-less temp cwd on purpose: the direct CLI resolves the fixture's
@@ -129,7 +141,7 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
     await waitFor(() => h.frames().length >= 1);
     const res = (JSON.parse(h.frames()[0]!) as { result: { capabilities: { ops: string[] } } }).result;
-    expect(res.capabilities.ops).toEqual(['config', 'doctor', 'validate', 'languages', 'providers']);
+    expect(res.capabilities.ops).toEqual(['config', 'doctor', 'validate', 'languages', 'providers', 'sync']);
     h.child.stdin.end();
     await h.exited;
   });
@@ -167,8 +179,65 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     expect(frames.find((f) => f.id === 2)!.result.kind).toBe('config');
   });
 
-  it('a read-only session writes nothing to disk; --allow-writes does', async () => {
-    const runOp = async (extraArgs: string[], extraEnv: NodeJS.ProcessEnv) => {
+  it('op.sync is refused on a read-only session and writes nothing', async () => {
+    const { tmp, projectRoot } = copyFixtureTree();
+    try {
+      const fr = path.join(projectRoot, 'locales', 'fr.json');
+      const frObj = JSON.parse(fs.readFileSync(fr, 'utf8')) as Record<string, unknown>;
+      delete frObj.help; // introduce drift sync would otherwise repair
+      const drifted = `${JSON.stringify(frObj, null, 2)}\n`;
+      fs.writeFileSync(fr, drifted);
+
+      const h = spawnServe(['--project', projectRoot], neutralCwd);
+      h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
+      await waitFor(() => h.frames().length >= 1);
+      h.send({ jsonrpc: '2.0', id: 2, method: 'op.sync', params: { options: {} } });
+      await waitFor(() => h.frames().some((l) => (JSON.parse(l) as { id?: number }).id === 2));
+      h.child.stdin.end();
+      await h.exited;
+
+      const err = (JSON.parse(h.frames().find((l) => (JSON.parse(l) as { id?: number }).id === 2)!) as {
+        error: { data: { code: string } };
+      }).error;
+      expect(err.data.code).toBe('SERVE_WRITES_DISABLED');
+      // The refusal happened before any write: the drifted file is untouched.
+      expect(fs.readFileSync(fr, 'utf8')).toBe(drifted);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it('op.sync actually writes locale files when the session has --allow-writes', async () => {
+    const { tmp, projectRoot } = copyFixtureTree();
+    try {
+      const fr = path.join(projectRoot, 'locales', 'fr.json');
+      const frObj = JSON.parse(fs.readFileSync(fr, 'utf8')) as Record<string, unknown>;
+      delete frObj.help;
+      const drifted = `${JSON.stringify(frObj, null, 2)}\n`;
+      fs.writeFileSync(fr, drifted);
+
+      const h = spawnServe(['--project', projectRoot, '--allow-writes'], neutralCwd);
+      h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
+      await waitFor(() => h.frames().length >= 1);
+      h.send({ jsonrpc: '2.0', id: 2, method: 'op.sync', params: { options: {} } });
+      await waitFor(() => h.frames().some((l) => (JSON.parse(l) as { id?: number }).id === 2));
+      h.child.stdin.end();
+      await h.exited;
+
+      const result = (JSON.parse(h.frames().find((l) => (JSON.parse(l) as { id?: number }).id === 2)!) as {
+        result: { kind: string; data: { writtenFiles: number } };
+      }).result;
+      expect(result.kind).toBe('sync');
+      expect(result.data.writtenFiles).toBe(1);
+      // The write landed on disk: the dropped namespace came back.
+      expect(fs.readFileSync(fr, 'utf8')).not.toBe(drifted);
+      expect(fs.readFileSync(fr, 'utf8')).toContain('help');
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it('a read-only session writes nothing to disk; --allow-writes does', async () => {    const runOp = async (extraArgs: string[], extraEnv: NodeJS.ProcessEnv) => {
       const h = spawnServe(['--project', fixture, ...extraArgs], neutralCwd, extraEnv);
       h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
       await waitFor(() => h.frames().length >= 1);

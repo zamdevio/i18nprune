@@ -30,9 +30,13 @@ export { ProtocolError, SERV_ISSUE, type ServeIssueCode } from './errors.js';
 export { LineReader } from './lineReader.js';
 export { buildInitializeResult, type ServeInitializeResult } from './handshake.js';
 export {
-  runServeReadOp,
+  runServeOp,
+  SERVE_OP_METHODS,
   SERVE_READ_OP_METHODS,
+  SERVE_WRITE_OP_METHODS,
+  type ServeOpId,
   type ServeReadOpId,
+  type ServeWriteOpId,
   type ServeReadOpContext,
   type ServeReadOpResult,
 } from './ops.js';

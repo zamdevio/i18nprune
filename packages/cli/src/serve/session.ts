@@ -21,11 +21,13 @@ import {
   invalidRequest,
   methodNotFound,
   notInitialized,
+  writesDisabled,
 } from './errors.js';
 import { buildInitializeResult, type ServeInitializeResult } from './handshake.js';
 import { resolveRequestRoot, type ServeRootConfig } from './roots.js';
 import { RootContextCache, type RootContextCacheHost } from './rootContextCache.js';
-import { runServeReadOp, SERVE_READ_OP_METHODS, type ServeReadOpId } from './ops.js';
+import { runServeOp, SERVE_OP_METHODS, type ServeOpId } from './ops.js';
+import { SERVE_WRITE_OPS } from '@/constants/serve.js';
 import { getRunOptions, type RunEvent } from '@i18nprune/core';
 import type { Context, CliGlobalOverrides } from '@/types/core/context/index.js';
 
@@ -232,15 +234,19 @@ export class ServeSession {
     }
   }
 
-  /** Route `op.*` methods to read ops; unknown / not-yet-wired methods are method-not-found. */
+  /** Route `op.*` methods to their op; unknown / not-yet-wired methods are method-not-found. */
   private async dispatchOp(msg: JsonRpcInboundMessage, signal: AbortSignal): Promise<unknown> {
-    const opId = (SERVE_READ_OP_METHODS as Record<string, ServeReadOpId | undefined>)[msg.method];
+    const opId = (SERVE_OP_METHODS as Record<string, ServeOpId | undefined>)[msg.method];
     if (opId === undefined) throw methodNotFound(msg.method);
+    // Write ops are refused on a read-only session before any context resolve or core call.
+    if (SERVE_WRITE_OPS.has(opId) && !this.deps.writes) {
+      throw writesDisabled(msg.method);
+    }
     const p = this.asParamsObject(msg.params);
     const root = this.resolveRoot(typeof p.projectRoot === 'string' ? p.projectRoot : undefined);
     const options = this.asOptionsObject(p.options);
     const id = msg.id!;
-    const result = await runServeReadOp(opId, {
+    const result = await runServeOp(opId, {
       projectRoot: root,
       run: this.deps.run,
       cliOverrides: this.deps.cliOverrides,
@@ -250,6 +256,7 @@ export class ServeSession {
       emit: (event) => this.forwardProgress(id, event),
       signal,
       getContext: (allowWrites) => this.rootCache.get(root, allowWrites !== true),
+      onWrote: (writtenRoot) => this.rootCache.invalidate(writtenRoot),
     });
     return result.envelope;
   }

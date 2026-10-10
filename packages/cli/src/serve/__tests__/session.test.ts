@@ -63,10 +63,11 @@ describe('ServeSession — handshake', () => {
     expect(res.rootMode).toBe('sandbox');
     expect(res.projectRoot).toBe(path.resolve('/srv/proj'));
     expect(res.capabilities).toEqual({
-      ops: ['config', 'doctor', 'validate', 'languages', 'providers'],
+      ops: ['config', 'doctor', 'validate', 'languages', 'providers', 'sync'],
       progress: true,
-      progressOps: ['validate'],
-      cancel: false,
+      progressOps: ['validate', 'sync'],
+      writeOps: ['sync'],
+      cancelScope: 'queued',
       writes: true,
     });
   });
@@ -122,7 +123,7 @@ describe('ServeSession — utility + unknown methods', () => {
   it('returns method-not-found for an op method that has no slice', async () => {
     const h = makeHarness();
     await init(h);
-    await send(h, { jsonrpc: '2.0', id: 2, method: 'op.sync' });
+    await send(h, { jsonrpc: '2.0', id: 2, method: 'op.review' });
     const err = parse(h.lines()[1]!).error as Record<string, unknown>;
     expect(err.code).toBe(-32601);
     expect((err.data as Record<string, unknown>).code).toBe('SERVE_METHOD_NOT_FOUND');
@@ -276,6 +277,35 @@ describe('ServeSession — progress + cancel (S.3)', () => {
     expect(h.lines().length).toBe(1);
     await send(h, { jsonrpc: '2.0', id: 2, method: 'ping' });
     expect(parse(h.lines()[1]!).result).toEqual({});
+  });
+});
+
+describe('ServeSession — write gating (S.4)', () => {
+  it('refuses a write op on a read-only session with SERVE_WRITES_DISABLED', async () => {
+    const h = makeHarness({ writes: false });
+    await init(h);
+    await send(h, {
+      jsonrpc: '2.0',
+      id: 2,
+      method: 'op.sync',
+      params: { projectRoot: path.resolve('/tmp'), options: {} },
+    });
+    const err = parse(h.lines()[1]!).error as Record<string, unknown>;
+    expect(err.code).toBe(-32600);
+    expect((err.data as Record<string, unknown>).code).toBe('SERVE_WRITES_DISABLED');
+  });
+
+  it('lets a write op through on a write session', async () => {
+    const h = makeHarness({ writes: true });
+    await init(h);
+    await send(h, {
+      jsonrpc: '2.0',
+      id: 2,
+      method: 'op.sync',
+      params: { projectRoot: path.resolve('/tmp'), options: { dryRun: true } },
+    });
+    const result = parse(h.lines()[1]!).result as { kind?: string };
+    expect(result.kind).toBe('sync');
   });
 });
 

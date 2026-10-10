@@ -5,17 +5,31 @@ import { runDoctor } from '@/commands/doctor/jsonEnvelope.js';
 import { runValidate, emptyValidateData } from '@/commands/validate/jsonEnvelope.js';
 import { runLanguages } from '@/commands/languages/jsonEnvelope.js';
 import { runProviders } from '@/commands/providers/jsonEnvelope.js';
+import { runSyncJsonEnvelope, emptySyncPayload } from '@/commands/sync/jsonEnvelope.js';
+import { applyCommandPatching } from '@/shared/patching/apply.js';
+import { invalidateProjectAnalysisCacheForContext } from '@/shared/cache/index.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
 import { mergeIssues } from '@/shared/result/index.js';
 import { resolveConfigFilePathForRoot } from '@/shared/config/paths.js';
 import { ProtocolError, SERV_ISSUE } from './errors.js';
 import { JSONRPC_INVALID_REQUEST } from './protocol.js';
+import type { SyncOptions } from '@/types/command/sync/index.js';
 
 /**
  * A read-only operation a `serve` client can invoke. Each mirrors the matching CLI command's
  * `--json` output (ADR 012 §4: results reuse the CLI JSON envelope).
  */
 export type ServeReadOpId = 'config' | 'doctor' | 'validate' | 'languages' | 'providers';
+
+/**
+ * A write operation a `serve` client can invoke (opt-in via `--allow-writes`). Each mutates disk and
+ * mirrors the matching CLI command's `--json` output, including the post-envelope side effects the
+ * CLI would run (patching, cache invalidation).
+ */
+export type ServeWriteOpId = 'sync';
+
+/** Every op this server can serve. */
+export type ServeOpId = ServeReadOpId | ServeWriteOpId;
 
 /** `op.<id>` JSON-RPC method → read op id. */
 export const SERVE_READ_OP_METHODS = {
@@ -25,6 +39,17 @@ export const SERVE_READ_OP_METHODS = {
   'op.languages': 'languages',
   'op.providers': 'providers',
 } as const satisfies Record<string, ServeReadOpId>;
+
+/** `op.<id>` JSON-RPC method → write op id. */
+export const SERVE_WRITE_OP_METHODS = {
+  'op.sync': 'sync',
+} as const satisfies Record<string, ServeWriteOpId>;
+
+/** `op.<id>` JSON-RPC method → op id, across reads and writes. */
+export const SERVE_OP_METHODS: Record<string, ServeOpId> = {
+  ...SERVE_READ_OP_METHODS,
+  ...SERVE_WRITE_OP_METHODS,
+};
 
 export type ServeReadOpContext = {
   /** Resolved project root (sandbox pin or hub request root). */
@@ -51,6 +76,11 @@ export type ServeReadOpContext = {
   readonly signal?: AbortSignal;
   /** Lazily resolve the per-root context (session-backed cache). `languages` never calls it. */
   readonly getContext: (allowWrites?: boolean) => Promise<Context>;
+  /**
+   * Called after a write op mutates disk, so the session can drop that root's cached context (its
+   * `localeRead` and analysis state are now stale). No-op for read ops.
+   */
+  readonly onWrote?: (root: string) => void;
 };
 
 export type ServeReadOpResult = {
@@ -68,10 +98,11 @@ function asBoolean(value: unknown): boolean {
 }
 
 /**
- * Run one read op and return the envelope plus its serialized form. Never writes to any stream —
- * the session owns stdout.
+ * Run one op and return the envelope plus its serialized form. Never writes to any stream — the
+ * session owns stdout. Write ops are gated on `ctx.allowWrites`; a read-only session gets a
+ * `SERVE_WRITES_DISABLED` error before any core call.
  */
-export async function runServeReadOp(id: ServeReadOpId, ctx: ServeReadOpContext): Promise<ServeReadOpResult> {
+export async function runServeOp(id: ServeOpId, ctx: ServeReadOpContext): Promise<ServeReadOpResult> {
   // Cancellation is observed at dispatch boundaries only: core accepts no AbortSignal, so a cancelled
   // request is refused before the (synchronous) op starts rather than interrupted mid-flight. See
   // `SERVE_CANCELLATION_SUPPORTED`.
@@ -114,9 +145,13 @@ export async function runServeReadOp(id: ServeReadOpId, ctx: ServeReadOpContext)
       const envelope = doctorEnvelope(context, ctx.projectRoot, ctx.options);
       return { envelope, json: stringifyEnvelope(envelope) };
     }
+    case 'sync': {
+      const envelope = await syncEnvelope(context, ctx, { emit, runId });
+      return { envelope, json: stringifyEnvelope(envelope) };
+    }
     default: {
       const exhaustive: never = id;
-      throw new Error(`Unhandled serve read op: ${String(exhaustive)}`);
+      throw new Error(`Unhandled serve op: ${String(exhaustive)}`);
     }
   }
 }
@@ -169,4 +204,63 @@ function doctorEnvelope(
     envelope = { ...envelope, issues: mergeIssues(envelope.issues, readinessList), ok: false };
   }
   return envelope;
+}
+
+/**
+ * Sync `--json` orchestration, write-capable. Mirrors the CLI's `--json` branch of
+ * `commands/sync/run.ts`: readiness short-circuit, core sync, then the post-envelope side effects the
+ * CLI also runs — best-effort patching and analysis-cache invalidation — and finally drops the root's
+ * cached context so the next read sees the new files.
+ */
+async function syncEnvelope(
+  context: Context,
+  ctx: ServeReadOpContext,
+  runtime: { emit?: RunEmitter; runId?: string },
+): Promise<CliJsonEnvelope<string, unknown>> {
+  const opts = syncOptionsFrom(ctx.options);
+  const readiness = cliReadinessIssues(context, { mode: 'preset', preset: 'sync' });
+  if (readiness) {
+    return buildCliJsonEnvelope('sync', emptySyncPayload(context, opts), {
+      ok: false,
+      issues: readiness,
+      cwd: context.adapters.system.cwd(),
+    }) as CliJsonEnvelope<string, unknown>;
+  }
+
+  const { envelope, result } = runSyncJsonEnvelope(context, opts, {
+    emit: runtime.emit ?? noopRunEmitter,
+    runId: runtime.runId ?? String(Date.now()),
+  });
+
+  if (result !== undefined) {
+    const { fileLines, updated } = result;
+    if (opts.dryRun !== true && updated > 0) {
+      const changedLocaleCodes = fileLines
+        .filter((row) => row.changed)
+        .map((row) => context.adapters.path.basename(row.path, '.json'));
+      await applyCommandPatching({
+        ctx: context,
+        command: 'sync',
+        action: 'upsert_locales',
+        localeCodes: changedLocaleCodes,
+      });
+      const writtenLocalePaths = fileLines.filter((row) => row.changed).map((row) => row.path);
+      invalidateProjectAnalysisCacheForContext(context, { writtenLocalePaths });
+      // The root's locale files changed on disk: drop the cached context so the next read re-reads.
+      ctx.onWrote?.(ctx.projectRoot);
+    }
+  }
+
+  return envelope as CliJsonEnvelope<string, unknown>;
+}
+
+/** Map `params.options` to core `SyncOptions`, accepting only known keys (unknown keys ignored). */
+function syncOptionsFrom(options: Record<string, unknown>): SyncOptions {
+  return {
+    dryRun: asBoolean(options.dryRun),
+    target: asString(options.target),
+    metadata: asBoolean(options.metadata),
+    stripMetadata: asBoolean(options.stripMetadata),
+    noRepairSentinelLeaks: asBoolean(options.noRepairSentinelLeaks),
+  };
 }

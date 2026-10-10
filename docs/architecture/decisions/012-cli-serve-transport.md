@@ -57,13 +57,13 @@ Notifications omit `id`. Errors use the standard `error: { code, message, data? 
   "apiVersion": "1",
   "rootMode": "sandbox",
   "projectRoot": "/home/me/proj",
-  "capabilities": { "ops": ["validate", "sync", "generate", "…"], "progress": true, "progressOps": ["validate"], "cancel": false, "writes": false }
+  "capabilities": { "ops": ["validate", "sync", "generate", "…"], "progress": true, "progressOps": ["validate", "sync"], "writeOps": ["sync"], "cancelScope": "queued", "writes": false }
 }
 ```
 
 The client must send `protocolVersion` and **fail closed** on an unsupported value rather than guess. `capabilities.writes` reports whether mutating ops are enabled for this session; `rootMode` is `"sandbox"` (pinned) or `"hub"` (per-request root). No client id is required or used in v1.
 
-`capabilities.progress` is true when at least one op streams `$/progress`, and `progressOps` names exactly which ops do — a client must not assume every op reports progress. `capabilities.cancel` is `false` until core can be interrupted mid-op: with no `AbortSignal` in core, a running op cannot be stopped, and a capability the server cannot honour is not advertised. `$/cancelRequest` still refuses a request that has not started.
+`capabilities.progress` is true when at least one op streams `$/progress`, and `progressOps` names exactly which ops do — a client must not assume every op reports progress. `capabilities.writeOps` names the mutating methods, each refused unless the session has `--allow-writes`. `capabilities.cancelScope` reports the honest cancellation **tier** rather than a bare boolean: `'queued'` means a request cancelled before it starts is refused (a running op cannot be interrupted — core accepts no `AbortSignal`), `'running'` means a running op can be aborted, and `'none'` is reserved. Advertising a capability the server cannot honour is the failure mode this shape exists to prevent.
 
 ### Lifecycle and utility
 
@@ -126,7 +126,7 @@ Mutating methods return an error unless `capabilities.writes` is true for the se
 Two honesty constraints:
 
 - **Per-op, not universal.** Only ops whose core entry path emits `run.*` events stream progress — today `validate` (via `runValidate`). `config`, `doctor`, and `providers` call `runXxx` directly and emit nothing, so `capabilities.progressOps` lists just `["validate"]`.
-- **Cancellation is pre-dispatch only.** `$/cancelRequest` aborts a request that has not started (it gets `SERVE_REQUEST_CANCELLED`). A request already running cannot be interrupted — core accepts no `AbortSignal` — so `capabilities.cancel` is `false`. Advertising otherwise would promise a hang-free cancel the server cannot deliver.
+- **Pre-dispatch only.** `$/cancelRequest` aborts a request that has not started (it gets `SERVE_REQUEST_CANCELLED`). A request already running cannot be interrupted — core accepts no `AbortSignal` — so `capabilities.cancelScope` is `'queued'`. Advertising `'running'` would promise a hang-free cancel the server cannot deliver.
 
 ### Lifecycle details
 

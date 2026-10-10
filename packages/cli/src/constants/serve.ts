@@ -42,25 +42,40 @@ export const SERVE_IMPLEMENTED_OPS: readonly string[] = [
   'validate',
   'languages',
   'providers',
+  'sync',
 ];
 
-/** Op methods that mutate disk. Reserved for the S.4 write slice (gated by `--allow-writes`). */
-export const SERVE_WRITE_OPS: ReadonlySet<string> = new Set<string>();
-
 /**
- * Op methods that stream `$/progress` notifications (S.3). Only ops whose core entry path emits
- * `run.*` events qualify — today just `validate`, via `runValidate`. The read ops that call
- * `runXxx` directly (`config`, `doctor`, `providers`) emit nothing, so they are not listed; a client
- * must not expect progress from them.
+ * Op methods that mutate disk; each is refused unless the session has `--allow-writes`. Every name
+ * here must also appear in {@link SERVE_IMPLEMENTED_OPS} — a write op that is not implemented is a
+ * mistake, not a reservation.
  */
-export const SERVE_PROGRESS_OPS: ReadonlySet<string> = new Set<string>(['validate']);
+export const SERVE_WRITE_OPS: ReadonlySet<string> = new Set<string>(['sync']);
 
 /**
- * Whether this build can honour a running-request cancellation.
+ * Op methods that stream `$/progress` notifications. Only ops whose core entry path emits `run.*`
+ * events qualify. `config`, `doctor`, and `providers` call `runXxx` directly and emit nothing;
+ * `cleanup` is read-only in core and emits nothing; `locales.delete` emits nothing. A client must not
+ * expect progress from an op that is not listed.
+ */
+export const SERVE_PROGRESS_OPS: ReadonlySet<string> = new Set<string>(['validate', 'sync']);
+
+/**
+ * Whether this build can honour a cancellation of a *running* op.
  *
  * **`false` on purpose, for now.** Cancellation is only real if the in-flight op can be interrupted;
- * core accepts no `AbortSignal`, and the serve read ops run synchronously. Advertising `true` would
- * promise a capability the server cannot deliver, so the honest value is `false`. Flipping this to
- * `true` is gated on threading `AbortSignal` through the long-running core ops (generation/sync).
+ * core accepts no `AbortSignal`, and the serve ops are synchronous. Advertising `true` would promise
+ * a capability the server cannot deliver. Flipping this to `true` is gated on threading
+ * `AbortSignal` through the long-running core ops (generation/sync).
+ *
+ * The handshake reports the honest tier as `capabilities.cancelScope`:
+ * - `'none'`    — no cancellation at all (never used yet; reserved).
+ * - `'queued'`  — a request cancelled before it starts is refused; a running op cannot be stopped.
+ * - `'running'` — a running op can be aborted (requires {@link SERVE_CANCELLATION_SUPPORTED}).
  */
 export const SERVE_CANCELLATION_SUPPORTED = false;
+
+/** The cancel tier this build actually delivers. See {@link SERVE_CANCELLATION_SUPPORTED}. */
+export const SERVE_CANCEL_SCOPE: 'none' | 'queued' | 'running' = SERVE_CANCELLATION_SUPPORTED
+  ? 'running'
+  : 'queued';
