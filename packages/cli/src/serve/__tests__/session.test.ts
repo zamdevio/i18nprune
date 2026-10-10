@@ -64,7 +64,8 @@ describe('ServeSession — handshake', () => {
     expect(res.projectRoot).toBe(path.resolve('/srv/proj'));
     expect(res.capabilities).toEqual({
       ops: ['config', 'doctor', 'validate', 'languages', 'providers'],
-      progress: false,
+      progress: true,
+      progressOps: ['validate'],
       cancel: false,
       writes: true,
     });
@@ -239,6 +240,42 @@ describe('ServeSession — op routing (S.2)', () => {
     const result = parse(h.lines()[1]!).result as { kind: string; ok: boolean };
     expect(result.kind).toBe('languages');
     expect(result.ok).toBe(true);
+  });
+});
+
+describe('ServeSession — progress + cancel (S.3)', () => {
+  it('refuses a request cancelled before dispatch, and keeps serving', async () => {
+    const h = makeHarness();
+    await init(h);
+    // Both lines in one chunk: the request is enqueued, then cancelled before its microtask runs.
+    h.session.handleChunk(
+      Buffer.from(
+        `${JSON.stringify({
+          jsonrpc: '2.0',
+          id: 2,
+          method: 'op.config',
+          params: { projectRoot: path.resolve('/tmp') },
+        })}\n${JSON.stringify({ jsonrpc: '2.0', method: '$/cancelRequest', params: { id: 2 } })}\n`,
+        'utf8',
+      ),
+    );
+    await h.session.drain();
+    const err = parse(h.lines()[1]!).error as Record<string, unknown>;
+    expect(err.code).toBe(-32600);
+    expect((err.data as Record<string, unknown>).code).toBe('SERVE_REQUEST_CANCELLED');
+
+    await send(h, { jsonrpc: '2.0', id: 3, method: 'ping' });
+    expect(parse(h.lines()[2]!).result).toEqual({});
+  });
+
+  it('ignores $/cancelRequest for an unknown id', async () => {
+    const h = makeHarness();
+    await init(h);
+    await send(h, { jsonrpc: '2.0', method: '$/cancelRequest', params: { id: 999 } });
+    // A notification produces no reply: only the init result is on stdout.
+    expect(h.lines().length).toBe(1);
+    await send(h, { jsonrpc: '2.0', id: 2, method: 'ping' });
+    expect(parse(h.lines()[1]!).result).toEqual({});
   });
 });
 

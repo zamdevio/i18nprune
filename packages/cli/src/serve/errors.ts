@@ -25,6 +25,7 @@ export const SERV_ISSUE = {
   writesDisabled: 'SERVE_WRITES_DISABLED',
   shuttingDown: 'SERVE_SHUTTING_DOWN',
   lineTooLong: 'SERVE_LINE_TOO_LONG',
+  requestCancelled: 'SERVE_REQUEST_CANCELLED',
   internalError: 'SERVE_INTERNAL_ERROR',
 } as const;
 

@@ -50,8 +50,10 @@ async function callServe(method: string, options?: Record<string, unknown>): Pro
   h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
   await waitFor(() => h.frames().length >= 1);
   h.send({ jsonrpc: '2.0', id: 2, method, params: { options: options ?? {} } });
-  await waitFor(() => h.frames().length >= 2);
-  const result = (JSON.parse(h.frames()[1]!) as { result: Record<string, unknown> }).result;
+  // Progress ops (`validate`) emit `$/progress` frames first; select the result by id.
+  const isResult = (l: string) => (JSON.parse(l) as { id?: number }).id === 2;
+  await waitFor(() => h.frames().some(isResult));
+  const result = (JSON.parse(h.frames().find(isResult)!) as { result: Record<string, unknown> }).result;
   h.child.stdin.end();
   await h.exited;
   return result;
@@ -130,6 +132,39 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     expect(res.capabilities.ops).toEqual(['config', 'doctor', 'validate', 'languages', 'providers']);
     h.child.stdin.end();
     await h.exited;
+  });
+
+  it('streams $/progress for op.validate and still returns the envelope', async () => {
+    const h = spawnServe(['--project', fixture], neutralCwd);
+    h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
+    await waitFor(() => h.frames().length >= 1);
+    h.send({ jsonrpc: '2.0', id: 7, method: 'op.validate', params: { options: {} } });
+    await waitFor(() => h.frames().some((l) => (JSON.parse(l) as { id?: number }).id === 7));
+    h.child.stdin.end();
+    await h.exited;
+
+    const frames = h.frames().map((l) => JSON.parse(l) as Record<string, any>);
+    const progress = frames.filter((f) => f.method === '$/progress');
+    expect(progress.length).toBeGreaterThan(0);
+    // Every progress frame is keyed to the request id and carries a verbatim `run.*` event.
+    expect(progress.every((f) => f.params.id === 7 && typeof f.params.event.type === 'string')).toBe(true);
+
+    const result = frames.find((f) => f.id === 7)!;
+    expect(result.result.kind).toBe('validate');
+  });
+
+  it('does not stream progress for a non-progress op (op.config)', async () => {
+    const h = spawnServe(['--project', fixture], neutralCwd);
+    h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
+    await waitFor(() => h.frames().length >= 1);
+    h.send({ jsonrpc: '2.0', id: 2, method: 'op.config', params: { options: {} } });
+    await waitFor(() => h.frames().some((l) => (JSON.parse(l) as { id?: number }).id === 2));
+    h.child.stdin.end();
+    await h.exited;
+
+    const frames = h.frames().map((l) => JSON.parse(l) as Record<string, any>);
+    expect(frames.some((f) => f.method === '$/progress')).toBe(false);
+    expect(frames.find((f) => f.id === 2)!.result.kind).toBe('config');
   });
 
   it('a read-only session writes nothing to disk; --allow-writes does', async () => {

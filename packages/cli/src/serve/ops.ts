@@ -1,13 +1,15 @@
-import { stringifyEnvelope, buildCliJsonEnvelope, noopRunEmitter, type CliJsonEnvelope } from '@i18nprune/core';
+import { stringifyEnvelope, buildCliJsonEnvelope, noopRunEmitter, type CliJsonEnvelope, type RunEmitter } from '@i18nprune/core';
 import type { Context, CliGlobalOverrides } from '@/types/core/context/index.js';
 import { runConfig } from '@/commands/config/jsonEnvelope.js';
 import { runDoctor } from '@/commands/doctor/jsonEnvelope.js';
-import { executeValidateCore, emptyValidateData } from '@/commands/validate/jsonEnvelope.js';
+import { runValidate, emptyValidateData } from '@/commands/validate/jsonEnvelope.js';
 import { runLanguages } from '@/commands/languages/jsonEnvelope.js';
 import { runProviders } from '@/commands/providers/jsonEnvelope.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
 import { mergeIssues } from '@/shared/result/index.js';
 import { resolveConfigFilePathForRoot } from '@/shared/config/paths.js';
+import { ProtocolError, SERV_ISSUE } from './errors.js';
+import { JSONRPC_INVALID_REQUEST } from './protocol.js';
 
 /**
  * A read-only operation a `serve` client can invoke. Each mirrors the matching CLI command's
@@ -38,6 +40,15 @@ export type ServeReadOpContext = {
    * cache file or directory is written. `true` only once the session has `--allow-writes`.
    */
   readonly allowWrites: boolean;
+  /**
+   * JSON-RPC request id for this op, used as the `$/progress` key. `undefined` disables progress
+   * forwarding (and uses the no-op emitter, so envelopes stay byte-identical).
+   */
+  readonly progressId?: string | number;
+  /** Forward a `run.*` event to the client as `$/progress`. No-op when absent. */
+  readonly emit?: RunEmitter;
+  /** Aborted when the client cancels this request before dispatch. Checked before any core call. */
+  readonly signal?: AbortSignal;
   /** Lazily resolve the per-root context (session-backed cache). `languages` never calls it. */
   readonly getContext: (allowWrites?: boolean) => Promise<Context>;
 };
@@ -61,6 +72,16 @@ function asBoolean(value: unknown): boolean {
  * the session owns stdout.
  */
 export async function runServeReadOp(id: ServeReadOpId, ctx: ServeReadOpContext): Promise<ServeReadOpResult> {
+  // Cancellation is observed at dispatch boundaries only: core accepts no AbortSignal, so a cancelled
+  // request is refused before the (synchronous) op starts rather than interrupted mid-flight. See
+  // `SERVE_CANCELLATION_SUPPORTED`.
+  if (ctx.signal?.aborted) {
+    throw new ProtocolError(JSONRPC_INVALID_REQUEST, 'Request cancelled', SERV_ISSUE.requestCancelled);
+  }
+
+  const emit = ctx.emit;
+  const runId = ctx.progressId === undefined ? undefined : String(ctx.progressId);
+
   // `languages` is a static catalog: no project config, no context resolve.
   if (id === 'languages') {
     const envelope = runLanguages(
@@ -72,6 +93,10 @@ export async function runServeReadOp(id: ServeReadOpId, ctx: ServeReadOpContext)
 
   const context = await ctx.getContext(ctx.allowWrites);
 
+  if (ctx.signal?.aborted) {
+    throw new ProtocolError(JSONRPC_INVALID_REQUEST, 'Request cancelled', SERV_ISSUE.requestCancelled);
+  }
+
   switch (id) {
     case 'config': {
       const envelope = runConfig(context, resolveConfigFilePathForRoot(ctx.projectRoot)) as CliJsonEnvelope<string, unknown>;
@@ -82,7 +107,7 @@ export async function runServeReadOp(id: ServeReadOpId, ctx: ServeReadOpContext)
       return { envelope, json: stringifyEnvelope(envelope) };
     }
     case 'validate': {
-      const envelope = validateEnvelope(context);
+      const envelope = validateEnvelope(context, { emit, runId });
       return { envelope, json: stringifyEnvelope(envelope) };
     }
     case 'doctor': {
@@ -99,8 +124,12 @@ export async function runServeReadOp(id: ServeReadOpId, ctx: ServeReadOpContext)
 /**
  * Validate `--json` orchestration: a blocking readiness issue short-circuits to an empty envelope,
  * otherwise the core result is returned. Mirrors `commands/validate/run.ts` json branch.
+ *
+ * Progress flows through `runValidate`, which emits `run.started` / `run.progress.validate` /
+ * `run.completed` / `run.summary`; with no emitter those events are no-ops and the envelope is
+ * byte-identical to the CLI's.
  */
-function validateEnvelope(context: Context): CliJsonEnvelope<string, unknown> {
+function validateEnvelope(context: Context, runtime: { emit?: RunEmitter; runId?: string }): CliJsonEnvelope<string, unknown> {
   const readinessIssues = cliReadinessIssues(context, { mode: 'preset', preset: 'validate' });
   if (readinessIssues) {
     return buildCliJsonEnvelope('validate', emptyValidateData(), {
@@ -109,8 +138,10 @@ function validateEnvelope(context: Context): CliJsonEnvelope<string, unknown> {
       cwd: context.adapters.system.cwd(),
     }) as CliJsonEnvelope<string, unknown>;
   }
-  const { envelope } = executeValidateCore(context, { runId: String(Date.now()), emit: noopRunEmitter });
-  return envelope as CliJsonEnvelope<string, unknown>;
+  return runValidate(context, {
+    emit: runtime.emit ?? noopRunEmitter,
+    runId: runtime.runId ?? String(Date.now()),
+  }) as CliJsonEnvelope<string, unknown>;
 }
 
 /**

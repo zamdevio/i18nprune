@@ -3,6 +3,7 @@ import {
   JSONRPC_INVALID_REQUEST,
   JSONRPC_PARSE_ERROR,
   buildError,
+  buildNotification,
   buildResult,
   parseLine,
   serializeMessage,
@@ -25,7 +26,7 @@ import { buildInitializeResult, type ServeInitializeResult } from './handshake.j
 import { resolveRequestRoot, type ServeRootConfig } from './roots.js';
 import { RootContextCache, type RootContextCacheHost } from './rootContextCache.js';
 import { runServeReadOp, SERVE_READ_OP_METHODS, type ServeReadOpId } from './ops.js';
-import { getRunOptions } from '@i18nprune/core';
+import { getRunOptions, type RunEvent } from '@i18nprune/core';
 import type { Context, CliGlobalOverrides } from '@/types/core/context/index.js';
 
 /** The only two channels the session may write: protocol on stdout, diagnostics on stderr. */
@@ -79,6 +80,12 @@ export class ServeSession {
   private readonly rootCache: RootContextCache;
   /** Serializes op dispatch in arrival order so replies stay ordered. */
   private queue: Promise<void> = Promise.resolve();
+  /**
+   * In-flight requests keyed by stringified JSON-RPC id, so `$/cancelRequest` can find and abort one.
+   * Populated for the whole dispatch window (queued or running); used for pre-dispatch cancellation
+   * and freed when the request settles.
+   */
+  private readonly inFlight = new Map<string, AbortController>();
 
   constructor(options: ServeSessionOptions) {
     this.deps = {
@@ -158,27 +165,58 @@ export class ServeSession {
       this.handleNotification(msg);
       return;
     }
+    const id = msg.id;
+    // Register an abort handle before the request runs, so a cancel arriving while it is queued (or
+    // resolving) can find it. Released when the request settles.
+    const controller = new AbortController();
+    this.inFlight.set(String(id), controller);
     // Queue requests so replies stay in arrival order even when a handler awaits disk I/O.
     this.queue = this.queue.then(async () => {
       if (this.finished) return;
       try {
-        const result = await this.dispatchRequest(msg);
-        this.reply(buildResult(msg.id!, result));
+        const result = await this.dispatchRequest(msg, controller.signal);
+        this.reply(buildResult(id, result));
       } catch (err) {
-        this.replyError(msg.id, err);
+        this.replyError(id, err);
+      } finally {
+        this.inFlight.delete(String(id));
       }
     });
   }
 
   private handleNotification(msg: JsonRpcInboundMessage): void {
-    if (msg.method === 'exit') {
-      this.finish(0);
-      return;
+    switch (msg.method) {
+      case 'exit':
+        this.finish(0);
+        return;
+      case '$/cancelRequest':
+        this.onCancelRequest(msg);
+        return;
+      default:
+        // Unknown notifications are ignored by JSON-RPC contract.
+        return;
     }
-    // Unknown notifications (incl. `$/cancelRequest` before S.3) are ignored by JSON-RPC contract.
   }
 
-  private async dispatchRequest(msg: JsonRpcInboundMessage): Promise<unknown> {
+  /**
+   * `$/cancelRequest` (LSP-style): abort the named request. A request that has not started is
+   * refused with a cancelled error before it runs; a request already mid-flight is aborted too, but
+   * because core ops accept no `AbortSignal` the abort is observed at the next dispatch boundary
+   * rather than interrupting the running op. No reply is sent for the notification itself.
+   */
+  private onCancelRequest(msg: JsonRpcInboundMessage): void {
+    const params = msg.params;
+    if (typeof params !== 'object' || params === null) return;
+    const rawId = (params as Record<string, unknown>).id;
+    if (typeof rawId !== 'string' && typeof rawId !== 'number') return;
+    const controller = this.inFlight.get(String(rawId));
+    if (controller && !controller.signal.aborted) {
+      controller.abort();
+      this.stderrLine(`serve: cancel requested (id=${String(rawId)})`);
+    }
+  }
+
+  private async dispatchRequest(msg: JsonRpcInboundMessage, signal: AbortSignal): Promise<unknown> {
     if (msg.method === 'initialize') return this.onInitialize(msg);
     if (!this.initialized) throw notInitialized();
     if (this.shuttingDown) {
@@ -190,26 +228,39 @@ export class ServeSession {
       case 'ping':
         return {};
       default:
-        return this.dispatchOp(msg);
+        return this.dispatchOp(msg, signal);
     }
   }
 
   /** Route `op.*` methods to read ops; unknown / not-yet-wired methods are method-not-found. */
-  private async dispatchOp(msg: JsonRpcInboundMessage): Promise<unknown> {
+  private async dispatchOp(msg: JsonRpcInboundMessage, signal: AbortSignal): Promise<unknown> {
     const opId = (SERVE_READ_OP_METHODS as Record<string, ServeReadOpId | undefined>)[msg.method];
     if (opId === undefined) throw methodNotFound(msg.method);
     const p = this.asParamsObject(msg.params);
     const root = this.resolveRoot(typeof p.projectRoot === 'string' ? p.projectRoot : undefined);
     const options = this.asOptionsObject(p.options);
+    const id = msg.id!;
     const result = await runServeReadOp(opId, {
       projectRoot: root,
       run: this.deps.run,
       cliOverrides: this.deps.cliOverrides,
       options,
       allowWrites: this.deps.writes,
+      progressId: id,
+      emit: (event) => this.forwardProgress(id, event),
+      signal,
       getContext: (allowWrites) => this.rootCache.get(root, allowWrites !== true),
     });
     return result.envelope;
+  }
+
+  /**
+   * Forward a core `run.*` event to the client as a `$/progress` notification keyed by request id.
+   * The event data is passed through verbatim; progress is a side channel and never alters the final
+   * result envelope.
+   */
+  private forwardProgress(id: JsonRpcId, event: RunEvent): void {
+    this.reply(buildNotification('$/progress', { id, event }));
   }
 
   private asOptionsObject(options: unknown): Record<string, unknown> {

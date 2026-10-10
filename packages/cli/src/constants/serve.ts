@@ -46,3 +46,21 @@ export const SERVE_IMPLEMENTED_OPS: readonly string[] = [
 
 /** Op methods that mutate disk. Reserved for the S.4 write slice (gated by `--allow-writes`). */
 export const SERVE_WRITE_OPS: ReadonlySet<string> = new Set<string>();
+
+/**
+ * Op methods that stream `$/progress` notifications (S.3). Only ops whose core entry path emits
+ * `run.*` events qualify — today just `validate`, via `runValidate`. The read ops that call
+ * `runXxx` directly (`config`, `doctor`, `providers`) emit nothing, so they are not listed; a client
+ * must not expect progress from them.
+ */
+export const SERVE_PROGRESS_OPS: ReadonlySet<string> = new Set<string>(['validate']);
+
+/**
+ * Whether this build can honour a running-request cancellation.
+ *
+ * **`false` on purpose, for now.** Cancellation is only real if the in-flight op can be interrupted;
+ * core accepts no `AbortSignal`, and the serve read ops run synchronously. Advertising `true` would
+ * promise a capability the server cannot deliver, so the honest value is `false`. Flipping this to
+ * `true` is gated on threading `AbortSignal` through the long-running core ops (generation/sync).
+ */
+export const SERVE_CANCELLATION_SUPPORTED = false;

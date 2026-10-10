@@ -57,11 +57,13 @@ Notifications omit `id`. Errors use the standard `error: { code, message, data? 
   "apiVersion": "1",
   "rootMode": "sandbox",
   "projectRoot": "/home/me/proj",
-  "capabilities": { "ops": ["validate", "sync", "generate", "…"], "progress": true, "cancel": true, "writes": false }
+  "capabilities": { "ops": ["validate", "sync", "generate", "…"], "progress": true, "progressOps": ["validate"], "cancel": false, "writes": false }
 }
 ```
 
 The client must send `protocolVersion` and **fail closed** on an unsupported value rather than guess. `capabilities.writes` reports whether mutating ops are enabled for this session; `rootMode` is `"sandbox"` (pinned) or `"hub"` (per-request root). No client id is required or used in v1.
+
+`capabilities.progress` is true when at least one op streams `$/progress`, and `progressOps` names exactly which ops do — a client must not assume every op reports progress. `capabilities.cancel` is `false` until core can be interrupted mid-op: with no `AbortSignal` in core, a running op cannot be stopped, and a capability the server cannot honour is not advertised. `$/cancelRequest` still refuses a request that has not started.
 
 ### Lifecycle and utility
 
@@ -119,7 +121,12 @@ Mutating methods return an error unless `capabilities.writes` is true for the se
 
 ### Progress
 
-`RunEvent` payloads from [`types/shared/run/`](../../../packages/core/src/types/shared/run/index.ts) map onto `$/progress` notifications keyed by request `id`. Progress is a **side channel**: it never replaces or mutates the final result envelope. The server forwards the documented event data verbatim so the client decides what to render — but it proxies only the **documented public surface**, never core internals.
+`RunEvent` payloads from [`types/shared/run/`](../../../packages/core/src/types/shared/run/index.ts) map onto `$/progress` notifications keyed by request `id`: `params` is `{ id, event }`, with the event forwarded **verbatim**. Progress is a **side channel**: it never replaces or mutates the final result envelope. The server forwards only the **documented public surface**, never core internals.
+
+Two honesty constraints:
+
+- **Per-op, not universal.** Only ops whose core entry path emits `run.*` events stream progress — today `validate` (via `runValidate`). `config`, `doctor`, and `providers` call `runXxx` directly and emit nothing, so `capabilities.progressOps` lists just `["validate"]`.
+- **Cancellation is pre-dispatch only.** `$/cancelRequest` aborts a request that has not started (it gets `SERVE_REQUEST_CANCELLED`). A request already running cannot be interrupted — core accepts no `AbortSignal` — so `capabilities.cancel` is `false`. Advertising otherwise would promise a hang-free cancel the server cannot deliver.
 
 ### Lifecycle details
 
