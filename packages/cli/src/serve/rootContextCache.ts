@@ -1,11 +1,7 @@
 import type { Context } from '@/types/core/context/index.js';
 import type { CliGlobalOverrides } from '@/types/core/context/index.js';
 import { resolveContextForProjectRoot } from '@/shared/context/contextForRoot.js';
-
-/** Default warm-root cap. A hub session keeps this many contexts before evicting the LRU. */
-export const SERVE_DEFAULT_ROOT_CACHE_MAX = 8;
-/** How long a cached root stays warm without a request before it is dropped. */
-export const SERVE_ROOT_CACHE_TTL_MS = 5 * 60 * 1000;
+import { SERVE_DEFAULT_ROOT_CACHE_MAX, SERVE_ROOT_CACHE_TTL_MS } from '@/constants/serve.js';
 
 type Entry = { readonly context: Promise<Context>; seq: number; lastUsedMs: number };
 

@@ -1,4 +1,4 @@
-import { SERVE_API_VERSION, SERVE_IMPLEMENTED_OPS, SERVE_PROTOCOL_VERSION } from './constants.js';
+import { SERVE_API_VERSION, SERVE_IMPLEMENTED_OPS, SERVE_PROTOCOL_VERSION } from '@/constants/serve.js';
 import { CLI_NAME, CLI_VERSION } from '@/constants/cli.js';
 import type { ServeRootConfig } from './roots.js';
 

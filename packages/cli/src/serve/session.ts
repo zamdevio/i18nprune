@@ -10,7 +10,7 @@ import {
   type JsonRpcInboundMessage,
   type JsonRpcOutbound,
 } from './protocol.js';
-import { SERVE_DEFAULT_IDLE_TIMEOUT_SECONDS, SERVE_PROTOCOL_VERSION } from './constants.js';
+import { SERVE_DEFAULT_IDLE_TIMEOUT_SECONDS, SERVE_PROTOCOL_VERSION } from '@/constants/serve.js';
 import { LineReader, type LineReaderHooks } from './lineReader.js';
 import {
   ProtocolError,

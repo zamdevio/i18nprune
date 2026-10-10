@@ -4,11 +4,13 @@ export { resolveRequestRoot, normalizeServeRoot, type ServeRootConfig, type Serv
 export {
   SERVE_API_VERSION,
   SERVE_DEFAULT_IDLE_TIMEOUT_SECONDS,
+  SERVE_DEFAULT_ROOT_CACHE_MAX,
   SERVE_IMPLEMENTED_OPS,
   SERVE_MAX_LINE_BYTES,
   SERVE_PROTOCOL_VERSION,
+  SERVE_ROOT_CACHE_TTL_MS,
   SERVE_WRITE_OPS,
-} from './constants.js';
+} from '@/constants/serve.js';
 export {
   buildError,
   buildNotification,
@@ -34,10 +36,4 @@ export {
   type ServeReadOpContext,
   type ServeReadOpResult,
 } from './ops.js';
-export {
-  RootContextCache,
-  SERVE_DEFAULT_ROOT_CACHE_MAX,
-  SERVE_ROOT_CACHE_TTL_MS,
-  type RootContextCacheHost,
-  type RootContextResolver,
-} from './rootContextCache.js';
+export { RootContextCache, type RootContextCacheHost, type RootContextResolver } from './rootContextCache.js';

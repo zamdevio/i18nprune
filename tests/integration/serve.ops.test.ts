@@ -1,6 +1,7 @@
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cliSpawnEnv } from '../helpers/cliEnv.js';
@@ -8,6 +9,13 @@ import { cliSpawnEnv } from '../helpers/cliEnv.js';
 const root = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
 const cliJs = path.join(root, 'dist/cli.js');
 const fixture = path.join(root, 'tests/fixtures/sample-i18n');
+
+/**
+ * Serve is launched from a config-less temp cwd on purpose: the direct CLI resolves the fixture's
+ * config from its own cwd, so if serve leaked the process-global implicit config memo this cwd would
+ * hand it the wrong (or no) answer. Spawning here is what makes that regression observable.
+ */
+let neutralCwd: string;
 
 /** Spawn `serve` and drive a JSON-RPC exchange over real pipes. */
 function spawnServe(args: string[], cwd: string) {
@@ -36,9 +44,9 @@ async function waitFor(predicate: () => boolean, ms = 5000): Promise<void> {
   throw new Error('waitFor timed out');
 }
 
-/** One request/response round-trip against a fresh serve process. */
+/** One request/response round-trip against a fresh serve process, from the config-less cwd. */
 async function callServe(method: string, options?: Record<string, unknown>): Promise<Record<string, unknown>> {
-  const h = spawnServe(['--project', fixture], fixture);
+  const h = spawnServe(['--project', fixture], neutralCwd);
   h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
   await waitFor(() => h.frames().length >= 1);
   h.send({ jsonrpc: '2.0', id: 2, method, params: { options: options ?? {} } });
@@ -49,7 +57,7 @@ async function callServe(method: string, options?: Record<string, unknown>): Pro
   return result;
 }
 
-/** CLI stdout for `--json`, with the same test env. */
+/** CLI stdout for `--json`, run inside the fixture so the direct CLI resolves its own config. */
 function runCliJson(args: string[]): string {
   return execFileSync(process.execPath, [cliJs, ...args, '--json'], {
     cwd: fixture,
@@ -63,10 +71,18 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     if (!fs.existsSync(cliJs)) {
       throw new Error('Missing dist/cli.js — run `pnpm cli:build` before `pnpm test`.');
     }
+    neutralCwd = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-serve-cwd-'));
   });
 
-  it('op.validate returns the same envelope bytes as `validate --json`', async () => {
+  afterAll(() => {
+    fs.rmSync(neutralCwd, { recursive: true, force: true });
+  });
+
+  it('op.validate returns the same envelope bytes as `validate --json`, with the fixture config loaded', async () => {
     const viaServe = await callServe('op.validate');
+    // Guard the multi-root regression directly: serve must load the *request root's* config, not a
+    // stale process-global answer (the neutral cwd has no config to leak).
+    expect((viaServe as { meta: { cwd: string } }).meta.cwd).toBe(fixture);
     // The CLI envelope is pretty-printed multi-line; the serve result is the parsed object.
     const viaCli = JSON.parse(runCliJson(['validate']));
     expect(viaServe).toEqual(viaCli);
@@ -82,9 +98,14 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     expect(viaServe).toEqual(JSON.parse(runCliJson(['languages'])));
   });
 
-  it('op.config matches `config --json` (modulo the host run flags)', async () => {
-    const viaServe = (await callServe('op.config')) as { data: { run: unknown } };
+  it('op.config matches `config --json` (modulo the host run flags) and loads the root config', async () => {
+    const viaServe = (await callServe('op.config')) as {
+      data: { run: unknown; configFileLoaded: boolean; configPath: string | null };
+    };
     const viaCli = JSON.parse(runCliJson(['config'])) as { data: { run: unknown } };
+    // The fixture config must be the one loaded, not a leaked global answer.
+    expect(viaServe.data.configFileLoaded).toBe(true);
+    expect(viaServe.data.configPath).toBe(path.join(fixture, 'i18nprune.config.mjs'));
     // The snapshot embeds `run` (`getRunOptions()`), which truthfully reflects *this* process.
     // serve must run quiet+silent to keep stdout pure, so those two booleans legitimately differ;
     // every other byte — config, paths, fieldSources, env, cliVersion — must match exactly.

@@ -24,6 +24,12 @@ export const SERVE_DEFAULT_IDLE_TIMEOUT_SECONDS = 900;
  */
 export const SERVE_MAX_LINE_BYTES = 16 * 1024 * 1024;
 
+/** Default warm-root cap. A hub session keeps this many contexts before evicting the LRU. */
+export const SERVE_DEFAULT_ROOT_CACHE_MAX = 8;
+
+/** How long a cached root stays warm without a request before it is dropped (5 min). */
+export const SERVE_ROOT_CACHE_TTL_MS = 5 * 60 * 1000;
+
 /**
  * Op methods this server can actually serve, advertised in `capabilities.ops`.
  *

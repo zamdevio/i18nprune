@@ -70,6 +70,31 @@ export function configPathForContext(cwd = process.cwd()): string | null {
   return resolveConfigFilePath(cwd);
 }
 
+/**
+ * Resolve a config file for **one root**, bypassing the process-global implicit memo.
+ *
+ * A long-lived multi-root host (`i18nprune serve` hub/sandbox) resolves a different root per
+ * request, so `chosenImplicitPath` — pinned once from process cwd by `ensureConfigPathResolved()`
+ * during the single-root CLI startup — must not answer for it. The `--config` override still applies
+ * globally, and the root is the base for a relative override.
+ */
+export function resolveConfigFilePathForRoot(root: string): string | null {
+  if (explicitConfigPath) {
+    const abs = path.isAbsolute(explicitConfigPath)
+      ? explicitConfigPath
+      : path.resolve(root, explicitConfigPath);
+    return existsRuntimeFsSync(abs, nodeFs) ? abs : null;
+  }
+
+  const found = listDiscoveredConfigFiles(root);
+  if (found.length === 0) return null;
+  if (found.length === 1) return found[0]!;
+  throw new ConfigAmbiguityError(
+    `Multiple config files (${found.map((p) => path.basename(p)).join(', ')}) in ${root} — pass --config`,
+    found,
+  );
+}
+
 export function resolveConfigFilePath(cwd = process.cwd()): string | null {
   if (explicitConfigPath) {
     const abs = path.isAbsolute(explicitConfigPath)

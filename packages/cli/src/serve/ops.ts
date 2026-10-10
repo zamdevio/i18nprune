@@ -7,7 +7,7 @@ import { runLanguages } from '@/commands/languages/jsonEnvelope.js';
 import { runProviders } from '@/commands/providers/jsonEnvelope.js';
 import { cliReadinessIssues } from '@/shared/project/index.js';
 import { mergeIssues } from '@/shared/result/index.js';
-import { resolveConfigFilePath } from '@/shared/config/paths.js';
+import { resolveConfigFilePathForRoot } from '@/shared/config/paths.js';
 
 /**
  * A read-only operation a `serve` client can invoke. Each mirrors the matching CLI command's
@@ -69,7 +69,7 @@ export async function runServeReadOp(id: ServeReadOpId, ctx: ServeReadOpContext)
 
   switch (id) {
     case 'config': {
-      const envelope = runConfig(context, resolveConfigFilePath(ctx.projectRoot)) as CliJsonEnvelope<string, unknown>;
+      const envelope = runConfig(context, resolveConfigFilePathForRoot(ctx.projectRoot)) as CliJsonEnvelope<string, unknown>;
       return { envelope, json: stringifyEnvelope(envelope) };
     }
     case 'providers': {
@@ -118,7 +118,7 @@ function doctorEnvelope(
   projectRoot: string,
   options: Record<string, unknown>,
 ): CliJsonEnvelope<string, unknown> {
-  const configPath = resolveConfigFilePath(projectRoot);
+  const configPath = resolveConfigFilePathForRoot(projectRoot);
   let envelope = runDoctor(
     context,
     { only: asString(options.only), strict: asBoolean(options.strict) },

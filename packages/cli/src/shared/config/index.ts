@@ -7,6 +7,7 @@ export {
   listDiscoveredConfigFiles,
   resetConfigPathResolution,
   resolveConfigFilePath,
+  resolveConfigFilePathForRoot,
   setChosenImplicitPath,
   setConfigPath,
 } from './paths.js';

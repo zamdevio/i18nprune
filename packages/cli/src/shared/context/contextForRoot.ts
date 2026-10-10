@@ -1,6 +1,4 @@
-import path from 'node:path';
 import {
-  getRunOptions,
   loadProjectFilesState,
   mergeTrackedFileMaps,
   omitSyntheticSourceKey,
@@ -26,8 +24,7 @@ import {
   shouldSuppressPatchEnableFromCli,
 } from '@/shared/config/runtime.js';
 import { loadConfigFromPath } from '@/shared/config/load.js';
-import { resolveConfigFilePath } from '@/shared/config/paths.js';
-import { getCliGlobalOverrides } from './globals.js';
+import { resolveConfigFilePathForRoot } from '@/shared/config/paths.js';
 
 function parseFunctionsCsv(s: string): string[] {
   return s
@@ -235,24 +232,9 @@ export async function resolveContextForProjectRoot(
 ): Promise<Context> {
   return resolveContextForRoot({
     projectRoot,
-    configPath: resolveConfigFilePath(projectRoot),
+    configPath: resolveConfigFilePathForRoot(projectRoot),
     cliOverrides: host.cliOverrides,
     run: host.run,
     cwd: projectRoot,
-  });
-}
-
-/**
- * CLI entry (unchanged contract): resolve using process cwd, the globally-chosen config path, and
- * process-global CLI overrides.
- */
-export async function resolveContext(cwd = process.cwd()): Promise<Context> {
-  const configPath = resolveConfigFilePath(cwd);
-  const projectRoot = configPath ? path.dirname(configPath) : cwd;
-  return resolveContextForRoot({
-    projectRoot,
-    configPath,
-    cliOverrides: getCliGlobalOverrides(),
-    run: getRunOptions(),
   });
 }

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ServeSession, type ServeIo } from '@/serve/session.js';
-import { SERVE_PROTOCOL_VERSION } from '@/serve/constants.js';
+import { SERVE_PROTOCOL_VERSION } from '@/constants/serve.js';
 import type { ServeRootConfig } from '@/serve/roots.js';
 
 /** Capture the two channels so purity is asserted directly, not inferred. */

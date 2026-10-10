@@ -1,4 +1,4 @@
-import { SERVE_MAX_LINE_BYTES } from './constants.js';
+import { SERVE_MAX_LINE_BYTES } from '@/constants/serve.js';
 
 export type LineReaderHooks = {
   /** A complete line (no trailing newline). */
