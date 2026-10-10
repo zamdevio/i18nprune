@@ -17,7 +17,7 @@ describe('RootContextCache', () => {
     const a2 = await cache.get('/a');
     expect(a1).toBe(a2);
     expect(resolve).toHaveBeenCalledTimes(1);
-    expect(resolve).toHaveBeenCalledWith('/a', host);
+    expect(resolve).toHaveBeenCalledWith('/a', { ...host, cacheReadOnly: true });
   });
 
   it('keeps distinct roots separate (no cross-contamination)', async () => {
@@ -63,5 +63,31 @@ describe('RootContextCache', () => {
     await Promise.resolve();
     await expect(cache.get('/a')).resolves.toBeDefined();
     expect(attempt).toBe(2);
+  });
+
+  it('keys on cache posture: read-only and write-enabled never share a context', async () => {
+    const resolve = vi.fn(async (root: string, h: { cacheReadOnly: boolean }) =>
+      ({ paths: { sourceLocale: `${root}:${h.cacheReadOnly ? 'ro' : 'rw'}` } }) as unknown as Context,
+    );
+    const cache = new RootContextCache(host, 8, 60_000, resolve);
+    const ro = await cache.get('/a', true);
+    const rw = await cache.get('/a', false);
+    expect(ro).not.toBe(rw);
+    expect(resolve).toHaveBeenCalledTimes(2);
+    // Re-fetch each posture: cached, no extra resolves.
+    await cache.get('/a', true);
+    await cache.get('/a', false);
+    expect(resolve).toHaveBeenCalledTimes(2);
+    // A write invalidates both postures for that root.
+    cache.invalidate('/a');
+    await cache.get('/a', true);
+    expect(resolve).toHaveBeenCalledTimes(3);
+  });
+
+  it('passes cacheReadOnly through to the resolver', async () => {
+    const resolve = vi.fn(async (root: string) => fakeContext(root));
+    const cache = new RootContextCache(host, 8, 60_000, resolve);
+    await cache.get('/a', false);
+    expect(resolve).toHaveBeenCalledWith('/a', { ...host, cacheReadOnly: false });
   });
 });

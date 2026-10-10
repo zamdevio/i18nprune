@@ -73,19 +73,23 @@ export function initializeCacheState(input: CacheStateInput): {
     };
   }
 
-  try {
-    assertSyncPortResult(input.runtime.fs.mkdirp(base.projectDir), 'fs.mkdirp', base.projectDir);
-  } catch (err) {
-    return {
-      state: { ...base, enabled: false, reason: 'cache_dir_unavailable' },
-      warnings: [
-        {
-          code: 'cache_dir_unavailable',
-          message: `cache directory unavailable; cache disabled for this run: ${err instanceof Error ? err.message : String(err)}`,
-          path: base.projectDir,
-        },
-      ],
-    };
+  // A read-only cache must not touch the filesystem: skip the eager project-dir creation. Readers
+  // tolerate a missing dir, and every write path is separately guarded by `isProjectCacheWritable`.
+  if (!base.readOnly) {
+    try {
+      assertSyncPortResult(input.runtime.fs.mkdirp(base.projectDir), 'fs.mkdirp', base.projectDir);
+    } catch (err) {
+      return {
+        state: { ...base, enabled: false, reason: 'cache_dir_unavailable' },
+        warnings: [
+          {
+            code: 'cache_dir_unavailable',
+            message: `cache directory unavailable; cache disabled for this run: ${err instanceof Error ? err.message : String(err)}`,
+            path: base.projectDir,
+          },
+        ],
+      };
+    }
   }
   return { state: base, warnings };
 }

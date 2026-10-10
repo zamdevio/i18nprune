@@ -76,7 +76,7 @@ Status: **planned** — one slice per PR; parity fixtures unchanged unless a sli
 ## Open questions (remaining)
 
 1. **Progress granularity** — every `run.message`, or only `run.progress.*`? Affects client noise. Suggestion: `run.progress.*` plus `run.completed`, opt-in verbose for everything.
-2. **Hub-mode root allow-list** — in hub mode (especially over SSH), should `--root-allow <glob>` restrict roots a client may name? Consider before S.4, not before S.1.
+2. **Hub-mode root allow-list** — in hub mode (especially over SSH), should `--root-allow <glob>` restrict roots a client may name? **Required before exposing hub mode over a network** — without it a hub session is remote read access to every path the OS user can read.
 
 **Resolved:** no client id in v1 (§10) · writes are a flag (§11) · stdin-close primary with idle backstop (§12) · sandbox + hub modes, mutually exclusive (§9) · idle timeout default `900` s, `0` disables (§1) · per-root context LRU cap `8` (§3).
 

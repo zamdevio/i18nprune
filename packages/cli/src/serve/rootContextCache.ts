@@ -11,7 +11,10 @@ export type RootContextCacheHost = {
 };
 
 /** Resolver seam (injectable for deterministic tests); defaults to the real root resolver. */
-export type RootContextResolver = (root: string, host: RootContextCacheHost) => Promise<Context>;
+export type RootContextResolver = (
+  root: string,
+  host: RootContextCacheHost & { cacheReadOnly: boolean },
+) => Promise<Context>;
 
 /**
  * In-memory `Context` (incl. `localeRead`) cache keyed by normalized absolute project root.
@@ -20,6 +23,9 @@ export type RootContextResolver = (root: string, host: RootContextCacheHost) => 
  * root — but `CoreContext`/`localeRead` are in-memory and must not be shared across roots. Bounded
  * LRU + TTL so a long-lived hub does not grow without limit; {@link invalidate} drops a root after a
  * write to it (slice S.4) or when its config file changes on disk.
+ *
+ * The cache posture (`cacheReadOnly`) is part of the key: a read-only session and a write-enabled
+ * one must never share a context, or a write path would inherit the wrong cache state.
  */
 export class RootContextCache {
   private readonly entries = new Map<string, Entry>();
@@ -34,25 +40,28 @@ export class RootContextCache {
   ) {}
 
   /** Warm context for `root`, resolving (and caching) it on first use. */
-  get(root: string): Promise<Context> {
+  get(root: string, cacheReadOnly = true): Promise<Context> {
+    const key = `${cacheReadOnly ? 'ro' : 'rw'}\u0000${root}`;
     this.evictStale();
-    const existing = this.entries.get(root);
+    const existing = this.entries.get(key);
     if (existing) {
       existing.seq = ++this.accessSeq;
       existing.lastUsedMs = Date.now();
       return existing.context;
     }
-    const context = this.resolve(root, this.host);
+    const context = this.resolve(root, { ...this.host, cacheReadOnly });
     // Do not retain a rejected resolution: a transient failure must be retryable.
-    context.catch(() => this.entries.delete(root));
-    this.entries.set(root, { context, seq: ++this.accessSeq, lastUsedMs: Date.now() });
+    context.catch(() => this.entries.delete(key));
+    this.entries.set(key, { context, seq: ++this.accessSeq, lastUsedMs: Date.now() });
     this.trim();
     return context;
   }
 
-  /** Drop a root's cached context (after a write, or a config change on disk). */
+  /** Drop a root's cached contexts (after a write, or a config change on disk). */
   invalidate(root: string): void {
-    this.entries.delete(root);
+    for (const key of [...this.entries.keys()]) {
+      if (key === root || key.endsWith(`\u0000${root}`)) this.entries.delete(key);
+    }
   }
 
   /** Drop everything (shutdown). */

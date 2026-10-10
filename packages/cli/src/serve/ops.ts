@@ -33,8 +33,13 @@ export type ServeReadOpContext = {
   readonly cliOverrides: CliGlobalOverrides;
   /** Op request `params.options` passthrough (e.g. `{ only, strict, filter, table }`). */
   readonly options: Record<string, unknown>;
+  /**
+   * `false` for a read-only session: context resolution forces the project cache read-only so no
+   * cache file or directory is written. `true` only once the session has `--allow-writes`.
+   */
+  readonly allowWrites: boolean;
   /** Lazily resolve the per-root context (session-backed cache). `languages` never calls it. */
-  readonly getContext: () => Promise<Context>;
+  readonly getContext: (allowWrites?: boolean) => Promise<Context>;
 };
 
 export type ServeReadOpResult = {
@@ -65,7 +70,7 @@ export async function runServeReadOp(id: ServeReadOpId, ctx: ServeReadOpContext)
     return { envelope, json: stringifyEnvelope(envelope) };
   }
 
-  const context = await ctx.getContext();
+  const context = await ctx.getContext(ctx.allowWrites);
 
   switch (id) {
     case 'config': {

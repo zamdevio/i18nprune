@@ -133,6 +133,22 @@ describe('core cache runtime', () => {
     expect(fs.exists(state.metaPath)).toBe(true);
   });
 
+  it('does not create cache dirs for a read-only cache', () => {
+    const fs = memoryFs({ '/project/src/app.ts': 't("app.title")', '/project/locales/en.json': '{"app":{"title":"Title"}}' });
+    const rt = runtime(fs);
+    const { state, warnings } = initializeCacheState({
+      projectRoot: '/project',
+      cacheRootDir: '/cache',
+      cacheReadOnly: true,
+      runtime: rt,
+    });
+    expect(warnings).toEqual([]);
+    expect(state.enabled).toBe(true);
+    expect(state.readOnly).toBe(true);
+    // The eager mkdirp is suppressed: a read-only session must not touch the filesystem.
+    expect(fs.exists(state.projectDir)).toBe(false);
+  });
+
   it('misses once, then serves cached data until inputs change', () => {
     const fs = memoryFs({ '/project/src/app.ts': 't("app.title")', '/project/locales/en.json': '{"app":{"title":"Title"}}' });
     const rt = runtime(fs);

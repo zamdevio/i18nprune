@@ -119,6 +119,11 @@ export type RootResolveInput = {
    * sets this to the request root; the single-root CLI leaves it undefined (process cwd).
    */
   readonly cwd?: string;
+  /**
+   * Force the project cache read-only for this resolution. A read-only session (`serve` without
+   * `--allow-writes`) sets this so no cache file or directory is written.
+   */
+  readonly cacheReadOnly?: boolean;
 };
 
 /**
@@ -187,7 +192,7 @@ export async function resolveContextForRoot(input: RootResolveInput): Promise<Co
     noCache: cli.noCache === true || configCacheDisabled,
     ...(disabledReason !== undefined ? { disabledReason } : {}),
     ...(cacheRootDir !== undefined ? { cacheRootDir } : {}),
-    cacheReadOnly: merged.cache?.mode === 'readOnly',
+    cacheReadOnly: input.cacheReadOnly === true || merged.cache?.mode === 'readOnly',
     adapters,
   });
   for (const warn of cacheInit.warnings) {
@@ -216,15 +221,18 @@ export async function resolveContextForRoot(input: RootResolveInput): Promise<Co
   };
 }
 
-/** Serve-host inputs: process env + the host's own RunOptions and (empty) CLI overrides. */
+/** Serve-host inputs: the host's own RunOptions, (empty) CLI overrides, and cache posture. */
 export type RootContextHost = {
   readonly run: Context['run'];
   readonly cliOverrides: CliGlobalOverrides;
+  /** Force the project cache read-only. Defaults to `true` (serve is read-only without a write flag). */
+  readonly cacheReadOnly?: boolean;
 };
 
 /**
  * Resolve a context for `projectRoot` alone by discovering its config, independent of any global
- * chosen path. Used by `serve` in both root modes.
+ * chosen path. Used by `serve` in both root modes. `cacheReadOnly` defaults to `true` — a serve
+ * session is read-only unless it was started with `--allow-writes`.
  */
 export async function resolveContextForProjectRoot(
   projectRoot: string,
@@ -236,5 +244,6 @@ export async function resolveContextForProjectRoot(
     cliOverrides: host.cliOverrides,
     run: host.run,
     cwd: projectRoot,
+    cacheReadOnly: host.cacheReadOnly ?? true,
   });
 }

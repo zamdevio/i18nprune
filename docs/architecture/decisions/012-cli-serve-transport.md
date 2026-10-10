@@ -32,7 +32,7 @@ Per [ADR 006](./006-command-orchestrator-boundary.md), transport is a **host** c
 8. **Writers are serialized per project.** At most one mutating operation per project root at a time; reads may interleave; distinct projects may run in parallel.
 9. **Two root modes, mutually exclusive** — see [Project root modes](#project-root-modes). A pinned root stays **confined**: a request naming a different root is an error, never a silent switch.
 10. **No client identity in v1.** The server does not require or use a client id; a future optional `clientInfo` is logged to stderr only.
-11. **Writes are opt-in via `--allow-writes`**, default read-only. This guards against accidents, not a hostile client (the client spawns the server).
+11. **Writes are opt-in via `--allow-writes`**, default read-only. This guards against accidents, not a hostile client (the client spawns the server). In a read-only session the **project cache is forced read-only** (and its eager directory creation suppressed), so read ops touch no cache files or directories — read-only means no disk writes at all, not merely "no project mutation".
 12. **Lifecycle: stdin close is the primary stop signal**, with `--idle-timeout <seconds>` as a backstop (`0` disables). `ping` resets the idle timer.
 
 ## Protocol
@@ -115,7 +115,7 @@ One method per op, mirroring the `runXxx` surface:
 | `op.cleanup` | `runCleanup` | **yes** |
 | `op.locales.delete` | locales delete | **yes** |
 
-Mutating methods return an error unless `capabilities.writes` is true for the session (set by `--allow-writes`).
+Mutating methods return an error unless `capabilities.writes` is true for the session (set by `--allow-writes`). A read-only session resolves each root with the project cache forced read-only, so even these read methods write no cache state.
 
 ### Progress
 
@@ -136,10 +136,10 @@ Mutating methods return an error unless `capabilities.writes` is true for the se
 | Concern | Rule |
 |---------|------|
 | **Network** | None in v1 — stdio only, no listener. An optional HTTP transport binds `127.0.0.1` only, with a bearer token emitted to stderr. |
-| **Path scope** | Reject `projectRoot` / path params that escape the session root; in sandbox mode a different root is an error, never a switch. |
+| **Path scope** | Reject `projectRoot` / path params that escape the session root; in sandbox mode a different root is an error, never a switch. Root equality is compared on resolved paths (not realpaths) — a symlink alias of the pinned root is rejected rather than accepted, which fails closed. |
 | **Secrets** | Provider keys and env values are never echoed in results, errors, or logs. |
 | **Remote hosts** | Connecting over SSH is a client decision; the server never installs itself, never self-updates, and never executes client-supplied shell. |
-| **Writes** | Mutating ops are opt-in per session (`capabilities.writes`), so a read-only host cannot prune locales by accident. |
+| **Writes** | Mutating ops are opt-in per session (`capabilities.writes`); a read-only session also forces the project cache read-only, so it writes no cache state. A read-only host cannot prune locales or touch the cache by accident. |
 | **stdout purity** | A stray `console.log` corrupts the stream. Enforced by tests, not convention alone. |
 
 ## Consequences

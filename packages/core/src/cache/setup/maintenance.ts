@@ -3,12 +3,15 @@ import type { CacheProjectsIndex, CacheRuntime, CacheState, CacheWarning } from 
 import { loadProjectsIndex, maybeHealCacheIndex, saveProjectsIndex, touchProjectIndex } from '../io/projects.js';
 import { loadProjectFilesState, loadProjectRunState } from '../io/state.js';
 import { prepareTranslationCacheLayout } from '../../translator/cache/maintenance.js';
-import { tryDeleteCacheFile } from './policy.js';
+import { isProjectCacheWritable, tryDeleteCacheFile } from './policy.js';
 
 /**
  * Per-run cache maintenance: touches the project mapping in meta, runs periodic
  * global self-heal, ensures the project directory exists, and validates current
  * project cache files (dropping corrupt ones so this run can repopulate cleanly).
+ *
+ * **Read-only caches do nothing here but load** — no mkdir, no index save, no heal, no deletes —
+ * so a read-only session (e.g. `serve` without `--allow-writes`) leaves the filesystem untouched.
  */
 export function prepareCacheForRun(
   state: CacheState,
@@ -18,6 +21,14 @@ export function prepareCacheForRun(
   warnings: CacheWarning[];
 } {
   const warnings: CacheWarning[] = [];
+  if (!isProjectCacheWritable(state)) {
+    const loaded = loadProjectsIndex(state, runtime);
+    warnings.push(...loaded.warnings);
+    warnings.push(...loadProjectFilesState(state, runtime).warnings);
+    warnings.push(...loadProjectRunState(state, runtime).warnings);
+    return { index: loaded.index, warnings };
+  }
+
   const loaded = loadProjectsIndex(state, runtime);
   warnings.push(...loaded.warnings);
 

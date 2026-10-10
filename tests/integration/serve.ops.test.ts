@@ -18,10 +18,10 @@ const fixture = path.join(root, 'tests/fixtures/sample-i18n');
 let neutralCwd: string;
 
 /** Spawn `serve` and drive a JSON-RPC exchange over real pipes. */
-function spawnServe(args: string[], cwd: string) {
+function spawnServe(args: string[], cwd: string, extraEnv?: NodeJS.ProcessEnv) {
   const child = spawn(process.execPath, [cliJs, 'serve', ...args], {
     cwd,
-    env: cliSpawnEnv({ I18NPRUNE_NO_UPDATE_CHECK: '1' }),
+    env: cliSpawnEnv({ I18NPRUNE_NO_UPDATE_CHECK: '1', ...extraEnv }),
   }) as ChildProcessWithoutNullStreams;
   const out: Buffer[] = [];
   child.stdout.on('data', (c: Buffer) => out.push(c));
@@ -130,5 +130,31 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
     expect(res.capabilities.ops).toEqual(['config', 'doctor', 'validate', 'languages', 'providers']);
     h.child.stdin.end();
     await h.exited;
+  });
+
+  it('a read-only session writes nothing to disk; --allow-writes does', async () => {
+    const runOp = async (extraArgs: string[], extraEnv: NodeJS.ProcessEnv) => {
+      const h = spawnServe(['--project', fixture, ...extraArgs], neutralCwd, extraEnv);
+      h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
+      await waitFor(() => h.frames().length >= 1);
+      h.send({ jsonrpc: '2.0', id: 2, method: 'op.validate', params: { options: {} } });
+      await waitFor(() => h.frames().length >= 2);
+      h.child.stdin.end();
+      await h.exited;
+    };
+
+    const roHome = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-ro-'));
+    const rwHome = fs.mkdtempSync(path.join(os.tmpdir(), 'i18nprune-rw-'));
+    try {
+      await runOp([], { I18NPRUNE_HOME: roHome });
+      // Read-only: no cache file or directory at all — not even the project dir.
+      expect(fs.existsSync(path.join(roHome, 'cache'))).toBe(false);
+
+      await runOp(['--allow-writes'], { I18NPRUNE_HOME: rwHome });
+      expect(fs.existsSync(path.join(rwHome, 'cache'))).toBe(true);
+    } finally {
+      fs.rmSync(roHome, { recursive: true, force: true });
+      fs.rmSync(rwHome, { recursive: true, force: true });
+    }
   });
 });

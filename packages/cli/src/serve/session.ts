@@ -206,7 +206,8 @@ export class ServeSession {
       run: this.deps.run,
       cliOverrides: this.deps.cliOverrides,
       options,
-      getContext: () => this.rootCache.get(root),
+      allowWrites: this.deps.writes,
+      getContext: (allowWrites) => this.rootCache.get(root, allowWrites !== true),
     });
     return result.envelope;
   }
@@ -308,6 +309,11 @@ export class ServeSession {
       this.deps.clearTimer(this.idleTimer);
       this.idleTimer = null;
     }
+  }
+
+  /** The session's write posture: `true` only when started with `--allow-writes`. */
+  get allowWrites(): boolean {
+    return this.deps.writes;
   }
 
   /**
