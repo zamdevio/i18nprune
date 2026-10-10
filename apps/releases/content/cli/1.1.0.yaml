@@ -1,0 +1,48 @@
+schemaVersion: 1
+stream: cli
+version: 1.1.0
+date: 2026-10-10
+status: stable
+summary: v1.1.0 — extractor HOC §A (preset hook binds + same-file one-hop aliases) for higher literal key recall.
+highlights:
+  - "Extractor — preset hook binds (`useTranslation` / `useTranslations` → local `t`) resolve when the hook is imported and `t` (or the hook name) is configured"
+  - "Extractor — same-file one-hop aliases (`const tt = t`, `const translate = i18n.t`) expand into effective helpers"
+  - "Lockstep with `@i18nprune/core@1.1.0`"
+sections:
+  added:
+    - "`expandEffectiveFunctions` — import bindings composed with same-file local helpers"
+    - "Hook helper presets (`packages/core/src/extractor/bindings/hookPresets.ts`)"
+  changed:
+    - "More call sites resolve to literal keys instead of `non_literal` / dynamic sites (extraction results change; no API change)"
+  fixed: []
+  removed: []
+  breaking: []
+  security: []
+  performance:
+    - "Local-helper scan is lazy — skipped unless a preset hook import or a `const X = <helper>` pattern is present"
+migration:
+  notes:
+    - "npm install -g i18nprune@1.1.0"
+    - "Pin `@i18nprune/core@1.1.0` when using the SDK alongside this CLI line"
+    - "Expect fewer dynamic sites and more proven keys on hook/alias codebases — re-run validate/sync if you rely on previous counts"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/1.1.0
+    - label: Validate command
+      href: https://docs.i18nprune.dev/commands/validate
+    - label: Unsolved inventory
+      href: https://docs.i18nprune.dev/edge-cases/unsolved/inventory
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@1.1.0
+git:
+  tag: v1.1.0
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.1.0"
+compat:
+  - stream: core
+    version: 1.1.0
+tags:
+  - minor
+  - release
+  - extractor
+  - cli

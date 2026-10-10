@@ -4,7 +4,7 @@ Guides for humans and coding agents working in this repo.
 
 | Page | What it covers |
 |------|----------------|
-| [**Architecture**](./architecture.md) | Package topology, core purity, `runXxx` pattern, type/barrel layout, import discipline, health gates, cross-surface parity |
+| [**Architecture**](./architecture.md) | Package topology, core purity, `runXxx` pattern, type/barrel layout, import discipline, health gates, cross-surface parity, host API surface |
 | [**Rules**](./rules.md) | TypeScript, output contract, error handling, testing, logging, non-interactive safety, commit discipline |
 | [**JSDoc**](./jsdoc.md) | When/where/how to write JSDoc across core, CLI, and apps |
 | [**Git**](./git.md) | Commit style, version alignment (`versions:up` / `sync` / `verify`), **git tags**, **npm publish** via [`release.yml`](../../.github/workflows/release.yml) OIDC |

@@ -1,0 +1,48 @@
+schemaVersion: 1
+stream: core
+version: 1.1.0
+date: 2026-10-10
+status: stable
+summary: "v1.1.0 — extractor HOC §A: preset hook binds and same-file one-hop helper aliases. Lockstep with CLI 1.1.0."
+highlights:
+  - "`expandEffectiveFunctions` — import-binding expansion plus same-file hook binds and one-hop aliases"
+  - "Preset hooks `useTranslation` / `useTranslations` bind local `t` given a runtime named import and configured evidence"
+  - "Published in lockstep with `i18nprune@1.1.0`"
+sections:
+  added:
+    - "`expandEffectiveFunctions` / `expandWithLocalHelpers` on the bindings barrel"
+    - "`HOOK_HELPER_PRESETS` table for framework hook → helper binds"
+  changed:
+    - "Key-site and dynamic orchestrators use the composed effective-helper set"
+    - "One-hop aliases expand only on an exact RHS match against an already-effective helper (single pass)"
+  fixed: []
+  removed: []
+  breaking: []
+  security: []
+  performance:
+    - "Lazy scan — no extra work when a file has no preset hook import and no `const X = <helper>` assignment"
+migration:
+  notes:
+    - "npm install @i18nprune/core@1.1.0"
+    - "Pin the same semver as CLI (`@i18nprune/core@1.1.0` with `i18nprune@1.1.0`)"
+    - "Extraction results change (more proven keys); JSON envelope and issue codes are unchanged"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/1.1.0
+    - label: SDK operations
+      href: https://docs.i18nprune.dev/sdk/operations
+    - label: Extraction architecture
+      href: https://docs.i18nprune.dev/architecture/extraction/
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@1.1.0
+git:
+  tag: v1.1.0
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.1.0"
+compat:
+  - stream: cli
+    version: 1.1.0
+tags:
+  - minor
+  - extractor
+  - core

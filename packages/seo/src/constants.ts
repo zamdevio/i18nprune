@@ -2,7 +2,7 @@
 export const PRODUCT_NAME = 'i18nprune' as const;
 
 /** Default CLI version when meta worker is unreachable at build time. */
-export const FALLBACK_CLI_VERSION = '1.0.3' as const;
+export const FALLBACK_CLI_VERSION = '1.1.0' as const;
 
 export const PRODUCT_TAGLINE =
   'The ESLint for production i18n. A compiler-grade localization infrastructure toolkit.' as const;
