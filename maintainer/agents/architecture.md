@@ -200,3 +200,23 @@ Three UI domains; only the **runtime cluster** uses `@i18nprune/ui`:
 ## 12. Schema-first locales
 
 Locale JSON shape is driven by **scan/schema leaf paths**, not by mirroring the source file tree. Generate, sync, and resume behavior: [`maintainer/systems/locales-schema.md`](../systems/locales-schema.md) (implementation: `packages/core/src/shared/locales/projection.ts`, `generate/run.ts`, `sync/run.ts`).
+
+---
+
+## 13. Host API surface
+
+Core is the single intelligence layer. Hosts must not fork it:
+
+| Host | How it consumes core |
+|------|----------------------|
+| **CLI** | Builds `CoreContext`, calls `runXxx`, renders + shapes `--json` |
+| **VS Code extension** | Same core package — **never** shells out to `cli.js` as the engine |
+| **Desktop app** (planned, Tauri) | Node bridge host over the same core exports; a `serve` transport is a thin wrapper over `runXxx` |
+
+**Rules when adding a public `@i18nprune/core` function:**
+
+- Design for **both** consumers at once — stable, typed exports with clear options/result envelopes.
+- No Desktop-only or extension-only fork of the same op. Extend core **once**, then wire adapters.
+- If a capability is needed by either client, expose it on core **first**; bridges and transports come after.
+
+This is why a future `serve` command is a transport, not a second engine: protocol on stdout, logs on stderr, and every request routed into the existing `runXxx` surface.
