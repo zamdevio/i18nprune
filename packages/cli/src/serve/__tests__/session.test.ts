@@ -77,7 +77,7 @@ describe('ServeSession — handshake', () => {
       progress: true,
       progressOps: ['validate', 'sync', 'generate'],
       writeOps: ['sync', 'generate', 'cleanup', 'locales.delete'],
-      cancelScope: 'queued',
+      cancelScope: 'running',
       writes: true,
     });
   });

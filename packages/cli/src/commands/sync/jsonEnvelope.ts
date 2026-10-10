@@ -36,7 +36,7 @@ export function executeCore(
   const { emit, runId } = runtime;
   emitRunEvent(emit, { type: 'run.started', op: 'sync', runId, at: nowMs() });
   try {
-    const coreCtx = createCliCoreContext(ctx);
+    const coreCtx = createCliCoreContext(ctx, runtime.signal);
     const out = runCoreSync(coreCtx, opts, buildSyncHostHooks(runtime));
     const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), out.issues);
     const envelope = buildCliJsonEnvelope('sync', out.payload, {

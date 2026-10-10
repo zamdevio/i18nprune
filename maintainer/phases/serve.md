@@ -1,6 +1,6 @@
 # Phase — `i18nprune serve` (stdio transport)
 
-**Status:** **in progress** — S.1 (transport skeleton) + S.2 (read ops) + S.3 (progress + pre-dispatch cancel) + S.4 (write ops) + S.5 (client docs) landed; S.6 pending.
+**Status:** **in progress** — S.1 (transport skeleton) + S.2 (read ops) + S.3 (progress + cancel, incl. C-signal mid-flight cancel) + S.4 (write ops) + S.5 (client docs) landed; S.6 pending.
 **Tracker:** [`focus.md`](./focus.md) · **Contract:** [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) · **User docs (when built):** `docs/cli/serve.md`
 **Implementation home:** `packages/cli/src/serve/` (transport only — ops stay in core `runXxx`)
 **Consumers:** Tauri desktop (planned, develops outside this repo until migration), VS Code extension (own branch), scripted / SSH clients
@@ -52,22 +52,29 @@ Status: **planned** — one slice per PR; parity fixtures unchanged unless a sli
 |-------|-------|---------------|
 | **S.1 — Transport skeleton** ✅ | `packages/cli/src/serve/` — NDJSON framing, `initialize` / `shutdown` / `exit` / `ping`, capability report, version negotiation, sandbox vs hub root modes, stdin-close + idle timeout | Conformance test: exact stdout byte framing; non-protocol stdout bytes fail the test; confined root rejects a different root |
 | **S.2 — Read ops** ✅ | `op.config` · `op.doctor` · `op.validate` · `op.languages` · `op.providers` | Results byte-equal the `--json` envelope for the same fixture |
-| **S.3 — Progress + cancel** ⚠️ | Map `RunEvent` → `$/progress` (op-keyed); `$/cancelRequest` | **Landed as far as core allows:** `op.validate` / `op.sync` / `op.generate` stream `$/progress`; a request cancelled before dispatch returns `SERVE_REQUEST_CANCELLED`. **Real mid-flight cancel is blocked on core** — nothing accepts an `AbortSignal` — so `capabilities.cancelScope` is honestly `'queued'`. See note below. |
+| **S.3 — Progress + cancel** ✅ | Map `RunEvent` → `$/progress` (op-keyed); `$/cancelRequest` | **Complete.** `op.validate` / `op.sync` / `op.generate` stream `$/progress`; a request cancelled before dispatch returns `SERVE_REQUEST_CANCELLED`, and a running `op.generate` aborts mid-flight through the cooperative `AbortSignal` (core C-signal slice). `capabilities.cancelScope` is `'running'`. See §C-signal below. |
 | **S.4 — Write ops (opt-in)** ✅ | `op.sync` · `op.generate` · `op.cleanup` · `op.locales.delete` behind `--allow-writes`; context invalidation | Writes refused when read-only with `SERVE_WRITES_DISABLED`; that root's `CoreContext` / `localeRead` dropped after a write. `op.cleanup` and `op.locales.delete` required extracting reusable write entries out of their command modules first. |
 | **S.5 — Client docs + smoke** ✅ | `docs/cli/serve.md`, `docs/commands/README.md` row, sidebar entry, manual `wsl.exe` / `ssh` smoke note | `docs/cli/serve.md` published with sidebar + index row; `pnpm docs:sync:verify` passes. Manual WSL/SSH smoke still to do by hand. |
 | **S.6 — Optional HTTP transport** | `127.0.0.1` only, bearer token on stderr, hub mode only | Only if a real client needs it; never the default |
 
 **Ship order:** S.1 → S.2 → S.3 → S.4 → S.5, with S.6 gated on demand.
 
-### S.3 note — why `cancel` is advertised `false`
+### S.3 note — cancellation design (landed as `'running'`)
 
-Cancellation is only real if an in-flight op can be interrupted. **Core accepts no `AbortSignal`** anywhere (verified: no `signal`/`abort` plumbing in `packages/core`), and every `serve` op is synchronous JS on the dispatch queue, so `$/cancelRequest` cannot stop work already running. Rather than advertise `cancel: true` and no-op on the wire, S.3 ships:
+Cancellation is only real if an in-flight op can be interrupted. That now holds: **C-signal** threaded a cooperative `AbortSignal` through the long-running core ops, so S.3's cancel tier is `'running'`:
 
-- `$/progress` forwarding for ops whose core path emits `run.*` events (today: `validate`, `sync`, `generate`; `config`/`doctor`/`providers`/`cleanup`/`locales.delete` emit nothing, so they are not listed).
-- `$/cancelRequest` that aborts a request **before** its dispatch microtask runs (refused with `SERVE_REQUEST_CANCELLED`), and marks a running request's signal aborted for future use.
-- `capabilities.cancelScope = 'queued'` and `SERVE_CANCELLATION_SUPPORTED = false`, with progress advertised truthfully per-op via `capabilities.progressOps`.
+- `$/progress` forwarding for ops whose core path emits `run.*` events (`validate`, `sync`, `generate`; the other ops emit nothing and are not listed).
+- `$/cancelRequest` aborts a request **before** its dispatch microtask runs (refused with `SERVE_REQUEST_CANCELLED`) **and** aborts a running long op through its signal.
+- `capabilities.cancelScope = 'running'` and `SERVE_CANCELLATION_SUPPORTED = true`, with progress still advertised truthfully per-op via `capabilities.progressOps`.
 
-**To make `cancel` true:** thread an `AbortSignal` through the long-running core ops (generate/sync) and check it at their natural await boundaries; then flip `SERVE_CANCELLATION_SUPPORTED` (which moves `cancelScope` to `'running'`).
+How C-signal works:
+
+- `AbortError` / `throwIfAborted` / `isAbortError` live in `packages/core/src/shared/errors/abort.ts`; `AbortError` is deliberately **not** an `I18nPruneError` (cancellation is host control flow, not an unhandled runtime error).
+- `signal?: AbortSignal` is optional on `CoreContext`, `TranslateContext`, `TranslateOptions`, `GenerateRunOptions`, `GenerateRuntime`, and `SyncRuntime`; the worker pools (`mapWithConcurrency[WithProgress][OrderedSequential]`, `runTranslateLeafPoolOrderedSequential`) stop scheduling new slots once it fires.
+- `runTranslate` checks the signal before each provider attempt and around leaf callbacks; on abort it short-circuits provider fallback and rethrows instead of treating the abort as a provider failure.
+- `runGenerate` checks it before each target and inside `localeTranslate`; on abort it **bypasses the partial-write path and leaves disk untouched**. This is the mid-flight cancel path behind `op.generate`.
+- `runSync` and the other short local ops finish in a single dispatch turn and take no signal; the transport still refuses a cancel that lands before they start.
+- The CLI seam (`createCliCoreContext(ctx, runtime.signal)`) and `serve` pass a real per-request signal down; `ServeSession.replyError` maps a caught `AbortError` to `SERVE_REQUEST_CANCELLED` (`-32600`) rather than the internal error `-32603`.
 
 ---
 

@@ -1,8 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import fs from 'node:fs';
+import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
+import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import { cliSpawnEnv } from '../helpers/cliEnv.js';
 
@@ -190,6 +192,65 @@ describe('i18nprune serve — read ops match CLI --json bytes (S.2)', () => {
 
     const result = frames.find((f) => f.id === 7)!;
     expect(result.result.kind).toBe('validate');
+  });
+
+  it('aborts a running op mid-flight with SERVE_REQUEST_CANCELLED (cancelScope: running)', async () => {
+    const { tmp, projectRoot } = copyFixtureTree();
+    // Stand-in translation backend: accept the request and hold it, so the op is genuinely in flight
+    // (awaiting socket I/O) at the moment the client cancels — no real network, no real provider, no
+    // dependence on a rate-gate timing window.
+    let served = 0;
+    const server = http.createServer((req, res) => {
+      if (req.method !== 'POST') {
+        res.statusCode = 404;
+        res.end();
+        return;
+      }
+      served += 1;
+      req.resume();
+      setTimeout(() => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ translatedText: 'x' }));
+      }, 2000);
+    });
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const port = (server.address() as AddressInfo).port;
+    try {
+      const ar = path.join(projectRoot, 'locales', 'ar.json');
+      const arBefore = fs.readFileSync(ar, 'utf8');
+
+      const h = spawnServe(['--project', projectRoot, '--allow-writes'], neutralCwd, {
+        I18NPRUNE_TRANSLATE_PROVIDER: 'libre',
+        I18NPRUNE_TRANSLATE_LIBRE_URL: `http://127.0.0.1:${String(port)}`,
+      });
+      h.send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '1' } });
+      await waitFor(() => h.frames().length >= 1);
+
+      // `--force` skips the complete-target preflight, so generate definitely enters the translate
+      // pool instead of short-circuiting with `skipped_user_declined`.
+      h.send({ jsonrpc: '2.0', id: 2, method: 'op.generate', params: { options: { target: 'ar', force: true } } });
+      // Cancel only once the pool is actually talking to the backend — that is the mid-flight case.
+      await waitFor(() => served >= 1, 5000);
+      h.send({ jsonrpc: '2.0', method: '$/cancelRequest', params: { id: 2 } });
+
+      await waitFor(() => h.frames().some((l) => (JSON.parse(l) as { id?: number }).id === 2), 15000);
+      h.child.stdin.end();
+      await h.exited;
+
+      const frame = JSON.parse(h.frames().find((l) => (JSON.parse(l) as { id?: number }).id === 2)!) as {
+        result?: unknown;
+        error?: { code: number; data: { code: string } };
+      };
+      expect(frame.result).toBeUndefined();
+      expect(frame.error?.code).toBe(-32600);
+      expect(frame.error?.data.code).toBe('SERVE_REQUEST_CANCELLED');
+      // A cancelled run writes nothing — the partial locale is discarded, not committed.
+      expect(fs.readFileSync(ar, 'utf8')).toBe(arBefore);
+    } finally {
+      server.closeAllConnections?.();
+      server.close();
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   it('does not stream progress for a non-progress op (op.config)', async () => {

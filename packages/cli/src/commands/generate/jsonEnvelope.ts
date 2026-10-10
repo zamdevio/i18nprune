@@ -106,7 +106,7 @@ export async function executeCore(
     );
   }
 
-  const coreCtx = createCliCoreContext(ctx);
+  const coreCtx = createCliCoreContext(ctx, runtime.signal);
   const layout = resolveLocalesLayoutFromContext(coreCtx);
   const sourcePath = merged.source ? resolveFromCwd(merged.source) : ctx.paths.sourceLocale;
   emitProgress({ type: 'run.progress.generate', phase: 'read_source', label: sourcePath });
@@ -196,6 +196,7 @@ export async function executeCore(
       resume: merged.resume === true ? true : undefined,
       resumeReference,
       noRepairSentinelLeaks: merged.noRepairSentinelLeaks === true ? true : undefined,
+      ...(runtime.signal !== undefined ? { signal: runtime.signal } : {}),
     },
     buildGenerateHostHooks(ctx, runtime),
     generateHooks,

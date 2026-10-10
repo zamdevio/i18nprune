@@ -79,3 +79,8 @@ export function writesDisabled(method: string): ProtocolError {
 export function internalError(message: string): ProtocolError {
   return new ProtocolError(JSONRPC_INTERNAL_ERROR, message, SERV_ISSUE.internalError);
 }
+
+/** A request was cancelled by the client (`$/cancelRequest`), before dispatch or mid-flight. */
+export function requestCancelled(): ProtocolError {
+  return new ProtocolError(JSONRPC_INVALID_REQUEST, 'Request cancelled', SERV_ISSUE.requestCancelled);
+}

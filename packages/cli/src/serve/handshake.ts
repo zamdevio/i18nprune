@@ -28,8 +28,9 @@ export type ServeInitializeResult = {
     /** Op methods that mutate disk. Each is refused unless the session has `--allow-writes`. */
     readonly writeOps: readonly string[];
     /**
-     * Cancellation tier: `'queued'` refuses a request cancelled before it starts (a running op cannot
-     * be interrupted); `'running'` can abort mid-op; `'none'` is reserved.
+     * Cancellation tier: `'running'` can abort a long-running op mid-flight (via a cooperative
+     * `AbortSignal`); `'queued'` only refuses a request cancelled before it starts; `'none'` is
+     * reserved.
      */
     readonly cancelScope: 'none' | 'queued' | 'running';
     readonly writes: boolean;

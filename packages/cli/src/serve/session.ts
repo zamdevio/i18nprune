@@ -21,6 +21,7 @@ import {
   invalidRequest,
   methodNotFound,
   notInitialized,
+  requestCancelled,
   writesDisabled,
 } from './errors.js';
 import { buildInitializeResult, type ServeInitializeResult } from './handshake.js';
@@ -28,7 +29,7 @@ import { resolveRequestRoot, type ServeRootConfig } from './roots.js';
 import { RootContextCache, type RootContextCacheHost } from './rootContextCache.js';
 import { runServeOp, SERVE_OP_METHODS, type ServeOpId } from './ops.js';
 import { SERVE_WRITE_OPS } from '@/constants/serve.js';
-import { getRunOptions, type RunEvent } from '@i18nprune/core';
+import { getRunOptions, isAbortError, type RunEvent } from '@i18nprune/core';
 import type { Context, CliGlobalOverrides } from '@/types/core/context/index.js';
 
 /** The only two channels the session may write: protocol on stdout, diagnostics on stderr. */
@@ -202,9 +203,10 @@ export class ServeSession {
 
   /**
    * `$/cancelRequest` (LSP-style): abort the named request. A request that has not started is
-   * refused with a cancelled error before it runs; a request already mid-flight is aborted too, but
-   * because core ops accept no `AbortSignal` the abort is observed at the next dispatch boundary
-   * rather than interrupting the running op. No reply is sent for the notification itself.
+   * refused with a cancelled error before it runs; a request already mid-flight is aborted through
+   * its signal, which core long ops check at their await boundaries and unwind as an `AbortError`
+   * (surfaced to the client as `SERVE_REQUEST_CANCELLED`). No reply is sent for the notification
+   * itself.
    */
   private onCancelRequest(msg: JsonRpcInboundMessage): void {
     const params = msg.params;
@@ -324,6 +326,13 @@ export class ServeSession {
     if (err instanceof ProtocolError) {
       if (err.issueCode === SERV_ISSUE.internalError) this.stderrLine(`serve: error — ${err.message}`);
       this.reply(buildError(id, err.code, err.message, { code: err.issueCode }));
+      return;
+    }
+    // A core long op aborted its signal mid-flight (`$/cancelRequest`) — report it as a cancel, not
+    // an internal error, so the client can distinguish "I cancelled this" from a genuine crash.
+    if (isAbortError(err)) {
+      const cancelled = requestCancelled();
+      this.reply(buildError(id, cancelled.code, cancelled.message, { code: cancelled.issueCode }));
       return;
     }
     const message = err instanceof Error ? err.message : String(err);

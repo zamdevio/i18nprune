@@ -71,17 +71,17 @@ export const SERVE_PROGRESS_OPS: ReadonlySet<string> = new Set<string>(['validat
 /**
  * Whether this build can honour a cancellation of a *running* op.
  *
- * **`false` on purpose, for now.** Cancellation is only real if the in-flight op can be interrupted;
- * core accepts no `AbortSignal`, and the serve ops are synchronous. Advertising `true` would promise
- * a capability the server cannot deliver. Flipping this to `true` is gated on threading
- * `AbortSignal` through the long-running core ops (generation/sync).
+ * **`true` since slice C-signal.** `runGenerate` (translate pool, via `runTranslate`) accepts an
+ * `AbortSignal` on `CoreContext` / its options and aborts at its natural await boundaries, so
+ * `$/cancelRequest` can interrupt a running `op.generate` — not merely refuse a queued one. Short
+ * local ops (`sync`, `cleanup`, `locales.delete`) finish in one dispatch turn and need no abort.
  *
- * The handshake reports the honest tier as `capabilities.cancelScope`:
- * - `'none'`    — no cancellation at all (never used yet; reserved).
+ * The handshake reports the tier as `capabilities.cancelScope`:
+ * - `'none'`    — no cancellation at all (reserved).
  * - `'queued'`  — a request cancelled before it starts is refused; a running op cannot be stopped.
- * - `'running'` — a running op can be aborted (requires {@link SERVE_CANCELLATION_SUPPORTED}).
+ * - `'running'` — a running op can be aborted (this build).
  */
-export const SERVE_CANCELLATION_SUPPORTED = false;
+export const SERVE_CANCELLATION_SUPPORTED = true;
 
 /** The cancel tier this build actually delivers. See {@link SERVE_CANCELLATION_SUPPORTED}. */
 export const SERVE_CANCEL_SCOPE: 'none' | 'queued' | 'running' = SERVE_CANCELLATION_SUPPORTED

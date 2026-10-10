@@ -117,9 +117,9 @@ function asNumber(value: unknown): number | undefined {
  * `SERVE_WRITES_DISABLED` error before any core call.
  */
 export async function runServeOp(id: ServeOpId, ctx: ServeReadOpContext): Promise<ServeReadOpResult> {
-  // Cancellation is observed at dispatch boundaries only: core accepts no AbortSignal, so a cancelled
-  // request is refused before the (synchronous) op starts rather than interrupted mid-flight. See
-  // `SERVE_CANCELLATION_SUPPORTED`.
+  // Cancellation is checked here (pre-dispatch) and again after the op: a request cancelled before it
+  // starts is refused with `SERVE_REQUEST_CANCELLED`, and a long op that is cancelled mid-flight
+  // aborts at a core await boundary (surfaced by the session as `SERVE_REQUEST_CANCELLED`).
   if (ctx.signal?.aborted) {
     throw new ProtocolError(JSONRPC_INVALID_REQUEST, 'Request cancelled', SERV_ISSUE.requestCancelled);
   }
@@ -142,44 +142,40 @@ export async function runServeOp(id: ServeOpId, ctx: ServeReadOpContext): Promis
     throw new ProtocolError(JSONRPC_INVALID_REQUEST, 'Request cancelled', SERV_ISSUE.requestCancelled);
   }
 
-  switch (id) {
-    case 'config': {
-      const envelope = runConfig(context, resolveConfigFilePathForRoot(ctx.projectRoot)) as CliJsonEnvelope<string, unknown>;
-      return { envelope, json: stringifyEnvelope(envelope) };
+  const envelope = await (async (): Promise<CliJsonEnvelope<string, unknown>> => {
+    switch (id) {
+      case 'config':
+        return runConfig(context, resolveConfigFilePathForRoot(ctx.projectRoot)) as CliJsonEnvelope<string, unknown>;
+      case 'providers':
+        return runProviders(context) as CliJsonEnvelope<string, unknown>;
+      case 'validate':
+        return validateEnvelope(context, { emit, runId });
+      case 'doctor':
+        return doctorEnvelope(context, ctx.projectRoot, ctx.options);
+      case 'sync':
+        return await syncEnvelope(context, ctx, { emit, runId, signal: ctx.signal });
+      case 'generate':
+        return await generateEnvelope(context, ctx, { emit, runId, signal: ctx.signal });
+      case 'cleanup':
+        return cleanupEnvelope(context, ctx, { emit, runId });
+      case 'locales.delete':
+        return await localesDeleteEnvelope(context, ctx);
+      default: {
+        const exhaustive: never = id;
+        throw new Error(`Unhandled serve op: ${String(exhaustive)}`);
+      }
     }
-    case 'providers': {
-      const envelope = runProviders(context) as CliJsonEnvelope<string, unknown>;
-      return { envelope, json: stringifyEnvelope(envelope) };
-    }
-    case 'validate': {
-      const envelope = validateEnvelope(context, { emit, runId });
-      return { envelope, json: stringifyEnvelope(envelope) };
-    }
-    case 'doctor': {
-      const envelope = doctorEnvelope(context, ctx.projectRoot, ctx.options);
-      return { envelope, json: stringifyEnvelope(envelope) };
-    }
-    case 'sync': {
-      const envelope = await syncEnvelope(context, ctx, { emit, runId });
-      return { envelope, json: stringifyEnvelope(envelope) };
-    }
-    case 'generate': {
-      const envelope = await generateEnvelope(context, ctx, { emit, runId });
-      return { envelope, json: stringifyEnvelope(envelope) };
-    }
-    case 'cleanup': {
-      const envelope = cleanupEnvelope(context, ctx, { emit, runId });
-      return { envelope, json: stringifyEnvelope(envelope) };
-    }
-    case 'locales.delete': {
-      const envelope = await localesDeleteEnvelope(context, ctx);
-      return { envelope, json: stringifyEnvelope(envelope) };
-    }
-    default: {
-      const exhaustive: never = id;
-      throw new Error(`Unhandled serve op: ${String(exhaustive)}`);
-    }
+  })();
+
+  // Final cancellation gate. Core ops abort at their await boundaries and throw an `AbortError`
+  // (surfaced by the session as `SERVE_REQUEST_CANCELLED`), but a long op with nothing left to await
+  // can still finish after a late cancel — this check guarantees the client always sees the cancel
+  // rather than a result it explicitly walked away from.
+  if (ctx.signal?.aborted) {
+    throw new ProtocolError(JSONRPC_INVALID_REQUEST, 'Request cancelled', SERV_ISSUE.requestCancelled);
   }
+
+  return { envelope, json: stringifyEnvelope(envelope) };
 }
 
 /**
@@ -241,7 +237,7 @@ function doctorEnvelope(
 async function syncEnvelope(
   context: Context,
   ctx: ServeReadOpContext,
-  runtime: { emit?: RunEmitter; runId?: string },
+  runtime: { emit?: RunEmitter; runId?: string; signal?: AbortSignal },
 ): Promise<CliJsonEnvelope<string, unknown>> {
   const opts = syncOptionsFrom(ctx.options);
   const readiness = cliReadinessIssues(context, { mode: 'preset', preset: 'sync' });
@@ -304,12 +300,13 @@ function syncOptionsFrom(options: Record<string, unknown>): SyncOptions {
 async function generateEnvelope(
   context: Context,
   ctx: ServeReadOpContext,
-  runtime: { emit?: RunEmitter; runId?: string },
+  runtime: { emit?: RunEmitter; runId?: string; signal?: AbortSignal },
 ): Promise<CliJsonEnvelope<string, unknown>> {
   const opts = mergeGenerateOptionsFromEnv(generateOptionsFrom(ctx.options));
   const envelope = (await runGenerateJsonEnvelope(context, opts, {
     emit: runtime.emit ?? noopRunEmitter,
     runId: runtime.runId ?? String(Date.now()),
+    ...(runtime.signal !== undefined ? { signal: runtime.signal } : {}),
   })) as CliJsonEnvelope<'generate', { targetResults: GenerateTargetResult[] }>;
 
   if (envelope.ok && opts.dryRun !== true) {

@@ -61,7 +61,7 @@ The result reports the server and what it can do:
     "progress":true,
     "progressOps":["validate","sync","generate"],
     "writeOps":["sync","generate","cleanup","locales.delete"],
-    "cancelScope":"queued",
+    "cancelScope":"running",
     "writes":false
   }
 }}
@@ -75,7 +75,7 @@ Feature-detect against `capabilities` — a method the server cannot honour neve
 | `writes` | Whether mutating ops are enabled (set by `--allow-writes`). |
 | `writeOps` | The mutating methods, each refused unless `writes` is true. |
 | `progress` / `progressOps` | `progress` is true when any op streams `$/progress`; `progressOps` names exactly which do. Do not expect progress from an op that is not listed. |
-| `cancelScope` | Cancellation tier: `'queued'` refuses a request cancelled before it starts (a running op cannot be interrupted); `'running'` can abort mid-op; `'none'` is reserved. |
+| `cancelScope` | Cancellation tier: `'running'` can abort an op mid-flight; `'queued'` only refuses a request cancelled before it starts; `'none'` is reserved. |
 
 ### Lifecycle methods
 
@@ -131,7 +131,14 @@ Send the `$/cancelRequest` notification with the target request id:
 {"jsonrpc":"2.0","method":"$/cancelRequest","params":{"id":2}}
 ```
 
-Cancellation is **pre-dispatch only**: a request that has not started is refused with `SERVE_REQUEST_CANCELLED`, but a request already running cannot be interrupted — nothing in core accepts an abort signal — so `capabilities.cancelScope` is honestly `'queued'`, not `'running'`.
+Cancellation works in two windows, and `capabilities.cancelScope` is `'running'`:
+
+- **Before dispatch** — a request cancelled while queued is refused with `SERVE_REQUEST_CANCELLED`.
+- **Mid-flight** — the long translate-pool op (`op.generate`) accepts a cooperative `AbortSignal` and checks it at its await boundaries. A cancel unwinds the running op; the partial result is discarded and the request returns `SERVE_REQUEST_CANCELLED` instead of a result. No partial locale is written.
+
+Short local ops (`op.sync`, `op.cleanup`, `op.locales.delete`) do not need a mid-flight abort and are not cancellation targets — they finish in one dispatch turn.
+
+A cancelled request therefore always answers with an error, never a result the client walked away from.
 
 ## Errors
 
