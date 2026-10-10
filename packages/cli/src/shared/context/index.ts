@@ -2,6 +2,12 @@ export {
   resolveContext,
   clearContextCache,
 } from './resolve.js';
+export {
+  resolveContextForRoot,
+  resolveContextForProjectRoot,
+  type RootResolveInput,
+  type RootContextHost,
+} from './contextForRoot.js';
 export { tryResolveContext } from './tryResolveContext.js';
 export { createCliCoreContext } from './coreContext.js';
 export {

@@ -1,6 +1,6 @@
 # Phase — `i18nprune serve` (stdio transport)
 
-**Status:** **in progress** — S.1 (transport skeleton) landed; S.2–S.5 pending.
+**Status:** **in progress** — S.1 (transport skeleton) + S.2 (read ops) landed; S.3–S.5 pending.
 **Tracker:** [`focus.md`](./focus.md) · **Contract:** [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) · **User docs (when built):** `docs/cli/serve.md`
 **Implementation home:** `packages/cli/src/serve/` (transport only — ops stay in core `runXxx`)
 **Consumers:** Tauri desktop (planned, develops outside this repo until migration), VS Code extension (own branch), scripted / SSH clients
@@ -51,7 +51,7 @@ Status: **planned** — one slice per PR; parity fixtures unchanged unless a sli
 | Slice | Scope | Exit criteria |
 |-------|-------|---------------|
 | **S.1 — Transport skeleton** ✅ | `packages/cli/src/serve/` — NDJSON framing, `initialize` / `shutdown` / `exit` / `ping`, capability report, version negotiation, sandbox vs hub root modes, stdin-close + idle timeout | Conformance test: exact stdout byte framing; non-protocol stdout bytes fail the test; confined root rejects a different root |
-| **S.2 — Read ops** | `op.config` · `op.doctor` · `op.validate` · `op.languages` · `op.providers` | Results byte-equal the `--json` envelope for the same fixture |
+| **S.2 — Read ops** ✅ | `op.config` · `op.doctor` · `op.validate` · `op.languages` · `op.providers` | Results byte-equal the `--json` envelope for the same fixture |
 | **S.3 — Progress + cancel** | Map `RunEvent` → `$/progress`; `$/cancelRequest` | Long op streams ticks; cancel returns a terminal error, not a hang |
 | **S.4 — Write ops (opt-in)** | `op.sync` · `op.generate` · `op.cleanup` · `op.locales.delete` behind `--allow-writes`; per-root serialization + context invalidation | Writes refused when read-only; that root's `CoreContext` / `localeRead` invalidated after write |
 | **S.5 — Client docs + smoke** | `docs/cli/serve.md`, `docs/commands/README.md` row, sidebar entry, manual `wsl.exe` / `ssh` smoke note | A documented command a user can copy-paste actually works |
@@ -75,12 +75,10 @@ Status: **planned** — one slice per PR; parity fixtures unchanged unless a sli
 
 ## Open questions (remaining)
 
-1. **Idle timeout default** — what value? Long enough to survive a user stepping away, short enough to reap orphans. Suggestion: `900` (15 min), `0` disables.
-2. **Progress granularity** — every `run.message`, or only `run.progress.*`? Affects client noise. Suggestion: `run.progress.*` plus `run.completed`, opt-in verbose for everything.
-3. **Root context LRU cap** — how many roots stay warm before eviction? Suggestion: `8`.
-4. **Hub-mode root allow-list** — in hub mode (especially over SSH), should `--root-allow <glob>` restrict roots a client may name? Consider before S.4, not before S.1.
+1. **Progress granularity** — every `run.message`, or only `run.progress.*`? Affects client noise. Suggestion: `run.progress.*` plus `run.completed`, opt-in verbose for everything.
+2. **Hub-mode root allow-list** — in hub mode (especially over SSH), should `--root-allow <glob>` restrict roots a client may name? Consider before S.4, not before S.1.
 
-**Resolved:** no client id in v1 (§10) · writes are a flag (§11) · stdin-close primary with idle backstop (§12) · sandbox + hub modes, mutually exclusive (§9).
+**Resolved:** no client id in v1 (§10) · writes are a flag (§11) · stdin-close primary with idle backstop (§12) · sandbox + hub modes, mutually exclusive (§9) · idle timeout default `900` s, `0` disables (§1) · per-root context LRU cap `8` (§3).
 
 ---
 

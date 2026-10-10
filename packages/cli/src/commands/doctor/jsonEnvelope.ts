@@ -17,14 +17,17 @@ import type { DoctorOptions } from '@/types/commands/doctor/index.js';
 import { createCliCoreContext } from '@/shared/context/coreContext.js';
 import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 
-function buildDoctorHostHooks(runtime?: { emit?: RunEmitter; runId?: string }): DoctorHostHooks {
+function buildDoctorHostHooks(
+  runtime?: { emit?: RunEmitter; runId?: string },
+  hostConfig?: { hasConfigFile: boolean; configPathLabel: string | null },
+): DoctorHostHooks {
   return {
     emit: runtime?.emit,
     runId: runtime?.runId,
     nodeVersion: process.version,
     rgAvailable: isRipgrepAvailable(),
-    hasConfigFile: configExists(),
-    configPathLabel: configPathForContext(),
+    hasConfigFile: hostConfig?.hasConfigFile ?? configExists(),
+    configPathLabel: hostConfig?.configPathLabel ?? configPathForContext(),
   };
 }
 
@@ -37,12 +40,17 @@ export function collectDoctorFindings(ctx: Context, opts: DoctorOptions) {
 export function runDoctor(
   ctx: Context,
   opts: DoctorOptions,
-  runtime?: { emit?: RunEmitter; runId?: string },
+  runtime?: {
+    emit?: RunEmitter;
+    runId?: string;
+    /** Per-root config facts for a multi-root host (serve); omitted by the single-root CLI. */
+    hostConfig?: { hasConfigFile: boolean; configPathLabel: string | null };
+  },
 ): CliJsonEnvelope<'doctor', DoctorJsonPayload> {
   emitRunEvent(runtime?.emit, { type: 'run.started', op: 'doctor', runId: runtime?.runId, at: nowMs() });
   try {
     const coreCtx = createCliCoreContext(ctx);
-    const host = buildDoctorHostHooks(runtime);
+    const host = buildDoctorHostHooks(runtime, runtime?.hostConfig);
     const result = runDoctorCore(coreCtx, { only: opts.only, strict: opts.strict }, host);
     const dynamicKeySites = resolveDynamicSitesCount(ctx);
     const issues = mergeIssues(

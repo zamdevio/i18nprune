@@ -27,3 +27,17 @@ export {
 export { ProtocolError, SERV_ISSUE, type ServeIssueCode } from './errors.js';
 export { LineReader } from './lineReader.js';
 export { buildInitializeResult, type ServeInitializeResult } from './handshake.js';
+export {
+  runServeReadOp,
+  SERVE_READ_OP_METHODS,
+  type ServeReadOpId,
+  type ServeReadOpContext,
+  type ServeReadOpResult,
+} from './ops.js';
+export {
+  RootContextCache,
+  SERVE_DEFAULT_ROOT_CACHE_MAX,
+  SERVE_ROOT_CACHE_TTL_MS,
+  type RootContextCacheHost,
+  type RootContextResolver,
+} from './rootContextCache.js';

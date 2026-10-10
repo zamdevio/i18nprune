@@ -28,9 +28,15 @@ export const SERVE_MAX_LINE_BYTES = 16 * 1024 * 1024;
  * Op methods this server can actually serve, advertised in `capabilities.ops`.
  *
  * Kept **truthful**: a client feature-detects against this list, so a method that is not wired yet
- * must not appear here. Read ops are added by slice S.2/S.3, write ops by S.4.
+ * must not appear here. Read ops landed in S.2; write ops join in S.4.
  */
-export const SERVE_IMPLEMENTED_OPS: readonly string[] = [];
+export const SERVE_IMPLEMENTED_OPS: readonly string[] = [
+  'config',
+  'doctor',
+  'validate',
+  'languages',
+  'providers',
+];
 
 /** Op methods that mutate disk. Reserved for the S.4 write slice (gated by `--allow-writes`). */
 export const SERVE_WRITE_OPS: ReadonlySet<string> = new Set<string>();

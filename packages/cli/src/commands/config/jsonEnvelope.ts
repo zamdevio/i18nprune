@@ -7,8 +7,8 @@ import type { ConfigSnapshot } from '@/types/commands/config/index.js';
 import type { CliJsonEnvelope } from '@i18nprune/core';
 import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 
-export function runConfig(ctx: Context): CliJsonEnvelope<'config', ConfigSnapshot> {
-  const snap = buildConfigSnapshot(ctx);
+export function runConfig(ctx: Context, configPathOverride?: string | null): CliJsonEnvelope<'config', ConfigSnapshot> {
+  const snap = buildConfigSnapshot(ctx, configPathOverride);
   const readiness = cliReadinessIssues(ctx, { mode: 'preset', preset: 'config' });
   const issues = mergeIssues(issuesFromDiscoveryWarnings(ctx.meta.warnings), readiness ?? []);
   return buildCliJsonEnvelope('config', snap, {

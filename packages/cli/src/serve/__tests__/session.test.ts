@@ -36,58 +36,73 @@ function makeHarness(opts?: {
   };
 }
 
-const send = (h: ReturnType<typeof makeHarness>, msg: unknown) =>
+/** Feed a message and flush the dispatch queue so the reply is observable. */
+const send = async (h: ReturnType<typeof makeHarness>, msg: unknown) => {
   h.session.handleChunk(Buffer.from(`${JSON.stringify(msg)}\n`, 'utf8'));
+  await h.session.drain();
+};
 
 function parse(line: string): Record<string, unknown> {
   return JSON.parse(line) as Record<string, unknown>;
 }
 
+const init = (h: ReturnType<typeof makeHarness>) =>
+  send(h, {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'initialize',
+    params: { protocolVersion: SERVE_PROTOCOL_VERSION },
+  });
+
 describe('ServeSession — handshake', () => {
-  it('initializes with the negotiated protocol, truthful capabilities, and mode', () => {
+  it('initializes with the negotiated protocol, truthful capabilities, and mode', async () => {
     const h = makeHarness({ root: { mode: 'sandbox', root: path.resolve('/srv/proj') }, writes: true });
-    send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: SERVE_PROTOCOL_VERSION } });
-    const [line] = h.lines();
-    const res = parse(line!).result as Record<string, unknown>;
+    await init(h);
+    const res = parse(h.lines()[0]!).result as Record<string, unknown>;
     expect(res.protocolVersion).toBe(SERVE_PROTOCOL_VERSION);
     expect(res.rootMode).toBe('sandbox');
     expect(res.projectRoot).toBe(path.resolve('/srv/proj'));
-    expect(res.capabilities).toEqual({ ops: [], progress: false, cancel: false, writes: true });
+    expect(res.capabilities).toEqual({
+      ops: ['config', 'doctor', 'validate', 'languages', 'providers'],
+      progress: false,
+      cancel: false,
+      writes: true,
+    });
   });
 
-  it('fails closed on an unsupported protocol version and does not mark the session initialized', () => {
+  it('fails closed on an unsupported protocol version and does not mark the session initialized', async () => {
     const h = makeHarness();
-    send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2' } });
+    await send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2' } });
     const err = parse(h.lines()[0]!).error as Record<string, unknown>;
     expect(err.code).toBe(-32602);
     expect((err.data as Record<string, unknown>).code).toBe('SERVE_UNSUPPORTED_PROTOCOL_VERSION');
 
-    send(h, { jsonrpc: '2.0', id: 2, method: 'ping' });
+    await send(h, { jsonrpc: '2.0', id: 2, method: 'ping' });
     const second = parse(h.lines()[1]!).error as Record<string, unknown>;
     expect((second.data as Record<string, unknown>).code).toBe('SERVE_NOT_INITIALIZED');
   });
 
-  it('requires a string protocolVersion', () => {
+  it('requires a string protocolVersion', async () => {
     const h = makeHarness();
-    send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: {} });
+    await send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: {} });
     const err = parse(h.lines()[0]!).error as Record<string, unknown>;
     expect((err.data as Record<string, unknown>).code).toBe('SERVE_INVALID_PARAMS');
   });
 
-  it('rejects a second initialize', () => {
+  it('rejects a second initialize', async () => {
     const h = makeHarness();
-    send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: SERVE_PROTOCOL_VERSION } });
-    send(h, { jsonrpc: '2.0', id: 2, method: 'initialize', params: { protocolVersion: SERVE_PROTOCOL_VERSION } });
+    await init(h);
+    await send(h, { jsonrpc: '2.0', id: 2, method: 'initialize', params: { protocolVersion: SERVE_PROTOCOL_VERSION } });
     const err = parse(h.lines()[1]!).error as Record<string, unknown>;
     expect((err.data as Record<string, unknown>).code).toBe('SERVE_INVALID_REQUEST');
   });
 });
 
 describe('ServeSession — pre-init guard', () => {
-  it('refuses ping/shutdown before initialize', () => {
+  it('refuses ping/shutdown before initialize', async () => {
     const h = makeHarness();
-    send(h, { jsonrpc: '2.0', id: 1, method: 'ping' });
-    send(h, { jsonrpc: '2.0', id: 2, method: 'shutdown' });
+    await send(h, { jsonrpc: '2.0', id: 1, method: 'ping' });
+    await send(h, { jsonrpc: '2.0', id: 2, method: 'shutdown' });
     for (const line of h.lines()) {
       const err = parse(line).error as Record<string, unknown>;
       expect((err.data as Record<string, unknown>).code).toBe('SERVE_NOT_INITIALIZED');
@@ -96,17 +111,17 @@ describe('ServeSession — pre-init guard', () => {
 });
 
 describe('ServeSession — utility + unknown methods', () => {
-  it('answers ping with an empty result', () => {
+  it('answers ping with an empty result', async () => {
     const h = makeHarness();
-    send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: SERVE_PROTOCOL_VERSION } });
-    send(h, { jsonrpc: '2.0', id: 2, method: 'ping' });
+    await init(h);
+    await send(h, { jsonrpc: '2.0', id: 2, method: 'ping' });
     expect(parse(h.lines()[1]!)).toEqual({ jsonrpc: '2.0', id: 2, result: {} });
   });
 
-  it('returns method-not-found for an op method with no slice wired yet', () => {
+  it('returns method-not-found for an op method that has no slice', async () => {
     const h = makeHarness();
-    send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: SERVE_PROTOCOL_VERSION } });
-    send(h, { jsonrpc: '2.0', id: 2, method: 'op.validate' });
+    await init(h);
+    await send(h, { jsonrpc: '2.0', id: 2, method: 'op.sync' });
     const err = parse(h.lines()[1]!).error as Record<string, unknown>;
     expect(err.code).toBe(-32601);
     expect((err.data as Record<string, unknown>).code).toBe('SERVE_METHOD_NOT_FOUND');
@@ -121,40 +136,42 @@ describe('ServeSession — lifecycle', () => {
     expect(h.stderr()).toContain('stdin closed');
   });
 
-  it('exits on the `exit` notification without replying', () => {
+  it('exits on the `exit` notification without replying', async () => {
     const h = makeHarness();
-    send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: SERVE_PROTOCOL_VERSION } });
+    await init(h);
     const before = h.lines().length;
-    send(h, { jsonrpc: '2.0', method: 'exit' });
+    await send(h, { jsonrpc: '2.0', method: 'exit' });
     expect(h.lines().length).toBe(before);
     expect(h.exits).toEqual([0]);
   });
 
-  it('shutdown drains and waits for exit: replies null then still alive until exit', () => {
+  it('shutdown drains and waits for exit: replies then still alive until exit', async () => {
     const h = makeHarness();
-    send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: SERVE_PROTOCOL_VERSION } });
-    send(h, { jsonrpc: '2.0', id: 2, method: 'shutdown' });
+    await init(h);
+    await send(h, { jsonrpc: '2.0', id: 2, method: 'shutdown' });
     expect(parse(h.lines()[1]!).result).toEqual({});
     expect(h.exits).toEqual([]);
 
-    send(h, { jsonrpc: '2.0', id: 3, method: 'ping' });
+    await send(h, { jsonrpc: '2.0', id: 3, method: 'ping' });
     const err = parse(h.lines()[2]!).error as Record<string, unknown>;
     expect((err.data as Record<string, unknown>).code).toBe('SERVE_SHUTTING_DOWN');
 
-    send(h, { jsonrpc: '2.0', method: 'exit' });
+    await send(h, { jsonrpc: '2.0', method: 'exit' });
     expect(h.exits).toEqual([0]);
   });
 });
 
 describe('ServeSession — stdio purity', () => {
-  it('writes only protocol frames to stdout across a full exchange', () => {
+  it('writes only protocol frames to stdout across a full exchange', async () => {
     const h = makeHarness();
     h.session.start();
-    send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: SERVE_PROTOCOL_VERSION } });
-    send(h, { jsonrpc: '2.0', id: 2, method: 'ping' });
-    send(h, { jsonrpc: '2.0', id: 3, method: 'nope' });
-    send(h, { not: 'jsonrpc' });
+    await init(h);
+    await send(h, { jsonrpc: '2.0', id: 2, method: 'ping' });
+    await send(h, { jsonrpc: '2.0', id: 3, method: 'nope' });
+    h.session.handleChunk(Buffer.from('{ not jsonrpc }\n', 'utf8'));
+    await h.session.drain();
     h.session.handleChunk(Buffer.from('{ broken\n', 'utf8'));
+    await h.session.drain();
     h.session.handleStdinClosed();
 
     for (const line of h.lines()) {
@@ -165,23 +182,63 @@ describe('ServeSession — stdio purity', () => {
     expect(h.stderr().length).toBeGreaterThan(0);
   });
 
-  it('tolerates CRLF line endings', () => {
+  it('tolerates CRLF line endings', async () => {
     const h = makeHarness();
     h.session.handleChunk(Buffer.from('{"jsonrpc":"2.0","id":1,"method":"ping"}\r\n', 'utf8'));
+    await h.session.drain();
     // pre-init → not-initialized error, but the frame must have parsed (proving \r was stripped)
     const err = parse(h.lines()[0]!).error as Record<string, unknown>;
     expect((err.data as Record<string, unknown>).code).toBe('SERVE_NOT_INITIALIZED');
   });
 
-  it('answers an oversize line with a parse-level rejection and keeps serving', () => {
+  it('answers an oversize line with a parse-level rejection and keeps serving', async () => {
     const h = makeHarness();
     const huge = Buffer.from(`${'x'.repeat(17 * 1024 * 1024)}\n`, 'utf8');
     h.session.handleChunk(huge);
     const err = parse(h.lines()[0]!).error as Record<string, unknown>;
     expect((err.data as Record<string, unknown>).code).toBe('SERVE_LINE_TOO_LONG');
 
-    send(h, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: SERVE_PROTOCOL_VERSION } });
+    await init(h);
     expect(parse(h.lines()[1]!).result).toBeDefined();
+  });
+});
+
+describe('ServeSession — op routing (S.2)', () => {
+  it('hub: an op without projectRoot is invalid params', async () => {
+    const h = makeHarness();
+    await init(h);
+    await send(h, { jsonrpc: '2.0', id: 2, method: 'op.config' });
+    const err = parse(h.lines()[1]!).error as Record<string, unknown>;
+    expect(err.code).toBe(-32602);
+  });
+
+  it('sandbox: an op naming a different root is confined', async () => {
+    const root = path.resolve('/srv/proj');
+    const h = makeHarness({ root: { mode: 'sandbox', root } });
+    await init(h);
+    await send(h, {
+      jsonrpc: '2.0',
+      id: 2,
+      method: 'op.config',
+      params: { projectRoot: path.resolve('/srv/other') },
+    });
+    const err = parse(h.lines()[1]!).error as Record<string, unknown>;
+    expect(err.code).toBe(-32600);
+    expect((err.data as Record<string, unknown>).code).toBe('SERVE_PROJECT_CONFINED');
+  });
+
+  it('hub: op.languages needs no project config and returns its envelope', async () => {
+    const h = makeHarness();
+    await init(h);
+    await send(h, {
+      jsonrpc: '2.0',
+      id: 2,
+      method: 'op.languages',
+      params: { projectRoot: path.resolve('/tmp'), options: { table: false } },
+    });
+    const result = parse(h.lines()[1]!).result as { kind: string; ok: boolean };
+    expect(result.kind).toBe('languages');
+    expect(result.ok).toBe(true);
   });
 });
 

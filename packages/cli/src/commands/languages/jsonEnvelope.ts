@@ -7,12 +7,13 @@ import { cliEnvelopeCwd } from '@/shared/result/envelopeCwd.js';
 
 export function runLanguages(
   opts: LanguagesCommandOptions,
+  cwd?: string,
 ): CliJsonEnvelope<'languages', ReturnType<typeof filterLanguages>> {
   const rows = filterLanguages(opts.filter);
   const issues = mergeIssues(issuesFromLanguagesFilter(opts.filter, rows.length));
   return buildCliJsonEnvelope('languages', rows, {
     ok: true,
     issues,
-    cwd: cliEnvelopeCwd(),
+    cwd: cwd ?? cliEnvelopeCwd(),
   });
 }

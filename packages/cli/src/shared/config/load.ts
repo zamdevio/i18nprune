@@ -9,8 +9,14 @@ export function configExists() {
   return p !== null;
 }
 
-export async function loadConfig(): Promise<I18nPruneConfig> {
-  const resolved = resolveConfigFilePath();
+/**
+ * Load the config at an explicit path (or built-in defaults when `null`).
+ *
+ * Root-parameterized on purpose: a long-lived host (e.g. `serve` in hub mode) resolves a different
+ * config per project root, so it must not read the process-global chosen path. The CLI's
+ * {@link loadConfig} passes the globally-resolved path and keeps its existing behavior.
+ */
+export async function loadConfigFromPath(resolved: string | null): Promise<I18nPruneConfig> {
   if (!resolved) {
     return { ...DEFAULT_CONFIG } as I18nPruneConfig;
   }
@@ -28,4 +34,8 @@ export async function loadConfig(): Promise<I18nPruneConfig> {
     ...(typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {}),
   };
   return parseI18nPruneConfig(merged);
+}
+
+export async function loadConfig(): Promise<I18nPruneConfig> {
+  return loadConfigFromPath(resolveConfigFilePath());
 }

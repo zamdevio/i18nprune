@@ -23,6 +23,10 @@ import {
 } from './errors.js';
 import { buildInitializeResult, type ServeInitializeResult } from './handshake.js';
 import { resolveRequestRoot, type ServeRootConfig } from './roots.js';
+import { RootContextCache, type RootContextCacheHost } from './rootContextCache.js';
+import { runServeReadOp, SERVE_READ_OP_METHODS, type ServeReadOpId } from './ops.js';
+import { getRunOptions } from '@i18nprune/core';
+import type { Context, CliGlobalOverrides } from '@/types/core/context/index.js';
 
 /** The only two channels the session may write: protocol on stdout, diagnostics on stderr. */
 export type ServeIo = {
@@ -37,6 +41,8 @@ export type ServeSessionOptions = {
   /** `--idle-timeout <seconds>`; `0` disables. Defaults to {@link SERVE_DEFAULT_IDLE_TIMEOUT_SECONDS}. */
   readonly idleTimeoutSeconds?: number;
   readonly io: ServeIo;
+  /** RunOptions the per-root contexts report (serve runs with `json: true`). Defaults to global. */
+  readonly run?: Context['run'];
   /** Process exit. Injected so tests own the lifecycle. */
   readonly exit?: (code: number) => void;
   readonly setTimer?: (cb: () => void, ms: number) => ReturnType<typeof setTimeout>;
@@ -48,6 +54,8 @@ export type ServeSessionDeps = {
   readonly writes: boolean;
   readonly idleTimeoutSeconds: number;
   readonly io: ServeIo;
+  readonly run: Context['run'];
+  readonly cliOverrides: CliGlobalOverrides;
   readonly exit: (code: number) => void;
   readonly setTimer: (cb: () => void, ms: number) => ReturnType<typeof setTimeout>;
   readonly clearTimer: (timer: ReturnType<typeof setTimeout>) => void;
@@ -68,6 +76,9 @@ export class ServeSession {
   private shuttingDown = false;
   private finished = false;
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly rootCache: RootContextCache;
+  /** Serializes op dispatch in arrival order so replies stay ordered. */
+  private queue: Promise<void> = Promise.resolve();
 
   constructor(options: ServeSessionOptions) {
     this.deps = {
@@ -75,10 +86,14 @@ export class ServeSession {
       writes: options.writes,
       idleTimeoutSeconds: options.idleTimeoutSeconds ?? SERVE_DEFAULT_IDLE_TIMEOUT_SECONDS,
       io: options.io,
+      run: options.run ?? getRunOptions(),
+      cliOverrides: {},
       exit: options.exit ?? ((code: number) => process.exit(code)),
       setTimer: options.setTimer ?? ((cb, ms) => setTimeout(cb, ms)),
       clearTimer: options.clearTimer ?? ((timer) => clearTimeout(timer)),
     };
+    const host: RootContextCacheHost = { run: this.deps.run, cliOverrides: this.deps.cliOverrides };
+    this.rootCache = new RootContextCache(host);
     const hooks: LineReaderHooks = {
       onLine: (text) => this.handleLine(text),
       onTooLong: () =>
@@ -107,6 +122,11 @@ export class ServeSession {
   /** Signal stdin end-of-stream directly (tests / non-stream callers). */
   handleStdinClosed(): void {
     this.reader.end();
+  }
+
+  /** Await the dispatch queue to settle (tests: deterministic teardown). */
+  async drain(): Promise<void> {
+    await this.queue.catch(() => undefined);
   }
 
   // ── inbound ───────────────────────────────────────────────────────────────
@@ -138,12 +158,16 @@ export class ServeSession {
       this.handleNotification(msg);
       return;
     }
-    try {
-      const result = this.dispatchRequest(msg);
-      this.reply(buildResult(msg.id, result));
-    } catch (err) {
-      this.replyError(msg.id, err);
-    }
+    // Queue requests so replies stay in arrival order even when a handler awaits disk I/O.
+    this.queue = this.queue.then(async () => {
+      if (this.finished) return;
+      try {
+        const result = await this.dispatchRequest(msg);
+        this.reply(buildResult(msg.id!, result));
+      } catch (err) {
+        this.replyError(msg.id, err);
+      }
+    });
   }
 
   private handleNotification(msg: JsonRpcInboundMessage): void {
@@ -154,7 +178,7 @@ export class ServeSession {
     // Unknown notifications (incl. `$/cancelRequest` before S.3) are ignored by JSON-RPC contract.
   }
 
-  private dispatchRequest(msg: JsonRpcInboundMessage): unknown {
+  private async dispatchRequest(msg: JsonRpcInboundMessage): Promise<unknown> {
     if (msg.method === 'initialize') return this.onInitialize(msg);
     if (!this.initialized) throw notInitialized();
     if (this.shuttingDown) {
@@ -166,9 +190,33 @@ export class ServeSession {
       case 'ping':
         return {};
       default:
-        // `op.*` methods land here until their slice wires them — method-not-found is the honest answer.
-        throw methodNotFound(msg.method);
+        return this.dispatchOp(msg);
     }
+  }
+
+  /** Route `op.*` methods to read ops; unknown / not-yet-wired methods are method-not-found. */
+  private async dispatchOp(msg: JsonRpcInboundMessage): Promise<unknown> {
+    const opId = (SERVE_READ_OP_METHODS as Record<string, ServeReadOpId | undefined>)[msg.method];
+    if (opId === undefined) throw methodNotFound(msg.method);
+    const p = this.asParamsObject(msg.params);
+    const root = this.resolveRoot(typeof p.projectRoot === 'string' ? p.projectRoot : undefined);
+    const options = this.asOptionsObject(p.options);
+    const result = await runServeReadOp(opId, {
+      projectRoot: root,
+      run: this.deps.run,
+      cliOverrides: this.deps.cliOverrides,
+      options,
+      getContext: () => this.rootCache.get(root),
+    });
+    return result.envelope;
+  }
+
+  private asOptionsObject(options: unknown): Record<string, unknown> {
+    if (options === undefined || options === null) return {};
+    if (typeof options !== 'object' || Array.isArray(options)) {
+      throw invalidParams('`options` must be an object');
+    }
+    return options as Record<string, unknown>;
   }
 
   private onInitialize(msg: JsonRpcInboundMessage): ServeInitializeResult {

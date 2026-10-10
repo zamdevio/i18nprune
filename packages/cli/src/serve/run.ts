@@ -40,7 +40,10 @@ function parseIdleTimeout(raw: string | undefined): number | undefined {
  * and `bin/cli.ts` skips the command banner / update notice for `serve`.
  */
 export async function serve(opts: ServeOptions): Promise<void> {
-  setRunOptions({ quiet: true, silent: true, debugScan: false, debugCache: false });
+  // `json: true` makes `stringifyEnvelope` use the CLI's `--json` defaults (pretty-print on), so op
+  // envelopes are byte-identical to `--json`. `silent` keeps every human logger path off stdout — the
+  // protocol stream must carry framed messages and nothing else.
+  setRunOptions({ json: true, jsonPretty: true, quiet: true, silent: true, debugScan: false, debugCache: false });
 
   const root = resolveServeRootConfig(opts.project);
   const idleTimeoutSeconds = parseIdleTimeout(opts.idleTimeout);
