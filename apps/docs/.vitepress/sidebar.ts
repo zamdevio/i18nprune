@@ -98,6 +98,7 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
         { text: 'ADR 009 - Share snapshot contract', link: '/architecture/decisions/009-share-hosted-snapshot-contract' },
         { text: 'ADR 010 - Locale layout and metadata', link: '/architecture/decisions/010-locale-layout-and-metadata-modes' },
         { text: 'ADR 011 - Runtime-neutral host model', link: '/architecture/decisions/011-runtime-neutral-sdk-host-model' },
+        { text: 'ADR 012 - serve stdio transport', link: '/architecture/decisions/012-cli-serve-transport' },
       ],
     },
     {

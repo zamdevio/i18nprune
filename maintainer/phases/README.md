@@ -24,6 +24,7 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 | [`locale-only.md`](./locale-only.md) | **Then** — generate without config / codebase |
 | [`config.md`](./config.md) | **Queued** — `config` layout-aware human + JSON |
 | [`search.md`](./search.md) | **Planned** — `search` command |
+| [`serve.md`](./serve.md) | **Planned** — stdio JSON-RPC transport for hosts ([ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md)) |
 | [`terminal.md`](./terminal.md) | **Research** — terminal protocol exploitation |
 
 **Systems maps:** [`systems/README.md`](../systems/README.md) — `cache.md`, `share.md`, `extractor.md`, `exports.md`, …

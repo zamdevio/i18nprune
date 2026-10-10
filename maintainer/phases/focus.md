@@ -13,6 +13,7 @@
 | **Then** | Locale-only generate | [`locale-only.md`](./locale-only.md) |
 | **Queued** | Config layout UX | [`config.md`](./config.md) |
 | **Planned** | `search` command | [`search.md`](./search.md) |
+| **Planned** | `serve` stdio transport | [`serve.md`](./serve.md) · [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) |
 | **Research** | Terminal protocol | [`terminal.md`](./terminal.md) |
 | **Shipped** | Preserve + sync | [`shipped/locale/preserve-sync.md`](../shipped/locale/preserve-sync.md) |
 
