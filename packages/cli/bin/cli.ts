@@ -39,6 +39,7 @@ import { localesList, localesDynamic, localesDelete } from '@/commands/locales/i
 import { shareUpload, shareList, shareView, shareDelete } from '@/commands/share/index.js';
 import { kitsBaseline, kitsDynamic, kitsHonest, kitsIdentical, kitsPr } from '@/commands/kits/index.js';
 import { report } from '@/commands/report/index.js';
+import { serve } from '@/serve/index.js';
 import { configureCliHelp } from '@/commands/help/index.js';
 import { CLI_NAME, CLI_ROOT_DESCRIPTION } from '@/constants/cli.js';
 import { maybePrintCommandBanner } from '@/utils/cli/banner.js';
@@ -233,6 +234,13 @@ program
     };
     setRunOptions(runOpts);
     configureStyleFromRun(runOpts);
+    // `serve` owns a machine protocol on stdout. Bail out of the human pre-action pipeline entirely
+    // before ANY stdout-touching step (home-override notice, banner, update notice, global overrides):
+    // the home notice is still printed here by design, and it would corrupt the protocol stream.
+    // `serve()` sets its own silent RunOptions and wires handlers itself.
+    if (actionCommand.name() === 'serve') {
+      return;
+    }
     emitI18nPruneHomeOverrideNotice(runOpts);
     setCliListTopFlag(parseCliPositiveIntTop(opts.top, 'global: --top'));
     setCliListFullFlag(Boolean(opts.full));
@@ -816,6 +824,32 @@ program
     } else {
       printCurrentVersionLine(run);
     }
+  });
+
+program
+  .command('serve')
+  .description(
+    'stdio JSON-RPC server for host clients (desktop / editor) — long-only flags; stdout is protocol-only',
+  )
+  .option(
+    '--project <path>',
+    'pin the session to one project root (sandbox); omitted = hub mode (root required per request)',
+  )
+  .option(
+    '--allow-writes',
+    'enable mutating ops for this session (default: read-only)',
+    false,
+  )
+  .option(
+    '--idle-timeout <seconds>',
+    'exit after N seconds idle (0 disables; default 900)',
+  )
+  .action(async (opts: { project?: string; allowWrites?: boolean; idleTimeout?: string }) => {
+    await serve({
+      project: opts.project,
+      allowWrites: Boolean(opts.allowWrites),
+      idleTimeout: opts.idleTimeout,
+    });
   });
 
 program

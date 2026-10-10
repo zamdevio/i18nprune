@@ -25,6 +25,7 @@ export const CANONICAL_SUBCOMMANDS = [
   'cleanup',
   'languages',
   'doctor',
+  'serve',
   'help',
 ] as const;
 
@@ -93,6 +94,7 @@ const KNOWN_COMMAND_FIRST_TOKEN = new Set([
   'prov',
   'patch',
   'cfg',
+  'serve',
 ]);
 
 /** Options that consume the next argv token (must not be treated as a subcommand). */

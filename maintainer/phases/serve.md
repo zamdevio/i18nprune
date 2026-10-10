@@ -1,6 +1,6 @@
 # Phase — `i18nprune serve` (stdio transport)
 
-**Status:** **planned** — spec accepted; no implementation yet.
+**Status:** **in progress** — S.1 (transport skeleton) landed; S.2–S.5 pending.
 **Tracker:** [`focus.md`](./focus.md) · **Contract:** [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) · **User docs (when built):** `docs/cli/serve.md`
 **Implementation home:** `packages/cli/src/serve/` (transport only — ops stay in core `runXxx`)
 **Consumers:** Tauri desktop (planned, develops outside this repo until migration), VS Code extension (own branch), scripted / SSH clients
@@ -50,7 +50,7 @@ Status: **planned** — one slice per PR; parity fixtures unchanged unless a sli
 
 | Slice | Scope | Exit criteria |
 |-------|-------|---------------|
-| **S.1 — Transport skeleton** | `packages/cli/src/serve/` — NDJSON framing, `initialize` / `shutdown` / `exit` / `ping`, capability report, version negotiation, sandbox vs hub root modes, stdin-close + idle timeout | Conformance test: exact stdout byte framing; non-protocol stdout bytes fail the test; confined root rejects a different root |
+| **S.1 — Transport skeleton** ✅ | `packages/cli/src/serve/` — NDJSON framing, `initialize` / `shutdown` / `exit` / `ping`, capability report, version negotiation, sandbox vs hub root modes, stdin-close + idle timeout | Conformance test: exact stdout byte framing; non-protocol stdout bytes fail the test; confined root rejects a different root |
 | **S.2 — Read ops** | `op.config` · `op.doctor` · `op.validate` · `op.languages` · `op.providers` | Results byte-equal the `--json` envelope for the same fixture |
 | **S.3 — Progress + cancel** | Map `RunEvent` → `$/progress`; `$/cancelRequest` | Long op streams ticks; cancel returns a terminal error, not a hang |
 | **S.4 — Write ops (opt-in)** | `op.sync` · `op.generate` · `op.cleanup` · `op.locales.delete` behind `--allow-writes`; per-root serialization + context invalidation | Writes refused when read-only; that root's `CoreContext` / `localeRead` invalidated after write |
