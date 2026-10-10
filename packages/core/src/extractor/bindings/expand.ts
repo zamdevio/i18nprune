@@ -1,5 +1,7 @@
 import type { ImportBinding } from '../../types/extractor/bindings/index.js';
 import { IMPORT_BINDING_IDENT_PATTERN as IDENT } from './ident.js';
+import { expandWithLocalHelpers } from './localHelpers.js';
+import { scanImportBindings } from './imports.js';
 
 const RX_SAFE_BRACKET_METHOD = new RegExp(String.raw`^` + IDENT + String.raw`$`, 'u');
 
@@ -88,4 +90,17 @@ export function expandFunctionsWithBindings(
   const discovered = [...effective].filter((f) => !configuredSet.has(f));
   discovered.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   return [...uniqConfigured, ...discovered];
+}
+
+/**
+ * Full per-file helper expansion: import bindings, then HOC §A local helpers
+ * (hook binds + one-hop aliases) over the file text.
+ *
+ * @remarks Pure — no IO. Prefer this at scan orchestrators; keep
+ * {@link expandFunctionsWithBindings} for binding-only unit tests.
+ */
+export function expandEffectiveFunctions(configuredFunctions: string[], text: string): string[] {
+  const bindings = scanImportBindings(text);
+  const fromImports = expandFunctionsWithBindings(configuredFunctions, bindings);
+  return expandWithLocalHelpers(fromImports, configuredFunctions, text, bindings);
 }

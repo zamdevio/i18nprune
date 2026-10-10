@@ -1,4 +1,4 @@
-import { expandFunctionsWithBindings, scanImportBindings } from '../bindings/index.js';
+import { expandEffectiveFunctions } from '../bindings/index.js';
 import { buildConstStringMap } from '../constmap/build.js';
 import { commentRangesForJsLikeText } from '../shared/jslikeTextRanges.js';
 import { scanProjectSourceFiles } from '../shared/projectScan.js';
@@ -17,7 +17,7 @@ export function scanProjectKeyObservations(input: ScanProjectKeyObservationsInpu
     listFiles: input.listFiles,
     exclude: input.exclude,
     scanFile: ({ text, displayPath }) => {
-      const functions = expandFunctionsWithBindings(input.functions, scanImportBindings(text));
+      const functions = expandEffectiveFunctions(input.functions, text);
       const constMap = buildConstStringMap(text);
       const commentRanges = commentRangesForJsLikeText(text);
       const observations = scanKeyObservations(text, functions, constMap, {
