@@ -14,6 +14,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | Week | Theme | Doc |
 |------|-------|-----|
+| 2026-W42 | **Cleanup uncertain-prefix protection** → **1.1.1** · kits source resolution | [`locale/cleanup-uncertain-protection.md`](./locale/cleanup-uncertain-protection.md) |
 | 2026-W37 | **Preserve + sync** → **1.0.3** · **Extractor HOC §A** (hooks + one-hop) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) · [`extractor/hoc-a.md`](./extractor/hoc-a.md) |
 | 2026-W28 | **v1.0.0 kits** + **v1.0.1 sentinel repair** + export publish gate | [`kits/kits.md`](./kits/kits.md) · [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) · [`exports/governance.md`](./exports/governance.md) |
 | 2026-W26 | Tooling & kits prep (expgov migration, pnpm v11) | [`tooling/tooling.md`](./tooling/tooling.md) |
@@ -33,6 +34,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | ID | Week | One-line | Doc |
 |----|------|----------|-----|
+| **BUG-001/002/003** | W42 | cleanup uncertain-prefix parity (source + `--target`) + layout-aware kits/review source | [`locale/cleanup-uncertain-protection.md`](./locale/cleanup-uncertain-protection.md) |
 | **Preserve-sync** | W37 | copyPrefixes hydrate + uncertainPrefixes + retain JSON (v1.0.3) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) |
 | **HOC §A** | W37 | hook presets + one-hop aliases (`expandEffectiveFunctions`) | [`extractor/hoc-a.md`](./extractor/hoc-a.md) |
 | **Kits v1** | W28 | Native `i18nprune kits` + semver 1.0.0 | [`kits/kits.md`](./kits/kits.md) |
@@ -63,6 +65,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 | Share & workers | W22 | [`share/share.md`](./share/share.md) |
 | Engine & cache | W20–W21 | [`cache/generate.md`](./cache/generate.md) · [`cache/cache.md`](./cache/cache.md) · [`cache/init.md`](./cache/init.md) |
 | Locale preserve-sync | W37 (v1.0.3) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) |
+| Locale cleanup protection | W42 (v1.1.1) | [`locale/cleanup-uncertain-protection.md`](./locale/cleanup-uncertain-protection.md) |
 | Locale sentinel repair | W28 (v1.0.1 patch) | [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) |
 | Core & foundation | W15–W19 | [`core/core.md`](./core/core.md) |
 

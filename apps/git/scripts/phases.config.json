@@ -191,5 +191,20 @@
       "chore(release) — 1.1.0 lockstep bump + release portal YAML",
       "receipt maintainer/shipped/extractor/hoc-a.md"
     ]
+  },
+  {
+    "week": "2026-W42",
+    "label": "Week 42 — cleanup guard parity + brave provider",
+    "theme": "Silent data-loss fixes in cleanup (uncertain prefixes honored in both modes), layout-aware kits/review source resolution; brave translate provider from a shared id list",
+    "color": "coral",
+    "shipped": [
+      "fix(cleanup) — target mode routes through computeCleanupCandidateKeys; excludedUncertain + uncertainPrefixes in both modes (BUG-002)",
+      "fix(core) — declared policies.preserve.uncertainPrefixes reach the reference context (BUG-001)",
+      "fix(kits) — review sourceLocale is the locale code; `kits identical` resolves source via segmentsForLocaleCode (BUG-003)",
+      "feat(translate) — brave provider + single source of truth for provider ids",
+      "chore(landing) — drop the CodeSandbox preview and its core sandbox page",
+      "docs — cleanup protection-parity contract + open defect register",
+      "receipt maintainer/shipped/locale/cleanup-uncertain-protection.md"
+    ]
   }
 ]
