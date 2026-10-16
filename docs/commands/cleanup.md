@@ -31,12 +31,14 @@ Remove unused keys from locale files using extractor observations, preserve/pari
 
 `cleanup` computes candidate removals from observed usage, then filters through preserve/parity policy and uncertainty guards. By default, removals rely on the static code scan only. Pass `--rg` to also block candidates when a translation **value** appears as a substring somewhere under `src/` (conservative; not proof of key usage).
 
+**Protection is identical in both modes.** `cleanup` and `cleanup --target <code>` differ only in *which locale file* is read — the preserve rules and the uncertain-prefix guard apply the same way. Declared `policies.preserve.uncertainPrefixes` and scan-derived uncertain prefixes (from template holes like `` t(`studio.role.${role}`) ``) both keep their trees out of the candidate set, with the excluded count reported through [`i18nprune.cleanup.uncertain_paths_excluded`](../issues/cleanup.md#uncertain_paths_excluded).
+
 ## Cleanup vs `sync` vs tips (different datasets)
 
 | Mode | Locale | Candidate set |
 |------|--------|-----------------|
 | **`cleanup`** (default) | **Source** | Source keys not in **code scan** (minus preserve; uncertain-prefix exclude when `reference.uncertainKeyPolicy` protects) |
-| **`cleanup --target <code[,code]|all>`** | **Target(s)** | Target keys not in **code scan** (minus preserve) |
+| **`cleanup --target <code[,code]|all>`** | **Target(s)** | Target keys not in **code scan** (minus preserve; **same** uncertain-prefix exclude as source mode) |
 | **`sync`** | Target | Merge/prune vs **scan ∩ source** template; may **keep** scan-extras under uncertain prefixes |
 
 Tips (`suggest.cleanup.target_extra`) use the same **scan-extra** dataset as **`cleanup --target --dry-run`**, not the sync prune log. If `sync` reports **`0 extra path(s) removed`** but tips still show target extras, run **`cleanup --target <code> --dry-run`** — see [sync command doc](./sync.md#sync-vs-tips-vs-cleanup-different-datasets) and [`i18nprune.sync.scan_extras_retained`](../issues/sync.md#scan-extras-retained).

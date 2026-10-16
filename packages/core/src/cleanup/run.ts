@@ -14,7 +14,6 @@ import { emitRunMessage } from '../shared/run/index.js';
 import { I18nPruneError } from '../shared/errors/index.js';
 import { finalizeLocaleSuggestions } from '../suggestions/index.js';
 import {
-  computeExtraTargetKeys,
   listTargetSegmentPathsForKeys,
 } from '../suggestions/computeExtraTargetKeys.js';
 import { resolveCleanupTargetLocaleCodes } from './resolveTargets.js';
@@ -295,30 +294,23 @@ function runCleanupLocaleSlice(
     });
   }
 
-  let candidates: string[];
-  let excludedUncertain = 0;
+  // Source and `--target` modes read different locale files but must agree on what is *protected*.
+  // Both go through `computeCleanupCandidateKeys` so the uncertain-prefix guard cannot be skipped
+  // by choosing a different candidate path (it previously was, silently, in target mode).
   const leaves = isTargetMode ? readLocaleLeavesForCode(ctx, localeCode) : readCleanupSourceLeaves(ctx);
-  const allKeyPaths = new Set(leaves.map((leaf) => leaf.path));
+  const filterUncertain = eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only';
+  const computed = computeCleanupCandidateKeys({
+    leaves,
+    usage: analysis.usage,
+    preserve: ctx.config.policies?.preserve,
+    uncertainPrefixes: refCtx.uncertainPrefixes,
+    filterUncertainPrefixes: filterUncertain,
+  });
+  const candidates = computed.candidates;
+  const excludedUncertain = computed.excludedUncertain;
+  const allKeyPaths = new Set(computed.allKeyPaths);
 
-  if (isTargetMode) {
-    const extra = computeExtraTargetKeys(ctx, analysis, localeCode);
-    candidates = extra.candidates;
-  } else {
-    const filterUncertain = eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only';
-    const computed = computeCleanupCandidateKeys({
-      leaves,
-      usage: analysis.usage,
-      preserve: ctx.config.policies?.preserve,
-      uncertainPrefixes: refCtx.uncertainPrefixes,
-      filterUncertainPrefixes: filterUncertain,
-    });
-    candidates = computed.candidates;
-    excludedUncertain = computed.excludedUncertain;
-    allKeyPaths.clear();
-    for (const path of computed.allKeyPaths) allKeyPaths.add(path);
-  }
-
-  if (!isTargetMode && excludedUncertain > 0) {
+  if (excludedUncertain > 0) {
     emitCleanupMessage(host, {
       level: 'info',
       message: `excluded ${String(excludedUncertain)} path(s) under uncertain key prefix(es) (${eff.uncertainKeyPolicy}).`,
@@ -447,7 +439,12 @@ export function runCleanup(
   const analysis = resolveProjectAnalysis(ctx, { emit: host.emit, op: 'cleanup', runId: host.runId });
   const dynamic = analysis.dynamicSites;
   const { dynamicSites: dynamicTotal, dynamicActive, dynamicCommented } = analysis.counts;
-  const refCtx = buildKeyReferenceContextFromLiteralUsageAndDynamicSites(analysis.usage, dynamic, eff);
+  const refCtx = buildKeyReferenceContextFromLiteralUsageAndDynamicSites(
+    analysis.usage,
+    dynamic,
+    eff,
+    ctx.config.policies?.preserve,
+  );
 
   const skipStringPresenceCheck = Boolean(opts.skipStringPresenceCheck);
   const stringPresenceAvailable = skipStringPresenceCheck ? false : host.isStringPresenceAvailable();
@@ -516,7 +513,7 @@ export function runCleanup(
     dynamic: dynamicTotal,
     dynamicActive,
     dynamicCommented,
-    uncertainPrefixes: isTargetMode ? [] : refCtx.uncertainPrefixes,
+    uncertainPrefixes: refCtx.uncertainPrefixes,
     isTargetMode,
     targetLocaleCodes,
     skippedTargets,

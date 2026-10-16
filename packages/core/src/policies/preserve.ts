@@ -12,6 +12,22 @@ export function normalizeSyncKeepPrefix(prefix: string): string {
 }
 
 /**
+ * Declared `policies.preserve.uncertainPrefixes` normalized for
+ * `pathUnderUncertainPrefix` (no trailing-dot startsWith semantics).
+ *
+ * Only the **shape** knob: `copyKeys` / `copyPrefixes` are already covered by
+ * {@link isPreservePath} and must not pollute the uncertain-prefix list.
+ */
+export function collectDeclaredUncertainPrefixes(policy: PreservePolicy | undefined): string[] {
+  const out: string[] = [];
+  for (const p of policy?.uncertainPrefixes ?? []) {
+    const n = normalizeSyncKeepPrefix(p);
+    if (n) out.push(n);
+  }
+  return [...new Set(out)];
+}
+
+/**
  * Config prefixes/keys that sync must retain (and hydrate via schema expansion).
  * Normalized for `pathUnderUncertainPrefix` (no trailing-dot startsWith semantics).
  */

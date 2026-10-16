@@ -20,6 +20,7 @@ export function computeUnusedSourceKeys(ctx: CoreContext, analysis: ProjectAnaly
     analysis.usage,
     analysis.dynamicSites,
     eff,
+    ctx.config.policies?.preserve,
   );
   const leaves = readCleanupSourceLeaves(ctx);
   const filterUncertain = eff.uncertainKeyPolicy === 'protect' || eff.uncertainKeyPolicy === 'warn_only';

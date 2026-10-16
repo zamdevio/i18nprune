@@ -115,7 +115,7 @@ export async function executeCore(
     layout.mode === 'flat_file' ? readHostJsonUnknown(sourcePath, ctx.adapters.fs) : undefined;
 
   const eff = resolveReferenceConfig('generate', ctx.config);
-  const refCtx = buildKeyReferenceContext(ctx, eff);
+  const refCtx = buildKeyReferenceContext(ctx, eff, ctx.config.policies?.preserve);
   const resumeReference: import('@i18nprune/core').GenerateResumeRefContext = {
     uncertainPrefixes: refCtx.uncertainPrefixes,
   };

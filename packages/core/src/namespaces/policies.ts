@@ -1,6 +1,7 @@
 export type { ParityPolicy, PreservePolicy } from '../types/policies/index.js';
 export {
   collectDeclaredSyncKeepPrefixes,
+  collectDeclaredUncertainPrefixes,
   expandSchemaPathsForPreserve,
   filterOutPreservedPaths,
   isDeclaredUncertainPath,

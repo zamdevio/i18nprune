@@ -3,9 +3,11 @@ import {
   literalKeyUsageFromObservations,
   scanProjectLiteralKeyUsage,
 } from '../../extractor/keySites/projectUsage.js';
+import { collectDeclaredUncertainPrefixes } from '../../policies/preserve.js';
 import type { DynamicKeySite } from '../../types/extractor/dynamic/index.js';
 import type { KeyObservation } from '../../types/extractor/keySites/index.js';
 import type { ProjectLiteralKeyUsage } from '../../types/extractor/projectLiteralKeyUsage.js';
+import type { PreservePolicy } from '../../types/policies/index.js';
 import type { ScanProjectLiteralKeyUsageInput } from '../../types/extractor/keySites/projectUsage.js';
 import type { EffectiveReferenceConfig, KeyReferenceContext } from '../../types/reference/index.js';
 
@@ -36,14 +38,20 @@ function collectUncertainPrefixesFromDynamic(
 
 /**
  * Build proven key set and uncertain prefixes for cleanup / sync / generate decisions.
+ *
+ * `preserve` is optional for backwards compatibility at the call site, but **`cleanup` must pass
+ * `config.policies.preserve`**: declared `uncertainPrefixes` are a documented protection knob
+ * (`docs/config/policies.md`) and are invisible to the scan, so without them the candidate set
+ * deletes live keys under dynamic families. See BUG-001.
  */
 export function buildKeyReferenceContext(
   input: BuildKeyReferenceContextInput,
   eff: EffectiveReferenceConfig,
+  preserve?: PreservePolicy,
 ): KeyReferenceContext {
   const usage = scanProjectLiteralKeyUsage(input);
   const dynamicSites = scanProjectDynamicKeySites(input);
-  return buildKeyReferenceContextFromLiteralUsageAndDynamicSites(usage, dynamicSites, eff);
+  return buildKeyReferenceContextFromLiteralUsageAndDynamicSites(usage, dynamicSites, eff, preserve);
 }
 
 /**
@@ -54,10 +62,12 @@ export function buildKeyReferenceContextFromLiteralUsageAndDynamicSites(
   usage: ProjectLiteralKeyUsage,
   dynamicSites: readonly DynamicKeySite[],
   eff: EffectiveReferenceConfig,
+  preserve?: PreservePolicy,
 ): KeyReferenceContext {
   const uncertainPrefixes: string[] = [];
   for (const p of usage.uncertainPrefixes) pushUnique(uncertainPrefixes, p);
   collectUncertainPrefixesFromDynamic([...dynamicSites], uncertainPrefixes, eff);
+  for (const p of collectDeclaredUncertainPrefixes(preserve)) pushUnique(uncertainPrefixes, p);
   return { provenKeys: usage.resolvedKeys, uncertainPrefixes };
 }
 
@@ -66,7 +76,8 @@ export function buildKeyReferenceContextFromReportDetails(
   observations: readonly KeyObservation[],
   dynamicSites: readonly DynamicKeySite[],
   eff: EffectiveReferenceConfig,
+  preserve?: PreservePolicy,
 ): KeyReferenceContext {
   const usage = literalKeyUsageFromObservations([...observations]);
-  return buildKeyReferenceContextFromLiteralUsageAndDynamicSites(usage, dynamicSites, eff);
+  return buildKeyReferenceContextFromLiteralUsageAndDynamicSites(usage, dynamicSites, eff, preserve);
 }

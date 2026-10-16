@@ -429,7 +429,12 @@ export function runSync(ctx: CoreContext, opts: SyncRunOptions, host: SyncHostHo
   const { dynamicActive, dynamicCommented } = analysis.counts;
   const schemaPaths = analysis.usage.resolvedKeys;
   const eff = resolveReferenceConfig('sync', ctx.config);
-  const refCtx = buildKeyReferenceContextFromReportDetails(observations, dynamicSites, eff);
+  const refCtx = buildKeyReferenceContextFromReportDetails(
+    observations,
+    dynamicSites,
+    eff,
+    ctx.config.policies?.preserve,
+  );
   host.emitProgress({
     type: 'run.progress.sync',
     phase: 'scan_dynamic_sites',
