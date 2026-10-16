@@ -49,11 +49,18 @@ export function buildReviewJsonData(input: BuildReviewJsonDataInput): ReviewJson
       : undefined;
   const defaultSourceLeaves = collectTranslationSurfaceLeaves(input.sourceLocaleJson, '', [], sourceOrigin);
   const defaultSourceMap = new Map(defaultSourceLeaves.map((l) => [l.path, l.value]));
-  const sourceBase = basenameNoExt(input.sourceLocalePath);
+  /**
+   * Locale **code** for the reported source locale. `basenameNoExt` is only correct for `locale_file`
+   * layouts (`locales/en.json` → `en`); under `locale_per_dir` it yields the *segment* name
+   * (`locales/en/about.json` → `about`). Prefer the layout-aware resolution when a path API is available.
+   */
+  const sourceLocale = sourceOrigin?.locale ?? basenameNoExt(input.sourceLocalePath);
+  /** Filename key used to skip the source segment inside target maps (`en.json`, `about.json`). */
+  const sourceFileKey = `${basenameNoExt(input.sourceLocalePath)}.json`;
   const locales: ReviewJsonData['locales'] = {};
 
   for (const [file, raw] of Object.entries(input.targetLocaleJsonByFile)) {
-    if (file === `${sourceBase}.json`) continue;
+    if (file === sourceFileKey) continue;
     const pairedSourceJson = input.pairedSourceLocaleJsonByTargetFile?.[file];
     const sourceMap =
       pairedSourceJson !== undefined
@@ -76,7 +83,7 @@ export function buildReviewJsonData(input: BuildReviewJsonDataInput): ReviewJson
 
   return {
     kind: 'localeReview',
-    sourceLocale: sourceBase,
+    sourceLocale,
     localesDir: input.localesDir,
     dynamicKeySites: input.dynamicKeySites,
     dynamicKeySitesActive: input.dynamicKeySitesActive,

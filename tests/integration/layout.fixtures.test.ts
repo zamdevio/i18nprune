@@ -85,4 +85,28 @@ describe('CLI layout fixtures', () => {
     expect(j.ok).toBe(false);
     expect(j.issues.some((i) => i.code === 'i18nprune.project.locales_structure_required')).toBe(true);
   });
+
+  /**
+   * BUG-003 regression: `kits identical` joined `${sourceLocale}.json` onto the bundle root, so under
+   * `locale_per_dir` it read `messages/en.json` (missing) and exited `io.read_failed` with no rows.
+   */
+  it('layout-locale-per-dir: kits identical resolves the source segment and reports rows', () => {
+    const cwd = path.join(fixturesRoot, 'layout-locale-per-dir');
+    const out = runCli(['kits', 'identical', '--json'], cwd);
+    const j = parseEnvelope(out);
+    expect(j.ok).toBe(true);
+    expect(j.kind).toBe('kits-identical');
+    expect(j.data.sourceLocale).toBe('en');
+    expect(j.data.sourcePath).toBe(path.join(cwd, 'messages/en/common.json'));
+    expect(j.data.totalSourceIdentical).toBeGreaterThan(0);
+  });
+
+  it('layout-flat-file: kits identical still resolves the flat source file', () => {
+    const cwd = path.join(fixturesRoot, 'layout-flat-file');
+    const out = runCli(['kits', 'identical', '--json'], cwd);
+    const j = parseEnvelope(out);
+    expect(j.ok).toBe(true);
+    expect(j.data.sourceLocale).toBe('en');
+    expect(j.data.sourcePath).toBe(path.join(cwd, 'locales/en.json'));
+  });
 });

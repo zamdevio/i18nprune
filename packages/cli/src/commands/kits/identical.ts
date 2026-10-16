@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { runReview } from '@i18nprune/core';
 import { formatListShownOmitted } from '@i18nprune/core';
+import { readLocaleJsonFromContextSync, segmentsForLocaleCode } from '@i18nprune/core';
 import { style } from '@/utils/style/index.js';
 import { resolveKitsBundle, assertKitsReadiness } from '@/commands/kits/lib/context.js';
 import { flattenLocaleLeafValues, readLocaleJson } from '@/commands/kits/lib/locale.js';
@@ -73,9 +74,25 @@ export async function kitsIdentical(opts: KitsIdenticalOptions): Promise<void> {
     const payload = out.payload as ReviewPayload;
     const sourceCode = payload.sourceLocale ?? 'en';
     const localesDir = payload.localesDir ?? context.paths.localesDir;
-    const sourcePath = path.resolve(localesDir, `${sourceCode}.json`);
-    const sourceMap = flattenLocaleLeafValues(readLocaleJson(sourcePath));
     const parity = (context.config as { policies?: { parity?: ParityPolicy } }).policies?.parity;
+
+    /**
+     * Source leaves are read **per locale code through the layout-aware segment resolver**, not by
+     * joining `${code}.json` onto the bundle root. Under `locale_per_dir` the source lives in
+     * `locales/en/<segment>.json`, so the join produced `locales/en.json` and the command aborted
+     * with `io.read_failed`. Merging every source segment also makes the comparison correct in
+     * `feature_bundle` layouts, where a locale's leaves are spread across feature folders.
+     */
+    const sourceMap: Record<string, string> = {};
+    const sourceSegments = segmentsForLocaleCode(coreCtx, sourceCode);
+    if (sourceSegments.length === 0) {
+      Object.assign(sourceMap, flattenLocaleLeafValues(readLocaleJsonFromContextSync(coreCtx, context.paths.sourceLocale)));
+    } else {
+      for (const segment of sourceSegments) {
+        Object.assign(sourceMap, flattenLocaleLeafValues(readLocaleJsonFromContextSync(coreCtx, segment.absolutePath)));
+      }
+    }
+    const sourcePath = sourceSegments[0]?.absolutePath ?? context.paths.sourceLocale;
 
     const report = Object.keys(payload.locales ?? {}).map((file) => {
       const targetPath = path.resolve(localesDir, file);
