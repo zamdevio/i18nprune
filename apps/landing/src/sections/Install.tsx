@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ExternalLink, Terminal as TerminalIcon, Server, Globe2, Cloud, Box, ArrowRight } from 'lucide-react';
+import { ExternalLink, Terminal as TerminalIcon, Server, Globe2, Cloud, ArrowRight } from 'lucide-react';
 import CopyButton from '../components/CopyButton';
 import ShikiCode from '../components/ShikiCode';
 import { linkHref } from '../lib/meta';
@@ -262,17 +262,6 @@ export default function Install() {
           >
             <Cloud className="w-4 h-4 text-primary" />
             Try Worker (Swagger)
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-          <a
-            href={linkHref(links, 'sandbox')}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-5 h-11 rounded-xl border border-border/70 bg-card/50 hover:border-primary/40 text-sm font-medium transition-all"
-            data-testid="install-cta-sandbox"
-          >
-            <Box className="w-4 h-4" />
-            Open in CodeSandbox
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </motion.div>

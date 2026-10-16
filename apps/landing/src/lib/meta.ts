@@ -10,7 +10,6 @@ export const FALLBACK_LINKS = {
   workerDocs: "https://worker.i18nprune.dev/docs",
   report: "https://report.i18nprune.dev",
   gitAnalytics: "https://git.i18nprune.dev",
-  sandbox: "https://codesandbox.io/p/sandbox/ltw939",
   license: "https://github.com/zamdevio/i18nprune/blob/main/LICENSE",
   twitter: "https://twitter.com/zamdevio",
   vscodeMarketplace: "https://marketplace.visualstudio.com/items?itemName=zamdevio.i18nprune",

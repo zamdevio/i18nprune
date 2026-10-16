@@ -9,7 +9,6 @@ import {
   Cloud,
   Github,
   Package,
-  Box,
   BarChart3,
   GitBranch,
   type LucideIcon,
@@ -59,7 +58,6 @@ export default function CommandPalette() {
       { id: 'ext-worker', title: 'worker.i18nprune.dev', desc: 'Edge validators · Swagger docs', href: linkHref(links, 'workerDocs'), group: 'external', Icon: Cloud },
       { id: 'ext-github', title: 'GitHub repository', desc: 'Source & issues', href: linkHref(links, 'githubRepo'), group: 'external', Icon: Github },
       { id: 'ext-npm', title: 'npm · i18nprune', desc: 'CLI package on npm', href: linkHref(links, 'npmCli'), group: 'external', Icon: Package },
-      { id: 'ext-sandbox', title: 'CodeSandbox', desc: 'Try the SDK in the browser', href: linkHref(links, 'sandbox'), group: 'external', Icon: Box },
     ],
     [links],
   );
