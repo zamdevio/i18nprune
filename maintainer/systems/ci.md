@@ -177,11 +177,11 @@ Root convenience scripts delegate to workspace packages via **`pnpm --filter <pa
 | **`report:dev`**, **`report:build`** | `@i18nprune/report` · `dev` / `build` |
 | **`ext:compile`**, **`ext:watch`**, **`ext:build`** | `@i18nprune/extension` · same script name |
 | **`ext:web:dev`**, **`ext:web:build`**, **`ext:web:typecheck`** | `@i18nprune/extension-webview` · `dev` / `build` / `typecheck` |
-| **`ext:typecheck`** | `@i18nprune/extension` · `typecheck:host` (host has no turbo **`typecheck`**; webview is separate) |
+| **`ext:typecheck`** | `@i18nprune/extension` · `typecheck:host` (`typecheck` aliases it, so the host is also covered by `turbo run typecheck`; webview is separate) |
 
 **Root-only** (no workspace delegate): **`cli:build`**, **`//#cli:build`**, **`cli:dev`**, **`test`** / **`parity`** / **`//#test`** / **`//#parity`**, **`generate:languages`**, **`ui:purity`** / **`//#ui:purity`**, **`ui:sync:*`**, **`knip`**, **`madge:*`**, **`empty:*`**, **`files`** / **`lines`** / **`stats`**. Deploy helpers chain **`pnpm *:build`** then **wrangler** from repo root (paths in argv; not `--filter`).
 
-**`pnpm typecheck`** runs **`turbo run typecheck //#ui:purity`** on workspace packages that define a **`typecheck`** script (not the extension host alias).
+**`pnpm typecheck`** runs **`turbo run typecheck //#ui:purity`** on workspace packages that define a **`typecheck`** script — including **`@i18nprune/extension`**, whose **`typecheck`** delegates to **`typecheck:host`** and the webview, whose **`typecheck`** is its own **`tsc --noEmit`**.
 
 ### Local commands
 
