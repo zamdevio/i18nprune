@@ -9,6 +9,7 @@
 | Doc | Role |
 |-----|------|
 | [`focus.md`](./focus.md) | **Current sprint focus** |
+| [`bugs.md`](./bugs.md) | **Open defect register** — reproduced bugs only; delete an entry when its fix ships |
 | [`shipped/`](../shipped/README.md) | Closed slices — **ISO week timeline** |
 
 Scratch / spikes: **`maintainer/temp/`** (gitignored).
@@ -36,4 +37,5 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 1. Scope from the **active plan doc** only — one slice per PR.
 2. Close slices in [`shipped/`](../shipped/README.md); sync [`apps/git/scripts/phases.config.json`](../../apps/git/scripts/phases.config.json).
 3. Session noise → **`maintainer/temp/`** only (not linked from committed docs).
-4. **Publish / tag:** [`agents/git.md`](../agents/git.md).
+4. Reproduced defects → [`bugs.md`](./bugs.md) (not a phase doc). Move the entry to `shipped/` when the fix lands — the register must not accumulate fixed bugs.
+5. **Publish / tag:** [`agents/git.md`](../agents/git.md).
