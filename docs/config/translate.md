@@ -22,10 +22,35 @@ Use **`translate`** in **`i18nprune.config.*`** as a **roster** of backends (**`
 | **`id`** | Extra fields |
 |----------|----------------|
 | **`google`** | optional **`enabled`**, **`rateLimit`** |
+| **`brave`** | optional **`key`**, **`enabled`**, **`rateLimit`** — unofficial; see below |
 | **`mymemory`** | optional **`contactEmail`**, **`enabled`**, **`rateLimit`** |
 | **`libre`** | optional **`baseUrl`**, **`enabled`**, **`rateLimit`** |
 | **`deepl`** | optional **`apiKey`**, **`enabled`**, **`rateLimit`** |
 | **`llm`** | optional **`apiKey`**, **`baseUrl`**, **`model`**, **`enabled`**, **`rateLimit`** |
+
+### `brave` (unofficial, Google-compatible proxy)
+
+**`brave`** is a **`public_http`** backend that talks to **`translate.brave.com`** — Brave's translation widget edge, which speaks Google's Website Translator protocol (`client=te_lib`, `translate_a/t`). It needs **no key of your own**: it ships with Brave's **shared widget key**, so it works out of the box.
+
+> ⚠️ **Unofficial and unsupported.** This is **not** a public Brave API. The bundled key is a **public widget key** (the same value Brave embeds in pages across desktop and iOS), and Brave may **rotate or block it at any time** — when that happens, every install breaks at once. Treat it as a convenience backend or an extra fallback, not a production dependency.
+
+**Overriding the key** (when the bundled one stops working): set **`I18NPRUNE_TRANSLATE_BRAVE_KEY`** (wins) or the **`brave`** row's **`key`**.
+
+**Reading the current key from your browser** — there is no official issuance, so this is the only way to refresh it:
+
+1. Open **Brave** (or any Chromium browser) and translate a page with the built-in translate feature.
+2. Open **DevTools → Network** and filter for **`translate.brave.com`**.
+3. Open the **`translate_a/t`** request and copy the **`key`** query parameter.
+4. Export it: **`export I18NPRUNE_TRANSLATE_BRAVE_KEY='…'`**.
+
+Because one key is shared across all users, i18nprune applies conservative default rate limits for **`brave`**; raise them via **`rateLimit`** only if you know your usage.
+
+```typescript
+translate: {
+  primary: 'brave',
+  providers: [{ id: 'brave' }], // add `key: '…'` or env I18NPRUNE_TRANSLATE_BRAVE_KEY when the bundled key rotates
+},
+```
 
 **Example:**
 
@@ -74,7 +99,7 @@ Orchestration is **forward-only**: each failure class maps to a policy key whose
 
 ### Mid-run handoff (catalog pool)
 
-When policy resolves to **`prompt`** and the host is interactive (**`handoff`** matrix §8 in the plan doc), **`runGenerate`** offers the **built-in** provider catalogue (**not** the same as reordering `providers[]` only): **`google`**, **`mymemory`**, **`libre`**, **`deepl`**, **`llm`**, excluding the failing id. **`deepl`** appears only if **`apiKey`** resolves (**`I18NPRUNE_TRANSLATE_DEEPL_API_KEY`** or the **`deepl`** row). **`llm`** requires **`apiKey`**, **`baseUrl`**, and **`model`**. **`libre`** without a URL can use the public demo origin when picked from the handoff list.
+When policy resolves to **`prompt`** and the host is interactive (**`handoff`** matrix §8 in the plan doc), **`runGenerate`** offers the **built-in** provider catalogue (**not** the same as reordering `providers[]` only): **`google`**, **`brave`**, **`mymemory`**, **`libre`**, **`deepl`**, **`llm`**, excluding the failing id. **`deepl`** appears only if **`apiKey`** resolves (**`I18NPRUNE_TRANSLATE_DEEPL_API_KEY`** or the **`deepl`** row). **`llm`** requires **`apiKey`**, **`baseUrl`**, and **`model`**. **`libre`** without a URL can use the public demo origin when picked from the handoff list.
 
 ### `--json` route detail
 

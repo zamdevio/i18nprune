@@ -29,13 +29,22 @@ export const HANDOFF_PUBLIC_LIBRE_TRANSLATE_ORIGIN = 'https://libretranslate.com
  * Built-in provider ids in UI order: **`google`** first (recommended when eligible), then the rest
  * (matches the shipped registry order with **`google`** pinned ahead for discoverability).
  */
-export const HANDOFF_PROVIDER_ORDER: readonly TranslationProviderId[] = [
+export const HANDOFF_PROVIDER_ORDER = [
   'google',
+  'brave',
   'mymemory',
   'libre',
   'deepl',
   'llm',
-];
+] as const satisfies readonly TranslationProviderId[];
+
+/**
+ * Compile-time net: a provider id dropped from {@link HANDOFF_PROVIDER_ORDER} breaks the build
+ * rather than silently vanishing from the handoff picker.
+ */
+type HandoffCoverage = Exclude<TranslationProviderId, (typeof HANDOFF_PROVIDER_ORDER)[number]>;
+const _handoffCoversEveryId: HandoffCoverage extends never ? true : false = true;
+void _handoffCoversEveryId;
 
 /** Whether interactive handoff UX may run (`translate-policy (shipped)` §8 matrix). */
 export function shouldOfferHandoffInteractivePrompt(params: {
@@ -81,6 +90,7 @@ export function explainHandoffIneligibility(
 ): string | undefined {
   switch (id) {
     case 'google':
+    case 'brave':
     case 'mymemory':
       return undefined;
     case 'libre':

@@ -1,9 +1,9 @@
 import { CACHE_SCHEMA_VERSION, MAX_TRANSLATIONS_CACHE_BYTES } from '../../shared/constants/cache.js';
+import { isTranslationProviderId } from '../../shared/constants/providers.js';
 import { isProjectCacheWritable } from '../../cache/setup/policy.js';
 import { nowIso, readJsonFileWithLimit, writeJsonAtomic } from '../../cache/io/helpers.js';
 import type { CacheRuntime, CacheState, CacheWarning } from '../../types/cache/index.js';
 import type { TranslationCacheEntry, TranslationLocaleCacheFile } from '../../types/translator/cache.js';
-import type { TranslationProviderId } from '../../types/translator/providers.js';
 
 function isTranslationCacheEntry(value: unknown): value is TranslationCacheEntry {
   if (!value || typeof value !== 'object') return false;
@@ -15,10 +15,6 @@ function isTranslationCacheEntry(value: unknown): value is TranslationCacheEntry
     typeof o.providerId === 'string' &&
     typeof o.createdAt === 'string'
   );
-}
-
-function isTranslationProviderId(value: string): value is TranslationProviderId {
-  return value === 'google' || value === 'mymemory' || value === 'deepl' || value === 'libre' || value === 'llm';
 }
 
 /** Validates the shape of a `translations/<code>.json` payload. */

@@ -8,6 +8,7 @@ export const TRANSLATION_PROVIDER_CREDENTIAL_PRECEDENCE =
 
 const CONFIG_SNIPPETS: Readonly<Record<TranslationProviderId, string>> = {
   google: `translate: { primary: 'google', providers: [{ id: 'google' }], policy: { routing: 'single' } }`,
+  brave: `translate: { primary: 'brave', providers: [{ id: 'brave' /* key: '…' or env I18NPRUNE_TRANSLATE_BRAVE_KEY */ }] }`,
   mymemory:
     `translate: { primary: 'mymemory', providers: [{ id: 'mymemory', contactEmail: 'you@example.com' }] }`,
   libre:

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { resolveTranslator } from '../registry.js';
+import {
+  TRANSLATION_PROVIDER_IDS,
+  isTranslationProviderId,
+} from '../../../constants/providers.js';
+import { listTranslationProviders, resolveTranslator } from '../registry.js';
 
 describe('resolveTranslator', () => {
   it('returns google', () => {
@@ -8,6 +12,14 @@ describe('resolveTranslator', () => {
 
   it('returns mymemory', () => {
     expect(typeof resolveTranslator({ provider: 'mymemory' }).translate).toBe('function');
+  });
+
+  it('returns brave', () => {
+    expect(typeof resolveTranslator({ provider: 'brave' }).translate).toBe('function');
+  });
+
+  it('returns brave with a key override', () => {
+    expect(typeof resolveTranslator({ provider: 'brave', key: 'custom' }).translate).toBe('function');
   });
 
   it('returns deepl when apiKey present', () => {
@@ -29,5 +41,20 @@ describe('resolveTranslator', () => {
         model: 'gpt-4o-mini',
       }).translate,
     ).toBe('function');
+  });
+
+  it('descriptors cover every id in the shared constants tuple', () => {
+    const descriptorIds = listTranslationProviders()
+      .map((d) => d.id)
+      .sort();
+    expect(descriptorIds).toEqual([...TRANSLATION_PROVIDER_IDS].sort());
+  });
+
+  it('the shared guard accepts exactly the registered ids', () => {
+    for (const id of TRANSLATION_PROVIDER_IDS) {
+      expect(isTranslationProviderId(id)).toBe(true);
+    }
+    expect(isTranslationProviderId('openai')).toBe(false);
+    expect(isTranslationProviderId('')).toBe(false);
   });
 });

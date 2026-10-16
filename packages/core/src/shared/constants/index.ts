@@ -13,3 +13,4 @@ export * from './report.js';
 export * from './share.js';
 export * from './worker.js';
 export * from './translate.js';
+export * from './providers.js';

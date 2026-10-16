@@ -34,6 +34,8 @@ export {
   translationRunMeta,
   validateResolvedTranslationOptions,
 } from '../shared/translator/providers/registry.js';
+export { TRANSLATION_PROVIDER_IDS } from '../shared/constants/providers.js';
+export type { TranslationProviderId } from '../shared/constants/providers.js';
 export {
   DEFAULT_PROVIDER_RATE_LIMITS,
   mapWithConcurrency,

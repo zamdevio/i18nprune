@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { TranslationProviderId } from '@i18nprune/core';
 import { fetchProjectHealth, isVsCodeWebview, notifyExtensionWebviewReady } from '../services/api';
 import type { ProjectHealth } from '../types';
 import type { CatalogRow } from '../utils/filterLanguageCatalog';
@@ -13,7 +14,7 @@ export type WorkspaceProjectRow = {
 };
 
 export type TranslationProviderRow = {
-  id: string;
+  id: TranslationProviderId;
   label: string;
   defaultWorkers: number;
 };
@@ -36,10 +37,28 @@ const MOCK_CATALOG: CatalogRow[] = [
   { code: 'de', english: 'German', native: 'Deutsch' },
 ];
 
-const MOCK_PROVIDERS: TranslationProviderRow[] = [
-  { id: 'google', label: 'Google Translate', defaultWorkers: 32 },
-  { id: 'deepl', label: 'DeepL', defaultWorkers: 4 },
-];
+/**
+ * Standalone dev preview only — the extension host sends the real list
+ * (`translationProvidersMeta.ts`, derived from core at runtime at zero webview cost).
+ *
+ * Keyed by `TranslationProviderId`, so adding or removing a provider id in core fails this build
+ * until the mock is updated — the dev list cannot silently drift. Kept **type-only** on purpose:
+ * importing core *values* (even just `TRANSLATION_PROVIDER_IDS`) pulls the whole `shared` graph
+ * (~73 KB) into the bundle, and this webview is deliberately core-free
+ * (see `utils/filterLanguageCatalog.ts`). `defaultWorkers` mirrors core rate-limit `maxConcurrency`.
+ */
+const MOCK_PROVIDER_META: Record<TranslationProviderId, { label: string; defaultWorkers: number }> = {
+  google: { label: 'Google Translate', defaultWorkers: 32 },
+  brave: { label: 'Brave Translate', defaultWorkers: 4 },
+  mymemory: { label: 'MyMemory', defaultWorkers: 2 },
+  libre: { label: 'LibreTranslate', defaultWorkers: 6 },
+  deepl: { label: 'DeepL', defaultWorkers: 4 },
+  llm: { label: 'LLM (OpenAI-compatible)', defaultWorkers: 2 },
+};
+
+const MOCK_PROVIDERS: TranslationProviderRow[] = (
+  Object.keys(MOCK_PROVIDER_META) as TranslationProviderId[]
+).map((id) => ({ id, ...MOCK_PROVIDER_META[id] }));
 
 export function useDashboardBootstrap(): DashboardBootstrap {
   const [health, setHealth] = useState<ProjectHealth | null>(null);

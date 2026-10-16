@@ -22,6 +22,7 @@ import type {
   TranslationProviderId,
 } from '../../types/translator/providers.js';
 import {
+  ENV_TRANSLATE_BRAVE_KEY,
   ENV_TRANSLATE_DEEPL_API_KEY,
   ENV_TRANSLATE_LIBRE_URL,
   ENV_TRANSLATE_LLM_API_KEY,
@@ -151,6 +152,12 @@ export function resolveTranslationProviderOptionsForId(input: {
     case 'google':
       out = { provider: 'google' };
       break;
+    case 'brave': {
+      const fileKey = fileMatch?.id === 'brave' ? trimStr(fileMatch.key) : undefined;
+      const key = trimStr(env[ENV_TRANSLATE_BRAVE_KEY]) ?? fileKey;
+      out = { provider: 'brave', ...(key !== undefined ? { key } : {}) };
+      break;
+    }
     case 'mymemory': {
       const contactEmail =
         fileMatch?.id === 'mymemory' ? trimStr(fileMatch.contactEmail) : undefined;
@@ -238,6 +245,8 @@ export function resolvedTranslationOptionsFromCliFlag(
   switch (parseProviderLabel(raw)) {
     case 'google':
       return { provider: 'google' };
+    case 'brave':
+      return { provider: 'brave' };
     case 'mymemory':
       return { provider: 'mymemory' };
     case 'libre':

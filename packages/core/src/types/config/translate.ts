@@ -16,6 +16,10 @@ type TranslateProviderRowInputBase = {
 };
 
 export type TranslateProviderRowInputGoogle = TranslateProviderRowInputBase & { id: 'google' };
+export type TranslateProviderRowInputBrave = TranslateProviderRowInputBase & {
+  id: 'brave';
+  key?: string;
+};
 export type TranslateProviderRowInputMymemory = TranslateProviderRowInputBase & {
   id: 'mymemory';
   contactEmail?: string;
@@ -37,6 +41,7 @@ export type TranslateProviderRowInputLlm = TranslateProviderRowInputBase & {
 
 export type TranslateProviderRowInput =
   | TranslateProviderRowInputGoogle
+  | TranslateProviderRowInputBrave
   | TranslateProviderRowInputMymemory
   | TranslateProviderRowInputLibre
   | TranslateProviderRowInputDeepl

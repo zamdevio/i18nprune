@@ -5,8 +5,13 @@
  * **LLM backends:** resolved options carry **OpenAI-compatible** fields (`baseUrl`, `apiKey`, `model`); implementations follow later.
  */
 
-/** Registered translation backends (`resolveTranslator` may not implement every id yet). */
-export type TranslationProviderId = 'google' | 'mymemory' | 'deepl' | 'libre' | 'llm';
+import type { TranslationProviderId } from '../../shared/constants/providers.js';
+
+/**
+ * Re-exported from `shared/constants/providers.js` (the single source of truth). Kept here so the
+ * public type path `types/translator/providers` stays stable for existing importers.
+ */
+export type { TranslationProviderId };
 
 export type TranslationProviderKind = 'public_http' | 'api_key' | 'llm';
 
@@ -44,6 +49,16 @@ export type TranslationClientHints = {
 
 export type GoogleResolvedTranslationOptions = {
   provider: 'google';
+  hints?: TranslationClientHints;
+};
+
+export type BraveResolvedTranslationOptions = {
+  provider: 'brave';
+  /**
+   * Optional Brave **widget key** override (unofficial; public widget key, not a per-user secret).
+   * When omitted, the bundled {@link BRAVE_TRANSLATE_DEFAULT_KEY} is used.
+   */
+  key?: string;
   hints?: TranslationClientHints;
 };
 
@@ -86,6 +101,7 @@ export type LlmResolvedTranslationOptions = {
  */
 export type ResolvedTranslationProviderOptions =
   | GoogleResolvedTranslationOptions
+  | BraveResolvedTranslationOptions
   | MymemoryResolvedTranslationOptions
   | LibreResolvedTranslationOptions
   | DeeplResolvedTranslationOptions

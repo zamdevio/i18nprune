@@ -3,26 +3,50 @@ import {
   ISSUE_TRANSLATE_UNKNOWN_TRANSLATION_PROVIDER,
 } from '../../constants/issueCodes.js';
 import { I18nPruneError } from '../../errors/index.js';
+import { isTranslationProviderId } from '../../constants/providers.js';
 import type { Translator } from '../../../types/translator/index.js';
 import type {
   ResolvedTranslationProviderOptions,
   TranslationProviderDescriptor,
   TranslationProviderId,
 } from '../../../types/translator/providers.js';
+import { createBraveTranslator } from './brave/index.js';
 import { createDeeplTranslator } from './deepl/index.js';
 import { createGoogleTranslator } from './google/index.js';
 import { createLibreTranslator } from './libre/index.js';
 import { createLlmTranslator } from './llm/index.js';
 import { createMymemoryTranslator } from './mymemory/index.js';
 
-const GOOGLE_DESCRIPTOR: TranslationProviderDescriptor = {
+const GOOGLE_DESCRIPTOR = {
   id: 'google',
   label: 'Google Translate (unofficial gtx endpoint)',
   kind: 'public_http',
   envVars: [],
-};
+} satisfies TranslationProviderDescriptor;
 
-const MYMEMORY_DESCRIPTOR: TranslationProviderDescriptor = {
+const BRAVE_DESCRIPTOR = {
+  id: 'brave',
+  label: 'Brave Translate (unofficial; Google Website Translator-compatible)',
+  kind: 'public_http',
+  envVars: [
+    {
+      key: 'I18NPRUNE_TRANSLATE_BRAVE_KEY',
+      description:
+        'Optional override for the shared Brave widget key (unofficial; Brave may rotate/block it)',
+      required: false,
+    },
+  ],
+  configKeys: [
+    {
+      key: 'translate.providers row (id=brave).key',
+      description:
+        'Optional Brave widget key override; superseded when `I18NPRUNE_TRANSLATE_BRAVE_KEY` is set',
+      optional: true,
+    },
+  ],
+} satisfies TranslationProviderDescriptor;
+
+const MYMEMORY_DESCRIPTOR = {
   id: 'mymemory',
   label: 'MyMemory Translation API (free tier)',
   kind: 'public_http',
@@ -34,9 +58,9 @@ const MYMEMORY_DESCRIPTOR: TranslationProviderDescriptor = {
       optional: true,
     },
   ],
-};
+} satisfies TranslationProviderDescriptor;
 
-const LIBRE_DESCRIPTOR: TranslationProviderDescriptor = {
+const LIBRE_DESCRIPTOR = {
   id: 'libre',
   label: 'LibreTranslate-compatible HTTP API',
   kind: 'public_http',
@@ -54,9 +78,9 @@ const LIBRE_DESCRIPTOR: TranslationProviderDescriptor = {
       optional: true,
     },
   ],
-};
+} satisfies TranslationProviderDescriptor;
 
-const DEEPL_DESCRIPTOR: TranslationProviderDescriptor = {
+const DEEPL_DESCRIPTOR = {
   id: 'deepl',
   label: 'DeepL API',
   kind: 'api_key',
@@ -74,9 +98,9 @@ const DEEPL_DESCRIPTOR: TranslationProviderDescriptor = {
       optional: true,
     },
   ],
-};
+} satisfies TranslationProviderDescriptor;
 
-const LLM_DESCRIPTOR: TranslationProviderDescriptor = {
+const LLM_DESCRIPTOR = {
   id: 'llm',
   label: 'OpenAI-compatible chat/completions API (LLM)',
   kind: 'llm',
@@ -104,28 +128,36 @@ const LLM_DESCRIPTOR: TranslationProviderDescriptor = {
       optional: true,
     },
   ],
-};
+} satisfies TranslationProviderDescriptor;
 
-const DESCRIPTORS: readonly TranslationProviderDescriptor[] = [
+const DESCRIPTORS = [
   GOOGLE_DESCRIPTOR,
+  BRAVE_DESCRIPTOR,
   MYMEMORY_DESCRIPTOR,
   LIBRE_DESCRIPTOR,
   DEEPL_DESCRIPTOR,
   LLM_DESCRIPTOR,
-];
+] as const satisfies readonly TranslationProviderDescriptor[];
 
 const DESCRIPTOR_BY_ID = new Map<TranslationProviderId, TranslationProviderDescriptor>(
   DESCRIPTORS.map((d) => [d.id, d]),
 );
+
+/**
+ * Compile-time net: every id in {@link TRANSLATION_PROVIDER_IDS} must have a descriptor here.
+ * If a new id is added to the constants tuple and no descriptor follows, `Missing` stops being
+ * `never` and this assignment fails to compile.
+ */
+type DescriptorCoverage = Exclude<TranslationProviderId, (typeof DESCRIPTORS)[number]['id']>;
+const _descriptorsCoverEveryId: DescriptorCoverage extends never ? true : false = true;
+void _descriptorsCoverEveryId;
 
 /** Stable list for CLI help, doctor, and integrations. */
 export function listTranslationProviders(): readonly TranslationProviderDescriptor[] {
   return DESCRIPTORS;
 }
 
-export function isTranslationProviderId(value: string): value is TranslationProviderId {
-  return DESCRIPTOR_BY_ID.has(value as TranslationProviderId);
-}
+export { isTranslationProviderId };
 
 export function defaultResolvedTranslationOptions(): ResolvedTranslationProviderOptions {
   return { provider: 'google' };
@@ -164,6 +196,8 @@ export function resolveTranslator(opts: ResolvedTranslationProviderOptions): Tra
   switch (opts.provider) {
     case 'google':
       return createGoogleTranslator();
+    case 'brave':
+      return createBraveTranslator({ key: opts.key });
     case 'mymemory':
       return createMymemoryTranslator({ contactEmail: opts.contactEmail });
     case 'deepl': {
@@ -200,6 +234,14 @@ export function resolveTranslator(opts: ResolvedTranslationProviderOptions): Tra
         );
       }
       return createLlmTranslator({ apiKey, baseUrl, model });
+    }
+    default: {
+      const _exhaustive: never = opts;
+      throw new I18nPruneError(
+        `Unhandled translation provider: ${String((_exhaustive as { provider: string }).provider)}`,
+        'USAGE',
+        { issueCode: ISSUE_TRANSLATE_UNKNOWN_TRANSLATION_PROVIDER },
+      );
     }
   }
 }

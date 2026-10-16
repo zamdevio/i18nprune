@@ -21,6 +21,7 @@ function rateLimitLiteral(providerId: keyof typeof DEFAULT_PROVIDER_RATE_LIMITS)
 }
 
 const GOOGLE_RATE_LIMIT_LITERAL = rateLimitLiteral('google');
+const BRAVE_RATE_LIMIT_LITERAL = rateLimitLiteral('brave');
 const MYMEMORY_RATE_LIMIT_LITERAL = rateLimitLiteral('mymemory');
 const LIBRE_RATE_LIMIT_LITERAL = rateLimitLiteral('libre');
 const DEEPL_RATE_LIMIT_LITERAL = rateLimitLiteral('deepl');
@@ -32,6 +33,7 @@ const TRANSLATE_PROVIDER_COMMENT_ROWS = `
       // pins an id to the FRONT of the chain without disabling fallback. Set \`enabled: false\`
       // (or comment the row) to skip a provider.
       // Uncomment one row at a time · set \`translate.primary\` · use env vars where noted (run \`i18nprune providers\`).
+      // { id: 'brave', enabled: true, rateLimit: ${BRAVE_RATE_LIMIT_LITERAL} }, // unofficial; Brave may rotate the shared key
       // { id: 'mymemory', enabled: true, contactEmail: 'you@example.com', rateLimit: ${MYMEMORY_RATE_LIMIT_LITERAL} },
       // { id: 'libre', enabled: true, baseUrl: 'https://libretranslate.com', rateLimit: ${LIBRE_RATE_LIMIT_LITERAL} },
       // { id: 'deepl', enabled: true, apiKey: process.env.I18NPRUNE_TRANSLATE_DEEPL_API_KEY, rateLimit: ${DEEPL_RATE_LIMIT_LITERAL} },

@@ -51,6 +51,8 @@ function clampInt(n: number, lo: number, hi: number): number {
 export const DEFAULT_PROVIDER_RATE_LIMITS: ProviderRateLimitRegistry = {
   // Google can sustain higher throughput; default to safe-high (32) while allowing user/config up to 64.
   google: { maxConcurrency: 32, rpm: 1920, rps: 32, intervalMs: 32 },
+  // Brave shares one public widget key across all users — stay conservative to avoid key-wide throttling.
+  brave: { maxConcurrency: 4, rpm: 120, rps: 2, intervalMs: 500 },
   mymemory: { maxConcurrency: 2, rpm: 60, rps: 1, intervalMs: 1000 },
   libre: { maxConcurrency: 6, rpm: 120, rps: 2, intervalMs: 500 },
   deepl: { maxConcurrency: 4, rpm: 90, rps: 1.5, intervalMs: 600 },

@@ -376,6 +376,13 @@ export type TranslateProviderRowGoogle = {
   rateLimit?: TranslateRateLimitConfig;
 };
 
+export type TranslateProviderRowBrave = {
+  id: 'brave';
+  enabled?: boolean;
+  key?: string;
+  rateLimit?: TranslateRateLimitConfig;
+};
+
 export type TranslateProviderRowMymemory = {
   id: 'mymemory';
   enabled?: boolean;
@@ -408,6 +415,7 @@ export type TranslateProviderRowLlm = {
 
 export type TranslateProviderRow =
   | TranslateProviderRowGoogle
+  | TranslateProviderRowBrave
   | TranslateProviderRowMymemory
   | TranslateProviderRowLibre
   | TranslateProviderRowDeepL

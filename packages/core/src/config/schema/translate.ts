@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TRANSLATION_PROVIDER_IDS } from '../../shared/constants/providers.js';
 import { TRANSLATE_WORKERS_CAP } from '../../shared/translator/utils/orchestration.js';
 import { TRANSLATE_POLICY_DEFAULTS } from '../../types/translator/policy.js';
 
@@ -52,6 +53,19 @@ const translateGoogleRowSchema = z
   .strict()
   .describe('Google Translate web (gtx) backend.');
 
+const translateBraveRowSchema = z
+  .object({
+    id: z.literal('brave'),
+    enabled: z.boolean().optional(),
+    key: z
+      .string()
+      .optional()
+      .describe('Optional Brave widget key override (unofficial; bundled default used when omitted).'),
+    rateLimit: translateThrottleSchema.optional(),
+  })
+  .strict()
+  .describe('Brave Translate (unofficial; Google Website Translator-compatible) backend.');
+
 const translateMymemoryRowSchema = z
   .object({
     id: z.literal('mymemory'),
@@ -92,13 +106,14 @@ const translateLlmRowSchema = z
 
 const translateProviderRowSchema = z.discriminatedUnion('id', [
   translateGoogleRowSchema,
+  translateBraveRowSchema,
   translateMymemoryRowSchema,
   translateLibreRowSchema,
   translateDeeplRowSchema,
   translateLlmRowSchema,
 ]);
 
-const translatePrimaryIdSchema = z.enum(['google', 'mymemory', 'libre', 'deepl', 'llm']);
+const translatePrimaryIdSchema = z.enum(TRANSLATION_PROVIDER_IDS);
 
 /**
  * Locked translate-policy schema. Each `on*` key takes a single verb from

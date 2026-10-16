@@ -41,8 +41,9 @@ For **secrets and endpoints**, each env var listed below — when set — **supe
 
 | Variable | When used |
 |----------|-----------|
-| **`I18NPRUNE_TRANSLATE_PROVIDER`** | Backend id when flag omitted (`google`, `deepl`, `llm`, …). Case-insensitive. |
+| **`I18NPRUNE_TRANSLATE_PROVIDER`** | Backend id when flag omitted (`google`, `brave`, `deepl`, `llm`, …). Case-insensitive. |
 | **`I18NPRUNE_TRANSLATE_MAX_WORKERS`** | Positive integer: default cap on parallel **`translateLeaf`** calls for **`generate`** (including **`generate --resume`**) when **`--workers`** is omitted. Lower precedence than **`--workers`**; higher than **`translate.workers`** in the file. |
+| **`I18NPRUNE_TRANSLATE_BRAVE_KEY`** | Supersedes **`key`** for **`brave`** (unofficial shared widget key; see **[translate](./translate.md)**). |
 | **`I18NPRUNE_TRANSLATE_DEEPL_API_KEY`** | Supersedes **`apiKey`** for **`deepl`**. |
 | **`I18NPRUNE_TRANSLATE_LIBRE_URL`** | Supersedes **`baseUrl`** for **`libre`**. |
 | **`I18NPRUNE_TRANSLATE_LLM_API_KEY`** | Supersedes **`apiKey`** for **`llm`**. |

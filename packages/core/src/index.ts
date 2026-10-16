@@ -69,6 +69,7 @@ export {
   ENV_TRANSLATE_LLM_MODEL,
   ENV_TRANSLATE_MAX_WORKERS,
   ENV_TRANSLATE_PROVIDER,
+  TRANSLATION_PROVIDER_IDS,
   runTranslate,
   createTranslateContext,
 } from './namespaces/translator.js';

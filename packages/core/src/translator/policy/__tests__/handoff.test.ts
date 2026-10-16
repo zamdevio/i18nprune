@@ -11,7 +11,7 @@ import {
 describe('HANDOFF_PROVIDER_ORDER', () => {
   it('pins google first then matches registry extension order', () => {
     expect(HANDOFF_PROVIDER_ORDER[0]).toBe('google');
-    expect(HANDOFF_PROVIDER_ORDER.length).toBe(5);
+    expect(HANDOFF_PROVIDER_ORDER.length).toBe(6);
   });
 });
 
