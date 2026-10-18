@@ -12,7 +12,11 @@
  * `serve` returns a `SERVE_REQUEST_CANCELLED` error rather than a `run.failed` envelope).
  */
 
-/** Thrown when a caller-supplied `AbortSignal` fires during a long-running core op. */
+/**
+ * Thrown when a caller-supplied `AbortSignal` fires during a long-running core op.
+ *
+ * @sdkTier stable
+ */
 export class AbortError extends Error {
   override readonly name = 'AbortError';
 
@@ -21,7 +25,11 @@ export class AbortError extends Error {
   }
 }
 
-/** Build an {@link AbortError}, preferring the signal's own abort reason when it carries one. */
+/**
+ * Build an {@link AbortError}, preferring the signal's own abort reason when it carries one.
+ *
+ * @sdkTier stable
+ */
 export function abortErrorFrom(signal: AbortSignal): AbortError {
   const reason: unknown = signal.reason;
   if (reason instanceof Error && reason.message !== '') return new AbortError(reason.message);
@@ -29,7 +37,11 @@ export function abortErrorFrom(signal: AbortSignal): AbortError {
   return new AbortError();
 }
 
-/** Throw {@link AbortError} when `signal` is already aborted; a cheap check for await boundaries. */
+/**
+ * Throw {@link AbortError} when `signal` is already aborted; a cheap check for await boundaries.
+ *
+ * @sdkTier stable
+ */
 export function throwIfAborted(signal: AbortSignal | undefined): void {
   if (signal?.aborted) throw abortErrorFrom(signal);
 }
