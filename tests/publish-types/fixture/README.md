@@ -63,9 +63,11 @@ Quick pass with lib checking disabled (app sources only):
 pnpm exec tsc -p tsconfig.json --skipLibCheck true
 ```
 
-`run.mjs` syncs the fixture `package.json` dependency to `file:../../../i18nprune-<version>.tgz` from root `package.json` before install (and drops a stale fixture lockfile).
+`run.mjs` copies the newest packed CLI tarball to a stable **`i18nprune-latest.tgz`** at the
+repo root and points the fixture dependency at `file:../../../i18nprune-latest.tgz`, so a
+version bump never edits this fixture (and drops a stale fixture lockfile).
 
 ## Prerequisites
 
-- `i18nprune-<version>.tgz` at the repo root (from `pnpm pack`, version = root `package.json`).
+- A packed CLI tarball at the repo root — `i18nprune-<version>.tgz` from `pnpm pack` (the runner mirrors it to `i18nprune-latest.tgz`).
 - `pnpm run cli:build` so `prepack` / DTS fix have already produced a clean `dist/core.d.ts` inside the tarball.

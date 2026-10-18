@@ -37,16 +37,52 @@ const cliTgzPath = path.join(repoRoot, cliTgzName);
 const coreTgzName = tarballFileName(corePkg.name, corePkg.version);
 const coreTgzPath = path.join(repoRoot, coreTgzName);
 
+/**
+ * Stable filename the fixture pins to, so a release bump never edits
+ * `tests/publish-types/fixture/package.json`. Refreshed from the newest pack on each run.
+ */
+const CLI_TGZ_STABLE_NAME = `${rootPkg.name}-latest.tgz`;
+const cliTgzStablePath = path.join(repoRoot, CLI_TGZ_STABLE_NAME);
+/** Matches `i18nprune-<version>.tgz` but not the stable `i18nprune-latest.tgz`. */
+const CLI_TGZ_PATTERN = new RegExp(`^${rootPkg.name}-\\d[\\w.+-]*\\.tgz$`);
+
 const fixturePkgPath = path.join(fixtureRoot, 'package.json');
 const fixtureLockPath = path.join(fixtureRoot, 'pnpm-lock.yaml');
 
 /**
- * Point the npm-consumer fixture at the packed CLI tarball for the current root version.
- * Stale lockfiles (e.g. pinned to an old 0.1.0 pack) are removed so install resolves fresh.
- * @param {string} version root package.json semver
+ * Pick the CLI tarball to hand to the fixture: the current version's pack when present,
+ * else the newest `i18nprune-<version>.tgz` at the repo root (covers `--skip-pack`).
+ * @returns {string | null} absolute path
  */
-function syncFixtureCliTarballRef(version) {
-  const tarballRef = `file:../../../${tarballFileName(rootPkg.name, version)}`;
+function resolveCliTarball() {
+  if (fs.existsSync(cliTgzPath)) return cliTgzPath;
+  const newest = fs
+    .readdirSync(repoRoot)
+    .filter((name) => CLI_TGZ_PATTERN.test(name))
+    .map((name) => {
+      const full = path.join(repoRoot, name);
+      return { full, mtime: fs.statSync(full).mtimeMs };
+    })
+    .sort((a, b) => b.mtime - a.mtime)[0];
+  return newest?.full ?? null;
+}
+
+/**
+ * Copy the resolved pack to `i18nprune-latest.tgz` so the fixture dependency stays stable
+ * across version bumps.
+ * @param {string} source absolute path to a packed CLI tarball
+ */
+function publishStableCliTarball(source) {
+  fs.copyFileSync(source, cliTgzStablePath);
+  console.log(`→ ${path.basename(source)} → ${CLI_TGZ_STABLE_NAME}`);
+}
+
+/**
+ * Point the npm-consumer fixture at the stable `i18nprune-latest.tgz` ref.
+ * Stale lockfiles (e.g. pinned to an old pack) are removed so install resolves fresh.
+ */
+function syncFixtureCliTarballRef() {
+  const tarballRef = `file:../../../${CLI_TGZ_STABLE_NAME}`;
   const fixturePkg = JSON.parse(fs.readFileSync(fixturePkgPath, 'utf8'));
   const prev = fixturePkg.dependencies?.i18nprune;
   if (prev !== tarballRef) {
@@ -101,9 +137,17 @@ if (!skipPack) {
   run('pnpm', ['pack', '--pack-destination', repoRoot], path.join(repoRoot, 'packages', 'core'), 'pnpm pack (core)');
 }
 
-if (!fs.existsSync(cliTgzPath)) {
-  console.error(`Missing ${cliTgzPath} (expected i18nprune@${rootPkg.version}). Run without --skip-pack or pnpm pack at repo root.`);
+const cliTarball = resolveCliTarball();
+if (!cliTarball) {
+  console.error(
+    `Missing a packed CLI tarball (expected ${cliTgzName}, or any ${rootPkg.name}-<version>.tgz). Run without --skip-pack or pnpm pack at repo root.`,
+  );
   process.exit(1);
+}
+if (path.basename(cliTarball) !== cliTgzName) {
+  console.warn(
+    `publish:verify warning: no ${cliTgzName}; using newest pack ${path.basename(cliTarball)}.`,
+  );
 }
 
 if (!fs.existsSync(coreTgzPath)) {
@@ -111,7 +155,8 @@ if (!fs.existsSync(coreTgzPath)) {
   process.exit(1);
 }
 
-syncFixtureCliTarballRef(rootPkg.version);
+publishStableCliTarball(cliTarball);
+syncFixtureCliTarballRef();
 
 const fixtureNodeModules = path.join(fixtureRoot, 'node_modules');
 if (fs.existsSync(fixtureNodeModules)) {
