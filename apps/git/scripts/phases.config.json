@@ -202,9 +202,13 @@
       "fix(core) — declared policies.preserve.uncertainPrefixes reach the reference context (BUG-001)",
       "fix(kits) — review sourceLocale is the locale code; `kits identical` resolves source via segmentsForLocaleCode (BUG-003)",
       "feat(translate) — brave provider + single source of truth for provider ids",
+      "feat(releases) — machine-readable /releases/ JSON, content negotiation, and a generated CHANGELOG",
+      "feat(cli) — `version --notes` reads release notes for the installed CLI + Core",
+      "feat(extractor) — light-dataflow same-file assignment chains (const b = a → resolvedViaConstAssignment hint)",
       "chore(landing) — drop the CodeSandbox preview and its core sandbox page",
       "docs — cleanup protection-parity contract + open defect register",
-      "receipt maintainer/shipped/locale/cleanup-uncertain-protection.md"
+      "receipt maintainer/shipped/locale/cleanup-uncertain-protection.md",
+      "receipt maintainer/shipped/extractor/light-dataflow.md"
     ]
   }
 ]

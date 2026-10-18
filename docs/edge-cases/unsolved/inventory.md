@@ -38,8 +38,8 @@ Use this shape for every new inventory item:
 - **Surface:** `core`
 - **Status:** `shipped` (HOC §A — one-hop only)
 - **Impact:** Translation calls made through a **renamed local** (`const tt = t; tt('key')`) were not tied to configured `t` without dataflow.
-- **Current behavior:** Same-file **one-hop** aliases expand into effective helpers (`const tt = t`, `const translate = i18n.t`). Multi-hop and ternaries are not followed.
-- **Target behavior:** Optional multi-hop / light-dataflow later — see [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md) · [`light-dataflow.md`](../../../maintainer/phases/extractor/light-dataflow.md).
+- **Current behavior:** Same-file **one-hop** aliases expand into effective helpers (`const tt = t`, `const translate = i18n.t`). Helper multi-hop and ternaries are not followed. (Multi-hop **key-value** chains — `const b = a` where `a` is a key string — shipped via light-dataflow; that is a different pipeline.)
+- **Target behavior:** Optional helper multi-hop / ternaries — see [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md). Key-value chains: [`light-dataflow.md`](../../../maintainer/phases/extractor/light-dataflow.md) (chains shipped 2026-W42).
 - **Workaround:** (n/a for one-hop) Call under the imported name, or add a stable alias to `functions`.
 - **Owner / phase:** [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md) §A; tests in `packages/core/src/extractor/bindings/__tests__/localHelpers.test.ts`.
 

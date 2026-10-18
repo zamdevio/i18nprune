@@ -1,6 +1,7 @@
 # Phase — Light dataflow (no full AST)
 
 **Depth:** `fast`  
+**Status:** **in progress** — same-file assignment chains shipped (2026-W42, [`shipped/extractor/light-dataflow.md`](../../shipped/extractor/light-dataflow.md)); mixed-template folding (Phase 2) pending.  
 **Perf budget:** +50–200 ms on ~316 files (same-file assignment ledger, O(lines) per file)  
 **Prerequisite:** E.1 fusion shipped · supersedes E.3 non-literal hints when this lands — [`README.md`](./README.md)  
 **Guardrails:** [`guardrails.md`](./guardrails.md) · hints ≠ proven keys
