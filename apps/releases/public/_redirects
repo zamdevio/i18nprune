@@ -1,1 +1,5 @@
+# Legacy machine-readable catalog moved under /releases/ (2026-W42).
+/data/releases.json    /releases/index.json    301
+
+# SPA fallback.
 /*    /index.html   200

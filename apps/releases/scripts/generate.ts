@@ -4,7 +4,9 @@ import path from 'node:path';
 import semver from 'semver';
 import type { ReleaseCatalogV1, StreamId } from '../src/types/index.js';
 import { writeFeeds } from './lib/build.js';
-import { loadAllReleaseFiles, REPO_ROOT, siteOrigin } from './lib/utils.js';
+import { writeChangelog } from './lib/changelog.js';
+import { writeReleaseJson } from './lib/json.js';
+import { loadAllReleaseFiles, PUBLIC_DIR, REPO_ROOT, siteOrigin } from './lib/utils.js';
 
 const STREAMS: StreamId[] = ['cli', 'core', 'extension'];
 const entries = loadAllReleaseFiles();
@@ -32,18 +34,26 @@ const catalog: ReleaseCatalogV1 = {
 
 const json = `${JSON.stringify(catalog, null, 2)}\n`;
 
+// Internal bundle for the SPA (imported by src/features/catalog).
 const srcCatalog = path.join(REPO_ROOT, 'src/data/releases.json');
-const publicCatalog = path.join(REPO_ROOT, 'public/data/releases.json');
-for (const dest of [srcCatalog, publicCatalog]) {
-  fs.mkdirSync(path.dirname(dest), { recursive: true });
-  fs.writeFileSync(dest, json);
-}
+fs.mkdirSync(path.dirname(srcCatalog), { recursive: true });
+fs.writeFileSync(srcCatalog, json);
 
 const origin = siteOrigin();
-const publicDir = path.join(REPO_ROOT, 'public');
-writeFeeds(entries, origin, publicDir);
 
-console.log(
-  `Wrote catalog (${entries.length} releases) → src/data/releases.json, public/data/releases.json`,
-);
+// Public machine-readable surface: /releases/index.json + per-stream latest + per-version.
+const versionFiles = writeReleaseJson(catalog);
+
+// Feeds + sitemap.
+writeFeeds(entries, origin, PUBLIC_DIR);
+
+// Generated changelog (committed at the monorepo root).
+writeChangelog(entries, origin);
+
+// Drop the pre-rename `/data/releases.json` asset if it lingers locally.
+fs.rmSync(path.join(PUBLIC_DIR, 'data/releases.json'), { force: true });
+
+console.log(`Wrote catalog (${entries.length} releases) → src/data/releases.json`);
+console.log(`Wrote release JSON → public/releases/index.json + ${versionFiles} version files`);
+console.log(`Wrote CHANGELOG.md (monorepo root)`);
 console.log(`Wrote feeds → public/feed.xml, public/atom.xml, public/sitemap.xml (${origin})`);

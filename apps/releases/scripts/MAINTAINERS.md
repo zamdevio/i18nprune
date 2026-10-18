@@ -20,13 +20,38 @@ scripts/
 
 ## `pnpm generate:catalog`
 
-Writes (gitignored — run before dev/build):
+Writes:
 
-- `src/data/releases.json`
-- `public/data/releases.json`
-- `public/feed.xml`, `public/atom.xml`, `public/sitemap.xml`
+- `src/data/releases.json` — catalog bundled into the SPA *(gitignored)*
+- `public/releases/index.json` — full catalog for external consumers *(gitignored)*
+- `public/releases/<stream>/latest.json` — newest record per stream *(gitignored)*
+- `public/releases/<stream>/<version>.json` — one record per release *(gitignored)*
+- `public/feed.xml`, `public/atom.xml`, `public/sitemap.xml` *(gitignored)*
+- **`CHANGELOG.md`** — generated at the **monorepo root** and **committed**
 
 `SITE_ORIGIN` defaults to `https://releases.i18nprune.dev`.
+
+### Machine-readable surface (`/releases/…`)
+
+The portal is an SPA, so its HTML routes (`/cli/1.1.1`) are unparseable to scripts. Every
+release is therefore also emitted as static JSON under `/releases/`:
+
+```text
+https://releases.i18nprune.dev/releases/index.json           # catalog (all streams)
+https://releases.i18nprune.dev/releases/cli/latest.json      # newest CLI record
+https://releases.i18nprune.dev/releases/cli/1.1.1.json       # one release record
+```
+
+Per-version and `latest` files hold a raw `ReleaseRecordV1` (same shape as catalog
+entries). `functions/_middleware.ts` also content-negotiates the canonical route: a request
+to `/cli/1.1.1` with `Accept: application/json` returns that record; browsers still get the
+SPA shell. The pre-rename `/data/releases.json` is 301'd to `/releases/index.json`.
+
+### `CHANGELOG.md` is generated — never hand-edit
+
+The monorepo-root `CHANGELOG.md` is rendered from `content/**/*.yaml` by the same script.
+Edit the YAML, run `pnpm releases:generate`, and commit the regenerated file. CI fails if it
+drifts from the YAML (`pnpm releases:generate && git status --porcelain CHANGELOG.md`).
 
 ## `pnpm github-release-body`
 

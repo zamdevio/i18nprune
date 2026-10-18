@@ -154,6 +154,17 @@ jobs:
       - name: Verify version alignment
         run: pnpm versions:verify
 
+      - name: Verify generated CHANGELOG is up to date
+        if: needs.scope.outputs.docs_only != 'true'
+        run: |
+          set -euo pipefail
+          pnpm releases:generate
+          if [ -n "$(git status --porcelain -- CHANGELOG.md)" ]; then
+            echo "::error::CHANGELOG.md is out of date — run 'pnpm releases:generate' and commit it."
+            git --no-pager diff -- CHANGELOG.md
+            exit 1
+          fi
+
       - name: Run typecheck (Turborepo)
         env:
           FILTER: ${{ needs.scope.outputs.turbo_filter }}

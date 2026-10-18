@@ -8,8 +8,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** `apps/releases` app root */
 export const REPO_ROOT = path.resolve(__dirname, '../..');
+/** Monorepo root (`i18nprune/`). */
+export const MONOREPO_ROOT = path.resolve(REPO_ROOT, '../..');
 export const CONTENT_DIR = path.join(REPO_ROOT, 'content');
 export const SCHEMA_PATH = path.join(REPO_ROOT, 'schema/release.schema.json');
+/** Deployed static assets for the portal. */
+export const PUBLIC_DIR = path.join(REPO_ROOT, 'public');
+/** Machine-readable release JSON namespace (`/releases/…` on the deployed site). */
+export const RELEASES_JSON_DIR = path.join(PUBLIC_DIR, 'releases');
+/** Generated, committed changelog at the monorepo root. */
+export const CHANGELOG_PATH = path.join(MONOREPO_ROOT, 'CHANGELOG.md');
 
 const STREAMS: StreamId[] = ['cli', 'core', 'extension'];
 

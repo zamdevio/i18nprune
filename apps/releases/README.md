@@ -29,7 +29,7 @@ apps/releases/
 ├── content/              # source of truth (per-stream YAML)
 ├── schema/               # release.schema.json
 ├── scripts/              # validate.ts, generate.ts, github-release-body.ts
-│   └── lib/              # utils, build, rules, helpers
+│   └── lib/              # utils, build, json, changelog, rules, helpers
 ├── src/
 │   ├── app/
 │   │   ├── App.tsx
@@ -48,9 +48,15 @@ apps/releases/
 │   └── data/             # generated releases.json (gitignored)
 ├── public/
 │   ├── favicon.ico, i18nprune.svg, robots.txt, _redirects
-│   └── feed.xml, atom.xml, sitemap.xml, data/  # generated (gitignored)
+│   ├── feed.xml, atom.xml, sitemap.xml          # generated (gitignored)
+│   └── releases/                                 # machine-readable JSON (gitignored)
 └── vite.config.ts
 ```
+
+**Machine-readable:** every release is also static JSON — `/releases/index.json`,
+`/releases/<stream>/latest.json`, `/releases/<stream>/<version>.json` — and the canonical
+route `/cli/1.1.1` returns that record when asked with `Accept: application/json`. The
+monorepo-root **`CHANGELOG.md`** is generated from the same YAML and committed.
 
 ---
 
@@ -66,7 +72,7 @@ apps/releases/
 
 | App script | Purpose |
 |------------|---------|
-| `generate:catalog` | runs `scripts/generate.ts` → catalog JSON + feed.xml + atom.xml + sitemap.xml |
+| `generate:catalog` | runs `scripts/generate.ts` → catalog JSON + `/releases/` JSON + feeds + root `CHANGELOG.md` |
 | `validate` | JSON Schema on `content/` |
 | `github-release-body` | Markdown for GitHub Releases (`--stream` / `--version`) |
 
