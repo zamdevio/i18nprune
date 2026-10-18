@@ -1,6 +1,6 @@
 # Phase: Dashboard
 
-**Status:** planned  
+**Status:** in progress — an 8-page webview exists; it still reads ad-hoc shapes rather than the WI layer (which is not built).  
 **Goal:** Project intelligence UI (webview and/or native views) as a **consumer** of the same workspace intelligence layer — **no** separate backend logic.
 
 ---

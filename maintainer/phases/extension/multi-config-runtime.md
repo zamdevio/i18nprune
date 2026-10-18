@@ -1,6 +1,6 @@
 # Phase: Multi-config runtime
 
-**Status:** planned  
+**Status:** in progress — discovery + `workspaceProjects` registry exist; consolidating scattered module state into one runtime bus is pending.  
 **Goal:** Multiple `i18nprune.config.*` files in one VS Code window; switching the active project is **instant, deterministic, and never requires extension reload or host restart**.
 
 Focus: **runtime project binding**, **per-config state isolation**, and **reactive updates** across sidebar, dashboard, and future intelligence consumers.

@@ -60,18 +60,32 @@ Status values: **planned** | **in progress** | **done** | **blocked** | **deferr
 | Phase | Document | Status | Depends on (conceptual) |
 |-------|----------|--------|-------------------------|
 | Monorepo home | [apps/extension/README.md](../../../apps/extension/README.md) | **done** | Extension sources under **`apps/extension/`** |
-| Foundation | [foundation.md](./foundation.md) | planned | Minimal stable core surface for project binding; core **extractor** trajectory |
-| Core integration | [core-integration.md](./core-integration.md) | planned | Foundation; documented core entrypoints + `CoreContext` / paths story |
-| Multi-config runtime | [multi-config-runtime.md](./multi-config-runtime.md) | planned | **Foundation** (discovery + active project); hardens registry, hot switch, per-config isolation |
+| Foundation | [foundation.md](./foundation.md) | **in progress** | Minimal stable core surface for project binding; core **extractor** trajectory |
+| Core integration | [core-integration.md](./core-integration.md) | **in progress** | Foundation; documented core entrypoints + `CoreContext` / paths story |
+| Multi-config runtime | [multi-config-runtime.md](./multi-config-runtime.md) | **in progress** | **Foundation** (discovery + active project); hardens registry, hot switch, per-config isolation |
 | Workspace intelligence | [workspace-intelligence.md](./workspace-intelligence.md) | planned | Foundation; **multi-config runtime**; **core integration** checklist; core **locales** + normalized project model |
-| Generate (dashboard) | [generate.md](./generate.md) | planned | Foundation; **core integration**; stable **`runGenerate`** + host hooks (can parallel early WI if context-only) |
+| Generate (dashboard) | [generate.md](./generate.md) | **in progress** | Foundation; **core integration**; stable **`runGenerate`** + host hooks (can parallel early WI if context-only) |
 | Hover | [hover.md](./hover.md) | planned | Workspace intelligence |
 | Diagnostics | [diagnostics.md](./diagnostics.md) | planned | Workspace intelligence; **after** hover patterns prove noise levels |
 | Init UI | [init-ui.md](./init-ui.md) | planned | Foundation; core **init** shipped; **auto-show webview when no `i18nprune.config.*` in opened workspace folder** (see init-ui.md) |
 | Completions | [completions.md](./completions.md) | planned | Workspace intelligence |
-| Dashboard | [dashboard.md](./dashboard.md) | planned | Workspace intelligence; **Generate** tab in [generate.md](./generate.md) |
+| Dashboard | [dashboard.md](./dashboard.md) | **in progress** | Workspace intelligence; **Generate** tab in [generate.md](./generate.md) |
 | Performance | [performance.md](./performance.md) | planned | Diagnostics + real usage data (informs budgets) |
 | Post-MVP backlog | [post-mvp.md](./post-mvp.md) | deferred | Hover / diagnostics / Generate maturity; **share host** (see post-mvp § Share host surface) |
+
+### Current state (2026-W42)
+
+The table above was `planned`-everywhere long after the code moved. What exists today in
+`apps/extension/`:
+
+- **Built:** project discovery + active-project selection/persistence, filesystem watchers,
+  sidebar tree, an 8-page dashboard webview, and real `runGenerate` / `runValidate` /
+  config-preview ops that call core. `ext:build` is in the root build chain; the host
+  typecheck runs in CI.
+- **Not built:** workspace intelligence, hover, diagnostics, completions, performance work.
+- **Biggest gap — zero tests.** No test script, no `*.test.*`, nothing in the CI test job.
+  6.4k LOC of host code (watchers, project registry, webview IPC) is untested. See gate
+  **G4** below; this is a prerequisite for WI being verifiable, not a later polish step.
 
 **Sequencing note:** Hover and diagnostics both need the intelligence layer; diagnostics follow **hover** so key-at-cursor semantics and confidence thresholds are learned before widening to squiggles.
 

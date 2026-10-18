@@ -1,6 +1,6 @@
 # Phase: Foundation
 
-**Status:** planned  
+**Status:** in progress — spine, discovery, and project binding exist; exit-criteria docs (settings list, named core-boundary module) pending.  
 **Goal:** Stable extension spine — activation, boundaries, project ownership — **without** rich editor UX (no hover in this phase).
 
 ---

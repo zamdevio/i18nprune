@@ -1,6 +1,6 @@
 # Phase: Generate (dashboard + host)
 
-**Status:** planned  
+**Status:** in progress — Generate page + `runGenerateWorkspace` op exist; host-hook + IPC polish pending.  
 **Goal:** First-class **Generate** experience in the dashboard (view tab / route pattern aligned with Monitor and other views), driven by core **`runGenerate`** — extension host owns execution; webview owns controls and display.
 
 **Does not require** full [workspace-intelligence.md](workspace-intelligence.md) if the only need is `CoreContext` + config from workspace — but results and progress must still follow **core-integration.md** rules (envelopes, cancellation, no duplicate orchestration in the webview bundle).
