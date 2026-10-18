@@ -1,7 +1,7 @@
 # Phase — `i18nprune serve` (stdio transport)
 
 **Status:** **in progress** — S.1 (transport skeleton) + S.2 (read ops) + S.3 (progress + cancel, incl. C-signal mid-flight cancel) + S.4 (write ops) + S.5 (client docs) landed; S.6 pending.
-**Tracker:** [`focus.md`](./focus.md) · **Contract:** [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) · **User docs (when built):** `docs/cli/serve.md`
+**Tracker:** [`focus.md`](./focus.md) · **Contract:** [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) · **User docs:** [`docs/cli/serve.md`](../../docs/cli/serve.md)
 **Implementation home:** `packages/cli/src/serve/` (transport only — ops stay in core `runXxx`)
 **Consumers:** Tauri desktop (planned, develops outside this repo until migration), VS Code extension (own branch), scripted / SSH clients
 

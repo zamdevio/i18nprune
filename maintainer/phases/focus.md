@@ -13,9 +13,10 @@
 | **Then** | Locale-only generate | [`locale-only.md`](./locale-only.md) |
 | **Queued** | Config layout UX | [`config.md`](./config.md) |
 | **Planned** | `search` command | [`search.md`](./search.md) |
-| **Planned** | `serve` stdio transport | [`serve.md`](./serve.md) · [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) |
+| **In progress** | `serve` stdio transport — S.1–S.5 landed; S.6 pending | [`serve.md`](./serve.md) · [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) |
 | **Research** | Terminal protocol | [`terminal.md`](./terminal.md) |
-| **Shipped** | Preserve + sync | [`shipped/locale/preserve-sync.md`](../shipped/locale/preserve-sync.md) |
+| **Shipped** | Cleanup uncertain-prefix protection → 1.1.1 | [`shipped/locale/cleanup-uncertain-protection.md`](../shipped/locale/cleanup-uncertain-protection.md) |
+| **Shipped** | Preserve + sync → 1.0.3 | [`shipped/locale/preserve-sync.md`](../shipped/locale/preserve-sync.md) |
 
 Engineering maps: [`systems/README.md`](../systems/README.md).
 
