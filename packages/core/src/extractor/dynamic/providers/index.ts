@@ -18,10 +18,11 @@ export function findDynamicKeySitesForFile(
   filePath: string,
   content: string,
   functions: string[],
+  importedConsts?: Record<string, string>,
 ): DynamicKeySite[] {
   if (!isJavascriptLikePath(filePath)) {
     return [];
   }
-  return findDynamicKeySitesInJavascriptFile(content, functions, filePath);
+  return findDynamicKeySitesInJavascriptFile(content, functions, filePath, importedConsts);
 }
 

@@ -37,9 +37,10 @@ export function findDynamicKeySitesInJavascriptFile(
   text: string,
   functions: string[],
   filePath: string,
+  importedConsts: Record<string, string> = {},
 ): DynamicKeySite[] {
   const commentRanges = commentRangesForJsLikeText(text);
-  const constMap = buildConstStringMap(text);
+  const constMap = { ...importedConsts, ...buildConstStringMap(text) };
   const ledger = buildAssignmentLedger(text);
   const raw = findDynamicKeySitesRaw(text, functions, constMap, ledger);
   const out: DynamicKeySite[] = [];

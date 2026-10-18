@@ -16,9 +16,9 @@ export function scanProjectKeyObservations(input: ScanProjectKeyObservationsInpu
     readFile: input.readFile,
     listFiles: input.listFiles,
     exclude: input.exclude,
-    scanFile: ({ text, displayPath }) => {
+    scanFile: ({ text, displayPath, importedConsts }) => {
       const functions = expandEffectiveFunctions(input.functions, text);
-      const constMap = buildConstStringMap(text);
+      const constMap = { ...importedConsts, ...buildConstStringMap(text) };
       const commentRanges = commentRangesForJsLikeText(text);
       const observations = scanKeyObservations(text, functions, constMap, {
         commentRanges,

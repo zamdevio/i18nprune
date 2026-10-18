@@ -1,6 +1,11 @@
 import { I18nPruneError } from '../../shared/errors/index.js';
 import { listSourceFiles } from '../../shared/scanner/files.js';
 import { readRuntimeFsTextSync } from '../../runtime/helpers/sync/index.js';
+import {
+  buildProjectExportConstIndex,
+  importedConstsForFile,
+  type ProjectFileEntry,
+} from '../crossfile/index.js';
 import type { ScanProjectSourceFilesInput } from '../../types/extractor/shared/index.js';
 
 /**
@@ -65,6 +70,19 @@ function resolveScanIo<T>(input: ScanProjectSourceFilesInput<T>): {
 export function scanProjectSourceFiles<T>(input: ScanProjectSourceFilesInput<T>): T[] {
   const { cwd, listFiles, readFile, pathPort } = resolveScanIo(input);
   const files = listFiles(input.srcRoot);
+
+  // Pass 1 — project export index so imports of static string consts fold across files.
+  const exportEntries: ProjectFileEntry[] = [];
+  for (const filePath of files) {
+    try {
+      exportEntries.push({ filePath, text: readFile(filePath) });
+    } catch {
+      /* unreadable — leave it out of the index */
+    }
+  }
+  const exportIndex = buildProjectExportConstIndex(exportEntries, pathPort);
+
+  // Pass 2 — scan each file with its imported-consts overlay.
   const out: T[] = [];
 
   for (const filePath of files) {
@@ -82,7 +100,8 @@ export function scanProjectSourceFiles<T>(input: ScanProjectSourceFilesInput<T>)
             const relCwd = pathPort.relative(cwd, filePath);
             return relCwd && !relCwd.startsWith('..') ? relCwd.replace(/\\/g, '/') : filePath;
           })();
-    const rows = input.scanFile({ filePath, displayPath, text });
+    const importedConsts = importedConstsForFile(text, filePath, exportIndex, pathPort);
+    const rows = input.scanFile({ filePath, displayPath, text, importedConsts });
     out.push(...rows);
   }
 

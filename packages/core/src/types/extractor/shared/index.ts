@@ -7,6 +7,11 @@ export type ScanProjectFileInput = {
   filePath: string;
   displayPath: string;
   text: string;
+  /**
+   * Cross-file static string consts imported into this file (`localName → value`),
+   * resolved from the project export index. Merge **under** the file's own const map.
+   */
+  importedConsts?: Record<string, string>;
 };
 
 export type ScanProjectSourceFilesInput<T> = {

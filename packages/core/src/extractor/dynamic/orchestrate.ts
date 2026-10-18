@@ -24,9 +24,9 @@ export function scanProjectDynamicKeySites(input: ScanProjectDynamicKeySitesInpu
     readFile: input.readFile,
     listFiles: input.listFiles,
     exclude: input.exclude,
-    scanFile: ({ filePath, displayPath, text }) => {
+    scanFile: ({ filePath, displayPath, text, importedConsts }) => {
       const functions = expandEffectiveFunctions(input.functions, text);
-      const sites = findDynamicKeySitesForFile(filePath, text, functions);
+      const sites = findDynamicKeySitesForFile(filePath, text, functions, importedConsts);
       return sites.map((site) => ({ ...site, filePath: displayPath }));
     },
   });
