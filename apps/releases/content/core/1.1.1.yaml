@@ -1,0 +1,44 @@
+schemaVersion: 1
+stream: core
+version: 1.1.1
+date: 2026-10-18
+status: stable
+summary: v1.1.1 — cleanup uncertain-prefix protection in both modes and layout-aware source resolution for review. Lockstep with CLI 1.1.1.
+highlights:
+  - "`cleanup` applies the uncertain-prefix guard in source and `--target` modes alike"
+  - "Declared `policies.preserve.uncertainPrefixes` reaches the reference context, not only `sync`"
+  - "Review `sourceLocale` is the locale code under `locale_per_dir`"
+sections:
+  added: []
+  changed: []
+  fixed:
+    - "Target-mode cleanup now shares `computeCleanupCandidateKeys` with source mode; both emit `excludedUncertain` and populate `data.uncertainPrefixes` (BUG-002)"
+    - "`policies.preserve.uncertainPrefixes` is threaded into the reference context builders via `collectDeclaredUncertainPrefixes` (BUG-001)"
+    - "Review payload `sourceLocale` is derived from the layout-aware origin rather than `basenameNoExt(sourceLocalePath)`, which returned the segment stem under `locale_per_dir` (BUG-003)"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install @i18nprune/core@1.1.1"
+    - "Pin the same semver as CLI (`@i18nprune/core@1.1.1` with `i18nprune@1.1.1`)"
+    - "No API or JSON-envelope changes — behaviour-only fixes"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/1.1.1
+    - label: SDK operations
+      href: https://docs.i18nprune.dev/sdk/operations
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@1.1.1
+git:
+  tag: v1.1.1
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.1.1"
+compat:
+  - stream: cli
+    version: 1.1.1
+tags:
+  - patch
+  - cleanup
+  - core

@@ -1,0 +1,47 @@
+schemaVersion: 1
+stream: cli
+version: 1.1.1
+date: 2026-10-18
+status: stable
+summary: v1.1.1 — cleanup uncertain-prefix protection is honoured in both source and `--target` modes, and `kits identical` resolves source files correctly under segmented layouts.
+highlights:
+  - "`cleanup --target <locale>` no longer silently drops scan-derived uncertain-prefix protection (data-loss class)"
+  - "Declared `policies.preserve.uncertainPrefixes` now reaches `cleanup` — it protected only `sync` before"
+  - "`kits identical` returns rows under `locale_directory` + `locale_per_dir` instead of aborting with ENOENT"
+sections:
+  added: []
+  changed: []
+  fixed:
+    - "`cleanup --target <locale>` routes through the same candidate path as source mode, so preserve rules and the uncertain-prefix guard apply identically (BUG-002)"
+    - "`excludedUncertain` is emitted in both cleanup modes, and `data.uncertainPrefixes` is populated in target mode (was hardcoded `[]`) (BUG-002)"
+    - "Declared `policies.preserve.uncertainPrefixes` reaches the reference context via `collectDeclaredUncertainPrefixes` (BUG-001)"
+    - "Review payloads report the locale code — not the segment stem — as `sourceLocale` under `locale_per_dir` (BUG-003)"
+    - "`kits identical` resolves source leaves through `segmentsForLocaleCode` instead of joining `${code}.json`, fixing `locale_per_dir` and `feature_bundle` layouts (BUG-003)"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install -g i18nprune@1.1.1"
+    - "Behaviour-only fixes — no config or JSON-contract changes"
+    - "If you relied on `cleanup --target` removing keys under a dynamic/uncertain prefix, that tree is now protected (as documented)"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/1.1.1
+    - label: Cleanup command
+      href: https://docs.i18nprune.dev/commands/cleanup
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@1.1.1
+git:
+  tag: v1.1.1
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.1.1"
+compat:
+  - stream: core
+    version: 1.1.1
+tags:
+  - patch
+  - cleanup
+  - kits
+  - cli

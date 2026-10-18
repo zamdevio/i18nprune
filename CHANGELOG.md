@@ -8,6 +8,34 @@ from `apps/releases/content/` — edit the YAML, never this file.
 
 ---
 
+## CLI v1.1.1 — 2026-10-18
+
+v1.1.1 — cleanup uncertain-prefix protection is honoured in both source and `--target` modes, and `kits identical` resolves source files correctly under segmented layouts.
+
+[Full release notes →](https://releases.i18nprune.dev/cli/1.1.1)
+
+**Fixed**
+- `cleanup --target <locale>` routes through the same candidate path as source mode, so preserve rules and the uncertain-prefix guard apply identically (BUG-002)
+- `excludedUncertain` is emitted in both cleanup modes, and `data.uncertainPrefixes` is populated in target mode (was hardcoded `[]`) (BUG-002)
+- Declared `policies.preserve.uncertainPrefixes` reaches the reference context via `collectDeclaredUncertainPrefixes` (BUG-001)
+- Review payloads report the locale code — not the segment stem — as `sourceLocale` under `locale_per_dir` (BUG-003)
+- `kits identical` resolves source leaves through `segmentsForLocaleCode` instead of joining `${code}.json`, fixing `locale_per_dir` and `feature_bundle` layouts (BUG-003)
+
+---
+
+## Core v1.1.1 — 2026-10-18
+
+v1.1.1 — cleanup uncertain-prefix protection in both modes and layout-aware source resolution for review. Lockstep with CLI 1.1.1.
+
+[Full release notes →](https://releases.i18nprune.dev/core/1.1.1)
+
+**Fixed**
+- Target-mode cleanup now shares `computeCleanupCandidateKeys` with source mode; both emit `excludedUncertain` and populate `data.uncertainPrefixes` (BUG-002)
+- `policies.preserve.uncertainPrefixes` is threaded into the reference context builders via `collectDeclaredUncertainPrefixes` (BUG-001)
+- Review payload `sourceLocale` is derived from the layout-aware origin rather than `basenameNoExt(sourceLocalePath)`, which returned the segment stem under `locale_per_dir` (BUG-003)
+
+---
+
 ## CLI v1.1.0 — 2026-10-10
 
 v1.1.0 — extractor HOC §A (preset hook binds + same-file one-hop aliases) for higher literal key recall.
