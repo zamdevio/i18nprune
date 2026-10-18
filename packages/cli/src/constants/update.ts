@@ -14,3 +14,9 @@ export const UPDATE_STATE_SCHEMA_VERSION = 1 as const;
 
 /** Minimum ms between automatic registry checks (banner / `preAction`). */
 export const UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+/** Releases portal origin — machine-readable release notes for **`version --notes`**. */
+export const RELEASES_PORTAL_ORIGIN = 'https://releases.i18nprune.dev' as const;
+
+/** Timeout for release-notes fetches against the portal. */
+export const RELEASES_NOTES_FETCH_TIMEOUT_MS = 8000;

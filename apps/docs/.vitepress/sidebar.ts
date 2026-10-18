@@ -60,6 +60,7 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
             { text: 'cleanup', link: '/commands/cleanup' },
             { text: 'quality', link: '/commands/quality' },
             { text: 'review', link: '/commands/review' },
+            { text: 'version', link: '/commands/version' },
             { text: 'help', link: '/commands/help' },
           ],
         },

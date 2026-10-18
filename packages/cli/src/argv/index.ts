@@ -226,7 +226,7 @@ function rewriteVersionShortFlag(argv: string[]): string[] {
   }
 
   const filtered = args.filter((a) => a !== VERSION_SHORT_FLAG);
-  const versionSubOpts = ['--check', '--reset'];
+  const versionSubOpts = ['--check', '--reset', '--notes'];
   const hasVersionSubOpt = filtered.some((a) => versionSubOpts.includes(a));
   const next = hasVersionSubOpt
     ? (() => {

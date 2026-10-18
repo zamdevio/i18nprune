@@ -54,6 +54,7 @@ import type { ReportCliJsonPayload } from '@/types/command/report/json.js';
 import type { ProjectReportDocument } from '@/types/command/report/index.js';
 import { ensureUpdateCacheRefreshed } from '@/utils/update/index.js';
 import { printCurrentVersionLine, runVersionCheckCommand, runVersionResetCommand } from '@/utils/update/version.js';
+import { runVersionNotesCommand } from '@/utils/update/notes.js';
 import { getRunOptions, type ScanDebugEvent } from '@i18nprune/core';
 import { emitCliJsonOptionError } from '@/shared/result/optionErrorEnvelope.js';
 import { logger } from '@/utils/logger/index.js';
@@ -807,14 +808,17 @@ program
 
 program
   .command('version')
-  .description('Print CLI version (--check queries npm; --reset clears update cache)')
+  .description(
+    'Print CLI version (--check queries npm; --notes shows release notes; --reset clears update cache)',
+  )
   .option('--check', 'fetch latest from the npm registry and show install instructions', false)
+  .option('--notes', 'show release notes for the installed CLI and Core from the releases portal', false)
   .option(
     '--reset',
     'clear cached npm update check (next automatic lookup runs fresh)',
     false,
   )
-  .action(async (opts: { check?: boolean; reset?: boolean }) => {
+  .action(async (opts: { check?: boolean; reset?: boolean; notes?: boolean }) => {
     const run = getRunOptions();
     if (opts.reset) {
       await runVersionResetCommand(run);
@@ -823,6 +827,9 @@ program
       await runVersionCheckCommand(run);
     } else {
       printCurrentVersionLine(run);
+    }
+    if (opts.notes) {
+      await runVersionNotesCommand(run);
     }
   });
 

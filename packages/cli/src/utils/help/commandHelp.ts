@@ -243,7 +243,12 @@ const COMMAND_HELP_EXTRAS: Record<string, CommandHelpExtra> = {
     notes: [NOTE_JSON, 'Read-only diagnostics — use --strict to fail on warnings.'],
   },
   version: {
-    examples: [`${CLI_NAME} version`, `${CLI_NAME} -V`, `${CLI_NAME} version --check`],
+    examples: [
+      `${CLI_NAME} version`,
+      `${CLI_NAME} -V`,
+      `${CLI_NAME} version --check`,
+      `${CLI_NAME} version --notes`,
+    ],
     related: ['doctor', 'help'],
   },
   help: {
