@@ -169,11 +169,18 @@ function styleDescription(desc: string): string {
   return out;
 }
 
+/** Command docs that live outside `/commands/` — site path, no leading slash. */
+const DOCS_PATH_OVERRIDES: Record<string, string> = {
+  serve: 'cli/serve',
+};
+
 function appendDocsFooter(text: string, cmd: Command): string {
   const name = cmd.name();
   if (name === CLI_NAME) {
     return `${text}\n${style.dim('Documentation:')} ${style.accent(getDocsUrl())}\n`;
   }
   const slug = docsSlugForCommand(cmd);
-  return `${text}\n${style.dim('Documentation:')} ${style.accent(docsCommandUrl(slug))}\n`;
+  const override = DOCS_PATH_OVERRIDES[slug];
+  const url = override ? getDocsUrl(override) : docsCommandUrl(slug);
+  return `${text}\n${style.dim('Documentation:')} ${style.accent(url)}\n`;
 }
