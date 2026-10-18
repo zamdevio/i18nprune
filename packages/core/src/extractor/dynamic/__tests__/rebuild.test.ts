@@ -54,4 +54,45 @@ describe('tryResolveTemplatePrefixBeforeUnknown', () => {
   it('returns null when no dot-path prefix remains', () => {
     expect(tryResolveTemplatePrefixBeforeUnknown('${x}.a', {})).toBeNull();
   });
+
+  it('recurses into a const whose value is itself a template', () => {
+    expect(
+      tryResolveTemplatePrefixBeforeUnknown('${partial}.${page}', {
+        NS: 'app',
+        partial: '${NS}.nav',
+      }),
+    ).toBe('app.nav');
+  });
+
+  it('recurses through multiple template levels', () => {
+    expect(
+      tryResolveTemplatePrefixBeforeUnknown('${b}.${page}', {
+        NS: 'app',
+        a: '${NS}.x',
+        b: '${a}.y',
+      }),
+    ).toBe('app.x.y');
+  });
+
+  it('cuts at an unknown identifier inside a substituted value', () => {
+    expect(
+      tryResolveTemplatePrefixBeforeUnknown('${partial}.${page}', {
+        partial: '${UNKNOWN}.nav',
+      }),
+    ).toBeNull();
+  });
+});
+
+describe('mixed-template folding (light-dataflow Phase 2)', () => {
+  it('folds a template-valued const into the static prefix', () => {
+    const text = `
+const NS = 'app';
+const partial = \`\${NS}.nav\`;
+t(\`\${partial}.\${page}\`);
+`;
+    const sites = findDynamicKeySitesInJavascriptMergedText(text, ['t']);
+    const s = sites.find((x) => x.kind === 'template_interpolation');
+    expect(s?.staticPrefix).toBe('app.nav');
+    expect(s?.runtimeSegments).toEqual(['page']);
+  });
 });

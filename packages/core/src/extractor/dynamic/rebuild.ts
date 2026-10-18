@@ -50,16 +50,34 @@ export function tryResolveTemplatePrefixBeforeUnknown(
   }
 
   const prefix = (cutIndex === -1 ? inner : inner.slice(0, cutIndex)).trim();
-  const resolved = prefix.replace(/\$\{([^}]+)\}/g, (whole, innerExpr: string) => {
-    const ident = String(innerExpr).trim();
-    if (/^[A-Za-z_$][\w$]*$/.test(ident) && Object.prototype.hasOwnProperty.call(constMap, ident)) {
-      return constMap[ident]!;
-    }
-    return whole;
-  });
+  const resolved = resolveKnownIdentsRecursively(prefix, constMap);
 
   const trimmed = resolved.replace(/\.$/, '').trim();
   if (!trimmed.includes('.')) return null;
   return trimmed;
+}
+
+/**
+ * Substitute `${Ident}` segments present in `constMap`, **recursing into the substituted
+ * values** — a const may itself be a template (`const p = \`${NS}.nav\``), so folding
+ * `p` must also fold `NS`. Stops (and truncates) at the first identifier not in the map.
+ */
+function resolveKnownIdentsRecursively(
+  fragment: string,
+  constMap: Record<string, string>,
+): string {
+  let out = fragment;
+  const holeRe = /\$\{([A-Za-z_$][\w$]*)\}/;
+  for (let i = 0; i < 64; i += 1) {
+    const match = holeRe.exec(out);
+    if (!match) break;
+    const name = match[1]!;
+    if (!Object.prototype.hasOwnProperty.call(constMap, name)) {
+      out = out.slice(0, match.index);
+      break;
+    }
+    out = out.replace(match[0], constMap[name]!);
+  }
+  return out;
 }
 
