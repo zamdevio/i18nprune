@@ -1,6 +1,6 @@
 # Extractor — phases hub
 
-**Status:** **C.1 + E.1–E.6 + D.1 + HOC §A + light-dataflow (same-file chains) shipped** on `main` — v2 accuracy program continues (light-dataflow mixed-template folding → cross-file → finite-keys).  
+**Status:** **C.1 + E.1–E.6 + D.1 + HOC §A + light-dataflow shipped** on `main` — v2 accuracy program continues (cross-file → finite-keys).  
 **Implementation:** `packages/core/src/extractor/**` · **Engineering map:** [`maintainer/systems/extractor.md`](../../systems/extractor.md) · **Receipts:** [`shipped/README.md`](../../shipped/README.md).
 
 **User docs:** [`docs/architecture/extraction/`](../../../docs/architecture/extraction/README.md) · **Inventory:** [`docs/edge-cases/unsolved/inventory.md`](../../../docs/edge-cases/unsolved/inventory.md).
@@ -87,7 +87,7 @@ Rules: lazy skips inside `fast`; indexes built once per scan; dogfood benchmark 
 | Phase | Doc | Summary | Depth |
 |-------|-----|---------|-------|
 | **HOC** | [`hoc.md`](./hoc.md) | §A hooks, one-hop `tt = t` **shipped**; §B props / HOC `t` passing opt-in | `fast` |
-| **Light dataflow** | [`light-dataflow.md`](./light-dataflow.md) | Same-file def-use without full AST — **chains shipped**; mixed-template folding pending | `fast` |
+| **Light dataflow** | [`light-dataflow.md`](./light-dataflow.md) | Same-file def-use without full AST — **shipped** (chains + mixed-template folding) | `fast` |
 | **Cross-file** | [`cross-file.md`](./cross-file.md) | `export const NS` via static import graph | `fast` |
 | **Finite keys** | [`finite-keys.md`](./finite-keys.md) | Locale-assisted + optional typed unions | `fast` / `typed` |
 | **AST tier** | [`ast-tier.md`](./ast-tier.md) | Opt-in TypeScript/SWC assist | `typed` |
@@ -114,7 +114,7 @@ Rules: lazy skips inside `fast`; indexes built once per scan; dogfood benchmark 
 ## Where to start (next slice)
 
 1. Triage open inventory items tagged to this hub ([`inventory.md`](../../../docs/edge-cases/unsolved/inventory.md)).
-2. Pick the next row from **Phase index** — **HOC §A done**, **light-dataflow chains done**; resume at **light-dataflow mixed-template folding** or **cross-file**, unless a smaller inventory fix is blocking.
+2. Pick the next row from **Phase index** — **HOC §A done**, **light-dataflow done**; resume at **cross-file**, unless a smaller inventory fix is blocking.
 3. Keep parity discipline: `--json` envelope, issue codes, exit codes unchanged on refactors (additive JSON only).
 
 ---

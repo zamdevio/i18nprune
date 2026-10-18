@@ -204,7 +204,7 @@
       "feat(translate) — brave provider + single source of truth for provider ids",
       "feat(releases) — machine-readable /releases/ JSON, content negotiation, and a generated CHANGELOG",
       "feat(cli) — `version --notes` reads release notes for the installed CLI + Core",
-      "feat(extractor) — light-dataflow same-file assignment chains (const b = a → resolvedViaConstAssignment hint)",
+      "feat(extractor) — light-dataflow same-file assignment chains + mixed-template folding",
       "chore(landing) — drop the CodeSandbox preview and its core sandbox page",
       "docs — cleanup protection-parity contract + open defect register",
       "receipt maintainer/shipped/locale/cleanup-uncertain-protection.md",
