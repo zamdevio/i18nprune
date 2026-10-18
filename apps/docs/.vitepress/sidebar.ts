@@ -165,6 +165,7 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
       collapsed: true,
       items: [
         { text: 'Release notes (portal)', link: 'https://releases.i18nprune.dev' },
+        { text: 'Release data (machine-readable)', link: '/releases' },
         { text: 'Git analytics (portal)', link: 'https://git.i18nprune.dev' },
         { text: 'Update checks & version throttle', link: '/cli/cache' },
       ],
