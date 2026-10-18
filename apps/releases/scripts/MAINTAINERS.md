@@ -55,9 +55,23 @@ drifts from the YAML (`pnpm releases:generate && git status --porcelain CHANGELO
 
 ## `pnpm github-release-body`
 
+Paste-ready GitHub Release markdown.
+
 ```bash
-pnpm github-release-body -- --stream cli --version 1.2.0
+# Combined — every stream that has that version (e.g. the lockstep CLI + Core release)
+pnpm github-release-body -- --version 1.1.1
+pnpm github-release-body -- --tag v1.1.1        # version parsed from the tag
+
+# Single stream (unchanged shape)
+pnpm github-release-body -- --stream cli --version 1.1.1
+
+# Straight from a YAML file
+pnpm github-release-body -- --file content/cli/1.1.1.yaml
 ```
+
+The combined mode groups **all streams with a YAML at that version** — for the lockstep
+release that is CLI + Core; an app-only version (e.g. `extension-v0.2.0`) yields an
+extension-only body.
 
 ## IndexNow (after deploy — manual, not on git push)
 
