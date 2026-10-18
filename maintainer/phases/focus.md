@@ -2,19 +2,22 @@
 
 **Shipped receipts:** [`shipped/`](../shipped/README.md)
 
+**Open defects & perf follow-ups:** [`bugs.md`](./bugs.md) — check before starting work.
+
 ---
 
 ## Focus now
 
 | Priority | Vertical | Doc |
 |----------|----------|-----|
-| **Now** | Extractor v2 — HOC §A done; resume light-dataflow → cross-file | [`extractor/README.md`](./extractor/README.md) · receipt [`shipped/extractor/hoc-a.md`](../shipped/extractor/hoc-a.md) |
+| **Now** | Extractor v2 — HOC §A + light-dataflow done; resume cross-file | [`extractor/README.md`](./extractor/README.md) · receipt [`shipped/extractor/hoc-a.md`](../shipped/extractor/hoc-a.md) |
 | **Next** | VS Code extension | [`extension/README.md`](./extension/README.md) *(own branch)* |
 | **Then** | Locale-only generate | [`locale-only.md`](./locale-only.md) |
 | **Queued** | Config layout UX | [`config.md`](./config.md) |
 | **Planned** | `search` command | [`search.md`](./search.md) |
 | **In progress** | `serve` stdio transport — S.1–S.5 landed; S.6 pending | [`serve.md`](./serve.md) · [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) |
 | **Research** | Terminal protocol | [`terminal.md`](./terminal.md) |
+| **Shipped** | Extractor light-dataflow (same-file chains + mixed-template folding) | [`shipped/extractor/light-dataflow.md`](../shipped/extractor/light-dataflow.md) |
 | **Shipped** | Cleanup uncertain-prefix protection → 1.1.1 | [`shipped/locale/cleanup-uncertain-protection.md`](../shipped/locale/cleanup-uncertain-protection.md) |
 | **Shipped** | Preserve + sync → 1.0.3 | [`shipped/locale/preserve-sync.md`](../shipped/locale/preserve-sync.md) |
 
@@ -25,7 +28,7 @@ Engineering maps: [`systems/README.md`](../systems/README.md).
 ## Dependency chain
 
 ```txt
-preserve-sync (done) → extractor v2 (HOC §A done → light-dataflow → cross-file / AST)
+preserve-sync (done) → extractor v2 (HOC §A + light-dataflow done → cross-file → finite-keys / AST)
   → locale-only generate → search → …
 extension → own branch (does not block core releases)
 ```
