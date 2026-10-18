@@ -94,6 +94,10 @@ export default defineConfig({
             link: 'https://releases.i18nprune.dev',
           },
           {
+            text: 'Release data (machine-readable)',
+            link: '/releases',
+          },
+          {
             text: 'GitHub releases',
             link: 'https://github.com/zamdevio/i18nprune/releases',
           },
