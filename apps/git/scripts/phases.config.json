@@ -205,10 +205,12 @@
       "feat(releases) — machine-readable /releases/ JSON, content negotiation, and a generated CHANGELOG",
       "feat(cli) — `version --notes` reads release notes for the installed CLI + Core",
       "feat(extractor) — light-dataflow same-file assignment chains + mixed-template folding",
+      "feat(extractor) — cross-file static const index (imported `NS` folds templates)",
       "chore(landing) — drop the CodeSandbox preview and its core sandbox page",
       "docs — cleanup protection-parity contract + open defect register",
       "receipt maintainer/shipped/locale/cleanup-uncertain-protection.md",
-      "receipt maintainer/shipped/extractor/light-dataflow.md"
+      "receipt maintainer/shipped/extractor/light-dataflow.md",
+      "receipt maintainer/shipped/extractor/cross-file.md"
     ]
   }
 ]

@@ -1,6 +1,7 @@
 # Phase — Cross-file const / namespace keys
 
 **Depth:** `fast` (full heuristic stack — no TS Program)  
+**Status:** **shipped** (2026-W42, [`shipped/extractor/cross-file.md`](../../shipped/extractor/cross-file.md)) — static string consts via the import graph; tsconfig `paths` parked.  
 **Perf budget:** +100–300 ms cold on ~316 files (one export-index pass); **~0 ms incremental** when project cache hits  
 **Prerequisite:** HOC (hooks section) or parallel · static import resolver in core  
 **Guardrails:** [`guardrails.md`](./guardrails.md) § Cross-file boundaries · hard stops
