@@ -1,4 +1,5 @@
 import { buildConstStringMap } from '../constmap/build.js';
+import { buildAssignmentLedger, type AssignmentLedger } from '../constmap/assignments.js';
 import { analyzeTemplateCall } from '../shared/templateAnalysis.js';
 
 export type NonLiteralDynamicHints = {
@@ -8,33 +9,42 @@ export type NonLiteralDynamicHints = {
   branchLiterals?: string[];
 };
 
+const SIMPLE_IDENT = /^[A-Za-z_$][\w$]*$/;
+
+/** Follow at most this many identifier→identifier hops before giving up (chain cap). */
+const MAX_ASSIGNMENT_HOPS = 2;
+
 /**
  * Best-effort same-file hints for `non_literal` sites. Never promotes keys to proven.
+ *
+ * Follows a bounded same-file assignment chain (`const a = 'app.x'; const b = a; t(b)`)
+ * via the {@link AssignmentLedger} — one ledger build per file, then O(hops) lookups.
  */
 export function nonLiteralHintsForFirstArg(
   source: string,
   firstArgRaw: string,
   constMap: Record<string, string>,
+  ledger: AssignmentLedger = buildAssignmentLedger(source),
 ): NonLiteralDynamicHints {
-  const ident = firstArgRaw.trim().match(/^([A-Za-z_$][\w$]*)$/)?.[1];
-  if (!ident) return hintsFromInlineExpression(firstArgRaw.trim(), constMap);
-  return hintsFromIdentifierAssignment(source, ident, constMap);
+  const arg = firstArgRaw.trim();
+  if (SIMPLE_IDENT.test(arg)) return hintsForIdentifier(arg, constMap, ledger, 0);
+  return hintsFromRhs(arg, constMap);
 }
 
-function hintsFromIdentifierAssignment(
-  source: string,
+function hintsForIdentifier(
   ident: string,
   constMap: Record<string, string>,
+  ledger: AssignmentLedger,
+  hops: number,
 ): NonLiteralDynamicHints {
-  const esc = ident.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const assignRe = new RegExp(`\\b(?:const|let)\\s+${esc}\\s*=\\s*([^;]+);`);
-  const m = assignRe.exec(source);
-  if (!m) return {};
-  return hintsFromRhs(m[1]!.trim(), constMap);
-}
-
-function hintsFromInlineExpression(expr: string, constMap: Record<string, string>): NonLiteralDynamicHints {
-  return hintsFromRhs(expr, constMap);
+  const rhs = ledger.rhs.get(ident);
+  if (rhs === undefined) return {};
+  // Identifier→identifier: follow one more hop, up to the cap.
+  if (SIMPLE_IDENT.test(rhs)) {
+    if (hops >= MAX_ASSIGNMENT_HOPS) return {};
+    return hintsForIdentifier(rhs, constMap, ledger, hops + 1);
+  }
+  return hintsFromRhs(rhs, constMap);
 }
 
 function hintsFromRhs(rhs: string, constMap: Record<string, string>): NonLiteralDynamicHints {
@@ -59,10 +69,15 @@ function resolveHintLiteral(fragment: string, constMap: Record<string, string>):
   return analysis.classification === 'fully_resolved' ? analysis.resolvedKey : null;
 }
 
-/** Convenience for tests — rebuilds const map when not supplied. */
+/** Convenience for tests — rebuilds the const map and ledger when not supplied. */
 export function nonLiteralHintsForCall(
   source: string,
   firstArgRaw: string,
 ): NonLiteralDynamicHints {
-  return nonLiteralHintsForFirstArg(source, firstArgRaw, buildConstStringMap(source));
+  return nonLiteralHintsForFirstArg(
+    source,
+    firstArgRaw,
+    buildConstStringMap(source),
+    buildAssignmentLedger(source),
+  );
 }

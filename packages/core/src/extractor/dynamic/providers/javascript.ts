@@ -1,4 +1,5 @@
 import { buildConstStringMap } from '../../constmap/build.js';
+import { buildAssignmentLedger, type AssignmentLedger } from '../../constmap/assignments.js';
 import { findTranslationCallSites } from '../../shared/calls.js';
 import { dynamicTemplateFieldsFromAnalysis } from '../../shared/templateDynamicFields.js';
 import { nonLiteralHintsForFirstArg } from '../hints.js';
@@ -39,7 +40,8 @@ export function findDynamicKeySitesInJavascriptFile(
 ): DynamicKeySite[] {
   const commentRanges = commentRangesForJsLikeText(text);
   const constMap = buildConstStringMap(text);
-  const raw = findDynamicKeySitesRaw(text, functions, constMap);
+  const ledger = buildAssignmentLedger(text);
+  const raw = findDynamicKeySitesRaw(text, functions, constMap, ledger);
   const out: DynamicKeySite[] = [];
 
   for (const site of raw) {
@@ -87,6 +89,7 @@ function findDynamicKeySitesRaw(
   text: string,
   functions: string[],
   constMap: Record<string, string>,
+  ledger: AssignmentLedger,
 ): RawSite[] {
   const out: RawSite[] = [];
   const calls = findTranslationCallSites(text, functions);
@@ -126,7 +129,7 @@ function findDynamicKeySitesRaw(
       matchIndex: at,
       closeParenIndex: call.closeParenIndex,
       isMultilineCall: call.isMultilineCall,
-      nonLiteralHints: nonLiteralHintsForFirstArg(text, arg, constMap),
+      nonLiteralHints: nonLiteralHintsForFirstArg(text, arg, constMap, ledger),
     });
   }
   return out;
@@ -140,7 +143,8 @@ export function findDynamicKeySitesInJavascriptMergedText(
   functions: string[],
 ): DynamicKeySite[] {
   const constMap = buildConstStringMap(text);
-  const raw = findDynamicKeySitesRaw(text, functions, constMap);
+  const ledger = buildAssignmentLedger(text);
+  const raw = findDynamicKeySitesRaw(text, functions, constMap, ledger);
   return raw.map((site) => ({
     kind: site.kind,
     functionName: site.functionName,

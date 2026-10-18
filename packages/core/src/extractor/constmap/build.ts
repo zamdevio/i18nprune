@@ -15,7 +15,7 @@ export function buildConstStringMap(source: string): Record<string, string> {
   return map;
 }
 
-function isReassignedInSource(source: string, name: string): boolean {
+export function isReassignedInSource(source: string, name: string): boolean {
   const assignRe = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*=`, 'g');
   let m: RegExpExecArray | null;
   while ((m = assignRe.exec(source)) !== null) {
