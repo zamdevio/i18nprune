@@ -1,4 +1,5 @@
 import type { ImportBinding } from '../../types/extractor/bindings/index.js';
+import type { ExtractorHocOptions } from '../../types/extractor/hoc/index.js';
 import { escapeRegex } from '../shared/pattern.js';
 import { IMPORT_BINDING_IDENT_PATTERN as IDENT } from './ident.js';
 import {
@@ -6,6 +7,11 @@ import {
   hookNamesFromPresets,
   type HookHelperPreset,
 } from './hookPresets.js';
+import {
+  DEFAULT_HOC_PROP_NAMES,
+  scanPropBoundLocals,
+  shouldScanPropHelpers,
+} from './propHelpers.js';
 
 function isRuntimeNamed(b: ImportBinding): b is ImportBinding & { kind: 'named' } {
   return b.isTypeOnly !== true && b.kind === 'named';
@@ -127,11 +133,12 @@ function shouldScanLocalHelpers(
 }
 
 /**
- * Expand import-effective helpers with same-file hook binds + one-hop aliases (HOC §A).
+ * Expand import-effective helpers with same-file hook binds + one-hop aliases (HOC §A)
+ * and optional prop-destructure helpers (HOC §B, opt-in).
  *
  * @remarks Pure — no IO. Does not follow multi-hop or ternaries. Hook binds require a
  * runtime named import of a {@link HOOK_HELPER_PRESETS} hook and configured evidence
- * (`t` and/or the hook name in `functions`).
+ * (`t` and/or the hook name in `functions`). Prop binds require `hoc.enabled`.
  */
 export function expandWithLocalHelpers(
   effectiveFromImports: string[],
@@ -139,19 +146,25 @@ export function expandWithLocalHelpers(
   text: string,
   bindings: ImportBinding[],
   presets: readonly HookHelperPreset[] = HOOK_HELPER_PRESETS,
+  hoc?: ExtractorHocOptions,
 ): string[] {
-  if (!shouldScanLocalHelpers(text, bindings, effectiveFromImports)) {
+  const hocEnabled = hoc?.enabled === true;
+  const propNames = hoc?.propNames?.length ? hoc.propNames : [...DEFAULT_HOC_PROP_NAMES];
+  const scanHooks = shouldScanLocalHelpers(text, bindings, effectiveFromImports);
+  const scanProps = hocEnabled && shouldScanPropHelpers(text, propNames);
+  if (!scanHooks && !scanProps) {
     return effectiveFromImports;
   }
 
   const configured = new Set(configuredFunctions);
   const hookLocals = presetsByImportedHookLocal(bindings, presets);
-  const fromHooks = scanHookBoundLocals(text, configured, hookLocals);
+  const fromHooks = scanHooks ? scanHookBoundLocals(text, configured, hookLocals) : new Set<string>();
 
   const afterHooksSet = new Set(effectiveFromImports);
   for (const n of fromHooks) afterHooksSet.add(n);
   const afterHooks = [...afterHooksSet];
-  const fromAliases = scanOneHopAliases(text, afterHooks);
+  const fromAliases = scanHooks ? scanOneHopAliases(text, afterHooks) : new Set<string>();
+  const fromProps = scanProps ? scanPropBoundLocals(text, propNames) : new Set<string>();
 
   const base = new Set(effectiveFromImports);
   const discovered: string[] = [];
@@ -159,6 +172,9 @@ export function expandWithLocalHelpers(
     if (!base.has(n)) discovered.push(n);
   }
   for (const n of fromAliases) {
+    if (!base.has(n) && !discovered.includes(n)) discovered.push(n);
+  }
+  for (const n of fromProps) {
     if (!base.has(n) && !discovered.includes(n)) discovered.push(n);
   }
   discovered.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));

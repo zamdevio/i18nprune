@@ -4,13 +4,18 @@ import { findDynamicKeySitesForFile } from './providers/index.js';
 import { findDynamicKeySitesInJavascriptMergedText } from './providers/javascript.js';
 import type { ScanProjectDynamicKeySitesInput } from '../../types/extractor/dynamic/orchestrate.js';
 import type { DynamicKeySite } from '../../types/extractor/dynamic/index.js';
+import type { ExtractorHocOptions } from '../../types/extractor/hoc/index.js';
 
 /**
  * Reuse merged source text for callers that already have it (e.g. tests).
  * Per-file fields are omitted; comment detection is not applied across merged blobs.
  */
-export function analyzeDynamicKeysFromSourceText(text: string, functions: string[]): DynamicKeySite[] {
-  const effective = expandEffectiveFunctions(functions, text);
+export function analyzeDynamicKeysFromSourceText(
+  text: string,
+  functions: string[],
+  hoc?: ExtractorHocOptions,
+): DynamicKeySite[] {
+  const effective = expandEffectiveFunctions(functions, text, hoc);
   return findDynamicKeySitesInJavascriptMergedText(text, effective);
 }
 
@@ -25,7 +30,7 @@ export function scanProjectDynamicKeySites(input: ScanProjectDynamicKeySitesInpu
     listFiles: input.listFiles,
     exclude: input.exclude,
     scanFile: ({ filePath, displayPath, text, importedConsts }) => {
-      const functions = expandEffectiveFunctions(input.functions, text);
+      const functions = expandEffectiveFunctions(input.functions, text, input.hoc);
       const sites = findDynamicKeySitesForFile(filePath, text, functions, importedConsts);
       return sites.map((site) => ({ ...site, filePath: displayPath }));
     },

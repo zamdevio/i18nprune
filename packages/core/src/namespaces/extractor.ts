@@ -51,6 +51,7 @@ export type { ResolveKeyPlaceholdersTraceResult } from '../types/extractor/const
 export type { TranslationCallSite } from '../types/extractor/calls/index.js';
 export type { DynamicKeySite, DynamicKeySiteKind } from '../types/extractor/dynamic/index.js';
 export type { CandidateKey, CandidateKeyConfidence } from '../types/extractor/finiteKeys/index.js';
+export type { ExtractorHocOptions } from '../types/extractor/hoc/index.js';
 export type { ScanProjectDynamicKeySitesInput } from '../types/extractor/dynamic/orchestrate.js';
 export type {
   ConstSubstitutionStep,

@@ -1,4 +1,9 @@
 export { expandEffectiveFunctions, expandFunctionsWithBindings } from './expand.js';
+export {
+  DEFAULT_HOC_PROP_NAMES,
+  scanPropBoundLocals,
+  shouldScanPropHelpers,
+} from './propHelpers.js';
 export { HOOK_HELPER_PRESETS, hookNamesFromPresets } from './hookPresets.js';
 export type { HookHelperPreset } from './hookPresets.js';
 export { IMPORT_BINDING_IDENT_PATTERN } from './ident.js';

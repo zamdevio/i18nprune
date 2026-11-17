@@ -241,6 +241,12 @@ ${body}
     // sizeLimitBytes: 524288,
   },
 
+  // extractor: {
+  //   // Opt-in: treat destructured props like \`function Row({ t })\` as translation helpers.
+  //   // Off by default — unrelated props named \`t\` are a false-positive risk.
+  //   hoc: { enabled: true, propNames: ['t'] },
+  // },
+
 } satisfies Partial<I18nPruneConfig>);
 `;
 }

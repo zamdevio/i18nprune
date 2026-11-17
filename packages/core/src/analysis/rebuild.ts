@@ -41,6 +41,7 @@ function scanInputFromContext(ctx: CoreContext) {
   return {
     srcRoot: ctx.paths.srcRoot,
     functions: ctx.config.functions,
+    hoc: ctx.config.extractor?.hoc,
     runtime: ctx.adapters,
     exclude: ctx.config.exclude,
   };

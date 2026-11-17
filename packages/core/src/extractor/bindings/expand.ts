@@ -1,4 +1,5 @@
 import type { ImportBinding } from '../../types/extractor/bindings/index.js';
+import type { ExtractorHocOptions } from '../../types/extractor/hoc/index.js';
 import { IMPORT_BINDING_IDENT_PATTERN as IDENT } from './ident.js';
 import { expandWithLocalHelpers } from './localHelpers.js';
 import { scanImportBindings } from './imports.js';
@@ -94,13 +95,17 @@ export function expandFunctionsWithBindings(
 
 /**
  * Full per-file helper expansion: import bindings, then HOC §A local helpers
- * (hook binds + one-hop aliases) over the file text.
+ * (hook binds + one-hop aliases) and optional HOC §B prop binds over the file text.
  *
  * @remarks Pure — no IO. Prefer this at scan orchestrators; keep
  * {@link expandFunctionsWithBindings} for binding-only unit tests.
  */
-export function expandEffectiveFunctions(configuredFunctions: string[], text: string): string[] {
+export function expandEffectiveFunctions(
+  configuredFunctions: string[],
+  text: string,
+  hoc?: ExtractorHocOptions,
+): string[] {
   const bindings = scanImportBindings(text);
   const fromImports = expandFunctionsWithBindings(configuredFunctions, bindings);
-  return expandWithLocalHelpers(fromImports, configuredFunctions, text, bindings);
+  return expandWithLocalHelpers(fromImports, configuredFunctions, text, bindings, undefined, hoc);
 }

@@ -54,6 +54,17 @@ export function defineConfig(config: Partial<I18nPruneConfig>): I18nPruneConfig 
     },
     missing: { ...DEFAULT_CONFIG.missing, ...config.missing },
     locales: { ...DEFAULT_CONFIG.locales, ...config.locales },
+    extractor:
+      config.extractor !== undefined
+        ? {
+            ...DEFAULT_CONFIG.extractor,
+            ...config.extractor,
+            hoc:
+              config.extractor.hoc !== undefined
+                ? { ...DEFAULT_CONFIG.extractor?.hoc, ...config.extractor.hoc }
+                : DEFAULT_CONFIG.extractor?.hoc,
+          }
+        : DEFAULT_CONFIG.extractor,
     translate:
       config.translate !== undefined
         ? {

@@ -82,6 +82,7 @@ function scanProjectAnalysis(ctx: CoreContext): ProjectAnalysisCacheData {
   const scanInput = {
     srcRoot: ctx.paths.srcRoot,
     functions: ctx.config.functions,
+    hoc: ctx.config.extractor?.hoc,
     runtime: ctx.adapters,
     exclude: ctx.config.exclude,
   };

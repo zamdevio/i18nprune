@@ -300,6 +300,31 @@ export const localesFilesystemSchema = z
 
 export type LocalesFilesystemConfig = z.infer<typeof localesFilesystemSchema>;
 
+const extractorHocSchema = z
+  .object({
+    enabled: z
+      .boolean()
+      .optional()
+      .describe(
+        'When true, treat matching destructured component props (e.g. function Row({ t })) as translation helpers. Off by default — unrelated props named t are a false-positive risk.',
+      ),
+    propNames: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('Prop names to promote when destructured in a function/arrow first parameter. Default ["t"].'),
+  })
+  .strict()
+  .optional()
+  .describe('Opt-in HOC / prop-passing helper expansion (extractor §B).');
+
+const extractorSchema = z
+  .object({
+    hoc: extractorHocSchema,
+  })
+  .strict()
+  .optional()
+  .describe('Extractor accuracy knobs (HOC props, future depth tiers).');
+
 const patchingSchema = z
   .object({
     enabled: z.boolean().optional().describe('Master switch for loader / generated-file patching.'),
@@ -339,6 +364,7 @@ export const configSchema = z
       .array(z.string())
       .min(1)
       .describe('Function names treated as translation entry points (e.g. t).'),
+    extractor: extractorSchema,
     exclude: excludeSchema,
     output: outputSchema,
     scanner: scannerSchema,

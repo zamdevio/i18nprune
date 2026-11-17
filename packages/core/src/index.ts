@@ -484,6 +484,7 @@ export type {
   DynamicSiteCountSplit,
   CandidateKey,
   CandidateKeyConfidence,
+  ExtractorHocOptions,
 } from './namespaces/extractor.js';
 export { buildProjectAnalysisCounts } from './analysis/counts.js';
 export type {
