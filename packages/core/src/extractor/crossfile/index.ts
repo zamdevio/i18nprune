@@ -81,7 +81,10 @@ export function resolveModulePath(
   pathPort: RuntimePathPort,
 ): string | null {
   if (!RELATIVE_SPECIFIER.test(specifier)) return null;
-  const base = pathPort.normalize(pathPort.resolve(pathPort.dirname(fromFile), specifier));
+  // Join relative to the importer — do **not** use `resolve` here. On Windows,
+  // `path.resolve('/repo/…')` injects the current drive (`D:\repo\…`) while
+  // `normalize('/repo/…')` stays `\repo\…`, so index lookups miss.
+  const base = pathPort.normalize(pathPort.join(pathPort.dirname(fromFile), specifier));
   const candidates = [
     base,
     ...RESOLVE_EXTENSIONS.map((ext) => `${base}${ext}`),
