@@ -20,12 +20,12 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
-| [`extension/README.md`](./extension/README.md) | **Next** — VS Code extension (own branch) |
-| [`extractor/README.md`](./extractor/README.md) | **Now** — v2 accuracy (HOC → …) |
+| [`extractor/README.md`](./extractor/README.md) | **Now** — close-out: finite-keys → HOC §B → AST/`typed` (then release with serve) |
+| [`serve.md`](./serve.md) | **Closing** — S.1–S.5 landed; S.6 optional HTTP in the same close-out ([ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md)) |
+| [`extension/README.md`](./extension/README.md) | **Next** (after release) — VS Code extension (own branch) |
 | [`locale-only.md`](./locale-only.md) | **Then** — generate without config / codebase |
 | [`config.md`](./config.md) | **Queued** — `config` layout-aware human + JSON |
 | [`search.md`](./search.md) | **Planned** — `search` command |
-| [`serve.md`](./serve.md) | **In progress** — stdio JSON-RPC transport for hosts; S.1–S.5 landed, S.6 pending ([ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md)) |
 | [`terminal.md`](./terminal.md) | **Research** — terminal protocol exploitation |
 
 **Systems maps:** [`systems/README.md`](../systems/README.md) — `cache.md`, `share.md`, `extractor.md`, `exports.md`, …

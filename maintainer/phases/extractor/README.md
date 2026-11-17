@@ -1,6 +1,7 @@
 # Extractor — phases hub
 
-**Status:** **C.1 + E.1–E.6 + D.1 + HOC §A + light-dataflow + cross-file shipped** on `main` — v2 accuracy program continues (finite-keys → HOC §B → AST tier).  
+**Status:** **C.1 + E.1–E.6 + D.1 + HOC §A + light-dataflow + cross-file shipped** on `main`.  
+**Close-out (before next release):** finish the rest of the v2 accuracy stack — **finite-keys → HOC §B → AST/`typed`** — then ship with serve close-out in one cut ([`../focus.md`](../focus.md)). Provider registry stays on hold.  
 **Implementation:** `packages/core/src/extractor/**` · **Engineering map:** [`maintainer/systems/extractor.md`](../../systems/extractor.md) · **Receipts:** [`shipped/README.md`](../../shipped/README.md).
 
 **User docs:** [`docs/architecture/extraction/`](../../../docs/architecture/extraction/README.md) · **Inventory:** [`docs/edge-cases/unsolved/inventory.md`](../../../docs/edge-cases/unsolved/inventory.md).
@@ -57,14 +58,19 @@
 ## Dependency chain (what ships next)
 
 ```txt
-v2 extractor (`fast` heuristics: HOC → light-dataflow → cross-file → finite-keys)
-  → search command
-  → `balanced` / `typed` depths + incremental cache
-  → VS Code extension (released stable)
-  → provider registry (on hold)
+v2 close-out (this release cut):
+  finite-keys (Track A locale-assisted → Track B typed unions with AST)
+  → HOC §B (opt-in prop / HOC `t` passing)
+  → AST tier (`extractor.depth: 'typed'`)
+  → one release with serve close-out
+
+after that release:
+  → VS Code extension (own branch)
+  → locale-only / search / …
+  → provider registry (on hold until typed + extension stable)
 ```
 
-**Sprint pointer:** [`../focus.md`](../focus.md) — extractor v2 now; extension on its own branch; locale-only follows.
+**Sprint pointer:** [`../focus.md`](../focus.md) — close extractor + serve before the next release; extension after.
 
 ---
 
@@ -93,7 +99,7 @@ Rules: lazy skips inside `fast`; indexes built once per scan; dogfood benchmark 
 | **AST tier** | [`ast-tier.md`](./ast-tier.md) | Opt-in TypeScript/SWC assist | `typed` |
 | **Provider registry** | [`provider-registry.md`](./provider-registry.md) | **On hold** — non-JS file providers | After `typed` + extension |
 
-**Suggested ship order:** ~~HOC §A~~ → ~~light-dataflow~~ → ~~cross-file~~ → finite-keys → HOC §B props (opt-in) → AST tier → extension → provider registry.
+**Suggested ship order:** ~~HOC §A~~ → ~~light-dataflow~~ → ~~cross-file~~ → **finite-keys → HOC §B → AST tier** (close-out, one release) → extension → provider registry.
 
 ---
 
@@ -114,8 +120,8 @@ Rules: lazy skips inside `fast`; indexes built once per scan; dogfood benchmark 
 ## Where to start (next slice)
 
 1. Triage open inventory items tagged to this hub ([`inventory.md`](../../../docs/edge-cases/unsolved/inventory.md)).
-2. Pick the next row from **Phase index** — **HOC §A / light-dataflow / cross-file done**; resume at **finite-keys**, unless a smaller inventory fix is blocking.
-3. Keep parity discipline: `--json` envelope, issue codes, exit codes unchanged on refactors (additive JSON only).
+2. Close-out order: **finite-keys** (Track A first) → **HOC §B** → **AST/`typed`** (includes finite-keys Track B). Do not skip AST if the goal is “extractor done” for this release.
+3. Keep parity discipline: `--json` envelope, issue codes, exit codes unchanged on refactors (additive JSON only). Default path stays `fast`; AST cost is opt-in only.
 
 ---
 
