@@ -34,6 +34,7 @@ Canonical env var **names** are defined in **`packages/cli/src/constants/env.ts`
 ## Topics
 
 - [Translation (`translate`)](./translate.md) — **`translate.{ primary, providers, policy }`** for **`generate`** (including **`--resume`**), precedence with CLI + env.
+- [Extractor](./extractor.md) — **`functions`**, hook presets, and opt-in **`extractor.hoc`** for prop-passed helpers.
 - [Environment variables](./env.md) — full list (`I18NPRUNE_*`, `CI`, …) and **`constants/env.ts`**.
 - [Locales config](./locales.md) — locale source/directory/layout fields and links to filesystem examples.
 - [Cache config](./cache.md) — cache policy block and CLI cache flags.

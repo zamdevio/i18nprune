@@ -12,6 +12,7 @@ Keep command behavior in command docs (`validate`, `locales dynamic`, `missing`)
 
 - [Dynamic key handling](./dynamic.md)
 - [Regex and static-analysis limits](./regex.md)
+- [Extractor config](../../config/extractor.md) — `functions`, hooks, opt-in prop helpers (`extractor.hoc`)
 
 ## Primary command links
 

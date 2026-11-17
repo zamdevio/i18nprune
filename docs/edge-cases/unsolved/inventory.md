@@ -54,4 +54,15 @@ Use this shape for every new inventory item:
 - **Workaround:** Include `t` in `functions` (most presets already do), or add the local alias name.
 - **Owner / phase:** [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md) §A.
 
+### extractor-prop-helper-passing
+
+- **ID:** `extractor-prop-helper-passing`
+- **Surface:** `core`
+- **Status:** `partial` (HOC §B — opt-in destructuring; JSX trace parked)
+- **Impact:** Presentational components that only receive `t` as a prop (`function Row({ t })`) were invisible when `functions` listed hooks but not bare `t`.
+- **Current behavior:** `extractor.hoc.enabled: true` promotes matching first-param destructured props (`propNames`, default `['t']`). Off by default.
+- **Target behavior:** Optional renames + JSX `<Row t={t} />` tracing remain future work.
+- **Workaround:** Include `t` in `functions` (init default), or enable [`extractor.hoc`](../../config/extractor.md).
+- **Owner / phase:** [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md) §B; docs [`config/extractor.md`](../../config/extractor.md).
+
 Add entries as soon as an unresolved behavior is accepted as known, even if implementation is not scheduled.

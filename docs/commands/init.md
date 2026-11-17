@@ -10,8 +10,8 @@ Scaffolded files import **`defineConfig`** and **`I18nPruneConfig`** from **`i18
 
 If a config file is **already** present (any supported name), the command **prints an info line** and does not overwrite anything.
 
-- **`--rich`:** expanded starter: **`patching`**, **`scanner`**, **`output`**, **`policies`**, **`reference`**, **`localeLeaves`**, **`missing`**, **`translate`** (Google row live; other backends **commented** with **`contactEmail`**, **`baseUrl`**, **`apiKey`**, LLM triple + env patterns; **`policy`** + example **`rateLimit`** on Google), etc. (**`i18nprune validate`** is flag-driven — there is no **`config.validate`** namespace today; see [config](../config/README.md).)
-- **Global flags:** **`--yes`** writes minimal config: **`translate`** = Google + **commented** stubs for other backends, **`policy`**, **`workers: 1`**. Combine **`--yes --rich`** for the annotated **`rateLimit`** template.
+- **`--rich`:** expanded starter: **`patching`**, **`scanner`**, **`output`**, **`policies`**, **`reference`**, **`localeLeaves`**, **`missing`**, **`translate`** (Google row live; other backends **commented** with **`contactEmail`**, **`baseUrl`**, **`apiKey`**, LLM triple + env patterns; **`policy`** + example **`rateLimit`** on Google), plus a **commented** **`extractor.hoc`** example for prop-passed helpers (still **off** until you enable it — see [Extractor config](../config/extractor.md)). (**`i18nprune validate`** is flag-driven — there is no **`config.validate`** namespace today; see [config](../config/README.md).)
+- **Global flags:** **`--yes`** writes minimal config: **`translate`** = Google + **commented** stubs for other backends, **`policy`**, **`workers: 1`**. Minimal scaffolds **omit** `extractor.hoc`. Combine **`--yes --rich`** for the annotated **`rateLimit`** + extractor comments.
 - Config must be **TypeScript or JavaScript** (`.ts`, `.mts`, `.js`, `.mjs`, `.cjs` supported for discovery); **JSON config files are not supported**.
 - See also [config](../config/README.md).
 

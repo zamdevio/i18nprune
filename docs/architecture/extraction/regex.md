@@ -15,18 +15,11 @@ i18nprune extraction is pattern-based and intentionally conservative. It is not 
 ## Hooks, aliases, and props
 
 - Hook presets (`useTranslation` / `useTranslations`) and same-file one-hop aliases (`const tt = t`) expand helpers on the default path.
-- Component props like `function Row({ t }) { t('…') }` are **off by default**. Enable only when you need them:
-
-```ts
-extractor: {
-  hoc: { enabled: true, propNames: ['t'] },
-}
-```
-
-Unrelated props named `t` can become false positives — keep this opt-in. JSX prop tracing (`<Row t={t} />`) is not supported on the fast path.
+- **Prop-only components** (`function Row({ t }) { t('…') }` with no hook/import in that file) are **off by default**. They matter when `functions` lists hooks but not bare `t` — full config, when-to-enable, and init notes: [Extractor config](../../config/extractor.md).
 
 ## See also
 
+- [Extractor config](../../config/extractor.md)
 - [Extraction architecture](./README.md)
 - [validate](../../commands/validate.md)
 - [locales dynamic](../../commands/locales/dynamic.md)

@@ -73,6 +73,7 @@ export const sidebar: DefaultTheme.Config['sidebar'] = {
         { text: 'Configuration', link: '/config/' },
         { text: 'Locales config', link: '/config/locales' },
         { text: 'Translation', link: '/config/translate' },
+        { text: 'Extractor', link: '/config/extractor' },
         { text: 'Exclude (scan scope)', link: '/config/exclude' },
         { text: 'Environment variables', link: '/config/env' },
         { text: 'Cache config', link: '/config/cache' },
