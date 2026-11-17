@@ -1,6 +1,6 @@
 # Extractor HOC §B — opt-in prop helpers
 
-**Week:** 2026-W47 · **Tag:** lands after **1.1.1** (next release cut with extractor close-out)
+**Week:** 2026-W47 · **Tag:** **1.2.0**
 
 ## Shipped
 

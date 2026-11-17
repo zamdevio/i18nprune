@@ -22,7 +22,7 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 |-----|--------|
 | [`extractor/ast.md`](./extractor/ast.md) | **Now** — opt-in `typed` + finite-keys Track B |
 | [`extractor/registry.md`](./extractor/registry.md) | **Next** — non-JS providers; Python first after AST |
-| [`serve.md`](./serve.md) | **Closed** — S.1–S.5 landed; S.6 deferred ([ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md)) |
+| [`serve.md`](./serve.md) | **Shipped** — S.1–S.5; HTTP dismissed ([`systems/serve.md`](../systems/serve.md)) |
 | [`extractor/README.md`](./extractor/README.md) | Hub — heuristic v2 shipped; open = ast → registry |
 | [`extension/README.md`](./extension/README.md) | After registry track — VS Code extension (own branch) |
 | [`locale-only.md`](./locale-only.md) | Locale-only generate |

@@ -215,18 +215,22 @@
   },
   {
     "week": "2026-W47",
-    "label": "Week 47 — deep-merge + finite-keys A + HOC §B",
-    "theme": "Deep-merge loaders + nested feature_bundle; locale-assisted candidateKeys; opt-in extractor.hoc prop helpers",
+    "label": "Week 47 — 1.2.0 cut (serve + extractor + locales)",
+    "theme": "Serve stdio close-out; deep-merge / nested feature_bundle; finite-keys A; HOC §B; light-dataflow; cross-file; landing pitch reorder; 1.2.0 release notes",
     "color": "teal",
     "shipped": [
       "fix(patching) — generated multi-segment loaders deep-merge instead of Object.assign (BUG-004)",
       "fix(patching) — feature_bundle loader basenames keep nested feature dirs via lastIndexOf (BUG-005)",
       "feat(extractor) — finite-keys Track A locale-assisted candidateKeys (never proven)",
       "feat(extractor) — HOC §B opt-in prop destructuring helpers (extractor.hoc)",
-      "docs — nested locale segments + deep-merge contract in locales config",
+      "docs(maintainer) — trim done extractor phases; ast.md + registry.md; focus after serve",
+      "chore(landing) — front-load install, runtime, and used-by sections",
+      "docs(serve) — systems map (HTTP dismissed) + stdio receipt",
+      "chore(release) — 1.2.0 lockstep bump + CLI/Core release portal YAML",
       "receipt maintainer/shipped/locale/deep-merge-nested-feature-bundle.md",
       "receipt maintainer/shipped/extractor/finite-keys-a.md",
-      "receipt maintainer/shipped/extractor/hoc-b.md"
+      "receipt maintainer/shipped/extractor/hoc-b.md",
+      "receipt maintainer/shipped/serve/stdio.md"
     ]
   }
 ]

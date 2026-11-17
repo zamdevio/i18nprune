@@ -1,6 +1,6 @@
 # Deep-merge loaders + nested feature_bundle paths
 
-**Week:** 2026-W47 · **Tag:** lands after **1.1.1** (next patch/minor)
+**Week:** 2026-W47 · **Tag:** **1.2.0**
 
 Two defects from the CepatEdge layout migration discussion. Both are covered by regression tests that failed against the pre-fix code.
 

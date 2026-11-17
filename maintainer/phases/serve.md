@@ -1,7 +1,7 @@
 # Phase — `i18nprune serve` (stdio transport)
 
-**Status:** **closed for now** — S.1–S.5 landed (stdio JSON-RPC goal met). **S.6 (optional HTTP) deferred** — no client needs it yet; revisit when a host requires loopback HTTP. Focus next: [`extractor/ast.md`](./extractor/ast.md).
-**Tracker:** [`focus.md`](./focus.md) · **Contract:** [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) · **User docs:** [`docs/cli/serve.md`](../../docs/cli/serve.md)
+**Status:** **shipped** — S.1–S.5 landed (stdio JSON-RPC goal met). **S.6 HTTP dismissed for now** — see [`systems/serve.md`](../systems/serve.md). Receipt: [`shipped/serve/stdio.md`](../shipped/serve/stdio.md). Focus next: [`extractor/ast.md`](./extractor/ast.md).
+**Tracker:** [`focus.md`](./focus.md) · **Contract:** [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) · **User docs:** [`docs/cli/serve.md`](../../docs/cli/serve.md) · **Systems map:** [`systems/serve.md`](../systems/serve.md)
 **Implementation home:** `packages/cli/src/serve/` (transport only — ops stay in core `runXxx`)
 **Consumers:** Tauri desktop (planned, develops outside this repo until migration), VS Code extension (own branch), scripted / SSH clients
 
@@ -55,9 +55,9 @@ Status: **planned** — one slice per PR; parity fixtures unchanged unless a sli
 | **S.3 — Progress + cancel** ✅ | Map `RunEvent` → `$/progress` (op-keyed); `$/cancelRequest` | **Complete.** `op.validate` / `op.sync` / `op.generate` stream `$/progress`; a request cancelled before dispatch returns `SERVE_REQUEST_CANCELLED`, and a running `op.generate` aborts mid-flight through the cooperative `AbortSignal` (core C-signal slice). `capabilities.cancelScope` is `'running'`. See §C-signal below. |
 | **S.4 — Write ops (opt-in)** ✅ | `op.sync` · `op.generate` · `op.cleanup` · `op.locales.delete` behind `--allow-writes`; context invalidation | Writes refused when read-only with `SERVE_WRITES_DISABLED`; that root's `CoreContext` / `localeRead` dropped after a write. `op.cleanup` and `op.locales.delete` required extracting reusable write entries out of their command modules first. |
 | **S.5 — Client docs + smoke** ✅ | `docs/cli/serve.md`, `docs/commands/README.md` row, sidebar entry, manual `wsl.exe` / `ssh` smoke note | `docs/cli/serve.md` published with sidebar + index row; `pnpm docs:sync:verify` passes. Manual WSL/SSH smoke still to do by hand. |
-| **S.6 — Optional HTTP transport** | `127.0.0.1` only, bearer token on stderr, hub mode only | **Deferred** — no client needs it yet; never the default when it ships |
+| **S.6 — Optional HTTP transport** | `127.0.0.1` only, bearer token on stderr, hub mode only | **Dismissed for now** — see [`systems/serve.md`](../systems/serve.md); never the default if revisited |
 
-**Ship order:** S.1 → S.2 → S.3 → S.4 → S.5 ✅ · S.6 gated on demand (deferred).
+**Ship order:** S.1 → S.2 → S.3 → S.4 → S.5 ✅ · S.6 dismissed (no client need).
 
 ### S.3 note — cancellation design (landed as `'running'`)
 
@@ -90,12 +90,11 @@ How C-signal works:
 
 ---
 
-## Open questions (remaining)
+## Follow-ups (not blockers)
 
-1. **Progress granularity** — every `run.message`, or only `run.progress.*`? Affects client noise. Suggestion: `run.progress.*` plus `run.completed`, opt-in verbose for everything.
-2. **Hub-mode root allow-list** — in hub mode (especially over SSH), should `--root-allow <glob>` restrict roots a client may name? **Required before exposing hub mode over a network** — without it a hub session is remote read access to every path the OS user can read.
+Moved to [`systems/serve.md`](../systems/serve.md) — progress verbosity and hub `--root-allow`. Neither blocks stdio close-out.
 
-**Resolved:** no client id in v1 (§10) · writes are a flag (§11) · stdin-close primary with idle backstop (§12) · sandbox + hub modes, mutually exclusive (§9) · idle timeout default `900` s, `0` disables (§1) · per-root context LRU cap `8` (§3).
+**Resolved for v1 stdio:** no client id · writes are a flag · stdin-close primary with idle backstop · sandbox + hub mutually exclusive · idle timeout default `900` s · per-root context LRU cap `8`.
 
 ---
 

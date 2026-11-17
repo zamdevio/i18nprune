@@ -6,7 +6,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 **Convention:** Weeks use **ISO-8601** (`YYYY-Www`, Monday start). Newest weeks first below.
 
-**Next work:** Extractor v2 — [`phases/extractor/README.md`](../phases/extractor/README.md) · [`phases/focus.md`](../phases/focus.md).
+**Next work:** AST / typed — [`phases/extractor/ast.md`](../phases/extractor/ast.md) · [`phases/focus.md`](../phases/focus.md).
 
 ---
 
@@ -14,7 +14,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | Week | Theme | Doc |
 |------|-------|-----|
-| 2026-W47 | **Deep-merge loaders** + **nested feature_bundle** · **finite-keys A** · **HOC §B** — next release after 1.1.1 | [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) · [`extractor/finite-keys-a.md`](./extractor/finite-keys-a.md) · [`extractor/hoc-b.md`](./extractor/hoc-b.md) |
+| 2026-W47 | **1.2.0** — serve stdio close-out · deep-merge / nested feature_bundle · finite-keys A · HOC §B · light-dataflow · cross-file | [`serve/stdio.md`](./serve/stdio.md) · [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) · [`extractor/finite-keys-a.md`](./extractor/finite-keys-a.md) · [`extractor/hoc-b.md`](./extractor/hoc-b.md) · [`extractor/light-dataflow.md`](./extractor/light-dataflow.md) · [`extractor/cross-file.md`](./extractor/cross-file.md) |
 | 2026-W42 | **Cleanup uncertain-prefix protection** → **1.1.1** · kits source resolution · **extractor light-dataflow + cross-file** | [`locale/cleanup-uncertain-protection.md`](./locale/cleanup-uncertain-protection.md) · [`extractor/light-dataflow.md`](./extractor/light-dataflow.md) · [`extractor/cross-file.md`](./extractor/cross-file.md) |
 | 2026-W37 | **Preserve + sync** → **1.0.3** · **Extractor HOC §A** (hooks + one-hop) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) · [`extractor/hoc-a.md`](./extractor/hoc-a.md) |
 | 2026-W28 | **v1.0.0 kits** + **v1.0.1 sentinel repair** + export publish gate | [`kits/kits.md`](./kits/kits.md) · [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) · [`exports/governance.md`](./exports/governance.md) |
@@ -35,6 +35,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | ID | Week | One-line | Doc |
 |----|------|----------|-----|
+| **Serve stdio** | W47 | `i18nprune serve` S.1–S.5; HTTP dismissed (→ **1.2.0**) | [`serve/stdio.md`](./serve/stdio.md) |
 | **BUG-004/005** | W47 | deep-merge multi-segment loaders + nested `feature_bundle` basenames (≤16) | [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) |
 | **Finite-keys A** | W47 | locale-assisted `candidateKeys` under dynamic `staticPrefix` (never proven) | [`extractor/finite-keys-a.md`](./extractor/finite-keys-a.md) |
 | **HOC §B** | W47 | opt-in prop destructuring helpers (`extractor.hoc`, off by default) | [`extractor/hoc-b.md`](./extractor/hoc-b.md) |
@@ -72,7 +73,8 @@ Closed slices only — check here before re-implementing. Durable engineering de
 | Engine & cache | W20–W21 | [`cache/generate.md`](./cache/generate.md) · [`cache/cache.md`](./cache/cache.md) · [`cache/init.md`](./cache/init.md) |
 | Locale preserve-sync | W37 (v1.0.3) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) |
 | Locale cleanup protection | W42 (v1.1.1) | [`locale/cleanup-uncertain-protection.md`](./locale/cleanup-uncertain-protection.md) |
-| Locale deep-merge + nested feature_bundle | W47 (post-1.1.1) | [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) |
+| Locale deep-merge + nested feature_bundle | W47 (v1.2.0) | [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) |
+| Serve stdio | W47 (v1.2.0) | [`serve/stdio.md`](./serve/stdio.md) |
 | Locale sentinel repair | W28 (v1.0.1 patch) | [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) |
 | Core & foundation | W15–W19 | [`core/core.md`](./core/core.md) |
 

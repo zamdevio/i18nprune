@@ -1,0 +1,57 @@
+schemaVersion: 1
+stream: cli
+version: 1.2.0
+date: 2026-11-17
+status: stable
+summary: v1.2.0 — stdio `serve` host complete; extractor accuracy (light-dataflow, cross-file, finite-keys A, HOC §B); deep-merge locale loader fixes.
+highlights:
+  - "`i18nprune serve` — drive validate/sync/generate over stdio JSON-RPC (WSL/SSH/editor-friendly); HTTP deferred"
+  - "Extractor: same-file chains, cross-file static consts, locale-assisted candidateKeys, opt-in prop helpers"
+  - "Locale loaders deep-merge multi-segment files and keep nested feature_bundle basenames (BUG-004/005)"
+sections:
+  added:
+    - "`i18nprune serve` — stdio JSON-RPC host (sandbox `--project` or hub); read + opt-in write ops; mid-flight cancel (`cancelScope: running`)"
+    - "`i18nprune version --notes` — print release notes for the installed CLI + Core"
+    - "Extractor light-dataflow — same-file assignment chains + mixed-template folding into sharper static prefixes"
+    - "Extractor cross-file — imported static string consts fold templates across files"
+    - "Extractor finite-keys Track A — locale-assisted `candidateKeys` under dynamic `staticPrefix` (never proven)"
+    - "Extractor HOC §B — opt-in `extractor.hoc` prop destructuring helpers (off by default)"
+  changed:
+    - "More dynamic/template sites resolve or gain better candidates; `provenKeys` / parity on the default path stay frozen"
+    - "Landing section order — install / runtime / used-by pitch moved up after the hero"
+  fixed:
+    - "Generated multi-segment locale loaders deep-merge instead of `Object.assign` (BUG-004)"
+    - "`feature_bundle` loader basenames keep nested feature dirs via `lastIndexOf` (BUG-005)"
+    - "`help serve` points at the real `docs/cli/serve` page"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install -g i18nprune@1.2.0"
+    - "No JSON-envelope or issue-code renames — additive extractor metadata and new `serve` transport only"
+    - "`extractor.hoc` stays off unless you enable it; unrelated props named `t` are a false-positive risk"
+    - "HTTP serve transport is intentionally not shipped — use stdio (see docs/cli/serve)"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/cli/1.2.0
+    - label: serve (stdio)
+      href: https://docs.i18nprune.dev/cli/serve
+    - label: Extractor config
+      href: https://docs.i18nprune.dev/config/extractor
+npm:
+  package: i18nprune
+  installSnippet: npm install -g i18nprune@1.2.0
+git:
+  tag: v1.2.0
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.2.0"
+compat:
+  - stream: core
+    version: 1.2.0
+tags:
+  - minor
+  - serve
+  - extractor
+  - locales
+  - cli

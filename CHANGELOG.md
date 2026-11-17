@@ -8,6 +8,54 @@ from `apps/releases/content/` — edit the YAML, never this file.
 
 ---
 
+## CLI v1.2.0 — 2026-11-17
+
+v1.2.0 — stdio `serve` host complete; extractor accuracy (light-dataflow, cross-file, finite-keys A, HOC §B); deep-merge locale loader fixes.
+
+[Full release notes →](https://releases.i18nprune.dev/cli/1.2.0)
+
+**Added**
+- `i18nprune serve` — stdio JSON-RPC host (sandbox `--project` or hub); read + opt-in write ops; mid-flight cancel (`cancelScope: running`)
+- `i18nprune version --notes` — print release notes for the installed CLI + Core
+- Extractor light-dataflow — same-file assignment chains + mixed-template folding into sharper static prefixes
+- Extractor cross-file — imported static string consts fold templates across files
+- Extractor finite-keys Track A — locale-assisted `candidateKeys` under dynamic `staticPrefix` (never proven)
+- Extractor HOC §B — opt-in `extractor.hoc` prop destructuring helpers (off by default)
+
+**Changed**
+- More dynamic/template sites resolve or gain better candidates; `provenKeys` / parity on the default path stay frozen
+- Landing section order — install / runtime / used-by pitch moved up after the hero
+
+**Fixed**
+- Generated multi-segment locale loaders deep-merge instead of `Object.assign` (BUG-004)
+- `feature_bundle` loader basenames keep nested feature dirs via `lastIndexOf` (BUG-005)
+- `help serve` points at the real `docs/cli/serve` page
+
+---
+
+## Core v1.2.0 — 2026-11-17
+
+v1.2.0 — extractor accuracy stack (light-dataflow, cross-file, finite-keys A, HOC §B), cooperative cancel for generate/translate, deep-merge locale fixes. Lockstep with CLI 1.2.0.
+
+[Full release notes →](https://releases.i18nprune.dev/core/1.2.0)
+
+**Added**
+- `AbortError` / cooperative `AbortSignal` threading for `runGenerate` / `runTranslate` (and related pools)
+- Light-dataflow — same-file assignment chains + mixed-template folding
+- Cross-file export const index — imported static strings fold into templates
+- Finite-keys Track A — `candidateKeys` with `confidence: 'locale_inferred'` under `staticPrefix`
+- HOC §B — `extractor.hoc` opt-in first-param prop destructuring helpers
+
+**Changed**
+- KeySites / dynamic orchestrators use expanded helpers and richer candidate overlays; proven keys remain literal-only
+- Analysis passes `extractor.hoc` alongside existing scan inputs
+
+**Fixed**
+- Multi-segment locale loaders deep-merge segment objects instead of shallow `Object.assign` (BUG-004)
+- `feature_bundle` basename derivation preserves nested feature path segments (BUG-005)
+
+---
+
 ## CLI v1.1.1 — 2026-10-18
 
 v1.1.1 — cleanup uncertain-prefix protection is honoured in both source and `--target` modes, and `kits identical` resolves source files correctly under segmented layouts.

@@ -12,7 +12,7 @@
 |----------|----------|-----|
 | **Now** | **AST / `typed`** — opt-in depth + finite-keys Track B | [`extractor/ast.md`](./extractor/ast.md) |
 | **Next** | **Registry** — non-JS providers; **Python first** after TS/JS typed path | [`extractor/registry.md`](./extractor/registry.md) |
-| **Closed** | **`serve`** — S.1–S.5 landed; S.6 HTTP deferred (no client yet) | [`serve.md`](./serve.md) |
+| **Shipped** | **`serve` stdio** — S.1–S.5; HTTP dismissed | [`shipped/serve/stdio.md`](../shipped/serve/stdio.md) · [`systems/serve.md`](../systems/serve.md) |
 | **After that** | VS Code extension | [`extension/README.md`](./extension/README.md) *(own branch)* |
 | **Then** | Locale-only generate | [`locale-only.md`](./locale-only.md) |
 | **Queued** | Config layout UX | [`config.md`](./config.md) |
@@ -34,7 +34,7 @@ Engineering maps: [`systems/README.md`](../systems/README.md).
 
 ```txt
 preserve-sync / heuristic extractor v2 (done)
-  → serve (S.1–S.5 done; S.6 deferred)
+  → serve stdio (shipped; HTTP dismissed)
   → AST / typed + finite-keys Track B   ← now
   → registry (Python first, then other langs)
   → extension (own branch) → locale-only → search → …

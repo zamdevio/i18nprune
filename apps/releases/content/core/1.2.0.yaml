@@ -1,0 +1,55 @@
+schemaVersion: 1
+stream: core
+version: 1.2.0
+date: 2026-11-17
+status: stable
+summary: v1.2.0 — extractor accuracy stack (light-dataflow, cross-file, finite-keys A, HOC §B), cooperative cancel for generate/translate, deep-merge locale fixes. Lockstep with CLI 1.2.0.
+highlights:
+  - "Cooperative `AbortSignal` on generate/translate — hosts (including `serve`) can cancel mid-flight"
+  - "Extractor: chains, cross-file consts, locale-assisted candidates, opt-in prop helpers"
+  - "Deep-merge multi-segment loaders + nested feature_bundle basenames (BUG-004/005)"
+sections:
+  added:
+    - "`AbortError` / cooperative `AbortSignal` threading for `runGenerate` / `runTranslate` (and related pools)"
+    - "Light-dataflow — same-file assignment chains + mixed-template folding"
+    - "Cross-file export const index — imported static strings fold into templates"
+    - "Finite-keys Track A — `candidateKeys` with `confidence: 'locale_inferred'` under `staticPrefix`"
+    - "HOC §B — `extractor.hoc` opt-in first-param prop destructuring helpers"
+  changed:
+    - "KeySites / dynamic orchestrators use expanded helpers and richer candidate overlays; proven keys remain literal-only"
+    - "Analysis passes `extractor.hoc` alongside existing scan inputs"
+  fixed:
+    - "Multi-segment locale loaders deep-merge segment objects instead of shallow `Object.assign` (BUG-004)"
+    - "`feature_bundle` basename derivation preserves nested feature path segments (BUG-005)"
+  removed: []
+  breaking: []
+  security: []
+  performance: []
+migration:
+  notes:
+    - "npm install @i18nprune/core@1.2.0"
+    - "Pin the same semver as CLI (`@i18nprune/core@1.2.0` with `i18nprune@1.2.0`)"
+    - "No renamed issue codes; candidateKeys remain non-proven"
+    - "Opt into `extractor.hoc` only when prop-only `t` helpers are intentional"
+  docLinks:
+    - label: Release notes portal
+      href: https://releases.i18nprune.dev/core/1.2.0
+    - label: SDK operations
+      href: https://docs.i18nprune.dev/sdk/operations
+    - label: Extractor config
+      href: https://docs.i18nprune.dev/config/extractor
+npm:
+  package: "@i18nprune/core"
+  installSnippet: npm install @i18nprune/core@1.2.0
+git:
+  tag: v1.2.0
+  githubReleaseUrl: "https://github.com/zamdevio/i18nprune/releases/tag/v1.2.0"
+compat:
+  - stream: cli
+    version: 1.2.0
+tags:
+  - minor
+  - extractor
+  - cancel
+  - locales
+  - core
