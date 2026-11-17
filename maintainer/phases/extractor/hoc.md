@@ -62,6 +62,8 @@ Inventory: `extractor-reassignment-alias`, `extractor-hook-return-destructuring`
 
 ## B. HOC, props, and callback passing
 
+**Status:** **Tier 1–2 shipped** (opt-in `extractor.hoc`) — receipt [`shipped/extractor/hoc-b.md`](../../shipped/extractor/hoc-b.md). Tier 3 JSX prop trace remains parked (not default `fast`).
+
 ### Problem
 
 ```tsx

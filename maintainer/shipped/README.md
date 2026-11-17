@@ -14,7 +14,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | Week | Theme | Doc |
 |------|-------|-----|
-| 2026-W47 | **Deep-merge loaders** + **nested feature_bundle** (BUG-004/005) · **finite-keys Track A** — next release after 1.1.1 | [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) · [`extractor/finite-keys-a.md`](./extractor/finite-keys-a.md) |
+| 2026-W47 | **Deep-merge loaders** + **nested feature_bundle** · **finite-keys A** · **HOC §B** — next release after 1.1.1 | [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) · [`extractor/finite-keys-a.md`](./extractor/finite-keys-a.md) · [`extractor/hoc-b.md`](./extractor/hoc-b.md) |
 | 2026-W42 | **Cleanup uncertain-prefix protection** → **1.1.1** · kits source resolution · **extractor light-dataflow + cross-file** | [`locale/cleanup-uncertain-protection.md`](./locale/cleanup-uncertain-protection.md) · [`extractor/light-dataflow.md`](./extractor/light-dataflow.md) · [`extractor/cross-file.md`](./extractor/cross-file.md) |
 | 2026-W37 | **Preserve + sync** → **1.0.3** · **Extractor HOC §A** (hooks + one-hop) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) · [`extractor/hoc-a.md`](./extractor/hoc-a.md) |
 | 2026-W28 | **v1.0.0 kits** + **v1.0.1 sentinel repair** + export publish gate | [`kits/kits.md`](./kits/kits.md) · [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) · [`exports/governance.md`](./exports/governance.md) |
@@ -37,6 +37,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 |----|------|----------|-----|
 | **BUG-004/005** | W47 | deep-merge multi-segment loaders + nested `feature_bundle` basenames (≤16) | [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) |
 | **Finite-keys A** | W47 | locale-assisted `candidateKeys` under dynamic `staticPrefix` (never proven) | [`extractor/finite-keys-a.md`](./extractor/finite-keys-a.md) |
+| **HOC §B** | W47 | opt-in prop destructuring helpers (`extractor.hoc`, off by default) | [`extractor/hoc-b.md`](./extractor/hoc-b.md) |
 | **BUG-001/002/003** | W42 | cleanup uncertain-prefix parity (source + `--target`) + layout-aware kits/review source | [`locale/cleanup-uncertain-protection.md`](./locale/cleanup-uncertain-protection.md) |
 | **Light-dataflow** | W42 | same-file chains (`const b = a`) + mixed-template folding → `non_literal` hints / sharper `staticPrefix` | [`extractor/light-dataflow.md`](./extractor/light-dataflow.md) |
 | **Cross-file** | W42 | imported static const index (`import { NS } from './constants'`) → fold cross-file templates | [`extractor/cross-file.md`](./extractor/cross-file.md) |
@@ -65,7 +66,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 |-------|----------------|-----|
 | Kits v1 | W28 | [`kits/kits.md`](./kits/kits.md) |
 | Exports governance | W25–W28 | [`exports/governance.md`](./exports/governance.md) · [`tooling/tooling.md`](./tooling/tooling.md) |
-| Extractor & dynamic | W21 C.1, W24 E/D/T, W37 HOC §A, W42 light-dataflow + cross-file, W47 finite-keys A | [`extractor/c1.md`](./extractor/c1.md) · [`extractor/fusion.md`](./extractor/fusion.md) · [`extractor/hoc-a.md`](./extractor/hoc-a.md) · [`extractor/light-dataflow.md`](./extractor/light-dataflow.md) · [`extractor/cross-file.md`](./extractor/cross-file.md) · [`extractor/finite-keys-a.md`](./extractor/finite-keys-a.md) |
+| Extractor & dynamic | W21 C.1, W24 E/D/T, W37 HOC §A, W42 light-dataflow + cross-file, W47 finite-keys A + HOC §B | [`extractor/c1.md`](./extractor/c1.md) · [`extractor/fusion.md`](./extractor/fusion.md) · [`extractor/hoc-a.md`](./extractor/hoc-a.md) · [`extractor/light-dataflow.md`](./extractor/light-dataflow.md) · [`extractor/cross-file.md`](./extractor/cross-file.md) · [`extractor/finite-keys-a.md`](./extractor/finite-keys-a.md) · [`extractor/hoc-b.md`](./extractor/hoc-b.md) |
 | Platform & release | W23 CI/XP/T/npm/git | [`platform/platform.md`](./platform/platform.md) · [`platform/ci.md`](./platform/ci.md) |
 | Share & workers | W22 | [`share/share.md`](./share/share.md) |
 | Engine & cache | W20–W21 | [`cache/generate.md`](./cache/generate.md) · [`cache/cache.md`](./cache/cache.md) · [`cache/init.md`](./cache/init.md) |

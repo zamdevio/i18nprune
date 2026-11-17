@@ -13,7 +13,7 @@
 ## Parked
 
 - Renamed destructuring `const { t: translate }`
-- Multi-hop · light-dataflow · HOC §B props (`extractor.hoc.enabled`)
+- Multi-hop · light-dataflow (shipped separately) · HOC §B props → [`hoc-b.md`](./hoc-b.md)
 
 ## Code map
 

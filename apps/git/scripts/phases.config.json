@@ -215,16 +215,18 @@
   },
   {
     "week": "2026-W47",
-    "label": "Week 47 — deep-merge loaders + nested feature_bundle + finite-keys A",
-    "theme": "Multi-segment loaders deep-merge overlapping object layers; feature_bundle nested paths (≤16); locale-assisted candidateKeys under dynamic staticPrefix",
+    "label": "Week 47 — deep-merge + finite-keys A + HOC §B",
+    "theme": "Deep-merge loaders + nested feature_bundle; locale-assisted candidateKeys; opt-in extractor.hoc prop helpers",
     "color": "teal",
     "shipped": [
       "fix(patching) — generated multi-segment loaders deep-merge instead of Object.assign (BUG-004)",
       "fix(patching) — feature_bundle loader basenames keep nested feature dirs via lastIndexOf (BUG-005)",
       "feat(extractor) — finite-keys Track A locale-assisted candidateKeys (never proven)",
+      "feat(extractor) — HOC §B opt-in prop destructuring helpers (extractor.hoc)",
       "docs — nested locale segments + deep-merge contract in locales config",
       "receipt maintainer/shipped/locale/deep-merge-nested-feature-bundle.md",
-      "receipt maintainer/shipped/extractor/finite-keys-a.md"
+      "receipt maintainer/shipped/extractor/finite-keys-a.md",
+      "receipt maintainer/shipped/extractor/hoc-b.md"
     ]
   }
 ]

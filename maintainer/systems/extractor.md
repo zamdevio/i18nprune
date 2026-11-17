@@ -32,7 +32,7 @@ readFile → expandEffectiveFunctions (bindings + HOC §A locals) → effectiveF
 
 | Area | Role |
 | :--- | :--- |
-| `extractor/bindings/` | Per-file import binding scan + `functions[]` expansion (aliases, module members, bracket/optional forms). |
+| `extractor/bindings/` | Per-file import binding scan + `functions[]` expansion (aliases, module members, hook presets §A, opt-in prop helpers §B). |
 | `extractor/shared/` | Cross-cutting utilities: project source scan (`projectScan.ts`), JS/TS-like lexical ranges (`jslikeTextRanges.ts`), literal key collection (`literals.ts`), translation call matching (`calls.ts`, `pattern.ts`), template prefix roots (`template.ts`), template used-root hints (`roots.ts`). |
 | `extractor/constmap/` | `const` string map for template prefix substitution. |
 | `extractor/dynamic/` | Dynamic key heuristics and JS-like providers. |

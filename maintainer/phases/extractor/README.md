@@ -1,7 +1,7 @@
 # Extractor — phases hub
 
-**Status:** **C.1 + E.1–E.6 + D.1 + HOC §A + light-dataflow + cross-file + finite-keys Track A shipped** on `main`.  
-**Close-out (before next release):** **HOC §B → AST/`typed`** (Track B typed unions rides with AST) — then ship with serve close-out in one cut ([`../focus.md`](../focus.md)). Provider registry stays on hold.  
+**Status:** **C.1 + E.1–E.6 + D.1 + HOC §A/§B + light-dataflow + cross-file + finite-keys Track A shipped** on `main`.  
+**Close-out (before next release):** **AST/`typed`** (finite-keys Track B rides with AST) — then ship with serve close-out in one cut ([`../focus.md`](../focus.md)). Provider registry stays on hold.  
 **Implementation:** `packages/core/src/extractor/**` · **Engineering map:** [`maintainer/systems/extractor.md`](../../systems/extractor.md) · **Receipts:** [`shipped/README.md`](../../shipped/README.md).
 
 **User docs:** [`docs/architecture/extraction/`](../../../docs/architecture/extraction/README.md) · **Inventory:** [`docs/edge-cases/unsolved/inventory.md`](../../../docs/edge-cases/unsolved/inventory.md).
@@ -21,6 +21,7 @@
 | **Light-dataflow** | Same-file assignment chains + mixed-template folding | [`shipped/extractor/light-dataflow.md`](../../shipped/extractor/light-dataflow.md) |
 | **Cross-file** | Imported static string consts → fold templates | [`shipped/extractor/cross-file.md`](../../shipped/extractor/cross-file.md) |
 | **Finite-keys A** | Locale-assisted `candidateKeys` under `staticPrefix` (never proven) | [`shipped/extractor/finite-keys-a.md`](../../shipped/extractor/finite-keys-a.md) |
+| **HOC §B** | Opt-in prop destructuring helpers (`extractor.hoc`) | [`shipped/extractor/hoc-b.md`](../../shipped/extractor/hoc-b.md) |
 
 ### C.1 detail
 
@@ -62,8 +63,7 @@
 
 ```txt
 v2 close-out (this release cut):
-  ~~finite-keys Track A~~
-  → HOC §B (opt-in prop / HOC `t` passing)
+  ~~finite-keys Track A~~ · ~~HOC §B~~
   → AST tier (`extractor.depth: 'typed'`) + finite-keys Track B
   → one release with serve close-out
 
@@ -102,7 +102,7 @@ Rules: lazy skips inside `fast`; indexes built once per scan; dogfood benchmark 
 | **AST tier** | [`ast-tier.md`](./ast-tier.md) | Opt-in TypeScript/SWC assist | `typed` |
 | **Provider registry** | [`provider-registry.md`](./provider-registry.md) | **On hold** — non-JS file providers | After `typed` + extension |
 
-**Suggested ship order:** ~~HOC §A~~ → ~~light-dataflow~~ → ~~cross-file~~ → ~~finite-keys A~~ → **HOC §B → AST tier** (incl. finite-keys B; close-out, one release) → extension → provider registry.
+**Suggested ship order:** ~~HOC §A~~ → ~~light-dataflow~~ → ~~cross-file~~ → ~~finite-keys A~~ → ~~HOC §B~~ → **AST tier** (incl. finite-keys B; close-out, one release) → extension → provider registry.
 
 ---
 
@@ -123,7 +123,7 @@ Rules: lazy skips inside `fast`; indexes built once per scan; dogfood benchmark 
 ## Where to start (next slice)
 
 1. Triage open inventory items tagged to this hub ([`inventory.md`](../../../docs/edge-cases/unsolved/inventory.md)).
-2. Close-out order: **HOC §B** → **AST/`typed`** (includes finite-keys Track B). Do not skip AST if the goal is “extractor done” for this release.
+2. Close-out order: **AST/`typed`** (includes finite-keys Track B). Do not skip AST if the goal is “extractor done” for this release.
 3. Keep parity discipline: `--json` envelope, issue codes, exit codes unchanged on refactors (additive JSON only). Default path stays `fast`; AST cost is opt-in only.
 
 ---
