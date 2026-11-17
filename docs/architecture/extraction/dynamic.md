@@ -16,6 +16,7 @@ Static analysis cannot safely resolve runtime expressions like `t(user.role + ".
 - Preserves dynamic reporting as warnings (not direct validate failures).
 - Reuses per-file const-map where safe so rebuildable template keys are treated as static keys.
 - Surfaces dynamic counts in command JSON payloads for CI visibility.
+- When a mixed template has a **static prefix** (for example `` t(`app.nav.${id}`) `` → `app.nav`), lists **locale-inferred candidate keys** from the source locale under that prefix. Candidates are hints only — they are never treated as proven keys and never deleted by cleanup without an explicit policy change.
 
 ## Operational guidance
 

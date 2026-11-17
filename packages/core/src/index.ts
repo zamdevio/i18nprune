@@ -476,8 +476,15 @@ export {
   isCommentedDynamicSite,
   splitDynamicSiteCounts,
   dynamicSummaryCountFields,
+  collectLocaleInferredCandidates,
+  enrichDynamicSitesWithLocaleCandidates,
 } from './namespaces/extractor.js';
-export type { DynamicSiteGroups, DynamicSiteCountSplit } from './namespaces/extractor.js';
+export type {
+  DynamicSiteGroups,
+  DynamicSiteCountSplit,
+  CandidateKey,
+  CandidateKeyConfidence,
+} from './namespaces/extractor.js';
 export { buildProjectAnalysisCounts } from './analysis/counts.js';
 export type {
   DynamicRunOptions,

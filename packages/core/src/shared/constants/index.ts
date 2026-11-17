@@ -4,6 +4,7 @@ export * from './sdk.js';
 export { resolveSdkVersion } from './version.js';
 export * from './cache.js';
 export * from './docs.js';
+export * from './extractor.js';
 export * from './issueCodes.js';
 export * from './missing.js';
 export * from './links.js';

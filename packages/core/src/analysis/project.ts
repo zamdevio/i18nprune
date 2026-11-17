@@ -1,4 +1,5 @@
 import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js';
+import { enrichDynamicSitesWithLocaleCandidates } from '../extractor/finiteKeys/index.js';
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
 import { buildProjectAnalysisCounts } from './counts.js';
@@ -85,9 +86,12 @@ function scanProjectAnalysis(ctx: CoreContext): ProjectAnalysisCacheData {
     exclude: ctx.config.exclude,
   };
   const keyObservations = scanProjectKeyObservations(scanInput);
-  const dynamicSites = scanProjectDynamicKeySites(scanInput);
   const usage = literalKeyUsageFromObservations(keyObservations);
   const sourceLeaves = readSourceLocaleLeaves(ctx);
+  const dynamicSites = enrichDynamicSitesWithLocaleCandidates(
+    scanProjectDynamicKeySites(scanInput),
+    sourceLeaves,
+  );
   const missingKeys = computeMissingLiteralKeysFromLeaves(sourceLeaves, usage.resolvedKeys);
   const projectFs = { fs: ctx.adapters.fs, path: ctx.adapters.path };
   const sourceFilesScanned = listSourceFiles(projectFs, ctx.paths.srcRoot, ctx.config.exclude).length;

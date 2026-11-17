@@ -7,6 +7,7 @@ export {
   findTranslationCallSites,
 } from './shared/index.js';
 export * as dynamic from './dynamic/index.js';
+export * as finiteKeys from './finiteKeys/index.js';
 export * as keySites from './keySites/index.js';
 export * as constmap from './constmap/index.js';
 export * as bindings from './bindings/index.js';

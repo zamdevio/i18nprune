@@ -2,8 +2,14 @@ export { exactLiteralKeys, usedRootsFromText, buildFunctionsPattern, escapeRegex
 
 export * as constmap from '../extractor/constmap/index.js';
 export * as dynamic from '../extractor/dynamic/index.js';
+export * as finiteKeys from '../extractor/finiteKeys/index.js';
 export * as keySites from '../extractor/keySites/index.js';
 export * as shared from '../extractor/shared/index.js';
+
+export {
+  collectLocaleInferredCandidates,
+  enrichDynamicSitesWithLocaleCandidates,
+} from '../extractor/finiteKeys/index.js';
 
 export { buildConstStringMap } from '../extractor/constmap/build.js';
 export { resolveKeyPlaceholdersWithTrace } from '../extractor/constmap/resolve.js';
@@ -44,6 +50,7 @@ export type { ProjectLiteralKeyUsage } from '../types/extractor/projectLiteralKe
 export type { ResolveKeyPlaceholdersTraceResult } from '../types/extractor/constmap/index.js';
 export type { TranslationCallSite } from '../types/extractor/calls/index.js';
 export type { DynamicKeySite, DynamicKeySiteKind } from '../types/extractor/dynamic/index.js';
+export type { CandidateKey, CandidateKeyConfidence } from '../types/extractor/finiteKeys/index.js';
 export type { ScanProjectDynamicKeySitesInput } from '../types/extractor/dynamic/orchestrate.js';
 export type {
   ConstSubstitutionStep,

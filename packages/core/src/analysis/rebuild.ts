@@ -1,4 +1,5 @@
 import { scanProjectDynamicKeySites } from '../extractor/dynamic/orchestrate.js';
+import { enrichDynamicSitesWithLocaleCandidates } from '../extractor/finiteKeys/index.js';
 import { scanProjectKeyObservations } from '../extractor/keySites/orchestrate.js';
 import { literalKeyUsageFromObservations } from '../extractor/keySites/projectUsage.js';
 import { readRuntimeFsTextSync } from '../runtime/helpers/sync/index.js';
@@ -90,13 +91,12 @@ export function patchProjectAnalysisFromSrcDelta(
     ...filterByPaths(previous.keyObservations, observationPath, remove),
     ...scanKeyObservationsForPaths(ctx, rescan),
   ];
-  const dynamicSites = [
-    ...filterByPaths(previous.dynamicSites, sitePath, remove),
-    ...scanDynamicSitesForPaths(ctx, rescan),
-  ];
-
   const usage = literalKeyUsageFromObservations(keyObservations);
   const sourceLeaves = readSourceLocaleLeaves(ctx);
+  const dynamicSites = enrichDynamicSitesWithLocaleCandidates(
+    [...filterByPaths(previous.dynamicSites, sitePath, remove), ...scanDynamicSitesForPaths(ctx, rescan)],
+    sourceLeaves,
+  );
   const missingKeys = computeMissingLiteralKeysFromLeaves(sourceLeaves, usage.resolvedKeys);
   const sourceFilesScanned = previous.counts.sourceFilesScanned + srcDelta.added.length - srcDelta.deleted.length;
 
@@ -115,8 +115,8 @@ export function patchProjectAnalysisFromSrcDelta(
 }
 
 /**
- * Recompute `missingKeys` from the current source locale when only locale segments changed.
- * Scan arrays (`keyObservations`, `dynamicSites`) are unchanged.
+ * Recompute `missingKeys` and locale-inferred `candidateKeys` when only locale segments changed.
+ * Code-scan arrays (`keyObservations`, raw dynamic sites) stay; candidate overlays are refreshed.
  */
 export function patchProjectAnalysisFromSourceLocaleDelta(
   ctx: CoreContext,
@@ -126,9 +126,11 @@ export function patchProjectAnalysisFromSourceLocaleDelta(
   const usage = literalKeyUsageFromObservations(previous.keyObservations);
   const sourceLeaves = readSourceLocaleLeaves(ctx);
   const missingKeys = computeMissingLiteralKeysFromLeaves(sourceLeaves, usage.resolvedKeys);
+  const dynamicSites = enrichDynamicSitesWithLocaleCandidates(previous.dynamicSites, sourceLeaves);
 
   return {
     ...previous,
+    dynamicSites,
     missingKeys,
     counts: {
       ...previous.counts,

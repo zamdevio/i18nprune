@@ -1,4 +1,5 @@
 export type { DynamicKeySite, DynamicKeySiteKind } from './dynamic/index.js';
+export type { CandidateKey, CandidateKeyConfidence } from './finiteKeys/index.js';
 export type { DynamicSiteGroups } from './dynamic/groups.js';
 export type { TemplateCallAnalysis, TemplateCallClassification } from './template/index.js';
 export type { TranslationCallSite } from './calls/index.js';

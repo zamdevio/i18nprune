@@ -2,8 +2,11 @@
  * Dynamic (non-literal) translation call sites — shared by validate and `locales dynamic`.
  * Optional fields are omitted when analysis used merged source text (no per-file path).
  */
+import type { CandidateKey } from '../finiteKeys/index.js';
 import type { ConstSubstitutionStep } from '../keySites/index.js';
 import type { TemplateCallClassification } from '../template/index.js';
+
+export type { CandidateKey, CandidateKeyConfidence } from '../finiteKeys/index.js';
 
 export type DynamicKeySiteKind =
   | 'non_literal'
@@ -56,5 +59,12 @@ export type DynamicKeySite = {
   resolvedViaConstAssignment?: string;
   /** Display-only: ternary assignment branch literals (never promoted to proven). */
   branchLiterals?: string[];
+  /**
+   * Finite-key hints under {@link staticPrefix} / {@link resolvedPrefix} (locale or typed).
+   * Never treated as proven / cleanup-safe without an explicit policy change.
+   */
+  candidateKeys?: CandidateKey[];
+  /** True when locale/typed expansion hit the per-site candidate cap. */
+  candidateKeysTruncated?: boolean;
 };
 

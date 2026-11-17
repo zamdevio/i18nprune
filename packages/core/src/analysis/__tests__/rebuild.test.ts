@@ -214,6 +214,7 @@ describe('analysis incremental rebuild', () => {
       const patched = patchProjectAnalysisFromSourceLocaleDelta(ctx, before);
       expect(patched.missingKeys).toEqual(fullAfter.missingKeys);
       expect(patched.keyObservations).toBe(before.keyObservations);
+      expect(patched.dynamicSites).toEqual(fullAfter.dynamicSites);
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }

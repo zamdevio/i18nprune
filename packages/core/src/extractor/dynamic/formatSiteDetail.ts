@@ -24,5 +24,17 @@ export function dynamicSiteDetailLines(site: DynamicKeySite): string[] {
   if (site.branchLiterals?.length) {
     lines.push(`branch literals: ${site.branchLiterals.join(', ')}`);
   }
+  if (site.candidateKeys?.length) {
+    const sample = site.candidateKeys
+      .slice(0, 5)
+      .map((c) => c.key)
+      .join(', ');
+    const more =
+      site.candidateKeys.length > 5
+        ? ` (+${String(site.candidateKeys.length - 5)} more)`
+        : '';
+    const truncated = site.candidateKeysTruncated ? ' [truncated]' : '';
+    lines.push(`locale candidates: ${sample}${more}${truncated}`);
+  }
   return lines;
 }
