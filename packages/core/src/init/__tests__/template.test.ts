@@ -46,7 +46,16 @@ describe('init core helpers', () => {
     expect(tpl).toContain('routing:');
     expect(tpl).not.toContain('noLocaleMeta:');
     expect(tpl).toContain('output:');
+    expect(tpl).toContain('extractor:');
+    expect(tpl).toContain('hoc:');
+    expect(tpl).toContain('propNames:');
     expect(tpl).toContain('satisfies Partial<I18nPruneConfig>');
+  });
+
+  it('minimal template omits extractor.hoc', () => {
+    const tpl = buildInitConfigTemplate({ rich: false });
+    expect(tpl).not.toContain('extractor:');
+    expect(tpl).not.toContain('hoc:');
   });
 
   it('next-intl preset targets messages/ + hook names', () => {
