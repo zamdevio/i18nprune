@@ -5,19 +5,19 @@ import Footer from './components/Footer';
 import PageRail from './components/PageRail';
 import CommandPalette from './components/CommandPalette';
 import Hero from './sections/Hero';
-import Doctor from './sections/Doctor';
-import TerminalDemo from './sections/TerminalDemo';
-import Architecture from './sections/Architecture';
-import LocaleLayouts from './sections/LocaleLayouts';
-import CodeIntelligence from './sections/CodeIntelligence';
-import Features from './sections/Features';
-import Commands from './sections/Commands';
-import CIIntegration from './sections/CIIntegration';
 import Install from './sections/Install';
 import RuntimeEcosystem from './sections/RuntimeEcosystem';
 import UsedBy from './sections/UsedBy';
+import Architecture from './sections/Architecture';
+import Features from './sections/Features';
+import Commands from './sections/Commands';
+import Doctor from './sections/Doctor';
+import TerminalDemo from './sections/TerminalDemo';
 import ExtractionFlow from './sections/ExtractionFlow';
 import Pruning from './sections/Pruning';
+import CodeIntelligence from './sections/CodeIntelligence';
+import LocaleLayouts from './sections/LocaleLayouts';
+import CIIntegration from './sections/CIIntegration';
 import OpenSource from './sections/OpenSource';
 import BuiltBy from './sections/BuiltBy';
 
@@ -32,19 +32,19 @@ export default function App() {
         <CommandPalette />
         <main>
           <Hero />
-          <Doctor />
-          <TerminalDemo />
-          <Architecture />
-          <LocaleLayouts />
-          <CodeIntelligence />
-          <Features />
-          <Commands />
-          <CIIntegration />
           <Install />
           <RuntimeEcosystem />
           <UsedBy />
+          <Architecture />
+          <Features />
+          <Commands />
+          <Doctor />
+          <TerminalDemo />
           <ExtractionFlow />
           <Pruning />
+          <CodeIntelligence />
+          <LocaleLayouts />
+          <CIIntegration />
           <OpenSource />
           <BuiltBy />
         </main>

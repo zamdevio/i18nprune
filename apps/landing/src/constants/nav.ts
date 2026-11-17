@@ -17,11 +17,11 @@ export interface PrimaryNavItem {
  * “last passed section” logic stay correct.
  */
 export const PRIMARY_NAV: PrimaryNavItem[] = [
+  { id: 'install', label: 'Install', railLabel: 'Install' },
+  { id: 'runtime', label: 'Runtime', railLabel: 'Runtimes' },
   { id: 'architecture', label: 'Architecture', railLabel: 'Blueprint' },
   { id: 'features', label: 'Features', railLabel: 'Features' },
   { id: 'commands', label: 'Commands', railLabel: 'Commands' },
-  { id: 'install', label: 'Install', railLabel: 'Install' },
-  { id: 'runtime', label: 'Runtime', railLabel: 'Runtimes' },
   { id: 'open-source', label: 'Open source', railLabel: 'Open source' },
   { id: 'built-by', label: 'Built by', railLabel: 'Built by' },
 ];

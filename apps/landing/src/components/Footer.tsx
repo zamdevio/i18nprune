@@ -24,11 +24,11 @@ export default function Footer() {
               Product
             </h4>
             <ul className="space-y-2 text-sm">
+              <li><a href="#install" className="hover:text-primary transition-colors">Install</a></li>
+              <li><a href="#runtime" className="hover:text-primary transition-colors">Runtimes</a></li>
               <li><a href="#architecture" className="hover:text-primary transition-colors">Architecture</a></li>
               <li><a href="#features" className="hover:text-primary transition-colors">Features</a></li>
               <li><a href="#commands" className="hover:text-primary transition-colors">Commands</a></li>
-              <li><a href="#install" className="hover:text-primary transition-colors">Install</a></li>
-              <li><a href="#runtime" className="hover:text-primary transition-colors">Runtimes</a></li>
               <li><a href="#open-source" className="hover:text-primary transition-colors">Open source</a></li>
             </ul>
           </div>
