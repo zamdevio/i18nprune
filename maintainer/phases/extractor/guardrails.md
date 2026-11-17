@@ -1,7 +1,7 @@
 # Extractor guardrails
 
 **Purpose:** Preserve core extractor identity while expanding coverage.  
-**Architecture (engines, normalizer, cache):** [`architecture.md`](./architecture.md) · **Sequencing:** [`README.md`](./README.md) · [`REVIEW.md`](./REVIEW.md).
+**Architecture (engines, normalizer, cache):** [`architecture.md`](./architecture.md) · **Sequencing:** [`README.md`](./README.md).
 
 Review this document **before** every extractor PR that adds detection logic, cross-file behavior, or new JSON fields.
 
@@ -58,9 +58,9 @@ Three engine families — full model in [`architecture.md`](./architecture.md). 
 
 | Depth | What runs | Cold budget (~316 files) | Phase docs |
 |-------|-----------|--------------------------|------------|
-| **`fast`** (default) | Full regex/heuristic stack: bindings, const-map, hooks, cross-file index, light dataflow, locale assists, HOC presets — **no TS Program** | **≤ ~900 ms** (CI-frozen behavior) | [`README.md`](./README.md), [`hoc.md`](./hoc.md), [`cross-file.md`](./cross-file.md), … |
-| **`balanced`** | `fast` + **targeted TS** only at ambiguity boundaries | Between fast and typed | Escalation spec TBD |
-| **`typed`** | TS Program, symbols, module resolution, deeper dataflow | User accepts seconds-scale | [`ast-tier.md`](./ast-tier.md) |
+| **`fast`** (default) | Full regex/heuristic stack: bindings, const-map, hooks, cross-file index, light dataflow, locale assists, HOC presets — **no TS Program** | **≤ ~900 ms** (CI-frozen behavior) | [`README.md`](./README.md) · shipped receipts |
+| **`balanced`** | `fast` + **targeted TS** only at ambiguity boundaries | Between fast and typed | Escalation spec TBD · [`ast.md`](./ast.md) |
+| **`typed`** | TS Program / same-file AST assist, symbols, deeper dataflow | User accepts seconds-scale | [`ast.md`](./ast.md) |
 
 **Rules:**
 
@@ -73,7 +73,7 @@ Three engine families — full model in [`architecture.md`](./architecture.md). 
 
 ## Cross-file analysis boundaries
 
-Highest-risk area for complexity creep. See [`cross-file.md`](./cross-file.md).
+Highest-risk area for complexity creep. Shipped baseline: [`shipped/extractor/cross-file.md`](../../shipped/extractor/cross-file.md).
 
 ### Allowed (bounded)
 
@@ -123,7 +123,7 @@ High complexity requires high leverage. If (4) has a simpler answer, ship that f
 
 ## Layer 7 — provider principle (on hold)
 
-**Status:** deferred until AST tier + extension ship — see [`provider-registry.md`](./provider-registry.md). v2 tiers (HOC, cross-file, etc.) do **not** wait on Layer 7.
+**Status:** after AST — see [`registry.md`](./registry.md). Heuristic v2 does **not** wait on Layer 7.
 
 Provider support is a **detection** problem, not a new extraction algorithm.
 
@@ -145,7 +145,7 @@ Registry contract (target):
 
 ## HOC and hook detection
 
-Expected **high ROI**, **low ms cost** when done as presets. See [`hoc.md`](./hoc.md).
+Expected **high ROI**, **low ms cost** when done as presets. Shipped: [`hoc-a.md`](../../shipped/extractor/hoc-a.md) · [`hoc-b.md`](../../shipped/extractor/hoc-b.md).
 
 Prioritize before `balanced` / `typed` escalation:
 
@@ -162,7 +162,7 @@ tt('key');
 
 ## Finite key evaluation
 
-Useful for **validate UX**, not for proving deletable keys. See [`finite-keys.md`](./finite-keys.md).
+Useful for **validate UX**, not for proving deletable keys. Track A shipped: [`finite-keys-a.md`](../../shipped/extractor/finite-keys-a.md); Track B: [`ast.md`](./ast.md).
 
 ### Allowed
 
@@ -284,10 +284,10 @@ Evolve through **deliberate layers**, not isolated heuristics.
 | Doc | Role |
 |-----|------|
 | [`architecture.md`](./architecture.md) | Engines, normalizer, incremental cache, parity model |
-| [`README.md`](./README.md) | Shipped baseline (C.1 / E / D) + v2 index |
-| [`REVIEW.md`](./REVIEW.md) | Before/after analysis for external review |
-| [`provider-registry.md`](./provider-registry.md) | Layer 7 — on hold until AST + extension |
-| [`hoc.md`](./hoc.md) · [`cross-file.md`](./cross-file.md) · [`finite-keys.md`](./finite-keys.md) · [`light-dataflow.md`](./light-dataflow.md) · [`ast-tier.md`](./ast-tier.md) | Phase implementation notes |
+| [`README.md`](./README.md) | Shipped baseline + open chain |
+| [`ast.md`](./ast.md) | Opt-in typed + Track B |
+| [`registry.md`](./registry.md) | Layer 7 — after AST; Python first |
+| [`shipped/extractor/`](../../shipped/extractor/) | Closed heuristic slices |
 | [`docs/edge-cases/unsolved/inventory.md`](../../../docs/edge-cases/unsolved/inventory.md) | Open limit rows |
 | [`docs/edge-cases/unsolved/policy-framework.md`](../../../docs/edge-cases/unsolved/policy-framework.md) | Policy trade-offs |
 

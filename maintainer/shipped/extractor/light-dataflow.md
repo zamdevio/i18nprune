@@ -17,7 +17,7 @@
 
 - **Helper multi-hop aliases** (`const b = a` where `a` is a translation helper) — `bindings/localHelpers.ts` stays one-hop; inventory `extractor-reassignment-alias`.
 - `t(cond ? 'a' : 'b')` branch enumeration beyond a local assignment.
-- Cross-file `export const NS` → [`cross-file.md`](../../phases/extractor/cross-file.md).
+- Cross-file `export const NS` → [`cross-file.md`](./cross-file.md) (receipt).
 
 ## Code map
 

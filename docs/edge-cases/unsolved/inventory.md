@@ -39,9 +39,9 @@ Use this shape for every new inventory item:
 - **Status:** `shipped` (HOC §A — one-hop only)
 - **Impact:** Translation calls made through a **renamed local** (`const tt = t; tt('key')`) were not tied to configured `t` without dataflow.
 - **Current behavior:** Same-file **one-hop** aliases expand into effective helpers (`const tt = t`, `const translate = i18n.t`). Helper multi-hop and ternaries are not followed. (Multi-hop **key-value** chains — `const b = a` where `a` is a key string — shipped via light-dataflow; that is a different pipeline.)
-- **Target behavior:** Optional helper multi-hop / ternaries — see [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md). Key-value chains: [`light-dataflow.md`](../../../maintainer/phases/extractor/light-dataflow.md) (chains shipped 2026-W42).
+- **Target behavior:** Optional helper multi-hop / ternaries — park until needed; may ride with [`ast.md`](../../../maintainer/phases/extractor/ast.md). Key-value chains shipped ([`light-dataflow.md`](../../../maintainer/shipped/extractor/light-dataflow.md)).
 - **Workaround:** (n/a for one-hop) Call under the imported name, or add a stable alias to `functions`.
-- **Owner / phase:** [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md) §A; tests in `packages/core/src/extractor/bindings/__tests__/localHelpers.test.ts`.
+- **Owner / phase:** [`shipped/extractor/hoc-a.md`](../../../maintainer/shipped/extractor/hoc-a.md); tests in `packages/core/src/extractor/bindings/__tests__/localHelpers.test.ts`.
 
 ### extractor-hook-return-destructuring
 
@@ -52,7 +52,7 @@ Use this shape for every new inventory item:
 - **Current behavior:** Preset table (`useTranslation` / `useTranslations` → bind `t`) plus runtime named import evidence expands local `t`. Renamed binds (`t: translate`) not yet.
 - **Target behavior:** Optional renamed destructuring; namespace propagation remains hint-only.
 - **Workaround:** Include `t` in `functions` (most presets already do), or add the local alias name.
-- **Owner / phase:** [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md) §A.
+- **Owner / phase:** [`shipped/extractor/hoc-a.md`](../../../maintainer/shipped/extractor/hoc-a.md).
 
 ### extractor-prop-helper-passing
 
@@ -61,8 +61,8 @@ Use this shape for every new inventory item:
 - **Status:** `partial` (HOC §B — opt-in destructuring; JSX trace parked)
 - **Impact:** Presentational components that only receive `t` as a prop (`function Row({ t })`) were invisible when `functions` listed hooks but not bare `t`.
 - **Current behavior:** `extractor.hoc.enabled: true` promotes matching first-param destructured props (`propNames`, default `['t']`). Off by default.
-- **Target behavior:** Optional renames + JSX `<Row t={t} />` tracing remain future work.
+- **Target behavior:** Optional renames + JSX `<Row t={t} />` tracing — later in [`ast.md`](../../../maintainer/phases/extractor/ast.md).
 - **Workaround:** Include `t` in `functions` (init default), or enable [`extractor.hoc`](../../config/extractor.md).
-- **Owner / phase:** [`maintainer/phases/extractor/hoc.md`](../../../maintainer/phases/extractor/hoc.md) §B; docs [`config/extractor.md`](../../config/extractor.md).
+- **Owner / phase:** [`shipped/extractor/hoc-b.md`](../../../maintainer/shipped/extractor/hoc-b.md); docs [`config/extractor.md`](../../config/extractor.md).
 
 Add entries as soon as an unresolved behavior is accepted as known, even if implementation is not scheduled.

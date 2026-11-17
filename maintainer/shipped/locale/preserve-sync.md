@@ -13,7 +13,7 @@
 
 ## Parked
 
-- Cross-file const-map → [`phases/extractor/cross-file.md`](../../phases/extractor/cross-file.md)
+- Cross-file const-map → [`shipped/extractor/cross-file.md`](../extractor/cross-file.md)
 - Rename to `verbatimPrefixes` / `shapePrefixes` — not needed
 
 ## Code map

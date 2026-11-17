@@ -16,7 +16,7 @@
 
 ## Not in this slice
 
-- **Track B** typed unions (`confidence: 'type_inferred'`) — waits on AST/`typed` ([`ast-tier.md`](../../phases/extractor/ast-tier.md)).
+- **Track B** typed unions (`confidence: 'type_inferred'`) — waits on AST/`typed` ([`ast.md`](../../phases/extractor/ast.md)).
 - New validate issue codes for “prefix has locale leaves” (optional warn) — deferred; data is on the site for hosts.
 - Pattern-matching the static **suffix** after the first runtime hole (still lists all leaves under the prefix).
 

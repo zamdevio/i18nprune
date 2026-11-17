@@ -109,7 +109,7 @@ Most complete. Slowest cold-start. Expected to rely on **per-file cache** and in
 
 Non-program files (e.g. some `.vue`/`.svelte` until program providers exist) fall back to **`fast` evidence** inside the orchestrator — downstream stays unaware.
 
-Phase detail: [`ast-tier.md`](./ast-tier.md).
+Phase detail: [`ast.md`](./ast.md).
 
 ---
 
@@ -276,19 +276,20 @@ CLI / SDK / extension / search / AI
 
 Extractors are replaceable (regex, hybrid, typed, future SWC / per-language providers). The **project analysis model stays stable**.
 
-Provider registry (non-JS languages) plugs into the same evidence → normalizer path — on hold until AST tier + extension; see [`provider-registry.md`](./provider-registry.md).
+Provider registry (non-JS languages) plugs into the same evidence → normalizer path — after AST; see [`registry.md`](./registry.md).
 
 ---
 
 ## Implementation order (when coding)
 
-1. Complete **`fast`** heuristic stack (v2 phase docs).
+1. ~~Complete **`fast`** heuristic stack~~ (shipped — see receipts).
 2. Introduce **`RawEvidence`** + **`normalizeEvidence()`** — route existing regex path through it without behavior change.
 3. Cache epoch includes **`extractor.depth`**.
-4. **`typed`** spike on fixtures — prove normalizer absorbs semantic evidence.
+4. **`typed`** MVP / Program — see [`ast.md`](./ast.md).
 5. Per-file evidence cache (structural invalidation first).
 6. **`balanced`** escalation on top of fast + typed building blocks.
 7. Evidence dependency graph (smart invalidation).
+8. Registry — Python first — see [`registry.md`](./registry.md).
 
 Do not build incremental typed cache before the normalizer boundary exists.
 
@@ -299,9 +300,9 @@ Do not build incremental typed cache before the normalizer boundary exists.
 | Doc | Role |
 |-----|------|
 | [`guardrails.md`](./guardrails.md) | Safety, buckets, stop conditions, PR checklist |
-| [`README.md`](./README.md) | Shipped receipts, phase index, perf budget |
-| [`hoc.md`](./hoc.md) · [`light-dataflow.md`](./light-dataflow.md) · [`cross-file.md`](./cross-file.md) · [`finite-keys.md`](./finite-keys.md) | `fast`-tier heuristic phases |
-| [`ast-tier.md`](./ast-tier.md) | `typed` depth |
-| [`REVIEW.md`](./REVIEW.md) | Before/after review copy |
+| [`README.md`](./README.md) | Shipped receipts, open chain, perf budget |
+| [`ast.md`](./ast.md) | `typed` depth + Track B |
+| [`registry.md`](./registry.md) | Non-JS providers (after AST; Python first) |
+| [`shipped/extractor/`](../../shipped/extractor/) | Closed heuristic slices |
 
 **Do not merge into:** user-facing VitePress until behavior ships.

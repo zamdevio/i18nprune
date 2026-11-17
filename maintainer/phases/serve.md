@@ -1,6 +1,6 @@
 # Phase — `i18nprune serve` (stdio transport)
 
-**Status:** **closing** — S.1–S.5 landed (stdio JSON-RPC goal met). S.6 (optional HTTP) is the only open slice; include it in the same pre-release close-out as extractor if we keep the vertical complete, otherwise defer with an explicit note in [`focus.md`](./focus.md).
+**Status:** **closed for now** — S.1–S.5 landed (stdio JSON-RPC goal met). **S.6 (optional HTTP) deferred** — no client needs it yet; revisit when a host requires loopback HTTP. Focus next: [`extractor/ast.md`](./extractor/ast.md).
 **Tracker:** [`focus.md`](./focus.md) · **Contract:** [ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md) · **User docs:** [`docs/cli/serve.md`](../../docs/cli/serve.md)
 **Implementation home:** `packages/cli/src/serve/` (transport only — ops stay in core `runXxx`)
 **Consumers:** Tauri desktop (planned, develops outside this repo until migration), VS Code extension (own branch), scripted / SSH clients
@@ -55,9 +55,9 @@ Status: **planned** — one slice per PR; parity fixtures unchanged unless a sli
 | **S.3 — Progress + cancel** ✅ | Map `RunEvent` → `$/progress` (op-keyed); `$/cancelRequest` | **Complete.** `op.validate` / `op.sync` / `op.generate` stream `$/progress`; a request cancelled before dispatch returns `SERVE_REQUEST_CANCELLED`, and a running `op.generate` aborts mid-flight through the cooperative `AbortSignal` (core C-signal slice). `capabilities.cancelScope` is `'running'`. See §C-signal below. |
 | **S.4 — Write ops (opt-in)** ✅ | `op.sync` · `op.generate` · `op.cleanup` · `op.locales.delete` behind `--allow-writes`; context invalidation | Writes refused when read-only with `SERVE_WRITES_DISABLED`; that root's `CoreContext` / `localeRead` dropped after a write. `op.cleanup` and `op.locales.delete` required extracting reusable write entries out of their command modules first. |
 | **S.5 — Client docs + smoke** ✅ | `docs/cli/serve.md`, `docs/commands/README.md` row, sidebar entry, manual `wsl.exe` / `ssh` smoke note | `docs/cli/serve.md` published with sidebar + index row; `pnpm docs:sync:verify` passes. Manual WSL/SSH smoke still to do by hand. |
-| **S.6 — Optional HTTP transport** | `127.0.0.1` only, bearer token on stderr, hub mode only | Only if a real client needs it; never the default |
+| **S.6 — Optional HTTP transport** | `127.0.0.1` only, bearer token on stderr, hub mode only | **Deferred** — no client needs it yet; never the default when it ships |
 
-**Ship order:** S.1 → S.2 → S.3 → S.4 → S.5, with S.6 gated on demand.
+**Ship order:** S.1 → S.2 → S.3 → S.4 → S.5 ✅ · S.6 gated on demand (deferred).
 
 ### S.3 note — cancellation design (landed as `'running'`)
 

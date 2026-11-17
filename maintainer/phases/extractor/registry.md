@@ -1,17 +1,20 @@
-# Extractor provider registry (Layer 7 — non-JS languages)
+# Extractor provider registry (non-JS languages)
 
-**Status:** **on hold** — implement only after:
-
-1. **v2 extractor tiers** shipped through **AST tier** ([`ast-tier.md`](./ast-tier.md))
-2. **VS Code extension** released and stable ([`../extension/README.md`](../extension/README.md))
-3. No open regressions on parity / issue codes for the above
-
+**Status:** planned — start only after [`ast.md`](./ast.md) has a solid TS/JS typed path (MVP minimum; Program preferred if already landed).  
 **Goal:** Add **non-JS/TS** file providers behind one core registry without destabilizing the regex-first JS pipeline or cold-scan budget.
 
-**Prerequisites (shipped):** C.1 · E.1–E.6 · D.1 — see [`README.md`](./README.md).  
+**Prerequisites:** Heuristic v2 shipped ([`README.md`](./README.md)) · AST track open/closed per above.  
 **Engineering map:** [`maintainer/systems/extractor.md`](../../systems/extractor.md) · **Architecture:** [`architecture.md`](./architecture.md) · **Guardrails:** [`guardrails.md`](./guardrails.md).
 
-**Not in scope here:** v2 accuracy program ([`hoc.md`](./hoc.md), [`cross-file.md`](./cross-file.md), etc.). Registry work stays **extension-by-language**, not whole-program analysis.
+**Not in scope:** Replacing the JS/TS regex/`typed` path. Registry work is **extension-by-language**, not whole-program analysis.
+
+---
+
+## Language order
+
+1. **TS/JS** — already covered by core + AST (`ast.md`); do not fork a second JS provider story here.
+2. **Python** — first non-JS provider tranche.
+3. **Other languages** — later, one provider at a time.
 
 ---
 
@@ -23,7 +26,7 @@ Today:
 - `extractor/dynamic/providers/index.ts` routes by extension → `javascript.ts` only.
 - Non-`.ts/.tsx/.js/.jsx/.vue/.svelte` files produce **no** observations and **no** dynamic sites.
 
-Layer 7 adds **deterministic per-extension providers** so Python, Ruby, etc. can ship incrementally without forking orchestrators.
+Registry adds **deterministic per-extension providers** so Python (then others) can ship incrementally without forking orchestrators.
 
 ---
 
@@ -63,7 +66,7 @@ packages/core/src/extractor/providers/
   registry.ts
   types.ts
   javascript/
-  python/              # first non-JS tranche (placeholder)
+  python/              # first non-JS tranche
   index.ts
 ```
 
@@ -71,22 +74,22 @@ packages/core/src/extractor/providers/
 
 ## Suggested slices (when unblocked)
 
-| ID | Deliverable | Estimate |
-|----|-------------|----------|
-| **P.1** | `ExtractorFileProvider` type + `registry.ts` + JS provider registered (no behavior change) | ~3–4h |
-| **P.2** | Unified per-file scan helper `{ observations, dynamicSites }` with shared `callId` / offset linking | ~2–3h |
-| **P.3** | Python provider MVP + fixtures | ~6–8h |
-| **P.4** | Capability flags on provider (`supportsTemplates`, `supportsConstMap`) | ~2h |
-| **P.5** | External plugin loading | **deferred** — built-in registry only |
+| ID | Deliverable |
+|----|-------------|
+| **P.1** | `ExtractorFileProvider` type + `registry.ts` + JS provider registered (no behavior change) |
+| **P.2** | Unified per-file scan helper `{ observations, dynamicSites }` with shared `callId` / offset linking |
+| **P.3** | Python provider MVP + fixtures |
+| **P.4** | Capability flags on provider (`supportsTemplates`, `supportsConstMap`) |
+| **P.5** | External plugin loading — **deferred** (built-in registry only) |
 
 ---
 
-## Explicit non-goals (Layer 7)
+## Explicit non-goals
 
-- Replacing regex-first JS path on Tier 0
-- Cross-file const propagation (see [`cross-file.md`](./cross-file.md))
+- Replacing regex-first JS path on `fast`
 - Promoting `candidateKeys` to `provenKeys`
 - Runtime plugin download / arbitrary code execution
+- Cross-file const propagation (already shipped for JS static consts — see receipts)
 
 ---
 

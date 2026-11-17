@@ -20,13 +20,15 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
-| [`extractor/README.md`](./extractor/README.md) | **Now** — close-out: AST/`typed` (HOC §B + finite-keys A shipped; then release with serve) |
-| [`serve.md`](./serve.md) | **Closing** — S.1–S.5 landed; S.6 optional HTTP in the same close-out ([ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md)) |
-| [`extension/README.md`](./extension/README.md) | **Next** (after release) — VS Code extension (own branch) |
-| [`locale-only.md`](./locale-only.md) | **Then** — generate without config / codebase |
-| [`config.md`](./config.md) | **Queued** — `config` layout-aware human + JSON |
-| [`search.md`](./search.md) | **Planned** — `search` command |
-| [`terminal.md`](./terminal.md) | **Research** — terminal protocol exploitation |
+| [`extractor/ast.md`](./extractor/ast.md) | **Now** — opt-in `typed` + finite-keys Track B |
+| [`extractor/registry.md`](./extractor/registry.md) | **Next** — non-JS providers; Python first after AST |
+| [`serve.md`](./serve.md) | **Closed** — S.1–S.5 landed; S.6 deferred ([ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md)) |
+| [`extractor/README.md`](./extractor/README.md) | Hub — heuristic v2 shipped; open = ast → registry |
+| [`extension/README.md`](./extension/README.md) | After registry track — VS Code extension (own branch) |
+| [`locale-only.md`](./locale-only.md) | Locale-only generate |
+| [`config.md`](./config.md) | Queued — `config` layout-aware human + JSON |
+| [`search.md`](./search.md) | Planned — `search` command |
+| [`terminal.md`](./terminal.md) | Research — terminal protocol exploitation |
 
 **Systems maps:** [`systems/README.md`](../systems/README.md) — `cache.md`, `share.md`, `extractor.md`, `exports.md`, …
 
