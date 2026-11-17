@@ -1,6 +1,8 @@
 /**
  * Opt-in HOC / prop-helper expansion (extractor §B).
  * Off by default — unrelated props named `t` are a false-positive risk.
+ *
+ * @sdkTier stable
  */
 export type ExtractorHocOptions = {
   /** When true, treat matching destructured props as translation helpers. Default false. */

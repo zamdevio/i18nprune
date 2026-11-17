@@ -21,6 +21,8 @@ function stripCandidateFields(site: DynamicKeySite): DynamicKeySite {
  * Attach locale-inferred `candidateKeys` for template sites that expose a static /
  * resolved prefix. Idempotent: prior candidate fields are stripped first.
  * Does not mutate `sites` or leaf arrays.
+ *
+ * @sdkTier stable
  */
 export function enrichDynamicSitesWithLocaleCandidates(
   sites: readonly DynamicKeySite[],

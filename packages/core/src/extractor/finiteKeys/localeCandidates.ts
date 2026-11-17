@@ -12,6 +12,8 @@ export type LocaleInferredCandidatesResult = {
  * Walk source-locale leaves under `prefix` and emit locale_inferred candidates.
  * Deterministic sort; capped at {@link FINITE_KEYS_LOCALE_CANDIDATE_CAP}.
  * Never promotes to provenKeys.
+ *
+ * @sdkTier stable
  */
 export function collectLocaleInferredCandidates(
   prefix: string,
