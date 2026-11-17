@@ -49,10 +49,19 @@ function segmentBasenamesFromRelativePaths(relativePaths: readonly string[]): st
   );
 }
 
+/**
+ * Feature folder path(s) before the locale basename (`auth`, `maintenance/details`).
+ * Same rule as `localeStructuralSlot` for `feature_bundle` (BUG-005): everything before the locale file.
+ */
 function featureBasenamesFromRelativePaths(relativePaths: readonly string[]): string[] {
-  return [...new Set(relativePaths.map((rel) => rel.slice(0, rel.indexOf('/'))))].sort((a, b) =>
-    a.localeCompare(b),
-  );
+  return [
+    ...new Set(
+      relativePaths.map((rel) => {
+        const slash = rel.lastIndexOf('/');
+        return slash < 0 ? rel.replace(/\.json$/i, '') : rel.slice(0, slash);
+      }),
+    ),
+  ].sort((a, b) => a.localeCompare(b));
 }
 
 /** How generated loaders should import JSON for each locale code. */

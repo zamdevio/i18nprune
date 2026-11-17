@@ -145,7 +145,7 @@ i18nprune supports real-world locale repository topologies without forcing a sin
 
 - `flat_file` (default): `locales/en.json`, `locales/fr.json`
 - `locale_directory` + `locale_per_dir`: `messages/en/common.json`, `messages/fr/common.json`
-- `locale_directory` + `feature_bundle`: `messages/auth/en.json`, `messages/auth/fr.json`
+- `locale_directory` + `feature_bundle`: `messages/auth/en.json`, `messages/maintenance/details/en.json` (nested OK, depth ≤16; loaders deep-merge)
 
 Key behavior:
 

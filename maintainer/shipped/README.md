@@ -14,6 +14,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | Week | Theme | Doc |
 |------|-------|-----|
+| 2026-W47 | **Deep-merge loaders** + **nested feature_bundle** (BUG-004/005) — in-tree, next release after 1.1.1 | [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) |
 | 2026-W42 | **Cleanup uncertain-prefix protection** → **1.1.1** · kits source resolution · **extractor light-dataflow + cross-file** | [`locale/cleanup-uncertain-protection.md`](./locale/cleanup-uncertain-protection.md) · [`extractor/light-dataflow.md`](./extractor/light-dataflow.md) · [`extractor/cross-file.md`](./extractor/cross-file.md) |
 | 2026-W37 | **Preserve + sync** → **1.0.3** · **Extractor HOC §A** (hooks + one-hop) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) · [`extractor/hoc-a.md`](./extractor/hoc-a.md) |
 | 2026-W28 | **v1.0.0 kits** + **v1.0.1 sentinel repair** + export publish gate | [`kits/kits.md`](./kits/kits.md) · [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) · [`exports/governance.md`](./exports/governance.md) |
@@ -34,6 +35,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 
 | ID | Week | One-line | Doc |
 |----|------|----------|-----|
+| **BUG-004/005** | W47 | deep-merge multi-segment loaders + nested `feature_bundle` basenames (≤16) | [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) |
 | **BUG-001/002/003** | W42 | cleanup uncertain-prefix parity (source + `--target`) + layout-aware kits/review source | [`locale/cleanup-uncertain-protection.md`](./locale/cleanup-uncertain-protection.md) |
 | **Light-dataflow** | W42 | same-file chains (`const b = a`) + mixed-template folding → `non_literal` hints / sharper `staticPrefix` | [`extractor/light-dataflow.md`](./extractor/light-dataflow.md) |
 | **Cross-file** | W42 | imported static const index (`import { NS } from './constants'`) → fold cross-file templates | [`extractor/cross-file.md`](./extractor/cross-file.md) |
@@ -68,6 +70,7 @@ Closed slices only — check here before re-implementing. Durable engineering de
 | Engine & cache | W20–W21 | [`cache/generate.md`](./cache/generate.md) · [`cache/cache.md`](./cache/cache.md) · [`cache/init.md`](./cache/init.md) |
 | Locale preserve-sync | W37 (v1.0.3) | [`locale/preserve-sync.md`](./locale/preserve-sync.md) |
 | Locale cleanup protection | W42 (v1.1.1) | [`locale/cleanup-uncertain-protection.md`](./locale/cleanup-uncertain-protection.md) |
+| Locale deep-merge + nested feature_bundle | W47 (post-1.1.1) | [`locale/deep-merge-nested-feature-bundle.md`](./locale/deep-merge-nested-feature-bundle.md) |
 | Locale sentinel repair | W28 (v1.0.1 patch) | [`locale/sentinel-repair.md`](./locale/sentinel-repair.md) |
 | Core & foundation | W15–W19 | [`core/core.md`](./core/core.md) |
 

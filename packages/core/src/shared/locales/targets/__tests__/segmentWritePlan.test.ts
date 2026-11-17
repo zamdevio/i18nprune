@@ -41,6 +41,16 @@ describe('swapLocaleInSegmentRelativePath', () => {
       }),
     ).toBe('app/es.json');
   });
+
+  it('BUG-005: feature_bundle nested path keeps feature dirs when swapping locale', () => {
+    expect(
+      swapLocaleInSegmentRelativePath({
+        structure: 'feature_bundle',
+        relativePath: 'maintenance/details/en.json',
+        targetLocale: 'so',
+      }),
+    ).toBe('maintenance/details/so.json');
+  });
 });
 
 describe('resolveLocaleSegmentAbsolutePath + swap', () => {

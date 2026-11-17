@@ -132,6 +132,35 @@ describe('listLocaleSegments / listLocaleCodes', () => {
     ]);
     expect(listLocaleCodes({ layout, fs, path }).codes).toEqual(['en', 'fr']);
   });
+
+  it('BUG-005: feature_bundle discovers nested feature paths within depth 16', () => {
+    const root = '/proj/locales';
+    const layout = resolveLocalesLayout(
+      {
+        source: 'en',
+        directory: 'locales',
+        mode: 'locale_directory',
+        structure: 'feature_bundle',
+      },
+      root,
+    );
+    const fs = createMemFs({
+      [`${root}/dashboard/en.json`]: '{}',
+      [`${root}/login/en.json`]: '{}',
+      [`${root}/maintenance/details/en.json`]: '{}',
+      [`${root}/maintenance/list/en.json`]: '{}',
+      [`${root}/maintenance/details/so.json`]: '{}',
+    });
+    const { segments } = listLocaleSegments({ layout, fs, path });
+    expect(segments.map((s) => `${s.locale}:${s.relativePath}`).sort()).toEqual([
+      'en:dashboard/en.json',
+      'en:login/en.json',
+      'en:maintenance/details/en.json',
+      'en:maintenance/list/en.json',
+      'so:maintenance/details/so.json',
+    ]);
+    expect(listLocaleCodes({ layout, fs, path }).codes).toEqual(['en', 'so']);
+  });
 });
 
 describe('resolveLocaleSegmentAbsolutePath / localeSegmentRefFromAbsolute', () => {

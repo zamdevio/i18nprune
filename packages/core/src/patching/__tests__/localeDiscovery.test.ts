@@ -126,6 +126,63 @@ describe('patching locale layout discovery', () => {
     expect(inner).toContain('Promise.all');
   });
 
+  it('BUG-004: multi-segment loader deep-merges instead of Object.assign', () => {
+    const inner = renderGeneratedInnerBlock({
+      records: [{ code: 'en', englishName: 'English', nativeName: 'English', direction: 'ltr' }],
+      importBase: '../../messages',
+      localeImportSpec: { kind: 'locale_per_dir', segmentBasenames: ['a', 'b'] },
+    });
+    expect(inner).toContain('function deepMergeLocaleMessages');
+    expect(inner).toContain('deepMergeLocaleMessages(');
+    expect(inner).not.toMatch(/Object\.assign\(\s*\{\}\s*,\s*\.\.\.mods/);
+  });
+
+  it('BUG-005: nested feature_bundle paths keep full feature basenames in loader imports', () => {
+    const root = makeTempDir();
+    const messages = path.join(root, 'messages');
+    for (const feature of ['dashboard', 'login', 'maintenance/details', 'maintenance/list']) {
+      const dir = path.join(messages, ...feature.split('/'));
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, 'en.json'), '{}', 'utf8');
+      fs.writeFileSync(path.join(dir, 'so.json'), '{}', 'utf8');
+    }
+    const rt = createNodeRuntimeAdapters();
+    const layout: ResolvedLocalesLayout = {
+      mode: 'locale_directory',
+      structure: 'feature_bundle',
+      directoryAbsolute: messages,
+      config: {
+        source: 'en',
+        directory: 'messages',
+        mode: 'locale_directory',
+        structure: 'feature_bundle',
+      },
+    };
+    const spec = resolvePatchingLocaleImportSpec({
+      layout,
+      runtime: rt,
+      localesDir: messages,
+      sourceLocaleCode: 'en',
+    });
+    expect(spec).toEqual({
+      kind: 'feature_bundle',
+      featureBasenames: ['dashboard', 'login', 'maintenance/details', 'maintenance/list'],
+    });
+    const inner = renderGeneratedInnerBlock({
+      records: [
+        { code: 'en', englishName: 'English', nativeName: 'English', direction: 'ltr' },
+        { code: 'so', englishName: 'Somali', nativeName: 'Soomaali', direction: 'ltr' },
+      ],
+      importBase: '../../messages',
+      localeImportSpec: spec,
+    });
+    expect(inner).toContain('../../messages/dashboard/en.json');
+    expect(inner).toContain('../../messages/maintenance/details/en.json');
+    expect(inner).toContain('../../messages/maintenance/list/en.json');
+    expect(inner).not.toContain('../../messages/maintenance/en.json');
+    expect(inner).toContain('deepMergeLocaleMessages');
+  });
+
   it('removes bogus segment-as-locale drift via delete_locales plan', async () => {
     const root = makeTempDir();
     const { layout, configPath, loaderPath } = writeLocalePerDirFixture(root);

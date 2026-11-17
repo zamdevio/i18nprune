@@ -38,7 +38,7 @@ This file is **generic and self-pruning**: a bug lives here only while it is ope
 | id | Title | Area | Severity | Status | Verified against |
 |----|-------|------|----------|--------|------------------|
 
-_No open defects._ `BUG-001`, `BUG-002`, and `BUG-003` all landed in v1.1.1 — see [`shipped/locale/cleanup-uncertain-protection.md`](../shipped/locale/cleanup-uncertain-protection.md).
+_No open defects._ `BUG-001`–`BUG-003` landed in v1.1.1 — see [`shipped/locale/cleanup-uncertain-protection.md`](../shipped/locale/cleanup-uncertain-protection.md). `BUG-004` / `BUG-005` fixed in-tree — see [`shipped/locale/deep-merge-nested-feature-bundle.md`](../shipped/locale/deep-merge-nested-feature-bundle.md).
 
 ---
 

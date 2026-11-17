@@ -15,6 +15,9 @@ describe('localeStructuralSlot', () => {
   it('maps feature_bundle paths to feature directory', () => {
     expect(localeStructuralSlot('feature_bundle', 'auth/en.json')).toBe('auth');
     expect(localeStructuralSlot('feature_bundle', 'dashboard/en.json')).toBe('dashboard');
+    expect(localeStructuralSlot('feature_bundle', 'maintenance/details/en.json')).toBe(
+      'maintenance/details',
+    );
   });
 });
 

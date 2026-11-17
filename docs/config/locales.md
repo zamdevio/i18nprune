@@ -19,9 +19,20 @@ Use the `locales` config block to control source locale code, locale directory, 
 |---|---|---|---|
 | Flat files | `flat_file` (default) | `locale_file` (implicit) | `locales/en.json`, `locales/fr.json` |
 | Per-locale folders | `locale_directory` | `locale_per_dir` | `messages/en/common.json`, `messages/fr/common.json` |
-| Feature bundles | `locale_directory` | `feature_bundle` | `messages/auth/en.json`, `messages/auth/fr.json` |
+| Feature bundles | `locale_directory` | `feature_bundle` | `messages/auth/en.json`, `messages/maintenance/details/en.json` |
 
 When `mode` is `locale_directory`, `structure` is required.
+
+### Nested segments
+
+Both `locale_per_dir` and `feature_bundle` walk nested folders under `locales.directory` up to depth **16** (`MAX_LOCALE_SEGMENT_TREE_DEPTH`).
+
+| Structure | Nested example |
+|---|---|
+| `locale_per_dir` | `messages/en/pages/dashboard.json` |
+| `feature_bundle` | `messages/maintenance/details/en.json`, `messages/maintenance/list/so.json` |
+
+Generated multi-segment loaders **deep-merge** segment JSON (overlapping object layers keep all leaves). Same leaf path in two files: later segment wins. Sync / generate / cleanup already address each file by structural slot; nested feature paths swap only the locale basename (`…/details/en.json` → `…/details/so.json`).
 
 ## Schema-first behavior
 
