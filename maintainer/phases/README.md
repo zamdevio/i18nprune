@@ -20,7 +20,7 @@ Scratch / spikes: **`maintainer/temp/`** (gitignored).
 
 | Doc | Status |
 |-----|--------|
-| [`extractor/README.md`](./extractor/README.md) | **Now** — close-out: finite-keys → HOC §B → AST/`typed` (then release with serve) |
+| [`extractor/README.md`](./extractor/README.md) | **Now** — close-out: HOC §B → AST/`typed` (finite-keys A shipped; then release with serve) |
 | [`serve.md`](./serve.md) | **Closing** — S.1–S.5 landed; S.6 optional HTTP in the same close-out ([ADR 012](../../docs/architecture/decisions/012-cli-serve-transport.md)) |
 | [`extension/README.md`](./extension/README.md) | **Next** (after release) — VS Code extension (own branch) |
 | [`locale-only.md`](./locale-only.md) | **Then** — generate without config / codebase |

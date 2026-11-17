@@ -1,5 +1,6 @@
 # Phase — Finite key set expansion
 
+**Status:** **Track A shipped** (locale-assisted) — receipt [`shipped/extractor/finite-keys-a.md`](../../shipped/extractor/finite-keys-a.md). Track B (typed unions) waits on AST/`typed`.  
 **Depth:** `fast` (locale-assisted) · `typed` (union hints, opt-in)  
 **Perf budget:** locale pass +0–100 ms (tree walk on loaded source locale JSON, already in memory for validate)  
 **Prerequisite:** E.1 `staticPrefix` / uncertain prefixes stable  

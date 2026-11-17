@@ -36,7 +36,9 @@ readFile → expandEffectiveFunctions (bindings + HOC §A locals) → effectiveF
 | `extractor/shared/` | Cross-cutting utilities: project source scan (`projectScan.ts`), JS/TS-like lexical ranges (`jslikeTextRanges.ts`), literal key collection (`literals.ts`), translation call matching (`calls.ts`, `pattern.ts`), template prefix roots (`template.ts`), template used-root hints (`roots.ts`). |
 | `extractor/constmap/` | `const` string map for template prefix substitution. |
 | `extractor/dynamic/` | Dynamic key heuristics and JS-like providers. |
+| `extractor/finiteKeys/` | Locale-assisted (Track A) / typed (Track B) `candidateKeys` enrichment — analysis wires after locale read. |
 | `extractor/keySites/` | Literal / template key observations. |
+| `extractor/crossfile/` | Imported static string const index + per-file overlay. |
 
 ---
 

@@ -1,7 +1,7 @@
 # Extractor — phases hub
 
-**Status:** **C.1 + E.1–E.6 + D.1 + HOC §A + light-dataflow + cross-file shipped** on `main`.  
-**Close-out (before next release):** finish the rest of the v2 accuracy stack — **finite-keys → HOC §B → AST/`typed`** — then ship with serve close-out in one cut ([`../focus.md`](../focus.md)). Provider registry stays on hold.  
+**Status:** **C.1 + E.1–E.6 + D.1 + HOC §A + light-dataflow + cross-file + finite-keys Track A shipped** on `main`.  
+**Close-out (before next release):** **HOC §B → AST/`typed`** (Track B typed unions rides with AST) — then ship with serve close-out in one cut ([`../focus.md`](../focus.md)). Provider registry stays on hold.  
 **Implementation:** `packages/core/src/extractor/**` · **Engineering map:** [`maintainer/systems/extractor.md`](../../systems/extractor.md) · **Receipts:** [`shipped/README.md`](../../shipped/README.md).
 
 **User docs:** [`docs/architecture/extraction/`](../../../docs/architecture/extraction/README.md) · **Inventory:** [`docs/edge-cases/unsolved/inventory.md`](../../../docs/edge-cases/unsolved/inventory.md).
@@ -18,6 +18,9 @@
 | **E.1–E.6** | Mixed-template fusion, const-map, non-literal hints, lexical safety, comment parity, `locales dynamic` groups | [`shipped/extractor/fusion.md`](../../shipped/extractor/fusion.md) |
 | **D.1** | Active vs commented dynamic counts — `dynamicActive` / `dynamicCommented` in analysis + CLI/JSON | [`shipped/extractor/fusion.md`](../../shipped/extractor/fusion.md) · [`docs/dynamic/README.md`](../../../docs/dynamic/README.md) |
 | **HOC §A** | Hook presets (`useTranslation` / `useTranslations` → `t`) + same-file one-hop aliases | [`shipped/extractor/hoc-a.md`](../../shipped/extractor/hoc-a.md) |
+| **Light-dataflow** | Same-file assignment chains + mixed-template folding | [`shipped/extractor/light-dataflow.md`](../../shipped/extractor/light-dataflow.md) |
+| **Cross-file** | Imported static string consts → fold templates | [`shipped/extractor/cross-file.md`](../../shipped/extractor/cross-file.md) |
+| **Finite-keys A** | Locale-assisted `candidateKeys` under `staticPrefix` (never proven) | [`shipped/extractor/finite-keys-a.md`](../../shipped/extractor/finite-keys-a.md) |
 
 ### C.1 detail
 
@@ -59,9 +62,9 @@
 
 ```txt
 v2 close-out (this release cut):
-  finite-keys (Track A locale-assisted → Track B typed unions with AST)
+  ~~finite-keys Track A~~
   → HOC §B (opt-in prop / HOC `t` passing)
-  → AST tier (`extractor.depth: 'typed'`)
+  → AST tier (`extractor.depth: 'typed'`) + finite-keys Track B
   → one release with serve close-out
 
 after that release:
@@ -95,11 +98,11 @@ Rules: lazy skips inside `fast`; indexes built once per scan; dogfood benchmark 
 | **HOC** | [`hoc.md`](./hoc.md) | §A hooks, one-hop `tt = t` **shipped**; §B props / HOC `t` passing opt-in | `fast` |
 | **Light dataflow** | [`light-dataflow.md`](./light-dataflow.md) | Same-file def-use without full AST — **shipped** (chains + mixed-template folding) | `fast` |
 | **Cross-file** | [`cross-file.md`](./cross-file.md) | `export const NS` via static import graph — **shipped** (static string consts; tsconfig `paths` parked) | `fast` |
-| **Finite keys** | [`finite-keys.md`](./finite-keys.md) | Locale-assisted + optional typed unions | `fast` / `typed` |
+| **Finite keys** | [`finite-keys.md`](./finite-keys.md) | Track A locale-assisted **shipped**; Track B typed unions with AST | `fast` / `typed` |
 | **AST tier** | [`ast-tier.md`](./ast-tier.md) | Opt-in TypeScript/SWC assist | `typed` |
 | **Provider registry** | [`provider-registry.md`](./provider-registry.md) | **On hold** — non-JS file providers | After `typed` + extension |
 
-**Suggested ship order:** ~~HOC §A~~ → ~~light-dataflow~~ → ~~cross-file~~ → **finite-keys → HOC §B → AST tier** (close-out, one release) → extension → provider registry.
+**Suggested ship order:** ~~HOC §A~~ → ~~light-dataflow~~ → ~~cross-file~~ → ~~finite-keys A~~ → **HOC §B → AST tier** (incl. finite-keys B; close-out, one release) → extension → provider registry.
 
 ---
 
@@ -120,7 +123,7 @@ Rules: lazy skips inside `fast`; indexes built once per scan; dogfood benchmark 
 ## Where to start (next slice)
 
 1. Triage open inventory items tagged to this hub ([`inventory.md`](../../../docs/edge-cases/unsolved/inventory.md)).
-2. Close-out order: **finite-keys** (Track A first) → **HOC §B** → **AST/`typed`** (includes finite-keys Track B). Do not skip AST if the goal is “extractor done” for this release.
+2. Close-out order: **HOC §B** → **AST/`typed`** (includes finite-keys Track B). Do not skip AST if the goal is “extractor done” for this release.
 3. Keep parity discipline: `--json` envelope, issue codes, exit codes unchanged on refactors (additive JSON only). Default path stays `fast`; AST cost is opt-in only.
 
 ---
